@@ -1,0 +1,135 @@
+<!ENTITY xulmigemo.title                   "XUL/Migemoの設定">
+
+
+<!ENTITY xulmigemo.tab.general             "全般">
+
+<!ENTITY xulmigemo.caption.start           "起動">
+<!ENTITY xulmigemo.autostart               "自動的にMigemo検索を始める">
+<!ENTITY xulmigemo.linksonly               "リンク内の文字列だけを検索する">
+<!ENTITY xulmigemo.startfromviewport       "現在見えている領域内から検索を始める">
+
+<!ENTITY xulmigemo.caption.recognize       "文字の認識">
+<!ENTITY xulmigemo.ignoreHiraKata          "ひらがなとカタカナの違いを無視する">
+<!ENTITY xulmigemo.splitTermsAutomatically "文節の切れ目を自動的に認識する">
+
+<!ENTITY xulmigemo.caption.timeout         "タイムアウト">
+<!ENTITY xulmigemo.enabletimeout           "自動的にMigemo検索を終了する">
+<!ENTITY xulmigemo.timeout.before          "最後の入力から">
+<!ENTITY xulmigemo.timeout.after           "ミリ秒経過したら終了する">
+
+
+<!ENTITY xulmigemo.tab.appearance          "表示">
+
+<!ENTITY xulmigemo.enabletimeout.indicator "タイムアウトまでの残り時間を表示する">
+<!ENTITY xulmigemo.appearance.indicator.height.before "残り時間を表示するバーの高さ：">
+<!ENTITY xulmigemo.appearance.indicator.height.after "ピクセル（0＝標準の高さ）">
+<!ENTITY xulmigemo.appearance.migemobar.overlay "Migemo検索の切り替えチェックボックスを検索ツールバーに重ねる">
+
+
+<!ENTITY xulmigemo.tab.dictionary          "辞書">
+
+<!ENTITY xulmigemo.caption.dic             "辞書フォルダ">
+<!ENTITY xulmigemo.dic.useInitializeWizard "起動時に辞書が見つからないときはウィザードを表示する">
+<!ENTITY xulmigemo.dic.find                "参照...">
+
+<!ENTITY xulmigemo.dic.showManager         "辞書の管理">
+
+<!ENTITY xulmigemo.caption.cache           "一時ファイル">
+<!ENTITY xulmigemo.cache.update.time       "一時ファイルを生成する頻度">
+<!ENTITY xulmigemo.cache.update.time.max   "高">
+<!ENTITY xulmigemo.cache.update.time.min   "低">
+<!ENTITY xulmigemo.cache.update.time.indicator.above "">
+<!ENTITY xulmigemo.cache.update.time.indicator.before "辞書の読み込みに">
+<!ENTITY xulmigemo.cache.update.time.indicator.after  "ミリ秒以上">
+<!ENTITY xulmigemo.cache.update.time.indicator.below  "かかったら一時ファイルを生成する">
+<!ENTITY xulmigemo.cache.update.time.now   "今すぐキャッシュを更新">
+
+
+<!ENTITY xulmigemo.tab.shortcut            "ショートカットキー">
+
+<!ENTITY xulmigemo.shortcut.findForward    "次を検索">
+<!ENTITY xulmigemo.shortcut.findBackward   "前を検索">
+<!ENTITY xulmigemo.shortcut.manualStart    "Migemo検索を開始">
+<!ENTITY xulmigemo.shortcut.manualStartLinksOnly "Migemo検索を開始（リンク文字列のみ検索）">
+<!ENTITY xulmigemo.shortcut.goDicManager   "辞書マネージャを開く">
+
+<!ENTITY xulmigemo.shortcut.set            "変更">
+<!ENTITY xulmigemo.shortcut.clear          "消去">
+<!ENTITY xulmigemo.shortcut.dialog.message "ショートカットに使いたいキーを押してください">
+<!ENTITY xulmigemo.shortcut.dialog.button  "キャンセル">
+
+
+
+
+
+<!ENTITY xulmigemo.dicManager.title        "XUL/Migemo辞書の管理">
+
+<!ENTITY xulmigemo.dicManager.tab.add      "語句の追加">
+
+<!ENTITY xulmigemo.dicManager.add.yomi     "読み">
+<!ENTITY xulmigemo.dicManager.add.term     "語句">
+<!ENTITY xulmigemo.dicManager.add.addTerm  "語句を追加">
+
+<!ENTITY xulmigemo.dicManager.add.success      "語句をユーザ辞書に追加しました。">
+<!ENTITY xulmigemo.dicManager.add.errorNoTerm  "エラー：語句が入力されていません。">
+<!ENTITY xulmigemo.dicManager.add.errorInvalid "エラー：読みは半角英数字のみ、もしくは、ひらがなのみで入力してください。">
+<!ENTITY xulmigemo.dicManager.add.errorExist   "エラー：この語句はすでに登録されています。">
+
+<!ENTITY xulmigemo.dicManager.tab.remove         "語句の削除">
+
+<!ENTITY xulmigemo.dicManager.remove.yomi        "読み">
+<!ENTITY xulmigemo.dicManager.remove.term        "語句">
+<!ENTITY xulmigemo.dicManager.remove.description "語句の入力を省略すると、同じ読みの語をすべて削除します。">
+<!ENTITY xulmigemo.dicManager.remove.removeTerm  "語句を削除">
+
+<!ENTITY xulmigemo.dicManager.remove.success      "語句をユーザ辞書から削除しました。">
+<!ENTITY xulmigemo.dicManager.remove.errorInvalid "エラー：読みは半角英数字のみ、もしくは、ひらがなのみで入力してください。">
+<!ENTITY xulmigemo.dicManager.remove.errorNotExist   "エラー：システム辞書の語句は削除できません。">
+
+<!ENTITY xulmigemo.dicManager.tab.list           "語句の一覧">
+
+<!ENTITY xulmigemo.dicManager.list.roman        "検索キー（読み）">
+<!ENTITY xulmigemo.dicManager.list.keys         "読み">
+<!ENTITY xulmigemo.dicManager.list.terms        "語句">
+<!ENTITY xulmigemo.dicManager.list.dic          "辞書の選択：">
+<!ENTITY xulmigemo.dicManager.list.fromUserDic   "ユーザ辞書">
+<!ENTITY xulmigemo.dicManager.list.fromSystemDic "システム辞書">
+<!ENTITY xulmigemo.dicManager.list.fromAllDic    "両方">
+<!ENTITY xulmigemo.dicManager.list.addTerm      "この読みで語句を追加">
+<!ENTITY xulmigemo.dicManager.list.removeTermEntry "この読みの語句をすべて削除">
+<!ENTITY xulmigemo.dicManager.list.removeTerm   "語句を削除">
+
+<!ENTITY xulmigemo.dicManager.list.promptAdd "追加する語句を入力してください：">
+<!ENTITY xulmigemo.dicManager.list.successAdd "語句をユーザ辞書に追加しました。">
+<!ENTITY xulmigemo.dicManager.list.successRemove "語句をユーザ辞書から削除しました。">
+<!ENTITY xulmigemo.dicManager.list.errorExist   "エラー：この語句はすでに登録されています。">
+<!ENTITY xulmigemo.dicManager.list.errorNotInUserDic "エラー：システム辞書の語句は削除できません。">
+
+
+
+<!ENTITY xulmigemo.init.title  "XUL/Migemo [Forked Edition] 初期化ウィザード">
+
+<!ENTITY xulmigemo.init.page1.label1  "Migemo検索（ローマ字入力による日本語の逐語検索）用の辞書が見つかりません。Migemo検索を行うには辞書の設定が必要です。操作を選択してください。">
+<!ENTITY xulmigemo.init.page1.radio.download "インターネットから辞書ファイルを自動的にダウンロードする">
+<!ENTITY xulmigemo.init.page1.radio.choose   "すでにインストール済みの辞書を使う">
+<!ENTITY xulmigemo.init.page1.radio.later    "今は初期設定を行わない">
+
+
+<!ENTITY xulmigemo.init.download.title    "インターネットから辞書ファイルを自動的にダウンロードする">
+
+<!ENTITY xulmigemo.init.download.page1.label1  "インターネットからXUL/Migemo用の辞書ファイルをダウンロードしてインストールします。通信回線の状況によってはしばらく時間がかかる場合があります。続行する場合は「次へ」を押してください。">
+
+<!ENTITY xulmigemo.init.download.page2.label.download  "辞書ファイルをダウンロードしています...">
+<!ENTITY xulmigemo.init.download.page2.label.progress  "辞書ファイルのダウンロードを&#37;s&#37;完了">
+<!ENTITY xulmigemo.init.download.page2.label.install  "辞書ファイルをインストールしています...">
+<!ENTITY xulmigemo.init.download.page2.label.complete  "辞書ファイルのインストールが完了しました">
+<!ENTITY xulmigemo.init.download.page2.label.error  "通信中もしくはダウンロードしたファイルの展開中に何らかのエラーが発生したため、辞書のインストールに失敗しました。">
+
+
+<!ENTITY xulmigemo.init.choose.title    "すでにインストール済みの辞書ファイルを使う">
+<!ENTITY xulmigemo.init.choose.page1.label1  "インストール済みの辞書フォルダの場所を入力してください。">
+<!ENTITY xulmigemo.init.choose.page1.find  "参照...">
+
+
+<!ENTITY xulmigemo.init.final.label1  "辞書の初期設定が終わりました。">
+

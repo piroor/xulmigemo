@@ -1,0 +1,235 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin/"?>
+
+<!DOCTYPE dialog [
+<!ENTITY % mainDTD SYSTEM "chrome://xulmigemo/locale/xulmigemo.dtd">
+%mainDTD;
+]>
+
+<dialog id="xulmigemo-dictionary-manager"
+	windowtype="xulmigemo:dictionaryManager"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	title="&xulmigemo.dicManager.title;"
+	persist="screenX,screenY"
+	buttons="accept"
+	onload="Startup();">
+
+
+
+
+<tabbox orient="vertical">
+<tabs>
+	<tab label="&xulmigemo.dicManager.tab.add;"/>
+	<tab label="&xulmigemo.dicManager.tab.remove;"/>
+	<tab label="&xulmigemo.dicManager.tab.list;"/>
+</tabs>
+<tabpanels>
+
+
+<tabpanel orient="vertical" id="panel-add">
+	<grid>
+		<columns>
+			<column/>
+			<column flex="1"/>
+		</columns>
+		<rows>
+			<row align="center">
+				<label value="&xulmigemo.dicManager.add.yomi;"/>
+				<textbox id="add-yomi" flex="1"
+					oninput="updateStatus('addStatus');"
+					onkeypress="handleKeyInput(event, {
+						next : ['focus',     'add-term']
+					});"/>
+			</row>
+			<row align="center">
+				<label value="&xulmigemo.dicManager.add.term;"/>
+				<textbox id="add-term" flex="1"
+					oninput="updateStatus('addStatus');"
+					onkeypress="handleKeyInput(event, {
+						prev : ['focus',     'add-yomi'],
+						next : ['oncommand', 'addTermButton']
+					});"/>
+			</row>
+		</rows>
+	</grid>
+	<hbox>
+		<spacer flex="1"/>
+		<button id="addTermButton"
+			label="&xulmigemo.dicManager.add.addTerm;"
+			oncommand="addTerm()"/>
+	</hbox>
+	<description id="addStatus"
+		flex="1"
+		style="min-height: 5em; border: thin -moz-bg-inset; padding: 0.5em;"
+		statusSuccess="&xulmigemo.dicManager.add.success;"
+		statusErrorNoTerm="&xulmigemo.dicManager.add.errorNoTerm;"
+		statusErrorInvalid="&xulmigemo.dicManager.add.errorInvalid;"
+		statusErrorExist="&xulmigemo.dicManager.add.errorExist;"/>
+</tabpanel>
+
+
+<tabpanel orient="vertical" id="panel-remove">
+	<grid>
+		<columns>
+			<column/>
+			<column flex="1"/>
+		</columns>
+		<rows>
+			<row align="center">
+				<label value="&xulmigemo.dicManager.remove.yomi;"/>
+				<textbox id="remove-yomi" flex="1"
+					oninput="updateStatus('removeStatus');"
+					onkeypress="handleKeyInput(event, {
+						next : ['focus', 'remove-term']
+					});"/>
+			</row>
+			<row align="center">
+				<label value="&xulmigemo.dicManager.remove.term;"/>
+				<textbox id="remove-term" flex="1"
+					oninput="updateStatus('removeStatus');"
+					onkeypress="handleKeyInput(event, {
+						prev : ['focus',     'remove-yomi'],
+						next : ['oncommand', 'removeTermButton']
+					});"/>
+			</row>
+		</rows>
+	</grid>
+	<hbox align="center">
+		<description flex="1">
+			&xulmigemo.dicManager.remove.description;
+		</description>
+		<button id="removeTermButton"
+			label="&xulmigemo.dicManager.remove.removeTerm;"
+			oncommand="removeTerm()"/>
+	</hbox>
+	<description id="removeStatus"
+		flex="1"
+		style="min-height: 5em; border: thin -moz-bg-inset; padding: 0.5em;"
+		statusSuccess="&xulmigemo.dicManager.remove.success;"
+		statusErrorInvalid="&xulmigemo.dicManager.remove.errorInvalid;"
+		statusErrorNotExist="&xulmigemo.dicManager.remove.errorNotExist;"/>
+</tabpanel>
+
+
+<tabpanel orient="vertical" id="panel-list">
+	<hbox align="center">
+		<label value="&xulmigemo.dicManager.list.roman;"/>
+		<textbox id="list-roman" flex="1"
+			oninput="onListRomanInput();"
+			onkeypress="handleKeyInput(event, {
+				next : ['focus',     'list-keys']
+			});"/>
+	</hbox>
+	<hbox align="center">
+		<label value="&xulmigemo.dicManager.list.dic;"/>
+		<radiogroup id="list-target" orient="horizontal" align="center"
+			oncommand="onChangeDictionary()">
+			<radio id="list-target-user"
+				label="&xulmigemo.dicManager.list.fromUserDic;"
+				selected="true"
+				value="user"/>
+			<radio id="list-target-system"
+				label="&xulmigemo.dicManager.list.fromSystemDic;"
+				value="system"/>
+			<radio id="list-target-all"
+				label="&xulmigemo.dicManager.list.fromAllDic;"
+				value="all"/>
+		</radiogroup>
+	</hbox>
+	<hbox style="min-width: 12em; min-height: 13em;">
+		<vbox flex="1">
+			<label value="&xulmigemo.dicManager.list.keys;"/>
+			<listbox id="list-keys" flex="1"
+				onselect="updateTermsList()"
+				onkeypress="handleKeyInput(event, {
+					prev : ['focus', 'list-roman'],
+					next : ['focus', 'list-terms'],
+					del  : function() { removeTermList(true); }
+				});"
+				context="list-context"/>
+		</vbox>
+		<splitter/>
+		<vbox flex="1">
+			<label value="&xulmigemo.dicManager.list.terms;"/>
+			<listbox id="list-terms" flex="1"
+				onselect="updateListCommands()"
+				onkeypress="handleKeyInput(event, {
+					prev : ['focus', 'list-keys'],
+					del  : function() { removeTermList(); }
+				});"
+				context="list-context"/>
+		</vbox>
+	</hbox>
+	<hbox align="center">
+		<button id="addTerm"
+			disabled="true"
+			label="&xulmigemo.dicManager.list.addTerm;"
+			oncommand="addTermList()"
+			observes="listAddCommand"/>
+		<spacer flex="1"/>
+		<button id="removeTermButtonList"
+			disabled="true"
+			label="&xulmigemo.dicManager.list.removeTerm;"
+			oncommand="removeTermList()"
+			observes="listRemoveOneCommand"/>
+		<button id="removeTermEntryButtonList"
+			disabled="true"
+			label="&xulmigemo.dicManager.list.removeTermEntry;"
+			oncommand="removeTermList(true)"
+			observes="listRemoveCommand"/>
+	</hbox>
+
+	<popupset>
+		<popup id="list-context"
+			onpopupshowing="initListContext()">
+			<menuitem disabled="true"
+				label="&xulmigemo.dicManager.list.addTerm;"
+				oncommand="addTermList()"
+				observes="listAddCommand"/>
+			<menuseparator/>
+			<menuitem id="listContextRemoveTerm" disabled="true"
+				label="&xulmigemo.dicManager.list.removeTerm;"
+				oncommand="removeTermList()"
+				observes="listRemoveOneCommand"/>
+			<menuitem disabled="true"
+				label="&xulmigemo.dicManager.list.removeTermEntry;"
+				oncommand="removeTermList(true)"
+				observes="listRemoveCommand"/>
+		</popup>
+	</popupset>
+
+	<broadcasterset>
+		<broadcaster id="listAddCommand"
+			disabled="true"/>
+		<broadcaster id="listRemoveOneCommand"
+			disabled="true"/>
+		<broadcaster id="listRemoveCommand"
+			disabled="true"/>
+	</broadcasterset>
+	<data id="listStatus"
+		promptAddTerm="&xulmigemo.dicManager.list.promptAdd;"
+		statusAddSuccess="&xulmigemo.dicManager.list.successAdd;"
+		statusRemoveSuccess="&xulmigemo.dicManager.list.successRemove;"
+		statusErrorExist="&xulmigemo.dicManager.list.errorExist;"
+		statusErrorNotInUserDic="&xulmigemo.dicManager.list.errorNotInUserDic;"/>
+</tabpanel>
+
+
+</tabpanels>
+</tabbox>
+
+
+<stringbundleset>
+	<stringbundle id="xmigemo-strbundle-r2h" src="chrome://xulmigemo/content/res/r2h.properties"/>
+	<stringbundle id="xmigemo-strbundle-r2k" src="chrome://xulmigemo/content/res/r2k.properties"/>
+	<stringbundle id="xmigemo-strbundle-ichi" src="chrome://xulmigemo/content/res/ichimoji.properties"/>
+</stringbundleset>
+
+
+<script src="chrome://xulmigemo/content/service.js" />
+<script src="chrome://xulmigemo/content/dic.js" />
+<script src="chrome://xulmigemo/content/core.js" />
+<script src="chrome://xulmigemo/content/dicManager/dicManager.js" />
+
+</dialog>

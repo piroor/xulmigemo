@@ -1,0 +1,10 @@
+.status-box {
+	border: thin -moz-bg-inset;
+	padding: 0.5em;
+}
+
+
+.status-box label[value=""],
+.status-box description[value=""] {
+	display: none;
+}

@@ -1,0 +1,6 @@
+content	xulmigemo	jar:chrome/xulmigemo.jar!/content/xulmigemo/
+
+overlay	chrome://browser/content/browser.xul	chrome://xulmigemo/content/browserOverlay.xul
+
+locale	xulmigemo	en-US	jar:chrome/xulmigemo.jar!/locale/en-US/xulmigemo/
+locale	xulmigemo	ja-JP	jar:chrome/xulmigemo.jar!/locale/ja-JP/xulmigemo/

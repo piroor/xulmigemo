@@ -1,0 +1,353 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="config.css"?>
+
+<!DOCTYPE prefwindow [
+<!ENTITY % mainDTD SYSTEM "chrome://xulmigemo/locale/xulmigemo.dtd">
+%mainDTD;
+]>
+
+<prefwindow id="xulmigemo-config"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	title="&xulmigemo.title;">
+
+
+<prefpane id="prefpane-general" label="&xulmigemo.tab.general;">
+	<preferences>
+		<preference id="xulmigemo.autostart"
+			name="xulmigemo.autostart"
+			type="bool"/>
+		<preference id="xulmigemo.linksonly"
+			name="xulmigemo.linksonly"
+			type="bool"/>
+		<preference id="xulmigemo.startfromviewport"
+			name="xulmigemo.startfromviewport"
+			type="bool"/>
+
+		<preference id="xulmigemo.ignoreHiraKata"
+			name="xulmigemo.ignoreHiraKata"
+			type="bool"/>
+		<preference id="xulmigemo.splitTermsAutomatically"
+			name="xulmigemo.splitTermsAutomatically"
+			type="bool"/>
+
+		<preference id="xulmigemo.enabletimeout"
+			name="xulmigemo.enabletimeout"
+			type="bool"/>
+		<preference id="xulmigemo.timeout"
+			name="xulmigemo.timeout"
+			type="int"/>
+	</preferences>
+
+	<groupbox>
+		<caption label="&xulmigemo.caption.start;"/>
+		<checkbox id="xulmigemo.autostart-check" flex="1"
+			label="&xulmigemo.autostart;"
+			preference="xulmigemo.autostart"/>
+		<checkbox id="xulmigemo.linksonly-check" flex="1"
+			label="&xulmigemo.linksonly;"
+			preference="xulmigemo.linksonly"/>
+		<checkbox id="xulmigemo.startfromviewport-check" flex="1"
+			label="&xulmigemo.startfromviewport;"
+			preference="xulmigemo.startfromviewport"/>
+	</groupbox>
+
+	<groupbox>
+		<caption label="&xulmigemo.caption.recognize;"/>
+		<checkbox id="xulmigemo.ignoreHiraKata-check" flex="1"
+			label="&xulmigemo.ignoreHiraKata;"
+			preference="xulmigemo.ignoreHiraKata"/>
+		<!--checkbox id="xulmigemo.splitTermsAutomatically-check" flex="1"
+			label="&xulmigemo.splitTermsAutomatically;"
+			preference="xulmigemo.splitTermsAutomatically"/-->
+	</groupbox>
+
+	<groupbox>
+		<caption label="&xulmigemo.caption.timeout;"/>
+		<checkbox id="xulmigemo.enabletimeout-check" flex="1"
+			label="&xulmigemo.enabletimeout;"
+			preference="xulmigemo.enabletimeout"/>
+		<hbox align="center">
+			<spacer style="width:1em;"/>
+			<label value="&xulmigemo.timeout.before;"
+				control="xulmigemo.timeout-textbox"/>
+			<textbox id="xulmigemo.timeout-textbox"
+				preference="xulmigemo.timeout"
+				style="width: 5em;"
+				type="number" min="1" increment="1"/>
+			<label value="&xulmigemo.timeout.after;"
+				control="xulmigemo.timeout-textbox"/>
+		</hbox>
+	</groupbox>
+
+</prefpane>
+
+
+<prefpane id="prefpane-appearance" label="&xulmigemo.tab.appearance;">
+	<preferences>
+		<preference id="xulmigemo.enabletimeout.indicator"
+			name="xulmigemo.enabletimeout.indicator"
+			type="bool"/>
+		<preference id="xulmigemo.appearance.migemobar.overlay"
+			name="xulmigemo.appearance.migemobar.overlay"
+			type="bool"/>
+		<preference id="xulmigemo.appearance.indicator.height"
+			name="xulmigemo.appearance.indicator.height"
+			type="int"/>
+	</preferences>
+
+	<checkbox id="xulmigemo.enabletimeout.indicator-check" flex="1"
+		label="&xulmigemo.enabletimeout.indicator;"
+		preference="xulmigemo.enabletimeout.indicator"/>
+	<hbox align="center">
+		<label value="&xulmigemo.appearance.indicator.height.before;"
+			control="xulmigemo.appearance.indicator.height-textbox"/>
+		<textbox id="xulmigemo.appearance.indicator.height-textbox"
+			preference="xulmigemo.appearance.indicator.height"
+			style="width: 4em;"
+			type="number" min="0" increment="1"/>
+		<label value="&xulmigemo.appearance.indicator.height.after;"
+			control="xulmigemo.appearance.indicator.height-textbox"/>
+	</hbox>
+	<checkbox id="xulmigemo.appearance.migemobar.overlay-check" flex="1"
+		label="&xulmigemo.appearance.migemobar.overlay;"
+		preference="xulmigemo.appearance.migemobar.overlay"/>
+
+</prefpane>
+
+<prefpane id="prefpane-dictionary" label="&xulmigemo.tab.dictionary;"
+	onpaneload="initDicPane();">
+	<preferences>
+		<preference id="xulmigemo.dictionary.useInitializeWizard"
+			name="xulmigemo.dictionary.useInitializeWizard"
+			type="bool"/>
+		<preference id="xulmigemo.dicpath"
+			name="xulmigemo.dicpath"
+			type="string"/>
+		<preference id="xulmigemo.cache.update.time"
+			name="xulmigemo.cache.update.time"
+			type="int"/>
+	</preferences>
+
+	<groupbox>
+		<caption label="&xulmigemo.caption.dic;"/>
+		<hbox align="center">
+			<textbox id="xulmigemo.dicpath-textbox"
+				preference="xulmigemo.dicpath"
+				flex="1"/>
+			<button label="&xulmigemo.dic.find;"
+				oncommand="getDP()"/>
+		</hbox>
+		<checkbox id="xulmigemo.dic.useInitializeWizard-check" flex="1"
+			label="&xulmigemo.dic.useInitializeWizard;"
+			preference="xulmigemo.dictionary.useInitializeWizard"/>
+	</groupbox>
+
+	<hbox>
+		<spacer flex="1"/>
+		<button label="&xulmigemo.dic.showManager;"
+			oncommand="XMigemoService.goDicManager();"/>
+	</hbox>
+
+	<groupbox>
+		<caption label="&xulmigemo.caption.cache;"/>
+		<label value="&xulmigemo.cache.update.time;"/>
+		<hbox align="center">
+			<label value="&xulmigemo.cache.update.time.max;"/>
+			<scale id="xulmigemo.cache.update.time-slider"
+				flex="1"
+				onchange="syncCacheUpdateTime(this);"
+				max="1000"/>
+			<scrollbar id="xulmigemo.cache.update.time-scrollbar"
+				flex="1"
+				onmouseup="syncCacheUpdateTime(this);"
+				maxpos="1000"/>
+			<label value="&xulmigemo.cache.update.time.min;"/>
+		</hbox>
+		<vbox class="status-box">
+			<label value="&xulmigemo.cache.update.time.indicator.above;"/>
+			<hbox align="center">
+				<label value="&xulmigemo.cache.update.time.indicator.before;"/>
+				<textbox id="xulmigemo.cache.update.time-textbox"
+					preference="xulmigemo.cache.update.time"
+					style="width: 5em;"
+					type="number" min="0" max="1000" increment="1"
+					oninput="syncCacheUpdateTime(this);"/>
+				<label value="&xulmigemo.cache.update.time.indicator.after;"/>
+			</hbox>
+			<label value="&xulmigemo.cache.update.time.indicator.below;"/>
+		</vbox>
+		<hbox>
+			<spacer flex="1"/>
+			<button label="&xulmigemo.cache.update.time.now;"
+				oncommand="updateCacheNow();"/>
+		</hbox>
+	</groupbox>
+
+</prefpane>
+
+
+<prefpane id="prefpane-shortcut" label="&xulmigemo.tab.shortcut;"
+	onpaneload="initShortcutPane();">
+	<preferences>
+		<preference id="xulmigemo.shortcut.findForward"
+			name="xulmigemo.shortcut.findForward"
+			type="string"/>
+		<preference id="xulmigemo.shortcut.findBackward"
+			name="xulmigemo.shortcut.findBackward"
+			type="string"/>
+		<preference id="xulmigemo.shortcut.manualStart"
+			name="xulmigemo.shortcut.manualStart"
+			type="string"/>
+		<preference id="xulmigemo.shortcut.manualStart2"
+			name="xulmigemo.shortcut.manualStart2"
+			type="string"/>
+		<preference id="xulmigemo.shortcut.manualStartLinksOnly"
+			name="xulmigemo.shortcut.manualStartLinksOnly"
+			type="string"/>
+		<preference id="xulmigemo.shortcut.manualStartLinksOnly2"
+			name="xulmigemo.shortcut.manualStartLinksOnly2"
+			type="string"/>
+		<preference id="xulmigemo.shortcut.goDicManager"
+			name="xulmigemo.shortcut.goDicManager"
+			type="string"/>
+	</preferences>
+
+	<hbox>
+		<grid>
+			<columns>
+				<column/>
+				<column/>
+				<column/>
+				<column/>
+			</columns>
+			<rows>
+				<row align="center">
+					<label value="&xulmigemo.shortcut.findForward;"/>
+					<textbox id="shortcutFindForward"
+						readonly="true"
+						style="width: 10em;"
+						preference="xulmigemo.shortcut.findForward"
+						dialogMessage="&xulmigemo.shortcut.dialog.message;"
+						dialogButton="&xulmigemo.shortcut.dialog.button;"/>
+					<button label="&xulmigemo.shortcut.set;"
+						style="min-width: 0;"
+						oncommand="setShortcut(shortcutFindForward);"/>
+					<button label="&xulmigemo.shortcut.clear;"
+						style="min-width: 0;"
+						oncommand="clearShortcut(shortcutFindForward);"/>
+				</row>
+				<row align="center">
+					<label value="&xulmigemo.shortcut.findBackward;"/>
+					<textbox id="shortcutFindBackward"
+						readonly="true"
+						style="width: 10em;"
+						preference="xulmigemo.shortcut.findBackward"
+						dialogMessage="&xulmigemo.shortcut.dialog.message;"
+						dialogButton="&xulmigemo.shortcut.dialog.button;"/>
+					<button label="&xulmigemo.shortcut.set;"
+						style="min-width: 0;"
+						oncommand="setShortcut(shortcutFindBackward);"/>
+					<button label="&xulmigemo.shortcut.clear;"
+						style="min-width: 0;"
+						oncommand="clearShortcut(shortcutFindBackward);"/>
+				</row>
+			</rows>
+		</grid>
+		<spacer flex="1"/>
+	</hbox>
+	<vbox>
+		<label value="&xulmigemo.shortcut.goDicManager;"/>
+		<hbox align="center">
+			<spacer style="width:1em;"/>
+			<textbox id="shortcutGoDicManager"
+				readonly="true"
+				style="width: 10em;"
+				preference="xulmigemo.shortcut.goDicManager"
+				dialogMessage="&xulmigemo.shortcut.dialog.message;"
+				dialogButton="&xulmigemo.shortcut.dialog.button;"/>
+			<button label="&xulmigemo.shortcut.set;"
+				style="min-width: 0;"
+				oncommand="setShortcut(shortcutGoDicManager);"/>
+			<button label="&xulmigemo.shortcut.clear;"
+				style="min-width: 0;"
+				oncommand="clearShortcut(shortcutGoDicManager);"/>
+		</hbox>
+
+		<separator/>
+
+		<label value="&xulmigemo.shortcut.manualStart;"/>
+		<hbox align="center">
+			<spacer style="width:1em;"/>
+			<textbox id="shortcutManualStart"
+				readonly="true"
+				style="width: 10em;"
+				preference="xulmigemo.shortcut.manualStart"
+				dialogMessage="&xulmigemo.shortcut.dialog.message;"
+				dialogButton="&xulmigemo.shortcut.dialog.button;"/>
+			<button label="&xulmigemo.shortcut.set;"
+				style="min-width: 0;"
+				oncommand="setShortcut(shortcutManualStart);"/>
+			<button label="&xulmigemo.shortcut.clear;"
+				style="min-width: 0;"
+				oncommand="clearShortcut(shortcutManualStart);"/>
+		</hbox>
+		<hbox align="center">
+			<spacer style="width:1em;"/>
+			<textbox id="shortcutManualStart2"
+				readonly="true"
+				style="width: 10em;"
+				preference="xulmigemo.shortcut.manualStart2"
+				dialogMessage="&xulmigemo.shortcut.dialog.message;"
+				dialogButton="&xulmigemo.shortcut.dialog.button;"/>
+			<button label="&xulmigemo.shortcut.set;"
+				style="min-width: 0;"
+				oncommand="setShortcut(shortcutManualStart2);"/>
+			<button label="&xulmigemo.shortcut.clear;"
+				style="min-width: 0;"
+				oncommand="clearShortcut(shortcutManualStart2);"/>
+		</hbox>
+
+		<label value="&xulmigemo.shortcut.manualStartLinksOnly;"/>
+		<hbox align="center">
+			<spacer style="width:1em;"/>
+			<textbox id="shortcutManualStartLinksOnly"
+				readonly="true"
+				style="width: 10em;"
+				preference="xulmigemo.shortcut.manualStartLinksOnly"
+				dialogMessage="&xulmigemo.shortcut.dialog.message;"
+				dialogButton="&xulmigemo.shortcut.dialog.button;"/>
+			<button label="&xulmigemo.shortcut.set;"
+				style="min-width: 0;"
+				oncommand="setShortcut(shortcutManualStartLinksOnly);"/>
+			<button label="&xulmigemo.shortcut.clear;"
+				style="min-width: 0;"
+				oncommand="clearShortcut(shortcutManualStartLinksOnly);"/>
+		</hbox>
+		<hbox align="center">
+			<spacer style="width:1em;"/>
+			<textbox id="shortcutManualStartLinksOnly2"
+				readonly="true"
+				style="width: 10em;"
+				preference="xulmigemo.shortcut.manualStartLinksOnly2"
+				dialogMessage="&xulmigemo.shortcut.dialog.message;"
+				dialogButton="&xulmigemo.shortcut.dialog.button;"/>
+			<button label="&xulmigemo.shortcut.set;"
+				style="min-width: 0;"
+				oncommand="setShortcut(shortcutManualStartLinksOnly2);"/>
+			<button label="&xulmigemo.shortcut.clear;"
+				style="min-width: 0;"
+				oncommand="clearShortcut(shortcutManualStartLinksOnly2);"/>
+		</hbox>
+	</vbox>
+
+</prefpane>
+
+
+<script src="chrome://xulmigemo/content/service.js" />
+<script src="chrome://xulmigemo/content/dic.js" />
+<script src="chrome://xulmigemo/content/core.js" />
+<script src="chrome://xulmigemo/content/config/config.js" />
+
+</prefwindow>

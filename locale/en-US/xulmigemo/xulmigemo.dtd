@@ -1,0 +1,136 @@
+<!ENTITY xulmigemo.title                   "XUL/Migemo Configuration">
+
+
+<!ENTITY xulmigemo.tab.general             "General">
+
+<!ENTITY xulmigemo.caption.start           "Startup">
+<!ENTITY xulmigemo.autostart               "Enter Migemo mode automatically">
+<!ENTITY xulmigemo.linksonly               "Find only links">
+<!ENTITY xulmigemo.startfromviewport       "Find from viewport">
+
+<!ENTITY xulmigemo.caption.recognize       "Character Recognition">
+<!ENTITY xulmigemo.ignoreHiraKata          "Ignore difference of Hiragana and Katakana">
+<!ENTITY xulmigemo.splitTermsAutomatically "Recognize text segments automatically">
+
+<!ENTITY xulmigemo.caption.timeout         "Timeout">
+<!ENTITY xulmigemo.enabletimeout           "Exit Migemo mode automatically">
+<!ENTITY xulmigemo.timeout.before          "Timeout after">
+<!ENTITY xulmigemo.timeout.after           "msec">
+
+
+<!ENTITY xulmigemo.tab.appearance          "Appearance">
+
+<!ENTITY xulmigemo.override_findtoolbar    "Override the Find Toolbar">
+<!ENTITY xulmigemo.enabletimeout.indicator "Indicate remaining time for timeout">
+<!ENTITY xulmigemo.appearance.indicator.height.before "Height of the remaining time indicator:">
+<!ENTITY xulmigemo.appearance.indicator.height.after "pixel (0=system default)">
+<!ENTITY xulmigemo.appearance.migemobar.overlay "Overlay checkbox to switch Migemo mode on the find toolbar">
+
+
+<!ENTITY xulmigemo.tab.dictionary          "Dictionary">
+
+<!ENTITY xulmigemo.caption.dic             "Dictionaries Folder">
+<!ENTITY xulmigemo.dic.useInitializeWizard "Show initialization wizard at the startup if the dictionary is lost">
+<!ENTITY xulmigemo.dic.find                "Find...">
+
+<!ENTITY xulmigemo.dic.showManager         "Manage Dictionary">
+
+<!ENTITY xulmigemo.caption.cache           "Disk Cache">
+<!ENTITY xulmigemo.cache.update.time       "Frequency to create disk cache">
+<!ENTITY xulmigemo.cache.update.time.max   "High">
+<!ENTITY xulmigemo.cache.update.time.min   "Low">
+<!ENTITY xulmigemo.cache.update.time.indicator.above "Cache results to the disk when read-in from dictionaries">
+<!ENTITY xulmigemo.cache.update.time.indicator.before "requires over ">
+<!ENTITY xulmigemo.cache.update.time.indicator.after  "msec.">
+<!ENTITY xulmigemo.cache.update.time.indicator.below  "">
+<!ENTITY xulmigemo.cache.update.time.now   "Update Cache Now">
+
+
+<!ENTITY xulmigemo.tab.shortcut            "Shortcut Keys">
+
+<!ENTITY xulmigemo.shortcut.findForward    "Find Next">
+<!ENTITY xulmigemo.shortcut.findBackward   "Find Backward">
+<!ENTITY xulmigemo.shortcut.manualStart    "Enter Migemo mode">
+<!ENTITY xulmigemo.shortcut.manualStartLinksOnly "Enter Migemo mode (search only links)">
+<!ENTITY xulmigemo.shortcut.goDicManager   "Show Dictionary Manager">
+
+<!ENTITY xulmigemo.shortcut.set            "Set">
+<!ENTITY xulmigemo.shortcut.clear          "Clear">
+<!ENTITY xulmigemo.shortcut.dialog.message "Press new shortcut">
+<!ENTITY xulmigemo.shortcut.dialog.button  "Cancel">
+
+
+
+
+
+<!ENTITY xulmigemo.dicManager.title       "XUL/Migemo Dictionary Manager">
+
+<!ENTITY xulmigemo.dicManager.tab.add     "Add New Term">
+
+<!ENTITY xulmigemo.dicManager.add.yomi     "Yomi (sound)">
+<!ENTITY xulmigemo.dicManager.add.term     "Term">
+<!ENTITY xulmigemo.dicManager.add.addTerm  "Add">
+
+<!ENTITY xulmigemo.dicManager.add.success      "Successfully Added.">
+<!ENTITY xulmigemo.dicManager.add.errorNoTerm  "Error: No term.">
+<!ENTITY xulmigemo.dicManager.add.errorInvalid "Error: Invalid yomi. Only hiragana characters, numbers and alphabets can appear in the yomi.">
+<!ENTITY xulmigemo.dicManager.add.errorExist   "Error: The term exists.">
+
+<!ENTITY xulmigemo.dicManager.tab.remove         "Remove Term">
+
+<!ENTITY xulmigemo.dicManager.remove.yomi        "Yomi (sound)">
+<!ENTITY xulmigemo.dicManager.remove.term        "Term">
+<!ENTITY xulmigemo.dicManager.remove.description "If the Term is blank, remove all terms of the Yomi.">
+<!ENTITY xulmigemo.dicManager.remove.removeTerm  "Remove">
+
+<!ENTITY xulmigemo.dicManager.remove.success      "Successfully Removed from the User Dictionary.">
+<!ENTITY xulmigemo.dicManager.remove.errorInvalid "Error: Invalid yomi. Only hiragana characters, numbers and alphabets can appear in the yomi.">
+<!ENTITY xulmigemo.dicManager.remove.errorNotExist   "Error: Terms in the System Dictionary is not removable.">
+
+<!ENTITY xulmigemo.dicManager.tab.list          "List">
+
+<!ENTITY xulmigemo.dicManager.list.roman        "Search key (roman spell)">
+<!ENTITY xulmigemo.dicManager.list.keys         "Yomi">
+<!ENTITY xulmigemo.dicManager.list.terms        "Terms">
+<!ENTITY xulmigemo.dicManager.list.dic          "Search for:">
+<!ENTITY xulmigemo.dicManager.list.fromUserDic   "User Dictionary">
+<!ENTITY xulmigemo.dicManager.list.fromSystemDic "System Dictionary">
+<!ENTITY xulmigemo.dicManager.list.fromAllDic    "Both">
+<!ENTITY xulmigemo.dicManager.list.addTerm      "Add Term for this yomi">
+<!ENTITY xulmigemo.dicManager.list.removeTermEntry "Remove All Terms of this yomi">
+<!ENTITY xulmigemo.dicManager.list.removeTerm   "Remove Term">
+
+<!ENTITY xulmigemo.dicManager.list.promptAdd "Enter new term you want to be added:">
+<!ENTITY xulmigemo.dicManager.list.successAdd "Successfully Added from the User Dictionary.">
+<!ENTITY xulmigemo.dicManager.list.successRemove "Successfully Removed from the User Dictionary.">
+<!ENTITY xulmigemo.dicManager.list.errorExist   "Error: The term is exists.">
+<!ENTITY xulmigemo.dicManager.list.errorNotInUserDic "Error: Terms in the System Dictionary is not removable.">
+
+
+
+<!ENTITY xulmigemo.init.title  "XUL/Migemo [Forked Edition] Initialization Wizard">
+
+<!ENTITY xulmigemo.init.page1.label1  "XUL/Migemo cannot find out the dictonary for Migemo-mode search (incremental search with input by roman-letter spelling.) Migemo-mode search requires the dictionary. Please choose an action.">
+<!ENTITY xulmigemo.init.page1.radio.download "Download Dictionary from the Internet Automatically">
+<!ENTITY xulmigemo.init.page1.radio.choose   "Choose Existing Dictionary">
+<!ENTITY xulmigemo.init.page1.radio.later    "Later (do nothing now)">
+
+
+<!ENTITY xulmigemo.init.download.title    "Download Dictionary from the Internet">
+
+<!ENTITY xulmigemo.init.download.page1.label1  "Dictionary files will be downloaded from the Internet and installed. It may take minutes. To continue, press &quot;Next&quot;.">
+
+<!ENTITY xulmigemo.init.download.page2.label.download  "Downloading Dictionary...">
+<!ENTITY xulmigemo.init.download.page2.label.progress  "&#37;s&#37; downloaded">
+<!ENTITY xulmigemo.init.download.page2.label.install  "Installing Dictionary...">
+<!ENTITY xulmigemo.init.download.page2.label.complete  "Dictionary is successfully installed">
+<!ENTITY xulmigemo.init.download.page2.label.error  "Unexpected error occurred while transferring data, and Failed to install the dictionary.">
+
+
+<!ENTITY xulmigemo.init.choose.title    "Choose Existing Dictionary">
+<!ENTITY xulmigemo.init.choose.page1.label1  "Input the place of the existing dictionaries folder.">
+<!ENTITY xulmigemo.init.choose.page1.find  "Find...">
+
+
+<!ENTITY xulmigemo.init.final.label1  "All processes are successfully done.">
+

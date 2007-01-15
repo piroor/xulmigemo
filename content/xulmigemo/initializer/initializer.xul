@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin/"?>
+
+<!DOCTYPE wizard [
+<!ENTITY % mainDTD SYSTEM "chrome://xulmigemo/locale/xulmigemo.dtd">
+%mainDTD;
+]>
+
+<wizard id="xulMigemoInitializer"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         title="&xulmigemo.init.title;"
+         windowtype="xulmigemo:initializer">
+
+<wizardpage
+	onpageshow="
+		document.documentElement.canAdvance = true;
+	"
+	next="download-1">
+	<description>&xulmigemo.init.page1.label1;</description>
+	<radiogroup orient="vertical"
+		oncommand="this.parentNode.setAttribute('next', this.selectedItem.value);">
+
+		<radio label="&xulmigemo.init.page1.radio.download;"
+			value="download-1"
+			selected="true"/>
+		<radio label="&xulmigemo.init.page1.radio.choose;"
+			value="choose-1"/>
+		<radio label="&xulmigemo.init.page1.radio.later;"
+			value="final"/>
+
+	</radiogroup>
+</wizardpage>
+
+
+
+<wizardpage pageid="download-1"
+	description="&xulmigemo.init.download.title;"
+	next="download-2">
+	<description>&xulmigemo.init.download.page1.label1;</description>
+</wizardpage>
+
+<wizardpage pageid="download-2"
+	description="&xulmigemo.init.download.title;"
+	onpageshow="startDownload();"
+	next="final">
+	<description id="download-status"
+		label-download="&xulmigemo.init.download.page2.label.download;"
+		label-download-progress="&xulmigemo.init.download.page2.label.progress;"
+		label-install="&xulmigemo.init.download.page2.label.install;"
+		label-complete="&xulmigemo.init.download.page2.label.complete;"
+		label-error="&xulmigemo.init.download.page2.label.error;"/>
+	<spacer flex="1"/>
+	<progressmeter id="download-progress"
+		type="undetermined"/>
+	<spacer flex="1"/>
+</wizardpage>
+
+
+
+<wizardpage pageid="choose-1"
+	description="&xulmigemo.init.choose.title;"
+	onpageshow="
+		document.documentElement.canAdvance = false;
+	"
+	onpageadvanced="saveChosenFolder()"
+	next="final">
+	<description>&xulmigemo.init.choose.page1.label1;</description>
+	<spacer flex="1"/>
+	<hbox align="center">
+		<textbox id="choose-path" flex="1"
+			oninput="document.documentElement.canAdvance = true"/>
+		<button label="&xulmigemo.init.choose.page1.find;"
+			oncommand="chooseFolder();"/>
+	</hbox>
+	<spacer flex="1"/>
+</wizardpage>
+
+
+
+
+<wizardpage pageid="final"
+	onpageshow="
+		document.documentElement.canRewind = false;
+	">
+	<description>&xulmigemo.init.final.label1;</description>
+</wizardpage>
+
+
+
+
+
+<script src="chrome://xulmigemo/content/service.js" />
+<script src="chrome://xulmigemo/content/dic.js" />
+<script src="chrome://xulmigemo/content/initializer/downloader.js" />
+<script src="chrome://xulmigemo/content/initializer/initializer.js" />
+
+
+</wizard>
