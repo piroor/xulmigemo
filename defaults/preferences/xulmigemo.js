@@ -10,6 +10,8 @@ pref("xulmigemo.enabletimeout",                 true);
 pref("xulmigemo.enabletimeout.indicator",       true);
 pref("xulmigemo.override_findtoolbar",          true);
 
+pref("xulmigemo.appearance.indicator.height",   5);
+
 pref("xulmigemo.shortcut.manualStart",           "/");
 pref("xulmigemo.shortcut.manualStart2",          "Ctrl+Shift+F");
 pref("xulmigemo.shortcut.manualStartLinksOnly",  "\\");
