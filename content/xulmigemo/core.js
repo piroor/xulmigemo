@@ -322,8 +322,7 @@ var XMigemoCore = {
  
 	getDocShellForFrame : function(aFrame) 
 	{
-		var viewWrapper = new XPCNativeWrapper(aFrame, 'QueryInterface()');
-		return viewWrapper
+		return aFrame
 				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 				.getInterface(Components.interfaces.nsIWebNavigation)
 				.QueryInterface(Components.interfaces.nsIDocShell);
