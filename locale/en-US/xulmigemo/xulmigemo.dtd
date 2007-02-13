@@ -5,7 +5,8 @@
 
 <!ENTITY xulmigemo.caption.start           "Startup">
 <!ENTITY xulmigemo.autostart               "Enter Migemo mode automatically for keytypes">
-<!ENTITY xulmigemo.enable_by_default       "Enter Migemo mode automatically when the Find Toolbar is shown">
+<!ENTITY xulmigemo.enable_by_default       "Enter Migemo mode automatically when I start to find">
+<!ENTITY xulmigemo.prefillwithselection    "Previously fill the find bar with selection">
 <!ENTITY xulmigemo.linksonly               "Find only links">
 <!ENTITY xulmigemo.startfromviewport       "Find from viewport">
 

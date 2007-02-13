@@ -1,5 +1,6 @@
 pref("xulmigemo.autostart",                     true);
 pref("xulmigemo.enable_by_default",             false);
+pref("xulmigemo.prefillwithselection",          true);
 pref("xulmigemo.startfromviewport",             true);
 pref("xulmigemo.linksonly",                     false);
 pref("xulmigemo.ignoreHiraKata",                false);
