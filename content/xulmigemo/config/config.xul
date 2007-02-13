@@ -21,6 +21,9 @@
 		<preference id="xulmigemo.enable_by_default"
 			name="xulmigemo.enable_by_default"
 			type="bool"/>
+		<preference id="xulmigemo.prefillwithselection"
+			name="xulmigemo.prefillwithselection"
+			type="bool"/>
 		<preference id="xulmigemo.linksonly"
 			name="xulmigemo.linksonly"
 			type="bool"/>
@@ -51,6 +54,9 @@
 		<checkbox id="xulmigemo.enable_by_default-check" flex="1"
 			label="&xulmigemo.enable_by_default;"
 			preference="xulmigemo.enable_by_default"/>
+		<checkbox id="xulmigemo.prefillwithselection-check" flex="1"
+			label="&xulmigemo.prefillwithselection;"
+			preference="xulmigemo.prefillwithselection"/>
 		<checkbox id="xulmigemo.linksonly-check" flex="1"
 			label="&xulmigemo.linksonly;"
 			preference="xulmigemo.linksonly"/>

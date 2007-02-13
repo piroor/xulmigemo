@@ -381,7 +381,6 @@ var XMigemoUI = {
  
 	onXMigemoFindProgress : function(aEvent) 
 	{
-mydump('onXMigemoFindProgress '+aEvent.resultFlag);
 		gFindBar.enableFindButtons(
 			!(
 				aEvent.resultFlag == XMigemoFind.NOTFOUND ||
@@ -705,6 +704,34 @@ mydump('onXMigemoFindProgress '+aEvent.resultFlag);
 			var width = (stack.boxObject.width || 100) + 10;
 			stack.style.width      = width+'px';
 			stack.style.marginLeft = '-'+width+'px';
+		}
+
+
+		if (XMigemoService.getPref('xulmigemo.prefillwithselection')) {
+			var win = document.commandDispatcher.focusedWindow || window.content ;
+			var sel = (win && win.getSelection() ? win.getSelection().toString() : '' ).replace(/^\s+|\s+$/g, '');
+			if (!sel) return;
+
+			if (XMigemoUI.isActive) {
+				if (
+					XMigemoUI.cancelTimer ||
+					XMigemoFind.lastKeyword == sel ||
+					XMigemoFind.lastFoundWord == sel
+					)
+					return;
+				XMigemoFind.lastKeyword = sel;
+				XMigemoUI.updateStatus(sel);
+				XMigemoFind.find();
+			}
+			else {
+				if (
+					 aShowMinimalUI ||
+					 XMigemoUI.findField.value == sel
+					 )
+					 return;
+				XMigemoUI.findField.value = sel;
+				gFindBar.find();
+			}
 		}
 	},
  
