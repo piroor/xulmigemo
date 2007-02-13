@@ -6,7 +6,7 @@
 */
  
 var XMigemoFind = { 
-	
+	 
 	lastKeyword     : '', 
 	previousKeyword : '',
  
@@ -14,9 +14,10 @@ var XMigemoFind = {
 
 	startFromViewport : false,
  
-	FOUND    : 1, 
-	NOTFOUND : 2,
-	NOTLINK  : 4,
+	FOUND                : 1, 
+	NOTFOUND             : 2,
+	NOTLINK              : 4,
+	FOUND_IN_INPUT_FIELD : 8,
  
 	FIND_DEFAULT    : 1, 
 	FIND_BACK       : 2,
@@ -24,7 +25,7 @@ var XMigemoFind = {
 	FIND_FROM_START : 8,
  
 /* Find */ 
-	
+	 
 	get mFind() 
 	{
 		if (!this._mFind)
@@ -79,7 +80,7 @@ var XMigemoFind = {
 		this.findInDocument(findFlag, doc, (new RegExp(myExp.replace(/\n/im, ''), 'im')), aSilently);
 		this.previousKeyword = roman;
 	},
-	
+	 
 	findInDocument : function(aFindFlag, aDocument, aRegexp, aSilently) 
 	{
 //		mydump("findInDocument");
@@ -159,9 +160,14 @@ var XMigemoFind = {
 						break getFindRange;
 
 					case this.NOTFOUND:
-					case this.NOTLINK:
 						noRepeatL = false;
 						break getFindRange;
+
+					case this.NOTLINK:
+					case this.FOUND_IN_INPUT_FIELD:
+						target = rightContext;
+						findRange = this.resetFindRange(findRange, this.foundRange, aFindFlag, doc);
+						continue getFindRange;
 
 					default:
 						if (found == (
@@ -243,7 +249,7 @@ var XMigemoFind = {
 			}
 		}
 	},
- 
+ 	
 	findInRange : function(aFindFlag, aTerm, aRanges, aSilently) 
 	{
 //		mydump("findInRange");
@@ -265,6 +271,11 @@ var XMigemoFind = {
 			return this.NOTFOUND;
 		}
 
+		if (this.isInsideInputField(foundRange)) {
+			this.foundRange = foundRange;
+			return this.FOUND_IN_INPUT_FIELD;
+		}
+
 		//※mozilla.party.jp 5.0でMac OS Xで動いてるのを見たが、
 		//どうも選択範囲の色が薄いらしい…
 		var foundNodeWrapper = new XPCNativeWrapper(foundRange.startContainer, 'ownerDocument');
@@ -280,11 +291,11 @@ var XMigemoFind = {
 				return this.FOUND;
 			}
 			else {
-				this.foundRange=foundRange;
+				this.foundRange = foundRange;
 				return this.NOTLINK;
 			}
 		}
-		else{
+		else {
 			this.foundRange = foundRange;
 			this.setSelectionAndScroll(foundRange, selCon, aSilently);
 			return this.FOUND;
@@ -316,6 +327,39 @@ var XMigemoFind = {
 						node.focus();
 					}
 				}
+				return true;
+			}
+			node = nodeWrapper.parentNode;
+		}
+		return false;
+	},
+ 
+	isInsideInputField : function(aRange) 
+	{
+		var node = aRange.commonAncestorContainer.parentNode;
+		while (
+			node &&
+			(nodeWrapper = new XPCNativeWrapper(node,
+				'parentNode',
+				'localName',
+				'getAttribute()'
+			)) &&
+			nodeWrapper.parentNode
+			) {
+			if (
+				String(nodeWrapper.localName).toLowerCase() == 'textbox' ||
+				String(nodeWrapper.localName).toLowerCase() == 'textarea' ||
+				String(nodeWrapper.localName).toLowerCase() == 'option' ||
+				String(nodeWrapper.localName).toLowerCase() == 'select' ||
+				(
+					String(nodeWrapper.localName).toLowerCase() == 'input' &&
+					(
+						nodeWrapper.getAttribute('type') == 'text' ||
+						nodeWrapper.getAttribute('type') == 'password' ||
+						nodeWrapper.getAttribute('type') == 'file'
+					)
+				)
+				) {
 				return true;
 			}
 			node = nodeWrapper.parentNode;
