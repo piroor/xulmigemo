@@ -270,6 +270,7 @@ var XMigemoUI = {
 				isStartKeyLinksOnly2
 			)
 			) {
+			XMigemoFind.clear();
 			this.start();
 			XMigemoFind.manualLinksOnly = (isStartKeyLinksOnly || isStartKeyLinksOnly2) ? true : false ;
 			aEvent.preventDefault();
@@ -353,6 +354,7 @@ var XMigemoUI = {
 				!aEvent.metaKey &&
 				!aEvent.altKey
 				) {
+				XMigemoFind.clear();
 				this.start();
 				XMigemoFind.lastKeyword += String.fromCharCode(aEvent.charCode);
 				this.updateStatus(XMigemoFind.lastKeyword);
@@ -363,7 +365,7 @@ var XMigemoUI = {
 			}
 		}
 	},
-  
+ 	 
 	mouseEvent : function(aEvent) 
 	{
 		if (!this.autoClose) {
@@ -409,7 +411,7 @@ var XMigemoUI = {
 
 		gFindBar.updateStatus(statusRes, !(aEvent.findFlag & XMigemoFind.FIND_BACK));
 	},
- 	
+ 
 	onInputFindToolbar : function(aEvent) 
 	{
 		XMigemoFind.lastKeyword = aEvent.target.value;
