@@ -244,7 +244,7 @@ var XMigemoFind = {
 			}
 		}
 	},
- 	
+ 
 	findInRange : function(aFindFlag, aTerm, aRanges, aSilently) 
 	{
 //		mydump("findInRange");
@@ -328,20 +328,18 @@ var XMigemoFind = {
 		var node = aRange.commonAncestorContainer.parentNode;
 		while (node && node.parentNode)
 		{
-			if (
-				/textbox|textarea|option|select/.test(String(node.localName).toLowerCase()) ||
-				(
-					String(node.localName).toLowerCase() == 'input' &&
-					/text|password|file/.test(node.getAttribute('type'))
-				)
-				) {
+			var isEditable = false;
+			try {
+				node.QueryInterface(Components.interfaces.nsIDOMNSEditableElement);
 				return node;
+			}
+			catch(e) {
 			}
 			node = node.parentNode;
 		}
 		return null;
 	},
-   
+ 	  
 /* DocShell Traversal */ 
 	
 	getDocShellForFrame : function(aFrame) 
