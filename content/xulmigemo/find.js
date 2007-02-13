@@ -469,7 +469,7 @@ var XMigemoFind = {
 	{
 //		mydump("resetFindRange");
 		var win = document.commandDispatcher.focusedWindow;
-		var theDoc = (win && win != window) ? Components.lookupMethod(win, 'document').call(win) : doc ;
+		var theDoc = (win && win != window) ? Components.lookupMethod(win, 'document').call(win) : aDocument ;
 		var bodyNode = Components.lookupMethod(theDoc, 'body').call(theDoc);
 
 		var findRange = aFindRange;
