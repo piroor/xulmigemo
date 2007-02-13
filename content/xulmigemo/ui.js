@@ -369,7 +369,8 @@ var XMigemoUI = {
 	mouseEvent : function(aEvent) 
 	{
 		if (!this.autoClose) {
-			XMigemoUI.cancel(true);
+			XMigemoUI.isActive = false;
+//			XMigemoUI.cancel(true);
 			return;
 		}
 
@@ -380,7 +381,13 @@ var XMigemoUI = {
  
 	onXMigemoFindProgress : function(aEvent) 
 	{
-		gFindBar.enableFindButtons(!(aEvent.resultFlag == XMigemoFind.NOTFOUND || aEvent.resultFlag == XMigemoFind.NOTLINK));
+mydump('onXMigemoFindProgress '+aEvent.resultFlag);
+		gFindBar.enableFindButtons(
+			!(
+				aEvent.resultFlag == XMigemoFind.NOTFOUND ||
+				aEvent.resultFlag == XMigemoFind.NOTLINK
+			)
+		);
 
 		// migemoでヒットした全ての語を強調表示するととんでもないことになるので、
 		// ハイライト表示のボタンだけは常に無効にしておこう。
@@ -392,6 +399,7 @@ var XMigemoUI = {
 		switch (aEvent.resultFlag)
 		{
 			case XMigemoFind.FOUND:
+			case XMigemoFind.FOUND_IN_EDITABLE:
 				if (this.nsITypeAheadFind)
 					statusRes = this.nsITypeAheadFind.FIND_FOUND;
 				//alert(gFoundRange.toString());
@@ -417,7 +425,7 @@ var XMigemoUI = {
 
 		gFindBar.updateStatus(statusRes, !(aEvent.findFlag & XMigemoFind.FIND_BACK));
 	},
- 	
+ 
 	onInputFindToolbar : function(aEvent) 
 	{
 		XMigemoFind.lastKeyword = aEvent.target.value;
@@ -434,10 +442,11 @@ var XMigemoUI = {
  
 	onFindBlur : function() 
 	{
-		XMigemoUI.cancel(true);
+		if (XMigemoUI.autoClose)
+			XMigemoUI.cancel();
+//			XMigemoUI.cancel(true);
 	},
-
- 
+ 	
 	onChangeFindToolbarMode : function() 
 	{
 		this.clearTimer();
@@ -559,12 +568,10 @@ var XMigemoUI = {
 
 		if (!aSilently) XMigemoFind.clear();
 
-		if (!aSilently) {
-			if (this.autoClose)
-				gFindBar.closeFindBar();
-			else
-				this.toggleFindToolbarMode();
-		}
+		if (!aSilently || this.autoClose)
+			gFindBar.closeFindBar();
+		else
+			this.toggleFindToolbarMode();
 
 		this.autoClose = false;
 

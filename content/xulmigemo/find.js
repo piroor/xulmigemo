@@ -15,15 +15,17 @@ var XMigemoFind = {
 
 	startFromViewport : false,
  
-	FOUND                : 1, 
-	NOTFOUND             : 2,
-	NOTLINK              : 4,
-	FOUND_IN_INPUT_FIELD : 8,
+	FOUND             : 1, 
+	NOTFOUND          : 2,
+	NOTLINK           : 4,
+	FOUND_IN_EDITABLE : 8,
  
 	FIND_DEFAULT    : 1, 
 	FIND_BACK       : 2,
 	FIND_FORWARD    : 4,
 	FIND_FROM_START : 8,
+
+	FIND_IN_EDITABLE : 128,
  
 /* Find */ 
 	 
@@ -93,7 +95,6 @@ var XMigemoFind = {
 		var found;
 		var docShell;
 		var doc = aDocument;
-		var docWrapper;
 		var selection;
 		var repeat = false;
 		var rightContext;
@@ -104,10 +105,6 @@ var XMigemoFind = {
 		doFind:
 		while (true)
 		{
-			docWrapper = new XPCNativeWrapper(doc,
-					'defaultView',
-					'getElementsByTagName()'
-				);
 			findRange = this.getFindRange(aFindFlag, doc);
 
 			target = XMigemoTextService.range2Text(findRange.sRange);
@@ -124,7 +121,7 @@ var XMigemoFind = {
 			while (true)
 			{
 				if (isLinksOnly){
-					var as = docWrapper.getElementsByTagName('a');
+					var as = doc.getElementsByTagName('a');
 					if (!as.length){
 						noRepeatL = false;
 						break;
@@ -157,6 +154,7 @@ var XMigemoFind = {
 				switch (found)
 				{
 					case this.FOUND:
+					case this.FOUND_IN_EDITABLE:
 						noRepeatL = true;
 						break getFindRange;
 
@@ -165,7 +163,6 @@ var XMigemoFind = {
 						break getFindRange;
 
 					case this.NOTLINK:
-					case this.FOUND_IN_INPUT_FIELD:
 						target = rightContext;
 						findRange = this.resetFindRange(findRange, this.foundRange, aFindFlag, doc);
 						continue getFindRange;
@@ -181,6 +178,7 @@ var XMigemoFind = {
 							findRange = this.resetFindRange(findRange, this.foundRange, aFindFlag, doc);
 						}
 				}
+
 			}
 
 			var event = document.createEvent('Events');
@@ -189,21 +187,17 @@ var XMigemoFind = {
 			event.findFlag   = aFindFlag;
 			document.dispatchEvent(event);
 
+			this.setSelectionLook(doc, true);
 
-			this.setSelectionLook(doc, true, noRepeatL == true);
 			if (noRepeatL) {
 				break doFind;
 			}
 
-			var viewWrapper = new XPCNativeWrapper(docWrapper.defaultView,
-					'top',
-					'getSelection()'
-				);
-			viewWrapper.getSelection().removeAllRanges();
-			this.setSelectionLook(doc, false, false);
+			this.clearSelection(doc);
+			this.setSelectionLook(doc, false);
 
 
-			docShell = this.getDocShellForFrame(docWrapper.defaultView)
+			docShell = this.getDocShellForFrame(doc.defaultView)
 				.QueryInterface(Components.interfaces.nsIDocShellTreeNode);
 
 			if (aFindFlag & this.FIND_BACK){ // back
@@ -211,7 +205,7 @@ var XMigemoFind = {
 				if (!docShell){
 					if (!repeat){
 						repeat = true;
-						docShell = this.getDocShellForFrame(viewWrapper.top);
+						docShell = this.getDocShellForFrame(doc.defaultView.top);
 						docShell = this.getLastChildDocShell(docShell.QueryInterface(Components.interfaces.nsIDocShellTreeNode));
 						doc = docShell
 							.QueryInterface(Components.interfaces.nsIDocShell)
@@ -233,8 +227,8 @@ var XMigemoFind = {
 				if (!docShell){
 					if (!repeat){
 						repeat = true;
-						doc = Components.lookupMethod(viewWrapper.top, 'document').call(viewWrapper.top);
-						document.commandDispatcher.focusedWindow = viewWrapper.top;
+						doc = Components.lookupMethod(doc.defaultView.top, 'document').call(doc.defaultView.top);
+						document.commandDispatcher.focusedWindow = doc.defaultView.top;
 						aFindFlag += this.FIND_FROM_START;
 						continue;
 					}
@@ -250,46 +244,50 @@ var XMigemoFind = {
 			}
 		}
 	},
- 
+ 	
 	findInRange : function(aFindFlag, aTerm, aRanges, aSilently) 
 	{
 //		mydump("findInRange");
 
 		this.mFind.findBackwards = Boolean(aFindFlag & this.FIND_BACK);
 
-		var nodeWrapper = new XPCNativeWrapper(aRanges.sRange.startContainer, 'ownerDocument');
-		var docWrapper = new XPCNativeWrapper(nodeWrapper.ownerDocument, 'defaultView');
-		var docShell = this.getDocShellForFrame(docWrapper.defaultView);
-		var selCon = docShell
-			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-			.getInterface(Components.interfaces.nsISelectionDisplay)
-			.QueryInterface(Components.interfaces.nsISelectionController);
-
 		var foundRange = this.mFind.Find(aTerm, aRanges.sRange, aRanges.start, aRanges.end);
-
 		if (!foundRange){
 			this.foundRange = null;
 			return this.NOTFOUND;
 		}
 
-		if (this.isInsideInputField(foundRange)) {
-			this.foundRange = foundRange;
-			return this.FOUND_IN_INPUT_FIELD;
-		}
-
 		//※mozilla.party.jp 5.0でMac OS Xで動いてるのを見たが、
 		//どうも選択範囲の色が薄いらしい…
-		var foundNodeWrapper = new XPCNativeWrapper(foundRange.startContainer, 'ownerDocument');
-		var foundDocWrapper = new XPCNativeWrapper(foundNodeWrapper.ownerDocument, 'defaultView');
+		var v = foundRange.commonAncestorContainer.parentNode.ownerDocument.defaultView;
 		if (!aSilently)
-			Components.lookupMethod(foundDocWrapper.defaultView, 'focus').call(foundDocWrapper.defaultView);
+			Components.lookupMethod(v, 'focus').call(v);
 
-		var rv = this.isInsideLink(foundRange, aSilently); // リンクにfocusをセットする役割も持つ
+		var doc = aRanges.sRange.startContainer.ownerDocument;
+
+		doc.lastFoundEditable = doc.foundEditable;
+		doc.foundEditable = this.findParentEditable(foundRange);
+		if (doc.foundEditable) {
+			this.foundRange = foundRange;
+			this.lastFoundWord = foundRange.toString();
+			this.setSelectionAndScroll(foundRange, doc, aSilently);
+			return this.FOUND_IN_EDITABLE;
+		}
+
+		var link = this.findParentLink(foundRange);
 		if (this.manualLinksOnly || XMigemoService.getPref('xulmigemo.linksonly')) {
-			if (rv == true) {
-				this.setSelectionAndScroll(foundRange, selCon, aSilently);
+			if (link) {
+				if (!aSilently) {
+					try{
+						Components.lookupMethod(link, 'focus').call(link);
+					}
+					catch(e){
+						link.focus();
+					}
+				}
 				this.foundRange = foundRange;
 				this.lastFoundWord = foundRange.toString();
+				this.setSelectionAndScroll(foundRange, doc, aSilently);
 				return this.FOUND;
 			}
 			else {
@@ -300,7 +298,7 @@ var XMigemoFind = {
 		else {
 			this.foundRange = foundRange;
 			this.lastFoundWord = foundRange.toString();
-			this.setSelectionAndScroll(foundRange, selCon, aSilently);
+			this.setSelectionAndScroll(foundRange, doc, aSilently);
 			return this.FOUND;
 		}
 		this.foundRange = null;
@@ -308,67 +306,40 @@ var XMigemoFind = {
 		return this.NOTFOUND;
 	},
  
-	isInsideLink : function(aRange, aSilently) 
+	findParentLink : function(aRange) 
 	{
-//		mydump("isInsideLink");
+//		mydump("findParentLink");
 		//後でXLinkを考慮したコードに直す
 
 		var node = aRange.commonAncestorContainer.parentNode;
-		while (
-			node &&
-			(nodeWrapper = new XPCNativeWrapper(node,
-				'parentNode',
-				'localName'
-			)) &&
-			nodeWrapper.parentNode
-			) {
-			if (String(nodeWrapper.localName).toLowerCase() == 'a') {
-				if (!aSilently) {
-					try{
-						Components.lookupMethod(node, 'focus').call(node);
-					}
-					catch(e){
-						node.focus();
-					}
-				}
-				return true;
+		while (node && node.parentNode)
+		{
+			if (String(node.localName).toLowerCase() == 'a') {
+				return node;
 			}
-			node = nodeWrapper.parentNode;
+			node = node.parentNode;
 		}
-		return false;
+		return null;
 	},
  
-	isInsideInputField : function(aRange) 
+	findParentEditable : function(aRange) 
 	{
+//		mydump('findParentEditable');
 		var node = aRange.commonAncestorContainer.parentNode;
-		while (
-			node &&
-			(nodeWrapper = new XPCNativeWrapper(node,
-				'parentNode',
-				'localName',
-				'getAttribute()'
-			)) &&
-			nodeWrapper.parentNode
-			) {
+		while (node && node.parentNode)
+		{
 			if (
-				String(nodeWrapper.localName).toLowerCase() == 'textbox' ||
-				String(nodeWrapper.localName).toLowerCase() == 'textarea' ||
-				String(nodeWrapper.localName).toLowerCase() == 'option' ||
-				String(nodeWrapper.localName).toLowerCase() == 'select' ||
+				/textbox|textarea|option|select/.test(String(node.localName).toLowerCase()) ||
 				(
-					String(nodeWrapper.localName).toLowerCase() == 'input' &&
-					(
-						nodeWrapper.getAttribute('type') == 'text' ||
-						nodeWrapper.getAttribute('type') == 'password' ||
-						nodeWrapper.getAttribute('type') == 'file'
-					)
+					String(node.localName).toLowerCase() == 'input' &&
+					/text|password|file/.test(node.getAttribute('type'))
 				)
 				) {
-				return true;
+				return node;
 			}
-			node = nodeWrapper.parentNode;
+			node = node.parentNode;
 		}
-		return false;
+		return null;
 	},
    
 /* DocShell Traversal */ 
@@ -376,8 +347,7 @@ var XMigemoFind = {
 	getDocShellForFrame : function(aFrame) 
 	{
 //		mydump('getDocShellForFrame');
-		var viewWrapper = new XPCNativeWrapper(aFrame, 'QueryInterface()');
-		return viewWrapper
+		return aFrame
 				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 				.getInterface(Components.interfaces.nsIWebNavigation)
 				.QueryInterface(Components.interfaces.nsIDocShell);
@@ -468,7 +438,7 @@ var XMigemoFind = {
 	},
   
 /* Range Manipulation */ 
-	
+	 
 	resetFindRange : function(aFindRange, aRange, aFindFlag, aDocument) 
 	{
 //		mydump("resetFindRange");
@@ -504,32 +474,38 @@ var XMigemoFind = {
 		return findRange;
 	},
  
-	getFindRange : function(aFindFlag, aDocument) 
+/* 
+	getFindRange : function(aFindFlag, aDocument)
 	{
 //		mydump("getFindRange");
 		var win = document.commandDispatcher.focusedWindow;
-		var docWrapper = new XPCNativeWrapper(aDocument,
-				'body',
-				'createRange()',
-				'defaultView'
-			);
-		var bodyNode = docWrapper.body;
+		var bodyNode = aDocument.body;
 
-		var findRange = docWrapper.createRange();
+		var findRange = aDocument.createRange();
 		findRange.selectNodeContents(bodyNode);
-		var startPt = docWrapper.createRange();
+		var startPt = aDocument.createRange();
 		startPt.selectNodeContents(bodyNode);
-		var endPt = docWrapper.createRange();
+		var endPt = aDocument.createRange();
 		endPt.selectNodeContents(bodyNode);
 
-		var docShell = this.getDocShellForFrame(docWrapper.defaultView);
-		var selCon = docShell
-			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-			.getInterface(Components.interfaces.nsISelectionDisplay)
-			.QueryInterface(Components.interfaces.nsISelectionController);
-		var selection = selCon.getSelection(selCon.SELECTION_NORMAL);
+		var docShell = this.getDocShellForFrame(aDocument.defaultView);
+		var selCon, selection;
+
+		if (aDocument.foundEditable) {
+			selCon = aDocument.foundEditable
+					.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+					.editor.selectionController;
+		}
+		else {
+			selCon = docShell
+				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+				.getInterface(Components.interfaces.nsISelectionDisplay)
+				.QueryInterface(Components.interfaces.nsISelectionController);
+		}
+		selection = selCon.getSelection(selCon.SELECTION_NORMAL);
 		var count = selection.rangeCount;
 		mydump("count:"+count);
+
 		var childCount = bodyNode.childNodes.length;
 		var range;
 		var node;
@@ -553,16 +529,15 @@ var XMigemoFind = {
 				//findVisibleNodeが一番の改造しどころだが、どうしたものか。
 				//案はあっても実際のコードが書けない。
 				if (aFindFlag & this.FIND_BACK){
-					node = this.viewportStartPoint || this.findVisibleNode(docWrapper.defaultView, aFindFlag);
-					var nodeWrapper = new XPCNativeWrapper(node, 'childNodes');
+					node = this.viewportStartPoint || this.findVisibleNode(aDocument.defaultView, aFindFlag);
 					this.viewportStartPoint = node;
-					findRange.setStart(node, nodeWrapper.childNodes.length);
-					startPt.setStart(node, nodeWrapper.childNodes.length);
-					startPt.setEnd(node, nodeWrapper.childNodes.length);
+					findRange.setStart(node, node.childNodes.length);
+					startPt.setStart(node, node.childNodes.length);
+					startPt.setEnd(node, node.childNodes.length);
 					endPt.collapse(true);
 				}
 				else {
-					node = this.viewportEndPoint || this.findVisibleNode(docWrapper.defaultView, aFindFlag);
+					node = this.viewportEndPoint || this.findVisibleNode(aDocument.defaultView, aFindFlag);
 					this.viewportEndPoint = node;
 					findRange.setStart(node, 0);
 					startPt.setStart(node, 0);
@@ -598,7 +573,147 @@ var XMigemoFind = {
 
 		return ret;
 	},
-	
+*/
+ 
+	getFindRange : function(aFindFlag, aDocument) 
+	{
+//		mydump("getFindRange");
+		var win = document.commandDispatcher.focusedWindow;
+
+		var docShell = this.getDocShellForFrame(aDocument.defaultView);
+		var docSelCon = docShell
+			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsISelectionDisplay)
+			.QueryInterface(Components.interfaces.nsISelectionController);
+
+		if (aDocument.foundEditable) {
+			var selCon = aDocument.foundEditable
+					.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+					.editor.selectionController;
+			var selection = selCon.getSelection(selCon.SELECTION_NORMAL);
+			var testRange1 = aDocument.createRange();
+
+			if (selection.rangeCount) {
+				var testRange2, node;
+				if (aFindFlag & this.FIND_BACK) {
+					var testRange2 = selection.getRangeAt(0);
+					var node = testRange2.startContainer;
+				}
+				else {
+					var testRange2 = selection.getRangeAt(selection.rangeCount-1);
+					var node = testRange2.endContainer;
+				}
+				while (node != aDocument.foundEditable &&
+						node.parentNode != aDocument.foundEditable)
+					node = node.parentNode;
+				return this.getFindRangeIn(aFindFlag, aDocument, node, selCon);
+			}
+
+			selection.removeAllRanges();
+
+			testRange1.selectNode(aDocument.foundEditable);
+			if (aFindFlag & this.FIND_BACK) {
+				testRange1.setEndBefore(aDocument.foundEditable);
+			}
+			else {
+				testRange1.setStartAfter(aDocument.foundEditable);
+			}
+			selection = docSelCon.getSelection(docSelCon.SELECTION_NORMAL);
+			selection.addRange(testRange1);
+		}
+
+		return this.getFindRangeIn(aFindFlag, aDocument, aDocument.body, docSelCon);
+	},
+	 
+	getFindRangeIn : function(aFindFlag, aDocument, aRangeParent, aSelCon) 
+	{
+//		mydump("getFindRange");
+		var win = document.commandDispatcher.focusedWindow;
+
+		var findRange = aDocument.createRange();
+		findRange.selectNodeContents(aRangeParent);
+		var startPt = aDocument.createRange();
+		startPt.selectNodeContents(aRangeParent);
+		var endPt = aDocument.createRange();
+		endPt.selectNodeContents(aRangeParent);
+
+		var selection = aSelCon.getSelection(aSelCon.SELECTION_NORMAL);
+		var count = selection.rangeCount;
+		mydump("count:"+count);
+
+		var childCount = aRangeParent.childNodes.length;
+		var range;
+		var node;
+		var offset;
+
+		if (aFindFlag & this.FIND_DEFAULT || count == 0) {
+			if (
+				aFindFlag & this.FIND_FROM_START ||
+				String(aRangeParent.localName).toLowerCase() != 'body' ||
+				!this.startFromViewport
+				) {
+				findRange.selectNodeContents(aRangeParent);
+				if (aFindFlag & this.FIND_BACK){
+					startPt.setStart(aRangeParent, childCount);
+					startPt.setEnd(aRangeParent, childCount);
+					endPt.collapse(true);
+				}
+				else {
+					startPt.setStart(aRangeParent, 0);
+					startPt.setEnd(aRangeParent, 0);
+					endPt.collapse(false);
+				}
+			}
+			else{
+				//findVisibleNodeが一番の改造しどころだが、どうしたものか。
+				//案はあっても実際のコードが書けない。
+				if (aFindFlag & this.FIND_BACK){
+					node = this.viewportStartPoint || this.findVisibleNode(aDocument.defaultView, aFindFlag);
+					this.viewportStartPoint = node;
+					findRange.setStart(node, node.childNodes.length);
+					startPt.setStart(node, node.childNodes.length);
+					startPt.setEnd(node, node.childNodes.length);
+					endPt.collapse(true);
+				}
+				else {
+					node = this.viewportEndPoint || this.findVisibleNode(aDocument.defaultView, aFindFlag);
+					this.viewportEndPoint = node;
+					findRange.setStart(node, 0);
+					startPt.setStart(node, 0);
+					startPt.setEnd(node, 0);
+					endPt.collapse(false);
+				}
+			}
+		}
+		else if (aFindFlag & this.FIND_FORWARD) {
+			range = selection.getRangeAt(count-1);
+			node = range.endContainer;
+			offset = range.endOffset;
+			findRange.setStart(node, offset);
+			startPt.setStart(node, offset);
+			startPt.setEnd(node, offset);
+			endPt.collapse(false);
+		}
+		else if (aFindFlag & this.FIND_BACK){
+			range = selection.getRangeAt(0);
+			node = range.startContainer;
+			offset = range.startOffset;
+			findRange.setEnd(node, offset);
+			startPt.setStart(node, offset);
+			startPt.setEnd(node, offset);
+			endPt.collapse(true);
+		}
+
+		var ret = {
+			sRange : findRange,
+			start  : startPt,
+			end    : endPt,
+			owner  : aRangeParent
+		};
+
+		return ret;
+	},
+ 
 	foundRange : null, 
  
 	viewportStartPoint : null, 
@@ -607,19 +722,12 @@ var XMigemoFind = {
 	findVisibleNode : function(aFrame, aFindFlag) 
 	{
 //		mydump("findVisibleNode");
-		var viewWrapper = new XPCNativeWrapper(aFrame,
-				'document',
-				'pageXOffset',
-				'pageYOffset',
-				'innerWidth',
-				'innerHeight'
-			);
-		var doc = viewWrapper.document;
+		var doc = aFrame.document;
 
-		var offsetX = viewWrapper.pageXOffset;
-		var offsetY = viewWrapper.pageYOffset;
-		var frameWidth = viewWrapper.innerWidth;
-		var frameHeight = viewWrapper.innerHeight;
+		var offsetX = aFrame.pageXOffset;
+		var offsetY = aFrame.pageYOffset;
+		var frameWidth = aFrame.innerWidth;
+		var frameHeight = aFrame.innerHeight;
 
 		var startX = offsetX;
 		var startY = offsetY;
@@ -630,13 +738,8 @@ var XMigemoFind = {
 
 		this.visibleNodeFilter.isInvisible = (aFindFlag & this.FIND_BACK) ? this.isBelow : this.isAbove ;
 
-		var docWrapper = new XPCNativeWrapper(doc,
-				'createTreeWalker()',
-				'body',
-				'documentElement'
-			);
-		var walker = docWrapper.createTreeWalker(doc, NodeFilter.SHOW_ELEMENT, this.visibleNodeFilter, false);
-		walker.currentNode = docWrapper.body || docWrapper.documentElement;
+		var walker = doc.createTreeWalker(doc, NodeFilter.SHOW_ELEMENT, this.visibleNodeFilter, false);
+		walker.currentNode = doc.body || doc.documentElement;
 		var node;
 		if (aFindFlag & this.FIND_BACK){
 			while (walker.currentNode.lastChild) {
@@ -647,77 +750,129 @@ var XMigemoFind = {
 		else{
 			node = walker.nextNode();
 		}
-		return node || docWrapper.documentElement;
+		return node || doc.documentElement;
 	},
-	
+	 
 	visibleNodeFilter : { 
 		acceptNode : function(aNode){
-			var wrapper = XMigemoFind.getNodeWrapper(aNode);
 			return (
-				wrapper.offsetWidth == 0 || wrapper.offsetHeight == 0 ||
+				aNode.offsetWidth == 0 || aNode.offsetHeight == 0 ||
 				this.isInvisible(aNode)
 				) ? NodeFilter.FILTER_SKIP : NodeFilter.FILTER_ACCEPT ;
 		},
 		isInvisible : null
 	},
-	
+	 
 	isAbove : function(aNode) 
 	{
 //		mydump("isAbove");
-		var wrapper = XMigemoFind.getNodeWrapper(aNode);
-		var height = wrapper.offsetHeight > frameHeight ? frameHeight : wrapper.offsetHeight ;
-		return (wrapper.offsetTop < startY && wrapper.offsetTop+height < startY+minPixels);
+		var height = aNode.offsetHeight > frameHeight ? frameHeight : aNode.offsetHeight ;
+		return (aNode.offsetTop < startY && aNode.offsetTop+height < startY+minPixels);
 	},
  
 	isBelow : function(aNode) 
 	{
 //		mydump("isBelow");
-		var wrapper = XMigemoFind.getNodeWrapper(aNode);
-		var height = wrapper.offsetHeight > frameHeight ? frameHeight : wrapper.offsetHeight ;
-		return (wrapper.offsetTop+height > endY && wrapper.offsetTop > endY-minPixels);
+		var height = aNode.offsetHeight > frameHeight ? frameHeight : aNode.offsetHeight ;
+		return (aNode.offsetTop+height > endY && aNode.offsetTop > endY-minPixels);
 	},
-  
-	getNodeWrapper : function(aNode) 
-	{
-		return new XPCNativeWrapper(aNode,
-				'offsetWidth',
-				'offsetHeight',
-				'offsetTop'
-			);
-	},
-   
+    
 /* Update Appearance */ 
-	
-	setSelectionLook : function(aDocument, aChangeColor, aEnabled) 
+	 
+	setSelectionLook : function(aDocument, aChangeColor) 
 	{
 //		mydump("xmSetSelectionLook");
-		var docShell = this.getDocShellForFrame(Components.lookupMethod(aDocument, 'defaultView').call(aDocument));
-		var selCon = docShell
+
+		var selCon;
+		if (aDocument.foundEditable) {
+			var editor = aDocument.foundEditable.QueryInterface(Components.interfaces.nsIDOMNSEditableElement).editor;
+			selCon = editor.selectionController;
+
+			if (aChangeColor) {
+				selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
+			}else{
+				selCon.setDisplaySelection(selCon.SELECTION_ON);
+			}
+			try {
+				selCon.repaintSelection(selCon.SELECTION_NORMAL);
+			}
+			catch(e) {
+			}
+		}
+
+		var docShell = this.getDocShellForFrame(aDocument.defaultView);
+		selCon = docShell
 			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 			.getInterface(Components.interfaces.nsISelectionDisplay)
 			.QueryInterface(Components.interfaces.nsISelectionController);
 
-		if (aChangeColor){
-			selCon.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ATTENTION);
+		if (aChangeColor) {
+			selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
 		}else{
-			selCon.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ON);
+			selCon.setDisplaySelection(selCon.SELECTION_ON);
 		}
 		try {
-			selCon.repaintSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+			selCon.repaintSelection(selCon.SELECTION_NORMAL);
 		}
 		catch(e) {
 		}
 	},
  
-	setSelectionAndScroll : function(aRange, aSelCon, aSilently) 
+	setSelectionAndScroll : function(aRange, aDocument, aSilently) 
 	{
 //		mydump("setSelectionAndScroll");
-		var selection = aSelCon.getSelection(aSelCon.SELECTION_NORMAL);
+
+		var selection;
+
+		// clear old range
+		var oldSelCon;
+		if (aDocument.lastFoundEditable) {
+			var editor = aDocument.lastFoundEditable
+						.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+						.editor;
+			oldSelCon = editor.selectionController;
+			selection = oldSelCon.getSelection(oldSelCon.SELECTION_NORMAL);
+			selection.removeAllRanges();
+		}
+		var docShell = this.getDocShellForFrame(aDocument.defaultView);
+		oldSelCon = docShell
+			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsISelectionDisplay)
+			.QueryInterface(Components.interfaces.nsISelectionController);
+		selection = oldSelCon.getSelection(oldSelCon.SELECTION_NORMAL);
 		selection.removeAllRanges();
+
+		// set new range
+		var newSelCon;
+		var editable = this.findParentEditable(aRange);
+		if (editable) {
+			var editor = editable
+						.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+						.editor;
+			newSelCon = editor.selectionController;
+		}
+		else {
+			newSelCon = docShell
+				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+				.getInterface(Components.interfaces.nsISelectionDisplay)
+				.QueryInterface(Components.interfaces.nsISelectionController);
+		}
+		selection = newSelCon.getSelection(newSelCon.SELECTION_NORMAL);
 		selection.addRange(aRange);
-		aSelCon.scrollSelectionIntoView(
-			aSelCon.SELECTION_NORMAL,
-			aSelCon.SELECTION_FOCUS_REGION, true);
+
+		newSelCon.scrollSelectionIntoView(
+			newSelCon.SELECTION_NORMAL,
+			newSelCon.SELECTION_FOCUS_REGION, true);
+	},
+ 
+	clearSelection : function(aDocument) 
+	{
+		if (aDocument.foundEditable)
+			aDocument.foundEditable
+				.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+				.editor.selection.removeAllRanges();
+
+		aDocument.defaultView.getSelection().removeAllRanges();
 	},
   
 	clear : function() 
@@ -730,8 +885,9 @@ var XMigemoFind = {
 		var win = document.commandDispatcher.focusedWindow;
 		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.browser.contentDocument;
 		this.setSelectionLook(doc, false, false);
+		doc.foundEditable = null;
 	},
- 	
+ 
 /* nsIPrefListener(?) */ 
 	
 	domain  : 'xulmigemo', 
