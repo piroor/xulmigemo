@@ -96,7 +96,7 @@ var XMigemoUI = {
 	_timeoutIndicator : null,
  
 /* nsIPrefListener(?) */ 
-	 
+	
 	domain  : 'xulmigemo', 
  
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -365,7 +365,7 @@ var XMigemoUI = {
 			}
 		}
 	},
- 	 
+  
 	mouseEvent : function(aEvent) 
 	{
 		if (!this.autoClose) {
@@ -381,9 +381,12 @@ var XMigemoUI = {
 	onXMigemoFindProgress : function(aEvent) 
 	{
 		gFindBar.enableFindButtons(!(aEvent.resultFlag == XMigemoFind.NOTFOUND || aEvent.resultFlag == XMigemoFind.NOTLINK));
+
 		// migemoでヒットした全ての語を強調表示するととんでもないことになるので、
 		// ハイライト表示のボタンだけは常に無効にしておこう。
-		this.findHighlightCheck.disabled = true;
+		// this.findHighlightCheck.disabled = true;
+		// →最後にヒットした語句のみを強調表示するように仕様変更したので、
+		//   機能を復活させた
 
 		var statusRes;
 		switch (aEvent.resultFlag)
@@ -392,6 +395,9 @@ var XMigemoUI = {
 				if (this.nsITypeAheadFind)
 					statusRes = this.nsITypeAheadFind.FIND_FOUND;
 				//alert(gFoundRange.toString());
+
+				if (this.findHighlightCheck.checked)
+					gFindBar.setHighlightTimeout();
 				break;
 
 			case XMigemoFind.NOTFOUND:
@@ -411,7 +417,7 @@ var XMigemoUI = {
 
 		gFindBar.updateStatus(statusRes, !(aEvent.findFlag & XMigemoFind.FIND_BACK));
 	},
- 
+ 	
 	onInputFindToolbar : function(aEvent) 
 	{
 		XMigemoFind.lastKeyword = aEvent.target.value;
@@ -446,7 +452,7 @@ var XMigemoUI = {
 	},
   
 /* timer */ 
-	 
+	
 /* Cancel Timer */ 
 	cancelTimer : null,
 	 
@@ -647,6 +653,8 @@ var XMigemoUI = {
 			eval('gFindBar.onFindAgainCmd = '+gFindBar.onFindAgainCmd.toSource().replace(/(\.(find|search)String)/g, '$1 || XMigemoFind.lastKeyword || XMigemoFind.previousKeyword'));
 			eval('gFindBar.onFindPreviousCmd = '+gFindBar.onFindPreviousCmd.toSource().replace(/(\.(find|search)String)/g, '$1 || XMigemoFind.lastKeyword || XMigemoFind.previousKeyword'));
 		}
+
+		eval('gFindBar.toggleHighlight = '+gFindBar.toggleHighlight.toSource().replace(/var word = /, 'var word = XMigemoUI.isActive ? XMigemoFind.lastFoundWord : '));
 
 		if (updateGlobalFunc) {
 			window.findNext          = this.findNext;
