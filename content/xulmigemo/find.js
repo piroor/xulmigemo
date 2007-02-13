@@ -9,6 +9,7 @@ var XMigemoFind = {
 	 
 	lastKeyword     : '', 
 	previousKeyword : '',
+	lastFoundWord   : '',
  
 	manualLinksOnly : false, 
 
@@ -249,7 +250,7 @@ var XMigemoFind = {
 			}
 		}
 	},
- 	
+ 
 	findInRange : function(aFindFlag, aTerm, aRanges, aSilently) 
 	{
 //		mydump("findInRange");
@@ -288,6 +289,7 @@ var XMigemoFind = {
 			if (rv == true) {
 				this.setSelectionAndScroll(foundRange, selCon, aSilently);
 				this.foundRange = foundRange;
+				this.lastFoundWord = foundRange.toString();
 				return this.FOUND;
 			}
 			else {
@@ -297,10 +299,12 @@ var XMigemoFind = {
 		}
 		else {
 			this.foundRange = foundRange;
+			this.lastFoundWord = foundRange.toString();
 			this.setSelectionAndScroll(foundRange, selCon, aSilently);
 			return this.FOUND;
 		}
 		this.foundRange = null;
+		this.lastFoundWord = '';
 		return this.NOTFOUND;
 	},
  
@@ -721,12 +725,13 @@ var XMigemoFind = {
 		this.lastKeyword        = '';
 		this.viewportStartPoint = null;
 		this.viewportEndPoint   = null;
+		this.lastFoundWord      = '';
 
 		var win = document.commandDispatcher.focusedWindow;
 		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.browser.contentDocument;
 		this.setSelectionLook(doc, false, false);
 	},
- 
+ 	
 /* nsIPrefListener(?) */ 
 	
 	domain  : 'xulmigemo', 
