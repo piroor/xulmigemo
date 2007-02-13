@@ -5,12 +5,14 @@
 */
  
 var XMigemoUI = { 
-	
+	 
 	lastFindMode           : 'native', 
 	isFindbarFocused       : false,
  
 	isAutoStart            : false, 
 	timeout                : 0,
+
+	autoClose              : false,
  
 	nsITypeAheadFind : Components.interfaces.nsITypeAheadFind, 
  
@@ -168,7 +170,7 @@ var XMigemoUI = {
 			default:
 		}
 	},
-	
+	 
 	keyEvent : function(aEvent) 
 	{
 		if (
@@ -178,7 +180,7 @@ var XMigemoUI = {
 			)
 			return;
 	},
-	
+	 
 	isEventFiredInInputField : function(aEvent) 
 	{
 		try { // in rich-textarea (ex. Gmail)
@@ -257,6 +259,7 @@ var XMigemoUI = {
 				isStartKeyLinksOnly2
 			)
 			) {
+			this.autoClose = true;
 			this.start();
 			XMigemoFind.manualLinksOnly = (isStartKeyLinksOnly || isStartKeyLinksOnly2) ? true : false ;
 			aEvent.preventDefault();
@@ -340,6 +343,7 @@ var XMigemoUI = {
 				!aEvent.metaKey &&
 				!aEvent.altKey
 				) {
+				this.autoClose = true;
 				this.start();
 				XMigemoFind.lastKeyword += String.fromCharCode(aEvent.charCode);
 				this.updateStatus(XMigemoFind.lastKeyword);
@@ -353,7 +357,8 @@ var XMigemoUI = {
   
 	mouseEvent : function(aEvent) 
 	{
-		mydump("mouseEvent.originalTarget:"+aEvent.originalTarget.tagName.toLowerCase());
+		if (!this.autoClose) return;
+//		mydump("mouseEvent.originalTarget:"+aEvent.originalTarget.tagName.toLowerCase());
 		this.cancel();
 		this.clearTimer();//ここでタイマーを殺さないといじられてしまう。タイマー怖い。
 	},
@@ -534,7 +539,7 @@ var XMigemoUI = {
 	},
  
 /* Override FindBar */ 
-	
+	 
 	overrideFindBar : function() 
 	{
 		/*
@@ -650,9 +655,15 @@ var XMigemoUI = {
 	{
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalClose.apply(scope, arguments);
-		XMigemoUI.findMigemoBar.setAttribute('collapsed', true);
+		window.setTimeout('XMigemoUI.delayedCloseFindBar()', 0);
 	},
- 
+	delayedCloseFindBar : function()
+	{
+		if (this.findBar.getAttribute('collapsed') == 'true' ||
+			this.findBar.getAttribute('hidden') == 'true')
+			this.findMigemoBar.setAttribute('collapsed', true);
+	},
+ 	
 	updateStatus : function(aStatusText) 
 	{
 		var bar = this.findBar;
@@ -690,6 +701,8 @@ var XMigemoUI = {
 	toggleFindToolbarMode : function(aSilently) 
 	{
 		if (this.isActive) {
+			this.findMigemoCheck.checked = true;
+
 			if (!aSilently)
 				gFindBar.openFindBar();
 
@@ -699,11 +712,11 @@ var XMigemoUI = {
 				caseSensitive.xmigemoOriginalChecked = caseSensitive.checked;
 				caseSensitive.checked  = false;
 			}
-
-			this.findMigemoCheck.checked = true;
 		}
-		else {
-			if (!aSilently)
+		else  {
+			this.findMigemoCheck.checked = false;
+
+			if (!aSilently && this.autoClose)
 				gFindBar.closeFindBar();
 
 			var caseSensitive = this.findCaseSensitiveCheck;
@@ -711,8 +724,6 @@ var XMigemoUI = {
 				caseSensitive.disabled = false;
 				caseSensitive.checked  = caseSensitive.xmigemoOriginalChecked;
 			}
-
-			this.findMigemoCheck.checked = false;
 		}
 	},
   
