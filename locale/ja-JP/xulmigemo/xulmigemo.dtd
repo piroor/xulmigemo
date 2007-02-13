@@ -4,7 +4,8 @@
 <!ENTITY xulmigemo.tab.general             "全般">
 
 <!ENTITY xulmigemo.caption.start           "起動">
-<!ENTITY xulmigemo.autostart               "自動的にMigemo検索を始める">
+<!ENTITY xulmigemo.autostart               "キー入力で自動的にMigemo検索を始める">
+<!ENTITY xulmigemo.enable_by_default       "検索開始時に自動的にMigemo検索を有効にする">
 <!ENTITY xulmigemo.linksonly               "リンク内の文字列だけを検索する">
 <!ENTITY xulmigemo.startfromviewport       "現在見えている領域内から検索を始める">
 

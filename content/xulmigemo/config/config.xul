@@ -18,6 +18,9 @@
 		<preference id="xulmigemo.autostart"
 			name="xulmigemo.autostart"
 			type="bool"/>
+		<preference id="xulmigemo.enable_by_default"
+			name="xulmigemo.enable_by_default"
+			type="bool"/>
 		<preference id="xulmigemo.linksonly"
 			name="xulmigemo.linksonly"
 			type="bool"/>
@@ -45,6 +48,9 @@
 		<checkbox id="xulmigemo.autostart-check" flex="1"
 			label="&xulmigemo.autostart;"
 			preference="xulmigemo.autostart"/>
+		<checkbox id="xulmigemo.enable_by_default-check" flex="1"
+			label="&xulmigemo.enable_by_default;"
+			preference="xulmigemo.enable_by_default"/>
 		<checkbox id="xulmigemo.linksonly-check" flex="1"
 			label="&xulmigemo.linksonly;"
 			preference="xulmigemo.linksonly"/>

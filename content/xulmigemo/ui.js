@@ -13,6 +13,7 @@ var XMigemoUI = {
 	timeout                : 0,
 
 	autoClose              : false,
+	enableByDefault        : false,
  
 	nsITypeAheadFind : Components.interfaces.nsITypeAheadFind, 
  
@@ -33,6 +34,12 @@ var XMigemoUI = {
 		return this._findBar;
 	},
 	_findBar : null,
+ 
+	get findBarHidden() 
+	{
+		return (this.findBar.getAttribute('collapsed') == 'true' ||
+				this.findBar.getAttribute('hidden') == 'true');
+	},
  
 	get findField() 
 	{
@@ -89,7 +96,7 @@ var XMigemoUI = {
 	_timeoutIndicator : null,
  
 /* nsIPrefListener(?) */ 
-	
+	 
 	domain  : 'xulmigemo', 
  
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -101,6 +108,10 @@ var XMigemoUI = {
 		{
 			case 'xulmigemo.autostart':
 				this.isAutoStart = value;
+				return;
+
+			case 'xulmigemo.enable_by_default':
+				this.enableByDefault = value;
 				return;
 
 			case 'xulmigemo.timeout':
@@ -159,7 +170,7 @@ var XMigemoUI = {
 				this.keyEvent(aEvent);
 				return;
 
-			case 'mousedown':
+			case 'mouseup':
 				this.mouseEvent(aEvent);
 				return;
 
@@ -259,7 +270,6 @@ var XMigemoUI = {
 				isStartKeyLinksOnly2
 			)
 			) {
-			this.autoClose = true;
 			this.start();
 			XMigemoFind.manualLinksOnly = (isStartKeyLinksOnly || isStartKeyLinksOnly2) ? true : false ;
 			aEvent.preventDefault();
@@ -343,7 +353,6 @@ var XMigemoUI = {
 				!aEvent.metaKey &&
 				!aEvent.altKey
 				) {
-				this.autoClose = true;
 				this.start();
 				XMigemoFind.lastKeyword += String.fromCharCode(aEvent.charCode);
 				this.updateStatus(XMigemoFind.lastKeyword);
@@ -357,7 +366,11 @@ var XMigemoUI = {
   
 	mouseEvent : function(aEvent) 
 	{
-		if (!this.autoClose) return;
+		if (!this.autoClose) {
+			XMigemoUI.cancel(true);
+			return;
+		}
+
 //		mydump("mouseEvent.originalTarget:"+aEvent.originalTarget.tagName.toLowerCase());
 		this.cancel();
 		this.clearTimer();//ここでタイマーを殺さないといじられてしまう。タイマー怖い。
@@ -396,11 +409,11 @@ var XMigemoUI = {
 
 		gFindBar.updateStatus(statusRes, !(aEvent.findFlag & XMigemoFind.FIND_BACK));
 	},
- 
+ 	
 	onInputFindToolbar : function(aEvent) 
 	{
 		XMigemoFind.lastKeyword = aEvent.target.value;
-		if (XMigemoUI.isActive) {
+		if (XMigemoUI.findMigemoCheck.checked) {
 			XMigemoUI.start(true);
 			aEvent.stopPropagation();
 			aEvent.preventDefault();
@@ -431,10 +444,10 @@ var XMigemoUI = {
 	},
   
 /* timer */ 
-	
+	 
 /* Cancel Timer */ 
 	cancelTimer : null,
-	
+	 
 	startTimer : function() 
 	{
 		mydump("xmigemoStartTimer");
@@ -442,7 +455,7 @@ var XMigemoUI = {
 		this.cancelTimer = window.setTimeout(this.timerCallback, this.timeout, this);
 		this.updateTimeoutIndicator(this.timeout);
 	},
-	
+	 
 	timerCallback : function(aThis) 
 	{
 		mydump("xmigemoTimeout");
@@ -509,16 +522,22 @@ var XMigemoUI = {
 		}
 	},
   
-	start : function(aSilently) 
+	start : function() 
 	{
+		mydump('xmigemoStart');
 		this.isActive = true;
 		this.lastFindMode = 'migemo';
 
-		if (!aSilently &&
+		if (this.findBarHidden &&
 			XMigemoService.getPref('xulmigemo.enabletimeout'))
 			this.startTimer();
 
-		this.toggleFindToolbarMode(aSilently);
+		if (this.findBarHidden) {
+			this.autoClose = true;
+			gFindBar.openFindBar();
+		}
+		else
+			this.toggleFindToolbarMode();
 
 		var findField = this.findField;
 		if (findField.value != XMigemoFind.lastKeyword)
@@ -532,7 +551,14 @@ var XMigemoUI = {
 
 		if (!aSilently) XMigemoFind.clear();
 
-		this.toggleFindToolbarMode(aSilently);
+		if (!aSilently) {
+			if (this.autoClose)
+				gFindBar.closeFindBar();
+			else
+				this.toggleFindToolbarMode();
+		}
+
+		this.autoClose = false;
 
 		this.updateTimeoutIndicator(-1);
 		this.clearTimer();
@@ -632,14 +658,28 @@ var XMigemoUI = {
 		}
 
 		this.findField.addEventListener('input', this.onInputFindToolbar, true);
-		this.findField.addEventListener('blur',  this.onFindBlur, false);
+
+
+		eval('nsBrowserStatusHandler.prototype.onLocationChange = '+
+			nsBrowserStatusHandler.prototype.onLocationChange.toSource().replace(/([^\.\s]+\.)+findString/, '(XMigemoUI.findMigemoCheck.checked ? XMigemoFind.lastKeyword : $1findString)'));
 	},
  
-	openFindBar : function() 
+	openFindBar : function(aShowMinimalUI) 
 	{
+		if (XMigemoUI.enableByDefault &&
+			!XMigemoUI.isActive/* &&
+			!aShowMinimalUI*/) {
+			XMigemoUI.isActive = true;
+			XMigemoUI.lastFindMode = 'migemo';
+		}
+
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalOpen.apply(scope, arguments);
 		XMigemoUI.findMigemoBar.removeAttribute('collapsed');
+
+//		if (!aShowMinimalUI)
+			XMigemoUI.toggleFindToolbarMode();
+//		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
 
 		if (!XMigemoUI.findMigemoBar.initialized &&
 			XMigemoService.getPref('xulmigemo.appearance.migemobar.overlay')) {
@@ -659,11 +699,13 @@ var XMigemoUI = {
 	},
 	delayedCloseFindBar : function()
 	{
+//		this.findField.removeEventListener('blur',  this.onFindBlur, false);
 		if (this.findBar.getAttribute('collapsed') == 'true' ||
 			this.findBar.getAttribute('hidden') == 'true')
 			this.findMigemoBar.setAttribute('collapsed', true);
+		this.toggleFindToolbarMode();
 	},
- 	
+ 
 	updateStatus : function(aStatusText) 
 	{
 		var bar = this.findBar;
@@ -703,9 +745,6 @@ var XMigemoUI = {
 		if (this.isActive) {
 			this.findMigemoCheck.checked = true;
 
-			if (!aSilently)
-				gFindBar.openFindBar();
-
 			var caseSensitive = this.findCaseSensitiveCheck;
 			if (caseSensitive) {
 				caseSensitive.disabled = true;
@@ -715,9 +754,6 @@ var XMigemoUI = {
 		}
 		else  {
 			this.findMigemoCheck.checked = false;
-
-			if (!aSilently && this.autoClose)
-				gFindBar.closeFindBar();
 
 			var caseSensitive = this.findCaseSensitiveCheck;
 			if (caseSensitive) {
@@ -740,11 +776,14 @@ var XMigemoUI = {
 		/*if(BrowserKeyPress!=undefined){
 			browser.addEventListener("keypress",BrowserKeyPress,true);
 		}*/
-		browser.addEventListener('mousedown', this, true);
+		browser.addEventListener('mouseup', this, true);
 
+//		XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);
+		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
 
 		XMigemoService.addPrefListener(this);
 		this.observe(null, 'nsPref:changed', 'xulmigemo.autostart');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.enable_by_default');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.override_findtoolbar');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.findForward');
@@ -767,7 +806,9 @@ var XMigemoUI = {
 
 		var browser = document.getElementById('content');
 		browser.removeEventListener('keypress', this, true);
-		browser.removeEventListener('mousedown', this, true);
+		browser.removeEventListener('mouseup', this, true);
+
+		XMigemoUI.findField.removeEventListener('blur',  XMigemoUI.onFindBlur, false);
 	},
  
 	dummy : null
