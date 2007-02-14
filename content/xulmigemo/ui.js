@@ -12,8 +12,17 @@ var XMigemoUI = {
 	isAutoStart            : false, 
 	timeout                : 0,
 
-	autoClose              : false,
 	enableByDefault        : false,
+ 
+	get isQuickFind() 
+	{
+		return XMigemoFind.isQuickFind;
+	},
+	set isQuickFind(val) 
+	{
+		XMigemoFind.isQuickFind = val;
+		return XMigemoFind.isQuickFind;
+	},
  
 	nsITypeAheadFind : Components.interfaces.nsITypeAheadFind, 
  
@@ -368,7 +377,7 @@ var XMigemoUI = {
   
 	mouseEvent : function(aEvent) 
 	{
-		if (!this.autoClose) {
+		if (!this.isQuickFind) {
 			XMigemoUI.isActive = false;
 //			XMigemoUI.cancel(true);
 			return;
@@ -432,7 +441,7 @@ var XMigemoUI = {
 			XMigemoUI.start(true);
 			aEvent.stopPropagation();
 			aEvent.preventDefault();
-			XMigemoFind.find(false, null, true);
+			XMigemoFind.find(false, null);
 		}
 		else {
 			XMigemoUI.lastFindMode = 'native';
@@ -441,7 +450,7 @@ var XMigemoUI = {
  
 	onFindBlur : function() 
 	{
-		if (XMigemoUI.autoClose)
+		if (XMigemoUI.isQuickFind)
 			XMigemoUI.cancel();
 //			XMigemoUI.cancel(true);
 	},
@@ -549,7 +558,7 @@ var XMigemoUI = {
 			this.startTimer();
 
 		if (this.findBarHidden) {
-			this.autoClose = true;
+			this.isQuickFind = true;
 			gFindBar.openFindBar();
 		}
 		else
@@ -567,12 +576,12 @@ var XMigemoUI = {
 
 		if (!aSilently) XMigemoFind.clear();
 
-		if (!aSilently || this.autoClose)
+		if (!aSilently || this.isQuickFind)
 			gFindBar.closeFindBar();
 		else
 			this.toggleFindToolbarMode();
 
-		this.autoClose = false;
+		this.isQuickFind = false;
 
 		this.updateTimeoutIndicator(-1);
 		this.clearTimer();
@@ -748,6 +757,7 @@ var XMigemoUI = {
 			this.findBar.getAttribute('hidden') == 'true')
 			this.findMigemoBar.setAttribute('collapsed', true);
 		this.toggleFindToolbarMode();
+		XMigemoFind.exitFind();
 	},
  
 	updateStatus : function(aStatusText) 
@@ -766,7 +776,7 @@ var XMigemoUI = {
 	{
 		mydump('XMigemoUI.findNext');
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == 'migemo') {
-			XMigemoFind.findNext(this.findBar ? this.findBar.hidden : true );
+			XMigemoFind.findNext(this.findBar && this.findBar.hidden);
 		}
 		else {
 			gFindBar.xmigemoOriginalFindNext();
@@ -777,7 +787,7 @@ var XMigemoUI = {
 	{
 		mydump('XMigemoUI.findPrevious');
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == 'migemo') {
-			XMigemoFind.findPrevious(this.findBar ? this.findBar.hidden : true );
+			XMigemoFind.findPrevious(this.findBar && this.findBar.hidden);
 		}
 		else {
 			gFindBar.xmigemoOriginalFindPrevious();
