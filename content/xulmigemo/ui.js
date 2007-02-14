@@ -795,6 +795,8 @@ var XMigemoUI = {
 		mydump('XMigemoUI.findNext');
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == 'migemo') {
 			XMigemoFind.findNext(this.findBar && this.findBar.hidden);
+			if (XMigemoUI.cancelTimer)
+				XMigemoUI.startTimer();
 		}
 		else {
 			gFindBar.xmigemoOriginalFindNext();
@@ -806,6 +808,8 @@ var XMigemoUI = {
 		mydump('XMigemoUI.findPrevious');
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == 'migemo') {
 			XMigemoFind.findPrevious(this.findBar && this.findBar.hidden);
+			if (XMigemoUI.cancelTimer)
+				XMigemoUI.startTimer();
 		}
 		else {
 			gFindBar.xmigemoOriginalFindPrevious();
