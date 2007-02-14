@@ -12,6 +12,7 @@ var XMigemoFind = {
 	lastFoundWord   : '',
  
 	manualLinksOnly : false, 
+	isQuickFind     : false,
 
 	startFromViewport : false,
  
@@ -45,17 +46,17 @@ var XMigemoFind = {
 	},
 	_browser : null,
  
-	findNext : function(aSilently) 
+	findNext : function(aForceFocus) 
 	{
-		this.find(false, this.lastKeyword || this.previousKeyword, aSilently);
+		this.find(false, this.lastKeyword || this.previousKeyword, aForceFocus);
 	},
  
-	findPrevious : function(aSilently) 
+	findPrevious : function(aForceFocus) 
 	{
-		this.find(true, this.lastKeyword || this.previousKeyword, aSilently);
+		this.find(true, this.lastKeyword || this.previousKeyword, aForceFocus);
 	},
  
-	find : function(aBackward, aKeyword, aSilently) 
+	find : function(aBackward, aKeyword, aForceFocus) 
 	{
 //		mydump("find");
 		var roman = aKeyword || this.lastKeyword;
@@ -80,11 +81,11 @@ var XMigemoFind = {
 		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) :
 					(findFlag & this.FIND_BACK) ? this.getLastChildDocument(this.browser.contentDocument) :
 					this.browser.contentDocument;
-		this.findInDocument(findFlag, doc, (new RegExp(myExp.replace(/\n/im, ''), 'im')), aSilently);
+		this.findInDocument(findFlag, doc, (new RegExp(myExp.replace(/\n/im, ''), 'im')), aForceFocus);
 		this.previousKeyword = roman;
 	},
 	 
-	findInDocument : function(aFindFlag, aDocument, aRegexp, aSilently) 
+	findInDocument : function(aFindFlag, aDocument, aRegexp, aForceFocus) 
 	{
 //		mydump("findInDocument");
 		var findRange;
@@ -144,7 +145,7 @@ var XMigemoFind = {
 				lastMatch = result || null;
 				if (lastMatch) {
 //					mydump("call findInRange");
-					found = this.findInRange(aFindFlag, lastMatch, findRange, aSilently);
+					found = this.findInRange(aFindFlag, lastMatch, findRange, aForceFocus);
 					//alert("lastMatch:"+lastMatch);
 				}
 				else{
@@ -245,7 +246,7 @@ var XMigemoFind = {
 		}
 	},
  
-	findInRange : function(aFindFlag, aTerm, aRanges, aSilently) 
+	findInRange : function(aFindFlag, aTerm, aRanges, aForceFocus) 
 	{
 //		mydump("findInRange");
 
@@ -260,7 +261,7 @@ var XMigemoFind = {
 		//※mozilla.party.jp 5.0でMac OS Xで動いてるのを見たが、
 		//どうも選択範囲の色が薄いらしい…
 		var v = foundRange.commonAncestorContainer.parentNode.ownerDocument.defaultView;
-		if (!aSilently)
+		if (aForceFocus || this.isQuickFind)
 			Components.lookupMethod(v, 'focus').call(v);
 
 		var doc = aRanges.sRange.startContainer.ownerDocument;
@@ -270,24 +271,24 @@ var XMigemoFind = {
 		if (doc.foundEditable) {
 			this.foundRange = foundRange;
 			this.lastFoundWord = foundRange.toString();
-			this.setSelectionAndScroll(foundRange, doc, aSilently);
+			this.setSelectionAndScroll(foundRange, doc);
 			return this.FOUND_IN_EDITABLE;
 		}
 
 		var link = this.findParentLink(foundRange);
+		if (link && (aForceFocus || this.isQuickFind)) {
+			try{
+				Components.lookupMethod(link, 'focus').call(link);
+			}
+			catch(e){
+				link.focus();
+			}
+		}
 		if (this.manualLinksOnly || XMigemoService.getPref('xulmigemo.linksonly')) {
 			if (link) {
-				if (!aSilently) {
-					try{
-						Components.lookupMethod(link, 'focus').call(link);
-					}
-					catch(e){
-						link.focus();
-					}
-				}
 				this.foundRange = foundRange;
 				this.lastFoundWord = foundRange.toString();
-				this.setSelectionAndScroll(foundRange, doc, aSilently);
+				this.setSelectionAndScroll(foundRange, doc);
 				return this.FOUND;
 			}
 			else {
@@ -298,7 +299,7 @@ var XMigemoFind = {
 		else {
 			this.foundRange = foundRange;
 			this.lastFoundWord = foundRange.toString();
-			this.setSelectionAndScroll(foundRange, doc, aSilently);
+			this.setSelectionAndScroll(foundRange, doc);
 			return this.FOUND;
 		}
 		this.foundRange = null;
@@ -816,7 +817,7 @@ var XMigemoFind = {
 		}
 	},
  
-	setSelectionAndScroll : function(aRange, aDocument, aSilently) 
+	setSelectionAndScroll : function(aRange, aDocument) 
 	{
 //		mydump("setSelectionAndScroll");
 
@@ -882,8 +883,32 @@ var XMigemoFind = {
 
 		var win = document.commandDispatcher.focusedWindow;
 		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.browser.contentDocument;
-		this.setSelectionLook(doc, false, false);
+
+		this.exitFind();
+
 		doc.foundEditable = null;
+	},
+ 
+	exitFind : function() 
+	{
+		var win = document.commandDispatcher.focusedWindow;
+		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.browser.contentDocument;
+
+		var selection = doc.defaultView.getSelection();
+		if (selection.rangeCount) {
+			var range = selection.getRangeAt(0);
+			var target = this.findParentLink(range) || this.findParentEditable(range);
+			if (target) {
+				try {
+					Components.lookupMethod(target, 'focus').call(target);
+				}
+				catch(e) {
+					if ('focus' in target)
+						target.focus();
+				}
+			}
+		}
+		this.setSelectionLook(doc, false);
 	},
  
 /* nsIPrefListener(?) */ 
