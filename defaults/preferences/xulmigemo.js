@@ -6,12 +6,16 @@ pref("xulmigemo.linksonly",                     false);
 pref("xulmigemo.ignoreHiraKata",                false);
 pref("xulmigemo.splitTermsAutomatically",       false);
 
+pref("xulmigemo.checked_by_default.findbar",       false);
+pref("xulmigemo.checked_by_default.migemo",        false);
+pref("xulmigemo.checked_by_default.highlight",     false);
+pref("xulmigemo.checked_by_default.caseSensitive", false);
+
 pref("xulmigemo.timeout",                       4000);
 pref("xulmigemo.enabletimeout",                 true);
 
 pref("xulmigemo.enabletimeout.indicator",       true);
-pref("xulmigemo.override_findtoolbar",          true);
-
+pref("xulmigemo.appearance.migemobar.overlay",  true);
 pref("xulmigemo.appearance.indicator.height",   5);
 
 pref("xulmigemo.shortcut.manualStart",           "/");

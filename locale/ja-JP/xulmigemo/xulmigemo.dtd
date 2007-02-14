@@ -3,26 +3,41 @@
 
 <!ENTITY xulmigemo.tab.general             "全般">
 
-<!ENTITY xulmigemo.caption.start           "起動">
-<!ENTITY xulmigemo.autostart               "キー入力で自動的にMigemo検索を始める">
-<!ENTITY xulmigemo.enable_by_default       "検索開始時に自動的にMigemo検索を有効にする">
-<!ENTITY xulmigemo.prefillwithselection    "検索開始時に選択範囲の内容を自動的に取り込む">
-<!ENTITY xulmigemo.linksonly               "リンク内の文字列だけを検索する">
+<!ENTITY xulmigemo.enable_by_default       "常にMigemo検索を有効にする">
 <!ENTITY xulmigemo.startfromviewport       "現在見えている領域内から検索を始める">
+
 
 <!ENTITY xulmigemo.caption.recognize       "文字の認識">
 <!ENTITY xulmigemo.ignoreHiraKata          "ひらがなとカタカナの違いを無視する">
 <!ENTITY xulmigemo.splitTermsAutomatically "文節の切れ目を自動的に認識する">
 
-<!ENTITY xulmigemo.caption.timeout         "タイムアウト">
-<!ENTITY xulmigemo.enabletimeout           "自動的にMigemo検索を終了する">
+
+<!ENTITY xulmigemo.tab.quickfind           "クイックMigemo検索">
+
+<!ENTITY xulmigemo.caption.quickstart      "クイックMigemo検索の開始">
+<!ENTITY xulmigemo.autostart               "キー入力で自動的にクイックMigemo検索を始める">
+<!ENTITY xulmigemo.linksonly               "リンク内の文字列だけを検索する">
+
+<!ENTITY xulmigemo.caption.timeout         "クイックMigemo検索の終了">
+<!ENTITY xulmigemo.enabletimeout           "自動的にクイックMigemo検索を終了する">
 <!ENTITY xulmigemo.timeout.before          "最後の入力から">
 <!ENTITY xulmigemo.timeout.after           "ミリ秒経過したら終了する">
 
 
+<!ENTITY xulmigemo.tab.findbar             "検索ツールバー">
+
+<!ENTITY xulmigemo.prefillwithselection    "検索開始時に選択範囲の内容を自動的に取り込む">
+
+<!ENTITY xulmigemo.caption.checked_by_default       "検索ツールバーの初期状態">
+<!ENTITY xulmigemo.checked_by_default.findbar       "Firefox起動時に検索ツールバーを表示する">
+<!ENTITY xulmigemo.checked_by_default.migemo        "Migemo検索を有効にする">
+<!ENTITY xulmigemo.checked_by_default.highlight     "「すべて強調表示」を有効にする">
+<!ENTITY xulmigemo.checked_by_default.caseSensitive "「大文字小文字を区別」を有効にする">
+
+
 <!ENTITY xulmigemo.tab.appearance          "表示">
 
-<!ENTITY xulmigemo.enabletimeout.indicator "タイムアウトまでの残り時間を表示する">
+<!ENTITY xulmigemo.enabletimeout.indicator "クイックMigemo検索終了までの残り時間を表示する">
 <!ENTITY xulmigemo.appearance.indicator.height.before "残り時間を表示するバーの高さ：">
 <!ENTITY xulmigemo.appearance.indicator.height.after "ピクセル（0＝標準の高さ）">
 <!ENTITY xulmigemo.appearance.migemobar.overlay "Migemo検索の切り替えチェックボックスを検索ツールバーに重ねる">
@@ -47,12 +62,13 @@
 <!ENTITY xulmigemo.cache.update.time.now   "今すぐキャッシュを更新">
 
 
-<!ENTITY xulmigemo.tab.shortcut            "ショートカットキー">
+<!ENTITY xulmigemo.tab.shortcut            "ショートカット">
 
 <!ENTITY xulmigemo.shortcut.findForward    "次を検索">
 <!ENTITY xulmigemo.shortcut.findBackward   "前を検索">
-<!ENTITY xulmigemo.shortcut.manualStart    "Migemo検索を開始">
-<!ENTITY xulmigemo.shortcut.manualStartLinksOnly "Migemo検索を開始（リンク文字列のみ検索）">
+<!ENTITY xulmigemo.shortcut.manualStart    "クイックMigemo検索を開始">
+<!ENTITY xulmigemo.shortcut.manualStartLinksOnly "クイックMigemo検索を開始2">
+<!ENTITY xulmigemo.shortcut.manualStartLinksOnly2 "2（リンク文字列のみ検索）">
 <!ENTITY xulmigemo.shortcut.goDicManager   "辞書マネージャを開く">
 
 <!ENTITY xulmigemo.shortcut.set            "変更">
