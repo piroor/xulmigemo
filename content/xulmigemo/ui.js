@@ -259,6 +259,9 @@ var XMigemoUI = {
 			else if (isBackwardKey)
 				XMigemoFind.findPrevious();
 
+			if (this.cancelTimer)
+				this.startTimer();
+
 			mydump("PrevKeyword:"+XMigemoFind.previousKeyword+"\nCurrentKeyword:"+XMigemoFind.lastKeyword)
 			return true;
 		}
