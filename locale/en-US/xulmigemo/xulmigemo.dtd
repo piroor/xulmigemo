@@ -3,27 +3,42 @@
 
 <!ENTITY xulmigemo.tab.general             "General">
 
-<!ENTITY xulmigemo.caption.start           "Startup">
-<!ENTITY xulmigemo.autostart               "Enter Migemo mode automatically for keytypes">
-<!ENTITY xulmigemo.enable_by_default       "Enter Migemo mode automatically when I start to find">
-<!ENTITY xulmigemo.prefillwithselection    "Previously fill the find bar with selection">
-<!ENTITY xulmigemo.linksonly               "Find only links">
+<!ENTITY xulmigemo.enable_by_default       "Always enter Migemo mode automatically">
 <!ENTITY xulmigemo.startfromviewport       "Find from viewport">
 
 <!ENTITY xulmigemo.caption.recognize       "Character Recognition">
 <!ENTITY xulmigemo.ignoreHiraKata          "Ignore difference of Hiragana and Katakana">
 <!ENTITY xulmigemo.splitTermsAutomatically "Recognize text segments automatically">
 
+
+<!ENTITY xulmigemo.tab.quickfind           "Quick Migemo Find">
+
+<!ENTITY xulmigemo.caption.quickstart      "Startup">
+<!ENTITY xulmigemo.autostart               "Start Quick Migemo Find automatically for keytypes">
+<!ENTITY xulmigemo.linksonly               "Find only links">
+
 <!ENTITY xulmigemo.caption.timeout         "Timeout">
-<!ENTITY xulmigemo.enabletimeout           "Exit Migemo mode automatically">
+<!ENTITY xulmigemo.enabletimeout           "Exit Quick Migemo Find automatically">
 <!ENTITY xulmigemo.timeout.before          "Timeout after">
 <!ENTITY xulmigemo.timeout.after           "msec">
+
+
+<!ENTITY xulmigemo.tab.findbar             "Find Toolbar">
+
+<!ENTITY xulmigemo.prefillwithselection    "Previously fill the find bar with selection">
+
+<!ENTITY xulmigemo.caption.checked_by_default       "Initial State of Find Toolbar">
+<!ENTITY xulmigemo.checked_by_default.findbar       "Show find toolbar at startup">
+<!ENTITY xulmigemo.checked_by_default.migemo        "Enable Migemo mode">
+<!ENTITY xulmigemo.checked_by_default.highlight     "Enable &quot;Hilight all&quot;">
+<!ENTITY xulmigemo.checked_by_default.caseSensitive "Enable &quot;Match cases&quot;">
+
 
 
 <!ENTITY xulmigemo.tab.appearance          "Appearance">
 
 <!ENTITY xulmigemo.override_findtoolbar    "Override the Find Toolbar">
-<!ENTITY xulmigemo.enabletimeout.indicator "Indicate remaining time for timeout">
+<!ENTITY xulmigemo.enabletimeout.indicator "Indicate remaining time for timeout of Quick Migemo Find">
 <!ENTITY xulmigemo.appearance.indicator.height.before "Height of the remaining time indicator:">
 <!ENTITY xulmigemo.appearance.indicator.height.after "pixel (0=system default)">
 <!ENTITY xulmigemo.appearance.migemobar.overlay "Overlay checkbox to switch Migemo mode on the find toolbar">
@@ -48,12 +63,13 @@
 <!ENTITY xulmigemo.cache.update.time.now   "Update Cache Now">
 
 
-<!ENTITY xulmigemo.tab.shortcut            "Shortcut Keys">
+<!ENTITY xulmigemo.tab.shortcut            "Shortcut">
 
 <!ENTITY xulmigemo.shortcut.findForward    "Find Next">
 <!ENTITY xulmigemo.shortcut.findBackward   "Find Backward">
-<!ENTITY xulmigemo.shortcut.manualStart    "Enter Migemo mode">
-<!ENTITY xulmigemo.shortcut.manualStartLinksOnly "Enter Migemo mode (search only links)">
+<!ENTITY xulmigemo.shortcut.manualStart    "Start Quick Migemo Find">
+<!ENTITY xulmigemo.shortcut.manualStartLinksOnly "Start Quick Migemo Find">
+<!ENTITY xulmigemo.shortcut.manualStartLinksOnly2 "(search only links)">
 <!ENTITY xulmigemo.shortcut.goDicManager   "Show Dictionary Manager">
 
 <!ENTITY xulmigemo.shortcut.set            "Set">

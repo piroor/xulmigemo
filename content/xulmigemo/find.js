@@ -121,7 +121,7 @@ var XMigemoFind = {
 			getFindRange:
 			while (true)
 			{
-				if (isLinksOnly){
+				if (this.isQuickFind && isLinksOnly){
 					var as = doc.getElementsByTagName('a');
 					if (!as.length){
 						noRepeatL = false;
@@ -284,7 +284,10 @@ var XMigemoFind = {
 				link.focus();
 			}
 		}
-		if (this.manualLinksOnly || XMigemoService.getPref('xulmigemo.linksonly')) {
+		if (
+			this.manualLinksOnly ||
+			(this.isQuickFind && XMigemoService.getPref('xulmigemo.linksonly'))
+			) {
 			if (link) {
 				this.foundRange = foundRange;
 				this.lastFoundWord = foundRange.toString();

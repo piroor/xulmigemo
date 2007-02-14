@@ -18,7 +18,7 @@ var XMigemoUI = {
 	{
 		return XMigemoFind.isQuickFind;
 	},
-	set isQuickFind(val) 
+	set isQuickFind(val)
 	{
 		XMigemoFind.isQuickFind = val;
 		return XMigemoFind.isQuickFind;
@@ -393,12 +393,11 @@ var XMigemoUI = {
  
 	onXMigemoFindProgress : function(aEvent) 
 	{
-		gFindBar.enableFindButtons(
-			!(
-				aEvent.resultFlag == XMigemoFind.NOTFOUND ||
-				aEvent.resultFlag == XMigemoFind.NOTLINK
-			)
-		);
+		gFindBar.enableFindButtons(!(
+			aEvent.resultFlag == XMigemoFind.NOTFOUND ||
+			aEvent.resultFlag == XMigemoFind.NOTLINK
+		));
+
 
 		// migemoでヒットした全ての語を強調表示するととんでもないことになるので、
 		// ハイライト表示のボタンだけは常に無効にしておこう。
@@ -457,7 +456,7 @@ var XMigemoUI = {
 			XMigemoUI.cancel();
 //			XMigemoUI.cancel(true);
 	},
- 	
+ 
 	onChangeFindToolbarMode : function() 
 	{
 		this.clearTimer();
@@ -562,6 +561,11 @@ var XMigemoUI = {
 
 		if (this.findBarHidden) {
 			this.isQuickFind = true;
+
+			var migemoCheck = this.findMigemoCheck;
+			migemoCheck.xmigemoOriginalChecked = migemoCheck.checked;
+			migemoCheck.checked = true;
+
 			gFindBar.openFindBar();
 		}
 		else
@@ -584,7 +588,12 @@ var XMigemoUI = {
 		else
 			this.toggleFindToolbarMode();
 
-		this.isQuickFind = false;
+		if (this.isQuickFind) {
+			var migemoCheck = this.findMigemoCheck;
+			migemoCheck.checked = migemoCheck.xmigemoOriginalChecked;
+
+			this.isQuickFind = false;
+		}
 
 		this.updateTimeoutIndicator(-1);
 		this.clearTimer();
@@ -622,8 +631,9 @@ var XMigemoUI = {
 			gFindBar.findPrevious = this.findPrevious;
 
 			if (!('openFindBar' in gFindBar)) { // Firefox 3.0
-				gFindBar.enableFindButtons = gFindBar._enableFindButtons;
-				gFindBar.find              = gFindBar._find;
+				gFindBar.xmigemoOriginalEnableFindButtons = gFindBar._enableFindButtons;
+				gFindBar._enableFindButtons = this.enableFindButtons;
+				gFindBar.find               = gFindBar._find;
 
 				gFindBar.xmigemoOriginalOpen  = gFindBar.open;
 				gFindBar.xmigemoOriginalClose = gFindBar.close;
@@ -631,9 +641,11 @@ var XMigemoUI = {
 				gFindBar.close                = this.closeFindBar;
 			}
 			else {
+				gFindBar.xmigemoOriginalEnableFindButtons = gFindBar.enableFindButtons;
 				gFindBar.xmigemoOriginalOpen  = gFindBar.openFindBar;
 				gFindBar.xmigemoOriginalClose = gFindBar.closeFindBar;
 			}
+			gFindBar.enableFindButtons = this.enableFindButtons;
 			gFindBar.openFindBar  = this.openFindBar;
 			gFindBar.closeFindBar = this.closeFindBar;
 
@@ -651,14 +663,16 @@ var XMigemoUI = {
 				closeFindBar                : this.closeFindBar,
 				xmigemoOriginalOpen         : window.openFindBar,
 				xmigemoOriginalClose        : window.closeFindBar,
-				enableFindButtons           : window.enableFindButtons,
+				xmigemoOriginalEnableFindButtons : window.enableFindButtons,
+				enableFindButtons           : this.enableFindButtons,
 				updateStatus                : window.updateStatus,
 				find                        : window.find,
 				toggleHighlight             : window.toggleHighlight,
 				onFindAgainCmd              : window.onFindAgainCmd,
 				onFindPreviousCmd           : window.onFindPreviousCmd,
 				xmigemoOriginalFindNext     : window.findNext,
-				xmigemoOriginalFindPrevious : window.findPrevious
+				xmigemoOriginalFindPrevious : window.findPrevious,
+				toggleCaseSensitiveCheckbox : window.toggleCaseSensitivity
 			};
 		}
 
@@ -689,14 +703,17 @@ var XMigemoUI = {
 
 
 		eval('nsBrowserStatusHandler.prototype.onLocationChange = '+
-			nsBrowserStatusHandler.prototype.onLocationChange.toSource().replace(/([^\.\s]+\.)+findString/, '(XMigemoUI.findMigemoCheck.checked ? XMigemoFind.lastKeyword : $1findString)'));
+			nsBrowserStatusHandler.prototype.onLocationChange.toSource()
+				.replace(/([^\.\s]+\.)+findString/, '(XMigemoUI.findMigemoCheck.checked ? XMigemoFind.lastKeyword : $1findString)')
+		);
 	},
  
 	openFindBar : function(aShowMinimalUI) 
 	{
-		if (XMigemoUI.enableByDefault &&
-			!XMigemoUI.isActive/* &&
-			!aShowMinimalUI*/) {
+		if (XMigemoUI.enableByDefault && !XMigemoUI.findMigemoCheck.checked)
+			XMigemoUI.findMigemoCheck.checked = true;
+
+		if (XMigemoUI.findMigemoCheck.checked && !XMigemoUI.isActive) {
 			XMigemoUI.isActive = true;
 			XMigemoUI.lastFindMode = 'migemo';
 		}
@@ -705,9 +722,7 @@ var XMigemoUI = {
 		scope.xmigemoOriginalOpen.apply(scope, arguments);
 		XMigemoUI.findMigemoBar.removeAttribute('collapsed');
 
-//		if (!aShowMinimalUI)
-			XMigemoUI.toggleFindToolbarMode();
-//		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
+		XMigemoUI.toggleFindToolbarMode();
 
 		if (!XMigemoUI.findMigemoBar.initialized &&
 			XMigemoService.getPref('xulmigemo.appearance.migemobar.overlay')) {
@@ -755,10 +770,10 @@ var XMigemoUI = {
 	},
 	delayedCloseFindBar : function()
 	{
-//		this.findField.removeEventListener('blur',  this.onFindBlur, false);
 		if (this.findBar.getAttribute('collapsed') == 'true' ||
 			this.findBar.getAttribute('hidden') == 'true')
 			this.findMigemoBar.setAttribute('collapsed', true);
+
 		this.toggleFindToolbarMode();
 		XMigemoFind.exitFind();
 	},
@@ -797,26 +812,33 @@ var XMigemoUI = {
 		}
 	},
  
+	enableFindButtons : function(aEnable) 
+	{
+		var highlightCheck = XMigemoUI.findHighlightCheck;
+		if (!aEnable && !highlightCheck.disabled) {
+			highlightCheck.xmigemoOriginalChecked = highlightCheck.checked;
+		}
+
+		var scope = window.gFindBar ? window.gFindBar : this ;
+		scope.xmigemoOriginalEnableFindButtons.apply(scope, arguments);
+
+		if (aEnable && XMigemoService.getPref('xulmigemo.checked_by_default.highlight')) {
+			highlightCheck.checked = highlightCheck.xmigemoOriginalChecked;
+		}
+	},
+ 	
 	toggleFindToolbarMode : function(aSilently) 
 	{
 		if (this.isActive) {
-			this.findMigemoCheck.checked = true;
-
 			var caseSensitive = this.findCaseSensitiveCheck;
-			if (caseSensitive) {
-				caseSensitive.disabled = true;
-				caseSensitive.xmigemoOriginalChecked = caseSensitive.checked;
-				caseSensitive.checked  = false;
-			}
+			caseSensitive.xmigemoOriginalChecked = caseSensitive.checked;
+			caseSensitive.checked  = false;
+			caseSensitive.disabled = true;
 		}
 		else  {
-			this.findMigemoCheck.checked = false;
-
 			var caseSensitive = this.findCaseSensitiveCheck;
-			if (caseSensitive) {
-				caseSensitive.disabled = false;
-				caseSensitive.checked  = caseSensitive.xmigemoOriginalChecked;
-			}
+			caseSensitive.disabled = false;
+			caseSensitive.checked  = caseSensitive.xmigemoOriginalChecked;
 		}
 	},
   
@@ -836,11 +858,10 @@ var XMigemoUI = {
 		browser.addEventListener('mouseup', this, true);
 
 //		XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);
-		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
 
 		XMigemoService.addPrefListener(this);
 		this.observe(null, 'nsPref:changed', 'xulmigemo.autostart');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.enable_by_default');
+//		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.migemobar.overlay');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.override_findtoolbar');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.findForward');
@@ -853,6 +874,23 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.indicator.height');
 
 		this.overrideFindBar();
+
+		window.setTimeout('XMigemoUI.delayedInit()', 0);
+	},
+	delayedInit : function() {
+		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
+
+		if (XMigemoService.getPref('xulmigemo.checked_by_default.migemo'))
+			this.findMigemoCheck.checked = this.findMigemoCheck.xmigemoOriginalChecked = true;
+		if (XMigemoService.getPref('xulmigemo.checked_by_default.highlight'))
+			this.findHighlightCheck.checked = this.findHighlightCheck.xmigemoOriginalChecked = true;
+		if (XMigemoService.getPref('xulmigemo.checked_by_default.caseSensitive')) {
+			this.findCaseSensitiveCheck.checked = this.findCaseSensitiveCheck.xmigemoOriginalChecked = true;
+			gFindBar.toggleCaseSensitiveCheckbox(true);
+		}
+
+		if (XMigemoService.getPref('xulmigemo.checked_by_default.findbar'))
+			gFindBar.openFindBar();
 	},
  
 	destroy : function() 
