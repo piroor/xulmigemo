@@ -1,5 +1,5 @@
 var XMigemoService = { 
-	
+	 
 	DEBUG : true, 
  
 	get ObserverService() 
@@ -165,6 +165,51 @@ var XMigemoService = {
 			aShortcut.metaKey == aEvent.metaKey;
 	},
   
+	scrollSelectionToCenter : function(aFrame) 
+	{
+		var frame = aFrame || this.getSelectionFrame(document.commandDispatcher.focusedWindow || window._content);
+		if (!frame) return;
+
+		var selection = frame.getSelection();
+		var range = frame.document.createRange();
+		var elem = frame.document.createElement('span');
+
+		range.setStart(selection.focusNode, selection.focusOffset);
+		range.setEnd(selection.focusNode, selection.focusOffset);
+		range.insertNode(elem);
+
+		var offset = this.getPageOffsetTop(elem) - frame.innerHeight / 2;
+		frame.scroll(frame.pageXOffset, offset);
+
+		elem.parentNode.removeChild(elem);
+		range.detach();
+	},
+	getSelectionFrame : function(aFrame)
+	{
+		var selection = aFrame.getSelection();
+		if (selection && selection.rangeCount)
+			return aFrame;
+
+		var frame;
+		for (var i = 0, maxi = aFrame.frames.length; i < maxi; i++)
+		{
+			frame = arguments.callee(aFrame.frames[i]);
+			if (frame) return frame;
+		}
+		return null;
+	},
+	getPageOffsetTop : function(aNode)
+	{
+		if (!aNode) return 0;
+		var top = aNode.offsetTop;
+		while (aNode.offsetParent != null)
+		{
+			aNode = aNode.offsetParent;
+			top += aNode.offsetTop;
+		}
+		return top;
+	},
+ 	
 	goDicManager : function() 
 	{
 		var uri = 'chrome://xulmigemo/content/dicManager/dicManager.xul';
@@ -294,7 +339,7 @@ var XMigemoTextService = {
 		return this._ichi;
 	},
 	_ichi : null,
-	
+	 
 /* convert HTML to text */ 
 	
 	range2Text : function(aRange) 
