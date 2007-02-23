@@ -865,6 +865,13 @@ var XMigemoFind = {
 		newSelCon.scrollSelectionIntoView(
 			newSelCon.SELECTION_NORMAL,
 			newSelCon.SELECTION_FOCUS_REGION, true);
+
+		this.scrollSelectionToCenter(aDocument.defaultView);
+	},
+	scrollSelectionToCenter : function(aFrame)
+	{
+		if (XMigemoService.getPref('xulmigemo.scrollSelectionToCenter'))
+			XMigemoService.scrollSelectionToCenter(aFrame);
 	},
  
 	clearSelection : function(aDocument) 

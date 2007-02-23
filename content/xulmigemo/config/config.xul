@@ -15,11 +15,14 @@
 
 <prefpane id="prefpane-general" label="&xulmigemo.tab.general;">
 	<preferences>
+		<preference id="xulmigemo.enable_by_default"
+			name="xulmigemo.enable_by_default"
+			type="bool"/>
 		<preference id="xulmigemo.startfromviewport"
 			name="xulmigemo.startfromviewport"
 			type="bool"/>
-		<preference id="xulmigemo.enable_by_default"
-			name="xulmigemo.enable_by_default"
+		<preference id="xulmigemo.scrollSelectionToCenter"
+			name="xulmigemo.scrollSelectionToCenter"
 			type="bool"/>
 
 		<preference id="xulmigemo.ignoreHiraKata"
@@ -36,6 +39,9 @@
 	<checkbox id="xulmigemo.startfromviewport-check" flex="1"
 		label="&xulmigemo.startfromviewport;"
 		preference="xulmigemo.startfromviewport"/>
+	<checkbox id="xulmigemo.scrollSelectionToCenter-check" flex="1"
+		label="&xulmigemo.scrollSelectionToCenter;"
+		preference="xulmigemo.scrollSelectionToCenter"/>
 
 	<groupbox>
 		<caption label="&xulmigemo.caption.recognize;"/>

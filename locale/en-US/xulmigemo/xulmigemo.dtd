@@ -5,6 +5,7 @@
 
 <!ENTITY xulmigemo.enable_by_default       "Always enter Migemo mode automatically">
 <!ENTITY xulmigemo.startfromviewport       "Find from viewport">
+<!ENTITY xulmigemo.scrollSelectionToCenter "Show the found term in the middle of the screen">
 
 <!ENTITY xulmigemo.caption.recognize       "Character Recognition">
 <!ENTITY xulmigemo.ignoreHiraKata          "Ignore difference of Hiragana and Katakana">
