@@ -6,6 +6,7 @@ pref("xulmigemo.linksonly",                     false);
 pref("xulmigemo.ignoreHiraKata",                false);
 pref("xulmigemo.splitTermsAutomatically",       false);
 pref("xulmigemo.scrollSelectionToCenter",       false);
+pref("xulmigemo.ignore_find_links_only_behavior", true);
 
 pref("xulmigemo.checked_by_default.findbar",       false);
 pref("xulmigemo.checked_by_default.migemo",        false);

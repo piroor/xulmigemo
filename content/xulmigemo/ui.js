@@ -676,9 +676,16 @@ var XMigemoUI = {
 			};
 		}
 
-		eval('gFindBar.find = '+gFindBar.find.toSource().replace(/(this.updateStatus\([^\)]*\))/, '$1; XMigemoFind.scrollSelectionToCenter();'));
-		eval('gFindBar.xmigemoOriginalFindNext = '+gFindBar.xmigemoOriginalFindNext.toSource().replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(); $1'));
-		eval('gFindBar.xmigemoOriginalFindPrevious = '+gFindBar.xmigemoOriginalFindPrevious.toSource().replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(); $1'));
+		eval('gFindBar.find = '+gFindBar.find.toSource()
+			.replace(/(this.updateStatus\([^\)]*\))/, '$1; XMigemoFind.scrollSelectionToCenter();')
+			.replace(/\{/, '{ XMigemoUI.presetSearchString(arguments.length ? arguments[0] : null); ')
+		);
+		eval('gFindBar.xmigemoOriginalFindNext = '+gFindBar.xmigemoOriginalFindNext.toSource()
+			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(); $1')
+		);
+		eval('gFindBar.xmigemoOriginalFindPrevious = '+gFindBar.xmigemoOriginalFindPrevious.toSource()
+			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(); $1')
+		);
 
 		// Firefox 3.0-    : onFindAgainCommand / searcgString
 		// Firefox 1.x-2.0 : onFindAgainCmd / onFindPreviousCmd / findString
@@ -712,6 +719,31 @@ var XMigemoUI = {
 		);
 	},
  
+	presetSearchString : function(aString) 
+	{
+		if (XMigemoService.getPref('xulmigemo.ignore_find_links_only_behavior')) return;
+
+		if (!aString)
+			aString = XMigemoUI.findField.value;
+
+		/*
+			accessibility.typeaheadfind.linksonlyがtrueの時に
+			検索バッファが空のままnsITypeAheadFind.findを実行すると、
+			常にリンクのみの検索になってしまう。
+			何か1文字だけでも検索すれば、正常に検索できる。
+		*/
+		try {
+			var fastFind = getBrowser().fastFind;
+			if (XMigemoService.getPref('accessibility.typeaheadfind.linksonly') &&
+				!fastFind.searchString) {
+				var res = fastFind.find(sel.charAt(0), false);
+				fastFind.findPrevious();
+			}
+		}
+		catch(e) {
+		}
+	},
+ 
 	openFindBar : function(aShowMinimalUI) 
 	{
 		if (XMigemoUI.enableByDefault && !XMigemoUI.findMigemoCheck.checked)
@@ -741,7 +773,6 @@ var XMigemoUI = {
 			stack.style.marginLeft = '-'+width+'px';
 		}
 
-
 		if (XMigemoService.getPref('xulmigemo.prefillwithselection')) {
 			var win = document.commandDispatcher.focusedWindow || window.content ;
 			var sel = (win && win.getSelection() ? win.getSelection().toString() : '' ).replace(/^\s+|\s+$/g, '');
@@ -765,7 +796,7 @@ var XMigemoUI = {
 					 )
 					 return;
 				XMigemoUI.findField.value = sel;
-				gFindBar.find(sel);
+				gFindBar.find();
 			}
 		}
 	},
