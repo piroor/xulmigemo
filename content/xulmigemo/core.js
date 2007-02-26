@@ -81,6 +81,8 @@ var XMigemoCore = {
  
 	getRegExpPart : function(aRoman) 
 	{
+		if (!aRoman) return null;
+
 		aRoman = aRoman.toLowerCase();
 
 		var cacheText = XMigemoCache.getCacheFor(aRoman);
@@ -189,6 +191,8 @@ var XMigemoCore = {
   
 	gatherEntriesFor : function(aRoman, aTargetDic) 
 	{
+		if (!aRoman) return [];
+
 		var str = XMigemoTextService.expand(
 					XMigemoTextService.sanitize(
 						XMigemoTextService.convertStr(
