@@ -549,25 +549,25 @@ var XMigemoUI = {
 		}
 	},
   
-	start : function() 
+	start : function(aSilently) 
 	{
 		mydump('xmigemoStart');
 		this.isActive = true;
 		this.lastFindMode = 'migemo';
 
-		if (this.findBarHidden &&
-			XMigemoService.getPref('xulmigemo.enabletimeout'))
-			this.startTimer();
-
-		if (this.findBarHidden) {
+		if (!aSilently) {
 			this.isQuickFind = true;
 
-			var migemoCheck = this.findMigemoCheck;
-			migemoCheck.xmigemoOriginalChecked = migemoCheck.checked;
-			migemoCheck.checked = true;
-
-			gFindBar.openFindBar();
+			if (XMigemoService.getPref('xulmigemo.enabletimeout'))
+				this.startTimer();
 		}
+
+		var migemoCheck = this.findMigemoCheck;
+		migemoCheck.xmigemoOriginalChecked = migemoCheck.checked;
+		migemoCheck.checked = true;
+
+		if (this.findBarHidden)
+			gFindBar.openFindBar();
 		else
 			this.toggleFindToolbarMode();
 
@@ -675,11 +675,11 @@ var XMigemoUI = {
 				toggleCaseSensitiveCheckbox : window.toggleCaseSensitivity
 			};
 		}
-/*
+
 		eval('gFindBar.find = '+gFindBar.find.toSource().replace(/(this.updateStatus\([^\)]*\))/, '$1; XMigemoFind.scrollSelectionToCenter();'));
 		eval('gFindBar.xmigemoOriginalFindNext = '+gFindBar.xmigemoOriginalFindNext.toSource().replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(); $1'));
 		eval('gFindBar.xmigemoOriginalFindPrevious = '+gFindBar.xmigemoOriginalFindPrevious.toSource().replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(); $1'));
-*/
+
 		// Firefox 3.0-    : onFindAgainCommand / searcgString
 		// Firefox 1.x-2.0 : onFindAgainCmd / onFindPreviousCmd / findString
 		if ('onFindAgainCommand' in gFindBar) {
@@ -765,7 +765,7 @@ var XMigemoUI = {
 					 )
 					 return;
 				XMigemoUI.findField.value = sel;
-				gFindBar.find();
+				gFindBar.find(sel);
 			}
 		}
 	},
