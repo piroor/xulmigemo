@@ -675,11 +675,11 @@ var XMigemoUI = {
 				toggleCaseSensitiveCheckbox : window.toggleCaseSensitivity
 			};
 		}
-
+/*
 		eval('gFindBar.find = '+gFindBar.find.toSource().replace(/(this.updateStatus\([^\)]*\))/, '$1; XMigemoFind.scrollSelectionToCenter();'));
 		eval('gFindBar.xmigemoOriginalFindNext = '+gFindBar.xmigemoOriginalFindNext.toSource().replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(); $1'));
 		eval('gFindBar.xmigemoOriginalFindPrevious = '+gFindBar.xmigemoOriginalFindPrevious.toSource().replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(); $1'));
-
+*/
 		// Firefox 3.0-    : onFindAgainCommand / searcgString
 		// Firefox 1.x-2.0 : onFindAgainCmd / onFindPreviousCmd / findString
 		if ('onFindAgainCommand' in gFindBar) {
@@ -720,6 +720,10 @@ var XMigemoUI = {
 		if (XMigemoUI.findMigemoCheck.checked && !XMigemoUI.isActive) {
 			XMigemoUI.isActive = true;
 			XMigemoUI.lastFindMode = 'migemo';
+		}
+		else if (!XMigemoUI.findMigemoCheck.checked) {
+			XMigemoUI.isActive = false;
+			XMigemoUI.lastFindMode = 'native';
 		}
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
@@ -869,6 +873,7 @@ var XMigemoUI = {
 
 		XMigemoService.addPrefListener(this);
 		this.observe(null, 'nsPref:changed', 'xulmigemo.autostart');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.enable_by_default');
 //		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.migemobar.overlay');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.override_findtoolbar');
