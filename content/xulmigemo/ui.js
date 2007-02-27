@@ -618,12 +618,12 @@ var XMigemoUI = {
 		if ('gFindBar' in window) {
 			gFindBar.xmigemoOriginalFindNext = ('onFindAgainCommand' in gFindBar) ?
 				function() { // Firefox 3.0-
-					gFindBar.onFindAgainCommand(false);
+					gFindBar.xmigemoOriginalOnFindAgainCommand(false);
 				} :
 				gFindBar.findNext; // Firefox 1.x-2.0
 			gFindBar.xmigemoOriginalFindPrevious = ('onFindAgainCommand' in gFindBar) ?
 				function() { // Firefox 3.0-
-					gFindBar.onFindAgainCommand(true);
+					gFindBar.xmigemoOriginalOnFindAgainCommand(true);
 				} :
 				gFindBar.findPrevious; // Firefox 1.x-2.0
 
@@ -690,11 +690,24 @@ var XMigemoUI = {
 		// Firefox 3.0-    : onFindAgainCommand / searcgString
 		// Firefox 1.x-2.0 : onFindAgainCmd / onFindPreviousCmd / findString
 		if ('onFindAgainCommand' in gFindBar) {
-			eval('gFindBar.onFindAgainCommand = '+gFindBar.onFindAgainCommand.toSource().replace(/(\.(find|search)String)/g, '$1 || XMigemoFind.lastKeyword || XMigemoFind.previousKeyword'));
+			eval('gFindBar.onFindAgainCommand = '+gFindBar.onFindAgainCommand.toSource()
+				.replace(/([^=\s]+\.(find|search)String)/g, 'XMigemoUI.getLastFindString($1)')
+			);
+			gFindBar.xmigemoOriginalOnFindAgainCommand = gFindBar.onFindAgainCommand;
+			gFindBar.onFindAgainCommand = function(aFindPrevious) {
+				if (aFindPrevious)
+					this.findPrevious();
+				else
+					this.findNext();
+			};
 		}
 		else {
-			eval('gFindBar.onFindAgainCmd = '+gFindBar.onFindAgainCmd.toSource().replace(/(\.(find|search)String)/g, '$1 || XMigemoFind.lastKeyword || XMigemoFind.previousKeyword'));
-			eval('gFindBar.onFindPreviousCmd = '+gFindBar.onFindPreviousCmd.toSource().replace(/(\.(find|search)String)/g, '$1 || XMigemoFind.lastKeyword || XMigemoFind.previousKeyword'));
+			eval('gFindBar.onFindAgainCmd = '+gFindBar.onFindAgainCmd.toSource()
+				.replace(/([^=\s]+\.(find|search)String)/g, 'XMigemoUI.getLastFindString($1)')
+			);
+			eval('gFindBar.onFindPreviousCmd = '+gFindBar.onFindPreviousCmd.toSource()
+				.replace(/([^=\s]+\.(find|search)String)/g, 'XMigemoUI.getLastFindString($1)')
+			);
 		}
 
 		eval('gFindBar.toggleHighlight = '+gFindBar.toggleHighlight.toSource().replace(/var word = /, 'var word = XMigemoUI.isActive ? XMigemoFind.lastFoundWord : '));
@@ -717,6 +730,12 @@ var XMigemoUI = {
 			nsBrowserStatusHandler.prototype.onLocationChange.toSource()
 				.replace(/([^\.\s]+\.)+findString/, '(XMigemoUI.findMigemoCheck.checked ? XMigemoFind.lastKeyword : $1findString)')
 		);
+	},
+ 
+	getLastFindString : function(aString) 
+	{
+		var migemoString = XMigemoFind.previousKeyword || XMigemoFind.lastKeyword;
+		return (this.lastFindMode == 'native') ? (aString || migemoString) : (migemoString || aString) ;
 	},
  
 	presetSearchString : function(aString) 
