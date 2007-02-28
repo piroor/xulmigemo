@@ -172,17 +172,29 @@ var XMigemoService = {
 
 		var selection = frame.getSelection();
 		var range = frame.document.createRange();
-		var elem = frame.document.createElement('span');
+		var elem;
 
-		range.setStart(selection.focusNode, selection.focusOffset);
-		range.setEnd(selection.focusNode, selection.focusOffset);
-		range.insertNode(elem);
+		if (frame.document.foundEditable) {
+			elem = frame.document.foundEditable;
 
-		var offset = this.getPageOffsetTop(elem) - frame.innerHeight / 2;
-		frame.scroll(frame.pageXOffset, offset);
+			var box = elem.ownerDocument.getBoxObjectFor(elem);
+			frame.scroll(box.x - frame.innerWidth / 2, box.y - frame.innerHeight / 2);
+		}
+		else {
+			elem = frame.document.createElement('span');
+			range.setStart(selection.focusNode, selection.focusOffset);
+			range.setEnd(selection.focusNode, selection.focusOffset);
+			range.insertNode(elem);
 
-		elem.parentNode.removeChild(elem);
-		range.detach();
+			var box = frame.document.getBoxObjectFor(elem);
+			if (!box.x && !box.y)
+				box = frame.document.getBoxObjectFor(elem.parentNode);
+
+			frame.scroll(box.x - frame.innerWidth / 2, box.y - frame.innerHeight / 2);
+
+			elem.parentNode.removeChild(elem);
+			range.detach();
+		}
 	},
 	getSelectionFrame : function(aFrame)
 	{
