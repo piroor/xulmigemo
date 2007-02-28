@@ -68,8 +68,8 @@
 <!ENTITY xulmigemo.shortcut.findForward    "次を検索">
 <!ENTITY xulmigemo.shortcut.findBackward   "前を検索">
 <!ENTITY xulmigemo.shortcut.manualStart    "クイックMigemo検索を開始">
-<!ENTITY xulmigemo.shortcut.manualStartLinksOnly "クイックMigemo検索を開始2">
-<!ENTITY xulmigemo.shortcut.manualStartLinksOnly2 "2（リンク文字列のみ検索）">
+<!ENTITY xulmigemo.shortcut.manualStartLinksOnly "クイックMigemo検索を開始">
+<!ENTITY xulmigemo.shortcut.manualStartLinksOnly2 "（リンク文字列のみ検索）">
 <!ENTITY xulmigemo.shortcut.goDicManager   "辞書マネージャを開く">
 
 <!ENTITY xulmigemo.shortcut.set            "変更">
