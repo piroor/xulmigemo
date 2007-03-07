@@ -26,6 +26,15 @@ var XMigemoUI = {
  
 	nsITypeAheadFind : Components.interfaces.nsITypeAheadFind, 
  
+	get browser() 
+	{
+		if (this._browser === void(0)) {
+			this._browser = document.getElementById('content') || // Firefox
+							document.getElementById('messagepane'); // Thunderbird
+		}
+		return this._browser;
+	},
+ 
 	get findMigemoBar() 
 	{
 		if (!this._findMigemoBar) {
@@ -187,6 +196,14 @@ var XMigemoUI = {
 				this.onXMigemoFindProgress(aEvent);
 				return;
 
+			case 'load':
+				this.init();
+				return;
+
+			case 'unload':
+				this.destroy();
+				return;
+
 			default:
 		}
 	},
@@ -318,7 +335,7 @@ var XMigemoUI = {
 				this.cancel();
 				this.clearTimer(); // ここでタイマーを殺さないといじられてしまう
 				var win = document.commandDispatcher.focusedWindow;
-				var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : document.getElementById('content').contentDocument;
+				var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.browser.contentDocument;
 				XMigemoFind.setSelectionLook(doc, false, false);
 				return true;
 
@@ -725,11 +742,11 @@ var XMigemoUI = {
 
 		this.findField.addEventListener('input', this.onInputFindToolbar, true);
 
-
-		eval('nsBrowserStatusHandler.prototype.onLocationChange = '+
-			nsBrowserStatusHandler.prototype.onLocationChange.toSource()
-				.replace(/([^\.\s]+\.)+findString/, '(XMigemoUI.findMigemoCheck.checked ? XMigemoFind.lastKeyword : $1findString)')
-		);
+		if ('nsBrowserStatusHandler' in window)
+			eval('nsBrowserStatusHandler.prototype.onLocationChange = '+
+				nsBrowserStatusHandler.prototype.onLocationChange.toSource()
+					.replace(/([^\.\s]+\.)+findString/, '(XMigemoUI.findMigemoCheck.checked ? XMigemoFind.lastKeyword : $1findString)')
+			);
 	},
  
 	getLastFindString : function(aString) 
@@ -908,16 +925,19 @@ var XMigemoUI = {
 	{
 		document.addEventListener('XMigemoFindProgress', this, false);
 
-		//BrowserKeyPress
-		var browser = document.getElementById('content');
-		if (browser.getAttribute('onkeypress'))
-			browser.setAttribute('onkeypress', '');
+		var browser = this.browser;
+		if (browser) {
+			XMigemoFind.target = browser;
 
-		browser.addEventListener('keypress', this, true);
-		/*if(BrowserKeyPress!=undefined){
-			browser.addEventListener("keypress",BrowserKeyPress,true);
-		}*/
-		browser.addEventListener('mouseup', this, true);
+			if (browser.getAttribute('onkeypress'))
+				browser.setAttribute('onkeypress', '');
+
+			browser.addEventListener('keypress', this, true);
+			/*if(BrowserKeyPress!=undefined){
+				browser.addEventListener("keypress",BrowserKeyPress,true);
+			}*/
+			browser.addEventListener('mouseup', this, true);
+		}
 
 //		XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);
 
@@ -939,6 +959,9 @@ var XMigemoUI = {
 		this.overrideFindBar();
 
 		window.setTimeout('XMigemoUI.delayedInit()', 0);
+
+		window.removeEventListener('load', this, false);
+		window.addEventListener('unload', this, false);
 	},
 	delayedInit : function() {
 		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
@@ -962,22 +985,21 @@ var XMigemoUI = {
 
 		document.removeEventListener('XMigemoFindProgress', this, false);
 
-		var browser = document.getElementById('content');
-		browser.removeEventListener('keypress', this, true);
-		browser.removeEventListener('mouseup', this, true);
+		var browser = this.browser;
+		if (browser) {
+			browser.removeEventListener('keypress', this, true);
+			browser.removeEventListener('mouseup', this, true);
+		}
 
-		XMigemoUI.findField.removeEventListener('blur',  XMigemoUI.onFindBlur, false);
+		this.findField.removeEventListener('blur', this.onFindBlur, false);
+
+		window.removeEventListener('unload', this, false);
 	},
  
 	dummy : null
 }; 
   
-window.addEventListener('load', function() { 
-	XMigemoUI.init();
-}, false);
-window.addEventListener('unload', function() {
-	XMigemoUI.destroy();
-}, false);
+window.addEventListener('load', XMigemoUI, false);
  
 //obsolete 
 function xmFind(){mydump("xmFind");
