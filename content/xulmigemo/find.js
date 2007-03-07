@@ -38,13 +38,7 @@ var XMigemoFind = {
 	},
 	_mFind : null,
  
-	get browser() 
-	{
-		if (!this._browser)
-			this._browser = document.getElementById('content');
-		return this._browser;
-	},
-	_browser : null,
+	target : null,
  
 	findNext : function(aForceFocus) 
 	{
@@ -58,6 +52,10 @@ var XMigemoFind = {
  
 	find : function(aBackward, aKeyword, aForceFocus) 
 	{
+		if (!this.target) {
+			throw 'XUL/Migemo::there is no target window.';
+		}
+
 //		mydump("find");
 		var roman = aKeyword || this.lastKeyword;
 		if (!roman) return false;
@@ -79,8 +77,8 @@ var XMigemoFind = {
 		}
 		var win = document.commandDispatcher.focusedWindow;
 		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) :
-					(findFlag & this.FIND_BACK) ? this.getLastChildDocument(this.browser.contentDocument) :
-					this.browser.contentDocument;
+					(findFlag & this.FIND_BACK) ? this.getLastChildDocument(this.target.contentDocument) :
+					this.target.contentDocument;
 		this.findInDocument(findFlag, doc, (new RegExp(myExp.replace(/\n/im, ''), 'im')), aForceFocus);
 		this.previousKeyword = roman;
 	},
@@ -892,7 +890,7 @@ var XMigemoFind = {
 		this.lastFoundWord      = '';
 
 		var win = document.commandDispatcher.focusedWindow;
-		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.browser.contentDocument;
+		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.target.contentDocument;
 
 		this.exitFind();
 
@@ -902,7 +900,7 @@ var XMigemoFind = {
 	exitFind : function() 
 	{
 		var win = document.commandDispatcher.focusedWindow;
-		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.browser.contentDocument;
+		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.target.contentDocument;
 
 		var selection = doc.defaultView.getSelection();
 		if (selection.rangeCount) {

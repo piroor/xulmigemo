@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:html="http://www.w3.org/1999/xhtml">
+
+<script src="service.js" />
+	<script src="dic.js" />
+		<script src="core.js" />
+			<script src="find.js" />
+				<script src="ui.js" />
+
+<hbox id="XMigemoFindToolbar"
+	collapsed="true"
+	pack="end">
+	<stack id="migemo-stack" style="position: relative;">
+		<vbox id="migemo-timeout-indicator-stack"
+			pack="end">
+			<progressmeter id="migemo-timeout-indicator"
+				hidden="true"
+				type="determined"/>
+		</vbox>
+		<hbox align="center">
+			<checkbox id="find-migemo-mode"
+				label="Migemo"
+				oncommand="XMigemoUI.onChangeFindToolbarMode();"/>
+<!--
+				persist="checked"/>
+-->
+		</hbox>
+	</stack>
+</hbox>
+
+
+</overlay>
