@@ -632,6 +632,12 @@ var XMigemoUI = {
 
 		var updateGlobalFunc = false;
 
+		var bar = document.getElementById('FindToolbar');
+		if (bar &&
+			bar.localName == 'findbar' &&
+			!('gFindBar' in window))
+			window.gFindBar = bar;
+
 		if ('gFindBar' in window) {
 			gFindBar.xmigemoOriginalFindNext = ('onFindAgainCommand' in gFindBar) ?
 				function() { // Firefox 3.0-
@@ -694,7 +700,7 @@ var XMigemoUI = {
 		}
 
 		eval('gFindBar.find = '+gFindBar.find.toSource()
-			.replace(/(this.updateStatus\([^\)]*\))/, '$1; XMigemoFind.scrollSelectionToCenter();')
+			.replace(/(this._?updateStatus(UI)?\([^\)]*\))/, '$1; XMigemoFind.scrollSelectionToCenter();')
 			.replace(/\{/, '{ XMigemoUI.presetSearchString(arguments.length ? arguments[0] : null); ')
 		);
 		eval('gFindBar.xmigemoOriginalFindNext = '+gFindBar.xmigemoOriginalFindNext.toSource()
