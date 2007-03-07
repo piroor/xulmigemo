@@ -860,7 +860,7 @@ var XMigemoUI = {
 		if (bar && !bar.hidden && findField) {
 			findField.value = aStatusText;
 		}
-		else {
+		else if (document.getElementById('statusbar-display')) {
 			document.getElementById('statusbar-display').label = aStatusText;
 		}
 	},
