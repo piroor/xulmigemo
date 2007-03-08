@@ -162,6 +162,10 @@ var XMigemoUI = {
 				this.manualStartLinksOnlyKey2 = XMigemoService.parseShortcut(value);
 				return;
 
+			case 'xulmigemo.shortcut.manualExit':
+				this.manualExitKey = XMigemoService.parseShortcut(value);
+				return;
+
 			case 'xulmigemo.shortcut.goDicManager':
 				this.goDicManagerKey = XMigemoService.parseShortcut(value);
 				return;
@@ -261,6 +265,7 @@ var XMigemoUI = {
 		var isStartKey2          = XMigemoService.checkShortcutForKeyEvent(this.manualStartKey2, aEvent);
 		var isStartKeyLinksOnly  = XMigemoService.checkShortcutForKeyEvent(this.manualStartLinksOnlyKey, aEvent);
 		var isStartKeyLinksOnly2 = XMigemoService.checkShortcutForKeyEvent(this.manualStartLinksOnlyKey2, aEvent);
+		var isExitKey            = XMigemoService.checkShortcutForKeyEvent(this.manualExitKey, aEvent);
 
 		if (shouldGoDicManager) {
 			XMigemoService.goDicManager();
@@ -306,6 +311,19 @@ var XMigemoUI = {
 			return true;
 		}
 
+
+		if (isExitKey) {
+			aEvent.preventDefault();
+
+			this.cancel();
+			this.clearTimer(); // ここでタイマーを殺さないといじられてしまう
+			var win = document.commandDispatcher.focusedWindow;
+			var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.browser.contentDocument;
+			XMigemoFind.setSelectionLook(doc, false, false);
+
+			return true;
+		}
+
 		return false;
 	},
  
@@ -329,14 +347,6 @@ var XMigemoUI = {
 					XMigemoFind.find();
 					this.restartTimer();
 				}
-				return true;
-
-			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_ESCAPE:
-				this.cancel();
-				this.clearTimer(); // ここでタイマーを殺さないといじられてしまう
-				var win = document.commandDispatcher.focusedWindow;
-				var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.browser.contentDocument;
-				XMigemoFind.setSelectionLook(doc, false, false);
 				return true;
 
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_ENTER:
@@ -960,6 +970,7 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.manualStartLinksOnly');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.manualStartLinksOnly2');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.goDicManager');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.manualExit');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.indicator.height');
 
 		this.overrideFindBar();

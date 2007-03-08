@@ -276,6 +276,9 @@
 		<preference id="xulmigemo.shortcut.goDicManager"
 			name="xulmigemo.shortcut.goDicManager"
 			type="string"/>
+		<preference id="xulmigemo.shortcut.manualExit"
+			name="xulmigemo.shortcut.manualExit"
+			type="string"/>
 	</preferences>
 
 	<hbox>
@@ -414,6 +417,23 @@
 								oncommand="clearShortcut(shortcutManualStartLinksOnly2);"/>
 						</hbox>
 					</vbox>
+				</row>
+				<row align="center">
+					<label value="&xulmigemo.shortcut.manualExit;"/>
+					<hbox align="center">
+						<textbox id="shortcutManualExit"
+							readonly="true"
+							style="width: 10em;"
+							preference="xulmigemo.shortcut.manualExit"
+							dialogMessage="&xulmigemo.shortcut.dialog.message;"
+							dialogButton="&xulmigemo.shortcut.dialog.button;"/>
+						<button label="&xulmigemo.shortcut.set;"
+							style="min-width: 0;"
+							oncommand="setShortcut(shortcutManualExit);"/>
+						<button label="&xulmigemo.shortcut.clear;"
+							style="min-width: 0;"
+							oncommand="clearShortcut(shortcutManualExit);"/>
+					</hbox>
 				</row>
 			</rows>
 		</grid>

@@ -24,6 +24,7 @@ pref("xulmigemo.shortcut.manualStart",           "/");
 pref("xulmigemo.shortcut.manualStart2",          "Ctrl+Shift+F");
 pref("xulmigemo.shortcut.manualStartLinksOnly",  "\\");
 pref("xulmigemo.shortcut.manualStartLinksOnly2", "");
+pref("xulmigemo.shortcut.manualExit",            "ESCAPE");
 pref("xulmigemo.shortcut.findForward",           "F4");
 pref("xulmigemo.shortcut.findBackward",          "Shift+F4");
 pref("xulmigemo.shortcut.goDicManager",          "Ctrl+Shift+F7");

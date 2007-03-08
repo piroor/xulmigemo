@@ -70,6 +70,7 @@
 <!ENTITY xulmigemo.shortcut.manualStart    "クイックMigemo検索を開始">
 <!ENTITY xulmigemo.shortcut.manualStartLinksOnly "クイックMigemo検索を開始">
 <!ENTITY xulmigemo.shortcut.manualStartLinksOnly2 "（リンク文字列のみ検索）">
+<!ENTITY xulmigemo.shortcut.manualExit     "クイックMigemo検索を終了">
 <!ENTITY xulmigemo.shortcut.goDicManager   "辞書マネージャを開く">
 
 <!ENTITY xulmigemo.shortcut.set            "変更">
