@@ -109,8 +109,10 @@ function initShortcutPane()
 	shortcutManualStartLinksOnly.keyData = XMigemoService.parseShortcut(shortcutManualStartLinksOnly.value);
 	shortcutManualStartLinksOnly2 = document.getElementById('shortcutManualStartLinksOnly2');
 	shortcutManualStartLinksOnly2.keyData = XMigemoService.parseShortcut(shortcutManualStartLinksOnly2.value);
+	shortcutManualExit = document.getElementById('shortcutManualExit');
+	shortcutManualExit.keyData = XMigemoService.parseShortcut(shortcutManualExit.value);
 	shortcutGoDicManager = document.getElementById('shortcutGoDicManager');
-	shortcutGoDicManager.keyData = XMigemoService.parseShortcut(shortcutGoDicManager.value);
+	shortcutGoDicManager.keyData = XMigemoService.parseShortcut(shortcutGoDicManager.value);;
 }
 
 function setShortcut(aNode)

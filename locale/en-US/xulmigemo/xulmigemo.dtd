@@ -71,6 +71,7 @@
 <!ENTITY xulmigemo.shortcut.manualStart    "Start Quick Migemo Find">
 <!ENTITY xulmigemo.shortcut.manualStartLinksOnly "Start Quick Migemo Find">
 <!ENTITY xulmigemo.shortcut.manualStartLinksOnly2 "(search only links)">
+<!ENTITY xulmigemo.shortcut.manualExit     "Exit Quick Migemo Find">
 <!ENTITY xulmigemo.shortcut.goDicManager   "Show Dictionary Manager">
 
 <!ENTITY xulmigemo.shortcut.set            "Set">
