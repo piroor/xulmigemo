@@ -223,8 +223,8 @@ pXMigemoDictionary.prototype = {
 				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
 				.getService(Components.interfaces.pIXMigemoTextTransform);
 
-		var yomi = String(aTermSet.yomi);
-		var term = aTermSet.term ? String(aTermSet.term) : null ;
+		var yomi = aTermSet.yomi ? String(aTermSet.yomi) : '' ;
+		var term = aTermSet.term ? String(aTermSet.term) : '' ;
 		if (!yomi || !XMigemoTextService.isYomi(yomi))
 			return this.RESULT_ERROR_INVALID_YOMI;
 
@@ -319,7 +319,7 @@ pXMigemoDictionary.prototype = {
 		this.saveUserDic(key);
 
 		dump('XMigemo:dictionaryModified('+aOperation+') '+entry+'\n');
-		ObserverService.notifyObservers(window, 'XMigemo:dictionaryModified',
+		ObserverService.notifyObservers(this, 'XMigemo:dictionaryModified',
 			[
 				key,
 				aOperation + '\t' + yomi + '\t' + term,

@@ -228,8 +228,6 @@
 
 
 <script src="chrome://xulmigemo/content/service.js" />
-<script src="chrome://xulmigemo/content/dic.js" />
-<script src="chrome://xulmigemo/content/core.js" />
 <script src="chrome://xulmigemo/content/dicManager/dicManager.js" />
 
 </dialog>

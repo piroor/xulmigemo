@@ -4,14 +4,40 @@
 #include "nsIDOMRange.idl"
 #include "nsIDOMWindow.idl"
 
+[scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
+interface pIXMigemo : nsIObserver
+{
+	wstring getRegExp(in wstring roman);
+
+	wstring gatherEntriesFor(in wstring roman, in wstring targetDictionaryName);
+
+	nsIDOMRange regExpFind(
+		in wstring regExpSource,
+		in wstring regExpFlags,
+		in nsIDOMRange findRange,
+		in nsIDOMRange startPoint,
+		in nsIDOMRange endPoint,
+		in boolean findBackwards
+	);
+	nsISimpleEnumerator regExpFindAll(
+		in wstring regExpSource,
+		in wstring regExpFlags,
+		in nsIDOMRange findRange,
+		in nsIDOMRange startPoint,
+		in nsIDOMRange endPoint
+	);
+
+	attribute float createCacheTimeOverride;
+};
+
+
+
+
 [scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
 interface pIXMigemoFileAccess : nsISupports
 {
-
-	/* File I/O */
 	wstring readFrom(in nsIFile file, in string encoding);
 	nsIFile writeTo(in nsIFile file, in wstring content, in string encoding);
-
 };
 
 

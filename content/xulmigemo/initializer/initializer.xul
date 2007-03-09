@@ -91,7 +91,6 @@
 
 
 <script src="chrome://xulmigemo/content/service.js" />
-<script src="chrome://xulmigemo/content/dic.js" />
 <script src="chrome://xulmigemo/content/initializer/downloader.js" />
 <script src="chrome://xulmigemo/content/initializer/initializer.js" />
 

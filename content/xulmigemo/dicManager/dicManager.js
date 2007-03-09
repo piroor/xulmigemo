@@ -201,8 +201,12 @@ function updateKeysList()
 	if (document.getElementById('list-roman').value != roman)
 		document.getElementById('list-roman').value = roman;
 
-	var list = XMigemoCore.gatherEntriesFor(roman, gListDictionary.selectedItem.value);
-	list.sort();
+	const XMigemo = Components
+		.classes['@piro.sakura.ne.jp/xmigemo/core;1']
+		.getService(Components.interfaces.pIXMigemo);
+
+	var list = XMigemo.gatherEntriesFor(roman, gListDictionary.selectedItem.value);
+	list.split('\n').sort();
 
 	if (gListKeys.addItemTimer) {
 		window.clearInterval(gListKeys.addItemTimer);

@@ -59,7 +59,10 @@ var XMigemoFind = {
 		var roman = aKeyword || this.lastKeyword;
 		if (!roman) return false;
 
-		var myExp = XMigemoCore.getRegExp(roman);
+		const XMigemo = Components
+			.classes['@piro.sakura.ne.jp/xmigemo/core;1']
+			.getService(Components.interfaces.pIXMigemo);
+		var myExp = XMigemo.getRegExp(roman);
 
 		if (!myExp) {
 			this.previousKeyword = roman;
