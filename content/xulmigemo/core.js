@@ -32,7 +32,7 @@ var XMigemoCore = {
 				.replace(new RegExp('([!"#\$%&\'\\(\\)=~\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64' + this.INPUT_SEPARATOR + ']+)', 'g'), '\t$1\t')
 				.split('\t');
 		var separatorRegExp = new RegExp('^(' + this.INPUT_SEPARATOR +'+)$');
-		mydump('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n');
+		dump('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n'+'\n');
 
 		var pattern, romanTermPart, nextPart;
 		for (var i = 0, maxi = romanTerms.length; i < maxi; i++)
@@ -87,11 +87,11 @@ var XMigemoCore = {
 
 		var cacheText = XMigemoCache.getCacheFor(aRoman);
 		if (cacheText) {
-			mydump('cache:'+cacheText);
+			dump('cache:'+cacheText+'\n');
 			return cacheText;
 		}
 
-		mydump('noCache');
+		dump('noCache'+'\n');
 		var str = XMigemoTextService.expand(
 				XMigemoTextService.sanitize(
 					XMigemoTextService.convertStr(
@@ -125,7 +125,7 @@ var XMigemoCore = {
 				) :
 				str + '|' + kana ;
 		var zen = XMigemoTextService.roman2zen(aRoman); // aRoman ?
-		mydump('hira:'+hira);
+		dump('hira:'+hira+'\n');
 
 		var date1 = new Date();
 
@@ -165,11 +165,11 @@ var XMigemoCore = {
 
 			pattern = pattern.replace(/\n/g, '');
 
-			mydump('pattern(from dic):'+pattern);
+			dump('pattern(from dic):'+pattern+'\n');
 		}
 		else { // 辞書に引っかからなかった模様なので自前の文字列だけ
 			pattern = XMigemoTextService.sanitize(aRoman) + '|' + zen + '|' + hiraAndKana;
-			mydump('pattern:'+pattern);
+			dump('pattern:'+pattern+'\n');
 		}
 
 
@@ -178,13 +178,13 @@ var XMigemoCore = {
 			// 遅かったらキャッシュします
 			XMigemoCache.save(aRoman, pattern);
 			XMigemoCache.setMemCache(aRoman, pattern);
-			mydump('CacheWasSaved');
+			dump('CacheWasSaved'+'\n');
 		}
 		else{
 			XMigemoCache.setMemCache(aRoman, pattern);//メモリキャッシュ
-			mydump('memCacheWasSaved');
+			dump('memCacheWasSaved'+'\n');
 		}
-		mydump(date2.getTime() - date1.getTime());
+		dump(date2.getTime() - date1.getTime()+'\n');
 
 		return pattern;
 	},
@@ -209,7 +209,7 @@ var XMigemoCore = {
 
 		var firstlet = '';
 		firstlet = aRoman.charAt(0);//最初の文字
-		mydump(firstlet+' dic loaded');
+		dump(firstlet+' dic loaded'+'\n');
 
 		var lines = [];
 
@@ -222,34 +222,34 @@ var XMigemoCore = {
 
 		if (mydicAU) {
 			var lineAU = mydicAU.match(expA);
-			mydump('searchEnDic (user)');
+			dump('searchEnDic (user)'+'\n');
 			if (lineAU) {
 				lines = lines.concat(lineAU);
-				mydump(' found '+lineAU.length+' terms');
+				dump(' found '+lineAU.length+' terms'+'\n');
 			}
 		}
 		if (mydicA) {
 			var lineA = mydicA.match(expA);//アルファベットの辞書を検索
-			mydump('searchEnDic');
+			dump('searchEnDic'+'\n');
 			if (lineA) {
 				lines = lines.concat(lineA);
-				mydump(' found '+lineA.length+' terms');
+				dump(' found '+lineA.length+' terms'+'\n');
 			}
 		}
 		if (mydicU) {
 			var lineU = mydicU.match(exp);
-			mydump('searchJpnDic (user)');
+			dump('searchJpnDic (user)'+'\n');
 			if (lineU) {
 				lines = lines.concat(lineU);
-				mydump(' found '+lineU.length+' terms');
+				dump(' found '+lineU.length+' terms'+'\n');
 			}
 		}
 		if (mydic) {
 			var line = mydic.match(exp);//日本語の辞書を検索
-			mydump('searchJpnDic');
+			dump('searchJpnDic'+'\n');
 			if (line) {
 				lines = lines.concat(line);
-				mydump(' found '+line.length+' terms');
+				dump(' found '+line.length+' terms'+'\n');
 			}
 		}
 
