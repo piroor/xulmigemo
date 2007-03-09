@@ -1,3 +1,9 @@
+/* This depends on: 
+	pIXMigemoDictionary
+	pIXMigemoCache
+	pIXMigemoTextTransform
+*/
+ 
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
 			.getService(Components.interfaces.nsIObserverService);;
