@@ -5,13 +5,13 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}"
                    em:name="XUL/Migemo [Forked Edition]"
-                   em:version="0.4.16"
+                   em:version="0.5.0"
                    em:description="Japanese Text Incremental Search"
                    em:creator="plus7"
                    em:homepageURL="http://piro.sakura.ne.jp/xul/xulmigemo/"
                    em:optionsURL="chrome://xulmigemo/content/config/config.xul"
                    em:updateURL="http://piro.sakura.ne.jp/xul/xul.rdf">
-	<em:contributor>SHIMODA Hiroshi</em:contributor>
+	<em:developer>SHIMODA Hiroshi</em:developer>
 	<em:contributor>alice0775</em:contributor>
 	<em:targetApplication>
 	  <RDF:Description em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"

@@ -1,0 +1,192 @@
+#include "nsISupports.idl"
+#include "nsIObserver.idl"
+#include "nsIFile.idl"
+#include "nsIDOMWindow.idl"
+#include "nsIDOMDocument.idl"
+#include "nsIDOMRange.idl"
+#include "nsIDOMNode.idl"
+
+[scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
+interface pIXMigemo : nsIObserver
+{
+	wstring getRegExp(in wstring roman);
+
+	wstring gatherEntriesFor(in wstring roman, in wstring targetDictionaryName);
+
+	nsIDOMRange regExpFind(
+		in wstring regExpSource,
+		in wstring regExpFlags,
+		in nsIDOMRange findRange,
+		in nsIDOMRange startPoint,
+		in nsIDOMRange endPoint,
+		in boolean findBackwards
+	);
+	nsISimpleEnumerator regExpFindAll(
+		in wstring regExpSource,
+		in wstring regExpFlags,
+		in nsIDOMRange findRange,
+		in nsIDOMRange startPoint,
+		in nsIDOMRange endPoint
+	);
+
+	attribute float createCacheTimeOverride;
+};
+
+[scriptable, uuid(54606802-ce50-11db-8314-0800200c9a66)]
+interface pIXMigemoFind : nsIObserver
+{
+	readonly attribute wstring lastKeyword;
+	readonly attribute wstring previousKeyword;
+	readonly attribute wstring lastFoundWord;
+
+	wstring appendKeyword(in wstring character);
+	wstring replaceKeyword(in wstring keyword);
+	wstring removeKeyword(in float length);
+	void shiftLastKeyword();
+
+	attribute boolean manualLinksOnly;
+	attribute boolean isQuickFind;
+
+	const unsigned short FOUND             = 1;
+	const unsigned short NOTFOUND          = 2;
+	const unsigned short NOTLINK           = 4;
+	const unsigned short FOUND_IN_EDITABLE = 8;
+
+	const unsigned short FIND_DEFAULT    = 1;
+	const unsigned short FIND_BACK       = 2;
+	const unsigned short FIND_FORWARD    = 4;
+	const unsigned short FIND_FROM_START = 8;
+
+	const unsigned short FIND_IN_EDITABLE = 128;
+
+	attribute nsIDOMNode target;
+
+	void find();
+	void findInternal(in boolean backward, in wstring keyword, in boolean forceFocus);
+	void findNext(in boolean forceFocus);
+	void findPrevious(in boolean forceFocus);
+
+	void setSelectionLook(in nsIDOMDocument document, in boolean changeColor);
+
+	void clear();
+	void exitFind();
+};
+
+
+
+
+[scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
+interface pIXMigemoFileAccess : nsISupports
+{
+	wstring readFrom(in nsIFile file, in string encoding);
+	nsIFile writeTo(in nsIFile file, in wstring content, in string encoding);
+};
+
+
+[scriptable, uuid(749f4faa-cdf6-11db-8314-0800200c9a66)]
+interface pIXMigemoTextTransform : nsISupports
+{
+	wstring range2Text(in nsIDOMRange range);
+
+	wstring hira2kana(in wstring hiragana);
+	wstring zenkaku2hankaku(in wstring zenkaku);
+	wstring roman2zen(in wstring roman);
+	wstring katakanav(in wstring katakana);
+
+	wstring normalizeForYomi(in wstring yomigana);
+	boolean isYomi(in wstring yomigana);
+
+	wstring joinVoiceMarks(in wstring hiragana);
+	wstring kana2hira(in wstring katakana);
+	wstring hira2roman(in wstring hiragana);
+
+	wstring sanitize(in wstring regexpPattern);
+	wstring sanitize2(in wstring regexpPattern);
+	wstring reverseRegExp(in wstring regexpPattern);
+
+	wstring convertStr(in wstring roman);
+	wstring convertStr2(in wstring roman, in unsigned short kanaFlag);
+	wstring toZen(in wstring romanChar, in wstring lastChar, in wstring last2Char, in unsigned short kanaFlag);
+	wstring getKana(in wstring key, in unsigned short kanaFlag);
+	const unsigned short KANA_HIRA = 0;
+	const unsigned short KANA_KATA = 1;
+	const unsigned short KANA_ALL = 2;
+
+	boolean isAlpha(in wstring roman);
+
+	wstring expand(in wstring roman);
+	wstring expand2(in wstring roman, in unsigned short kanaFlag);
+};
+
+
+[scriptable, uuid(159add54-cdf2-11db-8314-0800200c9a66)]
+interface pIXMigemoCache : nsISupports
+{
+	wstring getCacheFor(in wstring roman);
+
+	void clearCacheForAllPatterns(in wstring roman);
+	void clearCacheFor(in wstring roman);
+	void clearCacheSilentlyFor(in wstring roman);
+
+	void clearAll(in boolean clearDiskCache);
+
+	void setMemCache(in wstring roman, in wstring regExpPattern);
+	void setDiskCache(in wstring roman, in wstring regExpPattern);
+
+	attribute nsIFile cacheFile;
+
+	readonly attribute boolean initialized;
+
+	boolean load();
+	void reload();
+	void save();
+};
+
+[scriptable, uuid(6f19900a-ce33-11db-8314-0800200c9a66)]
+interface pIXMigemoDictionary : nsISupports
+{
+	const unsigned short RESULT_OK                      = 1;
+	const unsigned short RESULT_ERROR_INVALID_YOMI      = 2;
+	const unsigned short RESULT_ERROR_ALREADY_EXIST     = 4;
+	const unsigned short RESULT_ERROR_NOT_EXIST         = 8;
+	const unsigned short RESULT_ERROR_NO_TARGET         = 16;
+	const unsigned short RESULT_ERROR_INVALID_OPERATION = 32;
+
+	void saveUserDic(in wstring key);
+
+	wstring getDic(in wstring key);
+	wstring getUserDic(in wstring key);
+	wstring getAlphaDic();
+	wstring getUserAlphaDic();
+	wstring getDicForTerm(in wstring yomi);
+
+	unsigned short addTerm(in wstring yomi, in wstring term);
+	unsigned short removeTerm(in wstring yomi, in wstring term);
+
+	readonly attribute boolean initialized;
+
+	boolean load();
+	void reload();
+	void save();
+};
+
+[scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
+interface pIXMigemoDicManager : nsIObserver
+{
+	const unsigned short RESULT_OK                      = 1;
+	const unsigned short RESULT_ERROR_INVALID_YOMI      = 2;
+	const unsigned short RESULT_ERROR_ALREADY_EXIST     = 4;
+	const unsigned short RESULT_ERROR_NOT_EXIST         = 8;
+	const unsigned short RESULT_ERROR_NO_TARGET         = 16;
+	const unsigned short RESULT_ERROR_INVALID_OPERATION = 32;
+
+	void reload();
+
+	wstring showDirectoryPicker();
+	wstring showDirectoryPickerFor(in wstring key);
+
+	void init();
+};
+
+
+
