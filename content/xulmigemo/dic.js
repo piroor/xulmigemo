@@ -13,11 +13,11 @@ var XMigemoCache = {
 	{
 		var miexp = new RegExp('(^'+XMigemoTextService.sanitize(aRoman)+'\t.+\n)', 'im');
 		if (this.memCache.match(miexp)) {
-			mydump('use memCache');
+			dump('use memCache'+'\n');
 			return RegExp.$1.split('\t')[1];
 		}
 		else if (this.diskCacheClone.match(miexp)) {
-			mydump('use diskCacheClone');
+			dump('use diskCacheClone'+'\n');
 			return RegExp.$1.split('\t')[1];
 		}
 		return false;
@@ -40,9 +40,9 @@ var XMigemoCache = {
 	{
 		var miexp = new RegExp('(^'+aRoman+'\t.+\n)', 'im');
 		this.memCache = this.memCache.replace(miexp, '');
-		if (RegExp.$1) mydump('update memCache for "'+aRoman+'"');
+		if (RegExp.$1) dump('update memCache for "'+aRoman+'"'+'\n');
 		this.diskCacheClone = this.diskCacheClone.replace(miexp, '');
-		if (RegExp.$1) mydump('update diskCache for "'+aRoman+'"');
+		if (RegExp.$1) dump('update diskCache for "'+aRoman+'"'+'\n');
 
 		if (!aPreventSaveAndNotify) {
 			this.save();
@@ -65,7 +65,7 @@ var XMigemoCache = {
 		}
 		else {
 			this.memCache += aRoman + '\t' + aRegExp + '\n';
-			//mydump(this.memCache);
+			//dump(this.memCache+'\n');
 
 			XMigemoService.ObserverService.notifyObservers(window, 'XMigemo:memCacheAdded', aRoman+'\n'+aRegExp);
 
@@ -156,13 +156,52 @@ var XMigemoCache = {
 			return false;
 		}
 	},
-  
+ 
+/* File I/O */ 
+	
+	readFrom : function(aFile) 
+	{
+	   var stream = Components.classes['@mozilla.org/network/file-input-stream;1'].createInstance(Components.interfaces.nsIFileInputStream);
+	   try {
+	      stream.init(aFile, 1, 0, false); // open as "read only"
+
+	      var scriptableStream = Components.classes['@mozilla.org/scriptableinputstream;1'].createInstance(Components.interfaces.nsIScriptableInputStream);
+	      scriptableStream.init(stream);
+
+	      var fileSize = scriptableStream.available();
+	      var fileContents = scriptableStream.read(fileSize);
+
+	      scriptableStream.close();
+	      stream.close();
+
+	      return fileContents;
+	   }
+	   catch(e) {
+	      return null;
+	   }
+	},
+ 
+	writeTo : function(aFile, aContent) 
+	{
+	    if (aFile.exists()) aFile.remove(true); // 上書き確認は無し。必要があれば処理を追加。
+	    aFile.create(aFile.NORMAL_FILE_TYPE, 0666); // アクセス権を8進数で指定。 Win9x などでは無視される。
+
+	    var stream = Components.classes['@mozilla.org/network/file-output-stream;1'].createInstance(Components.interfaces.nsIFileOutputStream);
+	    stream.init(aFile, 2, 0x200, false); // open as "write only"
+
+	    stream.write(aContent, aContent.length);
+
+	    stream.close();
+
+	    return aFile;
+	},
+   
 	dummy : null 
 };
   
 var XMigemoDic = { 
 	initialized : false,
-	
+	 
 	RESULT_OK                      : 1, 
 	RESULT_ERROR_INVALID_YOMI      : 2,
 	RESULT_ERROR_ALREADY_EXIST     : 4,
@@ -173,7 +212,7 @@ var XMigemoDic = {
 	list : [], 
  
 /* File I/O */ 
-	
+	 
 	load : function() 
 	{
 		// dicPath
@@ -201,7 +240,7 @@ var XMigemoDic = {
 				file.append(cList[i] + 'a2.txt');
 			}
 			if (file && file.exists()) {
-				mydump(cList[i]);
+				dump(cList[i]+'\n');
 				var cache = XMigemoService.readFrom(file);
 				var dicstr = UConv.ConvertToUnicode(cache);
 				this.list[cList[i]] = dicstr;
@@ -218,7 +257,7 @@ var XMigemoDic = {
 				file.append(cList[i] + 'a2.user.txt');
 			}
 			if (file && file.exists()) {
-				mydump(cList[i] + '-user');
+				dump(cList[i] + '-user'+'\n');
 				var cache = XMigemoService.readFrom(file);
 				var dicstr = UConv.ConvertToUnicode(cache);
 				this.list[cList[i] + '-user'] = dicstr;
@@ -252,7 +291,46 @@ var XMigemoDic = {
 		var dicstr = UConv.ConvertFromUnicode(this.list[aKey+'-user'] || '');
 		XMigemoService.writeTo(file, dicstr);
 	},
-  
+ 
+/* File I/O */ 
+	 
+	readFrom : function(aFile) 
+	{
+	   var stream = Components.classes['@mozilla.org/network/file-input-stream;1'].createInstance(Components.interfaces.nsIFileInputStream);
+	   try {
+	      stream.init(aFile, 1, 0, false); // open as "read only"
+
+	      var scriptableStream = Components.classes['@mozilla.org/scriptableinputstream;1'].createInstance(Components.interfaces.nsIScriptableInputStream);
+	      scriptableStream.init(stream);
+
+	      var fileSize = scriptableStream.available();
+	      var fileContents = scriptableStream.read(fileSize);
+
+	      scriptableStream.close();
+	      stream.close();
+
+	      return fileContents;
+	   }
+	   catch(e) {
+	      return null;
+	   }
+	},
+ 
+	writeTo : function(aFile, aContent) 
+	{
+	    if (aFile.exists()) aFile.remove(true); // 上書き確認は無し。必要があれば処理を追加。
+	    aFile.create(aFile.NORMAL_FILE_TYPE, 0666); // アクセス権を8進数で指定。 Win9x などでは無視される。
+
+	    var stream = Components.classes['@mozilla.org/network/file-output-stream;1'].createInstance(Components.interfaces.nsIFileOutputStream);
+	    stream.init(aFile, 2, 0x200, false); // open as "write only"
+
+	    stream.write(aContent, aContent.length);
+
+	    stream.close();
+
+	    return aFile;
+	},
+   
 	getDic : function(aLetter, aUser) 
 	{
 		var suffix = aUser ? '-user' : '' ;
@@ -396,7 +474,7 @@ var XMigemoDic = {
 					case 'remove':
 						if (term) {
 							terms = terms.replace(regexp, '').replace(/\n\n+/g, '\n').split('\n').join('\t');
-							mydump('terms:'+terms.replace(/\t/g, ' / '));
+							dump('terms:'+terms.replace(/\t/g, ' / ')+'\n');
 							if (terms) {
 								regexp.compile('^('+yomi+'\t.+)$', 'm');
 								regexp.test(userDic);
@@ -444,7 +522,7 @@ var XMigemoDic = {
 
 		this.saveUserDic(key);
 
-		mydump('XMigemo:dictionaryModified('+aOperation+') '+entry);
+		dump('XMigemo:dictionaryModified('+aOperation+') '+entry+'\n');
 		XMigemoService.ObserverService.notifyObservers(window, 'XMigemo:dictionaryModified',
 			[
 				key,
@@ -454,7 +532,7 @@ var XMigemoDic = {
 
 		return this.RESULT_OK;
 	},
-	
+	 
 	addTerm : function() 
 	{
 		if (arguments.length == 1 &&
@@ -496,9 +574,9 @@ var XMigemoDic = {
  
 	dummy : null 
 };
-  
+  	
 var XMigemoDicManager = { 
-	
+	 
 	domain  : 'xulmigemo', // nsIPrefListener(?) 
 
  
@@ -599,7 +677,7 @@ var XMigemoDicManager = {
 
 		XMigemoService.ObserverService.notifyObservers(window, 'XMigemo:dictionaryReadyToLoad', null);
 	},
-	
+	 
 	delayedInit : function() 
 	{
 		if (XMigemoDic.initialized) return;

@@ -284,7 +284,7 @@ var XMigemoUI = {
 			if (this.cancelTimer)
 				this.startTimer();
 
-			mydump("PrevKeyword:"+XMigemoFind.previousKeyword+"\nCurrentKeyword:"+XMigemoFind.lastKeyword)
+			dump("PrevKeyword:"+XMigemoFind.previousKeyword+"\nCurrentKeyword:"+XMigemoFind.lastKeyword+'\n')
 			return true;
 		}
 
@@ -367,7 +367,7 @@ var XMigemoUI = {
 		}
 
 		if (this.isActive) {
-			mydump("migemo is active");
+			dump("migemo is active"+'\n');
 			if (
 				aEvent.charCode != 0 &&
 				!aEvent.ctrlKey &&
@@ -383,7 +383,7 @@ var XMigemoUI = {
 			}
 		}
 		else if (this.isAutoStart) {
-			mydump("isAutoStart:"+this.isAutoStart);
+			dump("isAutoStart:"+this.isAutoStart+'\n');
 			if (aEvent.charCode == 32) { // Space
 				return true;
 			}
@@ -413,7 +413,7 @@ var XMigemoUI = {
 			return;
 		}
 
-//		mydump("mouseEvent.originalTarget:"+aEvent.originalTarget.tagName.toLowerCase());
+//		dump("mouseEvent.originalTarget:"+aEvent.originalTarget.tagName.toLowerCase()+'\n');
 		this.cancel();
 		this.clearTimer();//ここでタイマーを殺さないといじられてしまう。タイマー怖い。
 	},
@@ -504,7 +504,7 @@ var XMigemoUI = {
 	 
 	startTimer : function() 
 	{
-		mydump("xmigemoStartTimer");
+		dump("xmigemoStartTimer"+'\n');
 		this.clearTimer();
 		this.cancelTimer = window.setTimeout(this.timerCallback, this.timeout, this);
 		this.updateTimeoutIndicator(this.timeout);
@@ -512,7 +512,7 @@ var XMigemoUI = {
 	 
 	timerCallback : function(aThis) 
 	{
-		mydump("xmigemoTimeout");
+		dump("xmigemoTimeout"+'\n');
 		XMigemoFind.previousKeyword = XMigemoFind.lastKeyword;
 		aThis.cancel();
 	},
@@ -525,7 +525,7 @@ var XMigemoUI = {
  
 	clearTimer : function() 
 	{
-		mydump("xmigemoClearTimer");
+		dump("xmigemoClearTimer"+'\n');
 		if (this.cancelTimer) {
 			window.clearTimeout(this.cancelTimer);
 			this.cancelTimer = null;
@@ -578,7 +578,7 @@ var XMigemoUI = {
   
 	start : function(aSilently) 
 	{
-		mydump('xmigemoStart');
+		dump('xmigemoStart'+'\n');
 		this.isActive = true;
 		this.lastFindMode = 'migemo';
 
@@ -605,7 +605,7 @@ var XMigemoUI = {
  
 	cancel : function(aSilently) 
 	{
-		mydump("xmigemoCancel");
+		dump("xmigemoCancel"+'\n');
 		this.isActive = false;
 
 		if (!aSilently) XMigemoFind.clear();
@@ -883,7 +883,7 @@ var XMigemoUI = {
  
 	findNext : function() 
 	{
-		mydump('XMigemoUI.findNext');
+		dump('XMigemoUI.findNext'+'\n');
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == 'migemo') {
 			XMigemoFind.findNext(this.findBar && this.findBar.hidden);
 			if (XMigemoUI.cancelTimer)
@@ -896,7 +896,7 @@ var XMigemoUI = {
  
 	findPrevious : function() 
 	{
-		mydump('XMigemoUI.findPrevious');
+		dump('XMigemoUI.findPrevious'+'\n');
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == 'migemo') {
 			XMigemoFind.findPrevious(this.findBar && this.findBar.hidden);
 			if (XMigemoUI.cancelTimer)
@@ -1019,10 +1019,10 @@ var XMigemoUI = {
 window.addEventListener('load', XMigemoUI, false);
  
 //obsolete 
-function xmFind(){mydump("xmFind");
+function xmFind(){dump("xmFind"+'\n');
 XMigemoFind.find(false, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword);
 }
-function xmFindPrev(){mydump("xmFindPrev");
+function xmFindPrev(){dump("xmFindPrev"+'\n');
 XMigemoFind.find(true, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword);
 }
  

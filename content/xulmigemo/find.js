@@ -56,7 +56,7 @@ var XMigemoFind = {
 			throw 'XUL/Migemo::there is no target window.';
 		}
 
-//		mydump("find");
+//		dump("find"+'\n');
 		var roman = aKeyword || this.lastKeyword;
 		if (!roman) return false;
 
@@ -85,7 +85,7 @@ var XMigemoFind = {
 	 
 	findInDocument : function(aFindFlag, aDocument, aRegexp, aForceFocus) 
 	{
-//		mydump("findInDocument");
+//		dump("findInDocument"+'\n');
 		var findRange;
 		var result;
 		var lastMatch;
@@ -142,7 +142,7 @@ var XMigemoFind = {
 
 				lastMatch = result || null;
 				if (lastMatch) {
-//					mydump("call findInRange");
+//					dump("call findInRange"+'\n');
 					found = this.findInRange(aFindFlag, lastMatch, findRange, aForceFocus);
 					//alert("lastMatch:"+lastMatch);
 				}
@@ -246,7 +246,7 @@ var XMigemoFind = {
  
 	findInRange : function(aFindFlag, aTerm, aRanges, aForceFocus) 
 	{
-//		mydump("findInRange");
+//		dump("findInRange"+'\n');
 
 		this.mFind.findBackwards = Boolean(aFindFlag & this.FIND_BACK);
 
@@ -310,7 +310,7 @@ var XMigemoFind = {
  
 	findParentLink : function(aRange) 
 	{
-//		mydump("findParentLink");
+//		dump("findParentLink"+'\n');
 		//後でXLinkを考慮したコードに直す
 
 		var node = aRange.commonAncestorContainer.parentNode;
@@ -326,7 +326,7 @@ var XMigemoFind = {
  
 	findParentEditable : function(aRange) 
 	{
-//		mydump('findParentEditable');
+//		dump('findParentEditable'+'\n');
 		var node = aRange.commonAncestorContainer.parentNode;
 		while (node && node.parentNode)
 		{
@@ -346,7 +346,7 @@ var XMigemoFind = {
 	
 	getDocShellForFrame : function(aFrame) 
 	{
-//		mydump('getDocShellForFrame');
+//		dump('getDocShellForFrame'+'\n');
 		return aFrame
 				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 				.getInterface(Components.interfaces.nsIWebNavigation)
@@ -356,7 +356,7 @@ var XMigemoFind = {
  
 	getNextDocShell : function(aNode) 
 	{
-//		mydump("getNextDocShell");
+//		dump("getNextDocShell"+'\n');
 	//	mydump("XXX Find NEXT, from\n"
 	//			+aNode.QueryInterface(Components.interfaces.nsIWebNavigation).document.URL+'\n');
 		// 子がある場合、最初の子を返す
@@ -412,7 +412,7 @@ var XMigemoFind = {
  
 	getLastChildDocShell : function(aItem) 
 	{
-//		mydump("getLastChildDocShell");
+//		dump("getLastChildDocShell"+'\n');
 		var curItem = aItem.QueryInterface(Components.interfaces.nsIDocShellTreeItem);
 		var curNode;
 		var childCount;
@@ -427,7 +427,7 @@ var XMigemoFind = {
  
 	getLastChildDocument : function(aDocument) 
 	{
-//		mydump("getLastChildDocument");
+//		dump("getLastChildDocument"+'\n');
 		var docShell = this.getDocShellForFrame(Components.lookupMethod(aDocument, 'defaultView').call(aDocument));
 		docShell = this.getLastChildDocShell(docShell);
 		var doc = docShell
@@ -441,7 +441,7 @@ var XMigemoFind = {
 	 
 	resetFindRange : function(aFindRange, aRange, aFindFlag, aDocument) 
 	{
-//		mydump("resetFindRange");
+//		dump("resetFindRange"+'\n');
 		var win = document.commandDispatcher.focusedWindow;
 		var theDoc = (win && win != window) ? Components.lookupMethod(win, 'document').call(win) : aDocument ;
 		var bodyNode = Components.lookupMethod(theDoc, 'body').call(theDoc);
@@ -477,7 +477,7 @@ var XMigemoFind = {
 /* 
 	getFindRange : function(aFindFlag, aDocument)
 	{
-//		mydump("getFindRange");
+//		dump("getFindRange"+'\n');
 		var win = document.commandDispatcher.focusedWindow;
 		var bodyNode = aDocument.body;
 
@@ -504,7 +504,7 @@ var XMigemoFind = {
 		}
 		selection = selCon.getSelection(selCon.SELECTION_NORMAL);
 		var count = selection.rangeCount;
-		mydump("count:"+count);
+		dump("count:"+count+'\n');
 
 		var childCount = bodyNode.childNodes.length;
 		var range;
@@ -577,7 +577,7 @@ var XMigemoFind = {
  
 	getFindRange : function(aFindFlag, aDocument) 
 	{
-//		mydump("getFindRange");
+//		dump("getFindRange"+'\n');
 		var win = document.commandDispatcher.focusedWindow;
 
 		var docShell = this.getDocShellForFrame(aDocument.defaultView);
@@ -627,7 +627,7 @@ var XMigemoFind = {
 	 
 	getFindRangeIn : function(aFindFlag, aDocument, aRangeParent, aSelCon) 
 	{
-//		mydump("getFindRange");
+//		dump("getFindRange"+'\n');
 		var win = document.commandDispatcher.focusedWindow;
 
 		var findRange = aDocument.createRange();
@@ -639,7 +639,7 @@ var XMigemoFind = {
 
 		var selection = aSelCon.getSelection(aSelCon.SELECTION_NORMAL);
 		var count = selection.rangeCount;
-		mydump("count:"+count);
+		dump("count:"+count+'\n');
 
 		var childCount = aRangeParent.childNodes.length;
 		var range;
@@ -721,7 +721,7 @@ var XMigemoFind = {
   
 	findVisibleNode : function(aFrame, aFindFlag) 
 	{
-//		mydump("findVisibleNode");
+//		dump("findVisibleNode"+'\n');
 		var doc = aFrame.document;
 
 		var offsetX = aFrame.pageXOffset;
@@ -765,14 +765,14 @@ var XMigemoFind = {
 	 
 	isAbove : function(aNode) 
 	{
-//		mydump("isAbove");
+//		dump("isAbove"+'\n');
 		var height = aNode.offsetHeight > frameHeight ? frameHeight : aNode.offsetHeight ;
 		return (aNode.offsetTop < startY && aNode.offsetTop+height < startY+minPixels);
 	},
  
 	isBelow : function(aNode) 
 	{
-//		mydump("isBelow");
+//		dump("isBelow"+'\n');
 		var height = aNode.offsetHeight > frameHeight ? frameHeight : aNode.offsetHeight ;
 		return (aNode.offsetTop+height > endY && aNode.offsetTop > endY-minPixels);
 	},
@@ -781,7 +781,7 @@ var XMigemoFind = {
 	 
 	setSelectionLook : function(aDocument, aChangeColor) 
 	{
-//		mydump("xmSetSelectionLook");
+//		dump("xmSetSelectionLook"+'\n');
 
 		var selCon;
 		if (aDocument.foundEditable) {
@@ -820,7 +820,7 @@ var XMigemoFind = {
  
 	setSelectionAndScroll : function(aRange, aDocument) 
 	{
-//		mydump("setSelectionAndScroll");
+//		dump("setSelectionAndScroll"+'\n');
 
 		var selection;
 

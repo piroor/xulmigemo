@@ -221,7 +221,7 @@ var XMigemoService = {
 		}
 		return top;
 	},
- 	
+ 
 	goDicManager : function() 
 	{
 		var uri = 'chrome://xulmigemo/content/dicManager/dicManager.xul';
@@ -243,45 +243,6 @@ var XMigemoService = {
 		);
 	},
  
-/* File I/O */ 
-	
-	readFrom : function(aFile) 
-	{
-	   var stream = Components.classes['@mozilla.org/network/file-input-stream;1'].createInstance(Components.interfaces.nsIFileInputStream);
-	   try {
-	      stream.init(aFile, 1, 0, false); // open as "read only"
-
-	      var scriptableStream = Components.classes['@mozilla.org/scriptableinputstream;1'].createInstance(Components.interfaces.nsIScriptableInputStream);
-	      scriptableStream.init(stream);
-
-	      var fileSize = scriptableStream.available();
-	      var fileContents = scriptableStream.read(fileSize);
-
-	      scriptableStream.close();
-	      stream.close();
-
-	      return fileContents;
-	   }
-	   catch(e) {
-	      return null;
-	   }
-	},
- 
-	writeTo : function(aFile, aContent) 
-	{
-	    if (aFile.exists()) aFile.remove(true); // 上書き確認は無し。必要があれば処理を追加。
-	    aFile.create(aFile.NORMAL_FILE_TYPE, 0666); // アクセス権を8進数で指定。 Win9x などでは無視される。
-
-	    var stream = Components.classes['@mozilla.org/network/file-output-stream;1'].createInstance(Components.interfaces.nsIFileOutputStream);
-	    stream.init(aFile, 2, 0x200, false); // open as "write only"
-
-	    stream.write(aContent, aContent.length);
-
-	    stream.close();
-
-	    return aFile;
-	},
-  
 /* Debug */ 
 	
 	mydump : function(str) 
@@ -303,29 +264,7 @@ var XMigemoService = {
 			return;
 		}
 	},
- 
-	diskDump : function(text) 
-	{
-			if(this.DEBUG){
-				var dumpFile = Components.classes['@mozilla.org/file/local;1'].createInstance();
-				if (dumpFile instanceof Components.interfaces.nsILocalFile) {
-					dumpFile.initWithPath(XMigemoService.getPref('xulmigemo.dicpath'));
-					dumpFile.append('miscdump.txt');
-				}
-				else{
-					return false;
-				}
-		const UConvID = '@mozilla.org/intl/scriptableunicodeconverter';
-		const UConvIF = Components.interfaces.nsIScriptableUnicodeConverter;
-		const UConv   = Components.classes[UConvID].getService(UConvIF);
-		UConv.charset = 'Shift_JIS';
-				var cache = this.readFrom(dumpFile);
-				var cache = UConv.ConvertToUnicode(cache);
-				this.writeTo(dumpFile, UConv.ConvertFromUnicode(cache+'\n'+text));
-				return true;
-			}
-	},
-  
+  	
 	dummy : null
 }; 
   
@@ -969,7 +908,6 @@ var XMigemoTextService = {
 				.replace(/\*(\[[^\]]*\])/g,"$1*")
 				.replace(/\*(\([^\)]*\))/g,"$1*");
 		//alert(tmp);
-		//diskDump(tmp);
 		return new RegExp(tmp,"im");
 	},
   
@@ -1540,13 +1478,4 @@ XMigemoStringBundle.prototype = {
 		return '';
 	}
 };
- 
-function mydump(aText) 
-{
-	XMigemoService.mydump(aText);
-}
-function diskDump(aText)
-{
-	XMigemoService.diskDump(aText);
-}
  
