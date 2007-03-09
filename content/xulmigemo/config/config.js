@@ -1,7 +1,11 @@
 
 function getDP()
 {
-	var folderPath = XMigemoDicManager.showDirectoryPicker(document.getElementById('xulmigemo.dicpath').value);
+	var XMigemoDicManager = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
+				.getService(Components.interfaces.pIXMigemoDicManager);
+
+	var folderPath = XMigemoDicManager.showDirectoryPickerFor(document.getElementById('xulmigemo.dicpath').value);
 	var field = document.getElementById('xulmigemo.dicpath-textbox');
 	if (folderPath && field.value != folderPath) {
 		field.value = folderPath;
@@ -62,7 +66,15 @@ function updateCacheNow()
 	var patterns = [];
 	var i = 0;
 
-	XMigemoCore.createCacheTimeOverride = parseInt(document.getElementById('xulmigemo.cache.update.time-textbox').value);
+	const XMigemo = Components
+		.classes['@piro.sakura.ne.jp/xmigemo/core;1']
+		.getService(Components.interfaces.pIXMigemo);
+
+	XMigemo.createCacheTimeOverride = parseInt(document.getElementById('xulmigemo.cache.update.time-textbox').value);
+
+	var XMigemoCache = Components
+			.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
+			.getService(Components.interfaces.pIXMigemoCache);
 
 	getPatterns:
 	while (true)

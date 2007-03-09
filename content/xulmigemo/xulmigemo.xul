@@ -3,11 +3,9 @@
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
 
+<script src="core.js" /><!-- for backward compatibility -->
 <script src="service.js" />
-	<script src="dic.js" />
-		<script src="core.js" />
-			<script src="find.js" />
-				<script src="ui.js" />
+	<script src="ui.js" />
 
 <hbox id="XMigemoFindToolbar"
 	collapsed="true"

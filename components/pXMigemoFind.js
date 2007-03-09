@@ -1,16 +1,70 @@
-/* 
-	This depends on:
-		service.js
-		dic.js
-		core.js
+/* This depends on: 
+	pIXMigemo
+	pIXMigemoTextTransform
 */
+var DEBUG = false;
  
-var XMigemoFind = { 
+var Prefs = Components 
+			.classes['@mozilla.org/preferences;1']
+			.getService(Components.interfaces.nsIPrefBranch);
+ 
+function pXMigemoFind() { 
+}
+
+pXMigemoFind.prototype = {
+	get contractID() {
+		return '@piro.sakura.ne.jp/xmigemo/find;1';
+	},
+	get classDescription() {
+		return 'This is a find service for XUL/Migemo.';
+	},
+	get classID() {
+		return Components.ID('{54606802-ce50-11db-8314-0800200c9a66}');
+	},
 	 
 	lastKeyword     : '', 
 	previousKeyword : '',
 	lastFoundWord   : '',
+	 
+	appendKeyword : function(aString) 
+	{
+		if (!this.target)
+			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+
+		this.lastKeyword += aString;
+		return this.lastKeyword;
+	},
+
  
+	replaceKeyword : function(aString) 
+	{
+		if (!this.target)
+			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+
+		this.lastKeyword = aString;
+		return this.lastKeyword;
+	},
+
+ 
+	removeKeyword : function(aLength) 
+	{
+		if (!this.target)
+			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+
+		this.lastKeyword = this.lastKeyword.substr(0, this.lastKeyword.length - aLength);
+		return this.lastKeyword;
+	},
+
+ 
+	shiftLastKeyword : function() 
+	{
+		if (!this.target)
+			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+
+		this.previousKeyword = this.lastKeyword;
+	},
+
+  
 	manualLinksOnly : false, 
 	isQuickFind     : false,
 
@@ -28,39 +82,78 @@ var XMigemoFind = {
 
 	FIND_IN_EDITABLE : 128,
  
+	set target(val) 
+	{
+		if (val) {
+			this._target = val;
+			this.init();
+		}
+		return this._target;
+	},
+	get target()
+	{
+		return this._target;
+	},
+	_target : null,
+
+	get document()
+	{
+		if (!this.target)
+			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+
+		return this.target.ownerDocument;
+	},
+	get window()
+	{
+		return this.document.defaultView;
+	},
+ 	
 /* Find */ 
-	 
+	
 	get mFind() 
 	{
 		if (!this._mFind)
-			this._mFind = Components.classes['@mozilla.org/embedcomp/rangefind;1'].createInstance(Components.interfaces.nsIFind);
+			this._mFind = Components
+					.classes['@mozilla.org/embedcomp/rangefind;1']
+					.createInstance(Components.interfaces.nsIFind);
 		return this._mFind;
 	},
 	_mFind : null,
  
-	target : null,
- 
 	findNext : function(aForceFocus) 
 	{
-		this.find(false, this.lastKeyword || this.previousKeyword, aForceFocus);
+		if (!this.target)
+			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+
+		this.findInternal(false, this.lastKeyword || this.previousKeyword, aForceFocus);
 	},
  
 	findPrevious : function(aForceFocus) 
 	{
-		this.find(true, this.lastKeyword || this.previousKeyword, aForceFocus);
+		if (!this.target)
+			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+
+		this.findInternal(true, this.lastKeyword || this.previousKeyword, aForceFocus);
 	},
  
-	find : function(aBackward, aKeyword, aForceFocus) 
+	find : function() 
 	{
-		if (!this.target) {
-			throw 'XUL/Migemo::there is no target window.';
-		}
+		this.findInternal(false, null, false);
+	},
+ 
+	findInternal : function(aBackward, aKeyword, aForceFocus) 
+	{
+		if (!this.target)
+			throw Components.results.NS_ERROR_NOT_INITIALIZED;
 
-//		dump("find"+'\n');
+//		mydump("find");
 		var roman = aKeyword || this.lastKeyword;
 		if (!roman) return false;
 
-		var myExp = XMigemoCore.getRegExp(roman);
+		const XMigemo = Components
+			.classes['@piro.sakura.ne.jp/xmigemo/core;1']
+			.getService(Components.interfaces.pIXMigemo);
+		var myExp = XMigemo.getRegExp(roman);
 
 		if (!myExp) {
 			this.previousKeyword = roman;
@@ -75,21 +168,22 @@ var XMigemoFind = {
 		else {
 			findFlag = this.FIND_DEFAULT;
 		}
-		var win = document.commandDispatcher.focusedWindow;
-		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) :
+		var win = this.document.commandDispatcher.focusedWindow;
+		var doc = (win != this.window) ? Components.lookupMethod(win, 'document').call(win) :
 					(findFlag & this.FIND_BACK) ? this.getLastChildDocument(this.target.contentDocument) :
 					this.target.contentDocument;
-		this.findInDocument(findFlag, doc, (new RegExp(myExp.replace(/\n/im, ''), 'im')), aForceFocus);
+		this.findInDocument(findFlag, doc, myExp, aForceFocus);
 		this.previousKeyword = roman;
 	},
 	 
-	findInDocument : function(aFindFlag, aDocument, aRegexp, aForceFocus) 
+	findInDocument : function(aFindFlag, aDocument, aRegExpSource, aForceFocus) 
 	{
-//		dump("findInDocument"+'\n');
+//		mydump("findInDocument");
 		var findRange;
 		var result;
 		var lastMatch;
-		var findRegExp;
+		var findRegExp = new RegExp();
+		var findRegExpSource;
 		var reversedRegExp;
 		var found;
 		var docShell;
@@ -99,7 +193,11 @@ var XMigemoFind = {
 		var rightContext;
 		var noRepeatL;
 		var statusRes;
-		var isLinksOnly = XMigemoService.getPref('xulmigemo.linksonly');
+		var isLinksOnly = Prefs.getBoolPref('xulmigemo.linksonly');
+
+		const XMigemoTextService = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
+				.getService(Components.interfaces.pIXMigemoTextTransform);
 
 		doFind:
 		while (true)
@@ -109,12 +207,13 @@ var XMigemoFind = {
 			target = XMigemoTextService.range2Text(findRange.sRange);
 
 			if(aFindFlag & this.FIND_BACK){
-				target = target.split('').reverse().join("");
-				findRegExp = reversedRegExp || (reversedRegExp = XMigemoTextService.reverseRegExp(aRegexp));
+				target = target.split('').reverse().join('');
+				findRegExpSource = reversedRegExp || (reversedRegExp = XMigemoTextService.reverseRegExp(aRegExpSource));
 			}
 			else{
-				findRegExp = aRegexp;
+				findRegExpSource = aRegExpSource;
 			}
+			findRegExp = findRegExp.compile(findRegExpSource, 'im');
 
 			getFindRange:
 			while (true)
@@ -142,7 +241,7 @@ var XMigemoFind = {
 
 				lastMatch = result || null;
 				if (lastMatch) {
-//					dump("call findInRange"+'\n');
+//					mydump("call findInRange");
 					found = this.findInRange(aFindFlag, lastMatch, findRange, aForceFocus);
 					//alert("lastMatch:"+lastMatch);
 				}
@@ -180,11 +279,11 @@ var XMigemoFind = {
 
 			}
 
-			var event = document.createEvent('Events');
+			var event = this.document.createEvent('Events');
 			event.initEvent('XMigemoFindProgress', true, true);
 			event.resultFlag = found;
 			event.findFlag   = aFindFlag;
-			document.dispatchEvent(event);
+			this.document.dispatchEvent(event);
 
 			this.setSelectionLook(doc, true);
 
@@ -210,7 +309,7 @@ var XMigemoFind = {
 							.QueryInterface(Components.interfaces.nsIDocShell)
 							.QueryInterface(Components.interfaces.nsIWebNavigation)
 							.document;
-						document.commandDispatcher.focusedWindow = docShell
+						this.document.commandDispatcher.focusedWindow = docShell
 							.QueryInterface(Components.interfaces.nsIDocShell)
 							.QueryInterface(Components.interfaces.nsIWebNavigation)
 							.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
@@ -227,7 +326,7 @@ var XMigemoFind = {
 					if (!repeat){
 						repeat = true;
 						doc = Components.lookupMethod(doc.defaultView.top, 'document').call(doc.defaultView.top);
-						document.commandDispatcher.focusedWindow = doc.defaultView.top;
+						this.document.commandDispatcher.focusedWindow = doc.defaultView.top;
 						aFindFlag += this.FIND_FROM_START;
 						continue;
 					}
@@ -246,7 +345,7 @@ var XMigemoFind = {
  
 	findInRange : function(aFindFlag, aTerm, aRanges, aForceFocus) 
 	{
-//		dump("findInRange"+'\n');
+//		mydump("findInRange");
 
 		this.mFind.findBackwards = Boolean(aFindFlag & this.FIND_BACK);
 
@@ -284,7 +383,7 @@ var XMigemoFind = {
 		}
 		if (
 			this.manualLinksOnly ||
-			(this.isQuickFind && XMigemoService.getPref('xulmigemo.linksonly'))
+			(this.isQuickFind && Prefs.getBoolPref('xulmigemo.linksonly'))
 			) {
 			if (link) {
 				this.foundRange = foundRange;
@@ -310,7 +409,7 @@ var XMigemoFind = {
  
 	findParentLink : function(aRange) 
 	{
-//		dump("findParentLink"+'\n');
+//		mydump("findParentLink");
 		//後でXLinkを考慮したコードに直す
 
 		var node = aRange.commonAncestorContainer.parentNode;
@@ -326,7 +425,7 @@ var XMigemoFind = {
  
 	findParentEditable : function(aRange) 
 	{
-//		dump('findParentEditable'+'\n');
+//		mydump('findParentEditable');
 		var node = aRange.commonAncestorContainer.parentNode;
 		while (node && node.parentNode)
 		{
@@ -341,12 +440,12 @@ var XMigemoFind = {
 		}
 		return null;
 	},
- 	  
+   
 /* DocShell Traversal */ 
 	
 	getDocShellForFrame : function(aFrame) 
 	{
-//		dump('getDocShellForFrame'+'\n');
+//		mydump('getDocShellForFrame');
 		return aFrame
 				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 				.getInterface(Components.interfaces.nsIWebNavigation)
@@ -356,7 +455,7 @@ var XMigemoFind = {
  
 	getNextDocShell : function(aNode) 
 	{
-//		dump("getNextDocShell"+'\n');
+//		mydump("getNextDocShell");
 	//	mydump("XXX Find NEXT, from\n"
 	//			+aNode.QueryInterface(Components.interfaces.nsIWebNavigation).document.URL+'\n');
 		// 子がある場合、最初の子を返す
@@ -412,7 +511,7 @@ var XMigemoFind = {
  
 	getLastChildDocShell : function(aItem) 
 	{
-//		dump("getLastChildDocShell"+'\n');
+//		mydump("getLastChildDocShell");
 		var curItem = aItem.QueryInterface(Components.interfaces.nsIDocShellTreeItem);
 		var curNode;
 		var childCount;
@@ -427,7 +526,7 @@ var XMigemoFind = {
  
 	getLastChildDocument : function(aDocument) 
 	{
-//		dump("getLastChildDocument"+'\n');
+//		mydump("getLastChildDocument");
 		var docShell = this.getDocShellForFrame(Components.lookupMethod(aDocument, 'defaultView').call(aDocument));
 		docShell = this.getLastChildDocShell(docShell);
 		var doc = docShell
@@ -438,12 +537,12 @@ var XMigemoFind = {
 	},
   
 /* Range Manipulation */ 
-	 
+	
 	resetFindRange : function(aFindRange, aRange, aFindFlag, aDocument) 
 	{
-//		dump("resetFindRange"+'\n');
-		var win = document.commandDispatcher.focusedWindow;
-		var theDoc = (win && win != window) ? Components.lookupMethod(win, 'document').call(win) : aDocument ;
+//		mydump("resetFindRange");
+		var win = this.document.commandDispatcher.focusedWindow;
+		var theDoc = (win && win != this.window) ? Components.lookupMethod(win, 'document').call(win) : aDocument ;
 		var bodyNode = Components.lookupMethod(theDoc, 'body').call(theDoc);
 
 		var findRange = aFindRange;
@@ -477,8 +576,7 @@ var XMigemoFind = {
 /* 
 	getFindRange : function(aFindFlag, aDocument)
 	{
-//		dump("getFindRange"+'\n');
-		var win = document.commandDispatcher.focusedWindow;
+//		mydump("getFindRange");
 		var bodyNode = aDocument.body;
 
 		var findRange = aDocument.createRange();
@@ -504,7 +602,7 @@ var XMigemoFind = {
 		}
 		selection = selCon.getSelection(selCon.SELECTION_NORMAL);
 		var count = selection.rangeCount;
-		dump("count:"+count+'\n');
+		mydump("count:"+count);
 
 		var childCount = bodyNode.childNodes.length;
 		var range;
@@ -577,8 +675,7 @@ var XMigemoFind = {
  
 	getFindRange : function(aFindFlag, aDocument) 
 	{
-//		dump("getFindRange"+'\n');
-		var win = document.commandDispatcher.focusedWindow;
+//		mydump("getFindRange");
 
 		var docShell = this.getDocShellForFrame(aDocument.defaultView);
 		var docSelCon = docShell
@@ -627,8 +724,7 @@ var XMigemoFind = {
 	 
 	getFindRangeIn : function(aFindFlag, aDocument, aRangeParent, aSelCon) 
 	{
-//		dump("getFindRange"+'\n');
-		var win = document.commandDispatcher.focusedWindow;
+//		mydump("getFindRange");
 
 		var findRange = aDocument.createRange();
 		findRange.selectNodeContents(aRangeParent);
@@ -639,7 +735,7 @@ var XMigemoFind = {
 
 		var selection = aSelCon.getSelection(aSelCon.SELECTION_NORMAL);
 		var count = selection.rangeCount;
-		dump("count:"+count+'\n');
+		mydump("count:"+count);
 
 		var childCount = aRangeParent.childNodes.length;
 		var range;
@@ -721,7 +817,7 @@ var XMigemoFind = {
   
 	findVisibleNode : function(aFrame, aFindFlag) 
 	{
-//		dump("findVisibleNode"+'\n');
+//		mydump("findVisibleNode");
 		var doc = aFrame.document;
 
 		var offsetX = aFrame.pageXOffset;
@@ -762,17 +858,17 @@ var XMigemoFind = {
 		},
 		isInvisible : null
 	},
-	 
+	
 	isAbove : function(aNode) 
 	{
-//		dump("isAbove"+'\n');
+//		mydump("isAbove");
 		var height = aNode.offsetHeight > frameHeight ? frameHeight : aNode.offsetHeight ;
 		return (aNode.offsetTop < startY && aNode.offsetTop+height < startY+minPixels);
 	},
  
 	isBelow : function(aNode) 
 	{
-//		dump("isBelow"+'\n');
+//		mydump("isBelow");
 		var height = aNode.offsetHeight > frameHeight ? frameHeight : aNode.offsetHeight ;
 		return (aNode.offsetTop+height > endY && aNode.offsetTop > endY-minPixels);
 	},
@@ -781,7 +877,7 @@ var XMigemoFind = {
 	 
 	setSelectionLook : function(aDocument, aChangeColor) 
 	{
-//		dump("xmSetSelectionLook"+'\n');
+//		mydump("xmSetSelectionLook");
 
 		var selCon;
 		if (aDocument.foundEditable) {
@@ -820,7 +916,7 @@ var XMigemoFind = {
  
 	setSelectionAndScroll : function(aRange, aDocument) 
 	{
-//		dump("setSelectionAndScroll"+'\n');
+//		mydump("setSelectionAndScroll");
 
 		var selection;
 
@@ -868,8 +964,63 @@ var XMigemoFind = {
 	},
 	scrollSelectionToCenter : function(aFrame)
 	{
-		if (XMigemoService.getPref('xulmigemo.scrollSelectionToCenter'))
-			XMigemoService.scrollSelectionToCenter(aFrame);
+		if (!Prefs.getBoolPref('xulmigemo.scrollSelectionToCenter')) return;
+
+		var frame = aFrame ||
+					this.getSelectionFrame(this.document.commandDispatcher.focusedWindow ||
+					this.window._content);
+		if (!frame) return;
+
+		var selection = frame.getSelection();
+		var range = frame.document.createRange();
+		var elem;
+
+		if (frame.document.foundEditable) {
+			elem = frame.document.foundEditable;
+
+			var box = elem.ownerDocument.getBoxObjectFor(elem);
+			frame.scroll(box.x - frame.innerWidth / 2, box.y - frame.innerHeight / 2);
+		}
+		else {
+			elem = frame.document.createElement('span');
+			range.setStart(selection.focusNode, selection.focusOffset);
+			range.setEnd(selection.focusNode, selection.focusOffset);
+			range.insertNode(elem);
+
+			var box = frame.document.getBoxObjectFor(elem);
+			if (!box.x && !box.y)
+				box = frame.document.getBoxObjectFor(elem.parentNode);
+
+			frame.scroll(box.x - frame.innerWidth / 2, box.y - frame.innerHeight / 2);
+
+			elem.parentNode.removeChild(elem);
+			range.detach();
+		}
+	},
+	getSelectionFrame : function(aFrame)
+	{
+		var selection = aFrame.getSelection();
+		if (selection && selection.rangeCount)
+			return aFrame;
+
+		var frame;
+		for (var i = 0, maxi = aFrame.frames.length; i < maxi; i++)
+		{
+			frame = arguments.callee(aFrame.frames[i]);
+			if (frame) return frame;
+		}
+		return null;
+	},
+	getPageOffsetTop : function(aNode)
+	{
+		if (!aNode) return 0;
+		var top = aNode.offsetTop;
+		while (aNode.offsetParent != null)
+		{
+			aNode = aNode.offsetParent;
+			top += aNode.offsetTop;
+		}
+		return top;
 	},
  
 	clearSelection : function(aDocument) 
@@ -884,13 +1035,17 @@ var XMigemoFind = {
   
 	clear : function() 
 	{
+		if (!this.target)
+			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+
 		this.lastKeyword        = '';
 		this.viewportStartPoint = null;
 		this.viewportEndPoint   = null;
 		this.lastFoundWord      = '';
 
-		var win = document.commandDispatcher.focusedWindow;
-		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.target.contentDocument;
+		var win = this.document.commandDispatcher.focusedWindow;
+		var doc = (win != this.window) ? Components.lookupMethod(win, 'document').call(win) :
+					this.target.contentDocument;
 
 		this.exitFind();
 
@@ -899,8 +1054,12 @@ var XMigemoFind = {
  
 	exitFind : function() 
 	{
-		var win = document.commandDispatcher.focusedWindow;
-		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.target.contentDocument;
+		if (!this.target)
+			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+
+		var win = this.document.commandDispatcher.focusedWindow;
+		var doc = (win != this.window) ? Components.lookupMethod(win, 'document').call(win) :
+					this.target.contentDocument;
 
 		var selection = doc.defaultView.getSelection();
 		if (selection.rangeCount) {
@@ -920,7 +1079,7 @@ var XMigemoFind = {
 	},
  
 /* nsIPrefListener(?) */ 
-	
+	 
 	domain  : 'xulmigemo', 
  
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -930,10 +1089,11 @@ var XMigemoFind = {
 		switch (aPrefName)
 		{
 			case 'xulmigemo.startfromviewport':
-				this.startFromViewport = XMigemoService.getPref('xulmigemo.startfromviewport');
+				this.startFromViewport = Prefs.getBoolPref('xulmigemo.startfromviewport');
 				return;
 
-			default:
+			case 'quit-application':
+				this.destroy();
 				return;
 		}
 	},
@@ -941,21 +1101,107 @@ var XMigemoFind = {
   
 	init : function() 
 	{
-		XMigemoService.addPrefListener(this);
+		if (this.initialized) return;
+
+		this.initialized = true;
+
+		try {
+			var pbi = Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+			pbi.addObserver(this.domain, this, false);
+		}
+		catch(e) {
+		}
+
+		var service = this;
+		this.window.addEventListener('unload', function() {
+			service.window.removeEventListener('unload', arguments.callee, false);
+			service.destroy();
+		}, false);
+
+		// Initialize
+		Components
+			.classes['@piro.sakura.ne.jp/xmigemo/core;1']
+			.getService(Components.interfaces.pIXMigemo);
 	},
  
 	destroy : function() 
 	{
-		XMigemoService.removePrefListener(this);
+		try {
+			var pbi = Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+			pbi.removeObserver(this.domain, this, false);
+		}
+		catch(e) {
+		}
 	},
  
-	dummy : null
-}; 
+	QueryInterface : function(aIID) 
+	{
+		if(!aIID.equals(Components.interfaces.pIXMigemoFind) &&
+			!aIID.equals(Components.interfaces.nsISupports))
+			throw Components.results.NS_ERROR_NO_INTERFACE;
+		return this;
+	}
+};
   
-window.addEventListener('load', function() { 
-	XMigemoFind.init();
-}, false);
-window.addEventListener('unload', function() {
-	XMigemoFind.destroy();
-}, false);
+var gModule = { 
+	_firstTime: true,
+
+	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
+	{
+		if (this._firstTime) {
+			this._firstTime = false;
+			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
+		}
+		aComponentManager = aComponentManager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+		for (var key in this._objects) {
+			var obj = this._objects[key];
+			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
+		}
+	},
+
+	getClassObject : function (aComponentManager, aCID, aIID)
+	{
+		if (!aIID.equals(Components.interfaces.nsIFactory))
+			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+
+		for (var key in this._objects) {
+			if (aCID.equals(this._objects[key].CID))
+				return this._objects[key].factory;
+		}
+
+		throw Components.results.NS_ERROR_NO_INTERFACE;
+	},
+
+	_objects : {
+		manager : {
+			CID        : pXMigemoFind.prototype.classID,
+			contractID : pXMigemoFind.prototype.contractID,
+			className  : pXMigemoFind.prototype.classDescription,
+			factory    : {
+				createInstance : function (aOuter, aIID)
+				{
+					if (aOuter != null)
+						throw Components.results.NS_ERROR_NO_AGGREGATION;
+					return (new pXMigemoFind()).QueryInterface(aIID);
+				}
+			}
+		}
+	},
+
+	canUnload : function (aComponentManager)
+	{
+		return true;
+	}
+};
+
+function NSGetModule(compMgr, fileSpec)
+{
+	return gModule;
+}
+ 
+function mydump(aString)
+{
+	if (DEBUG)
+		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
+}
  
