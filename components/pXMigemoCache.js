@@ -39,7 +39,7 @@ pXMigemoCache.prototype = {
 			dump('use diskCacheClone'+'\n');
 			return RegExp.$1.split('\t')[1];
 		}
-		return false;
+		return '';
 	},
  
 	clearCacheForAllPatterns : function (aRoman) 
@@ -52,7 +52,7 @@ pXMigemoCache.prototype = {
 			this.clearCacheSilentlyFor(key);
 		}
 		this.save();
-		ObserverService.notifyObservers(window, 'XMigemo:cacheCleared', patterns.join('\n'));
+		ObserverService.notifyObservers(null, 'XMigemo:cacheCleared', patterns.join('\n'));
 	},
  
 	clearCacheFor : function (aRoman) 
@@ -60,7 +60,7 @@ pXMigemoCache.prototype = {
 		this.clearCacheSilentlyFor(aRoman);
 
 		this.save();
-		ObserverService.notifyObservers(window, 'XMigemo:cacheCleared', aRoman);
+		ObserverService.notifyObservers(null, 'XMigemo:cacheCleared', aRoman);
 	},
  
 	clearCacheSilentlyFor : function (aRoman) 
@@ -93,7 +93,7 @@ pXMigemoCache.prototype = {
 			this.memCache += aRoman + '\t' + aRegExp + '\n';
 			//dump(this.memCache+'\n');
 
-			ObserverService.notifyObservers(window, 'XMigemo:memCacheAdded', aRoman+'\n'+aRegExp);
+			ObserverService.notifyObservers(null, 'XMigemo:memCacheAdded', aRoman+'\n'+aRegExp);
 
 			return;
 		}
