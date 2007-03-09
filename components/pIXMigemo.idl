@@ -1,0 +1,71 @@
+#include "nsISupports.idl"
+#include "nsIFile.idl"
+#include "nsIDOMRange.idl"
+
+[scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
+interface pIXMigemoFileAccess : nsISupports
+{
+
+	/* File I/O */
+	wstring readFrom(in nsIFile file, in string encoding);
+	nsIFile writeTo(in nsIFile file, in wstring content, in string encoding);
+
+};
+
+
+[scriptable, uuid(749f4faa-cdf6-11db-8314-0800200c9a66)]
+interface pIXMigemoTextTransform : nsISupports
+{
+	wstring range2Text(in nsIDOMRange range);
+
+	wstring hira2kana(in wstring hiragana);
+	wstring zenkaku2hankaku(in wstring zenkaku);
+	wstring roman2zen(in wstring roman);
+	wstring katakanav(in wstring katakana);
+
+	wstring normalizeForYomi(in wstring yomigana);
+	boolean isYomi(in wstring yomigana);
+
+	wstring joinVoiceMarks(in wstring hiragana);
+	wstring kana2hira(in wstring katakana);
+	wstring hira2roman(in wstring hiragana);
+
+	wstring sanitize(in wstring regexpPattern);
+	wstring sanitize2(in wstring regexpPattern);
+	wstring reverseRegExp(in wstring regexpPattern);
+
+	wstring convertStr(in wstring roman);
+	wstring convertStr2(in wstring roman, in unsigned short kanaFlag);
+	wstring toZen(in wstring romanChar, in wstring lastChar, in wstring last2Char, in unsigned short kanaFlag);
+	wstring getKana(in wstring key, in unsigned short kanaFlag);
+	const unsigned short KANA_HIRA = 0;
+	const unsigned short KANA_KATA = 1;
+	const unsigned short KANA_ALL = 2;
+
+	boolean isAlpha(in wstring roman);
+
+	wstring expand(in wstring roman);
+	wstring expand2(in wstring roman, in unsigned short kanaFlag);
+};
+
+
+[scriptable, uuid(159add54-cdf2-11db-8314-0800200c9a66)]
+interface pIXMigemoCache : nsISupports
+{
+	wstring getCacheFor(in wstring roman);
+
+	void clearCacheForAllPatterns(in wstring roman);
+	void clearCacheFor(in wstring roman);
+	void clearCacheSilentlyFor(in wstring roman);
+
+	void clearAll(in boolean clearDiskCache);
+
+	void setMemCache(in wstring roman, in wstring regExpPattern);
+	void setDiskCache(in wstring roman, in wstring regExpPattern);
+
+	attribute nsIFile cacheFile;
+
+	boolean load();
+	void reload();
+	void save();
+};

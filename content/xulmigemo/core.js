@@ -85,6 +85,10 @@ var XMigemoCore = {
 
 		aRoman = aRoman.toLowerCase();
 
+		const XMigemoCache = Components
+							.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
+							.getService(Components.interfaces.pIXMigemoCache);
+
 		var cacheText = XMigemoCache.getCacheFor(aRoman);
 		if (cacheText) {
 			dump('cache:'+cacheText+'\n');
@@ -176,7 +180,7 @@ var XMigemoCore = {
 		var date2 = new Date();
 		if (date2.getTime() - date1.getTime() > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : XMigemoService.getPref('xulmigemo.cache.update.time'))) {
 			// ’x‚©‚Á‚½‚çƒLƒƒƒbƒVƒ…‚µ‚Ü‚·
-			XMigemoCache.save(aRoman, pattern);
+			XMigemoCache.setDiskCache(aRoman, pattern);
 			XMigemoCache.setMemCache(aRoman, pattern);
 			dump('CacheWasSaved'+'\n');
 		}

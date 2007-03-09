@@ -3,202 +3,6 @@
 		service.js
 */
  
-var XMigemoCache = { 
-	initialized : false,
-	
-	memCache       : '', 
-	diskCacheClone : '',
- 
-	getCacheFor : function (aRoman) 
-	{
-		var miexp = new RegExp('(^'+XMigemoTextService.sanitize(aRoman)+'\t.+\n)', 'im');
-		if (this.memCache.match(miexp)) {
-			dump('use memCache'+'\n');
-			return RegExp.$1.split('\t')[1];
-		}
-		else if (this.diskCacheClone.match(miexp)) {
-			dump('use diskCacheClone'+'\n');
-			return RegExp.$1.split('\t')[1];
-		}
-		return false;
-	},
- 
-	clearCacheForAllPatterns : function (aRoman) 
-	{
-		var patterns = [];
-		for (var i = aRoman.length-1; i > 0; i--)
-		{
-			var key = aRoman.substring(0, i);
-			patterns.push(key);
-			this.clearCacheFor(key, true);
-		}
-		this.save();
-		XMigemoService.ObserverService.notifyObservers(window, 'XMigemo:cacheCleared', patterns.join('\n'));
-	},
- 
-	clearCacheFor : function (aRoman, aPreventSaveAndNotify) 
-	{
-		var miexp = new RegExp('(^'+aRoman+'\t.+\n)', 'im');
-		this.memCache = this.memCache.replace(miexp, '');
-		if (RegExp.$1) dump('update memCache for "'+aRoman+'"'+'\n');
-		this.diskCacheClone = this.diskCacheClone.replace(miexp, '');
-		if (RegExp.$1) dump('update diskCache for "'+aRoman+'"'+'\n');
-
-		if (!aPreventSaveAndNotify) {
-			this.save();
-			XMigemoService.ObserverService.notifyObservers(window, 'XMigemo:cacheCleared', aRoman);
-		}
-	},
- 
-	clearAll : function(aDisk) 
-	{
-		this.memCache = '';
-		if (aDisk)
-			this.diskCacheClone = '';
-	},
- 
-	setMemCache : function(aRoman, aRegExp) 
-	{
-		var tmpexp = new RegExp('(^'+XMigemoTextService.sanitize(aRoman)+'\t.+\n)', 'im');
-		if (this.memCache.match(tmpexp)) {
-			return;
-		}
-		else {
-			this.memCache += aRoman + '\t' + aRegExp + '\n';
-			//dump(this.memCache+'\n');
-
-			XMigemoService.ObserverService.notifyObservers(window, 'XMigemo:memCacheAdded', aRoman+'\n'+aRegExp);
-
-			return;
-		}
-	},
- 
-/* File I/O */ 
-	
-	get cacheFile() 
-	{
-		if (!this.cacheFileHolder) {
-			try {
-				this.cacheFileHolder = Components.classes['@mozilla.org/file/local;1'].createInstance();
-				if (this.cacheFileHolder instanceof Components.interfaces.nsILocalFile) {
-					this.cacheFileHolder.initWithPath(XMigemoService.getPref('xulmigemo.dicpath'));
-					this.cacheFileHolder.append('migemocache.txt');
-				}
-			}
-			catch(e) {
-				this.cacheFileHolder = null;
-			}
-		}
-		return this.cacheFileHolder;
-	},
-	cacheFileHolder : null,
- 
-	load : function() 
-	{
-		var file = this.cacheFile;
-		if (!file || !file.exists()) return false;
-
-		var cache = this.readFrom(file);
-		const UConvID = '@mozilla.org/intl/scriptableunicodeconverter';
-		const UConvIF = Components.interfaces.nsIScriptableUnicodeConverter;
-		const UConv = Components.classes[UConvID].getService(UConvIF);
-		UConv.charset = 'Shift_JIS';
-		var mygcutf8_str = UConv.ConvertToUnicode(cache);
-		this.diskCacheClone = mygcutf8_str;
-
-		this.initialized = true;
-		return true;
-	},
- 
-	save : function (aRoman, aMyRegExp) { 
-		var file = this.cacheFile;
-		if (!file) return false;
-
-		var oldCache = this.diskCacheClone;
-		var newCache = this.diskCacheClone;
-
-		if (aRoman && aMyRegExp) {
-			var tmpexp = new RegExp('(^' + XMigemoTextService.sanitize(aRoman) + '\t.+\n)', 'im');
-			newCache = [newCache.replace(tmpexp, ''), aRoman, '\t', aMyRegExp, '\n'].join('');
-		}
-
-		if (newCache != oldCache) {
-			const UConvID = '@mozilla.org/intl/scriptableunicodeconverter';
-			const UConvIF = Components.interfaces.nsIScriptableUnicodeConverter;
-			const UConv = Components.classes[UConvID].getService(UConvIF);
-			UConv.charset = 'Shift_JIS';
-			var sjis_str = UConv.ConvertFromUnicode(newCache);
-			this.writeTo(file, sjis_str);
-			this.diskCacheClone = newCache;
-			return true;
-		}
-		else {
-			return false;
-		}
-	},
- 
-	dump : function() 
-	{
-		if (!XMigemoService.DEBUG) return;
-
-		var file = this.cacheFile;
-		if (file && file.exists()) {
-			var cache = readFrom(file);
-			const UConvID = '@mozilla.org/intl/scriptableunicodeconverter';
-			const UConvIF  = Components.interfaces.nsIScriptableUnicodeConverter;
-			const UConv = Components.classes[UConvID].getService(UConvIF);
-			UConv.charset = 'Shift_JIS';
-			var sjis_str = UConv.ConvertFromUnicode(this.memCache);
-			this.writeTo(file, sjis_str);
-			return true;
-		}
-		else {
-			return false;
-		}
-	},
- 
-/* File I/O */ 
-	
-	readFrom : function(aFile) 
-	{
-	   var stream = Components.classes['@mozilla.org/network/file-input-stream;1'].createInstance(Components.interfaces.nsIFileInputStream);
-	   try {
-	      stream.init(aFile, 1, 0, false); // open as "read only"
-
-	      var scriptableStream = Components.classes['@mozilla.org/scriptableinputstream;1'].createInstance(Components.interfaces.nsIScriptableInputStream);
-	      scriptableStream.init(stream);
-
-	      var fileSize = scriptableStream.available();
-	      var fileContents = scriptableStream.read(fileSize);
-
-	      scriptableStream.close();
-	      stream.close();
-
-	      return fileContents;
-	   }
-	   catch(e) {
-	      return null;
-	   }
-	},
- 
-	writeTo : function(aFile, aContent) 
-	{
-	    if (aFile.exists()) aFile.remove(true); // 上書き確認は無し。必要があれば処理を追加。
-	    aFile.create(aFile.NORMAL_FILE_TYPE, 0666); // アクセス権を8進数で指定。 Win9x などでは無視される。
-
-	    var stream = Components.classes['@mozilla.org/network/file-output-stream;1'].createInstance(Components.interfaces.nsIFileOutputStream);
-	    stream.init(aFile, 2, 0x200, false); // open as "write only"
-
-	    stream.write(aContent, aContent.length);
-
-	    stream.close();
-
-	    return aFile;
-	},
-   
-	dummy : null 
-};
-  
 var XMigemoDic = { 
 	initialized : false,
 	 
@@ -222,11 +26,9 @@ var XMigemoDic = {
 		var file;
 		var dicDir = XMigemoService.getPref('xulmigemo.dicpath');
 
-		const UConvID = '@mozilla.org/intl/scriptableunicodeconverter';
-		const UConvIF = Components.interfaces.nsIScriptableUnicodeConverter;
-		const UConv   = Components.classes[UConvID].getService(UConvIF);
-		UConv.charset = 'Shift_JIS';
-
+		var util = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
+					.getService(Components.interfaces.pIXMigemoFileAccess);
 
 		var error = false;
 
@@ -241,9 +43,7 @@ var XMigemoDic = {
 			}
 			if (file && file.exists()) {
 				dump(cList[i]+'\n');
-				var cache = this.readFrom(file);
-				var dicstr = UConv.ConvertToUnicode(cache);
-				this.list[cList[i]] = dicstr;
+				this.list[cList[i]] = util.readFrom(file, 'Shift_JIS');
 			}
 			else {
 				this.list[cList[i]] = '';
@@ -258,9 +58,7 @@ var XMigemoDic = {
 			}
 			if (file && file.exists()) {
 				dump(cList[i] + '-user'+'\n');
-				var cache = this.readFrom(file);
-				var dicstr = UConv.ConvertToUnicode(cache);
-				this.list[cList[i] + '-user'] = dicstr;
+				this.list[cList[i] + '-user'] = util.readFrom(file, 'Shift_JIS');
 			}
 			else {
 				this.list[cList[i] + '-user'] = '';
@@ -280,57 +78,16 @@ var XMigemoDic = {
 		var dicDir = XMigemoService.getPref('xulmigemo.dicpath');
 		if (!dicDir) return;
 
-		const UConvID = '@mozilla.org/intl/scriptableunicodeconverter';
-		const UConvIF = Components.interfaces.nsIScriptableUnicodeConverter;
-		const UConv   = Components.classes[UConvID].getService(UConvIF);
-		UConv.charset = 'Shift_JIS';
-
 		file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
 		file.initWithPath(dicDir);
 		file.append(aKey + 'a2.user.txt');
-		var dicstr = UConv.ConvertFromUnicode(this.list[aKey+'-user'] || '');
-		this.writeTo(file, dicstr);
+
+		var util = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
+					.getService(Components.interfaces.pIXMigemoFileAccess);
+		util.writeTo(file, (this.list[aKey+'-user'] || ''), 'Shift_JIS');
 	},
- 
-/* File I/O */ 
-	 
-	readFrom : function(aFile) 
-	{
-	   var stream = Components.classes['@mozilla.org/network/file-input-stream;1'].createInstance(Components.interfaces.nsIFileInputStream);
-	   try {
-	      stream.init(aFile, 1, 0, false); // open as "read only"
-
-	      var scriptableStream = Components.classes['@mozilla.org/scriptableinputstream;1'].createInstance(Components.interfaces.nsIScriptableInputStream);
-	      scriptableStream.init(stream);
-
-	      var fileSize = scriptableStream.available();
-	      var fileContents = scriptableStream.read(fileSize);
-
-	      scriptableStream.close();
-	      stream.close();
-
-	      return fileContents;
-	   }
-	   catch(e) {
-	      return null;
-	   }
-	},
- 
-	writeTo : function(aFile, aContent) 
-	{
-	    if (aFile.exists()) aFile.remove(true); // 上書き確認は無し。必要があれば処理を追加。
-	    aFile.create(aFile.NORMAL_FILE_TYPE, 0666); // アクセス権を8進数で指定。 Win9x などでは無視される。
-
-	    var stream = Components.classes['@mozilla.org/network/file-output-stream;1'].createInstance(Components.interfaces.nsIFileOutputStream);
-	    stream.init(aFile, 2, 0x200, false); // open as "write only"
-
-	    stream.write(aContent, aContent.length);
-
-	    stream.close();
-
-	    return aFile;
-	},
-   
+  
 	getDic : function(aLetter, aUser) 
 	{
 		var suffix = aUser ? '-user' : '' ;
@@ -594,6 +351,9 @@ var XMigemoDicManager = {
 
 					case 'xulmigemo.ignoreHiraKata':
 					case 'xulmigemo.splitTermsAutomatically':
+						var XMigemoCache = Components
+								.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
+								.getService(Components.interfaces.pIXMigemoCache);
 						XMigemoCache.clearAll();
 						break;
 				}
@@ -615,6 +375,9 @@ var XMigemoDicManager = {
 					return;
 */
 
+				var XMigemoCache = Components
+						.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
+						.getService(Components.interfaces.pIXMigemoCache);
 				XMigemoCache.clearCacheForAllPatterns(XMigemoTextService.hira2roman(yomi));
 				return;
 
@@ -628,7 +391,6 @@ var XMigemoDicManager = {
 						window.XMigemoDic.initialized
 						) {
 						aSubject.XMigemoDic   = window.XMigemoDic;
-						aSubject.XMigemoCache = window.XMigemoCache;
 					}
 				}
 				else { // initialize only for the first loading
@@ -641,8 +403,11 @@ var XMigemoDicManager = {
 	reload : function() 
 	{
 		XMigemoDic.load();
-		XMigemoCache.cacheFileHolder = null;
-		XMigemoCache.load();
+
+		var XMigemoCache = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
+				.getService(Components.interfaces.pIXMigemoCache);
+		XMigemoCache.reload();
 	},
  
 	showDirectoryPicker : function(aDefault) 
@@ -681,6 +446,10 @@ var XMigemoDicManager = {
 	delayedInit : function() 
 	{
 		if (XMigemoDic.initialized) return;
+
+		var XMigemoCache = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
+				.getService(Components.interfaces.pIXMigemoCache);
 
 		if (
 			(

@@ -1,275 +1,21 @@
-var XMigemoService = { 
+var Pref = Components 
+			.classes['@mozilla.org/preferences;1']
+			.getService(Components.interfaces.nsIPrefBranch);
+ 
+function pXMigemoTextTransform() {} 
+
+pXMigemoTextTransform.prototype = {
+	get contractID() {
+		return '@piro.sakura.ne.jp/xmigemo/text-transform;1';
+	},
+	get classDescription() {
+		return 'This is a text transformation service for XUL/Migemo.';
+	},
+	get classID() {
+		return Components.ID('{749f4faa-cdf6-11db-8314-0800200c9a66}');
+	},
 	 
-	DEBUG : true, 
- 
-	get ObserverService() 
-	{
-		if (!this._ObserverService)
-			this._ObserverService = Components.classes['@mozilla.org/observer-service;1'].getService(Components.interfaces.nsIObserverService);
-		return this._ObserverService;
-	},
-	_ObserverService : null,
- 
-	get WindowManager() 
-	{
-		if (!this._WindowManager)
-			this._WindowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
-		return this._WindowManager;
-	},
-	_WindowManager : null,
- 
-/* Prefs */ 
-	
-	get Prefs() 
-	{
-		if (!this._Prefs) {
-			this._Prefs = Components.classes['@mozilla.org/preferences;1'].getService(Components.interfaces.nsIPrefBranch);
-		}
-		return this._Prefs;
-	},
-	_Prefs : null,
- 
-	knsISupportsString : ('nsISupportsWString' in Components.interfaces) ? Components.interfaces.nsISupportsWString : Components.interfaces.nsISupportsString, 
- 
-	getPref : function(aPrefstring, aStringType) 
-	{
-		try {
-			switch (this.Prefs.getPrefType(aPrefstring))
-			{
-				case this.Prefs.PREF_STRING:
-					return this.Prefs.getComplexValue(aPrefstring, aStringType || this.knsISupportsString).data;
-					break;
-				case this.Prefs.PREF_INT:
-					return this.Prefs.getIntPref(aPrefstring);
-					break;
-				default:
-					return this.Prefs.getBoolPref(aPrefstring);
-					break;
-			}
-		}
-		catch(e) {
-		}
-
-		return null;
-	},
- 
-	setPref : function(aPrefstring, aNewValue, aPrefObj) 
-	{
-		var pref = aPrefObj || this.Prefs ;
-		var type;
-		try {
-			type = typeof aNewValue;
-		}
-		catch(e) {
-			type = null;
-		}
-
-		switch (type)
-		{
-			case 'string':
-				var string = ('@mozilla.org/supports-wstring;1' in Components.classes) ?
-						Components.classes['@mozilla.org/supports-wstring;1'].createInstance(this.knsISupportsString) :
-						Components.classes['@mozilla.org/supports-string;1'].createInstance(this.knsISupportsString) ;
-				string.data = aNewValue;
-				pref.setComplexValue(aPrefstring, this.knsISupportsString, string);
-				break;
-			case 'number':
-				pref.setIntPref(aPrefstring, parseInt(aNewValue));
-				break;
-			default:
-				pref.setBoolPref(aPrefstring, aNewValue);
-				break;
-		}
-		return true;
-	},
- 
-	clearPref : function(aPrefstring) 
-	{
-		try {
-			this.Prefs.clearUserPref(aPrefstring);
-		}
-		catch(e) {
-		}
-
-		return;
-	},
- 
-	addPrefListener : function(aObserver) 
-	{
-		var domains = ('domains' in aObserver) ? aObserver.domains : [aObserver.domain] ;
-		try {
-			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
-			for (var i = 0; i < domains.length; i++)
-				pbi.addObserver(domains[i], aObserver, false);
-		}
-		catch(e) {
-		}
-	},
- 
-	removePrefListener : function(aObserver) 
-	{
-		var domains = ('domains' in aObserver) ? aObserver.domains : [aObserver.domain] ;
-		try {
-			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
-			for (var i = 0; i < domains.length; i++)
-				pbi.removeObserver(domains[i], aObserver, false);
-		}
-		catch(e) {
-		}
-	},
-  
-/* string bundle */ 
-	
-	get strbundle() 
-	{
-		if (!this._strbundle) {
-			this._strbundle = new XMigemoStringBundle('chrome://xulmigemo/locale/xulmigemo.properties');
-		}
-		return this._strbundle;
-	},
-  
-/* Shortcut Keys */ 
-	
-	parseShortcut : function(aShortcut) 
-	{
-		var keys = aShortcut.split('+');
-
-		var keyCode = keys[keys.length-1].replace(/ /g, '_').toUpperCase();
-		var key     = keyCode;
-
-		sotredKeyCode = (keyCode.length == 1 || keyCode == 'SPACE') ? '' : 'VK_'+keyCode ;
-		key = sotredKeyCode ? '' : keyCode ;
-
-		return {
-			key      : key,
-			charCode : (key ? key.charCodeAt(0) : '' ),
-			keyCode  : sotredKeyCode,
-			altKey   : /alt/i.test(aShortcut),
-			ctrlKey  : /ctrl|control/i.test(aShortcut),
-			metaKey  : /meta/i.test(aShortcut),
-			shiftKey : /shift/i.test(aShortcut),
-			string   : aShortcut,
-			modified : false
-		};
-	},
- 
-	checkShortcutForKeyEvent : function(aShortcut, aEvent) 
-	{
-		return (
-				(aShortcut.keyCode && aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent['DOM_'+aShortcut.keyCode]) ||
-				(aShortcut.charCode && aEvent.charCode == aShortcut.charCode)
-			) &&
-			aShortcut.shiftKey == aEvent.shiftKey &&
-			aShortcut.altKey == aEvent.altKey &&
-			aShortcut.ctrlKey == aEvent.ctrlKey &&
-			aShortcut.metaKey == aEvent.metaKey;
-	},
-  
-	scrollSelectionToCenter : function(aFrame) 
-	{
-		var frame = aFrame || this.getSelectionFrame(document.commandDispatcher.focusedWindow || window._content);
-		if (!frame) return;
-
-		var selection = frame.getSelection();
-		var range = frame.document.createRange();
-		var elem;
-
-		if (frame.document.foundEditable) {
-			elem = frame.document.foundEditable;
-
-			var box = elem.ownerDocument.getBoxObjectFor(elem);
-			frame.scroll(box.x - frame.innerWidth / 2, box.y - frame.innerHeight / 2);
-		}
-		else {
-			elem = frame.document.createElement('span');
-			range.setStart(selection.focusNode, selection.focusOffset);
-			range.setEnd(selection.focusNode, selection.focusOffset);
-			range.insertNode(elem);
-
-			var box = frame.document.getBoxObjectFor(elem);
-			if (!box.x && !box.y)
-				box = frame.document.getBoxObjectFor(elem.parentNode);
-
-			frame.scroll(box.x - frame.innerWidth / 2, box.y - frame.innerHeight / 2);
-
-			elem.parentNode.removeChild(elem);
-			range.detach();
-		}
-	},
-	getSelectionFrame : function(aFrame)
-	{
-		var selection = aFrame.getSelection();
-		if (selection && selection.rangeCount)
-			return aFrame;
-
-		var frame;
-		for (var i = 0, maxi = aFrame.frames.length; i < maxi; i++)
-		{
-			frame = arguments.callee(aFrame.frames[i]);
-			if (frame) return frame;
-		}
-		return null;
-	},
-	getPageOffsetTop : function(aNode)
-	{
-		if (!aNode) return 0;
-		var top = aNode.offsetTop;
-		while (aNode.offsetParent != null)
-		{
-			aNode = aNode.offsetParent;
-			top += aNode.offsetTop;
-		}
-		return top;
-	},
- 
-	goDicManager : function() 
-	{
-		var uri = 'chrome://xulmigemo/content/dicManager/dicManager.xul';
-		var targets = this.WindowManager.getEnumerator('xulmigemo:dictionaryManager', true),
-			target;
-		while (targets.hasMoreElements())
-		{
-			target = targets.getNext().QueryInterface(Components.interfaces.nsIDOMWindowInternal);
-			if (target.location.href == uri) {
-				target.focus();
-				return;
-			}
-		}
-
-		window.openDialog(
-			uri,
-			'XMigemoDicManager',
-			'chrome,all,dependent'
-		);
-	},
- 
-/* Debug */ 
-	
-	mydump : function(str) 
-	{
-		if(this.DEBUG==true){
-			if(str.length>30){
-				str=str.substring(0,30);
-			}
-			const UConvID = '@mozilla.org/intl/scriptableunicodeconverter';
-			const UConvIF  = Components.interfaces.nsIScriptableUnicodeConverter;
-			const UConv = Components.classes[UConvID].getService(UConvIF);
-			// UTF-8 から Shift_JIS に変換する
-			UConv.charset = 'Shift_JIS';
-			sjis_str = UConv.ConvertFromUnicode(str);
-			//日本語がうまく出ない！なぜだ！神ハワレヲ見捨テタモウタカ
-			dump(sjis_str+"\n");
-			return;
-		}else{
-			return;
-		}
-	},
-  
-	dummy : null
-}; 
-  
-var XMigemoTextService = { 
-	get r2h()
+	get r2h() 
 	{
 		if (!this._r2h)
 			this._r2h = new XMigemoStringBundle('chrome://xulmigemo/content/res/r2h.properties');
@@ -290,7 +36,7 @@ var XMigemoTextService = {
 		return this._ichi;
 	},
 	_ichi : null,
-	 
+ 
 /* convert HTML to text */ 
 	
 	range2Text : function(aRange) 
@@ -299,7 +45,7 @@ var XMigemoTextService = {
 		var scrs=doc.getElementsByTagName("script");
 		var trash=doc.createRange();
 		var noscrs=doc.getElementsByTagName("noscript");
-		if(XMigemoService.getPref('javascript.enabled')){
+		if(Pref.getBoolPref('javascript.enabled')){
 			for(var i=0;i<noscrs.length;i++){
 				trash.selectNode(noscrs[i]);
 				trash.deleteContents();
@@ -331,7 +77,8 @@ var XMigemoTextService = {
 		return str;
 	},
  
-	body2text : function() 
+/* 
+	body2text : function()
 	{
 		var scrs = document.getElementsByTagName("script");
 		var tmp=document.createRange();
@@ -350,8 +97,10 @@ var XMigemoTextService = {
 		return str;
 		//alert(str);
 	},
+*/
  
-	//htmlToText(by flyson) 
+/* 
+	//htmlToText(by flyson)
 	htmlToText : function(aStr)
 	{
 	    var formatConverter = Components.classes["@mozilla.org/widget/htmlformatconverter;1"]
@@ -367,44 +116,13 @@ var XMigemoTextService = {
 	    toStr = toStr.toString();
 	    return toStr;
 	},
+*/
  
-	htmlToPureText : function(aStr) 
+/* 
+	htmlToPureText : function(aStr)
 	{
 	},
-  
-/* convert encoding */ 
-	
-	convertCharCodeFrom : function(aString, aCharCode) 
-	{
-		var UConvID = "@mozilla.org/intl/scriptableunicodeconverter";
-		var UConvIF  = Components.interfaces.nsIScriptableUnicodeConverter;
-		var UConv = Components.classes[UConvID].getService(UConvIF);
-
-		var tmpString = "";
-		try{
-			UConv.charset = aCharCode;
-			tmpString = UConv.ConvertFromUnicode(aString);
-		}catch(e){
-			tmpString = null;
-		}
-		return tmpString;
-	},
- 
-	convertCharCodeTo : function(aString, aCharCode) 
-	{
-		var UConvID = "@mozilla.org/intl/scriptableunicodeconverter";
-		var UConvIF  = Components.interfaces.nsIScriptableUnicodeConverter;
-		var UConv = Components.classes[UConvID].getService(UConvIF);
-
-		var tmpString = "";
-		try{
-			UConv.charset = aCharCode;
-			tmpString = UConv.ConvertToUnicode(aString);
-		}catch(e){
-			tmpString = null;
-		}
-		return tmpString;
-	},
+*/
   
 /* roman to hiragana */ 
 	
@@ -430,7 +148,7 @@ var XMigemoTextService = {
 	{
 		return aStr.replace(/[\uff10-\uff19\uff21-\uff3a\uff41-\uff5a]/g, this.zenkaku2hankakuSub);
 	},
-	
+	 
 	zenkaku2hankakuSub : function(aStr) 
 	{
 		var code = aStr.charCodeAt(0);
@@ -484,7 +202,7 @@ var XMigemoTextService = {
 	{
 		return (aStr || '').replace(/[\u304b\u304d\u304f\u3051\u3053\u3055\u3057\u3059\u305b\u305d\u305f\u3061\u3064\u3066\u3068\u306f\u3072\u3075\u3078\u307b\u30a6\u30ab\u30ad\u30af\u30b1\u30b3\u30b5\u30b7\u30b9\u30bb\u30bd\u30bf\u30c1\u30c4\u30c6\u30c8\u30cf\u30d2\u30d5\u30d8\u30db\uff73\uff76-\uff84\uff8a-\uff8e][\uff9e\u309b]|[\u306f\u3072\u3075\u3078\u307b\u30cf\u30d2\u30d5\u30d8\u30db\uff8a-\uff8e][\uff9f\u309c]/g, this.joinVoiceMarksSub);
 	},
-	
+	 
 	joinVoiceMarksSub : function(aStr) 
 	{
 		var code = aStr.charCodeAt(0);
@@ -539,7 +257,7 @@ var XMigemoTextService = {
 	{
 		return this.joinVoiceMarks(aStr || '').replace(/[\u30a1-\u30f6\uff60-\uff9f]/g, this.kana2hiraSub);
 	},
-	
+	 
 	kana2hiraSub : function(aStr) 
 	{
 		switch (aStr)
@@ -766,7 +484,7 @@ var XMigemoTextService = {
 	{
 		return this.joinVoiceMarks(aStr || '').replace(/[\u3041-\u3093]/g, this.hira2romanSub);
 	},
-	
+	 
 	hira2romanSub : function(aStr) 
 	{
 		switch (aStr)
@@ -878,7 +596,7 @@ var XMigemoTextService = {
 	},
    
 /* manipulate regular expressions */ 
-	
+	 
 	sanitize : function(str) 
 	{
 		//	[]^.+*?$|{}\(),  正規表現のメタキャラクタをエスケープ
@@ -895,20 +613,16 @@ var XMigemoTextService = {
  
 	reverseRegExp : function(aExp) 
 	{
-		//alert("b");
-		var tmp = aExp.source;
-		//alert("c");
+		var tmp = aExp;
 		tmp=tmp.replace(/\[\]\|/im,"")
 				.replace(/\(/g,"[[OPEN-PAREN]]")
 				.replace(/\)/g,"(")
 				.replace(/\[\[OPEN-PAREN\]\]/g,")");
 		tmp = tmp.replace(/\[([^\[]+?)\]/img,"\]$1\[").split("").reverse().join("")
-		//alert("d");
 		tmp = tmp.replace(/(.)\\/g,"\\$1")
 				.replace(/\*(\[[^\]]*\])/g,"$1*")
 				.replace(/\*(\([^\)]*\))/g,"$1*");
-		//alert(tmp);
-		return new RegExp(tmp,"im");
+		return tmp;
 	},
   
 	convertStrH : function() 
@@ -1301,9 +1015,9 @@ var XMigemoTextService = {
  
 	isalpha : function(c) 
 	{
-		return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'));
+		return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) ? true : false ;
 	},
- 
+ 	
 	expand : function(str) 
 	{
 		//この関数は語尾処理をする。ブラッシュアップが必要。
@@ -1452,8 +1166,14 @@ var XMigemoTextService = {
 		return ret;
 	},
  
-	dummy : null
-}; 
+	QueryInterface : function(aIID) 
+	{
+		if(!aIID.equals(Components.interfaces.pIXMigemoTextTransform) &&
+			!aIID.equals(Components.interfaces.nsISupports))
+			throw Components.results.NS_ERROR_NO_INTERFACE;
+		return this;
+	}
+};
   
 function XMigemoStringBundle(aStringBundle) 
 {
@@ -1478,4 +1198,60 @@ XMigemoStringBundle.prototype = {
 		return '';
 	}
 };
- 	
+ 
+var gModule = { 
+	_firstTime: true,
+
+	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
+	{
+		if (this._firstTime) {
+			this._firstTime = false;
+			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
+		}
+		aComponentManager = aComponentManager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+		for (var key in this._objects) {
+			var obj = this._objects[key];
+			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
+		}
+	},
+
+	getClassObject : function (aComponentManager, aCID, aIID)
+	{
+		if (!aIID.equals(Components.interfaces.nsIFactory))
+			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+
+		for (var key in this._objects) {
+			if (aCID.equals(this._objects[key].CID))
+				return this._objects[key].factory;
+		}
+
+		throw Components.results.NS_ERROR_NO_INTERFACE;
+	},
+
+	_objects : {
+		manager : {
+			CID        : pXMigemoTextTransform.prototype.classID,
+			contractID : pXMigemoTextTransform.prototype.contractID,
+			className  : pXMigemoTextTransform.prototype.classDescription,
+			factory    : {
+				createInstance : function (aOuter, aIID)
+				{
+					if (aOuter != null)
+						throw Components.results.NS_ERROR_NO_AGGREGATION;
+					return (new pXMigemoTextTransform()).QueryInterface(aIID);
+				}
+			}
+		}
+	},
+
+	canUnload : function (aComponentManager)
+	{
+		return true;
+	}
+};
+
+function NSGetModule(compMgr, fileSpec)
+{
+	return gModule;
+}
+ 
