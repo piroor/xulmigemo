@@ -16,7 +16,9 @@ var WindowManager = Components
 			.classes['@mozilla.org/appshell/window-mediator;1']
 			.getService(Components.interfaces.nsIWindowMediator);
  
-function pXMigemoDicManager() {} 
+function pXMigemoDicManager() { 
+	this.init();
+}
 
 pXMigemoDicManager.prototype = {
 	get contractID() {

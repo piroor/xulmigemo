@@ -101,7 +101,7 @@ pXMigemo.prototype = {
 				(myExp.length) ? ['(', myExp.join(')('), ')'].join('').replace(/\n/g, '') :
 				'' ;
 
-		return myExp;
+		return myExp.replace(/\n/im, '');
 	},
  
 	simplePartOnlyPattern : /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([^\|]+)$/i, 
@@ -460,10 +460,10 @@ pXMigemo.prototype = {
 
 		this.initialized = true;
 
-		var XMigemoDicManager = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-				.getService(Components.interfaces.pIXMigemoDicManager);
-		XMigemoDicManager.init();
+		// Initialize
+		Components
+			.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
+			.getService(Components.interfaces.pIXMigemoDicManager);
 
 		ObserverService.addObserver(this, 'XMigemo:cacheCleared', false);
 	},

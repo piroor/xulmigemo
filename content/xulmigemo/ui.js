@@ -1,8 +1,9 @@
 /* 
 	This depends on:
 		service.js
-		find.js
 */
+
+var XMigemoFind;
  
 var XMigemoUI = { 
 	 
@@ -277,9 +278,9 @@ var XMigemoUI = {
 			aEvent.preventDefault();
 
 			if (isForwardKey)
-				XMigemoFind.findNext();
+				XMigemoFind.findNext(false);
 			else if (isBackwardKey)
-				XMigemoFind.findPrevious();
+				XMigemoFind.findPrevious(false);
 
 			if (this.cancelTimer)
 				this.startTimer();
@@ -319,7 +320,7 @@ var XMigemoUI = {
 			this.clearTimer(); // ここでタイマーを殺さないといじられてしまう
 			var win = document.commandDispatcher.focusedWindow;
 			var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.browser.contentDocument;
-			XMigemoFind.setSelectionLook(doc, false, false);
+			XMigemoFind.setSelectionLook(doc, false);
 
 			return true;
 		}
@@ -337,7 +338,7 @@ var XMigemoUI = {
 				if (XMigemoFind.lastKeyword.length == 1) {
 					aEvent.preventDefault();
 				}
-				XMigemoFind.lastKeyword = XMigemoFind.lastKeyword.substr(0, XMigemoFind.lastKeyword.length - 1);
+				XMigemoFind.removeKeyword(1);
 				this.updateStatus(XMigemoFind.lastKeyword);
 				if (XMigemoFind.lastKeyword == '') {
 					this.cancel();
@@ -374,7 +375,7 @@ var XMigemoUI = {
 				!aEvent.altKey &&
 				!aEvent.metaKey
 				) { //普通。フックする。
-				XMigemoFind.lastKeyword += String.fromCharCode(aEvent.charCode);
+				XMigemoFind.appendKeyword(String.fromCharCode(aEvent.charCode));
 				this.updateStatus(XMigemoFind.lastKeyword);
 				aEvent.preventDefault();
 				XMigemoFind.find();
@@ -395,7 +396,7 @@ var XMigemoUI = {
 				) {
 				XMigemoFind.clear();
 				this.start();
-				XMigemoFind.lastKeyword += String.fromCharCode(aEvent.charCode);
+				XMigemoFind.appendKeyword(String.fromCharCode(aEvent.charCode));
 				this.updateStatus(XMigemoFind.lastKeyword);
 				aEvent.preventDefault();
 				XMigemoFind.find();
@@ -465,12 +466,12 @@ var XMigemoUI = {
  
 	onInputFindToolbar : function(aEvent) 
 	{
-		XMigemoFind.lastKeyword = aEvent.target.value;
+		XMigemoFind.replaceKeyword(aEvent.target.value);
 		if (XMigemoUI.findMigemoCheck.checked) {
 			XMigemoUI.start(true);
 			aEvent.stopPropagation();
 			aEvent.preventDefault();
-			XMigemoFind.find(false, null);
+			XMigemoFind.find();
 		}
 		else {
 			XMigemoUI.lastFindMode = 'native';
@@ -513,7 +514,7 @@ var XMigemoUI = {
 	timerCallback : function(aThis) 
 	{
 		dump("xmigemoTimeout"+'\n');
-		XMigemoFind.previousKeyword = XMigemoFind.lastKeyword;
+		XMigemoFind.shiftLastKeyword();
 		aThis.cancel();
 	},
   
@@ -885,7 +886,7 @@ var XMigemoUI = {
 	{
 		dump('XMigemoUI.findNext'+'\n');
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == 'migemo') {
-			XMigemoFind.findNext(this.findBar && this.findBar.hidden);
+			XMigemoFind.findNext(this.findBar && this.findBar.hidden ? true : false );
 			if (XMigemoUI.cancelTimer)
 				XMigemoUI.startTimer();
 		}
@@ -898,7 +899,7 @@ var XMigemoUI = {
 	{
 		dump('XMigemoUI.findPrevious'+'\n');
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == 'migemo') {
-			XMigemoFind.findPrevious(this.findBar && this.findBar.hidden);
+			XMigemoFind.findPrevious(this.findBar && this.findBar.hidden ? true : false );
 			if (XMigemoUI.cancelTimer)
 				XMigemoUI.startTimer();
 		}
@@ -943,6 +944,9 @@ var XMigemoUI = {
 
 		var browser = this.browser;
 		if (browser) {
+			XMigemoFind = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/find;1']
+				.createInstance(Components.interfaces.pIXMigemoFind);
 			XMigemoFind.target = browser;
 
 			if (browser.getAttribute('onkeypress'))
@@ -1020,9 +1024,9 @@ window.addEventListener('load', XMigemoUI, false);
  
 //obsolete 
 function xmFind(){dump("xmFind"+'\n');
-XMigemoFind.find(false, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword);
+XMigemoFind.findInternal(false, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword, false);
 }
 function xmFindPrev(){dump("xmFindPrev"+'\n');
-XMigemoFind.find(true, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword);
+XMigemoFind.findInternal(true, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword, false);
 }
  

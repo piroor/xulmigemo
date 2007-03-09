@@ -1,8 +1,10 @@
 #include "nsISupports.idl"
 #include "nsIObserver.idl"
 #include "nsIFile.idl"
-#include "nsIDOMRange.idl"
 #include "nsIDOMWindow.idl"
+#include "nsIDOMDocument.idl"
+#include "nsIDOMRange.idl"
+#include "nsIDOMNode.idl"
 
 [scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
 interface pIXMigemo : nsIObserver
@@ -28,6 +30,46 @@ interface pIXMigemo : nsIObserver
 	);
 
 	attribute float createCacheTimeOverride;
+};
+
+[scriptable, uuid(54606802-ce50-11db-8314-0800200c9a66)]
+interface pIXMigemoFind : nsIObserver
+{
+	readonly attribute wstring lastKeyword;
+	readonly attribute wstring previousKeyword;
+	readonly attribute wstring lastFoundWord;
+
+	wstring appendKeyword(in wstring character);
+	wstring replaceKeyword(in wstring keyword);
+	wstring removeKeyword(in float length);
+	void shiftLastKeyword();
+
+	attribute boolean manualLinksOnly;
+	attribute boolean isQuickFind;
+
+	const unsigned short FOUND             = 1;
+	const unsigned short NOTFOUND          = 2;
+	const unsigned short NOTLINK           = 4;
+	const unsigned short FOUND_IN_EDITABLE = 8;
+
+	const unsigned short FIND_DEFAULT    = 1;
+	const unsigned short FIND_BACK       = 2;
+	const unsigned short FIND_FORWARD    = 4;
+	const unsigned short FIND_FROM_START = 8;
+
+	const unsigned short FIND_IN_EDITABLE = 128;
+
+	attribute nsIDOMNode target;
+
+	void find();
+	void findInternal(in boolean backward, in wstring keyword, in boolean forceFocus);
+	void findNext(in boolean forceFocus);
+	void findPrevious(in boolean forceFocus);
+
+	void setSelectionLook(in nsIDOMDocument document, in boolean changeColor);
+
+	void clear();
+	void exitFind();
 };
 
 
