@@ -98,7 +98,7 @@ var XMigemoCache = {
 		var file = this.cacheFile;
 		if (!file || !file.exists()) return false;
 
-		var cache = XMigemoService.readFrom(file);
+		var cache = this.readFrom(file);
 		const UConvID = '@mozilla.org/intl/scriptableunicodeconverter';
 		const UConvIF = Components.interfaces.nsIScriptableUnicodeConverter;
 		const UConv = Components.classes[UConvID].getService(UConvIF);
@@ -128,7 +128,7 @@ var XMigemoCache = {
 			const UConv = Components.classes[UConvID].getService(UConvIF);
 			UConv.charset = 'Shift_JIS';
 			var sjis_str = UConv.ConvertFromUnicode(newCache);
-			XMigemoService.writeTo(file, sjis_str);
+			this.writeTo(file, sjis_str);
 			this.diskCacheClone = newCache;
 			return true;
 		}
@@ -149,7 +149,7 @@ var XMigemoCache = {
 			const UConv = Components.classes[UConvID].getService(UConvIF);
 			UConv.charset = 'Shift_JIS';
 			var sjis_str = UConv.ConvertFromUnicode(this.memCache);
-			XMigemoService.writeTo(file, sjis_str);
+			this.writeTo(file, sjis_str);
 			return true;
 		}
 		else {
@@ -241,7 +241,7 @@ var XMigemoDic = {
 			}
 			if (file && file.exists()) {
 				dump(cList[i]+'\n');
-				var cache = XMigemoService.readFrom(file);
+				var cache = this.readFrom(file);
 				var dicstr = UConv.ConvertToUnicode(cache);
 				this.list[cList[i]] = dicstr;
 			}
@@ -258,7 +258,7 @@ var XMigemoDic = {
 			}
 			if (file && file.exists()) {
 				dump(cList[i] + '-user'+'\n');
-				var cache = XMigemoService.readFrom(file);
+				var cache = this.readFrom(file);
 				var dicstr = UConv.ConvertToUnicode(cache);
 				this.list[cList[i] + '-user'] = dicstr;
 			}
@@ -289,7 +289,7 @@ var XMigemoDic = {
 		file.initWithPath(dicDir);
 		file.append(aKey + 'a2.user.txt');
 		var dicstr = UConv.ConvertFromUnicode(this.list[aKey+'-user'] || '');
-		XMigemoService.writeTo(file, dicstr);
+		this.writeTo(file, dicstr);
 	},
  
 /* File I/O */ 
