@@ -54,8 +54,6 @@ pXMigemoDicManager.prototype = {
 				return;
 
 			case 'XMigemo:dictionaryModified':
-				if (aSubject != window) return;
-
 				var test = aData.split('\n')[1].match(/(.+)\t(.+)\t(.*)/);
 				var operation = RegExp.$1;
 				var yomi = RegExp.$2;

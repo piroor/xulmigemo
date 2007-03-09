@@ -1,7 +1,6 @@
 /* 
 	This depends on:
 		service.js
-		dic.js
 */
  
 var XMigemoCore = { 
@@ -397,10 +396,17 @@ var XMigemoCore = {
 }; 
  
 window.addEventListener('load', function() { 
+	var XMigemoDicManager = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
+				.getService(Components.interfaces.pIXMigemoDicManager);
+	XMigemoDicManager.init();
+
 	XMigemoCore.init();
+	window.removeEventListener('load', arguments.callee, false);
 }, false);
 window.addEventListener('unload', function() {
 	XMigemoCore.destroy();
+	window.removeEventListener('unload', arguments.callee, false);
 }, false);
   
 var xulMigemoCore = XMigemoCore; 

@@ -1,7 +1,6 @@
 /* 
 	This depends on:
 		service.js
-		dic.js
 		core.js
 */
  
