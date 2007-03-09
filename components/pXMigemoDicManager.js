@@ -3,12 +3,13 @@
 	pIXMigemoCache
 	pIXMigemoTextTransform
 */
+var DEBUG = false;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
 			.getService(Components.interfaces.nsIObserverService);;
 
-var Pref = Components
+var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
 
@@ -106,7 +107,7 @@ pXMigemoDicManager.prototype = {
 				.classes['@mozilla.org/filepicker;1']
 				.createInstance(Components.interfaces.nsIFilePicker);
 
-		var current = aDefault || decodeURIComponent(escape(Pref.getCharPref('xulmigemo.dicpath')));
+		var current = aDefault || decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')));
 		var displayDirectory = Components.classes['@mozilla.org/file/local;1'].createInstance();
 		if (displayDirectory  instanceof Components.interfaces.nsILocalFile) {
 			try {
@@ -170,11 +171,11 @@ pXMigemoDicManager.prototype = {
 
 		if (
 			(
-				!decodeURIComponent(escape(Pref.getCharPref('xulmigemo.dicpath'))) ||
+				!decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath'))) ||
 				!XMigemoDic.load() ||
 				!XMigemoCache.load()
 			) &&
-			Pref.getBoolPref('xulmigemo.dictionary.useInitializeWizard') &&
+			Prefs.getBoolPref('xulmigemo.dictionary.useInitializeWizard') &&
 			!WindowManager.getMostRecentWindow('xulmigemo:initializer')
 			) {
 			var WindowWatcher = Components
@@ -292,5 +293,11 @@ var gModule = {
 function NSGetModule(compMgr, fileSpec)
 {
 	return gModule;
+}
+ 
+function mydump(aString)
+{
+	if (DEBUG)
+		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
 }
  

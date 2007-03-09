@@ -135,6 +135,8 @@ interface pIXMigemoCache : nsISupports
 
 	attribute nsIFile cacheFile;
 
+	readonly attribute boolean initialized;
+
 	boolean load();
 	void reload();
 	void save();
@@ -160,6 +162,8 @@ interface pIXMigemoDictionary : nsISupports
 
 	unsigned short addTerm(in wstring yomi, in wstring term);
 	unsigned short removeTerm(in wstring yomi, in wstring term);
+
+	readonly attribute boolean initialized;
 
 	boolean load();
 	void reload();

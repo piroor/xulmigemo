@@ -1,4 +1,4 @@
-var Pref = Components 
+var Prefs = Components 
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
@@ -45,7 +45,7 @@ pXMigemoTextTransform.prototype = {
 		var scrs=doc.getElementsByTagName("script");
 		var trash=doc.createRange();
 		var noscrs=doc.getElementsByTagName("noscript");
-		if(Pref.getBoolPref('javascript.enabled')){
+		if(Prefs.getBoolPref('javascript.enabled')){
 			for(var i=0;i<noscrs.length;i++){
 				trash.selectNode(noscrs[i]);
 				trash.deleteContents();

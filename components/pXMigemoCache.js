@@ -2,12 +2,13 @@
 	pIXMigemoFileAccess
 	pIXMigemoTextTransform
 */
+var DEBUG = false;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
 			.getService(Components.interfaces.nsIObserverService);;
 
-var Pref = Components
+var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
@@ -37,11 +38,11 @@ pXMigemoCache.prototype = {
 
 		var miexp = new RegExp('(^'+XMigemoTextService.sanitize(aRoman)+'\t.+\n)', 'im');
 		if (this.memCache.match(miexp)) {
-			dump('use memCache'+'\n');
+			mydump('use memCache');
 			return RegExp.$1.split('\t')[1];
 		}
 		else if (this.diskCacheClone.match(miexp)) {
-			dump('use diskCacheClone'+'\n');
+			mydump('use diskCacheClone');
 			return RegExp.$1.split('\t')[1];
 		}
 		return '';
@@ -72,9 +73,9 @@ pXMigemoCache.prototype = {
 	{
 		var miexp = new RegExp('(^'+aRoman+'\t.+\n)', 'im');
 		this.memCache = this.memCache.replace(miexp, '');
-		if (RegExp.$1) dump('update memCache for "'+aRoman+'"'+'\n');
+		if (RegExp.$1) mydump('update memCache for "'+aRoman+'"');
 		this.diskCacheClone = this.diskCacheClone.replace(miexp, '');
-		if (RegExp.$1) dump('update diskCache for "'+aRoman+'"'+'\n');
+		if (RegExp.$1) mydump('update diskCache for "'+aRoman+'"');
 	},
  
 	clearAll : function(aDisk) 
@@ -96,7 +97,7 @@ pXMigemoCache.prototype = {
 		}
 		else {
 			this.memCache += aRoman + '\t' + aRegExp + '\n';
-			//dump(this.memCache+'\n');
+			//mydump(this.memCache);
 
 			ObserverService.notifyObservers(null, 'XMigemo:memCacheAdded', aRoman+'\n'+aRegExp);
 
@@ -134,7 +135,7 @@ pXMigemoCache.prototype = {
 			try {
 				this.cacheFileHolder = Components.classes['@mozilla.org/file/local;1'].createInstance();
 				if (this.cacheFileHolder instanceof Components.interfaces.nsILocalFile) {
-					this.cacheFileHolder.initWithPath(decodeURIComponent(escape(Pref.getCharPref('xulmigemo.dicpath'))));
+					this.cacheFileHolder.initWithPath(decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath'))));
 					this.cacheFileHolder.append('migemocache.txt');
 				}
 			}
@@ -243,5 +244,11 @@ var gModule = {
 function NSGetModule(compMgr, fileSpec)
 {
 	return gModule;
+}
+ 
+function mydump(aString)
+{
+	if (DEBUG)
+		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
 }
  

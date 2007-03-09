@@ -4,12 +4,13 @@
 	pIXMigemoDicManager
 	pIXMigemoTextTransform
 */
+var DEBUG = false;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
 			.getService(Components.interfaces.nsIObserverService);;
 
-var Pref = Components
+var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
@@ -44,7 +45,7 @@ pXMigemo.prototype = {
 	{
 		var myExp = [];
 
-		var autoSplit = (aEnableAutoSplit === void(0)) ? Pref.getBoolPref('xulmigemo.splitTermsAutomatically') : aEnableAutoSplit ;
+		var autoSplit = (aEnableAutoSplit === void(0)) ? Prefs.getBoolPref('xulmigemo.splitTermsAutomatically') : aEnableAutoSplit ;
 
 		// 入力を切って、文節として個別に正規表現を生成する
 		var romanTerm;
@@ -59,7 +60,7 @@ pXMigemo.prototype = {
 				.replace(new RegExp('([!"#\$%&\'\\(\\)=~\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64' + this.INPUT_SEPARATOR + ']+)', 'g'), '\t$1\t')
 				.split('\t');
 		var separatorRegExp = new RegExp('^(' + this.INPUT_SEPARATOR +'+)$');
-		dump('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n'+'\n');
+		mydump('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n');
 
 		var pattern, romanTermPart, nextPart;
 		for (var i = 0, maxi = romanTerms.length; i < maxi; i++)
@@ -118,7 +119,7 @@ pXMigemo.prototype = {
 
 		var cacheText = XMigemoCache.getCacheFor(aRoman);
 		if (cacheText) {
-			dump('cache:'+cacheText+'\n');
+			mydump('cache:'+cacheText);
 			return cacheText;
 		}
 
@@ -126,7 +127,7 @@ pXMigemo.prototype = {
 				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
 				.getService(Components.interfaces.pIXMigemoTextTransform);
 
-		dump('noCache'+'\n');
+		mydump('noCache');
 		var str = XMigemoTextService.expand(
 				XMigemoTextService.sanitize(
 					XMigemoTextService.convertStr(
@@ -137,7 +138,7 @@ pXMigemo.prototype = {
 		var hira = str;
 		var roman = aRoman;
 		if (/[\uff66-\uff9f]/.test(roman)) roman = XMigemoTextService.hira2roman(XMigemoTextService.kana2hira(roman))
-		var ignoreHiraKata = Pref.getBoolPref('xulmigemo.ignoreHiraKata');
+		var ignoreHiraKata = Prefs.getBoolPref('xulmigemo.ignoreHiraKata');
 		var kana = ignoreHiraKata ? '' :
 				XMigemoTextService.expand2(
 					XMigemoTextService.sanitize2(
@@ -160,7 +161,7 @@ pXMigemo.prototype = {
 				) :
 				str + '|' + kana ;
 		var zen = XMigemoTextService.roman2zen(aRoman); // aRoman ?
-		dump('hira:'+hira+'\n');
+		mydump('hira:'+hira);
 
 		var date1 = new Date();
 
@@ -200,26 +201,26 @@ pXMigemo.prototype = {
 
 			pattern = pattern.replace(/\n/g, '');
 
-			dump('pattern(from dic):'+pattern+'\n');
+			mydump('pattern(from dic):'+pattern);
 		}
 		else { // 辞書に引っかからなかった模様なので自前の文字列だけ
 			pattern = XMigemoTextService.sanitize(aRoman) + '|' + zen + '|' + hiraAndKana;
-			dump('pattern:'+pattern+'\n');
+			mydump('pattern:'+pattern);
 		}
 
 
 		var date2 = new Date();
-		if (date2.getTime() - date1.getTime() > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Pref.getIntPref('xulmigemo.cache.update.time'))) {
+		if (date2.getTime() - date1.getTime() > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Prefs.getIntPref('xulmigemo.cache.update.time'))) {
 			// 遅かったらキャッシュします
 			XMigemoCache.setDiskCache(aRoman, pattern);
 			XMigemoCache.setMemCache(aRoman, pattern);
-			dump('CacheWasSaved'+'\n');
+			mydump('CacheWasSaved');
 		}
 		else{
 			XMigemoCache.setMemCache(aRoman, pattern);//メモリキャッシュ
-			dump('memCacheWasSaved'+'\n');
+			mydump('memCacheWasSaved');
 		}
-		dump(date2.getTime() - date1.getTime()+'\n');
+		mydump(date2.getTime() - date1.getTime());
 
 		return pattern;
 	},
@@ -248,7 +249,7 @@ pXMigemo.prototype = {
 
 		var firstlet = '';
 		firstlet = aRoman.charAt(0);//最初の文字
-		dump(firstlet+' dic loaded'+'\n');
+		mydump(firstlet+' dic loaded');
 
 		var lines = [];
 
@@ -265,34 +266,34 @@ pXMigemo.prototype = {
 
 		if (mydicAU) {
 			var lineAU = mydicAU.match(expA);
-			dump('searchEnDic (user)'+'\n');
+			mydump('searchEnDic (user)');
 			if (lineAU) {
 				lines = lines.concat(lineAU);
-				dump(' found '+lineAU.length+' terms'+'\n');
+				mydump(' found '+lineAU.length+' terms');
 			}
 		}
 		if (mydicA) {
 			var lineA = mydicA.match(expA);//アルファベットの辞書を検索
-			dump('searchEnDic'+'\n');
+			mydump('searchEnDic');
 			if (lineA) {
 				lines = lines.concat(lineA);
-				dump(' found '+lineA.length+' terms'+'\n');
+				mydump(' found '+lineA.length+' terms');
 			}
 		}
 		if (mydicU) {
 			var lineU = mydicU.match(exp);
-			dump('searchJpnDic (user)'+'\n');
+			mydump('searchJpnDic (user)');
 			if (lineU) {
 				lines = lines.concat(lineU);
-				dump(' found '+lineU.length+' terms'+'\n');
+				mydump(' found '+lineU.length+' terms');
 			}
 		}
 		if (mydic) {
 			var line = mydic.match(exp);//日本語の辞書を検索
-			dump('searchJpnDic'+'\n');
+			mydump('searchJpnDic');
 			if (line) {
 				lines = lines.concat(line);
-				dump(' found '+line.length+' terms'+'\n');
+				mydump(' found '+line.length+' terms');
 			}
 		}
 
@@ -569,5 +570,11 @@ var gModule = {
 function NSGetModule(compMgr, fileSpec)
 {
 	return gModule;
+}
+ 
+function mydump(aString)
+{
+	if (DEBUG)
+		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
 }
  

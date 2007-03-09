@@ -2,12 +2,13 @@
 	pIXMigemoFileAccess
 	pIXMigemoTextTransform
 */
+var DEBUG = false;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
 			.getService(Components.interfaces.nsIObserverService);;
 
-var Pref = Components
+var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
@@ -44,7 +45,7 @@ pXMigemoDictionary.prototype = {
 		var cList  = new Array('', 'k', 's', 't', 'h', 'm', 'n', 'y', 'r', 'w', 'd', 'z', 'g', 'p', 'b', 'alph');
 		var failed = new Array();
 		var file;
-		var dicDir = decodeURIComponent(escape(Pref.getCharPref('xulmigemo.dicpath')));
+		var dicDir = decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')));
 
 		var util = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
@@ -62,7 +63,7 @@ pXMigemoDictionary.prototype = {
 				file.append(cList[i] + 'a2.txt');
 			}
 			if (file && file.exists()) {
-				dump(cList[i]+'\n');
+				mydump(cList[i]);
 				this.list[cList[i]] = util.readFrom(file, 'Shift_JIS');
 			}
 			else {
@@ -77,7 +78,7 @@ pXMigemoDictionary.prototype = {
 				file.append(cList[i] + 'a2.user.txt');
 			}
 			if (file && file.exists()) {
-				dump(cList[i] + '-user'+'\n');
+				mydump(cList[i] + '-user');
 				this.list[cList[i] + '-user'] = util.readFrom(file, 'Shift_JIS');
 			}
 			else {
@@ -100,7 +101,7 @@ pXMigemoDictionary.prototype = {
 		if (!(aKey+'-user' in this.list)) return;
 
 		var file;
-		var dicDir = decodeURIComponent(escape(Pref.getCharPref('xulmigemo.dicpath')));
+		var dicDir = decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')));
 		if (!dicDir) return;
 
 		file = Components
@@ -270,7 +271,7 @@ pXMigemoDictionary.prototype = {
 					case 'remove':
 						if (term) {
 							terms = terms.replace(regexp, '').replace(/\n\n+/g, '\n').split('\n').join('\t');
-							dump('terms:'+terms.replace(/\t/g, ' / ')+'\n');
+							mydump('terms:'+terms.replace(/\t/g, ' / '));
 							if (terms) {
 								regexp.compile('^('+yomi+'\t.+)$', 'm');
 								regexp.test(userDic);
@@ -318,7 +319,7 @@ pXMigemoDictionary.prototype = {
 
 		this.saveUserDic(key);
 
-		dump('XMigemo:dictionaryModified('+aOperation+') '+entry+'\n');
+		mydump('XMigemo:dictionaryModified('+aOperation+') '+entry);
 		ObserverService.notifyObservers(this, 'XMigemo:dictionaryModified',
 			[
 				key,
@@ -414,5 +415,11 @@ var gModule = {
 function NSGetModule(compMgr, fileSpec)
 {
 	return gModule;
+}
+ 
+function mydump(aString)
+{
+	if (DEBUG)
+		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
 }
  
