@@ -1,7 +1,11 @@
 
 function getDP()
 {
-	var folderPath = XMigemoDicManager.showDirectoryPicker(document.getElementById('xulmigemo.dicpath').value);
+	var XMigemoDicManager = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
+				.getService(Components.interfaces.pIXMigemoDicManager);
+
+	var folderPath = XMigemoDicManager.showDirectoryPickerFor(document.getElementById('xulmigemo.dicpath').value);
 	var field = document.getElementById('xulmigemo.dicpath-textbox');
 	if (folderPath && field.value != folderPath) {
 		field.value = folderPath;

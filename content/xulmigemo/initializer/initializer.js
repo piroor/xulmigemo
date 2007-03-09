@@ -87,6 +87,10 @@ function startDownload()
 
 function chooseFolder()
 {
+	var XMigemoDicManager = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
+				.getService(Components.interfaces.pIXMigemoDicManager);
+
 	var path = XMigemoDicManager.showDirectoryPicker();
 	if (path) {
 		document.getElementById('choose-path').value = path;

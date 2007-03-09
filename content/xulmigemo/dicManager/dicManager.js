@@ -1,11 +1,22 @@
+var XMigemoDic = Components
+		.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1']
+		.getService(Components.interfaces.pIXMigemoDictionary);
+
+
 function addTerm(aStatus)
 {
 	var yomi = document.getElementById('add-yomi').value;
 	var term = document.getElementById('add-term').value;
-	var arg = { yomi : yomi, term : term };
-	var result = XMigemoDic.addTerm(arg);
 
-	document.getElementById('add-yomi').value = arg.yomi;
+	var result = XMigemoDic.addTerm(yomi, term);
+
+	var XMigemoTextService = Components
+			.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
+			.getService(Components.interfaces.pIXMigemoTextTransform);
+
+	if (yomi && XMigemoTextService.isYomi(yomi))
+		document.getElementById('add-yomi').value = XMigemoTextService.normalizeForYomi(yomi);
+
 	if (result == XMigemoDic.RESULT_OK)
 		document.getElementById('add-term').value = '';
 
@@ -16,11 +27,15 @@ function removeTerm(aStatus)
 {
 	var yomi = document.getElementById('remove-yomi').value;
 	var term = document.getElementById('remove-term').value;
-	var arg = { yomi : yomi, term : term };
+	var result = XMigemoDic.removeTerm(yomi, term);
 
-	var result = XMigemoDic.removeTerm(arg);
+	var XMigemoTextService = Components
+			.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
+			.getService(Components.interfaces.pIXMigemoTextTransform);
 
-	document.getElementById('remove-yomi').value = arg.yomi;
+	if (yomi && XMigemoTextService.isYomi(yomi))
+		document.getElementById('remove-yomi').value = XMigemoTextService.normalizeForYomi(yomi);
+
 	if (result == XMigemoDic.RESULT_OK)
 		document.getElementById('remove-term').value = '';
 
@@ -289,7 +304,7 @@ function addTermList()
 	if (!term) return;
 
 	var message;
-	var result = XMigemoDic.addTerm({ yomi : yomi, term : term });
+	var result = XMigemoDic.addTerm(yomi, term);
 
 	switch (result)
 	{
@@ -319,7 +334,7 @@ function removeTermList(aAll)
 
 	var node = document.getElementById('listStatus');
 	var message;
-	var result = XMigemoDic.removeTerm({ yomi : yomi, term : term });
+	var result = XMigemoDic.removeTerm(yomi, term);
 
 	switch (result)
 	{

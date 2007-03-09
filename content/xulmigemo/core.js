@@ -219,6 +219,10 @@ var XMigemoCore = {
 
 		aTargetDic = (aTargetDic || '').toLowerCase();
 
+		const XMigemoDic = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1']
+				.getService(Components.interfaces.pIXMigemoDictionary);
+
 		var mydicAU = (aTargetDic != 'system') ? XMigemoDic.getUserAlphaDic() : null ;
 		var mydicA  = (aTargetDic != 'user')   ? XMigemoDic.getAlphaDic() : null ;
 		var mydicU  = (aTargetDic != 'system') ? XMigemoDic.getUserDic(firstlet) : null ;

@@ -1,6 +1,8 @@
 #include "nsISupports.idl"
+#include "nsIObserver.idl"
 #include "nsIFile.idl"
 #include "nsIDOMRange.idl"
+#include "nsIDOMWindow.idl"
 
 [scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
 interface pIXMigemoFileAccess : nsISupports
@@ -69,3 +71,50 @@ interface pIXMigemoCache : nsISupports
 	void reload();
 	void save();
 };
+
+[scriptable, uuid(6f19900a-ce33-11db-8314-0800200c9a66)]
+interface pIXMigemoDictionary : nsISupports
+{
+	const unsigned short RESULT_OK                      = 1;
+	const unsigned short RESULT_ERROR_INVALID_YOMI      = 2;
+	const unsigned short RESULT_ERROR_ALREADY_EXIST     = 4;
+	const unsigned short RESULT_ERROR_NOT_EXIST         = 8;
+	const unsigned short RESULT_ERROR_NO_TARGET         = 16;
+	const unsigned short RESULT_ERROR_INVALID_OPERATION = 32;
+
+	void saveUserDic(in wstring key);
+
+	wstring getDic(in wstring key);
+	wstring getUserDic(in wstring key);
+	wstring getAlphaDic();
+	wstring getUserAlphaDic();
+	wstring getDicForTerm(in wstring yomi);
+
+	unsigned short addTerm(in wstring yomi, in wstring term);
+	unsigned short removeTerm(in wstring yomi, in wstring term);
+
+	boolean load();
+	void reload();
+	void save();
+};
+
+[scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
+interface pIXMigemoDicManager : nsIObserver
+{
+	const unsigned short RESULT_OK                      = 1;
+	const unsigned short RESULT_ERROR_INVALID_YOMI      = 2;
+	const unsigned short RESULT_ERROR_ALREADY_EXIST     = 4;
+	const unsigned short RESULT_ERROR_NOT_EXIST         = 8;
+	const unsigned short RESULT_ERROR_NO_TARGET         = 16;
+	const unsigned short RESULT_ERROR_INVALID_OPERATION = 32;
+
+	void reload();
+
+	wstring showDirectoryPicker();
+	wstring showDirectoryPickerFor(in wstring key);
+
+	void init();
+};
+
+
+
