@@ -29,7 +29,7 @@ pXMigemoDicManager.prototype = {
 		return 'This is a dictionary management service for XUL/Migemo.';
 	},
 	get classID() {
-		return Components.ID('{4ec63ba8-ce38-11db-8314-0800200c9a66}');
+		return Components.ID('{25e5efa2-cef4-11db-8314-0800200c9a66}');
 	},
 	 
 	domain : 'xulmigemo', 

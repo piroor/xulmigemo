@@ -22,7 +22,7 @@ pXMigemoDictionary.prototype = {
 		return 'This is a dictionary service for XUL/Migemo.';
 	},
 	get classID() {
-		return Components.ID('{6f19900a-ce33-11db-8314-0800200c9a66}');
+		return Components.ID('{20309e9a-cef4-11db-8314-0800200c9a66}');
 	},
 	 
 	initialized : false, 

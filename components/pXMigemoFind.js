@@ -19,7 +19,7 @@ pXMigemoFind.prototype = {
 		return 'This is a find service for XUL/Migemo.';
 	},
 	get classID() {
-		return Components.ID('{54606802-ce50-11db-8314-0800200c9a66}');
+		return Components.ID('{147824f6-cef4-11db-8314-0800200c9a66}');
 	},
 	 
 	lastKeyword     : '', 

@@ -12,7 +12,7 @@ pXMigemoTextTransform.prototype = {
 		return 'This is a text transformation service for XUL/Migemo.';
 	},
 	get classID() {
-		return Components.ID('{749f4faa-cdf6-11db-8314-0800200c9a66}');
+		return Components.ID('{2d370a3e-cef4-11db-8314-0800200c9a66}');
 	},
 	 
 	get r2h() 

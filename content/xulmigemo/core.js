@@ -31,18 +31,8 @@ var XMigemoCore = {
 		if (aRegExp.multiline) flags.push('m');
 		flags = flags.join('');
 
-		var result = this.XMigemo.regExpFindAll(aRegExp.source, flags, aFindRange, aStartPoint, aEndPoint);
-
-		var range;
-		var arr = [];
-		while (result.hasMoreElements())
-		{
-			range = result.getNext();
-			range = range.QueryInterface(Components.interfaces.nsIDOMRange);
-			arr.push(range);
-		}
-
-		return arr;
+		var result = this.XMigemo.regExpFindAll(aRegExp.source, flags, aFindRange, aStartPoint, aEndPoint, {});
+		return result;
 	},
   
 	get XMigemo() { 

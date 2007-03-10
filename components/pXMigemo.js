@@ -26,7 +26,7 @@ pXMigemo.prototype = {
 		return 'This is a Migemo service itself.';
 	},
 	get classID() {
-		return Components.ID('{181378ba-ce43-11db-8314-0800200c9a66}');
+		return Components.ID('{792f3b58-cef4-11db-8314-0800200c9a66}');
 	},
 	 
 	// SKK•û®‚Ì“ü—ÍˆÈŠO‚ÅA•¶ß‹æØ‚è‚Æ‚µ‚Ä”F¯‚·‚é•¶š 
@@ -348,7 +348,7 @@ pXMigemo.prototype = {
 		return foundRange;
 	},
  
-	regExpFindAll : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint) 
+	regExpFindArr : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aCount) 
 	{
 		const XMigemoTextService = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
@@ -382,8 +382,8 @@ pXMigemo.prototype = {
 			startPoint.collapse(true);
 		}
 
-		var enum = new ArrayEnumerator(arrResults);
-		return enum;
+		aCount.value = arrResults.length;
+		return arrResults;
 	},
  
 	getDocShellForFrame : function(aFrame) 

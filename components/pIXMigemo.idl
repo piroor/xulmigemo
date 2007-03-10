@@ -21,15 +21,16 @@ interface pIXMigemo : nsIObserver
 		in nsIDOMRange endPoint,
 		in boolean findBackwards
 	);
-	nsISimpleEnumerator regExpFindAll(
+	void regExpFindArr(
 		in wstring regExpSource,
 		in wstring regExpFlags,
 		in nsIDOMRange findRange,
 		in nsIDOMRange startPoint,
-		in nsIDOMRange endPoint
+		in nsIDOMRange endPoint,
+		out unsigned long count, [array, size_is(count), retval] out long array
 	);
 
-	attribute float createCacheTimeOverride;
+	attribute double createCacheTimeOverride;
 };
 
 [scriptable, uuid(54606802-ce50-11db-8314-0800200c9a66)]
@@ -41,7 +42,7 @@ interface pIXMigemoFind : nsIObserver
 
 	wstring appendKeyword(in wstring character);
 	wstring replaceKeyword(in wstring keyword);
-	wstring removeKeyword(in float length);
+	wstring removeKeyword(in double length);
 	void shiftLastKeyword();
 
 	attribute boolean manualLinksOnly;
@@ -63,6 +64,7 @@ interface pIXMigemoFind : nsIObserver
 
 	void find();
 	void findInternal(in boolean backward, in wstring keyword, in boolean forceFocus);
+
 	void findNext(in boolean forceFocus);
 	void findPrevious(in boolean forceFocus);
 
