@@ -22,7 +22,7 @@ pXMigemoCache.prototype = {
 		return 'This is a cache service for XUL/Migemo.';
 	},
 	get classID() {
-		return Components.ID('{159add54-cdf2-11db-8314-0800200c9a66}');
+		return Components.ID('{0c6119e4-cef4-11db-8314-0800200c9a66}');
 	},
 	 
 	initialized : false, 

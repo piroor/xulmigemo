@@ -13,7 +13,7 @@ pXMigemoFileAccess.prototype = {
 		return 'This is a utility service for XUL/Migemo.';
 	},
 	get classID() {
-		return Components.ID('{4341d5c8-cde6-11db-8314-0800200c9a66}');
+		return Components.ID('{19c2aa1c-cef4-11db-8314-0800200c9a66}');
 	},
 
 	readFrom : function(aFile, aEncoding)
