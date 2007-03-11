@@ -224,6 +224,7 @@ XMigemoStringBundle.prototype = {
 			return this.strbundle.GetStringFromName(aKey);
 		}
 		catch(e) {
+			dump(e);
 		}
 		return '';
 	}

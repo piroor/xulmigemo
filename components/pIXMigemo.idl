@@ -22,7 +22,7 @@ interface pIXMigemo : nsIObserver
 	const unsigned short USER_DIC   = 2;
 	const unsigned short ALL_DIC    = 3; /* SYSTEM_DIC + USER_DIC */
 
-	/* find by regular expression, and return the first item of found terms term as DOM2 Range. */
+	/* find by regular expression, and return the first item of found terms as DOM2 Range. */
 	nsIDOMRange regExpFind(
 		in AString regExpSource,
 		in AString regExpFlags,
@@ -124,8 +124,10 @@ interface pIXMigemoCache : nsISupports
 {
 	AString getCacheFor(in AString roman);
 
+	/* these two methods saves the file cache automatically. if you don't want to be updated the file, use "clearCacheSilentlyFor". */
 	void clearCacheForAllPatterns(in AString roman);
 	void clearCacheFor(in AString roman);
+
 	void clearCacheSilentlyFor(in AString roman);
 
 	void clearAll(in boolean clearDiskCache);
