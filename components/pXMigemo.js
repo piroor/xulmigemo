@@ -165,7 +165,7 @@ pXMigemo.prototype = {
 
 		var date1 = new Date();
 
-		var lines = this.gatherEntriesFor(aRoman, null, {});
+		var lines = this.gatherEntriesFor(aRoman, this.ALL_DIC, {});
 
 		var pattern = '';
 		if (lines.length) {
@@ -256,16 +256,14 @@ pXMigemo.prototype = {
 
 		var lines = [];
 
-		aTargetDic = (aTargetDic || '').toLowerCase();
-
 		const XMigemoDic = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1']
 				.getService(Components.interfaces.pIXMigemoDictionary);
 
-		var mydicAU = (aTargetDic != 'system') ? XMigemoDic.getUserAlphaDic() : null ;
-		var mydicA  = (aTargetDic != 'user')   ? XMigemoDic.getAlphaDic() : null ;
-		var mydicU  = (aTargetDic != 'system') ? XMigemoDic.getUserDic(firstlet) : null ;
-		var mydic   = (aTargetDic != 'user')   ? XMigemoDic.getDic(firstlet) : null ;
+		var mydicAU = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserAlphaDic() : null ;
+		var mydicA  = (aTargetDic & this.SYSTEM_DIC)   ? XMigemoDic.getAlphaDic() : null ;
+		var mydicU  = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserDic(firstlet) : null ;
+		var mydic   = (aTargetDic & this.SYSTEM_DIC)   ? XMigemoDic.getDic(firstlet) : null ;
 
 		if (mydicAU) {
 			var lineAU = mydicAU.match(expA);
@@ -303,6 +301,9 @@ pXMigemo.prototype = {
 		aCount.value = lines.length;
 		return lines;
 	},
+	SYSTEM_DIC : 1,
+	USER_DIC   : 2,
+	ALL_DIC    : 3,
  
 /* Find */ 
 	 
@@ -371,7 +372,6 @@ pXMigemo.prototype = {
 		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
 
 		var txt = XMigemoTextService.range2Text(aFindRange);
-		regExp = aRegExp;
 		arrTerms = txt.match(new RegExp(regExp.source, 'img'));
 		this.mFind.findBackwards = false;
 		var docShell = this.getDocShellForFrame(Components.lookupMethod(doc, 'defaultView').call(doc));

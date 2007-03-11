@@ -91,7 +91,7 @@ function chooseFolder()
 				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
 				.getService(Components.interfaces.pIXMigemoDicManager);
 
-	var path = XMigemoDicManager.showDirectoryPicker();
+	var path = XMigemoDicManager.showDirectoryPicker(null);
 	if (path) {
 		document.getElementById('choose-path').value = path;
 		document.documentElement.canAdvance = true;

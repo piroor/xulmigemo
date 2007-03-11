@@ -193,6 +193,10 @@ function updateKeysList()
 		return;
 	}
 
+	const XMigemoTextService = Components
+			.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
+			.getService(Components.interfaces.pIXMigemoTextTransform);
+
 	roman = XMigemoTextService.hira2roman(
 				XMigemoTextService.normalizeForYomi(
 					XMigemoTextService.kana2hira(roman)
@@ -205,7 +209,20 @@ function updateKeysList()
 		.classes['@piro.sakura.ne.jp/xmigemo/core;1']
 		.getService(Components.interfaces.pIXMigemo);
 
-	var list = XMigemo.gatherEntriesFor(roman, gListDictionary.selectedItem.value, {});
+	var type;
+	switch (gListDictionary.selectedItem.value)
+	{
+		case 'system':
+			type = XMigemo.SYSTEM_DIC;
+			break;
+		case 'user':
+			type = XMigemo.USER_DIC;
+			break;
+		case 'all':
+			type = XMigemo.ALL_DIC;
+			break;
+	}
+	var list = XMigemo.gatherEntriesFor(roman, type, {});
 	list.sort();
 
 	if (gListKeys.addItemTimer) {

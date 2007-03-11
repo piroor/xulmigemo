@@ -212,7 +212,7 @@ var XMigemoUI = {
 			default:
 		}
 	},
-	 
+	
 	keyEvent : function(aEvent) 
 	{
 		if (
@@ -345,7 +345,7 @@ var XMigemoUI = {
 				}
 				else {
 					aEvent.preventDefault();
-					XMigemoFind.find();
+					this.find();
 					this.restartTimer();
 				}
 				return true;
@@ -378,7 +378,7 @@ var XMigemoUI = {
 				XMigemoFind.appendKeyword(String.fromCharCode(aEvent.charCode));
 				this.updateStatus(XMigemoFind.lastKeyword);
 				aEvent.preventDefault();
-				XMigemoFind.find();
+				this.find();
 				this.restartTimer();
 				return true;
 			}
@@ -399,7 +399,7 @@ var XMigemoUI = {
 				XMigemoFind.appendKeyword(String.fromCharCode(aEvent.charCode));
 				this.updateStatus(XMigemoFind.lastKeyword);
 				aEvent.preventDefault();
-				XMigemoFind.find();
+				this.find();
 				this.restartTimer();
 				return true;
 			}
@@ -471,7 +471,7 @@ var XMigemoUI = {
 			XMigemoUI.start(true);
 			aEvent.stopPropagation();
 			aEvent.preventDefault();
-			XMigemoFind.find();
+			XMigemoUI.find();
 		}
 		else {
 			XMigemoUI.lastFindMode = 'native';
@@ -499,7 +499,7 @@ var XMigemoUI = {
 	},
   
 /* timer */ 
-	
+	 
 /* Cancel Timer */ 
 	cancelTimer : null,
 	 
@@ -627,6 +627,11 @@ var XMigemoUI = {
 		this.clearTimer();
 	},
  
+	find : function() 
+	{
+		XMigemoFind.find(false, XMigemoFind.lastKeyword, false);
+	},
+ 	
 /* Override FindBar */ 
 	 
 	overrideFindBar : function() 
@@ -838,9 +843,9 @@ var XMigemoUI = {
 					XMigemoFind.lastFoundWord == sel
 					)
 					return;
-				XMigemoFind.lastKeyword = sel;
+				XMigemoFind.replaceKeyword(sel);
 				XMigemoUI.updateStatus(sel);
-				XMigemoFind.find();
+				XMigemoUI.find();
 			}
 			else {
 				if (
@@ -922,7 +927,7 @@ var XMigemoUI = {
 			highlightCheck.checked = highlightCheck.xmigemoOriginalChecked;
 		}
 	},
- 	
+ 
 	toggleFindToolbarMode : function(aSilently) 
 	{
 		if (this.isActive) {
@@ -1020,13 +1025,13 @@ var XMigemoUI = {
 	dummy : null
 }; 
   
-window.addEventListener('load', XMigemoUI, false);
+window.addEventListener('load', XMigemoUI, false); 
  
 //obsolete 
 function xmFind(){dump("xmFind"+'\n');
-XMigemoFind.findInternal(false, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword, false);
+XMigemoFind.find(false, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword, false);
 }
 function xmFindPrev(){dump("xmFindPrev"+'\n');
-XMigemoFind.findInternal(true, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword, false);
+XMigemoFind.find(true, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword, false);
 }
  

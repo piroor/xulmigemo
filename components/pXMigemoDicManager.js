@@ -101,7 +101,7 @@ pXMigemoDicManager.prototype = {
 		XMigemoCache.reload();
 	},
  
-	showDirectoryPickerInternal : function(aDefault) 
+	showDirectoryPicker : function(aDefault) 
 	{
 		var filePicker = Components
 				.classes['@mozilla.org/filepicker;1']
@@ -129,17 +129,7 @@ pXMigemoDicManager.prototype = {
 		}
 		return '';
 	},
-	 
-	showDirectoryPickerFor : function(aDefault) 
-	{
-		return this.showDirectoryPickerInternal(aDefault);
-	},
- 
-	showDirectoryPicker : function() 
-	{
-		return this.showDirectoryPickerInternal(null);
-	},
-  
+ 	
 	init : function() 
 	{
 		var XMigemoDic = Components
@@ -238,7 +228,7 @@ XMigemoStringBundle.prototype = {
 		return '';
 	}
 };
- 	
+ 
 var gModule = { 
 	_firstTime: true,
 
@@ -295,7 +285,7 @@ function NSGetModule(compMgr, fileSpec)
 	return gModule;
 }
  
-function mydump(aString)
+function mydump(aString) 
 {
 	if (DEBUG)
 		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
