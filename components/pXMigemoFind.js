@@ -125,7 +125,7 @@ pXMigemoFind.prototype = {
 		if (!this.target)
 			throw Components.results.NS_ERROR_NOT_INITIALIZED;
 
-		this.findInternal(false, this.lastKeyword || this.previousKeyword, aForceFocus);
+		this.find(false, this.lastKeyword || this.previousKeyword, aForceFocus);
 	},
  
 	findPrevious : function(aForceFocus) 
@@ -133,22 +133,17 @@ pXMigemoFind.prototype = {
 		if (!this.target)
 			throw Components.results.NS_ERROR_NOT_INITIALIZED;
 
-		this.findInternal(true, this.lastKeyword || this.previousKeyword, aForceFocus);
+		this.find(true, this.lastKeyword || this.previousKeyword, aForceFocus);
 	},
  
-	find : function() 
-	{
-		this.findInternal(false, null, false);
-	},
- 
-	findInternal : function(aBackward, aKeyword, aForceFocus) 
+	find : function(aBackward, aKeyword, aForceFocus) 
 	{
 		if (!this.target)
 			throw Components.results.NS_ERROR_NOT_INITIALIZED;
 
 //		mydump("find");
-		var roman = aKeyword || this.lastKeyword;
-		if (!roman) return false;
+		var roman = aKeyword;
+		if (!roman) return;
 
 		const XMigemo = Components
 			.classes['@piro.sakura.ne.jp/xmigemo/core;1']
