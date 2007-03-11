@@ -11,7 +11,11 @@ interface pIXMigemo : nsIObserver
 {
 	wstring getRegExp(in wstring roman);
 
-	wstring gatherEntriesFor(in wstring roman, in wstring targetDictionaryName);
+	void gatherEntriesFor(
+		in wstring roman,
+		in wstring targetDictionaryName,
+		out unsigned long count, [array, size_is(count), retval] out long array
+	);
 
 	nsIDOMRange regExpFind(
 		in wstring regExpSource,

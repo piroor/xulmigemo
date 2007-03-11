@@ -7,7 +7,7 @@ var XMigemoCore = {
  
 	gatherEntriesFor : function(aRoman, aTargetDic) 
 	{
-		return this.XMigemo.gatherEntriesFor(aRoman, aTargetDic).split('\n');
+		return this.XMigemo.gatherEntriesFor(aRoman, aTargetDic, {});
 	},
  
 /* Find */ 

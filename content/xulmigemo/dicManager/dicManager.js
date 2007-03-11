@@ -205,8 +205,8 @@ function updateKeysList()
 		.classes['@piro.sakura.ne.jp/xmigemo/core;1']
 		.getService(Components.interfaces.pIXMigemo);
 
-	var list = XMigemo.gatherEntriesFor(roman, gListDictionary.selectedItem.value);
-	list.split('\n').sort();
+	var list = XMigemo.gatherEntriesFor(roman, gListDictionary.selectedItem.value, {});
+	list.sort();
 
 	if (gListKeys.addItemTimer) {
 		window.clearInterval(gListKeys.addItemTimer);
