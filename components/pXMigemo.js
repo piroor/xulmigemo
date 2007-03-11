@@ -165,7 +165,7 @@ pXMigemo.prototype = {
 
 		var date1 = new Date();
 
-		var lines = this.gatherEntriesFor(aRoman);
+		var lines = this.gatherEntriesFor(aRoman, null, {});
 
 		var pattern = '';
 		if (lines.length) {
@@ -225,9 +225,12 @@ pXMigemo.prototype = {
 		return pattern;
 	},
   
-	gatherEntriesFor : function(aRoman, aTargetDic) 
+	gatherEntriesFor : function(aRoman, aTargetDic, aCount) 
 	{
-		if (!aRoman) return '';
+		if (!aRoman) {
+			aCount.value = 0;
+			return [];
+		}
 
 		const XMigemoTextService = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
@@ -297,7 +300,8 @@ pXMigemo.prototype = {
 			}
 		}
 
-		return lines.join('\n');
+		aCount.value = lines.length;
+		return lines;
 	},
  
 /* Find */ 
