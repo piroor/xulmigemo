@@ -11,6 +11,7 @@ var XMigemoUI = {
 	isFindbarFocused       : false,
  
 	isAutoStart            : false, 
+	isAutoExit             : false,
 	timeout                : 0,
 
 	enableByDefault        : false,
@@ -127,6 +128,10 @@ var XMigemoUI = {
 		{
 			case 'xulmigemo.autostart':
 				this.isAutoStart = value;
+				return;
+
+			case 'xulmigemo.enableautoexit.nokeyword':
+				this.isAutoExit = value;
 				return;
 
 			case 'xulmigemo.enable_by_default':
@@ -335,12 +340,17 @@ var XMigemoUI = {
 		switch (aEvent.keyCode)
 		{
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE:
-				if (XMigemoFind.lastKeyword.length == 1) {
+				if (XMigemoFind.lastKeyword.length == 0) {
+					this.cancel();
+					return true;
+				}
+				else if (XMigemoFind.lastKeyword.length == 1) {
 					aEvent.preventDefault();
 				}
 				XMigemoFind.removeKeyword(1);
 				this.updateStatus(XMigemoFind.lastKeyword);
-				if (XMigemoFind.lastKeyword == '') {
+				if (XMigemoFind.lastKeyword == '' &&
+					this.isAutoExit) {
 					this.cancel();
 				}
 				else {
@@ -968,6 +978,7 @@ var XMigemoUI = {
 
 		XMigemoService.addPrefListener(this);
 		this.observe(null, 'nsPref:changed', 'xulmigemo.autostart');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.nokeyword');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enable_by_default');
 //		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.migemobar.overlay');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');

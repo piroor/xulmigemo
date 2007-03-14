@@ -108,6 +108,9 @@
 		<preference id="xulmigemo.linksonly"
 			name="xulmigemo.linksonly"
 			type="bool"/>
+		<preference id="xulmigemo.enableautoexit.nokeyword"
+			name="xulmigemo.enableautoexit.nokeyword"
+			type="bool"/>
 
 		<preference id="xulmigemo.enabletimeout"
 			name="xulmigemo.enabletimeout"
@@ -128,7 +131,10 @@
 	</groupbox>
 
 	<groupbox>
-		<caption label="&xulmigemo.caption.timeout;"/>
+		<caption label="&xulmigemo.caption.quickexit;"/>
+		<checkbox id="xulmigemo.enableautoexit.nokeyword-check" flex="1"
+			label="&xulmigemo.enableautoexit.nokeyword;"
+			preference="xulmigemo.enableautoexit.nokeyword"/>
 		<checkbox id="xulmigemo.enabletimeout-check" flex="1"
 			label="&xulmigemo.enabletimeout;"
 			preference="xulmigemo.enabletimeout"/>
