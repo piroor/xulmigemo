@@ -15,6 +15,7 @@ pref("xulmigemo.checked_by_default.caseSensitive", false);
 
 pref("xulmigemo.timeout",                       4000);
 pref("xulmigemo.enabletimeout",                 true);
+pref("xulmigemo.enableautoexit.nokeyword",      true);
 
 pref("xulmigemo.enabletimeout.indicator",       true);
 pref("xulmigemo.appearance.migemobar.overlay",  true);

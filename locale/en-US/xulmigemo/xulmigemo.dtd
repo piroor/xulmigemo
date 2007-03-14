@@ -14,13 +14,14 @@
 
 <!ENTITY xulmigemo.tab.quickfind           "Quick Migemo Find">
 
-<!ENTITY xulmigemo.caption.quickstart      "Startup">
-<!ENTITY xulmigemo.autostart               "Start Quick Migemo Find automatically for keytypes">
+<!ENTITY xulmigemo.caption.quickstart      "Startup Quick Migemo Find">
+<!ENTITY xulmigemo.autostart               "Start the mode automatically for keytypes">
 <!ENTITY xulmigemo.linksonly               "Find only links">
 
-<!ENTITY xulmigemo.caption.timeout         "Timeout">
-<!ENTITY xulmigemo.enabletimeout           "Exit Quick Migemo Find automatically">
-<!ENTITY xulmigemo.timeout.before          "Timeout after">
+<!ENTITY xulmigemo.caption.quickexit       "Exit Quick Migemo Find">
+<!ENTITY xulmigemo.enableautoexit.nokeyword "Exit the mode automatically when there is no keyword left">
+<!ENTITY xulmigemo.enabletimeout           "Exit the mode automatically with an timeout">
+<!ENTITY xulmigemo.timeout.before          "after">
 <!ENTITY xulmigemo.timeout.after           "msec">
 
 
