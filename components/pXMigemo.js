@@ -380,10 +380,10 @@ pXMigemo.prototype = {
 		{
 			foundRange = this.mFind.Find(arrTerms[i], aFindRange, aStartPoint, aEndPoint);
 			arrResults.push(foundRange);
-			findRange.setStart(foundRange.endContainer, foundRange.endOffset);
-			startPoint.selectNodeContents(doc.body);
-			startPoint.setStart(foundRange.endContainer, foundRange.endOffset);
-			startPoint.collapse(true);
+			aFindRange.setStart(foundRange.endContainer, foundRange.endOffset);
+			aStartPoint.selectNodeContents(doc.body);
+			aStartPoint.setStart(foundRange.endContainer, foundRange.endOffset);
+			aStartPoint.collapse(true);
 		}
 
 		aCount.value = arrResults.length;
