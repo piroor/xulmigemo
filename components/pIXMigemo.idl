@@ -68,6 +68,8 @@ interface pIXMigemoFind : nsIObserver
 
 	void setSelectionLook(in nsIDOMDocument document, in boolean changeColor);
 
+	void scrollSelectionToCenter(in nsIDOMWindow frame);
+
 	void clear();
 	void exitFind();
 };
