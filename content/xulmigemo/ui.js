@@ -726,14 +726,14 @@ var XMigemoUI = {
 		}
 
 		eval('gFindBar.find = '+gFindBar.find.toSource()
-			.replace(/(this._?updateStatus(UI)?\([^\)]*\))/, '$1; XMigemoFind.scrollSelectionToCenter();')
+			.replace(/(this._?updateStatus(UI)?\([^\)]*\))/, '$1; XMigemoFind.scrollSelectionToCenter(window._content);')
 			.replace(/\{/, '{ XMigemoUI.presetSearchString(arguments.length ? arguments[0] : null); ')
 		);
 		eval('gFindBar.xmigemoOriginalFindNext = '+gFindBar.xmigemoOriginalFindNext.toSource()
-			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(); $1')
+			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(window._content); $1')
 		);
 		eval('gFindBar.xmigemoOriginalFindPrevious = '+gFindBar.xmigemoOriginalFindPrevious.toSource()
-			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(); $1')
+			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(window._content); $1')
 		);
 
 		// Firefox 3.0-    : onFindAgainCommand / searcgString
