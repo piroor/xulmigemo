@@ -16,6 +16,10 @@ pXMigemoFileAccess.prototype = {
 		return Components.ID('{19c2aa1c-cef4-11db-8314-0800200c9a66}');
 	},
 
+	get wrappedJSObject() {
+		return this;
+	},
+
 	readFrom : function(aFile, aEncoding)
 	{
 		var fileContents;

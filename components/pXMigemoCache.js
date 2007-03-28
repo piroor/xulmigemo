@@ -24,6 +24,10 @@ pXMigemoCache.prototype = {
 	get classID() {
 		return Components.ID('{0c6119e4-cef4-11db-8314-0800200c9a66}');
 	},
+
+	get wrappedJSObject() {
+		return this;
+	},
 	 
 	initialized : false, 
  

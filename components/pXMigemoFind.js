@@ -21,6 +21,10 @@ pXMigemoFind.prototype = {
 	get classID() {
 		return Components.ID('{147824f6-cef4-11db-8314-0800200c9a66}');
 	},
+
+	get wrappedJSObject() {
+		return this;
+	},
 	 
 	lastKeyword     : '', 
 	previousKeyword : '',
