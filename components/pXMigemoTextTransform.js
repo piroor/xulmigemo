@@ -14,6 +14,10 @@ pXMigemoTextTransform.prototype = {
 	get classID() {
 		return Components.ID('{2d370a3e-cef4-11db-8314-0800200c9a66}');
 	},
+
+	get wrappedJSObject() {
+		return this;
+	},
 	 
 	get r2h() 
 	{

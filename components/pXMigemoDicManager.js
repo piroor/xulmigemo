@@ -31,6 +31,10 @@ pXMigemoDicManager.prototype = {
 	get classID() {
 		return Components.ID('{25e5efa2-cef4-11db-8314-0800200c9a66}');
 	},
+
+	get wrappedJSObject() {
+		return this;
+	},
 	 
 	domain : 'xulmigemo', 
  

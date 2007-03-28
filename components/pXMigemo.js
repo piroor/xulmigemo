@@ -28,6 +28,10 @@ pXMigemo.prototype = {
 	get classID() {
 		return Components.ID('{792f3b58-cef4-11db-8314-0800200c9a66}');
 	},
+
+	get wrappedJSObject() {
+		return this;
+	},
 	 
 	// SKK•û®‚Ì“ü—ÍˆÈŠO‚ÅA•¶ß‹æØ‚è‚Æ‚µ‚Ä”F¯‚·‚é•¶š 
 	INPUT_SEPARATOR : " ",
