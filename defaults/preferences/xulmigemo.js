@@ -33,6 +33,7 @@ pref("xulmigemo.shortcut.goDicManager",          "Ctrl+Shift+F7");
 pref("xulmigemo.dicpath",                       "");
 
 pref("xulmigemo.cache.update.time",             500);
+pref("xulmigemo.find_delay",                    50);
 
 
 pref("xulmigemo.dictionary.useInitializeWizard", true);

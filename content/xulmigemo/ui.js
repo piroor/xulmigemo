@@ -7,7 +7,10 @@ var XMigemoFind;
  
 var XMigemoUI = { 
 	 
-	lastFindMode           : 'native', 
+	lastFindMode     : -1, 
+	FIND_MODE_NATIVE : 0,
+	FIND_MODE_MIGEMO : 1,
+
 	isFindbarFocused       : false,
  
 	isAutoStart            : false, 
@@ -355,7 +358,7 @@ var XMigemoUI = {
 				}
 				else {
 					aEvent.preventDefault();
-					this.find();
+					this.delayedFind();
 					this.restartTimer();
 				}
 				return true;
@@ -388,7 +391,7 @@ var XMigemoUI = {
 				XMigemoFind.appendKeyword(String.fromCharCode(aEvent.charCode));
 				this.updateStatus(XMigemoFind.lastKeyword);
 				aEvent.preventDefault();
-				this.find();
+				this.delayedFind();
 				this.restartTimer();
 				return true;
 			}
@@ -409,12 +412,26 @@ var XMigemoUI = {
 				XMigemoFind.appendKeyword(String.fromCharCode(aEvent.charCode));
 				this.updateStatus(XMigemoFind.lastKeyword);
 				aEvent.preventDefault();
-				this.find();
+				this.delayedFind();
 				this.restartTimer();
 				return true;
 			}
 		}
 	},
+	delayedFind : function()
+	{
+		if (this.delayedFindTimer) {
+			window.clearTimeout(this.delayedFindTimer);
+			this.delayedFindTimer = null;
+		}
+		this.delayedFindTimer = window.setTimeout(this.delayedFindCallback, XMigemoService.getPref('xulmigemo.find_delay'));
+	},
+	delayedFindCallback : function()
+	{
+		XMigemoUI.find();
+		XMigemoUI.delayedFindTimer = null;
+	},
+	delayedFindTimer : null,
   
 	mouseEvent : function(aEvent) 
 	{
@@ -481,10 +498,10 @@ var XMigemoUI = {
 			XMigemoUI.start(true);
 			aEvent.stopPropagation();
 			aEvent.preventDefault();
-			XMigemoUI.find();
+			XMigemoUI.delayedFind();
 		}
 		else {
-			XMigemoUI.lastFindMode = 'native';
+			XMigemoUI.lastFindMode = XMigemoUI.FIND_MODE_NATIVE;
 		}
 	},
  
@@ -504,7 +521,7 @@ var XMigemoUI = {
 		}
 		else {
 			this.cancel(true);
-			this.lastFindMode = 'native';
+			this.lastFindMode = XMigemoUI.FIND_MODE_NATIVE;
 		}
 	},
   
@@ -591,7 +608,7 @@ var XMigemoUI = {
 	{
 		dump('xmigemoStart'+'\n');
 		this.isActive = true;
-		this.lastFindMode = 'migemo';
+		this.lastFindMode = this.FIND_MODE_MIGEMO;
 
 		if (!aSilently) {
 			this.isQuickFind = true;
@@ -631,6 +648,11 @@ var XMigemoUI = {
 			migemoCheck.checked = migemoCheck.xmigemoOriginalChecked;
 
 			this.isQuickFind = false;
+		}
+
+		if (this.delayedFindTimer) {
+			window.clearTimeout(this.delayedFindTimer);
+			this.delayedFindTimer = null;
 		}
 
 		this.updateTimeoutIndicator(-1);
@@ -784,7 +806,7 @@ var XMigemoUI = {
 	getLastFindString : function(aString) 
 	{
 		var migemoString = XMigemoFind.previousKeyword || XMigemoFind.lastKeyword;
-		return (this.lastFindMode == 'native') ? (aString || migemoString) : (migemoString || aString) ;
+		return (this.lastFindMode == this.FIND_MODE_NATIVE) ? (aString || migemoString) : (migemoString || aString) ;
 	},
  
 	presetSearchString : function(aString) 
@@ -819,11 +841,11 @@ var XMigemoUI = {
 
 		if (XMigemoUI.findMigemoCheck.checked && !XMigemoUI.isActive) {
 			XMigemoUI.isActive = true;
-			XMigemoUI.lastFindMode = 'migemo';
+			XMigemoUI.lastFindMode = this.FIND_MODE_MIGEMO;
 		}
 		else if (!XMigemoUI.findMigemoCheck.checked) {
 			XMigemoUI.isActive = false;
-			XMigemoUI.lastFindMode = 'native';
+			XMigemoUI.lastFindMode = this.FIND_MODE_NATIVE;
 		}
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
@@ -900,7 +922,7 @@ var XMigemoUI = {
 	findNext : function() 
 	{
 		dump('XMigemoUI.findNext'+'\n');
-		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == 'migemo') {
+		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == this.FIND_MODE_MIGEMO) {
 			XMigemoFind.findNext(this.findBar && this.findBar.hidden ? true : false );
 			if (XMigemoUI.cancelTimer)
 				XMigemoUI.startTimer();
@@ -913,7 +935,7 @@ var XMigemoUI = {
 	findPrevious : function() 
 	{
 		dump('XMigemoUI.findPrevious'+'\n');
-		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == 'migemo') {
+		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == this.FIND_MODE_MIGEMO) {
 			XMigemoFind.findPrevious(this.findBar && this.findBar.hidden ? true : false );
 			if (XMigemoUI.cancelTimer)
 				XMigemoUI.startTimer();
@@ -955,6 +977,8 @@ var XMigemoUI = {
   
 	init : function() 
 	{
+		this.lastFindMode = this.FIND_MODE_NATIVE;
+
 		document.addEventListener('XMigemoFindProgress', this, false);
 
 		var browser = this.browser;
