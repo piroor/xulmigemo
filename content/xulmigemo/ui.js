@@ -18,6 +18,8 @@ var XMigemoUI = {
 	timeout                : 0,
 
 	enableByDefault        : false,
+
+	isModeChanged : false,
  
 	get isQuickFind() 
 	{
@@ -230,7 +232,7 @@ var XMigemoUI = {
 			)
 			return;
 	},
-	 
+	
 	isEventFiredInInputField : function(aEvent) 
 	{
 		try { // in rich-textarea (ex. Gmail)
@@ -516,17 +518,20 @@ var XMigemoUI = {
 	{
 		this.clearTimer();
 		gFindBar.toggleHighlight(false);
+		var keyword = this.findField.value;
 		if (this.findMigemoCheck.checked) {
 			this.start(true);
+			this.isModeChanged = true;
 		}
 		else {
 			this.cancel(true);
 			this.lastFindMode = XMigemoUI.FIND_MODE_NATIVE;
+			this.isModeChanged = true;
 		}
 	},
   
 /* timer */ 
-	 
+	
 /* Cancel Timer */ 
 	cancelTimer : null,
 	 
@@ -662,6 +667,26 @@ var XMigemoUI = {
 	find : function() 
 	{
 		XMigemoFind.find(false, XMigemoFind.lastKeyword, false);
+	},
+ 
+	findAgain : function(aKeyword, aMode) 
+	{
+		if (aMode == this.FIND_MODE_MIGEMO) {
+			XMigemoFind.replaceKeyword(aKeyword);
+			this.updateStatus(aKeyword);
+			this.find();
+		}
+		else {
+			var d = document.commandDispatcher.focusedWindow.document;
+			if (d.foundEditable) {
+				d.foundEditable
+					.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+					.editor.selection.removeAllRanges();
+				d.foundEditable = null;
+			}
+			d.defaultView.getSelection().removeAllRanges();
+			gFindBar.find();
+		}
 	},
  	
 /* Override FindBar */ 
@@ -875,9 +900,7 @@ var XMigemoUI = {
 					XMigemoFind.lastFoundWord == sel
 					)
 					return;
-				XMigemoFind.replaceKeyword(sel);
-				XMigemoUI.updateStatus(sel);
-				XMigemoUI.find();
+				XMigemoUI.findAgain(sel, XMigemoUI.FIND_MODE_MIGEMO);
 			}
 			else {
 				if (
@@ -886,7 +909,7 @@ var XMigemoUI = {
 					 )
 					 return;
 				XMigemoUI.findField.value = sel;
-				gFindBar.find();
+				XMigemoUI.findAgain(sel, XMigemoUI.FIND_MODE_NATIVE);
 			}
 		}
 	},
@@ -922,12 +945,23 @@ var XMigemoUI = {
 	findNext : function() 
 	{
 		dump('XMigemoUI.findNext'+'\n');
+		var keyword = XMigemoUI.findField.value;
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == this.FIND_MODE_MIGEMO) {
+			if (XMigemoUI.isModeChanged && keyword) {
+				XMigemoUI.findAgain(keyword, XMigemoUI.FIND_MODE_MIGEMO);
+				XMigemoUI.isModeChanged = false;
+				return;
+			}
 			XMigemoFind.findNext(this.findBar && this.findBar.hidden ? true : false );
 			if (XMigemoUI.cancelTimer)
 				XMigemoUI.startTimer();
 		}
 		else {
+			if (XMigemoUI.isModeChanged && keyword) {
+				XMigemoUI.findAgain(keyword, XMigemoUI.FIND_MODE_NATIVE);
+				XMigemoUI.isModeChanged = false;
+				return;
+			}
 			gFindBar.xmigemoOriginalFindNext();
 		}
 	},
@@ -935,12 +969,23 @@ var XMigemoUI = {
 	findPrevious : function() 
 	{
 		dump('XMigemoUI.findPrevious'+'\n');
+		var keyword = XMigemoUI.findField.value;
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == this.FIND_MODE_MIGEMO) {
+			if (XMigemoUI.isModeChanged && keyword) {
+				XMigemoUI.findAgain(keyword, true);
+				XMigemoUI.isModeChanged = false;
+				return;
+			}
 			XMigemoFind.findPrevious(this.findBar && this.findBar.hidden ? true : false );
 			if (XMigemoUI.cancelTimer)
 				XMigemoUI.startTimer();
 		}
 		else {
+			if (XMigemoUI.isModeChanged && keyword) {
+				XMigemoUI.findAgain(keyword, false);
+				XMigemoUI.isModeChanged = false;
+				return;
+			}
 			gFindBar.xmigemoOriginalFindPrevious();
 		}
 	},
