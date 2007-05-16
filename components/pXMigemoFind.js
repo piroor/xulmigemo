@@ -978,7 +978,7 @@ pXMigemoFind.prototype = {
 			elem = frame.document.foundEditable;
 
 			var box = elem.ownerDocument.getBoxObjectFor(elem);
-			frame.scroll(box.x - frame.innerWidth / 2, box.y - frame.innerHeight / 2);
+			frame.scrollTo(box.x - frame.innerWidth / 2, box.y - frame.innerHeight / 2);
 		}
 		else {
 			elem = frame.document.createElement('span');
@@ -990,7 +990,7 @@ pXMigemoFind.prototype = {
 			if (!box.x && !box.y)
 				box = frame.document.getBoxObjectFor(elem.parentNode);
 
-			frame.scroll(box.x - frame.innerWidth / 2, box.y - frame.innerHeight / 2);
+			frame.scrollTo(box.x - frame.innerWidth / 2, box.y - frame.innerHeight / 2);
 
 			elem.parentNode.removeChild(elem);
 			range.detach();
