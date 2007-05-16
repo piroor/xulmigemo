@@ -677,14 +677,17 @@ var XMigemoUI = {
 			this.find();
 		}
 		else {
-			var d = document.commandDispatcher.focusedWindow.document;
-			if (d.foundEditable) {
-				d.foundEditable
-					.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
-					.editor.selection.removeAllRanges();
-				d.foundEditable = null;
+			var w = document.commandDispatcher.focusedWindow;
+			var d = w.top.document == window.top.document ? _content.document : w.document ;
+			if (d) {
+				if (d.foundEditable) {
+					d.foundEditable
+						.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+						.editor.selection.removeAllRanges();
+					d.foundEditable = null;
+				}
+				d.defaultView.getSelection().removeAllRanges();
 			}
-			d.defaultView.getSelection().removeAllRanges();
 			gFindBar.find();
 		}
 	},
