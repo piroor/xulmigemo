@@ -10,22 +10,32 @@
 <hbox id="XMigemoFindToolbar"
 	collapsed="true"
 	pack="end">
-	<stack id="migemo-stack" style="position: relative;">
-		<vbox id="migemo-timeout-indicator-stack"
-			pack="end">
-			<progressmeter id="migemo-timeout-indicator"
-				hidden="true"
-				type="determined"/>
-		</vbox>
-		<hbox align="center">
-			<checkbox id="find-migemo-mode"
-				label="Migemo"
-				oncommand="XMigemoUI.onChangeFindToolbarMode();"/>
-<!--
-				persist="checked"/>
--->
-		</hbox>
-	</stack>
+	<hbox id="find-migemo-mode-box"
+		align="center"
+		pack="end"
+		hidden="true"
+		style="position: fixed; z-index: 65000;">
+		<checkbox id="find-migemo-mode"
+			label="Migemo"
+			oncommand="XMigemoUI.onChangeFindToolbarMode();"/>
+		<!--
+			Firefox 3では、下の方法で置いたProgressmeterのメーター部分が
+			アニメーションしないという問題が起こるので、代わりにこちらを使う。
+			（こちらは逆に、Firefox 2までではアニメーションしてくれない）
+		-->
+		<progressmeter id="migemo-timeout-indicator2"
+			style="position: fixed; z-index: 64000; bottom: 0; right: 0;"
+			hidden="true"
+			type="determined"/>
+	</hbox>
+	<hbox id="migemo-timeout-indicator-box"
+		align="center"
+		pack="end"
+		hidden="true"
+		style="position: fixed; z-index: 64000;">
+		<progressmeter id="migemo-timeout-indicator"
+			type="determined"/>
+	</hbox>
 </hbox>
 
 
