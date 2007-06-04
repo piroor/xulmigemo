@@ -37,7 +37,8 @@ var XMigemoUI = {
 	{
 		if (this._browser === void(0)) {
 			this._browser = document.getElementById('content') || // Firefox
-							document.getElementById('messagepane'); // Thunderbird
+							document.getElementById('messagepane') || // Thunderbird
+							document.getElementById('help-content'); // Help
 		}
 		return this._browser;
 	},
