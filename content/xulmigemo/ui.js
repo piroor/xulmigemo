@@ -78,6 +78,26 @@ var XMigemoUI = {
 	},
 //	_findField : null,
  
+	get findTerm() 
+	{
+		try {
+			return this.findField.value;
+		}
+		catch(e) {
+		}
+		return '';
+	},
+	set findTerm(val) 
+	{
+		try {
+			if (this.findField)
+				this.findField.value = val;
+		}
+		catch(e) {
+		}
+		return this.findTerm;
+	},
+ 
 	get findCaseSensitiveCheck() 
 	{
 		if (this._findCaseSensitiveCheck === void(0)) {
@@ -111,14 +131,32 @@ var XMigemoUI = {
 	},
 	_findMigemoCheck : null,
  
+	get migemoModeBox() 
+	{
+		if (!this._migemoModeBox) {
+			this._migemoModeBox = document.getElementById('find-migemo-mode-box');
+		}
+		return this._migemoModeBox;
+	},
+	_migemoModeBox : null,
+ 
 	get timeoutIndicator() 
 	{
 		if (!this._timeoutIndicator) {
-			this._timeoutIndicator = document.getElementById('migemo-timeout-indicator');
+			this._timeoutIndicator = ('gFindBar' in window && 'onFindAgainCommand' in gFindBar) ? document.getElementById('migemo-timeout-indicator2') : document.getElementById('migemo-timeout-indicator');
 		}
 		return this._timeoutIndicator;
 	},
 	_timeoutIndicator : null,
+ 
+	get timeoutIndicatorBox() 
+	{
+		if (!this._timeoutIndicatorBox) {
+			this._timeoutIndicatorBox = ('gFindBar' in window && 'onFindAgainCommand' in gFindBar) ? document.getElementById('migemo-timeout-indicator2') : document.getElementById('migemo-timeout-indicator-box');
+		}
+		return this._timeoutIndicatorBox;
+	},
+	_timeoutIndicatorBox : null,
  
 /* nsIPrefListener(?) */ 
 	
@@ -518,7 +556,7 @@ var XMigemoUI = {
 	{
 		this.clearTimer();
 		gFindBar.toggleHighlight(false);
-		var keyword = this.findField.value;
+		var keyword = this.findTerm;
 		if (this.findMigemoCheck.checked) {
 			this.start(true);
 			this.isModeChanged = true;
@@ -595,13 +633,23 @@ var XMigemoUI = {
 
 		if (value <= 0) {
 			aThis.timeoutIndicator.removeAttribute('value');
-			aThis.timeoutIndicator.setAttribute('hidden', true);
+			aThis.timeoutIndicatorBox.setAttribute('hidden', true);
 			if (aThis.indicatorStartTime)
 				aThis.indicatorStartTime = null;
 		}
 		else if (XMigemoService.getPref('xulmigemo.enabletimeout.indicator')) {
 			aThis.timeoutIndicator.setAttribute('value', value+'%');
-			aThis.timeoutIndicator.removeAttribute('hidden');
+			aThis.timeoutIndicatorBox.removeAttribute('hidden');
+			aThis.timeoutIndicatorBox.style.right = (
+				document.documentElement.boxObject.width
+				- aThis.findBar.boxObject.x
+				- aThis.findBar.boxObject.width
+			)+'px';
+			aThis.timeoutIndicatorBox.style.bottom = (
+				document.documentElement.boxObject.height
+				- aThis.findBar.boxObject.y
+				- aThis.findBar.boxObject.height
+			)+'px';
 
 			aCurrent = aTimeout - parseInt(((new Date()).getTime() - aThis.indicatorStartTime));
 
@@ -631,9 +679,8 @@ var XMigemoUI = {
 		else
 			this.toggleFindToolbarMode();
 
-		var findField = this.findField;
-		if (findField.value != XMigemoFind.lastKeyword)
-			findField.value = XMigemoFind.lastKeyword;
+		if (this.findTerm != XMigemoFind.lastKeyword)
+			this.findTerm = XMigemoFind.lastKeyword;
 	},
  
 	cancel : function(aSilently) 
@@ -701,11 +748,6 @@ var XMigemoUI = {
 			Firefox 1.x～2.0～3.0の間でメソッド名などが異なる場合は、
 			すべてFirefox 2.0に合わせる。
 		*/
-
-		var bar = this.findBar.parentNode.removeChild(this.findBar);
-		this.findMigemoBar.insertBefore(bar, this.findMigemoBar.firstChild);
-		bar.setAttribute('flex', 1);
-
 		var updateGlobalFunc = false;
 
 		var bar = document.getElementById('FindToolbar');
@@ -842,7 +884,7 @@ var XMigemoUI = {
 		if (XMigemoService.getPref('xulmigemo.ignore_find_links_only_behavior')) return;
 
 		if (!aString)
-			aString = XMigemoUI.findField.value;
+			aString = XMigemoUI.findTerm;
 
 		/*
 			accessibility.typeaheadfind.linksonlyがtrueの時に
@@ -880,16 +922,21 @@ var XMigemoUI = {
 		scope.xmigemoOriginalOpen.apply(scope, arguments);
 		XMigemoUI.findMigemoBar.removeAttribute('collapsed');
 
-		XMigemoUI.toggleFindToolbarMode();
+		var box = XMigemoUI.migemoModeBox;
+		box.removeAttribute('hidden');
+		box.style.height = XMigemoUI.findBar.boxObject.height+'px';
+		box.style.right = (
+			document.documentElement.boxObject.width
+			- XMigemoUI.findBar.boxObject.x
+			- XMigemoUI.findBar.boxObject.width
+		)+'px';
+		box.style.bottom = (
+			document.documentElement.boxObject.height
+			- XMigemoUI.findBar.boxObject.y
+			- XMigemoUI.findBar.boxObject.height
+		)+'px';
 
-		if (!XMigemoUI.findMigemoBar.initialized &&
-			XMigemoService.getPref('xulmigemo.appearance.migemobar.overlay')) {
-			XMigemoUI.findMigemoBar.initialized = true;
-			var stack = document.getElementById('migemo-stack');
-			var width = (stack.boxObject.width || 100) + 10;
-			stack.style.width      = width+'px';
-			stack.style.marginLeft = '-'+width+'px';
-		}
+		XMigemoUI.toggleFindToolbarMode();
 
 		if (XMigemoService.getPref('xulmigemo.prefillwithselection')) {
 			var win = document.commandDispatcher.focusedWindow || window.content ;
@@ -908,10 +955,10 @@ var XMigemoUI = {
 			else {
 				if (
 					 aShowMinimalUI ||
-					 XMigemoUI.findField.value == sel
+					 XMigemoUI.findTerm == sel
 					 )
 					 return;
-				XMigemoUI.findField.value = sel;
+				XMigemoUI.findTerm = sel;
 				XMigemoUI.findAgain(sel, XMigemoUI.FIND_MODE_NATIVE);
 			}
 		}
@@ -926,8 +973,10 @@ var XMigemoUI = {
 	delayedCloseFindBar : function()
 	{
 		if (this.findBar.getAttribute('collapsed') == 'true' ||
-			this.findBar.getAttribute('hidden') == 'true')
+			this.findBar.getAttribute('hidden') == 'true') {
+			this.migemoModeBox.setAttribute('hidden', true);
 			this.findMigemoBar.setAttribute('collapsed', true);
+		}
 
 		this.toggleFindToolbarMode();
 		XMigemoFind.exitFind();
@@ -938,7 +987,7 @@ var XMigemoUI = {
 		var bar = this.findBar;
 		var findField = this.findField;
 		if (bar && !bar.hidden && findField) {
-			findField.value = aStatusText;
+			this.findTerm = aStatusText;
 		}
 		else if (document.getElementById('statusbar-display')) {
 			document.getElementById('statusbar-display').label = aStatusText;
@@ -948,7 +997,7 @@ var XMigemoUI = {
 	findNext : function() 
 	{
 		dump('XMigemoUI.findNext'+'\n');
-		var keyword = XMigemoUI.findField.value;
+		var keyword = XMigemoUI.findTerm;
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == this.FIND_MODE_MIGEMO) {
 			if (XMigemoUI.isModeChanged && keyword) {
 				XMigemoUI.findAgain(keyword, XMigemoUI.FIND_MODE_MIGEMO);
@@ -972,7 +1021,7 @@ var XMigemoUI = {
 	findPrevious : function() 
 	{
 		dump('XMigemoUI.findPrevious'+'\n');
-		var keyword = XMigemoUI.findField.value;
+		var keyword = XMigemoUI.findTerm;
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == this.FIND_MODE_MIGEMO) {
 			if (XMigemoUI.isModeChanged && keyword) {
 				XMigemoUI.findAgain(keyword, true);
