@@ -71,6 +71,29 @@ pXMigemoFileAccess.prototype = {
 		return aFile;
 	},
 
+	getAbsolutePath : function(aPath)
+	{
+		var file = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+		try {
+			file.initWithPath(aPath);
+			return aPath;
+		}
+		catch(e) {
+		}
+
+		// relative path
+		var platform = Components.classes['@mozilla.org/network/protocol;1?name=http'].getService(Components.interfaces.nsIHttpProtocolHandler).oscpu;
+		if (platform.indexOf('Win') > -1) {
+			aPath = aPath.replace(/^\.\.\.|\\\.\.\./g, '\\\.\.\\\.\.')
+						.replace(/\\/g, '/');
+		}
+		const DIR = Components.classes['@mozilla.org/file/directory_service;1'].getService(Components.interfaces.nsIProperties);
+		var binDir = DIR.get('CurProcD', Components.interfaces.nsIFile);
+		file.setRelativeDescriptor(binDir, aPath);
+		return file.path;
+	},
+
+
 	QueryInterface : function(aIID)
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemoFileAccess) &&

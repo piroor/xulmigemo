@@ -80,6 +80,7 @@ interface pIXMigemoFind : nsIObserver
 [scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
 interface pIXMigemoFileAccess : nsISupports
 {
+	AString getAbsolutePath(in AString filePath);
 	AString readFrom(in nsIFile file, in ACString encoding);
 	nsIFile writeTo(in nsIFile file, in AString content, in ACString encoding);
 };

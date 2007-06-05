@@ -136,10 +136,14 @@ pXMigemoCache.prototype = {
 	get cacheFile() 
 	{
 		if (!this.cacheFileHolder) {
+			var util = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
+					.getService(Components.interfaces.pIXMigemoFileAccess);
+			var dicDir = util.getAbsolutePath(decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath'))));
 			try {
 				this.cacheFileHolder = Components.classes['@mozilla.org/file/local;1'].createInstance();
 				if (this.cacheFileHolder instanceof Components.interfaces.nsILocalFile) {
-					this.cacheFileHolder.initWithPath(decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath'))));
+					this.cacheFileHolder.initWithPath(dicDir);
 					this.cacheFileHolder.append('migemocache.txt');
 				}
 			}
