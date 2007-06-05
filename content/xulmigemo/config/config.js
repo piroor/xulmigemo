@@ -9,6 +9,11 @@ function getDP()
 				.getService(Components.interfaces.pIXMigemoFileAccess);
 	var path = util.getAbsolutePath(document.getElementById('xulmigemo.dicpath').value);
 	var folderPath = XMigemoDicManager.showDirectoryPicker(path);
+	if (folderPath) {
+		var relativePath = util.getRelativePath(folderPath);
+		if (relativePath && folderPath.length > relativePath.length)
+			folderPath = relativePath;
+	}
 	var field = document.getElementById('xulmigemo.dicpath-textbox');
 	if (folderPath && field.value != folderPath) {
 		field.value = folderPath;

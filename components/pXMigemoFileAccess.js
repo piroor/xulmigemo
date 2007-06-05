@@ -93,6 +93,28 @@ pXMigemoFileAccess.prototype = {
 		return file.path;
 	},
 
+	getRelativePath : function(aPath)
+	{
+		var file = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+		file.initWithPath(aPath);
+
+		const DIR = Components.classes['@mozilla.org/file/directory_service;1'].getService(Components.interfaces.nsIProperties);
+		var binDir = DIR.get('CurProcD', Components.interfaces.nsIFile);
+		try {
+			aPath = file.getRelativeDescriptor(binDir);
+		}
+		catch(e) {
+			return '';
+		}
+
+		var platform = Components.classes['@mozilla.org/network/protocol;1?name=http'].getService(Components.interfaces.nsIHttpProtocolHandler).oscpu;
+		if (platform.indexOf('Win') > -1) {
+			aPath = aPath.replace(/\//g, '\\');
+		}
+
+		return decodeURIComponent(escape(aPath));
+	},
+
 
 	QueryInterface : function(aIID)
 	{

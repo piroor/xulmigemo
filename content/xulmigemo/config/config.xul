@@ -209,6 +209,7 @@
 			<button label="&xulmigemo.dic.find;"
 				oncommand="getDP()"/>
 		</hbox>
+		<description flex="1">&xulmigemo.dic.description;</description>
 		<checkbox id="xulmigemo.dic.useInitializeWizard-check" flex="1"
 			label="&xulmigemo.dic.useInitializeWizard;"
 			preference="xulmigemo.dictionary.useInitializeWizard"/>

@@ -51,6 +51,7 @@
 <!ENTITY xulmigemo.caption.dic             "Dictionaries Folder">
 <!ENTITY xulmigemo.dic.useInitializeWizard "Show initialization wizard at the startup if the dictionary is lost">
 <!ENTITY xulmigemo.dic.find                "Find...">
+<!ENTITY xulmigemo.dic.description         "*Specified relative path will be merged to the installation path of Firefox(Thunderbird).">
 
 <!ENTITY xulmigemo.dic.showManager         "Manage Dictionary">
 
