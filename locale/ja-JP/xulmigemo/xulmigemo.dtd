@@ -52,6 +52,7 @@
 <!ENTITY xulmigemo.dic.find                "参照...">
 
 <!ENTITY xulmigemo.dic.showManager         "辞書の管理">
+<!ENTITY xulmigemo.dic.description         "※相対パスはFirefox（Thunderbird）のインストールフォルダを基準として解釈されます">
 
 <!ENTITY xulmigemo.caption.cache           "一時ファイル">
 <!ENTITY xulmigemo.cache.update.time       "一時ファイルを生成する頻度">

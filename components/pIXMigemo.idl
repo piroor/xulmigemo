@@ -81,6 +81,7 @@ interface pIXMigemoFind : nsIObserver
 interface pIXMigemoFileAccess : nsISupports
 {
 	AString getAbsolutePath(in AString filePath);
+	AString getRelativePath(in AString filePath);
 	AString readFrom(in nsIFile file, in ACString encoding);
 	nsIFile writeTo(in nsIFile file, in AString content, in ACString encoding);
 };
