@@ -4,8 +4,11 @@ function getDP()
 	var XMigemoDicManager = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
 				.getService(Components.interfaces.pIXMigemoDicManager);
-
-	var folderPath = XMigemoDicManager.showDirectoryPicker(document.getElementById('xulmigemo.dicpath').value);
+	var util = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
+				.getService(Components.interfaces.pIXMigemoFileAccess);
+	var path = util.getAbsolutePath(document.getElementById('xulmigemo.dicpath').value);
+	var folderPath = XMigemoDicManager.showDirectoryPicker(path);
 	var field = document.getElementById('xulmigemo.dicpath-textbox');
 	if (folderPath && field.value != folderPath) {
 		field.value = folderPath;

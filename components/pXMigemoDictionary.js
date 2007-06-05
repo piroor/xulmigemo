@@ -49,11 +49,10 @@ pXMigemoDictionary.prototype = {
 		var cList  = new Array('', 'k', 's', 't', 'h', 'm', 'n', 'y', 'r', 'w', 'd', 'z', 'g', 'p', 'b', 'alph');
 		var failed = new Array();
 		var file;
-		var dicDir = decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')));
-
 		var util = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
 					.getService(Components.interfaces.pIXMigemoFileAccess);
+		var dicDir = util.getAbsolutePath(decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath'))));
 
 		var error = false;
 
