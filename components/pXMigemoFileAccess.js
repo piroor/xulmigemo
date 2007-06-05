@@ -84,7 +84,8 @@ pXMigemoFileAccess.prototype = {
 		// relative path
 		var platform = Components.classes['@mozilla.org/network/protocol;1?name=http'].getService(Components.interfaces.nsIHttpProtocolHandler).oscpu;
 		if (platform.indexOf('Win') > -1) {
-			aPath = aPath.replace(/^\.\.\.|\\\.\.\./g, '\\\.\.\\\.\.')
+			aPath = aPath.replace(/^\.\.\./g, '\.\.\\\.\.')
+						.replace(/\\\.\.\./g, '\\\.\.\\\.\.')
 						.replace(/\\/g, '/');
 		}
 		const DIR = Components.classes['@mozilla.org/file/directory_service;1'].getService(Components.interfaces.nsIProperties);
