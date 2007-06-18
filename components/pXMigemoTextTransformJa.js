@@ -27,9 +27,14 @@ pXMigemoTextTransformJa.prototype = {
 
 	normalizeInput : function(aInput)
 	{
+		return this.normalizeForYomi(aInput);
+	},
+
+	normalizeKeyInput : function(aInput)
+	{
 		return this.hira2roman(
 				this.normalizeForYomi(
-					this.kana2hira(roman)
+					this.kana2hira(aInput)
 				)
 			);
 	},

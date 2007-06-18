@@ -6,6 +6,9 @@
 #include "nsIDOMRange.idl"
 #include "nsIDOMNode.idl"
 
+
+/* Common Interfaces */
+
 [scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
 interface pIXMigemoFileAccess : nsISupports
 {
@@ -30,6 +33,63 @@ interface pIXMigemoTextTransform : nsISupports
 {
 	boolean isValidInput(in AString input);
 	AString normalizeInput(in AString input);
+};
+
+[scriptable, uuid(5a51a982-1dde-11dc-8314-0800200c9a66)]
+interface pIXMigemoDictionary : nsISupports
+{
+	const unsigned short RESULT_OK                      = 1;
+	const unsigned short RESULT_ERROR_INVALID_INPUT     = 2;
+	const unsigned short RESULT_ERROR_ALREADY_EXIST     = 4;
+	const unsigned short RESULT_ERROR_NOT_EXIST         = 8;
+	const unsigned short RESULT_ERROR_NO_TARGET         = 16;
+	const unsigned short RESULT_ERROR_INVALID_OPERATION = 32;
+
+	unsigned short addTerm(in AString input, in AString term);
+	unsigned short removeTerm(in AString input, in AString term);
+
+	readonly attribute boolean initialized;
+
+	boolean load();
+	void reload();
+	void save();
+	void saveUserDic(in ACString key);
+};
+
+
+[scriptable, uuid(159add54-cdf2-11db-8314-0800200c9a66)]
+interface pIXMigemoCache : nsISupports
+{
+	AString getCacheFor(in AString roman);
+
+	/* these two methods saves the file cache automatically. if you don't want to be updated the file, use "clearCacheSilentlyFor". */
+	void clearCacheForAllPatterns(in AString roman);
+	void clearCacheFor(in AString roman);
+
+	void clearCacheSilentlyFor(in AString roman);
+
+	void clearAll(in boolean clearDiskCache);
+
+	void setMemCache(in AString roman, in AString regExpPattern);
+	void setDiskCache(in AString roman, in AString regExpPattern);
+
+	attribute nsIFile cacheFile;
+
+	readonly attribute boolean initialized;
+
+	boolean load();
+	void reload();
+	void save();
+};
+
+[scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
+interface pIXMigemoDicManager : nsIObserver
+{
+	void reload();
+
+	AString showDirectoryPicker(in AString defaultDirectoryPath);
+
+	void init();
 };
 
 
@@ -72,6 +132,7 @@ interface pIXMigemo : nsIObserver
 
 	attribute double createCacheTimeOverride;
 
+	readonly attribute pIXMigemoDictionary dictionary;
 	readonly attribute pIXMigemoTextTransform textTransform;
 };
 
@@ -139,67 +200,16 @@ interface pIXMigemoTextTransformJa : pIXMigemoTextTransform
 };
 
 
-[scriptable, uuid(159add54-cdf2-11db-8314-0800200c9a66)]
-interface pIXMigemoCache : nsISupports
-{
-	AString getCacheFor(in AString roman);
-
-	/* these two methods saves the file cache automatically. if you don't want to be updated the file, use "clearCacheSilentlyFor". */
-	void clearCacheForAllPatterns(in AString roman);
-	void clearCacheFor(in AString roman);
-
-	void clearCacheSilentlyFor(in AString roman);
-
-	void clearAll(in boolean clearDiskCache);
-
-	void setMemCache(in AString roman, in AString regExpPattern);
-	void setDiskCache(in AString roman, in AString regExpPattern);
-
-	attribute nsIFile cacheFile;
-
-	readonly attribute boolean initialized;
-
-	boolean load();
-	void reload();
-	void save();
-};
-
 [scriptable, uuid(6f19900a-ce33-11db-8314-0800200c9a66)]
-interface pIXMigemoDictionary : nsISupports
+interface pIXMigemoDictionaryJa : pIXMigemoDictionary
 {
-	void saveUserDic(in ACString key);
-
 	AString getDic(in ACString key);
 	AString getUserDic(in ACString key);
+
 	AString getAlphaDic();
 	AString getUserAlphaDic();
-	AString getDicForTerm(in AString yomi);
 
-	const unsigned short RESULT_OK                      = 1;
-	const unsigned short RESULT_ERROR_INVALID_YOMI      = 2;
-	const unsigned short RESULT_ERROR_ALREADY_EXIST     = 4;
-	const unsigned short RESULT_ERROR_NOT_EXIST         = 8;
-	const unsigned short RESULT_ERROR_NO_TARGET         = 16;
-	const unsigned short RESULT_ERROR_INVALID_OPERATION = 32;
-
-	unsigned short addTerm(in AString yomi, in AString term);
-	unsigned short removeTerm(in AString yomi, in AString term);
-
-	readonly attribute boolean initialized;
-
-	boolean load();
-	void reload();
-	void save();
-};
-
-[scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
-interface pIXMigemoDicManager : nsIObserver
-{
-	void reload();
-
-	AString showDirectoryPicker(in AString defaultDirectoryPath);
-
-	void init();
+	AString getDicForTerm(in AString input);
 };
 
 
