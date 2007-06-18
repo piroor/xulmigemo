@@ -89,37 +89,39 @@
 
 <!ENTITY xulmigemo.dicManager.tab.add     "Add New Term">
 
-<!ENTITY xulmigemo.dicManager.add.yomi     "Yomi (sound)">
+<!ENTITY xulmigemo.dicManager.add.input    "Input">
 <!ENTITY xulmigemo.dicManager.add.term     "Term">
 <!ENTITY xulmigemo.dicManager.add.addTerm  "Add">
 
 <!ENTITY xulmigemo.dicManager.add.success      "Successfully Added.">
 <!ENTITY xulmigemo.dicManager.add.errorNoTerm  "Error: No term.">
-<!ENTITY xulmigemo.dicManager.add.errorInvalid "Error: Invalid yomi. Only hiragana characters, numbers and alphabets can appear in the yomi.">
+<!ENTITY xulmigemo.dicManager.add.errorInvalid "Error: Invalid input.">
+<!ENTITY xulmigemo.dicManager.add.errorInvalid.ja "Error: Invalid input. Only hiragana characters, numbers and alphabets can appear in the input.">
 <!ENTITY xulmigemo.dicManager.add.errorExist   "Error: The term exists.">
 
 <!ENTITY xulmigemo.dicManager.tab.remove         "Remove Term">
 
-<!ENTITY xulmigemo.dicManager.remove.yomi        "Yomi (sound)">
+<!ENTITY xulmigemo.dicManager.remove.input       "Input">
 <!ENTITY xulmigemo.dicManager.remove.term        "Term">
-<!ENTITY xulmigemo.dicManager.remove.description "If the Term is blank, remove all terms of the Yomi.">
+<!ENTITY xulmigemo.dicManager.remove.description "If the Term is blank, remove all terms of the Input.">
 <!ENTITY xulmigemo.dicManager.remove.removeTerm  "Remove">
 
 <!ENTITY xulmigemo.dicManager.remove.success      "Successfully Removed from the User Dictionary.">
-<!ENTITY xulmigemo.dicManager.remove.errorInvalid "Error: Invalid yomi. Only hiragana characters, numbers and alphabets can appear in the yomi.">
+<!ENTITY xulmigemo.dicManager.remove.errorInvalid "Error: Invalid input.">
+<!ENTITY xulmigemo.dicManager.remove.errorInvalid.ja "Error: Invalid input. Only hiragana characters, numbers and alphabets can appear in the input.">
 <!ENTITY xulmigemo.dicManager.remove.errorNotExist   "Error: Terms in the System Dictionary is not removable.">
 
 <!ENTITY xulmigemo.dicManager.tab.list          "List">
 
 <!ENTITY xulmigemo.dicManager.list.roman        "Search key (roman spell)">
-<!ENTITY xulmigemo.dicManager.list.keys         "Yomi">
+<!ENTITY xulmigemo.dicManager.list.keys         "Input">
 <!ENTITY xulmigemo.dicManager.list.terms        "Terms">
 <!ENTITY xulmigemo.dicManager.list.dic          "Search for:">
 <!ENTITY xulmigemo.dicManager.list.fromUserDic   "User Dictionary">
 <!ENTITY xulmigemo.dicManager.list.fromSystemDic "System Dictionary">
 <!ENTITY xulmigemo.dicManager.list.fromAllDic    "Both">
-<!ENTITY xulmigemo.dicManager.list.addTerm      "Add Term for this yomi">
-<!ENTITY xulmigemo.dicManager.list.removeTermEntry "Remove All Terms of this yomi">
+<!ENTITY xulmigemo.dicManager.list.addTerm      "Add Term for this input">
+<!ENTITY xulmigemo.dicManager.list.removeTermEntry "Remove All Terms of this input">
 <!ENTITY xulmigemo.dicManager.list.removeTerm   "Remove Term">
 
 <!ENTITY xulmigemo.dicManager.list.promptAdd "Enter new term you want to be added:">
