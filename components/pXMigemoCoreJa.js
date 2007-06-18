@@ -1,7 +1,7 @@
 /* This depends on: 
-	pIXMigemoDictionaryJa
+	pIXMigemoCore
 	pIXMigemoCache
-	pIXMigemoDicManager
+	pIXMigemoDictionaryJa
 	pIXMigemoTextTransformJa
 */
 var DEBUG = false;
@@ -14,11 +14,11 @@ var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
-function pXMigemo() { 
-	this.init();
+function pXMigemoJa() { 
+	this.base;
 }
 
-pXMigemo.prototype = {
+pXMigemoJa.prototype = {
 	get contractID() {
 		return '@piro.sakura.ne.jp/xmigemo/core;1?lang=ja';
 	},
@@ -33,6 +33,21 @@ pXMigemo.prototype = {
 		return this;
 	},
 	 
+	SYSTEM_DIC : 1, 
+	USER_DIC   : 2,
+	ALL_DIC    : 3,
+ 
+	get base() // super class 
+	{
+		if (!this._base) {
+			this._base = Components
+								.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang=*']
+								.getService(Components.interfaces.pIXMigemo);
+		}
+		return this._base;
+	},
+	_base : null,
+ 
 	get dictionary() 
 	{
 		if (!this._dictionary) {
@@ -44,7 +59,7 @@ pXMigemo.prototype = {
 		return this._dictionary;
 	},
 	_dictionary : null,
- 	
+ 
 	get textTransform() 
 	{
 		if (!this._textTransform) {
@@ -132,7 +147,7 @@ pXMigemo.prototype = {
 
 		return myExp.replace(/\n/im, '');
 	},
- 
+ 	
 	simplePartOnlyPattern : /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([^\|]+)$/i, 
  
 	getRegExpPart : function(aRoman) 
@@ -329,183 +344,24 @@ pXMigemo.prototype = {
 		aCount.value = lines.length;
 		return lines;
 	},
-	SYSTEM_DIC : 1,
-	USER_DIC   : 2,
-	ALL_DIC    : 3,
  
-/* Find */ 
-	 
-	get mFind() 
-	{
-		if (!this._mFind)
-			this._mFind = Components.classes['@mozilla.org/embedcomp/rangefind;1'].createInstance(Components.interfaces.nsIFind);
-		return this._mFind;
-	},
-	_mFind : null,
- 
+/* Bridge to the super class */ 
+	
 	regExpFind : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
 	{
-		var XMigemoTextUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
-
-		//patTextはgetRegExp()で得られた正規表現オブジェクト
-		var doc = Components.lookupMethod(aFindRange.startContainer, 'ownerDocument').call(aFindRange.startContainer);
-		var term;
-		var txt = XMigemoTextUtils.range2Text(aFindRange);
-
-		if (aRegExpFlags == 'null' ||
-			aRegExpFlags == 'undefined' ||
-			aRegExpFlags == 'false')
-			aRegExpFlags = '';
-		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
-		if (aFindBackwards) {
-			txt = txt.split('').reverse().join('');
-			regExp = XMigemoTextUtils.reverseRegExp(regExp);
-		}
-
-		if (findBackwards) {
-			if (txt.match(regExp)) {
-				term = RegExp.lastMatch.split('').reverse().join('');
-			}
-		}
-		else {
-			if (txt.match(regExp)) {
-				term = RegExp.lastMatch;
-			}
-		}
-
-		this.mFind.findBackwards = aFindBackwards;
-		var docShell = this.getDocShellForFrame(Components.lookupMethod(doc, 'defaultView').call(doc));
-		var foundRange = this.mFind.Find(term, aFindRange, aStartPoint, aEndPoint);
-		return foundRange;
+		return this.base.regExpFind(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aFindBackwards);
 	},
  
 	regExpFindArr : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aCount) 
 	{
-		var XMigemoTextUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
-
-		//patTextはgetRegExp()で得られた正規表現オブジェクト
-		var doc = Components.lookupMethod(aFindRange.startContainer, 'ownerDocument').call(aFindRange.startContainer);
-		var arrTerms;
-		var arrResults = [];
-		var rightContext;
-
-		if (aRegExpFlags == 'null' ||
-			aRegExpFlags == 'undefined' ||
-			aRegExpFlags == 'false')
-			aRegExpFlags = '';
-		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
-
-		var txt = XMigemoTextUtils.range2Text(aFindRange);
-		arrTerms = txt.match(new RegExp(regExp.source, 'img'));
-		this.mFind.findBackwards = false;
-		var docShell = this.getDocShellForFrame(Components.lookupMethod(doc, 'defaultView').call(doc));
-		var foundRange;
-		for (var i = 0, maxi = arrTerms.length; i < maxi; i++)
-		{
-			foundRange = this.mFind.Find(arrTerms[i], aFindRange, aStartPoint, aEndPoint);
-			arrResults.push(foundRange);
-			aFindRange.setStart(foundRange.endContainer, foundRange.endOffset);
-			aStartPoint.selectNodeContents(doc.body);
-			aStartPoint.setStart(foundRange.endContainer, foundRange.endOffset);
-			aStartPoint.collapse(true);
-		}
-
-		aCount.value = arrResults.length;
-		return arrResults;
+		return this.base.regExpFindArr(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aCount);
 	},
  
-	getDocShellForFrame : function(aFrame) 
-	{
-		return aFrame
-				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-				.getInterface(Components.interfaces.nsIWebNavigation)
-				.QueryInterface(Components.interfaces.nsIDocShell);
-	},
-  
-/* Update Cache */ 
-	
-	updateCacheFor : function(aRomanPatterns) 
-	{
-		var patterns = aRomanPatterns.split('\n');
-		var key      = patterns.join('/');
-		if (this.updateCacheTimers[key]) {
-			this.updateCacheTimers[key].cancel();
-			this.updateCacheTimers[key] = null;
-		}
-
-		this.updateCacheTimers[key] = Components
-			.classes['@mozilla.org/timer;1']
-			.getService(Components.interfaces.nsITimer);
-        this.updateCacheTimers[key].init(
-			this.createUpdateCacheObserver(patterns, key),
-			100,
-			Components.interfaces.nsITimer.TYPE_REPEATING_SLACK
-		);
-	},
- 
-	updateCacheTimers : [], 
- 
-	createUpdateCacheObserver : function(aPatterns, aKey) 
-	{
-		return ({
-			core     : this,
-			key      : aKey,
-			patterns : aPatterns,
-			observe  : function(aSubject, aTopic, aData)
-			{
-				if (aTopic != 'timer-callback') return;
-
-				if (!this.patterns.length) {
-					if (this.core.updateCacheTimers[this.key]) {
-						this.core.updateCacheTimers[this.key].cancel();
-						delete this.core.updateCacheTimers[this.key];
-					}
-					return;
-				}
-				if (this.patterns[0])
-					this.core.getRegExpPart(this.patterns[0]);
-				this.patterns.splice(0, 1);
-			}
-		});
-	},
-  
 	observe : function(aSubject, aTopic, aData) 
 	{
-		switch (aTopic)
-		{
-			case 'XMigemo:cacheCleared':
-				this.updateCacheFor(aData);
-				return;
-
-			case 'quit-application':
-				this.destroy();
-				return;
-		}
+		this.base.observe(aSubject, aTopic, aData);
 	},
- 
-	init : function() 
-	{
-		if (this.initialized) return;
-
-		this.initialized = true;
-
-		// Initialize
-		Components
-			.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-			.getService(Components.interfaces.pIXMigemoDicManager);
-
-		ObserverService.addObserver(this, 'XMigemo:cacheCleared', false);
-	},
- 
-	destroy : function() 
-	{
-		ObserverService.removeObserver(this, 'XMigemo:cacheCleared');
-	},
- 
+  
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemo) &&
@@ -515,39 +371,6 @@ pXMigemo.prototype = {
 	}
 };
   
-function ArrayEnumerator(aItems) 
-{
-	this._index = 0;
-	this._contents = aItems;
-}
-
-ArrayEnumerator.prototype = {
-	interfaces : [
-		Components.interfaces.nsISimpleEnumerator,
-		Components.interfaces.nsISupports
-	],
-
-	QueryInterface : function (iid)
-	{
-		if (!iid.equals(Components.interfaces.nsISimpleEnumerator) &&
-			!iid.equals(Components.interfaces.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
-	},
-
-	_index    : 0,
-	_contents : [],
-
-	hasMoreElements : function()
-	{
-		return this._index < this._contents.length;
-	},
-	getNext : function()
-	{
-		return this._contents[this._index++];
-	}
-};
- 
 var gModule = { 
 	_firstTime: true,
 
@@ -579,15 +402,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemo.prototype.classID,
-			contractID : pXMigemo.prototype.contractID,
-			className  : pXMigemo.prototype.classDescription,
+			CID        : pXMigemoJa.prototype.classID,
+			contractID : pXMigemoJa.prototype.contractID,
+			className  : pXMigemoJa.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemo()).QueryInterface(aIID);
+					return (new pXMigemoJa()).QueryInterface(aIID);
 				}
 			}
 		}
