@@ -5,8 +5,10 @@ var Prefs = Components
 function pXMigemoTextTransformJa() {} 
 
 pXMigemoTextTransformJa.prototype = {
+	lang : 'ja',
+
 	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=ja';
+		return '@piro.sakura.ne.jp/xmigemo/text-transform;1?lang='+this.lang;
 	},
 	get classDescription() {
 		return 'This is a text transformation service for XUL/Migemo.';

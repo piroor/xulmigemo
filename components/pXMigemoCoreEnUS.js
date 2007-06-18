@@ -1,8 +1,8 @@
 /* This depends on: 
 	pIXMigemoCore
 	pIXMigemoCache
-	pIXMigemoDictionaryJa
-	pIXMigemoTextTransformJa
+	pIXMigemoDictionary
+	pIXMigemoTextTransform
 */
 var DEBUG = false;
  
@@ -14,12 +14,12 @@ var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
-function pXMigemoJa() { 
+function pXMigemo() { 
 	this.base;
 }
 
-pXMigemoJa.prototype = {
-	lang : 'ja',
+pXMigemo.prototype = {
+	lang : 'en-US',
 
 	get contractID() {
 		return '@piro.sakura.ne.jp/xmigemo/core;1?lang='+this.lang;
@@ -28,7 +28,7 @@ pXMigemoJa.prototype = {
 		return 'This is a Migemo service itself, for Japanese language.';
 	},
 	get classID() {
-		return Components.ID('{792f3b58-cef4-11db-8314-0800200c9a66}');
+		return Components.ID('{6d1ae644-1ded-11dc-8314-0800200c9a66}');
 	},
 
 	get wrappedJSObject() {
@@ -55,8 +55,7 @@ pXMigemoJa.prototype = {
 		if (!this._dictionary) {
 			this._dictionary = Components
 								.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang]
-								.getService(Components.interfaces.pIXMigemoDictionary)
-								.QueryInterface(Components.interfaces.pIXMigemoDictionaryJa);
+								.getService(Components.interfaces.pIXMigemoDictionary);
 		}
 		return this._dictionary;
 	},
@@ -66,9 +65,8 @@ pXMigemoJa.prototype = {
 	{
 		if (!this._textTransform) {
 			this._textTransform = Components
-								.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang='+this.lang]
-								.getService(Components.interfaces.pIXMigemoTextTransform)
-								.QueryInterface(Components.interfaces.pIXMigemoTextTransformJa);
+								.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*']
+								.getService(Components.interfaces.pIXMigemoTextTransform);
 		}
 		return this._textTransform;
 	},
@@ -81,24 +79,17 @@ pXMigemoJa.prototype = {
  
 /* Create Regular Expressions */ 
 	 
-	getRegExp : function(aRoman) 
+	getRegExp : function(aInput) 
 	{
-		return this.getRegExpInternal(aRoman, void(0));
+		return this.getRegExpInternal(aInput);
 	},
  
-	getRegExpInternal : function(aRoman, aEnableAutoSplit) 
+	getRegExpInternal : function(aInput) 
 	{
 		var myExp = [];
 
-		var autoSplit = (aEnableAutoSplit === void(0)) ? Prefs.getBoolPref('xulmigemo.splitTermsAutomatically') : aEnableAutoSplit ;
-
-		// 入力を切って、文節として個別に正規表現を生成する
 		var romanTerm;
-		var romanTerms = (
-					(/^[A-Z]{2,}/.test(aRoman)) ?
-						aRoman.replace(/([a-z])/g, '\t$1') : // CapsLockされてる場合は小文字で区切る
-						aRoman.replace(/([A-Z])/g, '\t$1')
-				)
+		var romanTerms = aInput
 				.replace(/([\uff66-\uff9fa-z])([0-9])/i, '$1\t$2')
 				.replace(/([0-9a-z])([\uff66-\uff9f])/i, '$1\t$2')
 				.replace(/([0-9\uff66-\uff9f])([a-z])/i, '$1\t$2')
@@ -120,27 +111,6 @@ pXMigemoJa.prototype = {
 			pattern = this.getRegExpPart(romanTerm);
 			if (!pattern) continue;
 			myExp.push(pattern);
-
-
-			if (!autoSplit) continue;
-
-			romanTermPart = romanTerm;
-			while (romanTermPart.length > 1)
-			{
-				romanTermPart = romanTermPart.substring(0, romanTermPart.length-1);
-				pattern = this.getRegExpPart(romanTermPart, true);
-				if (!this.simplePartOnlyPattern.test(pattern.replace(/\\\|/g, ''))) {
-					myExp[myExp.length-1] = [
-						myExp[myExp.length-1],
-						'|(',
-						pattern,
-						')(',
-						this.getRegExp(romanTerm.substring(romanTermPart.length, romanTerm.length)),
-						')'
-					].join('').replace(/\n/g, '');
-					break;
-				}
-			}
 		}
 
 		myExp = (myExp.length == 1) ? myExp[0] :
@@ -152,17 +122,17 @@ pXMigemoJa.prototype = {
  	
 	simplePartOnlyPattern : /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([^\|]+)$/i, 
  
-	getRegExpPart : function(aRoman) 
+	getRegExpPart : function(aInput) 
 	{
-		if (!aRoman) return null;
+		if (!aInput) return null;
 
-		aRoman = aRoman.toLowerCase();
+		aInput = aInput.toLowerCase();
 
 		const XMigemoCache = Components
 							.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
 							.getService(Components.interfaces.pIXMigemoCache);
 
-		var cacheText = XMigemoCache.getCacheFor(aRoman);
+		var cacheText = XMigemoCache.getCacheFor(aInput);
 		if (cacheText) {
 			mydump('cache:'+cacheText);
 			return cacheText;
@@ -174,64 +144,16 @@ pXMigemoJa.prototype = {
 				.getService(Components.interfaces.pIXMigemoTextUtils);
 
 		mydump('noCache');
-		var str = XMigemoTextService.expand(
-				XMigemoTextUtils.sanitize(
-					XMigemoTextService.convertStr(
-						XMigemoTextService.kana2hira(aRoman)
-					)
-				)
-			);
-		var hira = str;
-		var roman = aRoman;
-		if (/[\uff66-\uff9f]/.test(roman)) roman = XMigemoTextService.hira2roman(XMigemoTextService.kana2hira(roman))
-		var ignoreHiraKata = Prefs.getBoolPref('xulmigemo.ignoreHiraKata');
-		var kana = ignoreHiraKata ? '' :
-				XMigemoTextService.expand2(
-					XMigemoTextUtils.sanitize2(
-						XMigemoTextService.convertStr2(
-							roman,
-							XMigemoTextService.KANA_KATA
-						)
-					),
-					XMigemoTextService.KANA_KATA
-				);
-		var hiraAndKana = ignoreHiraKata ?
-				XMigemoTextService.expand2(
-					XMigemoTextUtils.sanitize2(
-						XMigemoTextService.convertStr2(
-							roman,
-							XMigemoTextService.KANA_ALL
-						)
-					),
-					XMigemoTextService.KANA_ALL
-				) :
-				str + '|' + kana ;
-		var zen = XMigemoTextService.roman2zen(aRoman); // aRoman ?
-		mydump('hira:'+hira);
-
+		var str = XMigemoTextUtils.sanitize(aInput);
 		var date1 = new Date();
 
-		var lines = this.gatherEntriesFor(aRoman, this.ALL_DIC, {});
+		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, {});
 
 		var pattern = '';
 		if (lines.length) {
 			var arr = [];
-			arr.push(XMigemoTextUtils.sanitize(aRoman).toUpperCase());
-			if (zen.indexOf('[') < 0) arr.push(zen);
-			if (hiraAndKana.indexOf('[') < 0) {
-				arr.push(hira);
-				arr.push(kana);
-			}
+			arr.push(XMigemoTextUtils.sanitize(aInput).toUpperCase());
 			searchterm = arr.concat(lines).join('\n').replace(/(\t|\n\n)+/g, '\n');
-
-			if (zen.indexOf('[') > -1) pattern += (pattern ? '|' : '') + zen;
-			if (hiraAndKana.indexOf('[') > -1) pattern += (pattern ? '|' : '') + hiraAndKana;
-
-			// 一文字だけの項目だけは、抜き出して文字クラスにまとめる
-			var ichimoji = searchterm.replace(/^..+$\n?/mg, '').split('\n').sort().join('');
-			if (ichimoji) {
-				pattern += (pattern ? '|' : '') + '[' + ichimoji + ']';
-			}
 
 			// foo, foobar, fooee... といった風に、同じ文字列で始まる複数の候補がある場合は、
 			// 最も短い候補（この例ならfoo）だけにする
@@ -250,7 +172,7 @@ pXMigemoJa.prototype = {
 			mydump('pattern(from dic):'+pattern);
 		}
 		else { // 辞書に引っかからなかった模様なので自前の文字列だけ
-			pattern = XMigemoTextUtils.sanitize(aRoman) + '|' + zen + '|' + hiraAndKana;
+			pattern = XMigemoTextUtils.sanitize(aInput);
 			mydump('pattern:'+pattern);
 		}
 
@@ -258,12 +180,12 @@ pXMigemoJa.prototype = {
 		var date2 = new Date();
 		if (date2.getTime() - date1.getTime() > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Prefs.getIntPref('xulmigemo.cache.update.time'))) {
 			// 遅かったらキャッシュします
-			XMigemoCache.setDiskCache(aRoman, pattern);
-			XMigemoCache.setMemCache(aRoman, pattern);
+			XMigemoCache.setDiskCache(aInput, pattern);
+			XMigemoCache.setMemCache(aInput, pattern);
 			mydump('CacheWasSaved');
 		}
 		else{
-			XMigemoCache.setMemCache(aRoman, pattern);//メモリキャッシュ
+			XMigemoCache.setMemCache(aInput, pattern);//メモリキャッシュ
 			mydump('memCacheWasSaved');
 		}
 		mydump(date2.getTime() - date1.getTime());
@@ -271,9 +193,9 @@ pXMigemoJa.prototype = {
 		return pattern;
 	},
   
-	gatherEntriesFor : function(aRoman, aTargetDic, aCount) 
+	gatherEntriesFor : function(aInput, aTargetDic, aCount) 
 	{
-		if (!aRoman) {
+		if (!aInput) {
 			aCount.value = 0;
 			return [];
 		}
@@ -283,63 +205,31 @@ pXMigemoJa.prototype = {
 				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
 				.getService(Components.interfaces.pIXMigemoTextUtils);
 
-		var str = XMigemoTextService.expand(
-					XMigemoTextUtils.sanitize(
-						XMigemoTextService.convertStr(
-							XMigemoTextService.kana2hira(aRoman)
-						)
-					)
-				);
-		var hira = str;
+		var str = XMigemoTextUtils.sanitize(aInput);
 
-		var tmp  = '^' + hira + '.+$'; //日本語
-		var tmpA = '^' + XMigemoTextUtils.sanitize(aRoman) + '.+$'; //アルファベット
-		var exp  = new RegExp(tmp, 'mg');
-		var expA = new RegExp(tmpA, 'mg');
+		var tmp = '^' + XMigemoTextUtils.sanitize(aInput) + '.+$';
+		var exp = new RegExp(tmp, 'mg');
 
 		var firstlet = '';
-		firstlet = aRoman.charAt(0);//最初の文字
-		mydump(firstlet+' dic loaded');
+		firstlet = aInput.charAt(0);//最初の文字
 
 		var lines = [];
 
 		const XMigemoDic = this.dictionary;
 
-		var mydicAU = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserAlphaDic() : null ;
-		var mydicA  = (aTargetDic & this.SYSTEM_DIC)   ? XMigemoDic.getAlphaDic() : null ;
-		var mydicU  = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserDicFor(firstlet) : null ;
-		var mydic   = (aTargetDic & this.SYSTEM_DIC)   ? XMigemoDic.getDicFor(firstlet) : null ;
+		var mydicU = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserDic() : null ;
+		var mydic  = (aTargetDic & this.SYSTEM_DIC)   ? XMigemoDic.getDic() : null ;
 
-		if (mydicAU) {
-			var lineAU = mydicAU.match(expA);
-			mydump('searchEnDic (user)');
-			if (lineAU) {
-				lines = lines.concat(lineAU);
-				mydump(' found '+lineAU.length+' terms');
-			}
-		}
-		if (mydicA) {
-			var lineA = mydicA.match(expA);//アルファベットの辞書を検索
-			mydump('searchEnDic');
-			if (lineA) {
-				lines = lines.concat(lineA);
-				mydump(' found '+lineA.length+' terms');
-			}
-		}
 		if (mydicU) {
 			var lineU = mydicU.match(exp);
-			mydump('searchJpnDic (user)');
 			if (lineU) {
 				lines = lines.concat(lineU);
-				mydump(' found '+lineU.length+' terms');
 			}
 		}
 		if (mydic) {
-			var line = mydic.match(exp);//日本語の辞書を検索
-			mydump('searchJpnDic');
+			var line = mydic.match(exp);//アルファベットの辞書を検索
 			if (line) {
 				lines = lines.concat(line);
-				mydump(' found '+line.length+' terms');
 			}
 		}
 
@@ -404,15 +294,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoJa.prototype.classID,
-			contractID : pXMigemoJa.prototype.contractID,
-			className  : pXMigemoJa.prototype.classDescription,
+			CID        : pXMigemo.prototype.classID,
+			contractID : pXMigemo.prototype.contractID,
+			className  : pXMigemo.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoJa()).QueryInterface(aIID);
+					return (new pXMigemo()).QueryInterface(aIID);
 				}
 			}
 		}

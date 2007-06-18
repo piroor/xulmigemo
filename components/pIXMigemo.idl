@@ -78,6 +78,10 @@ interface pIXMigemoTextTransform : nsISupports
 [scriptable, uuid(5a51a982-1dde-11dc-8314-0800200c9a66)]
 interface pIXMigemoDictionary : nsISupports
 {
+	AString getDic();
+	AString getUserDic();
+	void saveUserDic();
+
 	const unsigned short RESULT_OK                      = 1;
 	const unsigned short RESULT_ERROR_INVALID_INPUT     = 2;
 	const unsigned short RESULT_ERROR_ALREADY_EXIST     = 4;
@@ -93,7 +97,6 @@ interface pIXMigemoDictionary : nsISupports
 	boolean load();
 	void reload();
 	void save();
-	void saveUserDic(in ACString key);
 };
 
 [scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
@@ -204,14 +207,13 @@ interface pIXMigemoTextTransformJa : pIXMigemoTextTransform
 [scriptable, uuid(6f19900a-ce33-11db-8314-0800200c9a66)]
 interface pIXMigemoDictionaryJa : pIXMigemoDictionary
 {
-	AString getDic(in ACString key);
-	AString getUserDic(in ACString key);
+	AString getDicFor(in ACString key);
+	AString getUserDicFor(in ACString key);
 
 	AString getAlphaDic();
 	AString getUserAlphaDic();
 
 	AString getDicForTerm(in AString input);
+
+	void saveUserDicFor(in ACString key);
 };
-
-
-
