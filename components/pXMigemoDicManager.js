@@ -1,7 +1,6 @@
 /* This depends on: 
 	pIXMigemoDictionary
 	pIXMigemoCache
-	pIXMigemoTextTransform
 */
 var DEBUG = false;
  
@@ -66,22 +65,14 @@ pXMigemoDicManager.prototype = {
 				var yomi = RegExp.$2;
 				var term = RegExp.$3;
 
-				var XMigemoTextService = Components
-						.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-						.getService(Components.interfaces.pIXMigemoTextTransform);
-
-/*
-				// 読みがアルファベットでない普通の辞書で、カナ文字のみの項目は、
-				// そもそもキャッシュされないので、変更されてもキャッシュを再作成する必要がない？
-				if (!/^[a-z0-9]+$/i.test(yomi) &&
-					/^[\u3041-\u3093\u309b\u309c\u30fc]+$/.test(XMigemoTextService.kana2hira(term)))
-					return;
-*/
+				const XMigemo = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
+					.getService(Components.interfaces.pIXMigemo);
 
 				var XMigemoCache = Components
 						.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
 						.getService(Components.interfaces.pIXMigemoCache);
-				XMigemoCache.clearCacheForAllPatterns(XMigemoTextService.hira2roman(yomi));
+				XMigemoCache.clearCacheForAllPatterns(XMigemo.textTransform.normalizeInput(yomi));
 				return;
 
 				return;
@@ -95,7 +86,7 @@ pXMigemoDicManager.prototype = {
 	reload : function() 
 	{
 		var XMigemoDic = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1']
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
 				.getService(Components.interfaces.pIXMigemoDictionary);
 		XMigemoDic.load();
 
@@ -137,7 +128,7 @@ pXMigemoDicManager.prototype = {
 	init : function() 
 	{
 		var XMigemoDic = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1']
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
 				.getService(Components.interfaces.pIXMigemoDictionary);
 		var XMigemoCache = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/cache;1']

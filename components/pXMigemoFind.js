@@ -1,6 +1,6 @@
 /* This depends on: 
 	pIXMigemo
-	pIXMigemoTextTransform
+	pIXMigemoTextUtils
 */
 var DEBUG = false;
  
@@ -149,9 +149,15 @@ pXMigemoFind.prototype = {
 		var roman = aKeyword;
 		if (!roman) return;
 
-		const XMigemo = Components
-			.classes['@piro.sakura.ne.jp/xmigemo/core;1']
-			.getService(Components.interfaces.pIXMigemo);
+		try {
+			const XMigemo = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
+				.getService(Components.interfaces.pIXMigemo);
+		}
+		catch(e) {
+			throw e;
+		}
+
 		var myExp = XMigemo.getRegExp(roman);
 
 		if (!myExp) {
@@ -194,20 +200,20 @@ pXMigemoFind.prototype = {
 		var statusRes;
 		var isLinksOnly = Prefs.getBoolPref('xulmigemo.linksonly');
 
-		const XMigemoTextService = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-				.getService(Components.interfaces.pIXMigemoTextTransform);
+		const XMigemoTextUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
 
 		doFind:
 		while (true)
 		{
 			findRange = this.getFindRange(aFindFlag, doc);
 
-			target = XMigemoTextService.range2Text(findRange.sRange);
+			target = XMigemoTextUtils.range2Text(findRange.sRange);
 
 			if(aFindFlag & this.FIND_BACK){
 				target = target.split('').reverse().join('');
-				findRegExpSource = reversedRegExp || (reversedRegExp = XMigemoTextService.reverseRegExp(aRegExpSource));
+				findRegExpSource = reversedRegExp || (reversedRegExp = XMigemoTextUtils.reverseRegExp(aRegExpSource));
 			}
 			else{
 				findRegExpSource = aRegExpSource;
@@ -1119,7 +1125,7 @@ pXMigemoFind.prototype = {
 
 		// Initialize
 		Components
-			.classes['@piro.sakura.ne.jp/xmigemo/core;1']
+			.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
 			.getService(Components.interfaces.pIXMigemo);
 	},
  

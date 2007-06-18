@@ -36,10 +36,19 @@ var XMigemoCore = {
 	},
   
 	get XMigemo() { 
-		if (!this._XMigemo)
-			this.XMigemo = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/core;1']
-				.getService(Components.interfaces.pIXMigemo);
+		if (!this._XMigemo) {
+			try {
+				const Prefs = Components 
+					.classes['@mozilla.org/preferences;1']
+					.getService(Components.interfaces.nsIPrefBranch);
+				this._XMigemo = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
+					.getService(Components.interfaces.pIXMigemo);
+			}
+			catch(e) {
+				throw e;
+			}
+		}
 		return this._XMigemo;
 	},
 	_XMigemo : null

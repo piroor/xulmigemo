@@ -1,6 +1,7 @@
 /* This depends on: 
 	pIXMigemoFileAccess
-	pIXMigemoTextTransform
+	pIXMigemoTextUtils
+	pIXMigemoTextTransformJa
 */
 var DEBUG = false;
  
@@ -16,7 +17,7 @@ function pXMigemoDictionary() {}
 
 pXMigemoDictionary.prototype = {
 	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/dictionary;1';
+		return '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=ja';
 	},
 	get classDescription() {
 		return 'This is a dictionary service for XUL/Migemo.';
@@ -196,8 +197,8 @@ pXMigemoDictionary.prototype = {
 		if (/^[a-z0-9]+$/i.test(aYomi)) return 'alph';
 
 		var XMigemoTextService = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-				.getService(Components.interfaces.pIXMigemoTextTransform);
+				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=ja']
+				.getService(Components.interfaces.pIXMigemoTextTransformJa);
 
 		var firstLetter = XMigemoTextService.hira2roman(aYomi.charAt(0)).charAt(0);
 		switch (firstLetter)
@@ -224,8 +225,11 @@ pXMigemoDictionary.prototype = {
 			return this.RESULT_ERROR_INVALID_OPERATION;
 
 		var XMigemoTextService = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-				.getService(Components.interfaces.pIXMigemoTextTransform);
+				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=ja']
+				.getService(Components.interfaces.pIXMigemoTextTransformJa);
+		var XMigemoTextUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
 
 		var yomi = aTermSet.yomi ? String(aTermSet.yomi) : '' ;
 		var term = aTermSet.term ? String(aTermSet.term) : '' ;
@@ -254,7 +258,7 @@ pXMigemoDictionary.prototype = {
 			regexp.compile('^'+yomi+'\t(.+)$', 'm');
 			if (regexp.test(systemDic)) {
 				var terms = RegExp.$1.split('\t').join('\n');
-				regexp.compile('^'+XMigemoTextService.sanitize(term)+'$', 'm');
+				regexp.compile('^'+XMigemoTextUtils.sanitize(term)+'$', 'm');
 				if (regexp.test(terms))
 					return this.RESULT_ERROR_ALREADY_EXIST;
 			}
@@ -263,7 +267,7 @@ pXMigemoDictionary.prototype = {
 		regexp.compile('^'+yomi+'\t(.+)$', 'm');
 		if (regexp.test(userDic)) {
 			var terms = RegExp.$1.split('\t').join('\n');
-			regexp.compile('^'+XMigemoTextService.sanitize(term)+'$', 'm');
+			regexp.compile('^'+XMigemoTextUtils.sanitize(term)+'$', 'm');
 			if ((aOperation == 'remove' && !term) || regexp.test(terms)) {
 				// ÉÜÅ[ÉUé´èëÇ…Ç∑Ç≈Ç…ìoò^çœÇ›Ç≈Ç†ÇÈèÍçá
 				switch (aOperation)
