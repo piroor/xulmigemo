@@ -62,7 +62,7 @@ pXMigemoDicManager.prototype = {
 			case 'XMigemo:dictionaryModified':
 				var test = aData.split('\n')[1].match(/(.+)\t(.+)\t(.*)/);
 				var operation = RegExp.$1;
-				var yomi = RegExp.$2;
+				var input = RegExp.$2;
 				var term = RegExp.$3;
 
 				const XMigemo = Components
@@ -72,7 +72,7 @@ pXMigemoDicManager.prototype = {
 				var XMigemoCache = Components
 						.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
 						.getService(Components.interfaces.pIXMigemoCache);
-				XMigemoCache.clearCacheForAllPatterns(XMigemo.textTransform.normalizeKeyInput(yomi));
+				XMigemoCache.clearCacheForAllPatterns(XMigemo.textTransform.normalizeKeyInput(input));
 				return;
 
 				return;

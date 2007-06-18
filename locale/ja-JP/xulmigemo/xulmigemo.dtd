@@ -88,37 +88,39 @@
 
 <!ENTITY xulmigemo.dicManager.tab.add      "語句の追加">
 
-<!ENTITY xulmigemo.dicManager.add.yomi     "読み">
+<!ENTITY xulmigemo.dicManager.add.input    "読み（入力）">
 <!ENTITY xulmigemo.dicManager.add.term     "語句">
 <!ENTITY xulmigemo.dicManager.add.addTerm  "語句を追加">
 
 <!ENTITY xulmigemo.dicManager.add.success      "語句をユーザ辞書に追加しました。">
 <!ENTITY xulmigemo.dicManager.add.errorNoTerm  "エラー：語句が入力されていません。">
-<!ENTITY xulmigemo.dicManager.add.errorInvalid "エラー：読みは半角英数字のみ、もしくは、ひらがなのみで入力してください。">
+<!ENTITY xulmigemo.dicManager.add.errorInvalid "エラー：無効な入力です。">
+<!ENTITY xulmigemo.dicManager.add.errorInvalid.ja "エラー：読み（入力）は半角英数字のみ、もしくは、ひらがなのみで入力してください。">
 <!ENTITY xulmigemo.dicManager.add.errorExist   "エラー：この語句はすでに登録されています。">
 
 <!ENTITY xulmigemo.dicManager.tab.remove         "語句の削除">
 
-<!ENTITY xulmigemo.dicManager.remove.yomi        "読み">
+<!ENTITY xulmigemo.dicManager.remove.input       "読み（入力）">
 <!ENTITY xulmigemo.dicManager.remove.term        "語句">
-<!ENTITY xulmigemo.dicManager.remove.description "語句の入力を省略すると、同じ読みの語をすべて削除します。">
+<!ENTITY xulmigemo.dicManager.remove.description "語句の入力を省略すると、同じ読み（入力）の語をすべて削除します。">
 <!ENTITY xulmigemo.dicManager.remove.removeTerm  "語句を削除">
 
 <!ENTITY xulmigemo.dicManager.remove.success      "語句をユーザ辞書から削除しました。">
-<!ENTITY xulmigemo.dicManager.remove.errorInvalid "エラー：読みは半角英数字のみ、もしくは、ひらがなのみで入力してください。">
+<!ENTITY xulmigemo.dicManager.remove.errorInvalid "エラー：無効な入力です。">
+<!ENTITY xulmigemo.dicManager.remove.errorInvalid.ja "エラー：読み（入力）は半角英数字のみ、もしくは、ひらがなのみで入力してください。">
 <!ENTITY xulmigemo.dicManager.remove.errorNotExist   "エラー：システム辞書の語句は削除できません。">
 
 <!ENTITY xulmigemo.dicManager.tab.list           "語句の一覧">
 
-<!ENTITY xulmigemo.dicManager.list.roman        "検索キー（読み）">
-<!ENTITY xulmigemo.dicManager.list.keys         "読み">
+<!ENTITY xulmigemo.dicManager.list.roman        "検索キー（読み/入力）">
+<!ENTITY xulmigemo.dicManager.list.keys         "読み（入力）">
 <!ENTITY xulmigemo.dicManager.list.terms        "語句">
 <!ENTITY xulmigemo.dicManager.list.dic          "辞書の選択：">
 <!ENTITY xulmigemo.dicManager.list.fromUserDic   "ユーザ辞書">
 <!ENTITY xulmigemo.dicManager.list.fromSystemDic "システム辞書">
 <!ENTITY xulmigemo.dicManager.list.fromAllDic    "両方">
-<!ENTITY xulmigemo.dicManager.list.addTerm      "この読みで語句を追加">
-<!ENTITY xulmigemo.dicManager.list.removeTermEntry "この読みの語句をすべて削除">
+<!ENTITY xulmigemo.dicManager.list.addTerm      "この読み（入力）で語句を追加">
+<!ENTITY xulmigemo.dicManager.list.removeTermEntry "この読み（入力）の語句をすべて削除">
 <!ENTITY xulmigemo.dicManager.list.removeTerm   "語句を削除">
 
 <!ENTITY xulmigemo.dicManager.list.promptAdd "追加する語句を入力してください：">

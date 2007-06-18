@@ -10,13 +10,13 @@ const XMigemoDic = XMigemo.dictionary;
 
 function addTerm(aStatus)
 {
-	var yomi = document.getElementById('add-yomi').value;
+	var input = document.getElementById('add-input').value;
 	var term = document.getElementById('add-term').value;
 
-	var result = XMigemoDic.addTerm(yomi, term);
+	var result = XMigemoDic.addTerm(input, term);
 
-	if (yomi && XMigemo.textTransform.isValidInput(yomi))
-		document.getElementById('add-yomi').value = XMigemo.textTransform.normalizeInput(yomi);
+	if (input && XMigemo.textTransform.isValidInput(input))
+		document.getElementById('add-input').value = XMigemo.textTransform.normalizeInput(input);
 
 	if (result == XMigemoDic.RESULT_OK)
 		document.getElementById('add-term').value = '';
@@ -26,12 +26,12 @@ function addTerm(aStatus)
 
 function removeTerm(aStatus)
 {
-	var yomi = document.getElementById('remove-yomi').value;
+	var input = document.getElementById('remove-input').value;
 	var term = document.getElementById('remove-term').value;
-	var result = XMigemoDic.removeTerm(yomi, term);
+	var result = XMigemoDic.removeTerm(input, term);
 
-	if (yomi && XMigemo.textTransform.isValidInput(yomi))
-		document.getElementById('remove-yomi').value = XMigemo.textTransform.normalizeInput(yomi);
+	if (input && XMigemo.textTransform.isValidInput(input))
+		document.getElementById('remove-input').value = XMigemo.textTransform.normalizeInput(input);
 
 	if (result == XMigemoDic.RESULT_OK)
 		document.getElementById('remove-term').value = '';
@@ -54,7 +54,8 @@ function updateStatus(aStatus, aResult)
 			break;
 
 		case XMigemoDic.RESULT_ERROR_INVALID_INPUT:
-			message = node.getAttribute('statusErrorInvalid');
+			message = node.getAttribute('statusErrorInvalid-'+Prefs.getCharPref('xulmigemo.lang')) ||
+						node.getAttribute('statusErrorInvalid');
 			break;
 
 		case XMigemoDic.RESULT_ERROR_ALREADY_EXIST:
@@ -223,15 +224,15 @@ function updateKeysList()
 			if (!aItem) return;
 
 			var data = aItem.replace(/\n/mg, '').split('\t');
-			var yomi = data[0];
+			var input = data[0];
 			data.splice(0, 1);
 
-			var target = aList.getElementsByAttribute('label', yomi);
+			var target = aList.getElementsByAttribute('label', input);
 			if (target.length) {
 				target[0].value += '\n' + data.join('\n');
 			}
 			else {
-				aList.appendItem(yomi, data.join('\n'));
+				aList.appendItem(input, data.join('\n'));
 			}
 		}
 	);
@@ -301,8 +302,8 @@ function progressivelyAddListItem(aList, aDataList, aProgressListener)
 
 function addTermList()
 {
-	yomi = gListKeys.selectedItem ? gListKeys.selectedItem.label : '' ;
-	if (!yomi) return;
+	input = gListKeys.selectedItem ? gListKeys.selectedItem.label : '' ;
+	if (!input) return;
 
 	var node = document.getElementById('listStatus');
 
@@ -310,7 +311,7 @@ function addTermList()
 	if (!term) return;
 
 	var message;
-	var result = XMigemoDic.addTerm(yomi, term);
+	var result = XMigemoDic.addTerm(input, term);
 
 	switch (result)
 	{
@@ -331,8 +332,8 @@ function addTermList()
 
 function removeTermList(aAll)
 {
-	var yomi = gListKeys.selectedItem ? gListKeys.selectedItem.label : '' ;
-	if (!yomi) return;
+	var input = gListKeys.selectedItem ? gListKeys.selectedItem.label : '' ;
+	if (!input) return;
 
 	var term = gListTerms.selectedItem ? gListTerms.selectedItem.label : '' ;
 
@@ -340,7 +341,7 @@ function removeTermList(aAll)
 
 	var node = document.getElementById('listStatus');
 	var message;
-	var result = XMigemoDic.removeTerm(yomi, term);
+	var result = XMigemoDic.removeTerm(input, term);
 
 	switch (result)
 	{
@@ -440,6 +441,6 @@ function Startup()
 		var term = win._content.getSelection().toString();
 		document.getElementById('add-term').value = term;
 
-		document.getElementById('add-yomi').focus();
+		document.getElementById('add-input').focus();
 	}
 }
