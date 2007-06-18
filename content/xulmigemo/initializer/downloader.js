@@ -26,7 +26,12 @@ var XMigemoFileDownloader = {
 	{
 		const IOService = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces.nsIIOService);
 
-		var source   = IOService.newURI(XMigemoService.getPref('xulmigemo.dictionary.download.uri'), null, null);
+		var lang = XMigemoService.getPref('xulmigemo.lang');
+		var uri = XMigemoService.getPref('xulmigemo.dictionary.download.uri.'+lang);
+		if (!uri)
+			throw 'Download URI for "' + lang + '" is undefined.';
+
+		var source   = IOService.newURI(uri, null, null);
 		var tempFile = this.DirectoryService.get('TmpD', Components.interfaces.nsIFile);
 
 		tempFile.append('xulmigemodic.zip');

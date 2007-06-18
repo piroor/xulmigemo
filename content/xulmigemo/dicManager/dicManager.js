@@ -1,7 +1,14 @@
-var XMigemoDic = Components
-		.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1']
-		.getService(Components.interfaces.pIXMigemoDictionary);
+const Prefs = Components 
+	.classes['@mozilla.org/preferences;1']
+	.getService(Components.interfaces.nsIPrefBranch);
 
+const XMigemo = Components
+	.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
+	.getService(Components.interfaces.pIXMigemo);
+
+const XMigemoDic = Components
+		.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
+		.getService(Components.interfaces.pIXMigemoDictionary);
 
 function addTerm(aStatus)
 {
@@ -10,12 +17,8 @@ function addTerm(aStatus)
 
 	var result = XMigemoDic.addTerm(yomi, term);
 
-	var XMigemoTextService = Components
-			.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-			.getService(Components.interfaces.pIXMigemoTextTransform);
-
-	if (yomi && XMigemoTextService.isYomi(yomi))
-		document.getElementById('add-yomi').value = XMigemoTextService.normalizeForYomi(yomi);
+	if (yomi && XMigemo.textTransform.isValidInput(yomi))
+		document.getElementById('add-yomi').value = XMigemo.textTransform.normalizeInput(yomi);
 
 	if (result == XMigemoDic.RESULT_OK)
 		document.getElementById('add-term').value = '';
@@ -29,12 +32,8 @@ function removeTerm(aStatus)
 	var term = document.getElementById('remove-term').value;
 	var result = XMigemoDic.removeTerm(yomi, term);
 
-	var XMigemoTextService = Components
-			.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-			.getService(Components.interfaces.pIXMigemoTextTransform);
-
-	if (yomi && XMigemoTextService.isYomi(yomi))
-		document.getElementById('remove-yomi').value = XMigemoTextService.normalizeForYomi(yomi);
+	if (yomi && XMigemo.textTransform.isValidInput(yomi))
+		document.getElementById('remove-yomi').value = XMigemo.textTransform.normalizeInput(yomi);
 
 	if (result == XMigemoDic.RESULT_OK)
 		document.getElementById('remove-term').value = '';
@@ -193,21 +192,9 @@ function updateKeysList()
 		return;
 	}
 
-	const XMigemoTextService = Components
-			.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-			.getService(Components.interfaces.pIXMigemoTextTransform);
-
-	roman = XMigemoTextService.hira2roman(
-				XMigemoTextService.normalizeForYomi(
-					XMigemoTextService.kana2hira(roman)
-				)
-		);
+	roman = XMigemo.textTransform.normalizeInput(roman);
 	if (document.getElementById('list-roman').value != roman)
 		document.getElementById('list-roman').value = roman;
-
-	const XMigemo = Components
-		.classes['@piro.sakura.ne.jp/xmigemo/core;1']
-		.getService(Components.interfaces.pIXMigemo);
 
 	var type;
 	switch (gListDictionary.selectedItem.value)
@@ -376,7 +363,11 @@ function removeTermList(aAll)
 					gListRemoveOneCommand.setAttribute('disabled', true);
 				}
 
-				gListKeys.selectedItem.value = gListKeys.selectedItem.value.replace(new RegExp('^'+XMigemoTextService.sanitize(term)+'$', 'm'), '');
+				const XMigemoTextUtils = Components
+						.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+						.getService(Components.interfaces.pIXMigemoTextUtils);
+
+				gListKeys.selectedItem.value = gListKeys.selectedItem.value.replace(new RegExp('^'+XMigemoTextUtils.sanitize(term)+'$', 'm'), '');
 			}
 			if (!term || !gListKeys.selectedItem.value.replace(/\s+/g, '')) {
 				index = gListKeys.selectedIndex;

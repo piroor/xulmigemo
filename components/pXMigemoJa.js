@@ -2,7 +2,7 @@
 	pIXMigemoDictionary
 	pIXMigemoCache
 	pIXMigemoDicManager
-	pIXMigemoTextTransform
+	pIXMigemoTextTransformJa
 */
 var DEBUG = false;
  
@@ -20,10 +20,10 @@ function pXMigemo() {
 
 pXMigemo.prototype = {
 	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/core;1';
+		return '@piro.sakura.ne.jp/xmigemo/core;1?lang=ja';
 	},
 	get classDescription() {
-		return 'This is a Migemo service itself.';
+		return 'This is a Migemo service itself, for Japanese language.';
 	},
 	get classID() {
 		return Components.ID('{792f3b58-cef4-11db-8314-0800200c9a66}');
@@ -33,6 +33,18 @@ pXMigemo.prototype = {
 		return this;
 	},
 	 
+	get textTransform() 
+	{
+		if (!this._textTransform) {
+			this._textTransform = Components
+								.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=ja']
+								.getService(Components.interfaces.pIXMigemoTextTransform)
+								.QueryInterface(Components.interfaces.pIXMigemoTextTransformJa);
+		}
+		return this._textTransform;
+	},
+	_textTransform : null,
+ 	
 	// SKK方式の入力以外で、文節区切りとして認識する文字 
 	INPUT_SEPARATOR : " ",
  
@@ -127,13 +139,14 @@ pXMigemo.prototype = {
 			return cacheText;
 		}
 
-		const XMigemoTextService = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-				.getService(Components.interfaces.pIXMigemoTextTransform);
+		var XMigemoTextService = this.textTransform;
+		var XMigemoTextUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
 
 		mydump('noCache');
 		var str = XMigemoTextService.expand(
-				XMigemoTextService.sanitize(
+				XMigemoTextUtils.sanitize(
 					XMigemoTextService.convertStr(
 						XMigemoTextService.kana2hira(aRoman)
 					)
@@ -145,7 +158,7 @@ pXMigemo.prototype = {
 		var ignoreHiraKata = Prefs.getBoolPref('xulmigemo.ignoreHiraKata');
 		var kana = ignoreHiraKata ? '' :
 				XMigemoTextService.expand2(
-					XMigemoTextService.sanitize2(
+					XMigemoTextUtils.sanitize2(
 						XMigemoTextService.convertStr2(
 							roman,
 							XMigemoTextService.KANA_KATA
@@ -155,7 +168,7 @@ pXMigemo.prototype = {
 				);
 		var hiraAndKana = ignoreHiraKata ?
 				XMigemoTextService.expand2(
-					XMigemoTextService.sanitize2(
+					XMigemoTextUtils.sanitize2(
 						XMigemoTextService.convertStr2(
 							roman,
 							XMigemoTextService.KANA_ALL
@@ -174,7 +187,7 @@ pXMigemo.prototype = {
 		var pattern = '';
 		if (lines.length) {
 			var arr = [];
-			arr.push(XMigemoTextService.sanitize(aRoman).toUpperCase());
+			arr.push(XMigemoTextUtils.sanitize(aRoman).toUpperCase());
 			if (zen.indexOf('[') < 0) arr.push(zen);
 			if (hiraAndKana.indexOf('[') < 0) {
 				arr.push(hira);
@@ -199,7 +212,7 @@ pXMigemo.prototype = {
 				.join('\n')
 				.replace(/^(.+)$(\n\1.*$)+/img, '$1')
 				.replace(/^.$\n?/mg, ''); // 一文字だけの項目は用済みなので削除
-			searchterm = XMigemoTextService.sanitize(searchterm)
+			searchterm = XMigemoTextUtils.sanitize(searchterm)
 				.replace(/\n/g, '|');
 			pattern += (pattern ? '|' : '') + searchterm.substring(0, searchterm.length-1);
 
@@ -208,7 +221,7 @@ pXMigemo.prototype = {
 			mydump('pattern(from dic):'+pattern);
 		}
 		else { // 辞書に引っかからなかった模様なので自前の文字列だけ
-			pattern = XMigemoTextService.sanitize(aRoman) + '|' + zen + '|' + hiraAndKana;
+			pattern = XMigemoTextUtils.sanitize(aRoman) + '|' + zen + '|' + hiraAndKana;
 			mydump('pattern:'+pattern);
 		}
 
@@ -236,12 +249,13 @@ pXMigemo.prototype = {
 			return [];
 		}
 
-		const XMigemoTextService = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-				.getService(Components.interfaces.pIXMigemoTextTransform);
+		var XMigemoTextService = this.textTransform;
+		var XMigemoTextUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
 
 		var str = XMigemoTextService.expand(
-					XMigemoTextService.sanitize(
+					XMigemoTextUtils.sanitize(
 						XMigemoTextService.convertStr(
 							XMigemoTextService.kana2hira(aRoman)
 						)
@@ -250,7 +264,7 @@ pXMigemo.prototype = {
 		var hira = str;
 
 		var tmp  = '^' + hira + '.+$'; //日本語
-		var tmpA = '^' + XMigemoTextService.sanitize(aRoman) + '.+$'; //アルファベット
+		var tmpA = '^' + XMigemoTextUtils.sanitize(aRoman) + '.+$'; //アルファベット
 		var exp  = new RegExp(tmp, 'mg');
 		var expA = new RegExp(tmpA, 'mg');
 
@@ -261,7 +275,7 @@ pXMigemo.prototype = {
 		var lines = [];
 
 		const XMigemoDic = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1']
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=ja']
 				.getService(Components.interfaces.pIXMigemoDictionary);
 
 		var mydicAU = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserAlphaDic() : null ;
@@ -321,14 +335,14 @@ pXMigemo.prototype = {
  
 	regExpFind : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
 	{
-		const XMigemoTextService = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-				.getService(Components.interfaces.pIXMigemoTextTransform);
+		var XMigemoTextUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
 
 		//patTextはgetRegExp()で得られた正規表現オブジェクト
 		var doc = Components.lookupMethod(aFindRange.startContainer, 'ownerDocument').call(aFindRange.startContainer);
 		var term;
-		var txt = XMigemoTextService.range2Text(aFindRange);
+		var txt = XMigemoTextUtils.range2Text(aFindRange);
 
 		if (aRegExpFlags == 'null' ||
 			aRegExpFlags == 'undefined' ||
@@ -337,7 +351,7 @@ pXMigemo.prototype = {
 		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
 		if (aFindBackwards) {
 			txt = txt.split('').reverse().join('');
-			regExp = XMigemoTextService.reverseRegExp(regExp);
+			regExp = XMigemoTextUtils.reverseRegExp(regExp);
 		}
 
 		if (findBackwards) {
@@ -359,9 +373,9 @@ pXMigemo.prototype = {
  
 	regExpFindArr : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aCount) 
 	{
-		const XMigemoTextService = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-				.getService(Components.interfaces.pIXMigemoTextTransform);
+		var XMigemoTextUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
 
 		//patTextはgetRegExp()で得られた正規表現オブジェクト
 		var doc = Components.lookupMethod(aFindRange.startContainer, 'ownerDocument').call(aFindRange.startContainer);
@@ -375,7 +389,7 @@ pXMigemo.prototype = {
 			aRegExpFlags = '';
 		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
 
-		var txt = XMigemoTextService.range2Text(aFindRange);
+		var txt = XMigemoTextUtils.range2Text(aFindRange);
 		arrTerms = txt.match(new RegExp(regExp.source, 'img'));
 		this.mFind.findBackwards = false;
 		var docShell = this.getDocShellForFrame(Components.lookupMethod(doc, 'defaultView').call(doc));
@@ -476,7 +490,7 @@ pXMigemo.prototype = {
 
 		ObserverService.addObserver(this, 'XMigemo:cacheCleared', false);
 	},
- 	
+ 
 	destroy : function() 
 	{
 		ObserverService.removeObserver(this, 'XMigemo:cacheCleared');
@@ -580,7 +594,7 @@ function NSGetModule(compMgr, fileSpec)
 	return gModule;
 }
  
-function mydump(aString)
+function mydump(aString) 
 {
 	if (DEBUG)
 		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');

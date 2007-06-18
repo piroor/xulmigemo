@@ -1,6 +1,6 @@
 /* This depends on: 
 	pIXMigemoFileAccess
-	pIXMigemoTextTransform
+	pIXMigemoTextUtils
 */
 var DEBUG = false;
  
@@ -36,11 +36,11 @@ pXMigemoCache.prototype = {
  
 	getCacheFor : function (aRoman) 
 	{
-		var XMigemoTextService = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-				.getService(Components.interfaces.pIXMigemoTextTransform);
+		var XMigemoTextUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
 
-		var miexp = new RegExp('(^'+XMigemoTextService.sanitize(aRoman)+'\t.+\n)', 'im');
+		var miexp = new RegExp('(^'+XMigemoTextUtils.sanitize(aRoman)+'\t.+\n)', 'im');
 		if (this.memCache.match(miexp)) {
 			mydump('use memCache');
 			return RegExp.$1.split('\t')[1];
@@ -91,11 +91,11 @@ pXMigemoCache.prototype = {
  
 	setMemCache : function(aRoman, aRegExp) 
 	{
-		var XMigemoTextService = Components
-			.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-			.getService(Components.interfaces.pIXMigemoTextTransform);
+		var XMigemoTextUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
 
-		var tmpexp = new RegExp('(^'+XMigemoTextService.sanitize(aRoman)+'\t.+\n)', 'im');
+		var tmpexp = new RegExp('(^'+XMigemoTextUtils.sanitize(aRoman)+'\t.+\n)', 'im');
 		if (this.memCache.match(tmpexp)) {
 			return;
 		}
@@ -113,12 +113,12 @@ pXMigemoCache.prototype = {
 		var file = this.cacheFile;
 		if (!file) return;
 
-		var XMigemoTextService = Components
-			.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1']
-			.getService(Components.interfaces.pIXMigemoTextTransform);
+		var XMigemoTextUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
 
 		var newCache = this.diskCacheClone;
-		var tmpexp = new RegExp('(^' + XMigemoTextService.sanitize(aRoman) + '\t.+\n)', 'im');
+		var tmpexp = new RegExp('(^' + XMigemoTextUtils.sanitize(aRoman) + '\t.+\n)', 'im');
 		newCache = [newCache.replace(tmpexp, ''), aRoman, '\t', aMyRegExp, '\n'].join('');
 
 		var util = Components

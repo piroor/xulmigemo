@@ -2,11 +2,11 @@ var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
-function pXMigemoTextTransform() {} 
+function pXMigemoTextTransformJa() {} 
 
-pXMigemoTextTransform.prototype = {
+pXMigemoTextTransformJa.prototype = {
 	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/text-transform;1';
+		return '@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=ja';
 	},
 	get classDescription() {
 		return 'This is a text transformation service for XUL/Migemo.';
@@ -19,115 +19,43 @@ pXMigemoTextTransform.prototype = {
 		return this;
 	},
 	 
+	// pIXMigemoTextTransform 
+	isValidInput : function(aInput)
+	{
+		return this.isYomi(aInput);
+	},
+
+	normalizeInput : function(aInput)
+	{
+		return this.hira2roman(
+				this.normalizeForYomi(
+					this.kana2hira(roman)
+				)
+			);
+	},
+ 	
 	get r2h() 
 	{
 		if (!this._r2h)
-			this._r2h = new XMigemoStringBundle('chrome://xulmigemo/content/res/r2h.properties');
+			this._r2h = new XMigemoStringBundle('chrome://xulmigemo/content/res/ja/r2h.properties');
 		return this._r2h;
 	},
 	_r2h : null,
 	get r2k()
 	{
 		if (!this._r2k)
-			this._r2k = new XMigemoStringBundle('chrome://xulmigemo/content/res/r2k.properties');
+			this._r2k = new XMigemoStringBundle('chrome://xulmigemo/content/res/ja/r2k.properties');
 		return this._r2k;
 	},
 	_r2k : null,
 	get ichi()
 	{
 		if (!this._ichi)
-			this._ichi = new XMigemoStringBundle('chrome://xulmigemo/content/res/ichimoji.properties');
+			this._ichi = new XMigemoStringBundle('chrome://xulmigemo/content/res/ja/ichimoji.properties');
 		return this._ichi;
 	},
 	_ichi : null,
  
-/* convert HTML to text */ 
-	
-	range2Text : function(aRange) 
-	{
-		var doc=aRange.startContainer.ownerDocument;
-		var scrs=doc.getElementsByTagName("script");
-		var trash=doc.createRange();
-		var noscrs=doc.getElementsByTagName("noscript");
-		if(Prefs.getBoolPref('javascript.enabled')){
-			for(var i=0;i<noscrs.length;i++){
-				trash.selectNode(noscrs[i]);
-				trash.deleteContents();
-			}
-		}
-		var str=new String();
-		var tmp = doc.createRange();
-		tmp.setStart(aRange.startContainer,aRange.startOffset);
-		var tmp2 = doc.createRange();
-		var st=aRange.startContainer;
-		var en=aRange.endContainer;
-		for(var i=0;i<scrs.length;i++){
-			if(scrs[i].parentNode.tagName.toUpperCase()=="HEAD"){continue;}
-
-			tmp2.selectNode(scrs[i]);
-			if(aRange.compareBoundaryPoints(0,tmp2)==-1&&
-			tmp2.compareBoundaryPoints(2,aRange)==-1){
-
-			tmp.setEndBefore(scrs[i]);
-			str+=tmp.toString();
-			tmp.selectNode(scrs[i]);
-			tmp.collapse(false);
-			//tmp.setStartAfter(scrs[i]);なぜかエラーが出る
-			}
-		}
-
-		tmp.setEnd(aRange.endContainer,aRange.endOffset);
-		str+=tmp.toString();
-		return str;
-	},
- 
-/* 
-	body2text : function()
-	{
-		var scrs = document.getElementsByTagName("script");
-		var tmp=document.createRange();
-		var str="";
-		tmp.setStartBefore(document.body);
-		for(var i=0;i<scrs.length;i++){
-			if(scrs[i].parentNode.tagName.toUpperCase()=="HEAD"){continue;}
-			tmp.setEndBefore(scrs[i]);
-			str+=tmp.toString();
-			tmp.selectNode(scrs[i]);
-			tmp.collapse(false);
-			//tmp.setStartAfter(scrs[i]);なぜかエラーが出る
-		}
-		tmp.setEndAfter(document.body);
-		str+=tmp.toString();
-		return str;
-		//alert(str);
-	},
-*/
- 
-/* 
-	//htmlToText(by flyson)
-	htmlToText : function(aStr)
-	{
-	    var formatConverter = Components.classes["@mozilla.org/widget/htmlformatconverter;1"]
-	                                .createInstance(Components.interfaces.nsIFormatConverter);
-	    var fromStr = Components.classes["@mozilla.org/supports-string;1"]
-	                                .createInstance(Components.interfaces.nsISupportsString);
-	    fromStr.data = aStr;
-	    var toStr = { value: null };
-
-	    formatConverter.convert("text/html", fromStr, fromStr.toString().length,
-	                            "text/unicode", toStr, {});
-	    toStr = toStr.value.QueryInterface(Components.interfaces.nsISupportsString);
-	    toStr = toStr.toString();
-	    return toStr;
-	},
-*/
- 
-/* 
-	htmlToPureText : function(aStr)
-	{
-	},
-*/
-  
 /* roman to hiragana */ 
 	
 	hira2kana : function(aStr) 
@@ -599,36 +527,6 @@ pXMigemoTextTransform.prototype = {
 		}
 	},
    
-/* manipulate regular expressions */ 
-	 
-	sanitize : function(str) 
-	{
-		//	[]^.+*?$|{}\(),  正規表現のメタキャラクタをエスケープ
-		str = str.replace(/([\-\:\}\{\|\$\?\*\+\.\^\]\/\[\;\\\(\)])/g,"\\$1");
-		return str;
-	},
- 
-	sanitize2 : function(str) 
-	{
-		//	^.+*?${}\,
-		str = str.replace(/([\-\:\}\{\$\?\*\+\.\^\/\;\\])/g,"\\$1");
-		return str;
-	},
- 
-	reverseRegExp : function(aExp) 
-	{
-		var tmp = aExp;
-		tmp=tmp.replace(/\[\]\|/im,"")
-				.replace(/\(/g,"[[OPEN-PAREN]]")
-				.replace(/\)/g,"(")
-				.replace(/\[\[OPEN-PAREN\]\]/g,")");
-		tmp = tmp.replace(/\[([^\[]+?)\]/img,"\]$1\[").split("").reverse().join("")
-		tmp = tmp.replace(/(.)\\/g,"\\$1")
-				.replace(/\*(\[[^\]]*\])/g,"$1*")
-				.replace(/\*(\([^\)]*\))/g,"$1*");
-		return tmp;
-	},
-  
 	convertStrH : function() 
 	{
 		//アルファベットをかな入力のものとみなして変換する
@@ -1021,7 +919,7 @@ pXMigemoTextTransform.prototype = {
 	{
 		return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) ? true : false ;
 	},
- 	
+ 
 	expand : function(str) 
 	{
 		//この関数は語尾処理をする。ブラッシュアップが必要。
@@ -1173,6 +1071,7 @@ pXMigemoTextTransform.prototype = {
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemoTextTransform) &&
+			!aIID.equals(Components.interfaces.pIXMigemoTextTransformJa) &&
 			!aIID.equals(Components.interfaces.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
@@ -1234,15 +1133,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoTextTransform.prototype.classID,
-			contractID : pXMigemoTextTransform.prototype.contractID,
-			className  : pXMigemoTextTransform.prototype.classDescription,
+			CID        : pXMigemoTextTransformJa.prototype.classID,
+			contractID : pXMigemoTextTransformJa.prototype.contractID,
+			className  : pXMigemoTextTransformJa.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoTextTransform()).QueryInterface(aIID);
+					return (new pXMigemoTextTransformJa()).QueryInterface(aIID);
 				}
 			}
 		}

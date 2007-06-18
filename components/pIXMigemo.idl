@@ -6,6 +6,35 @@
 #include "nsIDOMRange.idl"
 #include "nsIDOMNode.idl"
 
+[scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
+interface pIXMigemoFileAccess : nsISupports
+{
+	AString getAbsolutePath(in AString filePath);
+	AString getRelativePath(in AString filePath);
+	AString readFrom(in nsIFile file, in ACString encoding);
+	nsIFile writeTo(in nsIFile file, in AString content, in ACString encoding);
+};
+
+[scriptable, uuid(79ccb624-1dd4-11dc-8314-0800200c9a66)]
+interface pIXMigemoTextUtils : nsISupports
+{
+	AString range2Text(in nsIDOMRange range);
+
+	AString sanitize(in AString regexpPattern);
+	AString sanitize2(in AString regexpPattern);
+	AString reverseRegExp(in AString regexpPattern);
+};
+
+[scriptable, uuid(451dc43c-1dd5-11dc-8314-0800200c9a66)]
+interface pIXMigemoTextTransform : nsISupports
+{
+	boolean isValidInput(in AString input);
+	AString normalizeInput(in AString input);
+};
+
+
+
+
 [scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
 interface pIXMigemo : nsIObserver
 {
@@ -42,6 +71,8 @@ interface pIXMigemo : nsIObserver
 	);
 
 	attribute double createCacheTimeOverride;
+
+	readonly attribute pIXMigemoTextTransform textTransform;
 };
 
 [scriptable, uuid(54606802-ce50-11db-8314-0800200c9a66)]
@@ -77,21 +108,10 @@ interface pIXMigemoFind : nsIObserver
 
 
 
-[scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
-interface pIXMigemoFileAccess : nsISupports
-{
-	AString getAbsolutePath(in AString filePath);
-	AString getRelativePath(in AString filePath);
-	AString readFrom(in nsIFile file, in ACString encoding);
-	nsIFile writeTo(in nsIFile file, in AString content, in ACString encoding);
-};
-
 
 [scriptable, uuid(749f4faa-cdf6-11db-8314-0800200c9a66)]
-interface pIXMigemoTextTransform : nsISupports
+interface pIXMigemoTextTransformJa : pIXMigemoTextTransform
 {
-	AString range2Text(in nsIDOMRange range);
-
 	AString hira2kana(in AString hiragana);
 	AString zenkaku2hankaku(in AString zenkaku);
 	AString roman2zen(in AString roman);
@@ -103,10 +123,6 @@ interface pIXMigemoTextTransform : nsISupports
 	AString joinVoiceMarks(in AString hiragana);
 	AString kana2hira(in AString katakana);
 	AString hira2roman(in AString hiragana);
-
-	AString sanitize(in AString regexpPattern);
-	AString sanitize2(in AString regexpPattern);
-	AString reverseRegExp(in AString regexpPattern);
 
 	AString convertStr(in AString roman);
 	AString convertStr2(in AString roman, in unsigned short kanaFlag);

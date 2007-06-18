@@ -1,3 +1,5 @@
+pref("xulmigemo.lang", "ja");
+
 pref("xulmigemo.autostart",                     true);
 pref("xulmigemo.enable_by_default",             false);
 pref("xulmigemo.prefillwithselection",          true);
@@ -37,7 +39,7 @@ pref("xulmigemo.find_delay",                    50);
 
 
 pref("xulmigemo.dictionary.useInitializeWizard", true);
-pref("xulmigemo.dictionary.download.uri",       "http://piro.sakura.ne.jp/xul/xpi/xulmigemodic.zip");
+pref("xulmigemo.dictionary.download.uri.ja",     "http://piro.sakura.ne.jp/xul/xpi/xulmigemodic.zip");
 
 pref("extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.name", "chrome://xulmigemo/locale/xulmigemo.properties") ;
 pref("extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.description", "chrome://xulmigemo/locale/xulmigemo.properties") ;
