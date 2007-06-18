@@ -7,7 +7,7 @@
 #include "nsIDOMNode.idl"
 
 
-/* Common Interfaces */
+/* Utilities: You can use them for your language without additional implementation. */
 
 [scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
 interface pIXMigemoFileAccess : nsISupports
@@ -27,36 +27,6 @@ interface pIXMigemoTextUtils : nsISupports
 	AString sanitize2(in AString regexpPattern);
 	AString reverseRegExp(in AString regexpPattern);
 };
-
-[scriptable, uuid(451dc43c-1dd5-11dc-8314-0800200c9a66)]
-interface pIXMigemoTextTransform : nsISupports
-{
-	boolean isValidInput(in AString input);
-	AString normalizeInput(in AString input);
-	AString normalizeKeyInput(in AString input);
-};
-
-[scriptable, uuid(5a51a982-1dde-11dc-8314-0800200c9a66)]
-interface pIXMigemoDictionary : nsISupports
-{
-	const unsigned short RESULT_OK                      = 1;
-	const unsigned short RESULT_ERROR_INVALID_INPUT     = 2;
-	const unsigned short RESULT_ERROR_ALREADY_EXIST     = 4;
-	const unsigned short RESULT_ERROR_NOT_EXIST         = 8;
-	const unsigned short RESULT_ERROR_NO_TARGET         = 16;
-	const unsigned short RESULT_ERROR_INVALID_OPERATION = 32;
-
-	unsigned short addTerm(in AString input, in AString term);
-	unsigned short removeTerm(in AString input, in AString term);
-
-	readonly attribute boolean initialized;
-
-	boolean load();
-	void reload();
-	void save();
-	void saveUserDic(in ACString key);
-};
-
 
 [scriptable, uuid(159add54-cdf2-11db-8314-0800200c9a66)]
 interface pIXMigemoCache : nsISupports
@@ -95,6 +65,36 @@ interface pIXMigemoDicManager : nsIObserver
 
 
 
+/* Common Interfaces: You have to implement these interfaces for your language. */
+
+[scriptable, uuid(451dc43c-1dd5-11dc-8314-0800200c9a66)]
+interface pIXMigemoTextTransform : nsISupports
+{
+	boolean isValidInput(in AString input);
+	AString normalizeInput(in AString input);
+	AString normalizeKeyInput(in AString input);
+};
+
+[scriptable, uuid(5a51a982-1dde-11dc-8314-0800200c9a66)]
+interface pIXMigemoDictionary : nsISupports
+{
+	const unsigned short RESULT_OK                      = 1;
+	const unsigned short RESULT_ERROR_INVALID_INPUT     = 2;
+	const unsigned short RESULT_ERROR_ALREADY_EXIST     = 4;
+	const unsigned short RESULT_ERROR_NOT_EXIST         = 8;
+	const unsigned short RESULT_ERROR_NO_TARGET         = 16;
+	const unsigned short RESULT_ERROR_INVALID_OPERATION = 32;
+
+	unsigned short addTerm(in AString input, in AString term);
+	unsigned short removeTerm(in AString input, in AString term);
+
+	readonly attribute boolean initialized;
+
+	boolean load();
+	void reload();
+	void save();
+	void saveUserDic(in ACString key);
+};
 
 [scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
 interface pIXMigemo : nsIObserver
@@ -169,7 +169,7 @@ interface pIXMigemoFind : nsIObserver
 
 
 
-
+/* Japanese Interfaces: Special Subclasses for Japanese language. */
 
 [scriptable, uuid(749f4faa-cdf6-11db-8314-0800200c9a66)]
 interface pIXMigemoTextTransformJa : pIXMigemoTextTransform
