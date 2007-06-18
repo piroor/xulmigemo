@@ -1,5 +1,5 @@
 /* This depends on: 
-	pIXMigemoDictionary
+	pIXMigemoDictionaryJa
 	pIXMigemoCache
 	pIXMigemoDicManager
 	pIXMigemoTextTransformJa
@@ -33,6 +33,18 @@ pXMigemo.prototype = {
 		return this;
 	},
 	 
+	get dictionary() 
+	{
+		if (!this._dictionary) {
+			this._dictionary = Components
+								.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=ja']
+								.getService(Components.interfaces.pIXMigemoDictionary)
+								.QueryInterface(Components.interfaces.pIXMigemoDictionaryJa);
+		}
+		return this._dictionary;
+	},
+	_dictionary : null,
+ 	
 	get textTransform() 
 	{
 		if (!this._textTransform) {
@@ -44,7 +56,7 @@ pXMigemo.prototype = {
 		return this._textTransform;
 	},
 	_textTransform : null,
- 	
+ 
 	// SKKï˚éÆÇÃì¸óÕà»äOÇ≈ÅAï∂êﬂãÊêÿÇËÇ∆ÇµÇƒîFéØÇ∑ÇÈï∂éö 
 	INPUT_SEPARATOR : " ",
  
@@ -274,9 +286,7 @@ pXMigemo.prototype = {
 
 		var lines = [];
 
-		const XMigemoDic = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=ja']
-				.getService(Components.interfaces.pIXMigemoDictionary);
+		const XMigemoDic = this.dictionary;
 
 		var mydicAU = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserAlphaDic() : null ;
 		var mydicA  = (aTargetDic & this.SYSTEM_DIC)   ? XMigemoDic.getAlphaDic() : null ;

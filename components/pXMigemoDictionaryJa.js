@@ -30,19 +30,19 @@ pXMigemoDictionary.prototype = {
 		return this;
 	},
 	 
+	// pIXMigemoDictionary 
+	 
 	initialized : false, 
  
 	RESULT_OK                      : 1, 
-	RESULT_ERROR_INVALID_YOMI      : 2,
+	RESULT_ERROR_INVALID_INPUT     : 2,
 	RESULT_ERROR_ALREADY_EXIST     : 4,
 	RESULT_ERROR_NOT_EXIST         : 8,
 	RESULT_ERROR_NO_TARGET         : 16,
 	RESULT_ERROR_INVALID_OPERATION : 32,
  
-	list : [], 
- 
 /* File I/O */ 
-	 
+	
 	load : function() 
 	{
 		// dicPath
@@ -120,56 +120,30 @@ pXMigemoDictionary.prototype = {
 		util.writeTo(file, (this.list[aKey+'-user'] || ''), 'Shift_JIS');
 	},
   
-	getDicInternal : function(aLetter, aUser) 
+	addTerm : function(aYomi, aTerm) 
 	{
-		var suffix = aUser ? '-user' : '' ;
-
-		switch (aLetter)
-		{
-			case 'l':
-			case 'q':
-			case 'x':
-				return false;
-
-			case 'c':
-				return this.list['t' + suffix];
-
-			case 'k':
-			case 's':
-			case 't':
-			case 'h':
-			case 'm':
-			case 'n':
-			case 'r':
-			case 'd':
-			case 'z':
-			case 'g':
-			case 'p':
-			case 'b':
-				return this.list[aLetter + suffix];
-
-			case 'w':
-			case 'y':
-				return [this.list[aLetter + suffix], this.list['' + suffix]].join('\n');
-
-			case 'a':
-			case 'i':
-			case 'u':
-			case 'e':
-			case 'o':
-				return this.list['' + suffix];
-
-			case 'j':
-				return this.list['z' + suffix];
-
-			case 'f':
-				return this.list['h' + suffix];
-
-			case 'v':
-				return this.list['' + suffix];
-		}
+		return this.modifyDic(
+			{
+				yomi : String(arguments[0]),
+				term : String(arguments[1])
+			},
+			'add'
+		);
 	},
-	 
+ 
+	removeTerm : function(aYomi, aTerm) 
+	{
+		return this.modifyDic(
+			{
+				yomi : String(arguments[0]),
+				term : (arguments[1] ? String(arguments[1]) : null )
+			},
+			'remove'
+		);
+	},
+  
+	// pIXMigemoDictionaryJa 
+	
 	getDic : function(aLetter) 
 	{
 		return this.getDicInternal(aLetter, false);
@@ -179,7 +153,7 @@ pXMigemoDictionary.prototype = {
 	{
 		return this.getDicInternal(aLetter, true);
 	},
-  
+ 
 	getAlphaDic : function() 
 	{
 		return this.list['alph'];
@@ -215,6 +189,10 @@ pXMigemoDictionary.prototype = {
 				return firstLetter;
 		}
 	},
+  	
+	// internal 
+	 
+	list : [], 
  
 	modifyDic : function(aTermSet, aOperation) 
 	{
@@ -234,14 +212,14 @@ pXMigemoDictionary.prototype = {
 		var yomi = aTermSet.yomi ? String(aTermSet.yomi) : '' ;
 		var term = aTermSet.term ? String(aTermSet.term) : '' ;
 		if (!yomi || !XMigemoTextService.isYomi(yomi))
-			return this.RESULT_ERROR_INVALID_YOMI;
+			return this.RESULT_ERROR_INVALID_INPUT;
 
 		yomi = XMigemoTextService.normalizeForYomi(yomi);
 		if (aTermSet) aTermSet.yomi = yomi;
 
 		var key = this.getDicForTerm(yomi);
 		if (key === null) {
-			return this.RESULT_ERROR_INVALID_YOMI;
+			return this.RESULT_ERROR_INVALID_INPUT;
 		}
 
 		if (aOperation == 'add' && !term) {
@@ -336,32 +314,61 @@ pXMigemoDictionary.prototype = {
 
 		return this.RESULT_OK;
 	},
-	 
-	addTerm : function(aYomi, aTerm) 
-	{
-		return this.modifyDic(
-			{
-				yomi : String(arguments[0]),
-				term : String(arguments[1])
-			},
-			'add'
-		);
-	},
  
-	removeTerm : function(aYomi, aTerm) 
+	getDicInternal : function(aLetter, aUser) 
 	{
-		return this.modifyDic(
-			{
-				yomi : String(arguments[0]),
-				term : (arguments[1] ? String(arguments[1]) : null )
-			},
-			'remove'
-		);
+		var suffix = aUser ? '-user' : '' ;
+
+		switch (aLetter)
+		{
+			case 'l':
+			case 'q':
+			case 'x':
+				return false;
+
+			case 'c':
+				return this.list['t' + suffix];
+
+			case 'k':
+			case 's':
+			case 't':
+			case 'h':
+			case 'm':
+			case 'n':
+			case 'r':
+			case 'd':
+			case 'z':
+			case 'g':
+			case 'p':
+			case 'b':
+				return this.list[aLetter + suffix];
+
+			case 'w':
+			case 'y':
+				return [this.list[aLetter + suffix], this.list['' + suffix]].join('\n');
+
+			case 'a':
+			case 'i':
+			case 'u':
+			case 'e':
+			case 'o':
+				return this.list['' + suffix];
+
+			case 'j':
+				return this.list['z' + suffix];
+
+			case 'f':
+				return this.list['h' + suffix];
+
+			case 'v':
+				return this.list['' + suffix];
+		}
 	},
   
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemoDictionary) &&
+			!aIID.equals(Components.interfaces.pIXMigemoDictionaryJa) &&
 			!aIID.equals(Components.interfaces.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
@@ -424,7 +431,7 @@ function NSGetModule(compMgr, fileSpec)
 	return gModule;
 }
  
-function mydump(aString)
+function mydump(aString) 
 {
 	if (DEBUG)
 		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');

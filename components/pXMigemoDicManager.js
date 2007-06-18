@@ -72,7 +72,7 @@ pXMigemoDicManager.prototype = {
 				var XMigemoCache = Components
 						.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
 						.getService(Components.interfaces.pIXMigemoCache);
-				XMigemoCache.clearCacheForAllPatterns(XMigemo.textTransform.normalizeInput(yomi));
+				XMigemoCache.clearCacheForAllPatterns(XMigemo.textTransform.normalizeKeyInput(yomi));
 				return;
 
 				return;

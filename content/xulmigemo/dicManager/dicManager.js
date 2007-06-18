@@ -6,9 +6,7 @@ const XMigemo = Components
 	.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
 	.getService(Components.interfaces.pIXMigemo);
 
-const XMigemoDic = Components
-		.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-		.getService(Components.interfaces.pIXMigemoDictionary);
+const XMigemoDic = XMigemo.dictionary;
 
 function addTerm(aStatus)
 {
@@ -55,7 +53,7 @@ function updateStatus(aStatus, aResult)
 			message = node.getAttribute('errorNoTerm');
 			break;
 
-		case XMigemoDic.RESULT_ERROR_INVALID_YOMI:
+		case XMigemoDic.RESULT_ERROR_INVALID_INPUT:
 			message = node.getAttribute('statusErrorInvalid');
 			break;
 
@@ -192,7 +190,7 @@ function updateKeysList()
 		return;
 	}
 
-	roman = XMigemo.textTransform.normalizeInput(roman);
+	roman = XMigemo.textTransform.normalizeKeyInput(roman);
 	if (document.getElementById('list-roman').value != roman)
 		document.getElementById('list-roman').value = roman;
 
