@@ -1,8 +1,10 @@
-function pXMigemoTextTransformEnUS() {} 
+// for ASCII 
+ 
+function pXMigemoTextTransform() {} 
 
-pXMigemoTextTransformEnUS.prototype = {
+pXMigemoTextTransform.prototype = {
 	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=en-US';
+		return '@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*';
 	},
 	get classDescription() {
 		return 'This is a text transformation service for XUL/Migemo.';
@@ -72,15 +74,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoTextTransformEnUS.prototype.classID,
-			contractID : pXMigemoTextTransformEnUS.prototype.contractID,
-			className  : pXMigemoTextTransformEnUS.prototype.classDescription,
+			CID        : pXMigemoTextTransform.prototype.classID,
+			contractID : pXMigemoTextTransform.prototype.contractID,
+			className  : pXMigemoTextTransform.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoTextTransformEnUS()).QueryInterface(aIID);
+					return (new pXMigemoTextTransform()).QueryInterface(aIID);
 				}
 			}
 		}
