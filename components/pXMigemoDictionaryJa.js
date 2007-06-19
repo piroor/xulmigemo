@@ -3,7 +3,7 @@
 	pIXMigemoTextUtils
 	pIXMigemoTextTransformJa
 */
-var DEBUG = true;
+var DEBUG = false;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
