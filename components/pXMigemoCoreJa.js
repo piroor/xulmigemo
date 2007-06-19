@@ -243,7 +243,7 @@ pXMigemoJa.prototype = {
 				.replace(/^.$\n?/mg, ''); // ˆê•¶š‚¾‚¯‚Ì€–Ú‚Í—pÏ‚İ‚È‚Ì‚Åíœ
 			searchterm = XMigemoTextUtils.sanitize(searchterm)
 				.replace(/\n/g, '|');
-			pattern += (pattern ? '|' : '') + searchterm.substring(0, searchterm.length-1);
+			pattern += (pattern ? '|' : '') + searchterm;//.substring(0, searchterm.length-1);
 
 			pattern = pattern.replace(/\n/g, '');
 
