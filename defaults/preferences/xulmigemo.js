@@ -1,4 +1,4 @@
-pref("xulmigemo.lang", "ja");
+pref("xulmigemo.lang", "");
 
 pref("xulmigemo.autostart",                     true);
 pref("xulmigemo.enable_by_default",             false);
