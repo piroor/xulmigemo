@@ -17,8 +17,7 @@ var WindowManager = Components
 			.getService(Components.interfaces.nsIWindowMediator);
  
 function pXMigemoDicManager() { 
-	this.init();
-	mydump('create instance pIXMigemoDicManager/"@piro.sakura.ne.jp/xmigemo/dictionary-manager;1"');
+	mydump('create instance pIXMigemoDicManager');
 }
 
 pXMigemoDicManager.prototype = {

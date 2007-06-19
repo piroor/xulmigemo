@@ -15,8 +15,10 @@ var Prefs = Components
 			.getService(Components.interfaces.nsIPrefBranch);
  
 function pXMigemoJa() { 
+	mydump('create instance pIXMigemo(lang=ja), start');
 	this.base;
-	mydump('create instance pIXMigemo/"@piro.sakura.ne.jp/xmigemo/core;1?lang=ja"');
+	this.dictionaryManager.init();
+	mydump('create instance pIXMigemo(lang=ja), finish');
 }
 
 pXMigemoJa.prototype = {
@@ -51,13 +53,31 @@ pXMigemoJa.prototype = {
 	},
 	_base : null,
  
+	get dictionaryManager() 
+	{
+		if (!this._dictionaryManager) {
+			this._dictionaryManager = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
+				.getService(Components.interfaces.pIXMigemoDicManager);
+
+			this._dictionaryManager.dictionary = this.dictionary;
+		}
+		return this._dictionaryManager;
+	},
+	set dictionaryManager(val) 
+	{
+		this._dictionaryManager = val;
+		return this.dictionaryManager;
+	},
+	_dictionaryManager : null,
+ 
 	get dictionary() 
 	{
 		if (!this._dictionary) {
 			this._dictionary = Components
-								.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang]
-								.getService(Components.interfaces.pIXMigemoDictionary)
-								.QueryInterface(Components.interfaces.pIXMigemoDictionaryJa);
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang]
+				.getService(Components.interfaces.pIXMigemoDictionary)
+				.QueryInterface(Components.interfaces.pIXMigemoDictionaryJa);
 		}
 		return this._dictionary;
 	},
@@ -67,9 +87,9 @@ pXMigemoJa.prototype = {
 	{
 		if (!this._textTransform) {
 			this._textTransform = Components
-								.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang='+this.lang]
-								.getService(Components.interfaces.pIXMigemoTextTransform)
-								.QueryInterface(Components.interfaces.pIXMigemoTextTransformJa);
+					.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang='+this.lang]
+					.getService(Components.interfaces.pIXMigemoTextTransform)
+					.QueryInterface(Components.interfaces.pIXMigemoTextTransformJa);
 		}
 		return this._textTransform;
 	},
@@ -407,6 +427,19 @@ var gModule = {
 		manager : {
 			CID        : pXMigemoJa.prototype.classID,
 			contractID : pXMigemoJa.prototype.contractID,
+			className  : pXMigemoJa.prototype.classDescription,
+			factory    : {
+				createInstance : function (aOuter, aIID)
+				{
+					if (aOuter != null)
+						throw Components.results.NS_ERROR_NO_AGGREGATION;
+					return (new pXMigemoJa()).QueryInterface(aIID);
+				}
+			}
+		},
+		managerCompatibility : { // for backward compatibility
+			CID        : pXMigemoJa.prototype.classID,
+			contractID : '@piro.sakura.ne.jp/xmigemo/core;1',
 			className  : pXMigemoJa.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)

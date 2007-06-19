@@ -15,8 +15,10 @@ var Prefs = Components
 			.getService(Components.interfaces.nsIPrefBranch);
  
 function pXMigemo() { 
+	mydump('create instance pIXMigemo(lang=en-US), start');
 	this.base;
-	mydump('create instance pIXMigemo/"@piro.sakura.ne.jp/xmigemo/core;1?lang=en-US"');
+	this.dictionaryManager.init();
+	mydump('create instance pIXMigemo(lang=en-US), finish');
 }
 
 pXMigemo.prototype = {
@@ -51,12 +53,30 @@ pXMigemo.prototype = {
 	},
 	_base : null,
  
+	get dictionaryManager() 
+	{
+		if (!this._dictionaryManager) {
+			this._dictionaryManager = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
+				.getService(Components.interfaces.pIXMigemoDicManager);
+
+			this._dictionaryManager.dictionary = this.dictionary;
+		}
+		return this._dictionaryManager;
+	},
+	set dictionaryManager(val) 
+	{
+		this._dictionaryManager = val;
+		return this.dictionaryManager;
+	},
+	_dictionaryManager : null,
+ 
 	get dictionary() 
 	{
 		if (!this._dictionary) {
 			this._dictionary = Components
-								.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang]
-								.getService(Components.interfaces.pIXMigemoDictionary);
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang]
+				.getService(Components.interfaces.pIXMigemoDictionary);
 		}
 		return this._dictionary;
 	},
@@ -66,8 +86,8 @@ pXMigemo.prototype = {
 	{
 		if (!this._textTransform) {
 			this._textTransform = Components
-								.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*']
-								.getService(Components.interfaces.pIXMigemoTextTransform);
+				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*']
+				.getService(Components.interfaces.pIXMigemoTextTransform);
 		}
 		return this._textTransform;
 	},

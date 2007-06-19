@@ -13,7 +13,7 @@ var Prefs = Components
 			.getService(Components.interfaces.nsIPrefBranch);
  
 function pXMigemoCache() { 
-	mydump('create instance pIXMigemoCache/"@piro.sakura.ne.jp/xmigemo/cache;1"');
+	mydump('create instance pIXMigemoCache');
 }
 
 pXMigemoCache.prototype = {

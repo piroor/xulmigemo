@@ -143,8 +143,9 @@ interface pIXMigemo : nsIObserver
 
 	attribute double createCacheTimeOverride;
 
-	readonly attribute pIXMigemoDictionary dictionary;
-	readonly attribute pIXMigemoTextTransform textTransform;
+	attribute pIXMigemoDicManager dictionaryManager;
+	attribute pIXMigemoDictionary dictionary;
+	attribute pIXMigemoTextTransform textTransform;
 };
 
 [scriptable, uuid(54606802-ce50-11db-8314-0800200c9a66)]
