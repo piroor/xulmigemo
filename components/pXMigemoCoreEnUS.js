@@ -4,7 +4,7 @@
 	pIXMigemoDictionary
 	pIXMigemoTextTransform
 */
-var DEBUG = false;
+var DEBUG = true;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
@@ -155,25 +155,23 @@ pXMigemo.prototype = {
 			arr.push(XMigemoTextUtils.sanitize(aInput).toUpperCase());
 			searchterm = arr.concat(lines).join('\n').replace(/(\t|\n\n)+/g, '\n');
 
-/*
+			mydump('SEARCHTERM(before) : '+searchterm);
+
 			searchterm = searchterm
 				.split('\n')
 				.sort()
 				.join('\n')
-				.replace(/^(.+)$(\n\1.*$)+/img, '$1')
-				.replace(/^.$\n?/mg, '');
-*/
-			searchterm = searchterm
-				.split('\n')
-				.sort()
-				.join('\n')
-				.replace(/^(.+)$(\n\1$)+/ig, '$1')
+				.replace(/^(.+)$(\n\1$)+/img, '$1')
+//				.replace(/^.$\n?/mg, '')
 				.split('\n') //
-				.reverse()   // ç≈í∑àÍívÇ…Ç∑ÇÈÇΩÇﬂÇ…ï¿Ç◊ë÷Ç¶
+				.reverse()   // ç≈í∑àÍívÇ…Ç∑ÇÈÇΩÇﬂÇ…ãtèáÇ…ï¿Ç◊ë÷Ç¶
 				.join('\n'); //
+
 			searchterm = XMigemoTextUtils.sanitize(searchterm)
 				.replace(/\n/g, '|');
-			pattern += (pattern ? '|' : '') + searchterm.substring(0, searchterm.length-1);
+
+			mydump('SEARCHTERM(after) : '+searchterm);
+			pattern += (pattern ? '|' : '') + searchterm;
 
 			pattern = pattern.replace(/\n/g, '');
 
