@@ -1,18 +1,10 @@
 /* This depends on: 
-	pIXMigemoCache
-	pIXMigemoDicManager
 	pIXMigemoTextUtils
 */
 var DEBUG = false;
  
-var ObserverService = Components 
-			.classes['@mozilla.org/observer-service;1']
-			.getService(Components.interfaces.nsIObserverService);;
- 	
 function pXMigemoCore() { 
-	mydump('create instance pIXMigemo(lang=*), start');
-	this.init();
-	mydump('create instance pIXMigemo(lang=*), finish');
+	mydump('create instance pIXMigemo(lang=*)');
 }
 
 pXMigemoCore.prototype = {
@@ -146,81 +138,6 @@ pXMigemoCore.prototype = {
 				.QueryInterface(Components.interfaces.nsIDocShell);
 	},
   
-/* Update Cache */ 
-	 
-	updateCacheFor : function(aRomanPatterns) 
-	{
-		var patterns = aRomanPatterns.split('\n');
-		var key      = patterns.join('/');
-		if (this.updateCacheTimers[key]) {
-			this.updateCacheTimers[key].cancel();
-			this.updateCacheTimers[key] = null;
-		}
-
-		this.updateCacheTimers[key] = Components
-			.classes['@mozilla.org/timer;1']
-			.getService(Components.interfaces.nsITimer);
-        this.updateCacheTimers[key].init(
-			this.createUpdateCacheObserver(patterns, key),
-			100,
-			Components.interfaces.nsITimer.TYPE_REPEATING_SLACK
-		);
-	},
- 
-	updateCacheTimers : [], 
- 
-	createUpdateCacheObserver : function(aPatterns, aKey) 
-	{
-		return ({
-			core     : this,
-			key      : aKey,
-			patterns : aPatterns,
-			observe  : function(aSubject, aTopic, aData)
-			{
-				if (aTopic != 'timer-callback') return;
-
-				if (!this.patterns.length) {
-					if (this.core.updateCacheTimers[this.key]) {
-						this.core.updateCacheTimers[this.key].cancel();
-						delete this.core.updateCacheTimers[this.key];
-					}
-					return;
-				}
-				if (this.patterns[0])
-					this.core.getRegExpPart(this.patterns[0]);
-				this.patterns.splice(0, 1);
-			}
-		});
-	},
-  
-	observe : function(aSubject, aTopic, aData) 
-	{
-		switch (aTopic)
-		{
-			case 'XMigemo:cacheCleared':
-				this.updateCacheFor(aData);
-				return;
-
-			case 'quit-application':
-				this.destroy();
-				return;
-		}
-	},
- 
-	init : function() 
-	{
-		if (this.initialized) return;
-
-		this.initialized = true;
-
-		ObserverService.addObserver(this, 'XMigemo:cacheCleared', false);
-	},
- 
-	destroy : function() 
-	{
-		ObserverService.removeObserver(this, 'XMigemo:cacheCleared');
-	},
- 
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemo) &&
@@ -229,7 +146,7 @@ pXMigemoCore.prototype = {
 		return this;
 	}
 };
-  
+  	
 var gModule = { 
 	_firstTime: true,
 
