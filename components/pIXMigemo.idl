@@ -88,7 +88,6 @@ interface pIXMigemoDictionary : nsISupports
 
 	boolean load();
 	void reload();
-	void save();
 };
 
 [scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
