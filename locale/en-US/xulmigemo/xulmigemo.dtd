@@ -139,9 +139,14 @@
 
 
 
+<!ENTITY xulmigemo.langchooser.title  "XUL/Migemo [Forked Edition]: Choose the Engine">
+<!ENTITY xulmigemo.langchooser.label  "Choose the engine of Migemo-find-mode (incremental search assisted by dictionary).">
+
+
+
 <!ENTITY xulmigemo.init.title  "XUL/Migemo [Forked Edition] Initialization Wizard">
 
-<!ENTITY xulmigemo.init.page1.label1  "XUL/Migemo cannot find out the dictonary for Migemo-mode search (incremental search assisted with dictionary.) Migemo-mode search requires the dictionary. Please choose an action.">
+<!ENTITY xulmigemo.init.page1.label1  "XUL/Migemo cannot find out the dictonary for Migemo-mode search (incremental search assisted by dictionary.) Migemo-mode search requires the dictionary. Please choose an action.">
 <!ENTITY xulmigemo.init.page1.radio.download "Download Dictionary from the Internet Automatically">
 <!ENTITY xulmigemo.init.page1.radio.choose   "Choose Existing Dictionary">
 <!ENTITY xulmigemo.init.page1.radio.later    "Later (do nothing now)">

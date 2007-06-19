@@ -138,6 +138,11 @@
 
 
 
+<!ENTITY xulmigemo.langchooser.title  "XUL/Migemo [Forked Edition] エンジン選択">
+<!ENTITY xulmigemo.langchooser.label  "Migemo検索に使用するエンジンを選択してください。">
+
+
+
 <!ENTITY xulmigemo.init.title  "XUL/Migemo [Forked Edition] 初期化ウィザード">
 
 <!ENTITY xulmigemo.init.page1.label1  "Migemo検索用の辞書が見つかりません。Migemo検索（辞書によって支援された高速検索）を行うには辞書の設定が必要です。操作を選択してください。">

@@ -1081,6 +1081,20 @@ var XMigemoUI = {
 
 		var browser = this.browser;
 		if (browser) {
+			if (!XMigemoService.getPref('xulmigemo.lang') &&
+				!XMigemoService.WindowManager.getMostRecentWindow('xulmigemo:langchooser')) {
+				var WindowWatcher = Components
+					.classes['@mozilla.org/embedcomp/window-watcher;1']
+					.getService(Components.interfaces.nsIWindowWatcher);
+				WindowWatcher.openWindow(
+					null,
+					'chrome://xulmigemo/content/initializer/langchooser.xul',
+					'xulmigemo:langchooser',
+					'chrome,dialog,modal,centerscreen,dependent',
+					null
+				);
+			}
+
 			XMigemoFind = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/find;1']
 				.createInstance(Components.interfaces.pIXMigemoFind);
