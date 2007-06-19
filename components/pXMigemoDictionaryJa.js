@@ -3,7 +3,7 @@
 	pIXMigemoTextUtils
 	pIXMigemoTextTransformJa
 */
-var DEBUG = false;
+var DEBUG = true;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
@@ -14,7 +14,7 @@ var Prefs = Components
 			.getService(Components.interfaces.nsIPrefBranch);
  
 function pXMigemoDictionary() { 
-	mydump('create instance pIXMigemoDictionary/"@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=ja"');
+	mydump('create instance pIXMigemoDictionary(lang=ja)');
 }
 
 pXMigemoDictionary.prototype = {
@@ -94,6 +94,7 @@ pXMigemoDictionary.prototype = {
 		}
 
 		this.initialized = true;
+		mydump('pIXMigemoDictionary: loaded');
 
 		return !error;
 	},
@@ -463,6 +464,6 @@ function NSGetModule(compMgr, fileSpec)
 function mydump(aString) 
 {
 	if (DEBUG)
-		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
+		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
 }
  

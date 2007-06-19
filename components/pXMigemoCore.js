@@ -10,8 +10,9 @@ var ObserverService = Components
 			.getService(Components.interfaces.nsIObserverService);;
  	
 function pXMigemoCore() { 
+	mydump('create instance pIXMigemo(lang=*), start');
 	this.init();
-	mydump('create instance pIXMigemo/"@piro.sakura.ne.jp/xmigemo/core;1?lang=*"');
+	mydump('create instance pIXMigemo(lang=*), finish');
 }
 
 pXMigemoCore.prototype = {
@@ -32,6 +33,8 @@ pXMigemoCore.prototype = {
 	SYSTEM_DIC : 1, 
 	USER_DIC   : 2,
 	ALL_DIC    : 3,
+ 
+	dictionaryManager : null, 
  
 	dictionary : null, 
  
@@ -209,11 +212,6 @@ pXMigemoCore.prototype = {
 		if (this.initialized) return;
 
 		this.initialized = true;
-
-		// Initialize
-		Components
-			.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-			.getService(Components.interfaces.pIXMigemoDicManager);
 
 		ObserverService.addObserver(this, 'XMigemo:cacheCleared', false);
 	},

@@ -14,7 +14,7 @@ var Prefs = Components
 			.getService(Components.interfaces.nsIPrefBranch);
  
 function pXMigemoDictionary() { 
-	mydump('create instance pIXMigemoDictionary/"@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=en-US"');
+	mydump('create instance pIXMigemoDictionary(lang=en-US)');
 }
 
 pXMigemoDictionary.prototype = {
@@ -89,6 +89,7 @@ pXMigemoDictionary.prototype = {
 
 
 		this.initialized = true;
+		mydump('pIXMigemoDictionary: loaded');
 
 		return !error;
 	},
