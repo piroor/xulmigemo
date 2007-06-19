@@ -155,14 +155,19 @@ pXMigemo.prototype = {
 			arr.push(XMigemoTextUtils.sanitize(aInput).toUpperCase());
 			searchterm = arr.concat(lines).join('\n').replace(/(\t|\n\n)+/g, '\n');
 
-			// foo, foobar, fooee... といった風に、同じ文字列で始まる複数の候補がある場合は、
-			// 最も短い候補（この例ならfoo）だけにする
+/*
 			searchterm = searchterm
 				.split('\n')
 				.sort()
 				.join('\n')
 				.replace(/^(.+)$(\n\1.*$)+/img, '$1')
-				.replace(/^.$\n?/mg, ''); // 一文字だけの項目は用済みなので削除
+				.replace(/^.$\n?/mg, '');
+*/
+			searchterm = searchterm
+				.split('\n')
+				.sort()
+				.join('\n')
+				.replace(/^(.+)$(\n\1$)+/ig, '$1');
 			searchterm = XMigemoTextUtils.sanitize(searchterm)
 				.replace(/\n/g, '|');
 			pattern += (pattern ? '|' : '') + searchterm.substring(0, searchterm.length-1);
@@ -210,9 +215,6 @@ pXMigemo.prototype = {
 		var tmp = '^' + XMigemoTextUtils.sanitize(aInput) + '.+$';
 		var exp = new RegExp(tmp, 'mg');
 
-		var firstlet = '';
-		firstlet = aInput.charAt(0);//最初の文字
-
 		var lines = [];
 
 		const XMigemoDic = this.dictionary;
@@ -224,12 +226,14 @@ pXMigemo.prototype = {
 			var lineU = mydicU.match(exp);
 			if (lineU) {
 				lines = lines.concat(lineU);
+				mydump(' found '+lineU.length+' terms');
 			}
 		}
 		if (mydic) {
 			var line = mydic.match(exp);//アルファベットの辞書を検索
 			if (line) {
 				lines = lines.concat(line);
+				mydump(' found '+line.length+' terms');
 			}
 		}
 
@@ -322,6 +326,6 @@ function NSGetModule(compMgr, fileSpec)
 function mydump(aString) 
 {
 	if (DEBUG)
-		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
+		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
 }
  

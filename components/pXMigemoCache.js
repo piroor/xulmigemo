@@ -166,12 +166,17 @@ pXMigemoCache.prototype = {
  
 	load : function() 
 	{
-		var file = this.cacheFile;
-		if (!file || !file.exists()) return false;
-
 		var util = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
 					.getService(Components.interfaces.pIXMigemoFileAccess);
+
+		var file = this.cacheFile;
+		if (!file || !file.exists()) {
+//			return false;
+			util.writeTo(file, '', 'Shift_JIS');
+			this.initialized = true;
+			return true;
+		}
 
 		this.diskCacheClone = util.readFrom(file, 'Shift_JIS');
 
