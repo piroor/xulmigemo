@@ -276,7 +276,6 @@ pXMigemoDictionary.prototype = {
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemoDictionary) &&
-			!aIID.equals(Components.interfaces.pIXMigemoDictionaryJa) &&
 			!aIID.equals(Components.interfaces.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
