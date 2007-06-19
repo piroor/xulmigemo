@@ -3,7 +3,7 @@
 	pIXMigemoDicManager
 	pIXMigemoTextUtils
 */
-var DEBUG = false;
+var DEBUG = true;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
@@ -11,6 +11,7 @@ var ObserverService = Components
  	
 function pXMigemoCore() { 
 	this.init();
+	mydump('create instance pIXMigemo/"@piro.sakura.ne.jp/xmigemo/core;1?lang=*"');
 }
 
 pXMigemoCore.prototype = {
@@ -290,6 +291,6 @@ function NSGetModule(compMgr, fileSpec)
 function mydump(aString) 
 {
 	if (DEBUG)
-		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
+		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
 }
  

@@ -45,6 +45,7 @@ interface pIXMigemoCache : nsISupports
 	void setDiskCache(in AString roman, in AString regExpPattern);
 
 	attribute nsIFile cacheFile;
+	attribute nsIFile cacheDir;
 
 	readonly attribute boolean initialized;
 
@@ -53,15 +54,6 @@ interface pIXMigemoCache : nsISupports
 	void save();
 };
 
-[scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
-interface pIXMigemoDicManager : nsIObserver
-{
-	void reload();
-
-	AString showDirectoryPicker(in AString defaultDirectoryPath);
-
-	void init();
-};
 
 
 
@@ -98,6 +90,21 @@ interface pIXMigemoDictionary : nsISupports
 	void reload();
 	void save();
 };
+
+[scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
+interface pIXMigemoDicManager : nsIObserver
+{
+	void reload();
+
+	AString showDirectoryPicker(in AString defaultDirectoryPath);
+
+	attribute pIXMigemoDictionary dictionary;
+	attribute pIXMigemoCache cache;
+
+	void init();
+};
+
+
 
 [scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
 interface pIXMigemo : nsIObserver
@@ -143,6 +150,8 @@ interface pIXMigemo : nsIObserver
 [scriptable, uuid(54606802-ce50-11db-8314-0800200c9a66)]
 interface pIXMigemoFind : nsIObserver
 {
+	attribute pIXMigemo core;
+
 	/* target node; <xul:browser/>, <xul:tabbrowser/> or <xul:iframe/> */
 	attribute nsIDOMNode target;
 

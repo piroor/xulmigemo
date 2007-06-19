@@ -16,6 +16,7 @@ var Prefs = Components
  
 function pXMigemo() { 
 	this.base;
+	mydump('create instance pIXMigemo/"@piro.sakura.ne.jp/xmigemo/core;1?lang=en-US"');
 }
 
 pXMigemo.prototype = {

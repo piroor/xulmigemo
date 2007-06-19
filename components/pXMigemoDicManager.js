@@ -2,7 +2,7 @@
 	pIXMigemoDictionary
 	pIXMigemoCache
 */
-var DEBUG = false;
+var DEBUG = true;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
@@ -18,6 +18,7 @@ var WindowManager = Components
  
 function pXMigemoDicManager() { 
 	this.init();
+	mydump('create instance pIXMigemoDicManager/"@piro.sakura.ne.jp/xmigemo/dictionary-manager;1"');
 }
 
 pXMigemoDicManager.prototype = {
@@ -51,10 +52,7 @@ pXMigemoDicManager.prototype = {
 
 					case 'xulmigemo.ignoreHiraKata':
 					case 'xulmigemo.splitTermsAutomatically':
-						var XMigemoCache = Components
-								.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
-								.getService(Components.interfaces.pIXMigemoCache);
-						XMigemoCache.clearAll();
+						this.cache.clearAll();
 						break;
 				}
 				return;
@@ -69,10 +67,7 @@ pXMigemoDicManager.prototype = {
 					.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
 					.getService(Components.interfaces.pIXMigemo);
 
-				var XMigemoCache = Components
-						.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
-						.getService(Components.interfaces.pIXMigemoCache);
-				XMigemoCache.clearCacheForAllPatterns(XMigemo.textTransform.normalizeKeyInput(input));
+				this.cache.clearCacheForAllPatterns(XMigemo.textTransform.normalizeKeyInput(input));
 				return;
 
 				return;
@@ -83,17 +78,42 @@ pXMigemoDicManager.prototype = {
 		}
 	},
  
+	set dictionary(val) 
+	{
+		this._dictionary = val;
+		return this.dictionary;
+	},
+	get dictionary()
+	{
+		if (!this._dictionary) {
+			this._dictionary = Components
+							.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
+							.getService(Components.interfaces.pIXMigemoDictionary);
+		}
+		return this._dictionary;
+	},
+	_dictionary : null,
+ 
+	set cache(val) 
+	{
+		this._cache = val;
+		return this.cache;
+	},
+	get cache()
+	{
+		if (!this._cache) {
+			this._cache = Components
+							.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
+							.getService(Components.interfaces.pIXMigemoCache);
+		}
+		return this._cache;
+	},
+	_cache : null,
+ 	
 	reload : function() 
 	{
-		var XMigemoDic = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-				.getService(Components.interfaces.pIXMigemoDictionary);
-		XMigemoDic.load();
-
-		var XMigemoCache = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
-				.getService(Components.interfaces.pIXMigemoCache);
-		XMigemoCache.reload();
+		this.dictionary.load();
+		this.cache.reload();
 	},
  
 	showDirectoryPicker : function(aDefault) 
@@ -124,19 +144,15 @@ pXMigemoDicManager.prototype = {
 		}
 		return '';
 	},
- 	
+ 
 	init : function() 
 	{
-		var XMigemoDic = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-				.getService(Components.interfaces.pIXMigemoDictionary);
-		var XMigemoCache = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
-				.getService(Components.interfaces.pIXMigemoCache);
+		this.dictionary;
+		this.cache;
 
 		if (
 			this.initialized ||
-			(XMigemoDic.initialized && XMigemoCache.initialized)
+			(this.dictionary.initialized && this.cache.initialized)
 			) {
 			this.initialized = true;
 			return;
@@ -157,8 +173,8 @@ pXMigemoDicManager.prototype = {
 		if (
 			(
 				!decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath'))) ||
-				!XMigemoDic.load() ||
-				!XMigemoCache.load()
+				!this.dictionary.load() ||
+				!this.cache.load()
 			) &&
 			Prefs.getBoolPref('xulmigemo.dictionary.useInitializeWizard') &&
 			!WindowManager.getMostRecentWindow('xulmigemo:initializer')
@@ -284,6 +300,6 @@ function NSGetModule(compMgr, fileSpec)
 function mydump(aString) 
 {
 	if (DEBUG)
-		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
+		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
 }
  

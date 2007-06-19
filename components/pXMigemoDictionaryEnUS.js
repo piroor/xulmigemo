@@ -3,7 +3,7 @@
 	pIXMigemoTextUtils
 	pIXMigemoTextTransform
 */
-var DEBUG = false;
+var DEBUG = true;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
@@ -13,7 +13,9 @@ var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
-function pXMigemoDictionary() {} 
+function pXMigemoDictionary() { 
+	mydump('create instance pIXMigemoDictionary/"@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=en-US"');
+}
 
 pXMigemoDictionary.prototype = {
 	lang : 'en-US',
@@ -339,6 +341,6 @@ function NSGetModule(compMgr, fileSpec)
 function mydump(aString) 
 {
 	if (DEBUG)
-		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
+		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
 }
  
