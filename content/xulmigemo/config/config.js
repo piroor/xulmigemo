@@ -1,14 +1,18 @@
+const Prefs = Components 
+	.classes['@mozilla.org/preferences;1']
+	.getService(Components.interfaces.nsIPrefBranch);
+
+const XMigemo = Components
+	.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
+	.getService(Components.interfaces.pIXMigemo);
 
 function getDP()
 {
-	var XMigemoDicManager = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-				.getService(Components.interfaces.pIXMigemoDicManager);
 	var util = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
 				.getService(Components.interfaces.pIXMigemoFileAccess);
 	var path = util.getAbsolutePath(document.getElementById('xulmigemo.dicpath').value);
-	var folderPath = XMigemoDicManager.showDirectoryPicker(path);
+	var folderPath = XMigemo.dictionaryManager.showDirectoryPicker(path);
 	if (folderPath) {
 		var relativePath = util.getRelativePath(folderPath);
 		if (relativePath && folderPath.length > relativePath.length)
@@ -73,14 +77,6 @@ function updateCacheNow()
 	var pattern = '';
 	var patterns = [];
 	var i = 0;
-
-	const Prefs = Components 
-		.classes['@mozilla.org/preferences;1']
-		.getService(Components.interfaces.nsIPrefBranch);
-
-	const XMigemo = Components
-		.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-		.getService(Components.interfaces.pIXMigemo);
 
 	XMigemo.createCacheTimeOverride = parseInt(document.getElementById('xulmigemo.cache.update.time-textbox').value);
 
