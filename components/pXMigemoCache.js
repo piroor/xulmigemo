@@ -2,7 +2,7 @@
 	pIXMigemoFileAccess
 	pIXMigemoTextUtils
 */
-var DEBUG = false;
+var DEBUG = true;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
@@ -12,7 +12,9 @@ var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
-function pXMigemoCache() {} 
+function pXMigemoCache() { 
+	mydump('create instance pIXMigemoCache/"@piro.sakura.ne.jp/xmigemo/cache;1"');
+}
 
 pXMigemoCache.prototype = {
 	get contractID() {
@@ -136,10 +138,7 @@ pXMigemoCache.prototype = {
 	get cacheFile() 
 	{
 		if (!this.cacheFileHolder) {
-			var util = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-					.getService(Components.interfaces.pIXMigemoFileAccess);
-			var dicDir = util.getAbsolutePath(decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath'))));
+			var dir = this.cacheDir;
 
 			var lang = Prefs.getCharPref('xulmigemo.lang');
 			var override;
@@ -150,11 +149,9 @@ pXMigemoCache.prototype = {
 			}
 
 			try {
-				this.cacheFileHolder = Components.classes['@mozilla.org/file/local;1'].createInstance();
-				if (this.cacheFileHolder instanceof Components.interfaces.nsILocalFile) {
-					this.cacheFileHolder.initWithPath(dicDir);
-					this.cacheFileHolder.append(override || lang+'.cache.txt');
-				}
+				this.cacheFileHolder = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+				this.cacheFileHolder.initWithPath(dir.path);
+				this.cacheFileHolder.append(override || lang+'.cache.txt');
 			}
 			catch(e) {
 				this.cacheFileHolder = null;
@@ -162,7 +159,37 @@ pXMigemoCache.prototype = {
 		}
 		return this.cacheFileHolder;
 	},
+	set cacheFile(val)
+	{
+		this.cacheFileHolder = val;
+		return this.cacheFile;
+	},
 	cacheFileHolder : null,
+
+	get cacheDir() 
+	{
+		if (!this.cacheDirHolder) {
+			var util = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
+					.getService(Components.interfaces.pIXMigemoFileAccess);
+			var dicDir = util.getAbsolutePath(decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath'))));
+
+			try {
+				this.cacheDirHolder = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+				this.cacheDirHolder.initWithPath(dicDir);
+			}
+			catch(e) {
+				this.cacheDirHolder = null;
+			}
+		}
+		return this.cacheDirHolder;
+	},
+	set cacheDir(val)
+	{
+		this.cacheDirHolder = val;
+		return this.cacheDir;
+	},
+	cacheDirHolder : null,
  
 	load : function() 
 	{
@@ -180,6 +207,7 @@ pXMigemoCache.prototype = {
 
 		this.diskCacheClone = util.readFrom(file, 'Shift_JIS');
 
+		mydump('pIXMigemoCache: loaded');
 		this.initialized = true;
 		return true;
 	},
@@ -271,6 +299,6 @@ function NSGetModule(compMgr, fileSpec)
 function mydump(aString)
 {
 	if (DEBUG)
-		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
+		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
 }
  

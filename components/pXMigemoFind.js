@@ -9,6 +9,7 @@ var Prefs = Components
 			.getService(Components.interfaces.nsIPrefBranch);
  
 function pXMigemoFind() { 
+	mydump('create instance pIXMigemoFind/"@piro.sakura.ne.jp/xmigemo/find;1"');
 }
 
 pXMigemoFind.prototype = {
@@ -111,6 +112,29 @@ pXMigemoFind.prototype = {
 	{
 		return this.document.defaultView;
 	},
+ 
+	set core(val) 
+	{
+		if (val) {
+			this._core = val;
+		}
+		return this._core;
+	},
+	get core()
+	{
+		if (!this._core) {
+			try {
+				this._core = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
+					.getService(Components.interfaces.pIXMigemo);
+			}
+			catch(e) {
+				throw e;
+			}
+		}
+		return this._core;
+	},
+	_core : null,
  	
 /* Find */ 
 	
@@ -149,16 +173,7 @@ pXMigemoFind.prototype = {
 		var roman = aKeyword;
 		if (!roman) return;
 
-		try {
-			const XMigemo = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-				.getService(Components.interfaces.pIXMigemo);
-		}
-		catch(e) {
-			throw e;
-		}
-
-		var myExp = XMigemo.getRegExp(roman);
+		var myExp = this.core.getRegExp(roman);
 
 		if (!myExp) {
 			this.previousKeyword = roman;
@@ -1124,9 +1139,7 @@ pXMigemoFind.prototype = {
 		}, false);
 
 		// Initialize
-		Components
-			.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-			.getService(Components.interfaces.pIXMigemo);
+		this.core;
 	},
  
 	destroy : function() 
@@ -1204,7 +1217,7 @@ function NSGetModule(compMgr, fileSpec)
 	return gModule;
 }
  
-function mydump(aString)
+function mydump(aString) 
 {
 	if (DEBUG)
 		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');

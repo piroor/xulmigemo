@@ -13,7 +13,9 @@ var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
-function pXMigemoDictionary() {} 
+function pXMigemoDictionary() { 
+	mydump('create instance pIXMigemoDictionary/"@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=ja"');
+}
 
 pXMigemoDictionary.prototype = {
 	lang : 'ja',
