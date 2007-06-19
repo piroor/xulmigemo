@@ -2,14 +2,14 @@
 	pIXMigemo
 	pIXMigemoTextUtils
 */
-var DEBUG = false;
+var DEBUG = true;
  
 var Prefs = Components 
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
 function pXMigemoFind() { 
-	mydump('create instance pIXMigemoFind/"@piro.sakura.ne.jp/xmigemo/find;1"');
+	mydump('create instance pIXMigemoFind');
 }
 
 pXMigemoFind.prototype = {
@@ -1220,6 +1220,6 @@ function NSGetModule(compMgr, fileSpec)
 function mydump(aString) 
 {
 	if (DEBUG)
-		dump((aString.length > 20 ? aString.substring(0, 20) : aString )+'\n');
+		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
 }
  

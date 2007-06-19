@@ -3,12 +3,19 @@
 
 <!ENTITY xulmigemo.tab.general             "全般">
 
+<!ENTITY xulmigemo.lang.label              "エンジン：">
+<!ENTITY xulmigemo.lang.item1.label        "日本語（ローマ字入力で日本語検索）">
+<!ENTITY xulmigemo.lang.item1.value        "ja">
+<!ENTITY xulmigemo.lang.item2.label        "英語（辞書アシスト検索）">
+<!ENTITY xulmigemo.lang.item2.value        "en-US">
+<!ENTITY xulmigemo.lang.description        "※変更の反映には再起動が必要です">
+
 <!ENTITY xulmigemo.enable_by_default       "常にMigemo検索を有効にする">
 <!ENTITY xulmigemo.startfromviewport       "現在見えている領域内から検索を始める">
 <!ENTITY xulmigemo.scrollSelectionToCenter "検索で見つかった箇所を画面の中心に表示する">
 
 
-<!ENTITY xulmigemo.caption.recognize       "文字の認識">
+<!ENTITY xulmigemo.caption.recognize       "文字の認識（日本語）">
 <!ENTITY xulmigemo.ignoreHiraKata          "ひらがなとカタカナの違いを無視する">
 <!ENTITY xulmigemo.splitTermsAutomatically "文節の切れ目を自動的に認識する">
 
@@ -133,7 +140,7 @@
 
 <!ENTITY xulmigemo.init.title  "XUL/Migemo [Forked Edition] 初期化ウィザード">
 
-<!ENTITY xulmigemo.init.page1.label1  "Migemo検索（ローマ字入力による日本語の逐語検索）用の辞書が見つかりません。Migemo検索を行うには辞書の設定が必要です。操作を選択してください。">
+<!ENTITY xulmigemo.init.page1.label1  "Migemo検索用の辞書が見つかりません。Migemo検索（辞書によって支援された高速検索）を行うには辞書の設定が必要です。操作を選択してください。">
 <!ENTITY xulmigemo.init.page1.radio.download "インターネットから辞書ファイルを自動的にダウンロードする">
 <!ENTITY xulmigemo.init.page1.radio.choose   "すでにインストール済みの辞書を使う">
 <!ENTITY xulmigemo.init.page1.radio.later    "今は初期設定を行わない">
