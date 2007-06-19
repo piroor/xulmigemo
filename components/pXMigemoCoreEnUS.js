@@ -4,7 +4,7 @@
 	pIXMigemoDictionary
 	pIXMigemoTextTransform
 */
-var DEBUG = true;
+var DEBUG = false;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
@@ -176,8 +176,6 @@ pXMigemo.prototype = {
 			arr.push(XMigemoTextUtils.sanitize(aInput).toUpperCase());
 			searchterm = arr.concat(lines).join('\n').replace(/(\t|\n\n)+/g, '\n');
 
-			mydump('SEARCHTERM(before) : '+searchterm);
-
 			searchterm = searchterm
 				.split('\n')
 				.sort()
@@ -190,13 +188,9 @@ pXMigemo.prototype = {
 
 			searchterm = XMigemoTextUtils.sanitize(searchterm)
 				.replace(/\n/g, '|');
-
-			mydump('SEARCHTERM(after) : '+searchterm);
 			pattern += (pattern ? '|' : '') + searchterm;
 
 			pattern = pattern.replace(/\n/g, '');
-
-			mydump('pattern(from dic):'+pattern);
 		}
 		else { // «‘‚Éˆø‚Á‚©‚©‚ç‚È‚©‚Á‚½–Í—l‚È‚Ì‚Å©‘O‚Ì•¶š—ñ‚¾‚¯
 			pattern = XMigemoTextUtils.sanitize(aInput);
@@ -235,7 +229,7 @@ pXMigemo.prototype = {
 		var str = XMigemoTextUtils.sanitize(aInput);
 
 		var tmp = '^' + XMigemoTextUtils.sanitize(aInput) + '.+$';
-		var exp = new RegExp(tmp, 'mg');
+		var exp = new RegExp(tmp, 'img');
 
 		var lines = [];
 

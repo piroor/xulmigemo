@@ -1,3 +1,5 @@
+2	to	too	two
+4	for
 AA
 AAA
 Aachen
@@ -4118,6 +4120,7 @@ AZT
 Aztecan
 Aztec
 azure
+b	be
 BA
 Baal
 baa
@@ -22156,6 +22159,7 @@ fuzzy
 fwd
 FWD
 fwy
+Fx	Firefox
 FY
 FYI
 GA
@@ -55041,7 +55045,7 @@ taxpayer
 taxpaying
 tax
 Taylor
-Tb
+Tb	Thunderbird	Trackback
 TB
 TBA
 Tbilisi
@@ -57779,6 +57783,7 @@ Tyson
 tzarina's
 tzar's
 Tzeltal
+u	you
 UAR
 UART
 UAW
