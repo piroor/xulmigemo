@@ -61,9 +61,11 @@ pXMigemoDictionary.prototype = {
 			file.append(this.lang+'.txt');
 		}
 		if (file && file.exists()) {
+//			dump('system dic loaded from '+file.path+'\n');
 			this.list['system'] = util.readFrom(file, 'Shift_JIS');
 		}
 		else {
+//			dump('system dic not found at '+file.path+'\n');
 			this.list['system'] = '';
 			error = true;
 		}
@@ -75,10 +77,11 @@ pXMigemoDictionary.prototype = {
 			file.append(this.lang+'.user.txt');
 		}
 		if (file && file.exists()) {
-			mydump('user');
+//			dump('user dic loaded from '+file.path+'\n');
 			this.list['user'] = util.readFrom(file, 'Shift_JIS');
 		}
 		else {
+//			dump('user dic not found at '+file.path+'\n');
 			this.list['user'] = '';
 		}
 
