@@ -15,6 +15,10 @@
 
 <prefpane id="prefpane-general" label="&xulmigemo.tab.general;">
 	<preferences>
+		<preference id="xulmigemo.lang"
+			name="xulmigemo.lang"
+			type="string"/>
+
 		<preference id="xulmigemo.enable_by_default"
 			name="xulmigemo.enable_by_default"
 			type="bool"/>
@@ -32,6 +36,22 @@
 			name="xulmigemo.splitTermsAutomatically"
 			type="bool"/>
 	</preferences>
+
+	<hbox align="center">
+		<label value="&xulmigemo.lang.label;"/>
+		<menulist id="xulmigemo.lang-menulist"
+			preference="xulmigemo.lang">
+			<menupopup>
+				<menuitem label="&xulmigemo.lang.item1.label;"
+					value="&xulmigemo.lang.item1.value;"/>
+				<menuitem label="&xulmigemo.lang.item2.label;"
+					value="&xulmigemo.lang.item2.value;"/>
+			</menupopup>
+		</menulist>
+	</hbox>
+	<description value="&xulmigemo.lang.description;"/>
+
+	<separator/>
 
 	<checkbox id="xulmigemo.enable_by_default-check" flex="1"
 		label="&xulmigemo.enable_by_default;"

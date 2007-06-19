@@ -38,11 +38,8 @@ var XMigemoCore = {
 	get XMigemo() { 
 		if (!this._XMigemo) {
 			try {
-				const Prefs = Components 
-					.classes['@mozilla.org/preferences;1']
-					.getService(Components.interfaces.nsIPrefBranch);
 				this._XMigemo = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
+					.classes['@piro.sakura.ne.jp/xmigemo/core;1']
 					.getService(Components.interfaces.pIXMigemo);
 			}
 			catch(e) {

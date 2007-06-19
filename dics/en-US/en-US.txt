@@ -10328,6 +10328,7 @@ clasp's
 clasp
 classer
 class
+classes
 classical
 classicism
 classicist
@@ -11365,6 +11366,9 @@ complimenter
 compliment
 comply
 component
+Components
+Components.interfaces
+Components.classes
 comport
 comportment
 compose
@@ -12903,6 +12907,7 @@ creases
 creasing
 created
 create
+createInstance
 creationism
 creationist
 Creation
@@ -12917,7 +12922,6 @@ creator
 creatureliness
 creaturely
 creature
-crèche
 credence
 credent
 credential
@@ -20558,6 +20562,7 @@ firedamp
 fired
 firefight
 firefly
+Firefox
 fireguard
 firehouse
 firelight
@@ -22898,6 +22903,7 @@ gesundheit
 getaway
 Gethsemane
 get
+getService
 getter
 getting
 Getty
@@ -23621,6 +23627,7 @@ gown
 Goya
 GP
 GPA
+GPL
 GPO
 GPSS
 gr
@@ -28441,6 +28448,7 @@ interestingness
 interesting
 inter
 interface
+interfaces
 interfacing
 interfaith
 interference
@@ -29383,6 +29391,7 @@ jaunt
 jaunty
 Javanese
 Java
+JavaScript
 javelin
 Javier
 jawbone
@@ -32144,6 +32153,7 @@ Leyla
 Lezley
 Lezlie
 lg
+LGPL
 Lhasa
 Lhotse
 liability
@@ -36890,14 +36900,17 @@ Moyra
 Mozambican
 Mozambique
 Mozart
+mozdev
 Mozelle
 Mozes
+Mozilla
 mozzarella
 mp
 MP
 mpg
 mph
 MPH
+MPL
 MRI
 Mr
 Mrs
@@ -55940,6 +55953,7 @@ thumbscrew
 thumb
 thumbtack
 thump
+Thunderbird
 thunderbolt
 thunderclap
 thundercloud
@@ -61548,9 +61562,12 @@ Xmas
 XML
 Xochipilli
 XOR
+XPCOM
 X's
 XS
 xterm
+XUL
+XULRunner
 Xuzhou
 xv
 xvi
@@ -62021,23 +62038,3 @@ zydeco
 zygote
 zygotic
 zymurgy
-
-Mozilla
-Firefox
-Thunderbird
-XUL
-JavaScript
-MPL
-GPL
-LGPL
-XULRunner
-FUEL
-XPCOM
-Components
-Components.interfaces
-Components.classes
-interfaces
-classes
-getService
-createInstance
-
