@@ -167,7 +167,10 @@ pXMigemo.prototype = {
 				.split('\n')
 				.sort()
 				.join('\n')
-				.replace(/^(.+)$(\n\1$)+/ig, '$1');
+				.replace(/^(.+)$(\n\1$)+/ig, '$1')
+				.split('\n') //
+				.reverse()   // Å’·ˆê’v‚É‚·‚é‚½‚ß‚É•À‚×‘Ö‚¦
+				.join('\n'); //
 			searchterm = XMigemoTextUtils.sanitize(searchterm)
 				.replace(/\n/g, '|');
 			pattern += (pattern ? '|' : '') + searchterm.substring(0, searchterm.length-1);
