@@ -1,5 +1,6 @@
 /* This depends on: 
 	pIXMigemoCore
+	pIXMigemoDicManager
 	pIXMigemoCache
 	pIXMigemoDictionary
 	pIXMigemoTextTransform
@@ -16,8 +17,7 @@ var Prefs = Components
  
 function pXMigemo() { 
 	mydump('create instance pIXMigemo(lang=en-US), start');
-	this.base;
-	this.dictionaryManager.init();
+	this.init();
 	mydump('create instance pIXMigemo(lang=en-US), finish');
 }
 
@@ -58,16 +58,9 @@ pXMigemo.prototype = {
 		if (!this._dictionaryManager) {
 			this._dictionaryManager = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-				.getService(Components.interfaces.pIXMigemoDicManager);
-
-			this._dictionaryManager.dictionary = this.dictionary;
+				.createInstance(Components.interfaces.pIXMigemoDicManager);
 		}
 		return this._dictionaryManager;
-	},
-	set dictionaryManager(val) 
-	{
-		this._dictionaryManager = val;
-		return this.dictionaryManager;
 	},
 	_dictionaryManager : null,
  
@@ -140,7 +133,7 @@ pXMigemo.prototype = {
 
 		return myExp.replace(/\n/im, '');
 	},
- 	
+ 
 	simplePartOnlyPattern : /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([^\|]+)$/i, 
  
 	getRegExpPart : function(aInput) 
@@ -268,12 +261,102 @@ pXMigemo.prototype = {
 	{
 		return this.base.regExpFindArr(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aCount);
 	},
- 
-	observe : function(aSubject, aTopic, aData) 
+  
+/* Update Cache */ 
+	
+	updateCacheFor : function(aRomanPatterns) 
 	{
-		this.base.observe(aSubject, aTopic, aData);
+		var patterns = aRomanPatterns.split('\n');
+		var key      = patterns.join('/');
+		if (this.updateCacheTimers[key]) {
+			this.updateCacheTimers[key].cancel();
+			this.updateCacheTimers[key] = null;
+		}
+
+		this.updateCacheTimers[key] = Components
+			.classes['@mozilla.org/timer;1']
+			.getService(Components.interfaces.nsITimer);
+        this.updateCacheTimers[key].init(
+			this.createUpdateCacheObserver(patterns, key),
+			100,
+			Components.interfaces.nsITimer.TYPE_REPEATING_SLACK
+		);
+	},
+ 
+	updateCacheTimers : [], 
+ 
+	createUpdateCacheObserver : function(aPatterns, aKey) 
+	{
+		return ({
+			core     : this,
+			key      : aKey,
+			patterns : aPatterns,
+			observe  : function(aSubject, aTopic, aData)
+			{
+				if (aTopic != 'timer-callback') return;
+
+				if (!this.patterns.length) {
+					if (this.core.updateCacheTimers[this.key]) {
+						this.core.updateCacheTimers[this.key].cancel();
+						delete this.core.updateCacheTimers[this.key];
+					}
+					return;
+				}
+				if (this.patterns[0])
+					this.core.getRegExpPart(this.patterns[0]);
+				this.patterns.splice(0, 1);
+			}
+		});
 	},
   
+	observe : function(aSubject, aTopic, aData) 
+	{
+		switch (aTopic)
+		{
+			case 'XMigemo:cacheCleared':
+				this.updateCacheFor(aData);
+				return;
+
+			case 'quit-application':
+				this.destroy();
+				return;
+		}
+	},
+ 	
+	init : function() 
+	{
+		if (this.initialized) return;
+
+		this.initialized = true;
+
+		this.base;
+
+		var cache = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
+				.createInstance(Components.interfaces.pIXMigemoCache);
+		cache.cacheFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+		cache.cacheFile.initWithPath(cache.cacheDir.path);
+		var override;
+		try {
+			override = Prefs.getCharPref('xulmigemo.cache.override.'+this.lang);
+		}
+		catch(e) {
+		}
+		cache.cacheFile.append(override || this.lang+'.cache.txt');
+
+		this.dictionaryManager.init(
+			this.dictionary,
+			cache
+		);
+
+		ObserverService.addObserver(this, 'XMigemo:cacheCleared', false);
+	},
+ 
+	destroy : function() 
+	{
+		ObserverService.removeObserver(this, 'XMigemo:cacheCleared');
+	},
+ 
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemo) &&

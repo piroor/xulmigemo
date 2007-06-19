@@ -137,7 +137,7 @@ pXMigemoCache.prototype = {
 	
 	get cacheFile() 
 	{
-		if (!this.cacheFileHolder) {
+		if (!this.cacheFileHolder) { // default cache file; can be overridden.
 			var dir = this.cacheDir;
 
 			var lang = Prefs.getCharPref('xulmigemo.lang');
@@ -168,7 +168,7 @@ pXMigemoCache.prototype = {
 
 	get cacheDir() 
 	{
-		if (!this.cacheDirHolder) {
+		if (!this.cacheDirHolder) { // default cache directory; can be overridden.
 			var util = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
 					.getService(Components.interfaces.pIXMigemoFileAccess);

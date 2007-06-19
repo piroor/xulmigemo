@@ -84,10 +84,10 @@ pXMigemoDicManager.prototype = {
 	},
 	get dictionary()
 	{
-		if (!this._dictionary) {
+		if (!this._dictionary) { // default dictionary; can be overridden.
 			this._dictionary = Components
-							.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-							.getService(Components.interfaces.pIXMigemoDictionary);
+				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
+				.getService(Components.interfaces.pIXMigemoDictionary);
 		}
 		return this._dictionary;
 	},
@@ -100,10 +100,10 @@ pXMigemoDicManager.prototype = {
 	},
 	get cache()
 	{
-		if (!this._cache) {
+		if (!this._cache) { // default cache; can be overridden.
 			this._cache = Components
-							.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
-							.getService(Components.interfaces.pIXMigemoCache);
+				.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
+				.getService(Components.interfaces.pIXMigemoCache);
 		}
 		return this._cache;
 	},
@@ -144,10 +144,10 @@ pXMigemoDicManager.prototype = {
 		return '';
 	},
  
-	init : function() 
+	init : function(aDictionary, aCache) 
 	{
-		this.dictionary;
-		this.cache;
+		if (aDictionary) this.dictionary = aDictionary;
+		if (aCache)      this.cache      = aCache;
 
 		if (
 			this.initialized ||
