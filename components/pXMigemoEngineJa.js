@@ -2,7 +2,7 @@
 	pIXMigemoDictionaryJa
 	pIXMigemoTextTransformJa
 */
-var DEBUG = false;
+var DEBUG = true;
  
 var Prefs = Components 
 			.classes['@mozilla.org/preferences;1']
@@ -57,11 +57,11 @@ pXMigemoEngineJa.prototype = {
 	},
 	_textTransform : null,
  
-	getRegExpFor : function(aRoman) 
+	getRegExpFor : function(aInput) 
 	{
-		if (!aRoman) return null;
+		if (!aInput) return null;
 
-		aRoman = aRoman.toLowerCase();
+		aInput = aInput.toLowerCase();
 
 		var XMigemoTextService = this.textTransform;
 		var XMigemoTextUtils = Components
@@ -72,12 +72,12 @@ pXMigemoEngineJa.prototype = {
 		var str = XMigemoTextService.expand(
 				XMigemoTextUtils.sanitize(
 					XMigemoTextService.convertStr(
-						XMigemoTextService.kana2hira(aRoman)
+						XMigemoTextService.kana2hira(aInput)
 					)
 				)
 			);
 		var hira = str;
-		var roman = aRoman;
+		var roman = aInput;
 		if (/[\uff66-\uff9f]/.test(roman)) roman = XMigemoTextService.hira2roman(XMigemoTextService.kana2hira(roman))
 		var ignoreHiraKata = Prefs.getBoolPref('xulmigemo.ignoreHiraKata');
 		var kana = ignoreHiraKata ? '' :
@@ -101,15 +101,15 @@ pXMigemoEngineJa.prototype = {
 					XMigemoTextService.KANA_ALL
 				) :
 				str + '|' + kana ;
-		var zen = XMigemoTextService.roman2zen(aRoman); // aRoman ?
+		var zen = XMigemoTextService.roman2zen(aInput); // aInput ?
 		mydump('hira:'+hira);
 
-		var lines = this.gatherEntriesFor(aRoman, this.ALL_DIC, {});
+		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, {});
 
 		var pattern = '';
 		if (lines.length) {
 			var arr = [];
-			arr.push(XMigemoTextUtils.sanitize(aRoman).toUpperCase());
+			arr.push(XMigemoTextUtils.sanitize(aInput).toUpperCase());
 			if (zen.indexOf('[') < 0) arr.push(zen);
 			if (hiraAndKana.indexOf('[') < 0) {
 				arr.push(hira);
@@ -143,19 +143,19 @@ pXMigemoEngineJa.prototype = {
 			mydump('pattern(from dic):'+pattern);
 		}
 		else { // 辞書に引っかからなかった模様なので自前の文字列だけ
-			pattern = XMigemoTextUtils.sanitize(aRoman) + '|' + zen + '|' + hiraAndKana;
+			pattern = XMigemoTextUtils.sanitize(aInput) + '|' + zen + '|' + hiraAndKana;
 			mydump('pattern:'+pattern);
 		}
 
 		return pattern;
 	},
  
-	splitInput : function(aRoman, aCount) 
+	splitInput : function(aInput, aCount) 
 	{
-		ver terms = (
-					(/^[A-Z]{2,}/.test(aRoman)) ?
-						aRoman.replace(/([a-z])/g, '\t$1') : // CapsLockされてる場合は小文字で区切る
-						aRoman.replace(/([A-Z])/g, '\t$1')
+		var terms = (
+					(/^[A-Z]{2,}/.test(aInput)) ?
+						aInput.replace(/([a-z])/g, '\t$1') : // CapsLockされてる場合は小文字で区切る
+						aInput.replace(/([A-Z])/g, '\t$1')
 				)
 				.replace(/([\uff66-\uff9fa-z])([0-9])/i, '$1\t$2')
 				.replace(/([0-9a-z])([\uff66-\uff9f])/i, '$1\t$2')
@@ -175,9 +175,9 @@ pXMigemoEngineJa.prototype = {
 	// SKK方式の入力以外で、文節区切りとして認識する文字 
 	INPUT_SEPARATOR : " ",
   
-	gatherEntriesFor : function(aRoman, aTargetDic, aCount) 
+	gatherEntriesFor : function(aInput, aTargetDic, aCount) 
 	{
-		if (!aRoman) {
+		if (!aInput) {
 			aCount.value = 0;
 			return [];
 		}
@@ -190,19 +190,19 @@ pXMigemoEngineJa.prototype = {
 		var str = XMigemoTextService.expand(
 					XMigemoTextUtils.sanitize(
 						XMigemoTextService.convertStr(
-							XMigemoTextService.kana2hira(aRoman)
+							XMigemoTextService.kana2hira(aInput)
 						)
 					)
 				);
 		var hira = str;
 
 		var tmp  = '^' + hira + '.+$'; //日本語
-		var tmpA = '^' + XMigemoTextUtils.sanitize(aRoman) + '.+$'; //アルファベット
+		var tmpA = '^' + XMigemoTextUtils.sanitize(aInput) + '.+$'; //アルファベット
 		var exp  = new RegExp(tmp, 'mg');
 		var expA = new RegExp(tmpA, 'mg');
 
 		var firstlet = '';
-		firstlet = aRoman.charAt(0);//最初の文字
+		firstlet = aInput.charAt(0);//最初の文字
 		mydump(firstlet+' dic loaded');
 
 		var lines = [];

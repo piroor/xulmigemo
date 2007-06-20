@@ -108,7 +108,7 @@ interface pIXMigemoDicManager : nsIObserver
 [scriptable, uuid(1a2493f2-1f31-11dc-8314-0800200c9a66)]
 interface pIXMigemoEngine : nsIObserver
 {
-	attribute AString lang;
+	readonly attribute ACString lang;
 
 	/* create regular expressions from roman letters. */
 	AString getRegExpFor(in AString input);
@@ -135,7 +135,7 @@ interface pIXMigemoEngine : nsIObserver
 [scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
 interface pIXMigemo : pIXMigemoEngine
 {
-	attribute pIXMigemoEngine engine;
+	readonly attribute pIXMigemoEngine engine;
 
 	/* create regular expressions from roman letters. */
 	AString getRegExp(in AString input);
@@ -162,6 +162,8 @@ interface pIXMigemo : pIXMigemoEngine
 	attribute double createCacheTimeOverride;
 	readonly attribute pIXMigemoCache cache;
 	readonly attribute pIXMigemoDicManager dictionaryManager;
+
+	void init(in pIXMigemoEngine engine);
 };
 
 [scriptable, uuid(54606802-ce50-11db-8314-0800200c9a66)]

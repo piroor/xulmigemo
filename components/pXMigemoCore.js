@@ -4,7 +4,7 @@
 	pIXMigemoDicManager
 	pIXMigemoTextUtils
 */
-var DEBUG = false;
+var DEBUG = true;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
@@ -110,10 +110,10 @@ pXMigemoCore.prototype = {
  
 	getRegExp : function(aInput) 
 	{
-		return this.getRegExpInternal(aRoman, void(0));
+		return this.getRegExpInternal(aInput, void(0));
 	},
 	 
-	getRegExpInternal : function(aRoman, aEnableAutoSplit) 
+	getRegExpInternal : function(aInput, aEnableAutoSplit) 
 	{
 		var myExp = [];
 
@@ -121,7 +121,7 @@ pXMigemoCore.prototype = {
 
 		// “ü—Í‚ðØ‚Á‚ÄA•¶ß‚Æ‚µ‚ÄŒÂ•Ê‚É³‹K•\Œ»‚ð¶¬‚·‚é
 		var romanTerm;
-		var romanTerms = this.engine.splitInput(aRoman);
+		var romanTerms = this.engine.splitInput(aInput, {});
 		mydump('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n');
 
 		var pattern, romanTermPart, nextPart;
@@ -129,7 +129,7 @@ pXMigemoCore.prototype = {
 		{
 			romanTerm = romanTerms[i].toLowerCase();
 
-			pattern = this.getRegExpPart(romanTerm);
+			pattern = this.getRegExpFor(romanTerm);
 			if (!pattern) continue;
 			myExp.push(pattern);
 
@@ -140,7 +140,7 @@ pXMigemoCore.prototype = {
 			while (romanTermPart.length > 1)
 			{
 				romanTermPart = romanTermPart.substring(0, romanTermPart.length-1);
-				pattern = this.getRegExpPart(romanTermPart, true);
+				pattern = this.getRegExpFor(romanTermPart, true);
 				if (!this.simplePartOnlyPattern.test(pattern.replace(/\\\|/g, ''))) {
 					myExp[myExp.length-1] = [
 						myExp[myExp.length-1],
@@ -302,9 +302,9 @@ pXMigemoCore.prototype = {
   
 /* Update Cache */ 
 	
-	updateCacheFor : function(aRomanPatterns) 
+	updateCacheFor : function(aInputPatterns) 
 	{
-		var patterns = aRomanPatterns.split('\n');
+		var patterns = aInputPatterns.split('\n');
 		var key      = patterns.join('/');
 		if (this.updateCacheTimers[key]) {
 			this.updateCacheTimers[key].cancel();
@@ -341,7 +341,7 @@ pXMigemoCore.prototype = {
 					return;
 				}
 				if (this.patterns[0])
-					this.core.getRegExpPart(this.patterns[0]);
+					this.core.getRegExpFor(this.patterns[0]);
 				this.patterns.splice(0, 1);
 			}
 		});

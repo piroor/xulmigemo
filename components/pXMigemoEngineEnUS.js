@@ -8,11 +8,11 @@ var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
-function pXMigemo() { 
+function pXMigemoEngineEnUS() { 
 	mydump('create instance pIXMigemoEngine(lang=en-US)');
 }
 
-pXMigemo.prototype = {
+pXMigemoEngineEnUS.prototype = {
 	lang : 'en-US',
 
 	get contractID() {
@@ -101,9 +101,9 @@ pXMigemo.prototype = {
 		return pattern;
 	},
  
-	splitInput : function(aRoman, aCount) 
+	splitInput : function(aInput, aCount) 
 	{
-		var romanTerms = aInput
+		var terms = aInput
 				.replace(/([\uff66-\uff9fa-z])([0-9])/i, '$1\t$2')
 				.replace(/([0-9a-z])([\uff66-\uff9f])/i, '$1\t$2')
 				.replace(/([0-9\uff66-\uff9f])([a-z])/i, '$1\t$2')
@@ -210,15 +210,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemo.prototype.classID,
-			contractID : pXMigemo.prototype.contractID,
-			className  : pXMigemo.prototype.classDescription,
+			CID        : pXMigemoEngineEnUS.prototype.classID,
+			contractID : pXMigemoEngineEnUS.prototype.contractID,
+			className  : pXMigemoEngineEnUS.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemo()).QueryInterface(aIID);
+					return (new pXMigemoEngineEnUS()).QueryInterface(aIID);
 				}
 			}
 		}
