@@ -39,7 +39,7 @@ var XMigemoCore = {
 		if (!this._XMigemo) {
 			try {
 				this._XMigemo = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/core;1']
+					.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang=ja']
 					.getService(Components.interfaces.pIXMigemo);
 			}
 			catch(e) {

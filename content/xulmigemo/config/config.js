@@ -79,11 +79,6 @@ function updateCacheNow()
 	var i = 0;
 
 	XMigemo.createCacheTimeOverride = parseInt(document.getElementById('xulmigemo.cache.update.time-textbox').value);
-
-	var XMigemoCache = Components
-			.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
-			.getService(Components.interfaces.pIXMigemoCache);
-
 	getPatterns:
 	while (true)
 	{
@@ -96,7 +91,7 @@ function updateCacheNow()
 				case '[EOF]':
 					break getPatterns;
 				default:
-					XMigemoCache.clearCacheFor(pattern);
+					XMigemo.cache.clearCacheFor(pattern);
 			}
 		}
 		catch(e) {

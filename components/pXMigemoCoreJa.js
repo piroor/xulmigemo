@@ -1,30 +1,22 @@
 /* This depends on: 
-	pIXMigemoCore
-	pIXMigemoCache
 	pIXMigemoDictionaryJa
 	pIXMigemoTextTransformJa
 */
 var DEBUG = false;
  
-var ObserverService = Components 
-			.classes['@mozilla.org/observer-service;1']
-			.getService(Components.interfaces.nsIObserverService);;
-
-var Prefs = Components
+var Prefs = Components 
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
-function pXMigemoJa() { 
-	mydump('create instance pIXMigemo(lang=ja), start');
-	this.init();
-	mydump('create instance pIXMigemo(lang=ja), finish');
+function pXMigemoEngineJa() { 
+	mydump('create instance pIXMigemoEngine(lang=ja)');
 }
 
-pXMigemoJa.prototype = {
+pXMigemoEngineJa.prototype = {
 	lang : 'ja',
 
 	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/core;1?lang='+this.lang;
+		return '@piro.sakura.ne.jp/xmigemo/engine;1?lang='+this.lang;
 	},
 	get classDescription() {
 		return 'This is a Migemo service itself, for Japanese language.';
@@ -40,28 +32,6 @@ pXMigemoJa.prototype = {
 	SYSTEM_DIC : 1, 
 	USER_DIC   : 2,
 	ALL_DIC    : 3,
- 
-	get base() // super class 
-	{
-		if (!this._base) {
-			this._base = Components
-								.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang=*']
-								.getService(Components.interfaces.pIXMigemo);
-		}
-		return this._base;
-	},
-	_base : null,
- 
-	get dictionaryManager() 
-	{
-		if (!this._dictionaryManager) {
-			this._dictionaryManager = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-				.createInstance(Components.interfaces.pIXMigemoDicManager);
-		}
-		return this._dictionaryManager;
-	},
-	_dictionaryManager : null,
  
 	get dictionary() 
 	{
@@ -87,99 +57,11 @@ pXMigemoJa.prototype = {
 	},
 	_textTransform : null,
  
-	// SKK方式の入力以外で、文節区切りとして認識する文字 
-	INPUT_SEPARATOR : " ",
- 
-	createCacheTimeOverride : -1, 
- 
-/* Create Regular Expressions */ 
-	 
-	getRegExp : function(aRoman) 
-	{
-		return this.getRegExpInternal(aRoman, void(0));
-	},
- 
-	getRegExpInternal : function(aRoman, aEnableAutoSplit) 
-	{
-		var myExp = [];
-
-		var autoSplit = (aEnableAutoSplit === void(0)) ? Prefs.getBoolPref('xulmigemo.splitTermsAutomatically') : aEnableAutoSplit ;
-
-		// 入力を切って、文節として個別に正規表現を生成する
-		var romanTerm;
-		var romanTerms = (
-					(/^[A-Z]{2,}/.test(aRoman)) ?
-						aRoman.replace(/([a-z])/g, '\t$1') : // CapsLockされてる場合は小文字で区切る
-						aRoman.replace(/([A-Z])/g, '\t$1')
-				)
-				.replace(/([\uff66-\uff9fa-z])([0-9])/i, '$1\t$2')
-				.replace(/([0-9a-z])([\uff66-\uff9f])/i, '$1\t$2')
-				.replace(/([0-9\uff66-\uff9f])([a-z])/i, '$1\t$2')
-				.replace(new RegExp('([!"#\$%&\'\\(\\)=~\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64' + this.INPUT_SEPARATOR + ']+)', 'g'), '\t$1\t')
-				.split('\t');
-		var separatorRegExp = new RegExp('^(' + this.INPUT_SEPARATOR +'+)$');
-		mydump('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n');
-
-		var pattern, romanTermPart, nextPart;
-		for (var i = 0, maxi = romanTerms.length; i < maxi; i++)
-		{
-			romanTerm = romanTerms[i].toLowerCase();
-
-			if (separatorRegExp.test(romanTerm)) {
-				myExp.push('(' + RegExp.$1 + ')*');
-				continue;
-			}
-
-			pattern = this.getRegExpPart(romanTerm);
-			if (!pattern) continue;
-			myExp.push(pattern);
-
-
-			if (!autoSplit) continue;
-
-			romanTermPart = romanTerm;
-			while (romanTermPart.length > 1)
-			{
-				romanTermPart = romanTermPart.substring(0, romanTermPart.length-1);
-				pattern = this.getRegExpPart(romanTermPart, true);
-				if (!this.simplePartOnlyPattern.test(pattern.replace(/\\\|/g, ''))) {
-					myExp[myExp.length-1] = [
-						myExp[myExp.length-1],
-						'|(',
-						pattern,
-						')(',
-						this.getRegExp(romanTerm.substring(romanTermPart.length, romanTerm.length)),
-						')'
-					].join('').replace(/\n/g, '');
-					break;
-				}
-			}
-		}
-
-		myExp = (myExp.length == 1) ? myExp[0] :
-				(myExp.length) ? ['(', myExp.join(')('), ')'].join('').replace(/\n/g, '') :
-				'' ;
-
-		return myExp.replace(/\n/im, '');
-	},
- 
-	simplePartOnlyPattern : /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([^\|]+)$/i, 
- 
-	getRegExpPart : function(aRoman) 
+	getRegExpFor : function(aRoman) 
 	{
 		if (!aRoman) return null;
 
 		aRoman = aRoman.toLowerCase();
-
-		const XMigemoCache = Components
-							.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
-							.getService(Components.interfaces.pIXMigemoCache);
-
-		var cacheText = XMigemoCache.getCacheFor(aRoman);
-		if (cacheText) {
-			mydump('cache:'+cacheText);
-			return cacheText;
-		}
 
 		var XMigemoTextService = this.textTransform;
 		var XMigemoTextUtils = Components
@@ -221,8 +103,6 @@ pXMigemoJa.prototype = {
 				str + '|' + kana ;
 		var zen = XMigemoTextService.roman2zen(aRoman); // aRoman ?
 		mydump('hira:'+hira);
-
-		var date1 = new Date();
 
 		var lines = this.gatherEntriesFor(aRoman, this.ALL_DIC, {});
 
@@ -267,22 +147,33 @@ pXMigemoJa.prototype = {
 			mydump('pattern:'+pattern);
 		}
 
-
-		var date2 = new Date();
-		if (date2.getTime() - date1.getTime() > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Prefs.getIntPref('xulmigemo.cache.update.time'))) {
-			// 遅かったらキャッシュします
-			XMigemoCache.setDiskCache(aRoman, pattern);
-			XMigemoCache.setMemCache(aRoman, pattern);
-			mydump('CacheWasSaved');
-		}
-		else{
-			XMigemoCache.setMemCache(aRoman, pattern);//メモリキャッシュ
-			mydump('memCacheWasSaved');
-		}
-		mydump(date2.getTime() - date1.getTime());
-
 		return pattern;
 	},
+ 
+	splitInput : function(aRoman, aCount) 
+	{
+		ver terms = (
+					(/^[A-Z]{2,}/.test(aRoman)) ?
+						aRoman.replace(/([a-z])/g, '\t$1') : // CapsLockされてる場合は小文字で区切る
+						aRoman.replace(/([A-Z])/g, '\t$1')
+				)
+				.replace(/([\uff66-\uff9fa-z])([0-9])/i, '$1\t$2')
+				.replace(/([0-9a-z])([\uff66-\uff9f])/i, '$1\t$2')
+				.replace(/([0-9\uff66-\uff9f])([a-z])/i, '$1\t$2')
+				.replace(new RegExp('([!"#\$%&\'\\(\\)=~\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64' + this.INPUT_SEPARATOR + ']+)', 'g'), '\t$1\t');
+
+		var separatorRegExp = new RegExp(this.INPUT_SEPARATOR +'+|\t\t+');
+		terms = terms
+				.replace(separatorRegExp, '\t')
+				.replace(/^[\s\t]+|[\s\t]+$/g, '')
+				.split('\t');
+
+		aCount.value = terms.length;
+		return terms;
+	},
+	 
+	// SKK方式の入力以外で、文節区切りとして認識する文字 
+	INPUT_SEPARATOR : " ",
   
 	gatherEntriesFor : function(aRoman, aTargetDic, aCount) 
 	{
@@ -360,122 +251,19 @@ pXMigemoJa.prototype = {
 		return lines;
 	},
  
-/* Bridge to the super class */ 
-	
-	regExpFind : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
-	{
-		return this.base.regExpFind(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aFindBackwards);
-	},
- 
-	regExpFindArr : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aCount) 
-	{
-		return this.base.regExpFindArr(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aCount);
-	},
-  
-/* Update Cache */ 
-	
-	updateCacheFor : function(aRomanPatterns) 
-	{
-		var patterns = aRomanPatterns.split('\n');
-		var key      = patterns.join('/');
-		if (this.updateCacheTimers[key]) {
-			this.updateCacheTimers[key].cancel();
-			this.updateCacheTimers[key] = null;
-		}
-
-		this.updateCacheTimers[key] = Components
-			.classes['@mozilla.org/timer;1']
-			.getService(Components.interfaces.nsITimer);
-        this.updateCacheTimers[key].init(
-			this.createUpdateCacheObserver(patterns, key),
-			100,
-			Components.interfaces.nsITimer.TYPE_REPEATING_SLACK
-		);
-	},
- 
-	updateCacheTimers : [], 
- 
-	createUpdateCacheObserver : function(aPatterns, aKey) 
-	{
-		return ({
-			core     : this,
-			key      : aKey,
-			patterns : aPatterns,
-			observe  : function(aSubject, aTopic, aData)
-			{
-				if (aTopic != 'timer-callback') return;
-
-				if (!this.patterns.length) {
-					if (this.core.updateCacheTimers[this.key]) {
-						this.core.updateCacheTimers[this.key].cancel();
-						delete this.core.updateCacheTimers[this.key];
-					}
-					return;
-				}
-				if (this.patterns[0])
-					this.core.getRegExpPart(this.patterns[0]);
-				this.patterns.splice(0, 1);
-			}
-		});
-	},
-  
 	observe : function(aSubject, aTopic, aData) 
 	{
-		switch (aTopic)
-		{
-			case 'XMigemo:cacheCleared':
-				this.updateCacheFor(aData);
-				return;
-
-			case 'quit-application':
-				this.destroy();
-				return;
-		}
 	},
  
-	init : function() 
-	{
-		if (this.initialized) return;
-
-		this.initialized = true;
-
-		this.base;
-
-		var cache = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
-				.createInstance(Components.interfaces.pIXMigemoCache);
-		cache.cacheFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-		cache.cacheFile.initWithPath(cache.cacheDir.path);
-		var override;
-		try {
-			override = Prefs.getCharPref('xulmigemo.cache.override.'+this.lang);
-		}
-		catch(e) {
-		}
-		cache.cacheFile.append(override || this.lang+'.cache.txt');
-
-		this.dictionaryManager.init(
-			this.dictionary,
-			cache
-		);
-
-		ObserverService.addObserver(this, 'XMigemo:cacheCleared', false);
-	},
- 
-	destroy : function() 
-	{
-		ObserverService.removeObserver(this, 'XMigemo:cacheCleared');
-	},
- 	
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemo) &&
+		if(!aIID.equals(Components.interfaces.pIXMigemoEngine) &&
 			!aIID.equals(Components.interfaces.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
 	}
 };
-  
+ 	 
 var gModule = { 
 	_firstTime: true,
 
@@ -507,28 +295,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoJa.prototype.classID,
-			contractID : pXMigemoJa.prototype.contractID,
-			className  : pXMigemoJa.prototype.classDescription,
+			CID        : pXMigemoEngineJa.prototype.classID,
+			contractID : pXMigemoEngineJa.prototype.contractID,
+			className  : pXMigemoEngineJa.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoJa()).QueryInterface(aIID);
-				}
-			}
-		},
-		managerCompatibility : { // for backward compatibility
-			CID        : pXMigemoJa.prototype.classID,
-			contractID : '@piro.sakura.ne.jp/xmigemo/core;1',
-			className  : pXMigemoJa.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoJa()).QueryInterface(aIID);
+					return (new pXMigemoEngineJa()).QueryInterface(aIID);
 				}
 			}
 		}
