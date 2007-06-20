@@ -3,8 +3,9 @@ const Prefs = Components
 	.getService(Components.interfaces.nsIPrefBranch);
 
 const XMigemo = Components
-	.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-	.getService(Components.interfaces.pIXMigemo);
+	.classes['@piro.sakura.ne.jp/xmigemo/factory;1']
+	.getService(Components.interfaces.pIXMigemoFactory)
+	.getService(Prefs.getCharPref('xulmigemo.lang'));
 
 function getDP()
 {

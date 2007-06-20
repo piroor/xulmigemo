@@ -2,7 +2,7 @@
 	pIXMigemoDictionaryJa
 	pIXMigemoTextTransformJa
 */
-var DEBUG = true;
+var DEBUG = false;
  
 var Prefs = Components 
 			.classes['@mozilla.org/preferences;1']

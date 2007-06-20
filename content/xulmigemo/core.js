@@ -39,8 +39,9 @@ var XMigemoCore = {
 		if (!this._XMigemo) {
 			try {
 				this._XMigemo = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang=ja']
-					.getService(Components.interfaces.pIXMigemo);
+					.classes['@piro.sakura.ne.jp/xmigemo/factory;1']
+					.getService(Components.interfaces.pIXMigemoFactory)
+					.getService('ja');
 			}
 			catch(e) {
 				throw e;

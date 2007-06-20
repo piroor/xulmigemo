@@ -4,7 +4,7 @@
 	pIXMigemoDicManager
 	pIXMigemoTextUtils
 */
-var DEBUG = true;
+var DEBUG = false;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
@@ -14,14 +14,8 @@ var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
-function pXMigemoCore(aLang) { 
+function pXMigemoCore() { 
 	mydump('create instance pIXMigemo');
-	if (aLang)
-		this.init(
-			Components
-				.classes['@piro.sakura.ne.jp/xmigemo/engine;1?lang='+aLang]
-				.getService(Components.interfaces.pIXMigemoEngine)
-		);
 }
 
 pXMigemoCore.prototype = {
@@ -38,7 +32,7 @@ pXMigemoCore.prototype = {
 	get wrappedJSObject() {
 		return this;
 	},
-	 
+	
 	SYSTEM_DIC : 1, 
 	USER_DIC   : 2,
 	ALL_DIC    : 3,
@@ -69,7 +63,7 @@ pXMigemoCore.prototype = {
 			catch(e) {
 			}
 			cache.cacheFile.append(override || this.engine.lang+'.cache.txt');
-			this._cache = cachel
+			this._cache = cache;
 		}
 		return this._cache;
 	},
@@ -77,26 +71,21 @@ pXMigemoCore.prototype = {
  
 	get dictionary() 
 	{
-		return this.engine.dictionary;
+		return !this.engine ? null : this.engine.dictionary;
 	},
  
 	get textTransform() 
 	{
-		return this.engine.textTransform;
+		return !this.engine ? null : this.engine.textTransform;
 	},
  
 	get lang() 
 	{
-		return this.engine.lang;
+		return !this.engine ? '' : this.engine.lang ;
 	},
  
 	get engine() 
 	{
-		if (!this._engine) { // default dictionary; can be overridden.
-			this._engine = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/engine;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-				.getService(Components.interfaces.pIXMigemoEngine);
-		}
 		return this._engine;
 	},
 	set engine(val)
@@ -110,7 +99,7 @@ pXMigemoCore.prototype = {
  
 	getRegExp : function(aInput) 
 	{
-		return this.getRegExpInternal(aInput, void(0));
+		return !this.engine ? '' : this.getRegExpInternal(aInput, void(0)) ;
 	},
 	 
 	getRegExpInternal : function(aInput, aEnableAutoSplit) 
@@ -167,6 +156,7 @@ pXMigemoCore.prototype = {
 	getRegExpFor : function(aInput) 
 	{
 		if (!aInput) return null;
+		if (!this.engine) return null;
 
 		aInput = aInput.toLowerCase();
 
@@ -197,6 +187,8 @@ pXMigemoCore.prototype = {
  
 	splitInput : function(aInput, aCount) 
 	{
+		if (!this.engine) return [aInput];
+
 		var terms = this.engine.splitInput(aInput);
 		aCount.value = terms.length;
 		return terms;
@@ -204,7 +196,7 @@ pXMigemoCore.prototype = {
  
 	gatherEntriesFor : function(aInput, aTargetDic, aCount) 
 	{
-		return this.engine.gatherEntriesFor(aInput, aTargetDic, aCount);
+		return !this.engine ? [] : this.engine.gatherEntriesFor(aInput, aTargetDic, aCount) ;
 	},
  
 /* Find */ 
@@ -361,16 +353,15 @@ pXMigemoCore.prototype = {
 		}
 	},
  
-	init : function(aEngine) 
+	init : function(aLang) 
 	{
 		if (this.initialized) return;
 
 		this.initialized = true;
 
-		if (aEngine)
-			this.engine = aEngine;
-		else
-			this.engine;
+		this.engine = Components
+			.classes['@piro.sakura.ne.jp/xmigemo/engine;1?lang='+(aLang || Prefs.getCharPref('xulmigemo.lang'))]
+			.getService(Components.interfaces.pIXMigemoEngine);
 
 		this.dictionaryManager.init(this.dictionary, this.cache);
 
@@ -392,7 +383,48 @@ pXMigemoCore.prototype = {
 		return this;
 	}
 };
- 	 
+  
+function pXMigemoFactory() { 
+	mydump('create instance pIXMigemoFactory');
+}
+
+pXMigemoFactory.prototype = {
+	get contractID() {
+		return '@piro.sakura.ne.jp/xmigemo/factory;1';
+	},
+	get classDescription() {
+		return 'This is a factory of Migemo service itself.';
+	},
+	get classID() {
+		return Components.ID('{650d509a-1f48-11dc-8314-0800200c9a66}');
+	},
+
+	get wrappedJSObject() {
+		return this;
+	},
+	 
+	services : {}, 
+ 
+	getService : function(aLang) 
+	{
+		if (!(aLang in this.services)) {
+			this.services[aLang] = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/core;1']
+				.createInstance(Components.interfaces.pIXMigemo);
+			this.services[aLang].init(aLang);
+		}
+		return this.services[aLang];
+	},
+ 
+	QueryInterface : function(aIID) 
+	{
+		if(!aIID.equals(Components.interfaces.pIXMigemoFactory) &&
+			!aIID.equals(Components.interfaces.nsISupports))
+			throw Components.results.NS_ERROR_NO_INTERFACE;
+		return this;
+	}
+};
+  	
 var gModule = { 
 	_firstTime: true,
 
@@ -436,30 +468,16 @@ var gModule = {
 				}
 			}
 		},
-
-		managerJa : {
-			CID        : pXMigemoCore.prototype.classID,
-			contractID : pXMigemoCore.prototype.contractID+'?lang=ja',
-			className  : pXMigemoCore.prototype.classDescription,
+		managerForFactory : {
+			CID        : pXMigemoFactory.prototype.classID,
+			contractID : pXMigemoFactory.prototype.contractID,
+			className  : pXMigemoFactory.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoCore('ja')).QueryInterface(aIID);
-				}
-			}
-		},
-		managerEnUS : {
-			CID        : pXMigemoCore.prototype.classID,
-			contractID : pXMigemoCore.prototype.contractID+'?lang=en-US',
-			className  : pXMigemoCore.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoCore('en-US')).QueryInterface(aIID);
+					return (new pXMigemoFactory()).QueryInterface(aIID);
 				}
 			}
 		}

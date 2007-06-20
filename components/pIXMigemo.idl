@@ -90,21 +90,6 @@ interface pIXMigemoDictionary : nsISupports
 	void reload();
 };
 
-[scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
-interface pIXMigemoDicManager : nsIObserver
-{
-	void reload();
-
-	readonly attribute pIXMigemoDictionary dictionary;
-	readonly attribute pIXMigemoCache cache;
-
-	void init(in pIXMigemoDictionary dictionary, in pIXMigemoCache cache);
-
-	AString showDirectoryPicker(in AString defaultDirectoryPath);
-};
-
-
-
 [scriptable, uuid(1a2493f2-1f31-11dc-8314-0800200c9a66)]
 interface pIXMigemoEngine : nsIObserver
 {
@@ -131,6 +116,22 @@ interface pIXMigemoEngine : nsIObserver
 	readonly attribute pIXMigemoDictionary dictionary;
 	readonly attribute pIXMigemoTextTransform textTransform;
 };
+
+
+
+[scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
+interface pIXMigemoDicManager : nsIObserver
+{
+	void reload();
+
+	readonly attribute pIXMigemoDictionary dictionary;
+	readonly attribute pIXMigemoCache cache;
+
+	void init(in pIXMigemoDictionary dictionary, in pIXMigemoCache cache);
+
+	AString showDirectoryPicker(in AString defaultDirectoryPath);
+};
+
 
 [scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
 interface pIXMigemo : pIXMigemoEngine
@@ -163,8 +164,17 @@ interface pIXMigemo : pIXMigemoEngine
 	readonly attribute pIXMigemoCache cache;
 	readonly attribute pIXMigemoDicManager dictionaryManager;
 
-	void init(in pIXMigemoEngine engine);
+	void init(in ACString language);
 };
+
+
+[scriptable, uuid(63a6c07c-1f48-11dc-8314-0800200c9a66)]
+interface pIXMigemoFactory : nsISupports
+{
+	pIXMigemo getService(in ACString lang);
+};
+
+
 
 [scriptable, uuid(54606802-ce50-11db-8314-0800200c9a66)]
 interface pIXMigemoFind : nsIObserver
