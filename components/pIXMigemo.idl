@@ -105,21 +105,40 @@ interface pIXMigemoDicManager : nsIObserver
 
 
 
-[scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
-interface pIXMigemo : nsIObserver
+[scriptable, uuid(1a2493f2-1f31-11dc-8314-0800200c9a66)]
+interface pIXMigemoEngine : nsIObserver
 {
+	attribute AString lang;
+
 	/* create regular expressions from roman letters. */
-	AString getRegExp(in AString roman);
+	AString getRegExpFor(in AString input);
+
+	void splitInput(
+		in AString input,
+		out unsigned long count, [array, size_is(count), retval] out wstring array
+	);
 
 	/* get entries of words in the dictionary. */
 	void gatherEntriesFor(
-		in AString roman,
+		in AString input,
 		in unsigned short targetDictionaryType,
 		out unsigned long count, [array, size_is(count), retval] out wstring array
 	);
 	const unsigned short SYSTEM_DIC = 1;
 	const unsigned short USER_DIC   = 2;
 	const unsigned short ALL_DIC    = 3; /* SYSTEM_DIC + USER_DIC */
+
+	readonly attribute pIXMigemoDictionary dictionary;
+	readonly attribute pIXMigemoTextTransform textTransform;
+};
+
+[scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
+interface pIXMigemo : pIXMigemoEngine
+{
+	attribute pIXMigemoEngine engine;
+
+	/* create regular expressions from roman letters. */
+	AString getRegExp(in AString input);
 
 	/* find by regular expression, and return the first item of found terms as DOM2 Range. */
 	nsIDOMRange regExpFind(
@@ -141,10 +160,8 @@ interface pIXMigemo : nsIObserver
 	);
 
 	attribute double createCacheTimeOverride;
-
+	readonly attribute pIXMigemoCache cache;
 	readonly attribute pIXMigemoDicManager dictionaryManager;
-	readonly attribute pIXMigemoDictionary dictionary;
-	readonly attribute pIXMigemoTextTransform textTransform;
 };
 
 [scriptable, uuid(54606802-ce50-11db-8314-0800200c9a66)]

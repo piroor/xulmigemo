@@ -123,14 +123,9 @@ pXMigemoFind.prototype = {
 	get core()
 	{
 		if (!this._core) {
-			try {
-				this._core = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-					.getService(Components.interfaces.pIXMigemo);
-			}
-			catch(e) {
-				throw e;
-			}
+			this._core = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
+				.getService(Components.interfaces.pIXMigemo);
 		}
 		return this._core;
 	},
