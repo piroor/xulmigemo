@@ -200,6 +200,17 @@ interface pIXMigemoFind : nsIObserver
 	void findNext(in boolean forceFocus);
 	void findPrevious(in boolean forceFocus);
 
+	const unsigned short FOUND             = 1;
+	const unsigned short NOTFOUND          = 2;
+	const unsigned short NOTLINK           = 4;
+	const unsigned short FOUND_IN_EDITABLE = 8;
+
+	const unsigned short FIND_DEFAULT     = 1;
+	const unsigned short FIND_BACK        = 2;
+	const unsigned short FIND_FORWARD     = 4;
+	const unsigned short FIND_FROM_START  = 8;
+	const unsigned short FIND_IN_EDITABLE = 128;
+
 	void setSelectionLook(in nsIDOMDocument document, in boolean changeColor);
 
 	void scrollSelectionToCenter(in nsIDOMWindow frame);
