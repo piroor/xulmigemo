@@ -13,6 +13,7 @@
 <!ENTITY xulmigemo.enable_by_default       "常にMigemo検索を有効にする">
 <!ENTITY xulmigemo.startfromviewport       "現在見えている領域内から検索を始める">
 <!ENTITY xulmigemo.scrollSelectionToCenter "検索で見つかった箇所を画面の中心に表示する">
+<!ENTITY xulmigemo.highlight.showScreen    "「すべて強調表示」をより強く強調する">
 
 
 <!ENTITY xulmigemo.caption.recognize       "文字の認識（日本語）">

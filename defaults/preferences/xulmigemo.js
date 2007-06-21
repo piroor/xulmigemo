@@ -15,6 +15,8 @@ pref("xulmigemo.checked_by_default.migemo",        false);
 pref("xulmigemo.checked_by_default.highlight",     false);
 pref("xulmigemo.checked_by_default.caseSensitive", false);
 
+pref("xulmigemo.highlight.showScreen",          true);
+
 pref("xulmigemo.timeout",                       4000);
 pref("xulmigemo.enabletimeout",                 true);
 pref("xulmigemo.enableautoexit.nokeyword",      true);

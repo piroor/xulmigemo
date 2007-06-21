@@ -28,6 +28,9 @@
 		<preference id="xulmigemo.scrollSelectionToCenter"
 			name="xulmigemo.scrollSelectionToCenter"
 			type="bool"/>
+		<preference id="xulmigemo.highlight.showScreen"
+			name="xulmigemo.highlight.showScreen"
+			type="bool"/>
 
 		<preference id="xulmigemo.ignoreHiraKata"
 			name="xulmigemo.ignoreHiraKata"
@@ -62,6 +65,9 @@
 	<checkbox id="xulmigemo.scrollSelectionToCenter-check" flex="1"
 		label="&xulmigemo.scrollSelectionToCenter;"
 		preference="xulmigemo.scrollSelectionToCenter"/>
+	<checkbox id="xulmigemo.highlight.showScreen-check" flex="1"
+		label="&xulmigemo.highlight.showScreen;"
+		preference="xulmigemo.highlight.showScreen"/>
 
 	<groupbox>
 		<caption label="&xulmigemo.caption.recognize;"/>
