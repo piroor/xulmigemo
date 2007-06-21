@@ -808,6 +808,13 @@ var XMigemoUI = {
 		}
 		else {
 			updateGlobalFunc = true;
+			eval('window.setHighlightTimeout = '+
+				window.setHighlightTimeout.toSource()
+				.replace(
+					/toggleHighlight/g,
+					'gFindBar.toggleHighlight'
+				)
+			);
 			window.gFindBar = {
 				openFindBar                 : this.openFindBar,
 				closeFindBar                : this.closeFindBar,
@@ -819,6 +826,7 @@ var XMigemoUI = {
 				find                        : window.find,
 				toggleHighlight             : this.toggleHighlight,
 				xmigemoOriginalToggleHighlight : window.toggleHighlight,
+				setHighlightTimeout         : window.setHighlightTimeout,
 				onFindAgainCmd              : window.onFindAgainCmd,
 				onFindPreviousCmd           : window.onFindPreviousCmd,
 				xmigemoOriginalFindNext     : window.findNext,
