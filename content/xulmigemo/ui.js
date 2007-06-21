@@ -506,16 +506,21 @@ var XMigemoUI = {
 		{
 			case XMigemoFind.FOUND:
 			case XMigemoFind.FOUND_IN_EDITABLE:
-				if (this.nsITypeAheadFind)
-					statusRes = this.nsITypeAheadFind.FIND_FOUND;
-				//alert(gFoundRange.toString());
+			case XMigemoFind.NOTLINK:
+				if (
+					aEvent.resultFlag != XMigemoFind.NOTLINK ||
+					!XMigemoFind.manualLinksOnly
+					) {
+					if (this.nsITypeAheadFind)
+						statusRes = this.nsITypeAheadFind.FIND_FOUND;
+					//alert(gFoundRange.toString());
 
-				if (this.findHighlightCheck.checked)
-					gFindBar.setHighlightTimeout();
-				break;
+					if (this.findHighlightCheck.checked)
+						gFindBar.setHighlightTimeout();
+					break;
+				}
 
 			case XMigemoFind.NOTFOUND:
-			case XMigemoFind.NOTLINK:
 				if (this.nsITypeAheadFind)
 					statusRes = this.nsITypeAheadFind.FIND_NOTFOUND;
 				break;
@@ -996,9 +1001,13 @@ var XMigemoUI = {
 		XMigemoFind.exitFind();
 	},
  
-	toggleHighlight : function() 
+	toggleHighlight : function(aHighlight) 
 	{
-		XMigemoUI.toggleHighlightScreen(arguments[0], null);
+		if (window.content)
+			window.content.__moz_xmigemoHighlighted = aHighlight;
+
+		XMigemoUI.toggleHighlightScreen(aHighlight, null);
+
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalToggleHighlight.apply(scope, arguments);
 	},
@@ -1077,7 +1086,7 @@ var XMigemoUI = {
 			highlightCheck.checked = highlightCheck.xmigemoOriginalChecked;
 		}
 
-		if (highlightCheck.checked) {
+		if (highlightCheck.checked && !window.content.__moz_xmigemoHighlighted) {
 			gFindBar.toggleHighlight(true);
 		}
 	},
