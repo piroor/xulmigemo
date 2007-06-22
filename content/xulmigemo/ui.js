@@ -35,12 +35,15 @@ var XMigemoUI = {
  
 	get browser() 
 	{
-		if (this._browser === void(0)) {
-			this._browser = document.getElementById('content') || // Firefox
-							document.getElementById('messagepane') || // Thunderbird
-							document.getElementById('help-content'); // Help
-		}
-		return this._browser;
+		return document.getElementById('content') || // Firefox
+			document.getElementById('messagepane') || // Thunderbird
+			document.getElementById('help-content'); // Help
+	},
+ 
+	get activeBrowser() 
+	{
+		return ('SplitBrowser' in window ? SplitBrowser.activeBrowser : null ) ||
+			this.browser;
 	},
  
 	get findMigemoBar() 
@@ -258,6 +261,10 @@ var XMigemoUI = {
 				this.destroy();
 				return;
 
+			case 'SubBrowserFocusMoved':
+				XMigemoFind.target = this.activeBrowser;
+				return;
+
 			default:
 		}
 	},
@@ -368,7 +375,7 @@ var XMigemoUI = {
 			this.cancel();
 			this.clearTimer(); // ここでタイマーを殺さないといじられてしまう
 			var win = document.commandDispatcher.focusedWindow;
-			var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.browser.contentDocument;
+			var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.activeBrowser.contentDocument;
 			XMigemoFind.setSelectionLook(doc, false);
 
 			return true;
@@ -1159,35 +1166,10 @@ var XMigemoUI = {
 			var node = doc.createElement("style");
 			node.id = "__moz_xmigemoFindHighlightStyle";
 			node.type = "text/css";
-			node.innerHTML = "#__firefox-findbar-search-id," +
-				".__mozilla-findbar-search {" +
-				"  position: relative !important;" +
-				"  z-index: 30000000 !important;" +
-				"}" +
-				"#__moz_xmigemoFindHighlightOverlay {" +
-				"  left: 0;" +
-				"  top: 0;" +
-				"  height: " + arrayPageSize[1] + "px;" +
-				"  width: 100%;" +
-				"  border: 0;" +
-				"  margin: 0;" +
-				"  padding: 0;" +
-				"  background-color: #000000;" +
-				"  background-repeat: repeat;" +
-				"  position: absolute;" +
-				"  z-index: 1000000;" +
-				"  -moz-opacity: 0.5;" +
-				"}" +
-				".__moz_xmigemoFindHighlightOverlay-On {" +
-				"  display: block;" +
-				"}" +
-				".__moz_xmigemoFindHighlightOverlay-Off {" +
-				"  display: none;" +
-				"}"+
-				"iframe {" +
-				"  position: relative;" +
-				"  z-index: 20000000 !important;" +
-				"}";
+			node.innerHTML = this.highlightStyle+
+				'#__moz_xmigemoFindHighlightOverlay {'+
+				'	height: '+arrayPageSize[1]+'px;'+
+				'}';
 			objHead.insertBefore(node, objHead.firstChild);
 		}
 
@@ -1202,6 +1184,37 @@ var XMigemoUI = {
 
 		objBody.insertBefore(overlay, objBody.firstChild);
 	},
+	highlightStyle : String(<![CDATA[
+		#__firefox-findbar-search-id,
+		.__mozilla-findbar-search {
+			position: relative !important;
+			z-index: 30000000 !important;
+		}
+		#__moz_xmigemoFindHighlightOverlay {
+			left: 0;
+			top: 0;
+			width: 100%;
+			border: 0;
+			margin: 0;
+			padding: 0;
+			background-color: #000000;
+			background-repeat: repeat;
+			position: absolute;
+			z-index: 1000000;
+			opacity: 0.5;
+			-moz-opacity: 0.5;
+		}
+		.__moz_xmigemoFindHighlightOverlay-On {
+			display: block;
+		}
+		.__moz_xmigemoFindHighlightOverlay-Off {
+			display: none;
+		}
+		iframe {
+			position: relative;
+			z-index: 20000000 !important;
+		}
+	]]>),
  
 	initializeHighlightScreen: function(win) { 
 		if (!XMigemoService.getPref('xulmigemo.highlight.showScreen')) return;
@@ -1293,20 +1306,15 @@ var XMigemoUI = {
 			if (browser.getAttribute('onkeypress'))
 				browser.setAttribute('onkeypress', '');
 
-			browser.addEventListener('keypress', this, true);
-			/*if(BrowserKeyPress!=undefined){
-				browser.addEventListener("keypress",BrowserKeyPress,true);
-			}*/
-			browser.addEventListener('mouseup', this, true);
+			var target = document.getElementById('appcontent') || browser;
+			target.addEventListener('keypress', this, true);
+			target.addEventListener('mouseup', this, true);
 		}
-
-//		XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);
 
 		XMigemoService.addPrefListener(this);
 		this.observe(null, 'nsPref:changed', 'xulmigemo.autostart');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.nokeyword');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enable_by_default');
-//		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.migemobar.overlay');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.override_findtoolbar');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.findForward');
@@ -1350,8 +1358,9 @@ var XMigemoUI = {
 
 		var browser = this.browser;
 		if (browser) {
-			browser.removeEventListener('keypress', this, true);
-			browser.removeEventListener('mouseup', this, true);
+			var target = document.getElementById('appcontent') || browser;
+			target.removeEventListener('keypress', this, true);
+			target.removeEventListener('mouseup', this, true);
 		}
 
 		this.findField.removeEventListener('blur', this.onFindBlur, false);
