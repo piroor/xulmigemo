@@ -273,7 +273,7 @@ var XMigemoUI = {
 			default:
 		}
 	},
-	 
+	
 	keyEvent : function(aEvent) 
 	{
 		if (
@@ -502,7 +502,7 @@ var XMigemoUI = {
 		this.cancel();
 		this.clearTimer();//ここでタイマーを殺さないといじられてしまう。タイマー怖い。
 	},
- 	
+ 
 	onXMigemoFindProgress : function(aEvent) 
 	{
 		gFindBar.enableFindButtons(!(
@@ -762,7 +762,7 @@ var XMigemoUI = {
 	},
  
 /* Override FindBar */ 
-	 
+	
 	overrideFindBar : function() 
 	{
 		/*
@@ -978,8 +978,11 @@ var XMigemoUI = {
 
 		XMigemoUI.toggleFindToolbarMode();
 
-		if (XMigemoUI.strongHighlight)
+		if (XMigemoUI.strongHighlight) {
 			XMigemoUI.initializeHighlightScreen();
+			if (!XMigemoUI.findHighlightCheck.disabled && XMigemoUI.findHighlightCheck.checked)
+				XMigemoUI.toggleHighlightScreen(true);
+		}
 
 		if (XMigemoService.getPref('xulmigemo.prefillwithselection')) {
 			var win = document.commandDispatcher.focusedWindow || window.content ;
@@ -1134,7 +1137,7 @@ var XMigemoUI = {
 	},
   
 /* Safari style highlight 
-	codes from http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
+	based from http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
 */
 	 
 	initializeHighlightScreen: function(aFrame) 
@@ -1152,7 +1155,7 @@ var XMigemoUI = {
 		if (aFrame.document instanceof HTMLDocument)
 			this.addHighlightScreen(aFrame.document);
 	},
-	 
+	
 	addHighlightScreen: function(aDocument) 
 	{
 		var doc = aDocument;
@@ -1174,26 +1177,26 @@ var XMigemoUI = {
 			objHead.insertBefore(node, objHead.firstChild);
 		}
 
-		var bodys = doc.getElementsByTagName('body');
-		if(bodys.length == 0)
+		var bodies = doc.getElementsByTagName('body');
+		if(bodies.length == 0)
 			return;
 
-		var objBody = bodys[0];
+		var objBody = bodies[0];
 
 		var screen = doc.createElement('div');
 		screen.setAttribute('id', '__moz_xmigemoFindHighlightScreen');
 
 		objBody.insertBefore(screen, objBody.firstChild);
 	},
-	 
+	
 	highlightStyle : String(<![CDATA[ 
-		#__firefox-findbar-search-id, /* Fx 2 */
-		.__mozilla-findbar-search, /* Fx 3 */
-		.searchwp-term-highlight1, /* SearchWP */
-		.searchwp-term-highlight2,
-		.searchwp-term-highlight3,
-		.searchwp-term-highlight4,
-		.GBL-Highlighted /* Googlebar Lite */ {
+		:root[__moz_xmigemoFindHighlightScreen="on"] #__firefox-findbar-search-id, /* Fx 2 */
+		:root[__moz_xmigemoFindHighlightScreen="on"] .__mozilla-findbar-search, /* Fx 3 */
+		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight1, /* SearchWP */
+		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight2,
+		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight3,
+		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight4,
+		:root[__moz_xmigemoFindHighlightScreen="on"] .GBL-Highlighted /* Googlebar Lite */ {
 			position: relative !important;
 			z-index: 3000000 !important;
 		}
@@ -1206,18 +1209,18 @@ var XMigemoUI = {
 			padding: 0;
 			background: #000000;
 			position: absolute;
-			z-index: 1000000;
 			opacity: 0.5;
 			-moz-opacity: 0.5;
 			display: none;
+			z-index: 1000000;
 		}
 		:root[__moz_xmigemoFindHighlightScreen="on"] > body > #__moz_xmigemoFindHighlightScreen {
-			display: block;
+			display: block !important;;
 		}
 		:root[__moz_xmigemoFindHighlightScreen="on"] embed {
-			visibility: hidden;
+			visibility: hidden !important;;
 		}
-		iframe {
+		:root[__moz_xmigemoFindHighlightScreen="on"] iframe {
 			position: relative;
 			z-index: 2000000 !important;
 		}
@@ -1275,7 +1278,7 @@ var XMigemoUI = {
 
 		aFrame.document.documentElement.setAttribute('__moz_xmigemoFindHighlightScreen', aHighlight ? 'on' : 'off' );
 	},
-  
+  	
 	init : function() 
 	{
 		this.lastFindMode = this.FIND_MODE_NATIVE;
