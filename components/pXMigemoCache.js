@@ -111,7 +111,8 @@ pXMigemoCache.prototype = {
 		}
 	},
  
-	setDiskCache : function (aRoman, aMyRegExp) { 
+	setDiskCache : function (aRoman, aMyRegExp) 
+	{
 		var file = this.cacheFile;
 		if (!file) return;
 
@@ -137,26 +138,6 @@ pXMigemoCache.prototype = {
 	
 	get cacheFile() 
 	{
-		if (!this.cacheFileHolder) { // default cache file; can be overridden.
-			var dir = this.cacheDir;
-
-			var lang = Prefs.getCharPref('xulmigemo.lang');
-			var override;
-			try {
-				override = Prefs.getCharPref('xulmigemo.cache.override.'+lang);
-			}
-			catch(e) {
-			}
-
-			try {
-				this.cacheFileHolder = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-				this.cacheFileHolder.initWithPath(dir.path);
-				this.cacheFileHolder.append(override || lang+'.cache.txt');
-			}
-			catch(e) {
-				this.cacheFileHolder = null;
-			}
-		}
 		return this.cacheFileHolder;
 	},
 	set cacheFile(val)
@@ -165,6 +146,20 @@ pXMigemoCache.prototype = {
 		return this.cacheFile;
 	},
 	cacheFileHolder : null,
+	initWithFileName : function(aFileName)
+	{
+		if (!aFileName)
+			return;
+
+		try {
+			this.cacheFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+			this.cacheFile.initWithPath(this.cacheDir.path);
+			this.cacheFile.append(aFileName);
+		}
+		catch(e) {
+			this.cacheFile = null;
+		}
+	},
 
 	get cacheDir() 
 	{
@@ -214,11 +209,11 @@ pXMigemoCache.prototype = {
  
 	reload : function() 
 	{
-		this.cacheFileHolder = null;
 		this.load();
 	},
  
-	save : function () { 
+	save : function () 
+	{
 		var file = this.cacheFile;
 		if (!file) return;
 

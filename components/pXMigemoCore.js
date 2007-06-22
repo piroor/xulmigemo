@@ -54,15 +54,13 @@ pXMigemoCore.prototype = {
 			var cache = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
 					.createInstance(Components.interfaces.pIXMigemoCache);
-			cache.cacheFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-			cache.cacheFile.initWithPath(cache.cacheDir.path);
 			var override;
 			try {
 				override = Prefs.getCharPref('xulmigemo.cache.override.'+this.lang);
 			}
 			catch(e) {
 			}
-			cache.cacheFile.append(override || this.engine.lang+'.cache.txt');
+			cache.initWithFileName(override || this.engine.lang+'.cache.txt');
 			this._cache = cache;
 		}
 		return this._cache;
