@@ -1014,8 +1014,10 @@ var XMigemoUI = {
 	{
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalClose.apply(scope, arguments);
+
 		if (XMigemoUI.strongHighlight)
 			XMigemoUI.destroyHighlightScreen();
+
 		window.setTimeout('XMigemoUI.delayedCloseFindBar()', 0);
 	},
 	delayedCloseFindBar : function()
@@ -1137,7 +1139,7 @@ var XMigemoUI = {
 	},
   
 /* Safari style highlight 
-	based from http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
+	based on http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
 */
 	 
 	initializeHighlightScreen: function(aFrame) 
@@ -1165,7 +1167,7 @@ var XMigemoUI = {
 		var pageSize = this.getPageSize(doc.defaultView);
 
 		var heads = doc.getElementsByTagName('head');
-		if(heads.length > 0) {
+		if (heads.length > 0) {
 			var objHead = heads[0];
 			var node = doc.createElement('style');
 			node.id = '__moz_xmigemoFindHighlightStyle';
@@ -1215,10 +1217,10 @@ var XMigemoUI = {
 			z-index: 1000000;
 		}
 		:root[__moz_xmigemoFindHighlightScreen="on"] > body > #__moz_xmigemoFindHighlightScreen {
-			display: block !important;;
+			display: block !important;
 		}
 		:root[__moz_xmigemoFindHighlightScreen="on"] embed {
-			visibility: hidden !important;;
+			visibility: hidden !important;
 		}
 		:root[__moz_xmigemoFindHighlightScreen="on"] iframe {
 			position: relative;
@@ -1256,7 +1258,7 @@ var XMigemoUI = {
 
 		if (!(aFrame.document instanceof HTMLDocument)) return;
 
-		aFrame.document.documentElement.setAttribute('__moz_xmigemoFindHighlightScreen', 'off');
+		aFrame.document.documentElement.removeAttribute('__moz_xmigemoFindHighlightScreen');
 	},
  
 	toggleHighlightScreen: function(aHighlight, aFrame) 
@@ -1276,7 +1278,10 @@ var XMigemoUI = {
 		if (window.content)
 			window.content.__moz_xmigemoHighlightedScreen = aHighlight;
 
-		aFrame.document.documentElement.setAttribute('__moz_xmigemoFindHighlightScreen', aHighlight ? 'on' : 'off' );
+		if (aHighlight)
+			aFrame.document.documentElement.setAttribute('__moz_xmigemoFindHighlightScreen', 'on');
+		else
+			aFrame.document.documentElement.removeAttribute('__moz_xmigemoFindHighlightScreen');
 	},
   	
 	init : function() 
