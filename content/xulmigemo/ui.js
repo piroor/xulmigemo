@@ -16,6 +16,7 @@ var XMigemoUI = {
 	isAutoStart            : false, 
 	isAutoExit             : false,
 	timeout                : 0,
+	strongHighlight        : false,
 
 	enableByDefault        : false,
 
@@ -191,6 +192,10 @@ var XMigemoUI = {
 					this.timeout = value;
 				return;
 
+			case 'xulmigemo.highlight.showScreen':
+				this.strongHighlight = value;
+				return;
+
 			case 'xulmigemo.shortcut.findForward':
 				this.findForwardKey = XMigemoService.parseShortcut(value);
 				return;
@@ -268,7 +273,7 @@ var XMigemoUI = {
 			default:
 		}
 	},
-	
+	 
 	keyEvent : function(aEvent) 
 	{
 		if (
@@ -483,6 +488,10 @@ var XMigemoUI = {
   
 	mouseEvent : function(aEvent) 
 	{
+		if (window.content &&
+			window.content.__moz_xmigemoHighlightedScreen)
+			this.toggleHighlightScreen(false);
+
 		if (!this.isQuickFind) {
 			XMigemoUI.isActive = false;
 //			XMigemoUI.cancel(true);
@@ -493,7 +502,7 @@ var XMigemoUI = {
 		this.cancel();
 		this.clearTimer();//ここでタイマーを殺さないといじられてしまう。タイマー怖い。
 	},
- 
+ 	
 	onXMigemoFindProgress : function(aEvent) 
 	{
 		gFindBar.enableFindButtons(!(
@@ -753,7 +762,7 @@ var XMigemoUI = {
 	},
  
 /* Override FindBar */ 
-	
+	 
 	overrideFindBar : function() 
 	{
 		/*
@@ -969,7 +978,8 @@ var XMigemoUI = {
 
 		XMigemoUI.toggleFindToolbarMode();
 
-		XMigemoUI.initializeHighlightScreen(null);
+		if (XMigemoUI.strongHighlight)
+			XMigemoUI.initializeHighlightScreen();
 
 		if (XMigemoService.getPref('xulmigemo.prefillwithselection')) {
 			var win = document.commandDispatcher.focusedWindow || window.content ;
@@ -1001,7 +1011,8 @@ var XMigemoUI = {
 	{
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalClose.apply(scope, arguments);
-		XMigemoUI.destroyHighlightScreen(null);
+		if (XMigemoUI.strongHighlight)
+			XMigemoUI.destroyHighlightScreen();
 		window.setTimeout('XMigemoUI.delayedCloseFindBar()', 0);
 	},
 	delayedCloseFindBar : function()
@@ -1021,7 +1032,8 @@ var XMigemoUI = {
 		if (window.content)
 			window.content.__moz_xmigemoHighlighted = aHighlight;
 
-		XMigemoUI.toggleHighlightScreen(aHighlight, null);
+		if (XMigemoUI.strongHighlight)
+			XMigemoUI.toggleHighlightScreen(aHighlight);
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalToggleHighlight.apply(scope, arguments);
@@ -1125,155 +1137,143 @@ var XMigemoUI = {
 	codes from http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
 */
 	 
-	getPageSize : function(win, doc) { 
-		var xScroll = doc.body.scrollWidth;
-		var yScroll = win.innerHeight + win.scrollMaxY;
-		var windowWidth  = win.innerWidth;
-		var windowHeight = win.innerHeight;
+	initializeHighlightScreen: function(aFrame) 
+	{
+		if (!aFrame)
+			aFrame = this.activeBrowser.contentWindow;
 
-		var pageHeight;
-		// for small pages with total height less then height of the viewport
-		if(yScroll < windowHeight) {
-			pageHeight = windowHeight;
-		} else {
-			pageHeight = yScroll;
+		if (aFrame.frames && aFrame.frames.length) {
+			var self = this;
+			Array.prototype.slice.call(aFrame.frames).forEach(function(aSubFrame) {
+				self.initializeHighlightScreen(aSubFrame);
+			});
 		}
 
-		var pageWidth;
-		// for small pages with total width less then width of the viewport
-		if(xScroll < windowWidth) {
-			pageWidth = windowWidth;
-		} else {
-			pageWidth = xScroll;
-		}
-
-		arrayPageSize = new Array(pageWidth, pageHeight, windowWidth, windowHeight);
-		return arrayPageSize;
+		if (aFrame.document instanceof HTMLDocument)
+			this.addHighlightScreen(aFrame.document);
 	},
- 	
-	addOverlay: function(aDoc/*event*/) { 
-		var doc = aDoc;//event.originalTarget;
-		var win = doc.defaultView || doc.parentWindow;
-		var top = win.top || win;
+	 
+	addHighlightScreen: function(aDocument) 
+	{
+		var doc = aDocument;
+		if (doc.getElementById('__moz_xmigemoFindHighlightStyle'))
+			return;
 
-		if (doc.getElementById('__moz_xmigemoFindHighlightStyle')) return;
+		var pageSize = this.getPageSize(doc.defaultView);
 
-		var arrayPageSize = this.getPageSize(win, doc);
-
-		var heads = doc.getElementsByTagName("head");
-		var objHead = doc.getElementsByTagName("head").item(0);
+		var heads = doc.getElementsByTagName('head');
 		if(heads.length > 0) {
-			var node = doc.createElement("style");
-			node.id = "__moz_xmigemoFindHighlightStyle";
-			node.type = "text/css";
+			var objHead = heads[0];
+			var node = doc.createElement('style');
+			node.id = '__moz_xmigemoFindHighlightStyle';
+			node.type = 'text/css';
 			node.innerHTML = this.highlightStyle+
-				'#__moz_xmigemoFindHighlightOverlay {'+
-				'	height: '+arrayPageSize[1]+'px;'+
+				'#__moz_xmigemoFindHighlightScreen {'+
+				'	height: '+pageSize.height+'px;'+
 				'}';
 			objHead.insertBefore(node, objHead.firstChild);
 		}
 
-		if(doc.getElementsByTagName("body").length == 0)
+		var bodys = doc.getElementsByTagName('body');
+		if(bodys.length == 0)
 			return;
 
-		var objBody = doc.getElementsByTagName("body").item(0);
+		var objBody = bodys[0];
 
-		var overlay = doc.createElement("div");
-		overlay.setAttribute("id", "__moz_xmigemoFindHighlightOverlay");
-		overlay.setAttribute("class", "__moz_xmigemoFindHighlightOverlay-Off");
+		var screen = doc.createElement('div');
+		screen.setAttribute('id', '__moz_xmigemoFindHighlightScreen');
 
-		objBody.insertBefore(overlay, objBody.firstChild);
+		objBody.insertBefore(screen, objBody.firstChild);
 	},
-	highlightStyle : String(<![CDATA[
-		#__firefox-findbar-search-id,
-		.__mozilla-findbar-search {
+	 
+	highlightStyle : String(<![CDATA[ 
+		#__firefox-findbar-search-id, /* Fx 2 */
+		.__mozilla-findbar-search, /* Fx 3 */
+		.searchwp-term-highlight1, /* SearchWP */
+		.searchwp-term-highlight2,
+		.searchwp-term-highlight3,
+		.searchwp-term-highlight4,
+		.GBL-Highlighted /* Googlebar Lite */ {
 			position: relative !important;
-			z-index: 30000000 !important;
+			z-index: 3000000 !important;
 		}
-		#__moz_xmigemoFindHighlightOverlay {
+		#__moz_xmigemoFindHighlightScreen {
 			left: 0;
 			top: 0;
 			width: 100%;
 			border: 0;
 			margin: 0;
 			padding: 0;
-			background-color: #000000;
-			background-repeat: repeat;
+			background: #000000;
 			position: absolute;
 			z-index: 1000000;
 			opacity: 0.5;
 			-moz-opacity: 0.5;
+			display: none;
 		}
-		.__moz_xmigemoFindHighlightOverlay-On {
+		:root[__moz_xmigemoFindHighlightScreen="on"] > body > #__moz_xmigemoFindHighlightScreen {
 			display: block;
 		}
-		.__moz_xmigemoFindHighlightOverlay-Off {
-			display: none;
+		:root[__moz_xmigemoFindHighlightScreen="on"] embed {
+			visibility: hidden;
 		}
 		iframe {
 			position: relative;
-			z-index: 20000000 !important;
+			z-index: 2000000 !important;
 		}
 	]]>),
- 
-	initializeHighlightScreen: function(win) { 
-		if (!XMigemoService.getPref('xulmigemo.highlight.showScreen')) return;
-
-		if(!win)
-			win = window.content;
-
-		for(var i = 0; win.frames && i < win.frames.length; i ++)
-			this.initializeHighlightScreen(win.frames[i]);
-
-		var doc = win.document;
-		if(!doc || !("body" in doc))
-			return null;
-
-		this.addOverlay(doc);
-
-		var overlay = doc.getElementById("__moz_xmigemoFindHighlightOverlay");
-		if (!overlay) return;
-		if(overlay.getAttribute("class") == "__moz_xmigemoFindHighlightOverlay-On")
-			overlay.removeAttribute("style");
+  
+	getPageSize : function(aWindow) 
+	{
+		var xScroll = aWindow.document.body.scrollWidth;
+		var yScroll = aWindow.innerHeight + aWindow.scrollMaxY;
+		var windowWidth  = aWindow.innerWidth;
+		var windowHeight = aWindow.innerHeight;
+		var pageHeight = (yScroll < windowHeight) ? windowHeight : yScroll ;
+		var pageWidth  = (xScroll < windowWidth) ? windowWidth : xScroll ;
+		return {
+				width   : pageWidth,
+				height  : pageHeight,
+				wWidth  : windowWidth,
+				wHeight : windowHeight
+			};
 	},
- 
-	destroyHighlightScreen: function(win) { 
-		if (!XMigemoService.getPref('xulmigemo.highlight.showScreen')) return;
+  
+	destroyHighlightScreen: function(aFrame) 
+	{
+		if (!aFrame)
+			aFrame = this.activeBrowser.contentWindow;
 
-		if(!win)
-			win = window.content;
-		for(var i = 0; win.frames && i < win.frames.length; i ++)
-			this.destroyHighlightScreen(win.frames[i]);
-
-		var doc = win.document;
-		if(!doc || !("body" in doc))
-			return null;
-
-		var overlay = doc.getElementById("__moz_xmigemoFindHighlightOverlay");
-		if (!overlay) return;
-		if(overlay.getAttribute("class") == "__moz_xmigemoFindHighlightOverlay-On")
-			overlay.setAttribute("style", "display:none;");
-	},
- 
-	toggleHighlightScreen: function(aHighlight, win) { 
-		if (!XMigemoService.getPref('xulmigemo.highlight.showScreen')) return;
-
-		if(!win)
-			win = window.content;
-		for(var i = 0; win.frames && i < win.frames.length; i ++)
-			this.toggleHighlightScreen(aHighlight, win.frames[i]);
-
-		var doc = win.document;
-		if(!doc || !("body" in doc))
-			return null;
-
-		var overlay = doc.getElementById("__moz_xmigemoFindHighlightOverlay");
-		if (!overlay) return;
-		if(aHighlight) {
-			overlay.setAttribute("class", "__moz_xmigemoFindHighlightOverlay-On");
-		} else {
-			overlay.setAttribute("class", "__moz_xmigemoFindHighlightOverlay-Off");
+		if (aFrame.frames && aFrame.frames.length) {
+			var self = this;
+			Array.prototype.slice.call(aFrame.frames).forEach(function(aSubFrame) {
+				self.destroyHighlightScreen(aSubFrame);
+			});
 		}
+
+		if (!(aFrame.document instanceof HTMLDocument)) return;
+
+		aFrame.document.documentElement.setAttribute('__moz_xmigemoFindHighlightScreen', 'off');
+	},
+ 
+	toggleHighlightScreen: function(aHighlight, aFrame) 
+	{
+		if (!aFrame)
+			aFrame = this.activeBrowser.contentWindow;
+
+		if (aFrame.frames && aFrame.frames.length) {
+			var self = this;
+			Array.prototype.slice.call(aFrame.frames).forEach(function(aSubFrame) {
+				self.toggleHighlightScreen(aHighlight, aSubFrame);
+			});
+		}
+
+		if (!(aFrame.document instanceof HTMLDocument)) return;
+
+		if (window.content)
+			window.content.__moz_xmigemoHighlightedScreen = aHighlight;
+
+		aFrame.document.documentElement.setAttribute('__moz_xmigemoFindHighlightScreen', aHighlight ? 'on' : 'off' );
 	},
   
 	init : function() 
@@ -1316,6 +1316,7 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.nokeyword');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enable_by_default');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.showScreen');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.override_findtoolbar');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.findForward');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.findBackward');
@@ -1328,13 +1329,15 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.indicator.height');
 
 		this.overrideFindBar();
+		this.hackForOtherExtensions();
 
 		window.setTimeout('XMigemoUI.delayedInit()', 0);
 
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 	},
-	delayedInit : function() {
+	 
+	delayedInit : function() { 
 		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
 
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.migemo'))
@@ -1350,6 +1353,34 @@ var XMigemoUI = {
 			gFindBar.openFindBar();
 	},
  
+	hackForOtherExtensions : function() 
+	{
+		if (typeof gSearchWP != 'undefined') { // SearchWP
+			eval(
+				'gSearchWPOverlay.toggleHighlight = '+
+				gSearchWPOverlay.toggleHighlight.toSource().replace(
+					'gSearchWPHighlighting.toggleHighlight',
+					'XMigemoUI.initializeHighlightScreen();'+
+					'XMigemoUI.toggleHighlightScreen(aHighlight);'+
+					'gSearchWPHighlighting.toggleHighlight'
+				)
+			);
+		}
+
+		if (typeof GBL_Listener != 'undefined') { // Googlebar Lite
+			eval(
+				'window.GBL_ToggleHighlighting = '+
+				window.GBL_ToggleHighlighting.toSource().replace(
+					'var hb = document.getElementById("GBL-TB-Highlighter");',
+					'var hb = document.getElementById("GBL-TB-Highlighter");'+
+					'XMigemoUI.initializeHighlightScreen();'+
+					'XMigemoUI.toggleHighlightScreen(!hb.checked);'
+				)
+			);
+		}
+	},
+
+  
 	destroy : function() 
 	{
 		XMigemoService.removePrefListener(this);
