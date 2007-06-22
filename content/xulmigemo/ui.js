@@ -1154,6 +1154,7 @@ var XMigemoUI = {
 		var arrayPageSize = this.getPageSize(win, doc);
 
 		var heads = doc.getElementsByTagName("head");
+		var objHead = doc.getElementsByTagName("head").item(0);
 		if(heads.length > 0) {
 			var node = doc.createElement("style");
 			node.id = "__moz_xmigemoFindHighlightStyle";
@@ -1182,9 +1183,16 @@ var XMigemoUI = {
 				"}" +
 				".__moz_xmigemoFindHighlightOverlay-Off {" +
 				"  display: none;" +
+				"}"+
+				"iframe {" +
+				"  position: relative;" +
+				"  z-index: 20000000 !important;" +
 				"}";
-			heads[0].appendChild(node);
+			objHead.insertBefore(node, objHead.firstChild);
 		}
+
+		if(doc.getElementsByTagName("body").length == 0)
+			return;
 
 		var objBody = doc.getElementsByTagName("body").item(0);
 
@@ -1193,15 +1201,6 @@ var XMigemoUI = {
 		overlay.setAttribute("class", "__moz_xmigemoFindHighlightOverlay-Off");
 
 		objBody.insertBefore(overlay, objBody.firstChild);
-
-
-		var iframe = doc.body.getElementsByTagName("iframe");
-		for(var i = 0; i < iframe.length; i ++) {
-			iframe[i].style.zIndex = "20000000";
-			if((iframe[i].style.position == "static") ||
-				(iframe[i].style.position == ""))
-				iframe[i].style.position = "relative";
-		}
 	},
  
 	initializeHighlightScreen: function(win) { 
