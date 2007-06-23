@@ -849,6 +849,7 @@ var XMigemoUI = {
 				xmigemoOriginalFindPrevious : window.findPrevious,
 				toggleCaseSensitiveCheckbox : window.toggleCaseSensitivity
 			};
+			window.toggleHighlight = this.toggleHighlight;
 		}
 
 		eval('gFindBar.find = '+gFindBar.find.toSource()
@@ -978,11 +979,10 @@ var XMigemoUI = {
 
 		XMigemoUI.toggleFindToolbarMode();
 
-		if (XMigemoUI.strongHighlight) {
-			XMigemoUI.initializeHighlightScreen();
-			if (!XMigemoUI.findHighlightCheck.disabled && XMigemoUI.findHighlightCheck.checked)
-				XMigemoUI.toggleHighlightScreen(true);
-		}
+		if (XMigemoUI.strongHighlight &&
+			!XMigemoUI.findHighlightCheck.disabled &&
+			XMigemoUI.findHighlightCheck.checked)
+			XMigemoUI.toggleHighlightScreen(true);
 
 		if (XMigemoService.getPref('xulmigemo.prefillwithselection')) {
 			var win = document.commandDispatcher.focusedWindow || window.content ;
@@ -1142,12 +1142,12 @@ var XMigemoUI = {
 	based on http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
 */
 	 
-	initializeHighlightScreen: function(aFrame) 
+	initializeHighlightScreen : function(aFrame, aDontFollowSubFrames) 
 	{
 		if (!aFrame)
 			aFrame = this.activeBrowser.contentWindow;
 
-		if (aFrame.frames && aFrame.frames.length) {
+		if (!aDontFollowSubFrames && aFrame.frames && aFrame.frames.length) {
 			var self = this;
 			Array.prototype.slice.call(aFrame.frames).forEach(function(aSubFrame) {
 				self.initializeHighlightScreen(aSubFrame);
@@ -1156,9 +1156,11 @@ var XMigemoUI = {
 
 		if (aFrame.document instanceof HTMLDocument)
 			this.addHighlightScreen(aFrame.document);
+
+		aFrame.__moz_xmigemoHighlightedScreenInitialized = true;
 	},
 	
-	addHighlightScreen: function(aDocument) 
+	addHighlightScreen : function(aDocument) 
 	{
 		var doc = aDocument;
 		if (doc.getElementById('__moz_xmigemoFindHighlightStyle'))
@@ -1192,6 +1194,9 @@ var XMigemoUI = {
 	},
 	
 	highlightStyle : String(<![CDATA[ 
+		:root[__moz_xmigemoFindHighlightScreen="on"] * {
+			z-index: auto !important;
+		}
 		:root[__moz_xmigemoFindHighlightScreen="on"] #__firefox-findbar-search-id, /* Fx 2 */
 		:root[__moz_xmigemoFindHighlightScreen="on"] .__mozilla-findbar-search, /* Fx 3 */
 		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight1, /* SearchWP */
@@ -1214,7 +1219,7 @@ var XMigemoUI = {
 			opacity: 0.5;
 			-moz-opacity: 0.5;
 			display: none;
-			z-index: 1000000;
+			z-index: 1000000 !important;
 		}
 		:root[__moz_xmigemoFindHighlightScreen="on"] > body > #__moz_xmigemoFindHighlightScreen {
 			display: block !important;
@@ -1244,7 +1249,7 @@ var XMigemoUI = {
 			};
 	},
   
-	destroyHighlightScreen: function(aFrame) 
+	destroyHighlightScreen : function(aFrame) 
 	{
 		if (!aFrame)
 			aFrame = this.activeBrowser.contentWindow;
@@ -1261,7 +1266,7 @@ var XMigemoUI = {
 		aFrame.document.documentElement.removeAttribute('__moz_xmigemoFindHighlightScreen');
 	},
  
-	toggleHighlightScreen: function(aHighlight, aFrame) 
+	toggleHighlightScreen : function(aHighlight, aFrame) 
 	{
 		if (!aFrame)
 			aFrame = this.activeBrowser.contentWindow;
@@ -1275,8 +1280,10 @@ var XMigemoUI = {
 
 		if (!(aFrame.document instanceof HTMLDocument)) return;
 
-		if (window.content)
-			window.content.__moz_xmigemoHighlightedScreen = aHighlight;
+		if (!('__moz_xmigemoHighlightedScreenInitialized' in aFrame) && aHighlight)
+			this.initializeHighlightScreen(aFrame, true);
+
+		aFrame.__moz_xmigemoHighlightedScreen = aHighlight;
 
 		if (aHighlight)
 			aFrame.document.documentElement.setAttribute('__moz_xmigemoFindHighlightScreen', 'on');
@@ -1368,7 +1375,6 @@ var XMigemoUI = {
 				'gSearchWPOverlay.toggleHighlight = '+
 				gSearchWPOverlay.toggleHighlight.toSource().replace(
 					'gSearchWPHighlighting.toggleHighlight',
-					'XMigemoUI.initializeHighlightScreen();'+
 					'XMigemoUI.toggleHighlightScreen(aHighlight);'+
 					'gSearchWPHighlighting.toggleHighlight'
 				)
@@ -1381,7 +1387,6 @@ var XMigemoUI = {
 				window.GBL_ToggleHighlighting.toSource().replace(
 					'var hb = document.getElementById("GBL-TB-Highlighter");',
 					'var hb = document.getElementById("GBL-TB-Highlighter");'+
-					'XMigemoUI.initializeHighlightScreen();'+
 					'XMigemoUI.toggleHighlightScreen(!hb.checked);'
 				)
 			);
