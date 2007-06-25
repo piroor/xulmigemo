@@ -3,6 +3,7 @@
 
 <!ENTITY xulmigemo.tab.general             "General">
 
+
 <!ENTITY xulmigemo.lang.label              "Engine:">
 <!ENTITY xulmigemo.lang.item1.label        "English (Dictionary Assisted Find)">
 <!ENTITY xulmigemo.lang.item1.value        "en-US">
@@ -10,10 +11,11 @@
 <!ENTITY xulmigemo.lang.item2.value        "ja">
 <!ENTITY xulmigemo.lang.description        "*Require restarting.">
 
+
 <!ENTITY xulmigemo.enable_by_default       "Always enter Migemo mode automatically">
 <!ENTITY xulmigemo.startfromviewport       "Find from viewport">
 <!ENTITY xulmigemo.scrollSelectionToCenter "Show the found term in the middle of the screen">
-<!ENTITY xulmigemo.highlight.showScreen    "Strongly emphasise &quot;Highlight all&">
+<!ENTITY xulmigemo.highlight.showScreen    "Strongly emphasise &quot;Highlight all&quot;">
 
 <!ENTITY xulmigemo.caption.recognize       "Character Recognition (Japanese)">
 <!ENTITY xulmigemo.ignoreHiraKata          "Ignore difference of Hiragana and Katakana">
@@ -142,7 +144,6 @@
 
 <!ENTITY xulmigemo.langchooser.title  "XUL/Migemo [Forked Edition]: Choose the Engine">
 <!ENTITY xulmigemo.langchooser.label  "Choose the engine of Migemo-find-mode (incremental search assisted by dictionary).">
-
 
 
 <!ENTITY xulmigemo.init.title  "XUL/Migemo [Forked Edition] Initialization Wizard">
