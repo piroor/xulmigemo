@@ -1216,8 +1216,8 @@ var XMigemoUI = {
 			padding: 0;
 			background: #000000;
 			position: absolute;
-			opacity: 0.5;
-			-moz-opacity: 0.5;
+			opacity: 0.3;
+			-moz-opacity: 0.3;
 			display: none;
 			z-index: 1000000 !important;
 		}
