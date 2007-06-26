@@ -771,6 +771,7 @@ var XMigemoUI = {
 			すべてFirefox 2.0に合わせる。
 		*/
 		var updateGlobalFunc = false;
+		var updateStatusFunc = false;
 
 		var bar = document.getElementById('FindToolbar');
 		if (bar &&
@@ -815,8 +816,9 @@ var XMigemoUI = {
 			if (!('updateStatus' in gFindBar)) {
 				if ('updateStatusBar' in gFindBar) // old
 					gFindBar.updateStatus = gFindBar.updateStatusBar;
-				if ('_updateStatusUI' in gFindBar) // Firefox 3.0
+				else if ('_updateStatusUI' in gFindBar) // Firefox 3.0
 					gFindBar.updateStatus = gFindBar._updateStatusUI;
+				updateStatusFunc = true;
 			}
 
 			gFindBar.xmigemoOriginalToggleHighlight = gFindBar.toggleHighlight;
@@ -862,6 +864,19 @@ var XMigemoUI = {
 		eval('gFindBar.xmigemoOriginalFindPrevious = '+gFindBar.xmigemoOriginalFindPrevious.toSource()
 			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(window._content); $1')
 		);
+
+		eval('gFindBar.updateStatus = '+gFindBar.updateStatus.toSource()
+			.replace(
+				'{',
+				'{ if (arguments[0] != Components.interfaces.nsITypeAheadFind.FIND_NOTFOUND) { XMigemoUI.highlightFocusedFound(); };'
+			)
+		);
+		if (updateStatusFunc) {
+			if ('updateStatusBar' in gFindBar) // old
+				gFindBar.updateStatusBar = gFindBar.updateStatus;
+			else if ('_updateStatusUI' in gFindBar) // Firefox 3.0
+				gFindBar._updateStatusUI = gFindBar.updateStatus;
+		}
 
 		// Firefox 3.0-    : onFindAgainCommand / searcgString
 		// Firefox 1.x-2.0 : onFindAgainCmd / onFindPreviousCmd / findString
@@ -1037,7 +1052,10 @@ var XMigemoUI = {
 		if (window.content)
 			window.content.__moz_xmigemoHighlighted = aHighlight;
 
-		if (XMigemoUI.strongHighlight)
+		if (
+			XMigemoUI.strongHighlight/* &&
+			((XMigemoUI.isActive ? XMigemoFind.lastFoundWord : XMigemoUI.findTerm ) || '').length > 1*/
+			)
 			XMigemoUI.toggleHighlightScreen(aHighlight);
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
@@ -1290,7 +1308,12 @@ var XMigemoUI = {
 		else
 			aFrame.document.documentElement.removeAttribute('__moz_xmigemoFindHighlightScreen');
 	},
-  	
+ 
+	highlightFocusedFound : function() 
+	{
+		// 選択範囲でハイライトされている箇所をぴょこぴょこ動かすとか……
+	},
+ 	 
 	init : function() 
 	{
 		this.lastFindMode = this.FIND_MODE_NATIVE;
