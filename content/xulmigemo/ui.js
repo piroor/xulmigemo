@@ -909,7 +909,7 @@ var XMigemoUI = {
 				'var selectAfter = XMigemoUI.isRangeOverlap(foundRange, retRange); var firstChild = docfrag.firstChild, lastChild = docfrag.lastChild; parent.removeChild('
 			).replace(
 				'parent.normalize();',
-				'parent.normalize(); if (selectAfter) { XMigemoUI.selectNode(firstChild, doc, lastChild); }'
+				'if (selectAfter) { XMigemoUI.selectNode(firstChild, doc, lastChild); } parent.normalize();'
 			)
 		);
 
@@ -1368,6 +1368,7 @@ var XMigemoUI = {
 			aFrame = this.activeBrowser.contentWindow;
 
 		var range = this.getFoundRange(aFrame);
+return true;
 		if (range) {
 try{
 			var node  = range.startContainer;
@@ -1409,7 +1410,7 @@ catch(e) {
 		}
 		this.animationNode = aNode;
 		this.animationCount = 0;
-		window.setInterval(this.animateFoundNodeCallback, 1, this);
+		this.animationTimer = window.setInterval(this.animateFoundNodeCallback, 1, this);
 	},
 	animateFoundNodeCallback : function(aThis)
 	{
@@ -1458,22 +1459,65 @@ dump('animateFoundNodeCallback:'+count+'\n');
 		);
 	},
  
-	selectNode : function(aNodeOrStartNode, aDocument, aEndAfter) 
+	selectNode : function(aNode, aDocument, aEndAfter) 
 	{
-		var doc = aDocument || aNodeOrStartNode.ownerDocument;
+		var doc = aDocument || aNode.ownerDocument;
 		var selectRange = doc.createRange();
-dump("TARGET "+aNodeOrStartNode+"\n");
 		if (aEndAfter) {
-dump('BEFORE: '+aNodeOrStartNode+'\n');
-dump('AFTER: '+aEndAfter+'\n');
-			selectRange.selectNode(aNodeOrStartNode);
+			selectRange.setStartBefore(aNode);
 			selectRange.setEndAfter(aEndAfter);
 		}
 		else {
-			selectRange.selectNodeContents(aNodeOrStartNode);
+			selectRange.selectNodeContents(aNode);
 		}
-dump("SELECT "+selectRange.toString()+"\n");
-		doc.defaultView.getSelection().addRange(selectRange);
+
+		var startOffset = 0;
+		if (aNode.nodeType == Node.TEXT_NODE &&
+			aNode.previousSibling &&
+			aNode.previousSibling.nodeType == Node.TEXT_NODE) {
+			while (aNode.previousSibling && aNode.previousSibling.nodeType == Node.TEXT_NODE)
+			{
+				startOffset = aNode.previousSibling.nodeValue.length;
+				aNode = aNode.previousSibling;
+			}
+		}
+		var endOffset = 0;
+		if (aEndAfter &&
+			aEndAfter.nodeType == Node.TEXT_NODE &&
+			aEndAfter.nextSibling &&
+			aEndAfter.nextSibling.nodeType == Node.TEXT_NODE) {
+			while (aEndAfter.nextSibling && aEndAfter.nextSibling.nodeType == Node.TEXT_NODE)
+			{
+				endOffset = aEndAfter.nextSibling.nodeValue.length;
+				aEndAfter = aEndAfter.nextSibling;
+			}
+		}
+
+		var sel = doc.defaultView.getSelection();
+		if (startOffset || endOffset) {
+			var startParent = aNode.parentNode;
+			var endParent   = aEndAfter.parentNode;
+			window.setTimeout(function() {
+				if (startOffset)
+					selectRange.setStart(startParent.firstChild, startOffset);
+				else
+					selectRange.setStartBefore(startParent.firstChild);
+
+				if (endOffset)
+					selectRange.setEnd(endParent.lastChild, endParent.lastChild.nodeValue.length - endOffset);
+				else
+					selectRange.setEndAfter(endParent.lastChild);
+
+				sel.removeAllRanges();
+				sel.addRange(selectRange);
+				XMigemoFind.setSelectionLook(doc, true);
+			}, 0);
+		}
+		else {
+			sel.removeAllRanges();
+			sel.addRange(selectRange);
+			XMigemoFind.setSelectionLook(doc, true);
+		}
 	},
  	 
 	init : function() 
