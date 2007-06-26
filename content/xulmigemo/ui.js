@@ -1364,13 +1364,20 @@ var XMigemoUI = {
  
 	highlightFocusedFound : function(aFrame) 
 	{
+		if (this.highlightFocusedFoundTimer) {
+			window.clearTimeout(this.highlightFocusedFoundTimer);
+		}
+		this.highlightFocusedFoundTimer = window.setTimeout('XMigemoUI.highlightFocusedFoundCallback()', 0);
+	},
+	highlightFocusedFoundCallback : function(aFrame) 
+	{
+		this.highlightFocusedFoundTimer = null;
+
 		if (!aFrame)
 			aFrame = this.activeBrowser.contentWindow;
 
 		var range = this.getFoundRange(aFrame);
-return true;
 		if (range) {
-try{
 			var node  = range.startContainer;
 			var xpathResult = document.evaluate(
 					'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
@@ -1379,14 +1386,9 @@ try{
 					XPathResult.FIRST_ORDERED_NODE_TYPE,
 					null
 				);
-dump('FOUND ? '+xpathResult.singleNodeValue+'\n');
 			if (xpathResult.singleNodeValue) {
 				this.animateFoundNode(xpathResult.singleNodeValue);
 			}
-}
-catch(e) {
-	dump(e+'\n');
-}
 			return true;
 		}
 
@@ -1404,32 +1406,33 @@ catch(e) {
 	animateFoundNode : function(aNode) 
 	{
 		if (this.animationTimer) {
+			this.animationNode.style.top = 0;
 			window.clearInterval(this.animationTimer);
 			this.animationTimer = null;
 			this.animationNode  = null;
 		}
 		this.animationNode = aNode;
-		this.animationCount = 0;
+		this.animationStart = (new Date()).getTime();
 		this.animationTimer = window.setInterval(this.animateFoundNodeCallback, 1, this);
 	},
 	animateFoundNodeCallback : function(aThis)
 	{
 		var node = aThis.animationNode;
-		var count = aThis.animationCount;
-dump('animateFoundNodeCallback:'+count+'\n');
-		if (count >= 180 || !node.parentNode) {
+		var now = (new Date()).getTime();
+		if (aThis.animationTime <= (now - aThis.animationStart) || !node.parentNode) {
+			node.style.top = 0;
 			window.clearInterval(aThis.animationTimer);
 			aThis.animationTimer = null;
 			aThis.animationNode  = null;
-			node.style.top = 0;
 		}
 		else {
-			var y = parseInt(5 * Math.sin(count * Math.PI / 180));
+			var step = aThis.animationTime / ((now - aThis.animationStart) || 1);
+			var y = parseInt(10 * Math.sin((180 - (180 * step)) * Math.PI / 180));
 			node.style.top = '-0.'+y+'em';
 		}
-		aThis.animationCount += 5;
 	},
 	animationTimer : null,
+	animationTime  : 250,
   
 	getFoundRange : function(aFrame) 
 	{
@@ -1463,50 +1466,84 @@ dump('animateFoundNodeCallback:'+count+'\n');
 	{
 		var doc = aDocument || aNode.ownerDocument;
 		var selectRange = doc.createRange();
-		if (aEndAfter) {
-			selectRange.setStartBefore(aNode);
-			selectRange.setEndAfter(aEndAfter);
-		}
-		else {
-			selectRange.selectNodeContents(aNode);
-		}
 
 		var startOffset = 0;
-		if (aNode.nodeType == Node.TEXT_NODE &&
-			aNode.previousSibling &&
-			aNode.previousSibling.nodeType == Node.TEXT_NODE) {
-			while (aNode.previousSibling && aNode.previousSibling.nodeType == Node.TEXT_NODE)
+		if (aNode.nodeType == Node.TEXT_NODE) {
+			while (
+				aNode.previousSibling &&
+				(
+					aNode.previousSibling.nodeType == Node.TEXT_NODE ||
+					aNode.previousSibling.getAttribute('id') == '__firefox-findbar-search-id' ||
+					aNode.previousSibling.getAttribute('class') == '__firefox-findbar-search'
+				)
+				)
 			{
-				startOffset = aNode.previousSibling.nodeValue.length;
 				aNode = aNode.previousSibling;
+				startOffset += aNode.textContent.length;
 			}
 		}
 		var endOffset = 0;
-		if (aEndAfter &&
-			aEndAfter.nodeType == Node.TEXT_NODE &&
-			aEndAfter.nextSibling &&
-			aEndAfter.nextSibling.nodeType == Node.TEXT_NODE) {
-			while (aEndAfter.nextSibling && aEndAfter.nextSibling.nodeType == Node.TEXT_NODE)
+		if (aEndAfter && aEndAfter.nodeType == Node.TEXT_NODE) {
+			while (
+				aEndAfter.nextSibling &&
+				(
+					aEndAfter.nextSibling.nodeType == Node.TEXT_NODE ||
+					aEndAfter.nextSibling.getAttribute('id') == '__firefox-findbar-search-id' ||
+					aEndAfter.nextSibling.getAttribute('class') == '__firefox-findbar-search'
+				)
+				)
 			{
-				endOffset = aEndAfter.nextSibling.nodeValue.length;
 				aEndAfter = aEndAfter.nextSibling;
+				endOffset += aEndAfter.textContent.length;
 			}
 		}
 
 		var sel = doc.defaultView.getSelection();
 		if (startOffset || endOffset) {
 			var startParent = aNode.parentNode;
-			var endParent   = aEndAfter.parentNode;
+			var endParent   = (aNode || aEndAfter).parentNode;
 			window.setTimeout(function() {
-				if (startOffset)
-					selectRange.setStart(startParent.firstChild, startOffset);
-				else
+				if (startOffset) {
+					var startNode = startParent.firstChild;
+					var getNext = function(aNode) {
+						aNode = aNode.nextSibling || aNode.parentNode.nextSibling;
+						if (aNode.nodeType != Node.TEXT_NODE)
+							aNode = aNode.firstChild;
+						return !aNode ? null :
+								aNode.nodeType == Node.TEXT_NODE ? aNode :
+								getNext(aNode);
+					}
+					while (startNode.textContent.length <= startOffset)
+					{
+						startOffset -= startNode.textContent.length;
+						startNode = getNext(startNode);
+					}
+					selectRange.setStart(startNode, startOffset);
+				}
+				else {
 					selectRange.setStartBefore(startParent.firstChild);
+				}
 
-				if (endOffset)
-					selectRange.setEnd(endParent.lastChild, endParent.lastChild.nodeValue.length - endOffset);
-				else
+				if (endOffset) {
+					var endNode = endParent.lastChild;
+					var getPrev = function(aNode) {
+						aNode = aNode.previousSibling || aNode.parentNode.previousSibling;
+						if (aNode.nodeType != Node.TEXT_NODE)
+							aNode = aNode.lastChild;
+						return !aNode ? null :
+								aNode.nodeType == Node.TEXT_NODE ? aNode :
+								getPrev(aNode);
+					}
+					while (endNode.textContent.length <= endOffset)
+					{
+						endOffset -= endNode.textContent.length;
+						endNode = getPrev(endNode);
+					}
+					selectRange.setEnd(endNode, endNode.textContent.length - endOffset);
+				}
+				else {
 					selectRange.setEndAfter(endParent.lastChild);
+				}
 
 				sel.removeAllRanges();
 				sel.addRange(selectRange);
@@ -1514,6 +1551,16 @@ dump('animateFoundNodeCallback:'+count+'\n');
 			}, 0);
 		}
 		else {
+			if (aEndAfter) {
+				selectRange.setStartBefore(aNode);
+				selectRange.setEndAfter(aEndAfter || aNode);
+			}
+			else if (aNode.nodeType == Node.ELEMENT_NODE) {
+				selectRange.selectNodeContents(aNode);
+			}
+			else {
+				selectRange.selectNode(aNode);
+			}
 			sel.removeAllRanges();
 			sel.addRange(selectRange);
 			XMigemoFind.setSelectionLook(doc, true);
