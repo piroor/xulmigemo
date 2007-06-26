@@ -16,7 +16,6 @@ var XMigemoUI = {
 	isAutoStart            : false, 
 	isAutoExit             : false,
 	timeout                : 0,
-	strongHighlight        : false,
 
 	enableByDefault        : false,
 
@@ -163,24 +162,6 @@ var XMigemoUI = {
 	},
 	_timeoutIndicatorBox : null,
  
-	NSResolver : { 
-		lookupNamespaceURI : function(aPrefix)
-		{
-			switch (aPrefix)
-			{
-				case 'xul':
-					return 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
-				case 'html':
-				case 'xhtml':
-					return 'http://www.w3.org/1999/xhtml';
-				case 'xlink':
-					return 'http://www.w3.org/1999/xlink';
-				default:
-					return '';
-			}
-		}
-	},
- 
 /* nsIPrefListener(?) */ 
 	
 	domain  : 'xulmigemo', 
@@ -208,10 +189,6 @@ var XMigemoUI = {
 				this.timeout = value;
 				if (this.timeout === null)
 					this.timeout = value;
-				return;
-
-			case 'xulmigemo.highlight.showScreen':
-				this.strongHighlight = value;
 				return;
 
 			case 'xulmigemo.shortcut.findForward':
@@ -506,10 +483,6 @@ var XMigemoUI = {
   
 	mouseEvent : function(aEvent) 
 	{
-		if (window.content &&
-			window.content.__moz_xmigemoHighlightedScreen)
-			this.toggleHighlightScreen(false);
-
 		if (!this.isQuickFind) {
 			XMigemoUI.isActive = false;
 //			XMigemoUI.cancel(true);
@@ -789,7 +762,6 @@ var XMigemoUI = {
 			‚·‚×‚ÄFirefox 2.0‚É‡‚í‚¹‚éB
 		*/
 		var updateGlobalFunc = false;
-		var updateStatusFunc = false;
 
 		var bar = document.getElementById('FindToolbar');
 		if (bar &&
@@ -836,7 +808,6 @@ var XMigemoUI = {
 					gFindBar.updateStatus = gFindBar.updateStatusBar;
 				else if ('_updateStatusUI' in gFindBar) // Firefox 3.0
 					gFindBar.updateStatus = gFindBar._updateStatusUI;
-				updateStatusFunc = true;
 			}
 
 			gFindBar.xmigemoOriginalToggleHighlight = gFindBar.toggleHighlight;
@@ -884,19 +855,6 @@ var XMigemoUI = {
 		eval('gFindBar.xmigemoOriginalFindPrevious = '+gFindBar.xmigemoOriginalFindPrevious.toSource()
 			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(window._content); $1')
 		);
-
-		eval('gFindBar.updateStatus = '+gFindBar.updateStatus.toSource()
-			.replace(
-				'{',
-				'{ if (arguments[0] != Components.interfaces.nsITypeAheadFind.FIND_NOTFOUND && XMigemoUI.strongHighlight) { XMigemoUI.highlightFocusedFound(); };'
-			)
-		);
-		if (updateStatusFunc) {
-			if ('updateStatusBar' in gFindBar) // old
-				gFindBar.updateStatusBar = gFindBar.updateStatus;
-			else if ('_updateStatusUI' in gFindBar) // Firefox 3.0
-				gFindBar._updateStatusUI = gFindBar.updateStatus;
-		}
 
 		var highlightDocFunc = ('_highlightDoc' in gFindBar) ? '_highlightDoc' : // Fx 3
 				'highlightDoc'; // Fx 2, 1.5
@@ -1047,10 +1005,9 @@ var XMigemoUI = {
 
 		XMigemoUI.toggleFindToolbarMode();
 
-		if (XMigemoUI.strongHighlight &&
-			!XMigemoUI.findHighlightCheck.disabled &&
-			XMigemoUI.findHighlightCheck.checked)
-			XMigemoUI.toggleHighlightScreen(true);
+		var event = document.createEvent('Events');
+		event.initEvent('XMigemoFindBarOpen', true, true);
+		XMigemoUI.findBar.dispatchEvent(event);
 
 		if (XMigemoService.getPref('xulmigemo.prefillwithselection')) {
 			var win = document.commandDispatcher.focusedWindow || window.content ;
@@ -1083,8 +1040,9 @@ var XMigemoUI = {
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalClose.apply(scope, arguments);
 
-		if (XMigemoUI.strongHighlight)
-			XMigemoUI.destroyHighlightScreen();
+		var event = document.createEvent('Events');
+		event.initEvent('XMigemoFindBarClose', true, true);
+		XMigemoUI.findBar.dispatchEvent(event);
 
 		window.setTimeout('XMigemoUI.delayedCloseFindBar()', 0);
 	},
@@ -1102,14 +1060,10 @@ var XMigemoUI = {
  
 	toggleHighlight : function(aHighlight) 
 	{
-		if (window.content)
-			window.content.__moz_xmigemoHighlighted = aHighlight;
-
-		if (
-			XMigemoUI.strongHighlight/* &&
-			((XMigemoUI.isActive ? XMigemoFind.lastFoundWord : XMigemoUI.findTerm ) || '').length > 1*/
-			)
-			XMigemoUI.toggleHighlightScreen(aHighlight);
+		var event = document.createEvent('Events');
+		event.initEvent('XMigemoFindBarToggleHighlight', true, true);
+		event.targetHighlight = aHighlight;
+		XMigemoUI.findBar.dispatchEvent(event);
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalToggleHighlight.apply(scope, arguments);
@@ -1189,9 +1143,9 @@ var XMigemoUI = {
 			highlightCheck.checked = highlightCheck.xmigemoOriginalChecked;
 		}
 
-		if (highlightCheck.checked && !window.content.__moz_xmigemoHighlighted) {
-			gFindBar.toggleHighlight(true);
-		}
+		var event = document.createEvent('Events');
+		event.initEvent('XMigemoFindBarUpdate', true, true);
+		XMigemoUI.findBar.dispatchEvent(event);
 	},
  
 	toggleFindToolbarMode : function(aSilently) 
@@ -1209,231 +1163,8 @@ var XMigemoUI = {
 		}
 	},
   
-/* Safari style highlight 
-	based on http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
-*/
+/* Restore selection after "highlight all" */ 
 	 
-	initializeHighlightScreen : function(aFrame, aDontFollowSubFrames) 
-	{
-		if (!aFrame)
-			aFrame = this.activeBrowser.contentWindow;
-
-		if (!aDontFollowSubFrames && aFrame.frames && aFrame.frames.length) {
-			var self = this;
-			Array.prototype.slice.call(aFrame.frames).forEach(function(aSubFrame) {
-				self.initializeHighlightScreen(aSubFrame);
-			});
-		}
-
-		if (aFrame.document instanceof HTMLDocument)
-			this.addHighlightScreen(aFrame.document);
-
-		aFrame.__moz_xmigemoHighlightedScreenInitialized = true;
-	},
-	
-	addHighlightScreen : function(aDocument) 
-	{
-		var doc = aDocument;
-		if (doc.getElementById('__moz_xmigemoFindHighlightStyle'))
-			return;
-
-		var pageSize = this.getPageSize(doc.defaultView);
-
-		var heads = doc.getElementsByTagName('head');
-		if (heads.length > 0) {
-			var objHead = heads[0];
-			var node = doc.createElement('style');
-			node.id = '__moz_xmigemoFindHighlightStyle';
-			node.type = 'text/css';
-			node.innerHTML = this.highlightStyle+
-				'#__moz_xmigemoFindHighlightScreen {'+
-				'	height: '+pageSize.height+'px;'+
-				'}';
-			objHead.insertBefore(node, objHead.firstChild);
-		}
-
-		var bodies = doc.getElementsByTagName('body');
-		if(bodies.length == 0)
-			return;
-
-		var objBody = bodies[0];
-
-		var screen = doc.createElement('div');
-		screen.setAttribute('id', '__moz_xmigemoFindHighlightScreen');
-
-		objBody.insertBefore(screen, objBody.firstChild);
-	},
-	
-	highlightStyle : String(<![CDATA[ 
-		:root[__moz_xmigemoFindHighlightScreen="on"] * {
-			z-index: auto !important;
-		}
-		:root[__moz_xmigemoFindHighlightScreen="on"] #__firefox-findbar-search-id, /* Fx 2 */
-		:root[__moz_xmigemoFindHighlightScreen="on"] .__mozilla-findbar-search, /* Fx 3 */
-		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight1, /* SearchWP */
-		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight2,
-		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight3,
-		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight4,
-		:root[__moz_xmigemoFindHighlightScreen="on"] .GBL-Highlighted /* Googlebar Lite */ {
-			position: relative !important;
-			z-index: 3000000 !important;
-		}
-		#__moz_xmigemoFindHighlightScreen {
-			left: 0;
-			top: 0;
-			width: 100%;
-			border: 0;
-			margin: 0;
-			padding: 0;
-			background: #000000;
-			position: absolute;
-			opacity: 0.3;
-			-moz-opacity: 0.3;
-			display: none;
-			z-index: 1000000 !important;
-		}
-		:root[__moz_xmigemoFindHighlightScreen="on"] > body > #__moz_xmigemoFindHighlightScreen {
-			display: block !important;
-		}
-		:root[__moz_xmigemoFindHighlightScreen="on"] embed {
-			visibility: hidden !important;
-		}
-		:root[__moz_xmigemoFindHighlightScreen="on"] iframe {
-			position: relative;
-			z-index: 2000000 !important;
-		}
-	]]>),
-  
-	getPageSize : function(aWindow) 
-	{
-		var xScroll = aWindow.document.body.scrollWidth;
-		var yScroll = aWindow.innerHeight + aWindow.scrollMaxY;
-		var windowWidth  = aWindow.innerWidth;
-		var windowHeight = aWindow.innerHeight;
-		var pageHeight = (yScroll < windowHeight) ? windowHeight : yScroll ;
-		var pageWidth  = (xScroll < windowWidth) ? windowWidth : xScroll ;
-		return {
-				width   : pageWidth,
-				height  : pageHeight,
-				wWidth  : windowWidth,
-				wHeight : windowHeight
-			};
-	},
-  
-	destroyHighlightScreen : function(aFrame) 
-	{
-		if (!aFrame)
-			aFrame = this.activeBrowser.contentWindow;
-
-		if (aFrame.frames && aFrame.frames.length) {
-			var self = this;
-			Array.prototype.slice.call(aFrame.frames).forEach(function(aSubFrame) {
-				self.destroyHighlightScreen(aSubFrame);
-			});
-		}
-
-		if (!(aFrame.document instanceof HTMLDocument)) return;
-
-		aFrame.document.documentElement.removeAttribute('__moz_xmigemoFindHighlightScreen');
-	},
- 
-	toggleHighlightScreen : function(aHighlight, aFrame) 
-	{
-		if (!aFrame)
-			aFrame = this.activeBrowser.contentWindow;
-
-		if (aFrame.frames && aFrame.frames.length) {
-			var self = this;
-			Array.prototype.slice.call(aFrame.frames).forEach(function(aSubFrame) {
-				self.toggleHighlightScreen(aHighlight, aSubFrame);
-			});
-		}
-
-		if (!(aFrame.document instanceof HTMLDocument)) return;
-
-		if (!('__moz_xmigemoHighlightedScreenInitialized' in aFrame) && aHighlight)
-			this.initializeHighlightScreen(aFrame, true);
-
-		aFrame.__moz_xmigemoHighlightedScreen = aHighlight;
-
-		if (aHighlight)
-			aFrame.document.documentElement.setAttribute('__moz_xmigemoFindHighlightScreen', 'on');
-		else
-			aFrame.document.documentElement.removeAttribute('__moz_xmigemoFindHighlightScreen');
-	},
- 
-	highlightFocusedFound : function(aFrame) 
-	{
-		if (this.highlightFocusedFoundTimer) {
-			window.clearTimeout(this.highlightFocusedFoundTimer);
-		}
-		this.highlightFocusedFoundTimer = window.setTimeout('XMigemoUI.highlightFocusedFoundCallback()', 0);
-	},
-	highlightFocusedFoundCallback : function(aFrame) 
-	{
-		this.highlightFocusedFoundTimer = null;
-
-		if (!aFrame)
-			aFrame = this.activeBrowser.contentWindow;
-
-		var range = this.getFoundRange(aFrame);
-		if (range) {
-			var node  = range.startContainer;
-			var xpathResult = document.evaluate(
-					'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
-					node,
-					this.NSResolver,
-					XPathResult.FIRST_ORDERED_NODE_TYPE,
-					null
-				);
-			if (xpathResult.singleNodeValue) {
-				this.animateFoundNode(xpathResult.singleNodeValue);
-			}
-			return true;
-		}
-
-		if (aFrame.frames && aFrame.frames.length) {
-			var frames = aFrame.frames;
-			for (var i = 0, maxi = frames.length; i < maxi; i++)
-			{
-				if (this.highlightFocusedFound(frames[i]))
-					break;
-			}
-		}
-		return false;
-	},
-	 
-	animateFoundNode : function(aNode) 
-	{
-		if (this.animationTimer) {
-			this.animationNode.style.top = 0;
-			window.clearInterval(this.animationTimer);
-			this.animationTimer = null;
-			this.animationNode  = null;
-		}
-		this.animationNode = aNode;
-		this.animationStart = (new Date()).getTime();
-		this.animationTimer = window.setInterval(this.animateFoundNodeCallback, 1, this);
-	},
-	animateFoundNodeCallback : function(aThis)
-	{
-		var node = aThis.animationNode;
-		var now = (new Date()).getTime();
-		if (aThis.animationTime <= (now - aThis.animationStart) || !node.parentNode) {
-			node.style.top = 0;
-			window.clearInterval(aThis.animationTimer);
-			aThis.animationTimer = null;
-			aThis.animationNode  = null;
-		}
-		else {
-			var step = aThis.animationTime / ((now - aThis.animationStart) || 1);
-			var y = parseInt(10 * Math.sin((180 - (180 * step)) * Math.PI / 180));
-			node.style.top = '-0.'+y+'em';
-		}
-	},
-	animationTimer : null,
-	animationTime  : 250,
-  
 	getFoundRange : function(aFrame) 
 	{
 		var docShell = aFrame
@@ -1566,7 +1297,7 @@ var XMigemoUI = {
 			XMigemoFind.setSelectionLook(doc, true);
 		}
 	},
- 	 
+  	
 	init : function() 
 	{
 		this.lastFindMode = this.FIND_MODE_NATIVE;
@@ -1607,7 +1338,6 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.nokeyword');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enable_by_default');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.showScreen');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.override_findtoolbar');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.findForward');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.findBackward');
@@ -1620,7 +1350,6 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.indicator.height');
 
 		this.overrideFindBar();
-		this.hackForOtherExtensions();
 
 		window.setTimeout('XMigemoUI.delayedInit()', 0);
 
@@ -1643,32 +1372,6 @@ var XMigemoUI = {
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.findbar'))
 			gFindBar.openFindBar();
 	},
- 
-	hackForOtherExtensions : function() 
-	{
-		if (typeof gSearchWP != 'undefined') { // SearchWP
-			eval(
-				'gSearchWPOverlay.toggleHighlight = '+
-				gSearchWPOverlay.toggleHighlight.toSource().replace(
-					'gSearchWPHighlighting.toggleHighlight',
-					'XMigemoUI.toggleHighlightScreen(aHighlight);'+
-					'gSearchWPHighlighting.toggleHighlight'
-				)
-			);
-		}
-
-		if (typeof GBL_Listener != 'undefined') { // Googlebar Lite
-			eval(
-				'window.GBL_ToggleHighlighting = '+
-				window.GBL_ToggleHighlighting.toSource().replace(
-					'var hb = document.getElementById("GBL-TB-Highlighter");',
-					'var hb = document.getElementById("GBL-TB-Highlighter");'+
-					'XMigemoUI.toggleHighlightScreen(!hb.checked);'
-				)
-			);
-		}
-	},
-
   
 	destroy : function() 
 	{

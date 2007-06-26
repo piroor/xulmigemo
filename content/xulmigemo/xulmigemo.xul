@@ -6,6 +6,7 @@
 <script src="core.js" /><!-- for backward compatibility -->
 <script src="service.js" />
 	<script src="ui.js" />
+		<script src="highlight.js" />
 
 <hbox id="XMigemoFindToolbar"
 	collapsed="true"
