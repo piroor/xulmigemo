@@ -540,7 +540,7 @@ pXMigemoTextTransformJa.prototype = {
 	},
  
 	convertStr : function(str) 
-	{
+	{ // should be replaced
 		var r2h  = this.r2h;
 		var ichi = this.ichi;
 		//var str;
@@ -612,7 +612,7 @@ pXMigemoTextTransformJa.prototype = {
 	},
  
 	convertStr2 : function(str, aKana) 
-	{
+	{ // should be replaced
 		//var str;
 		var cchar, lastchar, last2char;
 		var converted;
@@ -691,7 +691,7 @@ pXMigemoTextTransformJa.prototype = {
 	},
  
 	toZen : function(cchar, lastchar, last2char, aKana) 
-	{
+	{ // should be replaced
 		var ulastchar = lastchar.toUpperCase();
 		var ulast2char = last2char.toUpperCase();
 		switch (cchar.toUpperCase()) {
@@ -939,7 +939,7 @@ pXMigemoTextTransformJa.prototype = {
 	KANA_ALL  : 2,
  
 	isalpha : function(c) 
-	{
+	{ // should be replaced
 		return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) ? true : false ;
 	},
  
