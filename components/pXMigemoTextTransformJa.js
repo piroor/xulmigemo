@@ -539,11 +539,6 @@ pXMigemoTextTransformJa.prototype = {
 		//アルファベットをかな入力のものとみなして変換する
 	},
  
-	convertStrR : function() 
-	{
-		//アルファベットをローマ字入力のものとみなして変換する
-	},
- 
 	convertStr : function(str) 
 	{
 		var r2h  = this.r2h;
@@ -554,22 +549,26 @@ pXMigemoTextTransformJa.prototype = {
 		var i;
 		converted = lastchar = last2char = '';
 		i = 0;
-		while (i < str.length) {
+		while (i < str.length)
+		{
 			lastchar = last2char = '';
 			loopcheck:
-			while (i < str.length) {
+			while (i < str.length)
+			{
 				cchar = str.charAt(i++);
 				if (this.isalpha(cchar) && cchar.toUpperCase() == lastchar.toUpperCase()) {
 					if (cchar.toUpperCase() == 'N') {
 						converted += last2char + ichi.getString('n');
 						lastchar = cchar = '';
-					} else {
+					}
+					else {
 						converted += last2char + ichi.getString('ltu');
 					}
 					last2char = '';
 					continue;
 				}
-				switch (cchar.toUpperCase()) {
+				switch (cchar.toUpperCase())
+				{
 					case 'A':
 					case 'I':
 					case 'U':
@@ -578,21 +577,25 @@ pXMigemoTextTransformJa.prototype = {
 						converted += this.toZen(cchar, lastchar, last2char);
 						lastchar = last2char = '';
 						break loopcheck;
+
 					case ',':
 						if (lastchar.toUpperCase() == 'N') lastchar = ichi.getString('n');
 						converted += last2char + lastchar + r2h.getString('ten');
 						lastchar = last2char = '';
 						break loopcheck;
+
 					case '.':
 						if (lastchar.toUpperCase() == 'N') lastchar = ichi.getString('n');
 						converted += last2char + lastchar + r2h.getString('maru');
 						lastchar = last2char = '';
 						break loopcheck;
+
 					case '-':
 						if (lastchar.toUpperCase() == 'N') lastchar = ichi.getString('n');
 						converted += last2char + lastchar + r2h.getString('border');
 						lastchar = last2char = '';
 						break loopcheck;
+
 					default:
 						if (last2char != '') converted += last2char;
 						if (lastchar.toUpperCase() == 'N' && cchar.toUpperCase() != 'Y') {
@@ -616,22 +619,26 @@ pXMigemoTextTransformJa.prototype = {
 		var i;
 		converted = lastchar = last2char = '';
 		i = 0;
-		while (i < str.length) {
+		while (i < str.length)
+		{
 			lastchar = last2char = '';
 			loopcheck:
-			while (i < str.length) {
+			while (i < str.length)
+			{
 				cchar = str.charAt(i++);
 				if (this.isalpha(cchar) && cchar.toUpperCase() == lastchar.toUpperCase()) {
 					if (cchar.toUpperCase() == 'N') {
 						converted += last2char + this.getKana('n', aKana);
 						lastchar = cchar = '';
-					} else {
+					}
+					else {
 						converted += last2char + this.getKana('ltu', aKana)
 					}
 					last2char = '';
 					continue;
 				}
-				switch (cchar.toUpperCase()) {
+				switch (cchar.toUpperCase())
+				{
 					case '[':
 					case ']':
 					case '(':
@@ -640,6 +647,7 @@ pXMigemoTextTransformJa.prototype = {
 						converted += '\\'+cchar;
 						lastchar = last2char = '';
 						break loopcheck;
+
 					case 'A':
 					case 'I':
 					case 'U':
@@ -648,21 +656,25 @@ pXMigemoTextTransformJa.prototype = {
 						converted += this.toZen(cchar, lastchar, last2char, aKana);
 						lastchar = last2char = '';
 						break loopcheck;
+
 					case ',':
 						if (lastchar.toUpperCase() == 'N') lastchar = this.getKana('n', aKana)
 						converted += last2char + lastchar + this.getKana('ten', aKana)
 						lastchar = last2char = '';
 						break loopcheck;
+
 					case '.':
 						if (lastchar.toUpperCase() == 'N') lastchar = this.getKana('n', aKana)
 						converted += last2char + lastchar + this.getKana('maru', aKana)
 						lastchar = last2char = '';
 						break loopcheck;
+
 					case '-':
 						if (lastchar.toUpperCase() == 'N') lastchar = this.getKana('n', aKana)
 						converted += last2char + lastchar + this.getKana('border', aKana)
 						lastchar = last2char = '';
 						break loopcheck;
+
 					default:
 						if (last2char != '') converted += last2char;
 						if (lastchar.toUpperCase() == 'N' && cchar.toUpperCase() != 'Y') {
@@ -722,6 +734,7 @@ pXMigemoTextTransformJa.prototype = {
 				if (ulastchar == 'Y') return last2char + this.getKana('ya', aKana);
 				if (ulastchar == 'Z') return last2char + this.getKana('za', aKana);
 				return last2char + lastchar + this.getKana('a', aKana);
+
 			case 'I':
 				if (ulast2char == 'B' && ulastchar == 'Y') return this.getKana('byi', aKana);
 				if (ulast2char == 'C' && ulastchar == 'H') return this.getKana('chi', aKana);
@@ -763,6 +776,7 @@ pXMigemoTextTransformJa.prototype = {
 				if (ulastchar == 'Y') return last2char + this.getKana('i', aKana);
 				if (ulastchar == 'Z') return last2char + this.getKana('ji', aKana);
 				return last2char + lastchar + this.getKana('i', aKana);
+
 			case 'U':
 				if (ulast2char == 'B' && ulastchar == 'Y') return this.getKana('byu', aKana);
 				if (ulast2char == 'C' && (ulastchar == 'H' || ulastchar == 'Y')) return this.getKana('chu', aKana);
@@ -803,6 +817,7 @@ pXMigemoTextTransformJa.prototype = {
 				if (ulastchar == 'Y') return last2char + this.getKana('yu', aKana);
 				if (ulastchar == 'Z') return last2char + this.getKana('zu', aKana);
 				return last2char + lastchar + this.getKana('u', aKana);
+
 			case 'E':
 				if (ulast2char == 'B' && ulastchar == 'Y') return this.getKana('bye', aKana);
 				if (ulast2char == 'C' && (ulastchar == 'H' || ulastchar == 'Y')) return this.getKana('che', aKana);
@@ -842,6 +857,7 @@ pXMigemoTextTransformJa.prototype = {
 				if (ulastchar == 'Y') return last2char + this.getKana('ye', aKana);
 				if (ulastchar == 'Z') return last2char + this.getKana('ze', aKana);
 				return last2char + lastchar + this.getKana('e', aKana);
+
 			case 'O':
 				if (ulast2char == 'B' && ulastchar == 'Y') return this.getKana('byo', aKana);
 				if (ulast2char == 'C' && (ulastchar == 'H' || ulastchar == 'Y')) return this.getKana('cho', aKana);
@@ -934,7 +950,8 @@ pXMigemoTextTransformJa.prototype = {
 		var ichi = this.ichi;
 		var child = str.charAt(str.length-1);
 		var ret;
-		switch(child){
+		switch (child)
+		{
 			case 'k':
 			case 's':
 			case 't':
@@ -956,7 +973,8 @@ pXMigemoTextTransformJa.prototype = {
 					r2h.getString(child+'o')+
 					ichi.getString('ltu')+
 					']';
-			break;
+				break;
+
 			case 'n':
 				ret = str.substring(0,str.length-1)+
 					'['+r2h.getString('na')+
@@ -966,32 +984,38 @@ pXMigemoTextTransformJa.prototype = {
 					r2h.getString('no')+
 					ichi.getString('n')+
 					']';
-			break;
+				break;
+
 			case 'y':
 				ret = str.substring(0,str.length-1)+
 					'['+r2h.getString('ya')+
 					r2h.getString('yu')+
 					r2h.getString('yo')+
 					']';
-			break;
+				break;
+
 			case 'w':
 				ret = str.substring(0,str.length-1)+
 					'['+r2h.getString('wa')+
 					r2h.getString('wo')+
 					']';
-			break;
+				break;
+
 			case 'j':
 				ret = str.substring(0,str.length-1)+r2h.getString('ji');
-			break;
+				break;
+
 			case 'f':
 				ret = str.substring(0,str.length-1)+r2h.getString('fu');
-			break;
+				break;
+
 			case 'v':
 				ret = str.substring(0,str.length-1)+r2h.getString('vu');
-			break;
+				break;
+
 			default:
 				ret = str;
-			break;
+				break;
 		}
 		//alert('expand:'+ret);
 		return ret;
@@ -1003,7 +1027,8 @@ pXMigemoTextTransformJa.prototype = {
 		var ichi = this.ichi;
 		var child = str.charAt(str.length-1);
 		var ret;
-		switch (child) {
+		switch (child)
+		{
 			case 'k':
 			case 's':
 			case 't':
@@ -1026,7 +1051,8 @@ pXMigemoTextTransformJa.prototype = {
 						this.getKana(child+'o', aKana),'|',
 						this.getKana('ltu', aKana),
 					')'].join('');
-			break;
+				break;
+
 			case 'n':
 				ret = str.substring(0,str.length-1)+
 					['(',
@@ -1038,7 +1064,8 @@ pXMigemoTextTransformJa.prototype = {
 						this.getKana('n', aKana),
 						']',
 					')'].join('');
-			break;
+				break;
+
 			case 'y':
 				ret = str.substring(0,str.length-1)+
 					['(',
@@ -1046,26 +1073,31 @@ pXMigemoTextTransformJa.prototype = {
 						this.getKana('yu', aKana),'|',
 						this.getKana('yo', aKana),
 					')'].join('');
-			break;
+				break;
+
 			case 'w':
 				ret = str.substring(0,str.length-1)+
 					['(',
 						this.getKana('wa', aKana),'|',
 						this.getKana('wo', aKana),
 					')'].join('');
-			break;
+				break;
+
 			case 'j':
 				ret = str.substring(0,str.length-1)+this.getKana('ji', aKana);
-			break;
+				break;
+
 			case 'f':
 				ret = str.substring(0,str.length-1)+this.getKana('fu', aKana);
-			break;
+				break;
+
 			case 'v':
 				ret = str.substring(0,str.length-1)+this.getKana('vu', aKana);
-			break;
+				break;
+
 			default:
 				ret = str;
-			break;
+				break;
 		}
 		ret = ret.replace(/\((.)\|(.)\)/g, '\[$1$2\]')
 					.replace(/\((.)\|(.)\|(.)\)/g, '\[$1$2$3\]')
