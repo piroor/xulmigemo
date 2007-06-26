@@ -163,6 +163,24 @@ var XMigemoUI = {
 	},
 	_timeoutIndicatorBox : null,
  
+	NSResolver : { 
+		lookupNamespaceURI : function(aPrefix)
+		{
+			switch (aPrefix)
+			{
+				case 'xul':
+					return 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
+				case 'html':
+				case 'xhtml':
+					return 'http://www.w3.org/1999/xhtml';
+				case 'xlink':
+					return 'http://www.w3.org/1999/xlink';
+				default:
+					return '';
+			}
+		}
+	},
+ 
 /* nsIPrefListener(?) */ 
 	
 	domain  : 'xulmigemo', 
@@ -849,7 +867,9 @@ var XMigemoUI = {
 				onFindPreviousCmd           : window.onFindPreviousCmd,
 				xmigemoOriginalFindNext     : window.findNext,
 				xmigemoOriginalFindPrevious : window.findPrevious,
-				toggleCaseSensitiveCheckbox : window.toggleCaseSensitivity
+				toggleCaseSensitiveCheckbox : window.toggleCaseSensitivity,
+				highlightDoc                : highlightDoc,
+				highlight                   : highlight
 			};
 			window.toggleHighlight = this.toggleHighlight;
 		}
@@ -868,7 +888,7 @@ var XMigemoUI = {
 		eval('gFindBar.updateStatus = '+gFindBar.updateStatus.toSource()
 			.replace(
 				'{',
-				'{ if (arguments[0] != Components.interfaces.nsITypeAheadFind.FIND_NOTFOUND) { XMigemoUI.highlightFocusedFound(); };'
+				'{ if (arguments[0] != Components.interfaces.nsITypeAheadFind.FIND_NOTFOUND && XMigemoUI.strongHighlight) { XMigemoUI.highlightFocusedFound(); };'
 			)
 		);
 		if (updateStatusFunc) {
@@ -877,6 +897,37 @@ var XMigemoUI = {
 			else if ('_updateStatusUI' in gFindBar) // Firefox 3.0
 				gFindBar._updateStatusUI = gFindBar.updateStatus;
 		}
+
+		var highlightDocFunc = ('_highlightDoc' in gFindBar) ? '_highlightDoc' : // Fx 3
+				'highlightDoc'; // Fx 2, 1.5
+		eval('gFindBar.'+highlightDocFunc+' = '+gFindBar[highlightDocFunc].toSource()
+			.replace(
+				'var body = doc.body;',
+				'var foundRange = XMigemoUI.getFoundRange(win); var body = doc.body;'
+			).replace(
+				'parent.removeChild(',
+				'var selectAfter = XMigemoUI.isRangeOverlap(foundRange, retRange); var firstChild = docfrag.firstChild, lastChild = docfrag.lastChild; parent.removeChild('
+			).replace(
+				'parent.normalize();',
+				'parent.normalize(); if (selectAfter) { XMigemoUI.selectNode(firstChild, doc, lastChild); }'
+			)
+		);
+
+		var highlightFunc = ('_highlight' in gFindBar) ? '_highlight' : // Fx 3
+				'highlight'; // Fx 2, 1.5
+		eval('gFindBar.'+highlightFunc+' = '+gFindBar[highlightFunc].toSource()
+			.replace(
+				'{',
+				<![CDATA[
+				{
+					var foundRange = XMigemoUI.getFoundRange(arguments[0].startContainer.ownerDocument.defaultView);
+					var selectAfter = XMigemoUI.isRangeOverlap(foundRange, arguments[0]);
+				]]>
+			).replace(
+				'return',
+				'if (selectAfter) { XMigemoUI.selectNode(arguments[1], arguments[0].startContainer.ownerDocument); } return'
+			)
+		);
 
 		// Firefox 3.0-    : onFindAgainCommand / searcgString
 		// Firefox 1.x-2.0 : onFindAgainCmd / onFindPreviousCmd / findString
@@ -910,10 +961,12 @@ var XMigemoUI = {
 		);
 
 		if (updateGlobalFunc) {
-			window.findNext          = this.findNext;
-			window.findPrevious      = this.findPrevious;
-			window.openFindBar       = this.openFindBar;
-			window.closeFindBar      = this.closeFindBar;
+			window.findNext     = this.findNext;
+			window.findPrevious = this.findPrevious;
+			window.openFindBar  = this.openFindBar;
+			window.closeFindBar = this.closeFindBar;
+			window.highlightDoc = this.highlightDoc;
+			window.highlight    = this.highlight;
 			if ('onFindAgainCmd' in gFindBar) { // Firefox 1.x-2.0
 				window.onFindAgainCmd    = gFindBar.onFindAgainCmd;
 				window.onFindPreviousCmd = gFindBar.onFindPreviousCmd;
@@ -1309,9 +1362,118 @@ var XMigemoUI = {
 			aFrame.document.documentElement.removeAttribute('__moz_xmigemoFindHighlightScreen');
 	},
  
-	highlightFocusedFound : function() 
+	highlightFocusedFound : function(aFrame) 
 	{
-		// 選択範囲でハイライトされている箇所をぴょこぴょこ動かすとか……
+		if (!aFrame)
+			aFrame = this.activeBrowser.contentWindow;
+
+		var range = this.getFoundRange(aFrame);
+		if (range) {
+try{
+			var node  = range.startContainer;
+			var xpathResult = document.evaluate(
+					'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
+					node,
+					this.NSResolver,
+					XPathResult.FIRST_ORDERED_NODE_TYPE,
+					null
+				);
+dump('FOUND ? '+xpathResult.singleNodeValue+'\n');
+			if (xpathResult.singleNodeValue) {
+				this.animateFoundNode(xpathResult.singleNodeValue);
+			}
+}
+catch(e) {
+	dump(e+'\n');
+}
+			return true;
+		}
+
+		if (aFrame.frames && aFrame.frames.length) {
+			var frames = aFrame.frames;
+			for (var i = 0, maxi = frames.length; i < maxi; i++)
+			{
+				if (this.highlightFocusedFound(frames[i]))
+					break;
+			}
+		}
+		return false;
+	},
+	 
+	animateFoundNode : function(aNode) 
+	{
+		if (this.animationTimer) {
+			window.clearInterval(this.animationTimer);
+			this.animationTimer = null;
+			this.animationNode  = null;
+		}
+		this.animationNode = aNode;
+		this.animationCount = 0;
+		window.setInterval(this.animateFoundNodeCallback, 1, this);
+	},
+	animateFoundNodeCallback : function(aThis)
+	{
+		var node = aThis.animationNode;
+		var count = aThis.animationCount;
+dump('animateFoundNodeCallback:'+count+'\n');
+		if (count >= 180 || !node.parentNode) {
+			window.clearInterval(aThis.animationTimer);
+			aThis.animationTimer = null;
+			aThis.animationNode  = null;
+			node.style.top = 0;
+		}
+		else {
+			var y = parseInt(5 * Math.sin(count * Math.PI / 180));
+			node.style.top = '-0.'+y+'em';
+		}
+		aThis.animationCount += 5;
+	},
+	animationTimer : null,
+  
+	getFoundRange : function(aFrame) 
+	{
+		var docShell = aFrame
+			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsIWebNavigation)
+			.QueryInterface(Components.interfaces.nsIDocShell);
+		var selCon = docShell
+			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsISelectionDisplay)
+			.QueryInterface(Components.interfaces.nsISelectionController);
+		if (selCon.getDisplaySelection() == selCon.SELECTION_ATTENTION) {
+			var sel   = aFrame.getSelection();
+			var range = sel.getRangeAt(0);
+			return range;
+		}
+		return null;
+	},
+ 
+	isRangeOverlap : function(aBaseRange, aTargetRange) 
+	{
+		if (!aBaseRange || !aTargetRange) return false;
+
+		return (
+			aBaseRange.compareBoundaryPoints(Range.START_TO_START, aTargetRange) >= 0 &&
+			aBaseRange.compareBoundaryPoints(Range.END_TO_END, aTargetRange) <= 0
+		);
+	},
+ 
+	selectNode : function(aNodeOrStartNode, aDocument, aEndAfter) 
+	{
+		var doc = aDocument || aNodeOrStartNode.ownerDocument;
+		var selectRange = doc.createRange();
+dump("TARGET "+aNodeOrStartNode+"\n");
+		if (aEndAfter) {
+dump('BEFORE: '+aNodeOrStartNode+'\n');
+dump('AFTER: '+aEndAfter+'\n');
+			selectRange.selectNode(aNodeOrStartNode);
+			selectRange.setEndAfter(aEndAfter);
+		}
+		else {
+			selectRange.selectNodeContents(aNodeOrStartNode);
+		}
+dump("SELECT "+selectRange.toString()+"\n");
+		doc.defaultView.getSelection().addRange(selectRange);
 	},
  	 
 	init : function() 
