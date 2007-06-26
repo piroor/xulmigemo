@@ -923,8 +923,8 @@ var XMigemoUI = {
 			window.findPrevious = this.findPrevious;
 			window.openFindBar  = this.openFindBar;
 			window.closeFindBar = this.closeFindBar;
-			window.highlightDoc = this.highlightDoc;
-			window.highlight    = this.highlight;
+			window.highlightDoc = gFindBar.highlightDoc;
+			window.highlight    = gFindBar.highlight;
 			if ('onFindAgainCmd' in gFindBar) { // Firefox 1.x-2.0
 				window.onFindAgainCmd    = gFindBar.onFindAgainCmd;
 				window.onFindPreviousCmd = gFindBar.onFindPreviousCmd;
