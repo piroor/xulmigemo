@@ -58,29 +58,27 @@ pXMigemoTextTransformJa.prototype = {
 		return this.kata2hira(aStr).replace(/[\u3041-\u3093\u309b\u309c\u30fc]/g, '') ? false : true ;
 	},
  
-/* based on Ruby/Romkan ( http://0xcc.net/ruby-romkan/ ) */ 
-	 
 	init : function() 
 	{
 		var self = this;
 
 		this._ROMKAN     = [];
-		this._ROMKANHash = {};
+		this._ROMKAN_Hash = {};
 		this._ROMPAT     = [];
 
 		this._KANROM     = [];
-		this._KANROMHash = {};
+		this._KANROM_Hash = {};
 		this._KANPAT     = [];
 
 		var pairs = (this.KUNREITAB +'\t'+ this.HEPBURNTAB).replace(/^\s+|\s+$/g, '').split(/\s+/);
 		for (var i = 0, maxi = pairs.length; i < maxi; i += 2)
 		{
 			this._ROMKAN.push({ key : pairs[i+1], char : pairs[i] });
-			this._ROMKANHash[pairs[i+1]] = pairs[i];
+			this._ROMKAN_Hash[pairs[i+1]] = pairs[i];
 			this._ROMPAT.push({ key : pairs[i+1], char : pairs[i] });
 
 			this._KANROM.push({ key : pairs[i], char : pairs[i+1] });
-			this._KANROMHash[pairs[i]] = pairs[i+1];
+			this._KANROM_Hash[pairs[i]] = pairs[i+1];
 			this._KANPAT.push({ key : pairs[i], char : pairs[i+1] });
 		}
 
@@ -94,7 +92,7 @@ pXMigemoTextTransformJa.prototype = {
 
 		this._KANPAT = this._KANPAT.sort(function(aA, aB) {
 			return (aB.key.length - aA.key.length) ||
-				(self.KANROMHash[aA.key].length - self.KANROMHash[aB.key].length);
+				(self.KANROM_Hash[aA.key].length - self.KANROM_Hash[aB.key].length);
 		}).map(function(aItem) {
 			return aItem.key;
 		}).join('|');
@@ -110,18 +108,51 @@ pXMigemoTextTransformJa.prototype = {
 //		this._KUNPAT; KUNREI.sort  {|a, b| b.length <=> a.length }.join "|"
 //		this._HEPPAT; HEPBURN.sort {|a, b| b.length <=> a.length }.join "|"
 
-		this._TO_HEPBURNHash = {};
+		this._TO_HEPBURN_Hash = {};
 		this._TO_HEPBURN = this._KUNREI.map(function(aItem, aIndex) {
-			self._TO_HEPBURNHash[aItem] = self._HEPBURN[aIndex];
+			self._TO_HEPBURN_Hash[aItem] = self._HEPBURN[aIndex];
 			return { key : aItem, char : self._HEPBURN[aIndex] };
 		});
-		this._TO_KUNREIHash = {};
+		this._TO_KUNREI_Hash = {};
 		this._TO_KUNREI = this._HEPBURN.map(function(aItem, aIndex) {
-			self._TO_KUNREIHash[aItem] = self._KUNREI[aIndex];
+			self._TO_KUNREI_Hash[aItem] = self._KUNREI[aIndex];
 			return { key : aItem, char : self._KUNREI[aIndex] };
 		});
+
+
+		this._KATAHIRA_Hash = {};
+		this._KATAPAT       = [];
+
+		this._HIRAKATA_Hash     = {};
+		this._HIRAKATA_ZEN_Hash = {};
+		this._HIRAPAT           = [];
+
+		pairs = this.KANATAB.replace(/^\s+|\s+$/g, '').split(/\s+/);
+		var kata;
+		for (i = 0, maxi = pairs.length; i < maxi; i += 2)
+		{
+			kata = pairs[i+1]
+			kata.split('|').forEach(function(aKata, aIndex) {
+				self._KATAHIRA_Hash[aKata] = pairs[i];
+				self._KATAPAT.push(aKata);
+				if (aIndex == 0) {
+					self._HIRAKATA_ZEN_Hash[pairs[i]] = aKata;
+				}
+				else {
+					kata = '('+kata+')'.replace(/\((\.)\|(\.)\)/, '[$1$2]');
+				}
+			});
+
+			this._HIRAKATA_Hash[pairs[i]] = kata;
+			this._HIRAPAT.push(pairs[i]);
+		}
+
+		this._KATAPAT = new RegExp('('+this._KATAPAT.join('|')+')', 'ig');
+		this._HIRAPAT = new RegExp('('+this._HIRAPAT.join('|')+')', 'ig');
 	},
  
+/* based on Ruby/Romkan ( http://0xcc.net/ruby-romkan/ ) */ 
+	 
 	KUNREITAB : [ 
 '\u3041	xa	\u3042	a	\u3043	xi	\u3044	i	\u3045	xu',
 '\u3046	u	\u3046\u309b	vu	\u3046\u309b\u3041	va	\u3046\u309b\u3043	vi 	\u3046\u309b\u3047	ve',
@@ -193,7 +224,7 @@ pXMigemoTextTransformJa.prototype = {
 
 '\u3093     n\'',
 '\u3067\u3043   dyi',
-'\u30fc     -',
+'\u30fc     \\-',
 '\u3061\u3047    tye',
 '\u3063\u3061\u3047	ttye',
 '\u3058\u3047	zye'
@@ -270,7 +301,7 @@ pXMigemoTextTransformJa.prototype = {
 
 '\u3093     n\'',
 '\u3067\u3043   dyi',
-'\u30fc     -',
+'\u30fc     \\-',
 '\u3061\u3047    che',
 '\u3063\u3061\u3047	cche',
 '\u3058\u3047	je'
@@ -284,12 +315,12 @@ pXMigemoTextTransformJa.prototype = {
 		return this._ROMKAN;
 	},
 	
-	get ROMKANHash() 
+	get ROMKAN_Hash() 
 	{
-		if (!this._ROMKANHash) {
+		if (!this._ROMKAN_Hash) {
 			this.init();
 		}
-		return this._ROMKANHash;
+		return this._ROMKAN_Hash;
 	},
  
 	get ROMPAT() 
@@ -308,12 +339,12 @@ pXMigemoTextTransformJa.prototype = {
 		return this._KANROM;
 	},
 	
-	get KANROMHash() 
+	get KANROM_Hash() 
 	{
-		if (!this._KANROMHash) {
+		if (!this._KANROM_Hash) {
 			this.init();
 		}
-		return this._KANROMHash;
+		return this._KANROM_Hash;
 	},
  
 	get KANPAT() 
@@ -331,7 +362,7 @@ pXMigemoTextTransformJa.prototype = {
 		}
 		return this._KUNREI;
 	},
-	 
+	
 	get KUNPAT() 
 	{
 		if (!this._KUNPAT) {
@@ -348,12 +379,12 @@ pXMigemoTextTransformJa.prototype = {
 		return this._TO_KUNREI;
 	},
  
-	get TO_KUNREIHash() 
+	get TO_KUNREI_Hash() 
 	{
-		if (!this._TO_KUNREIHash) {
+		if (!this._TO_KUNREI_Hash) {
 			this.init();
 		}
-		return this._TO_KUNREIHash;
+		return this._TO_KUNREI_Hash;
 	},
   
 	get HEPBURN() 
@@ -363,7 +394,7 @@ pXMigemoTextTransformJa.prototype = {
 		}
 		return this._HEPBURN;
 	},
-	 
+	
 	get HEPPAT() 
 	{
 		if (!this._HEPPAT) {
@@ -380,12 +411,12 @@ pXMigemoTextTransformJa.prototype = {
 		return this._TO_HEPBURN;
 	},
  
-	get TO_HEPBURNHash() 
+	get TO_HEPBURN_Hash() 
 	{
-		if (!this._TO_HEPBURNHash) {
+		if (!this._TO_HEPBURN_Hash) {
 			this.init();
 		}
-		return this._TO_HEPBURNHash;
+		return this._TO_HEPBURN_Hash;
 	},
   
 	/*
@@ -409,28 +440,36 @@ pXMigemoTextTransformJa.prototype = {
 	*/
 	roman2kana : function(aString) 
 	{
-		var self = this;
-		return = this.normalize_double_n(String(aString).toLowerCase())
+		var hash = this.ROMKAN_Hash;
+		return this.normalize_double_n(String(aString).toLowerCase())
 			.replace(this.ROMPAT, function(aChar) {
-				return self.ROMKANHash[aChar];
+				return hash[aChar];
 			});
 	},
 	roman2kana2 : function(aString, aKana)
 	{
 		var self = this;
+		var hash = this.ROMKAN_Hash;
 		var func = (aKana == this.KANA_ALL) ?
 					function(aChar) {
-						var str = self.ROMKANHash[aChar];
+						var str = hash[aChar];
 						var result = '';
-						while (str.length > 1)
+						while (str.length > 0)
 						{
-							result += '['+str.charAt(0)+self.hira2kata(str.charAt(0))+']';
+							result += '('+
+								str.charAt(0)+'|'+
+								self.hira2kataPattern(str.charAt(0)).replace(/^\(|\)$/g, '')+
+								')';
+							str = str.substring(1);
 						}
+						result = result
+								.replace(/\((.)\|(.)\|(.)\)/g, '[$1$2$3]')
+								.replace(/\((.)\|(.)\)/g, '[$1$2]')
 						return result;
 					} :
 					(aKana == this.KANA_KATA) ?
 					function(aChar) {
-						return self.hira2kata(self.ROMKANHash[aChar]);
+						return self.hira2kataPattern(hash[aChar]);
 					} :
 					null;
 
@@ -450,7 +489,7 @@ pXMigemoTextTransformJa.prototype = {
 		var self = this;
 		return String(aString).toLowerCase()
 			.replace(this.KANPAT, function(aChar) {
-				return self.KANROMHash[aChar];
+				return self.KANROM_Hash[aChar];
 			})
 			.replace(/n\'(?=[^aeiuoyn]|$)/, 'n');
 	},
@@ -489,251 +528,175 @@ pXMigemoTextTransformJa.prototype = {
   
 /* hiragana, katakana */ 
 	 
-	hira2kata : function(aStr) 
+	KANATAB : [ 
+'\u3042	\u30a2|\uff71',
+'\u3044	\u30a4|\uff72',
+'\u3046	\u30a6|\uff73',
+'\u3048	\u30a8|\uff74',
+'\u304a	\u30aa|\uff75',
+
+'\u3041	\u30a1|\uff67',
+'\u3043	\u30a3|\uff68',
+'\u3045	\u30a5|\uff69',
+'\u3047	\u30a7|\uff6a',
+'\u3049	\u30a9|\uff6b',
+
+'\u3083	\u30e3|\uff6c',
+'\u3085	\u30e5|\uff6d',
+'\u3087	\u30e7|\uff6e',
+
+'\u304b	\u30ab|\uff76',
+'\u304d	\u30ad|\uff77',
+'\u304f	\u30af|\uff78',
+'\u3051	\u30b1|\uff79',
+'\u3053	\u30b3|\uff7a',
+
+'\u3055	\u30b5|\uff7b',
+'\u3057	\u30b7|\uff7c',
+'\u3059	\u30b9|\uff7d',
+'\u305b	\u30bb|\uff7e',
+'\u305d	\u30bd|\uff7f',
+
+'\u305f	\u30bf|\uff80',
+'\u3061	\u30c1|\uff81',
+'\u3064	\u30c4|\uff82',
+'\u3066	\u30c6|\uff83',
+'\u3068	\u30c8|\uff84',
+
+'\u306a	\u30ca|\uff85',
+'\u306b	\u30cb|\uff86',
+'\u306c	\u30cc|\uff87',
+'\u306d	\u30cd|\uff88',
+'\u306e	\u30ce|\uff89',
+
+'\u306f	\u30cf|\uff8a',
+'\u3072	\u30d2|\uff8b',
+'\u3075	\u30d5|\uff8c',
+'\u3078	\u30d8|\uff8d',
+'\u307b	\u30db|\uff8e',
+
+'\u307e	\u30de|\uff8f',
+'\u307f	\u30df|\uff90',
+'\u3080	\u30e0|\uff91',
+'\u3081	\u30e1|\uff92',
+'\u3082	\u30e2|\uff93',
+
+'\u3084	\u30e4|\uff94',
+'\u3086	\u30e6|\uff95',
+'\u3088	\u30e8|\uff96',
+
+'\u3089	\u30e9|\uff97',
+'\u308a	\u30ea|\uff98',
+'\u308b	\u30eb|\uff99',
+'\u308c	\u30ec|\uff9a',
+'\u308d	\u30ed|\uff9b',
+
+'\u308f	\u30ef|\uff9c',
+'\u3090	\u30f0|\u30f0',
+'\u3091	\u30f1|\u30f1',
+'\u3092	\u30f2|\uff66',
+'\u3093	\u30f3|\uff9d',
+
+'\u304c	\u30ac|\uff76\uff9e',
+'\u304e	\u30ae|\uff77\uff9e',
+'\u3050	\u30b0|\uff78\uff9e',
+'\u3052	\u30b2|\uff79\uff9e',
+'\u3054	\u30b4|\uff7a\uff9e',
+
+'\u3056	\u30b6|\uff7b\uff9e',
+'\u3058	\u30b8|\uff7c\uff9e',
+'\u305a	\u30ba|\uff7d\uff9e',
+'\u305c	\u30bc|\uff7e\uff9e',
+'\u305e	\u30be|\uff7f\uff9e',
+
+
+'\u3060	\u30c0|\uff80\uff9e',
+'\u3062	\u30c2|\uff81\uff9e',
+'\u3065	\u30c5|\uff82\uff9e',
+'\u3067	\u30c7|\uff83\uff9e',
+'\u3069	\u30c9|\uff84\uff9e',
+
+'\u3070	\u30d0|\uff8a\uff9e',
+'\u3073	\u30d3|\uff8b\uff9e',
+'\u3076	\u30d6|\uff8c\uff9e',
+'\u3079	\u30d9|\uff8d\uff9e',
+'\u307c	\u30dc|\uff8e\uff9e',
+
+
+'\u3071	\u30d1|\uff8a\uff9f',
+'\u3074	\u30d4|\uff8b\uff9f',
+'\u3077	\u30d7|\uff8c\uff9f',
+'\u307a	\u30da|\uff8d\uff9f',
+'\u307d	\u30dd|\uff8e\uff9f',
+
+'\u3046\u309b	\u30f4|\uff73\uff9e',
+
+'\u30fc	\uff70',
+'\u3002	\uff61',
+'\u3001	\uff64',
+
+'\u3063	\u30c3|\uff6f'
+	].join('\n'),
+ 
+	get KATAPAT() 
 	{
-		var output='';	//the result string
-		var c;	//iterates for each of characters in the input
-		var n;	//character code (unicode)
-		for(var i=0; i<aStr.length;i++)
-		{
-			c = aStr.charAt(i);
-			n = c.charCodeAt(0);
-			if((n>=0x3041) && (n<=0x3096))
-			{
-				c = String.fromCharCode(n+0x60);
-			}
-			output += c;
+		if (!this._KATAPAT) {
+			this.init();
 		}
-		return output;
+		return this._KATAPAT;
 	},
  
-	kata2hira : function(aStr) 
+	get HIRAPAT() 
 	{
-		return this.joinVoiceMarks(aStr || '').replace(/[\u30a1-\u30f6\uff60-\uff9f]/g, this.kata2hiraSub);
-	},
-	
-	kata2hiraSub : function(aStr) 
-	{
-		switch (aStr)
-		{
-			default: return aStr;
-
-			case '\u30f2':
-			case '\uff66':
-				return '\u3092';
-			case '\u30a1':
-			case '\uff67':
-				return '\u3041';
-			case '\u30a3':
-			case '\uff68':
-				return '\u3043';
-			case '\u30a5':
-			case '\uff69':
-				return '\u3045';
-			case '\u30a7':
-			case '\uff6a':
-				return '\u3047';
-			case '\u30a9':
-			case '\uff6b':
-				return '\u3049';
-			case '\u30e3':
-			case '\uff6c':
-				return '\u3083';
-			case '\u30e5':
-			case '\uff6d':
-				return '\u3085';
-			case '\u30e7':
-			case '\uff6e':
-				return '\u3087';
-			case '\u30c3':
-			case '\uff6f':
-				return '\u3063';
-
-			case '\uff70': return '\u30fc';
-			case '\uff9e': return '\u309b';
-			case '\uff9f': return '\u309c';
-
-			case '\u30a2':
-			case '\uff71':
-				return '\u3042';
-			case '\u30a4':
-			case '\uff72':
-				return '\u3044';
-			case '\u30a6':
-			case '\uff73':
-				return '\u3046';
-			case '\u30a8':
-			case '\uff74':
-				return '\u3048';
-			case '\u30aa':
-			case '\uff75':
-				return '\u304a';
-
-			case '\u30ab':
-			case '\uff76':
-				return '\u304b';
-			case '\u30ad':
-			case '\uff77':
-				return '\u304d';
-			case '\u30af':
-			case '\uff78':
-				return '\u304f';
-			case '\u30b1':
-			case '\uff79':
-				return '\u3051';
-			case '\u30b3':
-			case '\uff7a':
-				return '\u3053';
-
-			case '\u30b5':
-			case '\uff7b':
-				return '\u3055';
-			case '\u30b7':
-			case '\uff7c':
-				return '\u3057';
-			case '\u30b9':
-			case '\uff7d':
-				return '\u3059';
-			case '\u30bb':
-			case '\uff7e':
-				return '\u305b';
-			case '\u30bd':
-			case '\uff7f':
-				return '\u305d';
-
-			case '\u30bf':
-			case '\uff80':
-				return '\u305f';
-			case '\u30c1':
-			case '\uff81':
-				return '\u3061';
-			case '\u30c4':
-			case '\uff82':
-				return '\u3064';
-			case '\u30c6':
-			case '\uff83':
-				return '\u3066';
-			case '\u30c8':
-			case '\uff84':
-				return '\u3068';
-
-			case '\u30ca':
-			case '\uff85':
-				return '\u306a';
-			case '\u30cb':
-			case '\uff86':
-				return '\u306b';
-			case '\u30cc':
-			case '\uff87':
-				return '\u306c';
-			case '\u30cd':
-			case '\uff88':
-				return '\u306d';
-			case '\u30ce':
-			case '\uff89':
-				return '\u306e';
-
-			case '\u30cf':
-			case '\uff8a':
-				return '\u306f';
-			case '\u30d2':
-			case '\uff8b':
-				return '\u3072';
-			case '\u30d5':
-			case '\uff8c':
-				return '\u3075';
-			case '\u30d8':
-			case '\uff8d':
-				return '\u3078';
-			case '\u30db':
-			case '\uff8e':
-				return '\u307b';
-
-			case '\u30de':
-			case '\uff8f':
-				return '\u307e';
-			case '\u30df':
-			case '\uff90':
-				return '\u307f';
-			case '\u30e0':
-			case '\uff91':
-				return '\u3080';
-			case '\u30e1':
-			case '\uff92':
-				return '\u3081';
-			case '\u30e2':
-			case '\uff93':
-				return '\u3082';
-
-			case '\u30e4':
-			case '\uff94':
-				return '\u3084';
-			case '\u30e6':
-			case '\uff95':
-				return '\u3086';
-			case '\u30e8':
-			case '\uff96':
-				return '\u3088';
-
-			case '\u30e9':
-			case '\uff97':
-				return '\u3089';
-			case '\u30ea':
-			case '\uff98':
-				return '\u308a';
-			case '\u30eb':
-			case '\uff99':
-				return '\u308b';
-			case '\u30ec':
-			case '\uff9a':
-				return '\u308c';
-			case '\u30ed':
-			case '\uff9b':
-				return '\u308d';
-
-			case '\u30ef':
-			case '\uff9c':
-				return '\u308f';
-			case '\u30f3':
-			case '\uff9d':
-				return '\u3093';
-
-			case '\u30f6': return '\u3051';
-			case '\u30f5': return '\u304b';
-			case '\u30f4': return '\u3046\u309b';
-
-			case '\u30ac': return '\u304c';
-			case '\u30ae': return '\u304e';
-			case '\u30b0': return '\u3050';
-			case '\u30b2': return '\u3052';
-			case '\u30b4': return '\u3054';
-
-			case '\u30b6': return '\u3056';
-			case '\u30b8': return '\u3058';
-			case '\u30ba': return '\u305a';
-			case '\u30bc': return '\u305c';
-			case '\u30be': return '\u305e';
-
-			case '\u30c0': return '\u3060';
-			case '\u30c2': return '\u3062';
-			case '\u30c5': return '\u3065';
-			case '\u30c7': return '\u3067';
-			case '\u30c9': return '\u3069';
-
-			case '\u30d0': return '\u3070';
-			case '\u30d3': return '\u3073';
-			case '\u30d6': return '\u3076';
-			case '\u30d9': return '\u3079';
-			case '\u30dc': return '\u307c';
-
-			case '\u30d1': return '\u3071';
-			case '\u30d4': return '\u3074';
-			case '\u30d7': return '\u3077';
-			case '\u30da': return '\u307a';
-			case '\u30dd': return '\u307d';
+		if (!this._HIRAPAT) {
+			this.init();
 		}
+		return this._HIRAPAT;
 	},
-  
+ 
+	get HIRAKATA_Hash() 
+	{
+		if (!this._HIRAKATA_Hash) {
+			this.init();
+		}
+		return this._HIRAKATA_Hash;
+	},
+ 
+	get HIRAKATA_ZEN_Hash() 
+	{
+		if (!this._HIRAKATA_ZEN_Hash) {
+			this.init();
+		}
+		return this._HIRAKATA_ZEN_Hash;
+	},
+ 
+	hira2kata : function(aString) 
+	{
+		var hash = this.HIRAKATA_ZEN_Hash;
+		return this.joinVoiceMarks(String(aString))
+			.replace(this.HIRAPAT, function(aChar) {
+				return hash[aChar];
+			});
+	},
+ 	
+	hira2kataPattern : function(aString) 
+	{
+		var hash = this.HIRAKATA_Hash;
+		return this.joinVoiceMarks(String(aString))
+			.replace(this.HIRAPAT, function(aChar) {
+				return hash[aChar];
+			});
+	},
+ 
+	kata2hira : function(aString) 
+	{
+		var hash = this.KATAHIRA_Hash;
+		return this.joinVoiceMarks(String(aString))
+			.replace(this.KATAPAT, function(aChar) {
+				return hash[aChar];
+			});
+	},
+ 
 	roman2zen : function(aStr) 
 	{
 		var output='';	//the result string
@@ -767,7 +730,7 @@ pXMigemoTextTransformJa.prototype = {
 	{
 		return (aStr || '').replace(/[\u304b\u304d\u304f\u3051\u3053\u3055\u3057\u3059\u305b\u305d\u305f\u3061\u3064\u3066\u3068\u306f\u3072\u3075\u3078\u307b\u30a6\u30ab\u30ad\u30af\u30b1\u30b3\u30b5\u30b7\u30b9\u30bb\u30bd\u30bf\u30c1\u30c4\u30c6\u30c8\u30cf\u30d2\u30d5\u30d8\u30db\uff73\uff76-\uff84\uff8a-\uff8e][\uff9e\u309b]|[\u306f\u3072\u3075\u3078\u307b\u30cf\u30d2\u30d5\u30d8\u30db\uff8a-\uff8e][\uff9f\u309c]/g, this.joinVoiceMarksSub);
 	},
-	
+	 
 	joinVoiceMarksSub : function(aStr) 
 	{
 		var code = aStr.charCodeAt(0);
@@ -1042,7 +1005,7 @@ pXMigemoTextTransformJa.prototype = {
 		return this._ichi;
 	},
 	_ichi : null,
- 	  
+   
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemoTextTransform) &&
