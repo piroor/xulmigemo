@@ -257,12 +257,12 @@ var XMigemoHighlight = {
   
 	getPageSize : function(aWindow) 
 	{
-		var xScroll = aWindow.document.body.scrollWidth;
+		var xScroll = aWindow.innerWidth + aWindow.scrollMaxX;
 		var yScroll = aWindow.innerHeight + aWindow.scrollMaxY;
 		var windowWidth  = aWindow.innerWidth;
 		var windowHeight = aWindow.innerHeight;
-		var pageHeight = (yScroll < windowHeight) ? windowHeight : yScroll ;
 		var pageWidth  = (xScroll < windowWidth) ? windowWidth : xScroll ;
+		var pageHeight = (yScroll < windowHeight) ? windowHeight : yScroll ;
 		return {
 				width   : pageWidth,
 				height  : pageHeight,
