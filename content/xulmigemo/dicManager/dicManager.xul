@@ -222,13 +222,6 @@
 </tabbox>
 
 
-<stringbundleset>
-	<stringbundle id="xmigemo-strbundle-r2h" src="chrome://xulmigemo/content/res/r2h.properties"/>
-	<stringbundle id="xmigemo-strbundle-r2k" src="chrome://xulmigemo/content/res/r2k.properties"/>
-	<stringbundle id="xmigemo-strbundle-ichi" src="chrome://xulmigemo/content/res/ichimoji.properties"/>
-</stringbundleset>
-
-
 <script src="chrome://xulmigemo/content/service.js" />
 <script src="chrome://xulmigemo/content/dicManager/dicManager.js" />
 
