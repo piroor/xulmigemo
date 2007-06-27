@@ -1234,6 +1234,7 @@ var XMigemoUI = {
 			var startParent = aNode.parentNode;
 			var endParent   = (aNode || aEndAfter).parentNode;
 			window.setTimeout(function() {
+				var node;
 				if (startOffset) {
 					var startNode = startParent.firstChild;
 					var getNext = function(aNode) {
@@ -1247,7 +1248,9 @@ var XMigemoUI = {
 					while (startNode.textContent.length <= startOffset)
 					{
 						startOffset -= startNode.textContent.length;
-						startNode = getNext(startNode);
+						node = getNext(startNode);
+						if (!node) break;
+						startNode = node;
 					}
 					selectRange.setStart(startNode, startOffset);
 				}
@@ -1268,7 +1271,9 @@ var XMigemoUI = {
 					while (endNode.textContent.length <= endOffset)
 					{
 						endOffset -= endNode.textContent.length;
-						endNode = getPrev(endNode);
+						node = getPrev(endNode);
+						if (!node) break;
+						endNode = node;
 					}
 					selectRange.setEnd(endNode, endNode.textContent.length - endOffset);
 				}
