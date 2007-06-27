@@ -535,9 +535,12 @@ pXMigemoTextTransformJa.prototype = {
 	},
    
 /* roman -> hiragana; OLD */ 
-	
+	 
 	convertStr : function(str) 
 	{ // should be replaced
+		return this.to_kana(str);
+
+
 		var r2h  = this.r2h;
 		var ichi = this.ichi;
 		//var str;
@@ -610,6 +613,9 @@ pXMigemoTextTransformJa.prototype = {
  
 	convertStr2 : function(str, aKana) 
 	{ // should be replaced
+		var ret = this.to_kana(str);
+		return ret;
+
 		//var str;
 		var cchar, lastchar, last2char;
 		var converted;
@@ -686,7 +692,7 @@ pXMigemoTextTransformJa.prototype = {
 		}
 		return converted + last2char + lastchar;
 	},
- 
+ 	
 	toZen : function(cchar, lastchar, last2char, aKana) 
 	{ // should be replaced
 		var ulastchar = lastchar.toUpperCase();
@@ -936,6 +942,7 @@ pXMigemoTextTransformJa.prototype = {
 		}).map(function(aItem) {
 			return aItem.char;
 		}).join('|');
+		this._ROMPAT = new RegExp('('+this._ROMPAT+')', 'ig');
 
 		this._KANPAT.sort(function(aA, aB) {
 			return (aB.key.length - aA.key.length) ||
@@ -943,6 +950,7 @@ pXMigemoTextTransformJa.prototype = {
 		}).map(function(aItem) {
 			return aItem.char;
 		}).join('|');
+		this._KANPAT = new RegExp('('+this._KANPAT+')', 'ig');
 
 		this._KUNREI = this.KUNREITAB.split(/\s+/).filter(function(aItem, aIndex) {
 			return (aIndex % 2 == 0);
@@ -951,8 +959,8 @@ pXMigemoTextTransformJa.prototype = {
 			return (aIndex % 2 == 0);
 		});
 
-//		this._KUNPAT;
-//		this._HEPPAT;
+//		this._KUNPAT; KUNREI.sort  {|a, b| b.length <=> a.length }.join "|"
+//		this._HEPPAT; HEPBURN.sort {|a, b| b.length <=> a.length }.join "|"
 
 		this._TO_HEPBURNHash = {};
 		this._TO_HEPBURN = this._KUNREI.map(function(aItem, aIndex) {
@@ -1129,6 +1137,14 @@ pXMigemoTextTransformJa.prototype = {
 		return this._ROMKAN;
 	},
 	
+	get ROMKANHash() 
+	{
+		if (!this._ROMKANHash) {
+			this.init();
+		}
+		return this._ROMKANHash;
+	},
+ 
 	get ROMPAT() 
 	{
 		if (!this._ROMPAT) {
@@ -1136,7 +1152,7 @@ pXMigemoTextTransformJa.prototype = {
 		}
 		return this._ROMPAT;
 	},
-  	
+  
 	get KANROM() 
 	{
 		if (!this._KANROM) {
@@ -1145,6 +1161,14 @@ pXMigemoTextTransformJa.prototype = {
 		return this._KANROM;
 	},
 	
+	get KANROMHash() 
+	{
+		if (!this._KANROMHash) {
+			this.init();
+		}
+		return this._KANROMHash;
+	},
+ 
 	get KANPAT() 
 	{
 		if (!this._KANPAT) {
@@ -1152,7 +1176,141 @@ pXMigemoTextTransformJa.prototype = {
 		}
 		return this._KANPAT;
 	},
-   
+  
+	get KUNREI() 
+	{
+		if (!this._KUNREI) {
+			this.init();
+		}
+		return this._KUNREI;
+	},
+	
+	get KUNPAT() 
+	{
+		if (!this._KUNPAT) {
+			this.init();
+		}
+		return this._KUNPAT;
+	},
+ 
+	get TO_KUNREI() 
+	{
+		if (!this._TO_KUNREI) {
+			this.init();
+		}
+		return this._TO_KUNREI;
+	},
+ 
+	get TO_KUNREIHash() 
+	{
+		if (!this._TO_KUNREIHash) {
+			this.init();
+		}
+		return this._TO_KUNREIHash;
+	},
+  
+	get HEPBURN() 
+	{
+		if (!this._HEPBURN) {
+			this.init();
+		}
+		return this._HEPBURN;
+	},
+	
+	get HEPPAT() 
+	{
+		if (!this._HEPPAT) {
+			this.init();
+		}
+		return this._HEPPAT;
+	},
+ 
+	get TO_HEPBURN() 
+	{
+		if (!this._TO_HEPBURN) {
+			this.init();
+		}
+		return this._TO_HEPBURN;
+	},
+ 
+	get TO_HEPBURNHash() 
+	{
+		if (!this._TO_HEPBURNHash) {
+			this.init();
+		}
+		return this._TO_HEPBURNHash;
+	},
+  
+	/*
+		FIXME: ad hod solution
+		tanni   => tan'i
+		kannji  => kanji
+		hannnou => han'nou
+		hannnya => han'nya
+	*/
+	normalize_double_n : function(aString) 
+	{
+		return String(aString).replace(/nn/i, 'n\'').replace(/n\'(?=[^aiueoyn]|$)/, 'n');
+	},
+ 
+	/*
+		Romaji -> Kana
+		It can handle both Hepburn and Kunrei sequences.
+	*/
+	to_kana : function(aString) 
+	{
+		var self = this;
+		return this.normalize_double_n(aString)
+			.replace(this.ROMPAT, function(aChar) {
+				return self.ROMKANHash[aChar];
+			});
+	},
+ 
+	/*
+		Kana -> Romaji.
+		Return Hepburn sequences.
+	*/
+	to_roma : function(aString) 
+	{
+		var self = this;
+		return String(aString).replace(this.KANPAT, function(aChar) {
+				return self.KANROMHash[aChar];
+			})
+			.replace(/n\'(?=[^aeiuoyn]|$)/, 'n');
+	},
+ 
+	/*
+		Romaji -> Romaji
+		Normalize into Hepburn sequences.
+		e.g. kannzi -> kanji, tiezo -> chiezo
+	*/
+	to_hepburn : function(aString) 
+	{
+/*
+		var self = this;
+		return this.normalize_double_n(aString)
+			.replace(/\G((?:#{HEPPAT})*?)(#{KUNPAT})/, function(aChar) {
+				return $1 + TO_HEPBURN[$2];
+			});
+*/
+	},
+ 
+	/*
+		Romaji -> Romaji
+		Normalize into Kunrei sequences.
+		e.g. kanji -> kanzi, chiezo -> tiezo
+	*/
+	to_kunrei : function(aString) 
+	{
+/*
+		var self = this;
+		return this.normalize_double_n(aString)
+			.replace(/\G((?:#{KUNPAT})*?)(#{HEPPAT})/, function(aChar) {
+				return $1 + TO_KUNREI[$2];
+			});
+*/
+	},
+  
 	getKana : function(aKey, aKanaFlag) 
 	{
 		var r2h  = this.r2h;
