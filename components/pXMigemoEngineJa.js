@@ -71,19 +71,19 @@ pXMigemoEngineJa.prototype = {
 		mydump('noCache');
 		var str = XMigemoTextService.expand(
 				XMigemoTextUtils.sanitize(
-					XMigemoTextService.convertStr(
-						XMigemoTextService.kana2hira(aInput)
+					XMigemoTextService.roman2kana(
+						XMigemoTextService.kata2hira(aInput)
 					)
 				)
 			);
 		var hira = str;
 		var roman = aInput;
-		if (/[\uff66-\uff9f]/.test(roman)) roman = XMigemoTextService.hira2roman(XMigemoTextService.kana2hira(roman))
+		if (/[\uff66-\uff9f]/.test(roman)) roman = XMigemoTextService.hira2roman(XMigemoTextService.kata2hira(roman))
 		var ignoreHiraKata = Prefs.getBoolPref('xulmigemo.ignoreHiraKata');
 		var kana = ignoreHiraKata ? '' :
 				XMigemoTextService.expand2(
 					XMigemoTextUtils.sanitize2(
-						XMigemoTextService.convertStr2(
+						XMigemoTextService.roman2kana2(
 							roman,
 							XMigemoTextService.KANA_KATA
 						)
@@ -93,7 +93,7 @@ pXMigemoEngineJa.prototype = {
 		var hiraAndKana = ignoreHiraKata ?
 				XMigemoTextService.expand2(
 					XMigemoTextUtils.sanitize2(
-						XMigemoTextService.convertStr2(
+						XMigemoTextService.roman2kana2(
 							roman,
 							XMigemoTextService.KANA_ALL
 						)
@@ -189,8 +189,8 @@ pXMigemoEngineJa.prototype = {
 
 		var str = XMigemoTextService.expand(
 					XMigemoTextUtils.sanitize(
-						XMigemoTextService.convertStr(
-							XMigemoTextService.kana2hira(aInput)
+						XMigemoTextService.roman2kana(
+							XMigemoTextService.kata2hira(aInput)
 						)
 					)
 				);
