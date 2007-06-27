@@ -224,7 +224,7 @@ pXMigemoTextTransformJa.prototype = {
 
 '\u3093     n\'',
 '\u3067\u3043   dyi',
-'\u30fc     \\-',
+'\u30fc     -',
 '\u3061\u3047    tye',
 '\u3063\u3061\u3047	ttye',
 '\u3058\u3047	zye'
@@ -301,7 +301,7 @@ pXMigemoTextTransformJa.prototype = {
 
 '\u3093     n\'',
 '\u3067\u3043   dyi',
-'\u30fc     \\-',
+'\u30fc     -',
 '\u3061\u3047    che',
 '\u3063\u3061\u3047	cche',
 '\u3058\u3047	je'
