@@ -41,6 +41,10 @@ pXMigemoTextTransformJa.prototype = {
 			);
 	},
  
+	KANA_HIRA : 0, 
+	KANA_KATA : 1,
+	KANA_ALL  : 2,
+ 
 	normalizeForYomi : function(aStr) 
 	{
 		return this.kata2hira(
@@ -88,6 +92,18 @@ pXMigemoTextTransformJa.prototype = {
 		}).map(function(aItem) {
 			return aItem.key;
 		}).join('|');
+		this._ROMINITIALPAT = this._ROMPAT.replace(
+				/([^\|])[^\|]+(\||$)/g, '$1$2'
+			).split('|');
+		this._ROMINITIALPAT.sort();;
+		this._ROMINITIALPAT = new RegExp(
+			'['+
+			this._ROMINITIALPAT.join('|').replace(
+				/([^\|])(\|\1)+/g, '$1'
+			).replace(/\|/g, '')+
+			']',
+			'i'
+		);
 		this._ROMPAT = new RegExp('('+this._ROMPAT+')', 'ig');
 
 		this._KANPAT = this._KANPAT.sort(function(aA, aB) {
@@ -330,6 +346,14 @@ pXMigemoTextTransformJa.prototype = {
 		}
 		return this._ROMPAT;
 	},
+ 
+	get ROMINITIALPAT() 
+	{
+		if (!this._ROMINITIALPAT) {
+			this.init();
+		}
+		return this._ROMINITIALPAT;
+	},
   
 	get KANROM() 
 	{
@@ -440,13 +464,10 @@ pXMigemoTextTransformJa.prototype = {
 	*/
 	roman2kana : function(aString) 
 	{
-		var hash = this.ROMKAN_Hash;
-		return this.normalize_double_n(String(aString).toLowerCase())
-			.replace(this.ROMPAT, function(aChar) {
-				return hash[aChar];
-			});
+		return this.roman2kana2(aString, this.KANA_HIRA);
 	},
-	roman2kana2 : function(aString, aKana)
+	 
+	roman2kana2 : function(aString, aKana) 
 	{
 		var self = this;
 		var hash = this.ROMKAN_Hash;
@@ -462,24 +483,22 @@ pXMigemoTextTransformJa.prototype = {
 								')';
 							str = str.substring(1);
 						}
-						result = result
-								.replace(/\((.)\|(.)\|(.)\)/g, '[$1$2$3]')
-								.replace(/\((.)\|(.)\)/g, '[$1$2]')
-						return result;
+						return self.optimizeRegExp(result);
 					} :
 					(aKana == this.KANA_KATA) ?
 					function(aChar) {
 						return self.hira2kataPattern(hash[aChar]);
 					} :
-					null;
-
-		if (!func)
-			return this.roman2kana(aString);
-
-		return this.normalize_double_n(String(aString).toLowerCase())
-			.replace(this.ROMPAT, func);
+					function(aChar) {
+						return hash[aChar];
+					};
+		var ret = this.optimizeRegExp(
+				this.normalize_double_n(String(aString).toLowerCase())
+					.replace(this.ROMPAT, func)
+			);
+		return ret;
 	},
- 
+  
 	/*
 		Kana -> Romaji.
 		Return Hepburn sequences.
@@ -525,9 +544,64 @@ pXMigemoTextTransformJa.prototype = {
 			});
 */
 	},
-  
-/* hiragana, katakana */ 
+ 
+	expand : function(aString) 
+	{
+		return this.expand2(aString, this.KANA_HIRA);
+	},
 	 
+	expand2 : function(aString, aKana) 
+	{
+		var target = aString.charAt(aString.length-1)
+		if (!((this.ROMINITIALPAT).test(target))) {
+			dump('RET\n');
+			return aString;
+		}
+
+		var base   = aString.substring(0, aString.length-1);
+		var regexp = new RegExp('^'+target+'.$', 'i');
+		var checked = {};
+		var ret = base +
+			this.optimizeRegExp('('+this.roman2kana2(
+				this.ROMKAN.filter(function(aItem) {
+					var ret = regexp.test(aItem.key) && !(aItem.key in checked);
+					checked[aItem.key] = true;
+					return ret;
+				}).map(function(aItem) {
+					return aItem.key;
+				}).join('|'),
+				aKana
+			)+')');
+
+		return ret;
+	},
+  
+	optimizeRegExp : function(aString) 
+	{
+		return aString
+			.replace(/\|\|+/g, '|')
+			.replace(/\(\|/g, '\(').replace(/\|\)/g, '\)')
+			.replace(/\(\)/g, '\)')
+			.replace(/\((.)\|(.)\|(.)\|(.)\|(.)\|(.)\|(.)\|(.)\|(.)\)/g,
+				'[$1$2$3$4$5$6$7$8$9]')
+			.replace(/\((.)\|(.)\|(.)\|(.)\|(.)\|(.)\|(.)\|(.)\)/g,
+				'[$1$2$3$4$5$6$7$8]')
+			.replace(/\((.)\|(.)\|(.)\|(.)\|(.)\|(.)\|(.)\)/g,
+				'[$1$2$3$4$5$6$7]')
+			.replace(/\((.)\|(.)\|(.)\|(.)\|(.)\|(.)\)/g,
+				'[$1$2$3$4$5$6]')
+			.replace(/\((.)\|(.)\|(.)\|(.)\|(.)\)/g,
+				'[$1$2$3$4$5]')
+			.replace(/\((.)\|(.)\|(.)\|(.)\)/g,
+				'[$1$2$3$4]')
+			.replace(/\((.)\|(.)\|(.)\)/g,
+				'[$1$2$3]')
+			.replace(/\((.)\|(.)\)/g,
+				'[$1$2]');
+	},
+ 	 
+/* hiragana, katakana */ 
+	
 	KANATAB : [ 
 '\u3042	\u30a2|\uff71',
 '\u3044	\u30a4|\uff72',
@@ -678,7 +752,7 @@ pXMigemoTextTransformJa.prototype = {
 				return hash[aChar];
 			});
 	},
- 	
+ 
 	hira2kataPattern : function(aString) 
 	{
 		var hash = this.HIRAKATA_Hash;
@@ -719,7 +793,7 @@ pXMigemoTextTransformJa.prototype = {
 	{
 		return aStr.replace(/[\uff10-\uff19\uff21-\uff3a\uff41-\uff5a]/g, this.zenkaku2hankakuSub);
 	},
-	
+	 
 	zenkaku2hankakuSub : function(aStr) 
 	{
 		var code = aStr.charCodeAt(0);
@@ -780,231 +854,6 @@ pXMigemoTextTransformJa.prototype = {
 			}
 		}
 	},
-   
-	expand : function(str) 
-	{
-		//この関数は語尾処理をする。ブラッシュアップが必要。
-		var r2h  = this.r2h;
-		var ichi = this.ichi;
-		var child = str.charAt(str.length-1);
-		var ret;
-		switch (child)
-		{
-			case 'k':
-			case 's':
-			case 't':
-			case 'h':
-			case 'm':
-			case 'r':
-			case 'g':
-			case 'z':
-			case 'd':
-			case 'b':
-			case 'p':
-			case 'l':
-			case 'x':
-				ret = str.substring(0,str.length-1)+
-					'['+r2h.getString(child+'a')+
-					r2h.getString(child+'i')+
-					r2h.getString(child+'u')+
-					r2h.getString(child+'e')+
-					r2h.getString(child+'o')+
-					ichi.getString('ltu')+
-					']';
-				break;
-
-			case 'n':
-				ret = str.substring(0,str.length-1)+
-					'['+r2h.getString('na')+
-					r2h.getString('ni')+
-					r2h.getString('nu')+
-					r2h.getString('ne')+
-					r2h.getString('no')+
-					ichi.getString('n')+
-					']';
-				break;
-
-			case 'y':
-				ret = str.substring(0,str.length-1)+
-					'['+r2h.getString('ya')+
-					r2h.getString('yu')+
-					r2h.getString('yo')+
-					']';
-				break;
-
-			case 'w':
-				ret = str.substring(0,str.length-1)+
-					'['+r2h.getString('wa')+
-					r2h.getString('wo')+
-					']';
-				break;
-
-			case 'j':
-				ret = str.substring(0,str.length-1)+r2h.getString('ji');
-				break;
-
-			case 'f':
-				ret = str.substring(0,str.length-1)+r2h.getString('fu');
-				break;
-
-			case 'v':
-				ret = str.substring(0,str.length-1)+r2h.getString('vu');
-				break;
-
-			default:
-				ret = str;
-				break;
-		}
-		//alert('expand:'+ret);
-		return ret;
-	},
-	 
-	expand2 : function(str, aKana) 
-	{
-		var r2h  = this.r2h;
-		var ichi = this.ichi;
-		var child = str.charAt(str.length-1);
-		var ret;
-		switch (child)
-		{
-			case 'k':
-			case 's':
-			case 't':
-			case 'h':
-			case 'm':
-			case 'r':
-			case 'g':
-			case 'z':
-			case 'd':
-			case 'b':
-			case 'p':
-			case 'l':
-			case 'x':
-				ret = str.substring(0,str.length-1)+
-					['(',
-						this.getKana(child+'a', aKana),'|',
-						this.getKana(child+'i', aKana),'|',
-						this.getKana(child+'u', aKana),'|',
-						this.getKana(child+'e', aKana),'|',
-						this.getKana(child+'o', aKana),'|',
-						this.getKana('ltu', aKana),
-					')'].join('');
-				break;
-
-			case 'n':
-				ret = str.substring(0,str.length-1)+
-					['(',
-						this.getKana('na', aKana),'|',
-						this.getKana('ni', aKana),'|',
-						this.getKana('nu', aKana),'|',
-						this.getKana('ne', aKana),'|',
-						this.getKana('no', aKana),'|',
-						this.getKana('n', aKana),
-						']',
-					')'].join('');
-				break;
-
-			case 'y':
-				ret = str.substring(0,str.length-1)+
-					['(',
-						this.getKana('ya', aKana),'|',
-						this.getKana('yu', aKana),'|',
-						this.getKana('yo', aKana),
-					')'].join('');
-				break;
-
-			case 'w':
-				ret = str.substring(0,str.length-1)+
-					['(',
-						this.getKana('wa', aKana),'|',
-						this.getKana('wo', aKana),
-					')'].join('');
-				break;
-
-			case 'j':
-				ret = str.substring(0,str.length-1)+this.getKana('ji', aKana);
-				break;
-
-			case 'f':
-				ret = str.substring(0,str.length-1)+this.getKana('fu', aKana);
-				break;
-
-			case 'v':
-				ret = str.substring(0,str.length-1)+this.getKana('vu', aKana);
-				break;
-
-			default:
-				ret = str;
-				break;
-		}
-		ret = ret.replace(/\((.)\|(.)\)/g, '\[$1$2\]')
-					.replace(/\((.)\|(.)\|(.)\)/g, '\[$1$2$3\]')
-					.replace(/\((.)\|(.)\|(.)\|(.)\|(.)\|(.)\)/g, '\[$1$2$3$4$5$6\]')
-					.replace(/\n/g, '');
-		//alert('expand:'+ret);
-		return ret;
-	},
- 
-	getKana : function(aKey, aKanaFlag) 
-	{
-		var r2h  = this.r2h;
-		var r2k  = this.r2k;
-		var ichi = this.ichi;
-		var ret;
-		switch (aKanaFlag)
-		{
-			case this.KANA_ALL:
-				ret = (aKey == 'n' || aKey == 'ltu') ?
-					['[',
-						ichi.getString(aKey),
-						r2k.getString(aKey),
-					']'].join('') :
-					['(',
-						r2h.getString(aKey),'|',
-						r2k.getString(aKey),
-					')'].join('');
-				ret = ret.replace(/\((.)\|(.)\|(.)\)/g, '\[$1$2$3\]')
-						.replace(/\n/g, '');
-				break;
-
-			case this.KANA_KATA:
-				ret = ['(', r2k.getString(aKey), ')'].join('');
-				ret = ret.replace(/\((.)\|(.)\)/g, '\[$1$2\]')
-						.replace(/\[(.)\]/g, '$1')
-						.replace(/\n/g, '');
-				break;
-
-			default:
-				ret = (aKey == 'n' || aKey == 'ltu') ? ichi.getString(aKey) : r2h.getString(aKey) ;
-				break;
-		}
-		return ret;
-	},
-	KANA_HIRA : 0,
-	KANA_KATA : 1,
-	KANA_ALL  : 2,
-	 
-	get r2h() 
-	{
-		if (!this._r2h)
-			this._r2h = new XMigemoStringBundle('chrome://xulmigemo/content/res/ja/r2h.properties');
-		return this._r2h;
-	},
-	_r2h : null,
-	get r2k()
-	{
-		if (!this._r2k)
-			this._r2k = new XMigemoStringBundle('chrome://xulmigemo/content/res/ja/r2k.properties');
-		return this._r2k;
-	},
-	_r2k : null,
-	get ichi()
-	{
-		if (!this._ichi)
-			this._ichi = new XMigemoStringBundle('chrome://xulmigemo/content/res/ja/ichimoji.properties');
-		return this._ichi;
-	},
-	_ichi : null,
    
 	QueryInterface : function(aIID) 
 	{
