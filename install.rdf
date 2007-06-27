@@ -4,8 +4,8 @@
          xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}"
-                   em:name="XUL/Migemo [Forked Edition]"
-                   em:version="0.6.6"
+                   em:name="XUL/Migemo"
+                   em:version="0.7.0"
                    em:description="Provides advanced incremental search for any language."
                    em:creator="plus7"
                    em:homepageURL="http://piro.sakura.ne.jp/xul/xulmigemo/"
