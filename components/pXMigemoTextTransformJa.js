@@ -2,7 +2,9 @@ var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
-function pXMigemoTextTransformJa() {} 
+function pXMigemoTextTransformJa() { 
+	this.init();
+}
 
 pXMigemoTextTransformJa.prototype = {
 	lang : 'ja',
@@ -66,82 +68,82 @@ pXMigemoTextTransformJa.prototype = {
 	{
 		var self = this;
 
-		this._ROMKAN     = [];
-		this._ROMKAN_Hash = {};
-		this._ROMPAT     = [];
+		this.ROMKAN     = [];
+		this.ROMKAN_Hash = {};
+		this.ROMPAT     = [];
 
-		this._KANROM     = [];
-		this._KANROM_Hash = {};
-		this._KANPAT     = [];
+		this.KANROM     = [];
+		this.KANROM_Hash = {};
+		this.KANPAT     = [];
 
 		var pairs = (this.KUNREITAB +'\t'+ this.HEPBURNTAB).replace(/^\s+|\s+$/g, '').split(/\s+/);
 		for (var i = 0, maxi = pairs.length; i < maxi; i += 2)
 		{
-			this._ROMKAN.push({ key : pairs[i+1], char : pairs[i] });
-			this._ROMKAN_Hash[pairs[i+1]] = pairs[i];
-			this._ROMPAT.push({ key : pairs[i+1], char : pairs[i] });
+			this.ROMKAN.push({ key : pairs[i+1], char : pairs[i] });
+			this.ROMKAN_Hash[pairs[i+1]] = pairs[i];
+			this.ROMPAT.push({ key : pairs[i+1], char : pairs[i] });
 
-			this._KANROM.push({ key : pairs[i], char : pairs[i+1] });
-			this._KANROM_Hash[pairs[i]] = pairs[i+1];
-			this._KANPAT.push({ key : pairs[i], char : pairs[i+1] });
+			this.KANROM.push({ key : pairs[i], char : pairs[i+1] });
+			this.KANROM_Hash[pairs[i]] = pairs[i+1];
+			this.KANPAT.push({ key : pairs[i], char : pairs[i+1] });
 		}
 
 		// Sort in long order so that a longer Romaji sequence precedes.
-		this._ROMPAT = this._ROMPAT.sort(function(aA, aB) {
+		this.ROMPAT = this.ROMPAT.sort(function(aA, aB) {
 			return aB.key.length - aA.key.length;
 		}).map(function(aItem) {
 			return aItem.key;
 		}).join('|');
-		this._ROMINITIALPAT = this._ROMPAT.replace(
+		this.ROMINITIALPAT = this.ROMPAT.replace(
 				/([^\|])[^\|]+(\||$)/g, '$1$2'
 			).split('|');
-		this._ROMINITIALPAT.sort();;
-		this._ROMINITIALPAT = new RegExp(
+		this.ROMINITIALPAT.sort();;
+		this.ROMINITIALPAT = new RegExp(
 			'['+
-			this._ROMINITIALPAT.join('|').replace(
+			this.ROMINITIALPAT.join('|').replace(
 				/([^\|])(\|\1)+/g, '$1'
 			).replace(/\|/g, '')+
 			']',
 			'i'
 		);
-		this._ROMPAT = new RegExp('('+this._ROMPAT+')', 'ig');
+		this.ROMPAT = new RegExp('('+this.ROMPAT+')', 'ig');
 
-		this._KANPAT = this._KANPAT.sort(function(aA, aB) {
+		this.KANPAT = this.KANPAT.sort(function(aA, aB) {
 			return (aB.key.length - aA.key.length) ||
 				(self.KANROM_Hash[aA.key].length - self.KANROM_Hash[aB.key].length);
 		}).map(function(aItem) {
 			return aItem.key;
 		}).join('|');
-		this._KANPAT = new RegExp('('+this._KANPAT+')', 'ig');
+		this.KANPAT = new RegExp('('+this.KANPAT+')', 'ig');
 
-		this._KUNREI = this.KUNREITAB.split(/\s+/).filter(function(aItem, aIndex) {
+		this.KUNREI = this.KUNREITAB.split(/\s+/).filter(function(aItem, aIndex) {
 			return (aIndex % 2 == 0);
 		});
-		this._HEPBURN = this.HEPBURNTAB.split(/\s+/).filter(function(aItem, aIndex) {
+		this.HEPBURN = this.HEPBURNTAB.split(/\s+/).filter(function(aItem, aIndex) {
 			return (aIndex % 2 == 0);
 		});
 
-//		this._KUNPAT; KUNREI.sort  {|a, b| b.length <=> a.length }.join "|"
-//		this._HEPPAT; HEPBURN.sort {|a, b| b.length <=> a.length }.join "|"
+//		this.KUNPAT; KUNREI.sort  {|a, b| b.length <=> a.length }.join "|"
+//		this.HEPPAT; HEPBURN.sort {|a, b| b.length <=> a.length }.join "|"
 
-		this._TO_HEPBURN_Hash = {};
-		this._TO_HEPBURN = this._KUNREI.map(function(aItem, aIndex) {
-			self._TO_HEPBURN_Hash[aItem] = self._HEPBURN[aIndex];
-			return { key : aItem, char : self._HEPBURN[aIndex] };
+		this.TO_HEPBURN_Hash = {};
+		this.TO_HEPBURN = this.KUNREI.map(function(aItem, aIndex) {
+			self.TO_HEPBURN_Hash[aItem] = self.HEPBURN[aIndex];
+			return { key : aItem, char : self.HEPBURN[aIndex] };
 		});
-		this._TO_KUNREI_Hash = {};
-		this._TO_KUNREI = this._HEPBURN.map(function(aItem, aIndex) {
-			self._TO_KUNREI_Hash[aItem] = self._KUNREI[aIndex];
-			return { key : aItem, char : self._KUNREI[aIndex] };
+		this.TO_KUNREI_Hash = {};
+		this.TO_KUNREI = this.HEPBURN.map(function(aItem, aIndex) {
+			self.TO_KUNREI_Hash[aItem] = self.KUNREI[aIndex];
+			return { key : aItem, char : self.KUNREI[aIndex] };
 		});
 
 
-		this._KATAHIRA_Hash = {};
-		this._KATAPAT       = [];
+		this.KATAHIRA_Hash = {};
+		this.KATAPAT       = [];
 
-		this._HIRAKATA_Hash     = {};
-		this._HIRAKATA_ZEN_Hash = {};
-		this._HIRAPAT           = [];
+		this.HIRAKATA_Hash     = {};
+		this.HIRAKATA_ZEN_Hash = {};
+		this.HIRAPAT           = [];
 
 		pairs = this.KANATAB.replace(/^\s+|\s+$/g, '').split(/\s+/);
 		var kata;
@@ -149,22 +151,22 @@ pXMigemoTextTransformJa.prototype = {
 		{
 			kata = pairs[i+1]
 			kata.split('|').forEach(function(aKata, aIndex) {
-				self._KATAHIRA_Hash[aKata] = pairs[i];
-				self._KATAPAT.push(aKata);
+				self.KATAHIRA_Hash[aKata] = pairs[i];
+				self.KATAPAT.push(aKata);
 				if (aIndex == 0) {
-					self._HIRAKATA_ZEN_Hash[pairs[i]] = aKata;
+					self.HIRAKATA_ZEN_Hash[pairs[i]] = aKata;
 				}
 				else {
 					kata = '('+kata+')'.replace(/\((\.)\|(\.)\)/, '[$1$2]');
 				}
 			});
 
-			this._HIRAKATA_Hash[pairs[i]] = kata;
-			this._HIRAPAT.push(pairs[i]);
+			this.HIRAKATA_Hash[pairs[i]] = kata;
+			this.HIRAPAT.push(pairs[i]);
 		}
 
-		this._KATAPAT = new RegExp('('+this._KATAPAT.join('|')+')', 'ig');
-		this._HIRAPAT = new RegExp('('+this._HIRAPAT.join('|')+')', 'ig');
+		this.KATAPAT = new RegExp('('+this.KATAPAT.join('|')+')', 'ig');
+		this.HIRAPAT = new RegExp('('+this.HIRAPAT.join('|')+')', 'ig');
 	},
  
 /* based on Ruby/Romkan ( http://0xcc.net/ruby-romkan/ ) */ 
@@ -323,126 +325,6 @@ pXMigemoTextTransformJa.prototype = {
 '\u3058\u3047	je'
 	].join('\n'),
  
-	get ROMKAN() 
-	{
-		if (!this._ROMKAN) {
-			this.init();
-		}
-		return this._ROMKAN;
-	},
-	
-	get ROMKAN_Hash() 
-	{
-		if (!this._ROMKAN_Hash) {
-			this.init();
-		}
-		return this._ROMKAN_Hash;
-	},
- 
-	get ROMPAT() 
-	{
-		if (!this._ROMPAT) {
-			this.init();
-		}
-		return this._ROMPAT;
-	},
- 
-	get ROMINITIALPAT() 
-	{
-		if (!this._ROMINITIALPAT) {
-			this.init();
-		}
-		return this._ROMINITIALPAT;
-	},
-  
-	get KANROM() 
-	{
-		if (!this._KANROM) {
-			this.init();
-		}
-		return this._KANROM;
-	},
-	
-	get KANROM_Hash() 
-	{
-		if (!this._KANROM_Hash) {
-			this.init();
-		}
-		return this._KANROM_Hash;
-	},
- 
-	get KANPAT() 
-	{
-		if (!this._KANPAT) {
-			this.init();
-		}
-		return this._KANPAT;
-	},
-  
-	get KUNREI() 
-	{
-		if (!this._KUNREI) {
-			this.init();
-		}
-		return this._KUNREI;
-	},
-	
-	get KUNPAT() 
-	{
-		if (!this._KUNPAT) {
-			this.init();
-		}
-		return this._KUNPAT;
-	},
- 
-	get TO_KUNREI() 
-	{
-		if (!this._TO_KUNREI) {
-			this.init();
-		}
-		return this._TO_KUNREI;
-	},
- 
-	get TO_KUNREI_Hash() 
-	{
-		if (!this._TO_KUNREI_Hash) {
-			this.init();
-		}
-		return this._TO_KUNREI_Hash;
-	},
-  
-	get HEPBURN() 
-	{
-		if (!this._HEPBURN) {
-			this.init();
-		}
-		return this._HEPBURN;
-	},
-	
-	get HEPPAT() 
-	{
-		if (!this._HEPPAT) {
-			this.init();
-		}
-		return this._HEPPAT;
-	},
- 
-	get TO_HEPBURN() 
-	{
-		if (!this._TO_HEPBURN) {
-			this.init();
-		}
-		return this._TO_HEPBURN;
-	},
- 
-	get TO_HEPBURN_Hash() 
-	{
-		if (!this._TO_HEPBURN_Hash) {
-			this.init();
-		}
-		return this._TO_HEPBURN_Hash;
-	},
-  
 	/*
 		FIXME: ad hod solution
 		tanni   => tan'i
@@ -599,9 +481,9 @@ pXMigemoTextTransformJa.prototype = {
 			.replace(/\((.)\|(.)\)/g,
 				'[$1$2]');
 	},
- 	 
+  
 /* hiragana, katakana */ 
-	
+	 
 	KANATAB : [ 
 '\u3042	\u30a2|\uff71',
 '\u3044	\u30a4|\uff72',
@@ -712,38 +594,6 @@ pXMigemoTextTransformJa.prototype = {
 '\u3063	\u30c3|\uff6f'
 	].join('\n'),
  
-	get KATAPAT() 
-	{
-		if (!this._KATAPAT) {
-			this.init();
-		}
-		return this._KATAPAT;
-	},
- 
-	get HIRAPAT() 
-	{
-		if (!this._HIRAPAT) {
-			this.init();
-		}
-		return this._HIRAPAT;
-	},
- 
-	get HIRAKATA_Hash() 
-	{
-		if (!this._HIRAKATA_Hash) {
-			this.init();
-		}
-		return this._HIRAKATA_Hash;
-	},
- 
-	get HIRAKATA_ZEN_Hash() 
-	{
-		if (!this._HIRAKATA_ZEN_Hash) {
-			this.init();
-		}
-		return this._HIRAKATA_ZEN_Hash;
-	},
- 
 	hira2kata : function(aString) 
 	{
 		var hash = this.HIRAKATA_ZEN_Hash;
@@ -788,7 +638,7 @@ pXMigemoTextTransformJa.prototype = {
 		}
 		return output;
 	},
- 
+ 	
 	zenkaku2hankaku : function(aStr) 
 	{
 		return aStr.replace(/[\uff10-\uff19\uff21-\uff3a\uff41-\uff5a]/g, this.zenkaku2hankakuSub);
