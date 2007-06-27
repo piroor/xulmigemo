@@ -228,27 +228,24 @@ interface pIXMigemoFind : nsIObserver
 [scriptable, uuid(749f4faa-cdf6-11db-8314-0800200c9a66)]
 interface pIXMigemoTextTransformJa : pIXMigemoTextTransform
 {
-	AString hira2kana(in AString hiragana);
-	AString zenkaku2hankaku(in AString zenkaku);
-	AString roman2zen(in AString roman);
-	AString katakanav(in AString katakana);
-
-	AString normalizeForYomi(in AString yomigana);
-	boolean isYomi(in AString yomigana);
-
-	AString joinVoiceMarks(in AString hiragana);
-	AString kana2hira(in AString katakana);
-	AString hira2roman(in AString hiragana);
-
-	AString convertStr(in AString roman);
-	AString convertStr2(in AString roman, in unsigned short kanaFlag);
-	AString toZen(in AString romanChar, in AString lastChar, in AString last2Char, in unsigned short kanaFlag);
+	AString roman2kana(in AString roman);
+	AString roman2kana2(in AString roman, in unsigned short kanaFlag);
 	AString getKana(in AString key, in unsigned short kanaFlag);
 	const unsigned short KANA_HIRA = 0;
 	const unsigned short KANA_KATA = 1;
 	const unsigned short KANA_ALL = 2;
 
-	boolean isAlpha(in AString roman);
+	AString hira2roman(in AString hiragana); // hiragana => roman
+	AString hira2kata(in AString hiragana); // hiragana => katakana
+	AString kata2hira(in AString katakana); // katakana => hiragana
+
+	AString zenkaku2hankaku(in AString zenkaku); // fullwidth alphabets => ASCII
+	AString roman2zen(in AString roman); // ASCII => fullwidth alphabets
+
+	AString normalizeForYomi(in AString yomigana);
+	boolean isYomi(in AString yomigana);
+
+	AString joinVoiceMarks(in AString hiragana);
 
 	AString expand(in AString roman);
 	AString expand2(in AString roman, in unsigned short kanaFlag);
