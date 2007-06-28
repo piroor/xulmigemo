@@ -1,5 +1,6 @@
 var XMigemoHighlight = { 
-	strongHighlight : false,
+	strongHighlight  : false,
+	animationEnabled : false,
 	 
 	NSResolver : { 
 		lookupNamespaceURI : function(aPrefix)
@@ -62,6 +63,7 @@ var XMigemoHighlight = {
 
 		XMigemoService.addPrefListener(this);
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.showScreen');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animateFound');
 
 		var target = document.getElementById('appcontent') || XMigemoUI.browser;
 		if (target)
@@ -155,6 +157,10 @@ var XMigemoHighlight = {
 		{
 			case 'xulmigemo.highlight.showScreen':
 				this.strongHighlight = value;
+				return;
+
+			case 'xulmigemo.highlight.animateFound':
+				this.animationEnabled = value;
 				return;
 		}
 	},
@@ -317,6 +323,8 @@ var XMigemoHighlight = {
 	
 	highlightFocusedFound : function(aFrame) 
 	{
+		if (!this.animationEnabled) return;
+
 		if (this.highlightFocusedFoundTimer) {
 			window.clearTimeout(this.highlightFocusedFoundTimer);
 		}
@@ -333,13 +341,24 @@ var XMigemoHighlight = {
 		var range = XMigemoUI.getFoundRange(aFrame);
 		if (range) {
 			var node  = range.startContainer;
-			var xpathResult = document.evaluate(
-					'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
-					node,
-					this.NSResolver,
-					XPathResult.FIRST_ORDERED_NODE_TYPE,
-					null
-				);
+			try {
+				var xpathResult = aFrame.document.evaluate(
+						'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
+						node,
+						this.NSResolver,
+						XPathResult.FIRST_ORDERED_NODE_TYPE,
+						null
+					);
+			}
+			catch(e) {
+				var xpathResult = document.evaluate(
+						'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
+						node,
+						this.NSResolver,
+						XPathResult.FIRST_ORDERED_NODE_TYPE,
+						null
+					);
+			}
 			if (xpathResult.singleNodeValue) {
 				this.animateFoundNode(xpathResult.singleNodeValue);
 			}

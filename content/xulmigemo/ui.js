@@ -19,6 +19,8 @@ var XMigemoUI = {
 
 	enableByDefault        : false,
 
+	shouldRebuildSelection : false,
+
 	isModeChanged : false,
  
 	get isQuickFind() 
@@ -233,6 +235,10 @@ var XMigemoUI = {
 					node.style.minHeight = 'none';
 					node.style.maxHeight = 'auto';
 				}
+				return;
+
+			case 'xulmigemo.rebuild_selection':
+				this.shouldRebuildSelection = value;
 				return;
 		}
 	},
@@ -809,6 +815,8 @@ var XMigemoUI = {
 				else if ('_updateStatusUI' in gFindBar) // Firefox 3.0
 					gFindBar.updateStatus = gFindBar._updateStatusUI;
 			}
+			if ('_setHighlightTimeout' in gFindBar) // Firefox 3.0
+				gFindBar.setHighlightTimeout = gFindBar._setHighlightTimeout;
 
 			gFindBar.xmigemoOriginalToggleHighlight = gFindBar.toggleHighlight;
 			gFindBar.toggleHighlight = this.toggleHighlight;
@@ -861,10 +869,10 @@ var XMigemoUI = {
 		eval('gFindBar.'+highlightDocFunc+' = '+gFindBar[highlightDocFunc].toSource()
 			.replace(
 				'var body = doc.body;',
-				'var foundRange = XMigemoUI.getFoundRange(win); var body = doc.body;'
+				'var foundRange = XMigemoUI.shouldRebuildSelection ? XMigemoUI.getFoundRange(win) : null ; var body = doc.body;'
 			).replace(
 				'parent.removeChild(',
-				'var selectAfter = XMigemoUI.isRangeOverlap(foundRange, retRange); var firstChild = docfrag.firstChild, lastChild = docfrag.lastChild; parent.removeChild('
+				'var selectAfter = XMigemoUI.shouldRebuildSelection ? XMigemoUI.isRangeOverlap(foundRange, retRange) : false ; var firstChild = docfrag.firstChild, lastChild = docfrag.lastChild; parent.removeChild('
 			).replace(
 				'parent.normalize();',
 				'if (selectAfter) { XMigemoUI.selectNode(firstChild, doc, lastChild); } parent.normalize();'
@@ -878,8 +886,8 @@ var XMigemoUI = {
 				'{',
 				<![CDATA[
 				{
-					var foundRange = XMigemoUI.getFoundRange(arguments[0].startContainer.ownerDocument.defaultView);
-					var selectAfter = XMigemoUI.isRangeOverlap(foundRange, arguments[0]);
+					var foundRange = XMigemoUI.shouldRebuildSelection ? XMigemoUI.getFoundRange(arguments[0].startContainer.ownerDocument.defaultView) : null ;
+					var selectAfter = XMigemoUI.shouldRebuildSelection ? XMigemoUI.isRangeOverlap(foundRange, arguments[0]) : false ;
 				]]>
 			).replace(
 				'return',
@@ -1353,6 +1361,7 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.goDicManager');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.manualExit');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.indicator.height');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.rebuild_selection');
 
 		this.overrideFindBar();
 
