@@ -436,7 +436,6 @@ pXMigemoTextTransformJa.prototype = {
 	{
 		var target = aString.charAt(aString.length-1)
 		if (!((this.ROMINITIALPAT).test(target))) {
-			dump('RET\n');
 			return aString;
 		}
 
