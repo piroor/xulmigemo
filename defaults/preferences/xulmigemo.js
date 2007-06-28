@@ -9,6 +9,7 @@ pref("xulmigemo.ignoreHiraKata",                false);
 pref("xulmigemo.splitTermsAutomatically",       false);
 pref("xulmigemo.scrollSelectionToCenter",       false);
 pref("xulmigemo.ignore_find_links_only_behavior", true);
+pref("xulmigemo.rebuild_selection"              true);
 
 pref("xulmigemo.checked_by_default.findbar",       false);
 pref("xulmigemo.checked_by_default.migemo",        false);
@@ -16,6 +17,7 @@ pref("xulmigemo.checked_by_default.highlight",     false);
 pref("xulmigemo.checked_by_default.caseSensitive", false);
 
 pref("xulmigemo.highlight.showScreen",          true);
+pref("xulmigemo.highlight.animateFound"         true);
 
 pref("xulmigemo.timeout",                       4000);
 pref("xulmigemo.enabletimeout",                 true);
