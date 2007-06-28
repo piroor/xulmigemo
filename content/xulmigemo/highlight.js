@@ -380,7 +380,7 @@ var XMigemoHighlight = {
 			aThis.animationNode  = null;
 		}
 		else {
-			var step = aThis.animationTime / ((now - aThis.animationStart) || 1);
+			var step = ((now - aThis.animationStart) || 1) / aThis.animationTime;
 			var y = parseInt(10 * Math.sin((180 - (180 * step)) * Math.PI / 180));
 			node.style.top = '-0.'+y+'em';
 		}
