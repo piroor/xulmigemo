@@ -76,17 +76,31 @@ pXMigemoTextTransformJa.prototype = {
 		this.KANROM_Hash = {};
 		this.KANPAT     = [];
 
-		var pairs = (this.KUNREITAB +'\t'+ this.HEPBURNTAB).replace(/^\s+|\s+$/g, '').split(/\s+/);
+		var pairs = (this.CUSTOMTAB +'\t'+ this.KUNREITAB +'\t'+ this.HEPBURNTAB).replace(/^\s+|\s+$/g, '').split(/\s+/);
+		var ROMKAN_Hash_multiple = {};
 		for (var i = 0, maxi = pairs.length; i < maxi; i += 2)
 		{
 			this.ROMKAN.push({ key : pairs[i+1], char : pairs[i] });
-			this.ROMKAN_Hash[pairs[i+1]] = pairs[i];
+			if (pairs[i+1] in this.ROMKAN_Hash) {
+				if (this.ROMKAN_Hash[pairs[i+1]].indexOf(pairs[i]) < 0) {
+					this.ROMKAN_Hash[pairs[i+1]] = this.ROMKAN_Hash[pairs[i+1]]+'|'+pairs[i];
+					ROMKAN_Hash_multiple[pairs[i+1]] = true;
+				}
+			}
+			else {
+				this.ROMKAN_Hash[pairs[i+1]] = pairs[i];
+			}
 			this.ROMPAT.push({ key : pairs[i+1], char : pairs[i] });
 
 			this.KANROM.push({ key : pairs[i], char : pairs[i+1] });
 			this.KANROM_Hash[pairs[i]] = pairs[i+1];
 			this.KANPAT.push({ key : pairs[i], char : pairs[i+1] });
 		}
+		for (var i in ROMKAN_Hash_multiple)
+		{
+			this.ROMKAN_Hash[i] = this.optimizeRegExp('('+this.ROMKAN_Hash[i]+')');
+		}
+
 
 		// Sort in long order so that a longer Romaji sequence precedes.
 		this.ROMPAT = this.ROMPAT.sort(function(aA, aB) {
@@ -325,6 +339,59 @@ pXMigemoTextTransformJa.prototype = {
 '\u3058\u3047	je'
 	].join('\n'),
  
+	CUSTOMTAB : [
+'\u3046\u3043	wi',
+'\u3046\u3047	we',
+'\u3060	dha	\u3063\u3067\u3083	ddha',
+'\u3067\u3043	dhi	\u3063\u3067\u3043	ddhi',
+'\u3067\u3085	dhu	\u3063\u3067\u3085	ddhu',
+'\u3067\u3047	dhe	\u3063\u3067\u3047	ddhe',
+'\u3067\u3087	dho	\u3063\u3067\u3087	ddho',
+'\u3069\u3045	dwu	\u3063\u3069\u3045	ddwu',
+'\u3061\u3083	cya	\u3063\u3061\u3083	ccya',
+'\u3061\u3043	cyi	\u3063\u3061\u3043	ccyi',
+'\u3061\u3085	cyu	\u3063\u3061\u3085	ccyu',
+'\u3061\u3047	cye	\u3063\u3061\u3047	ccye',
+'\u3061\u3087	cyo	\u3063\u3061\u3087	ccyo',
+'\u3075\u3083	fya	\u3063\u3075\u3083	ffya',
+'\u3075\u3043	fyi	\u3063\u3075\u3043	ffyi',
+'\u3075\u3085	fyu	\u3063\u3075\u3085	ffyu',
+'\u3075\u3047	fye	\u3063\u3075\u3047	ffye',
+'\u3075\u3087	fyo	\u3063\u3075\u3087	ffyo',
+'\u3050\u3041	gwa	\u3063\u3050\u3041	ggwa',
+'\u3058\u3083	jya	\u3063\u3058\u3083	jjya',
+'\u3058\u3043	jyi	\u3063\u3058\u3043	jjyi',
+'\u3058\u3085	jyu	\u3063\u3058\u3085	jjyu',
+'\u3058\u3047	jye	\u3063\u3058\u3047	jjye',
+'\u3058\u3087	jyo	\u3063\u3058\u3087	jjyo',
+'\u3041	la	\u3063\u3041	lla',
+'\u3043	li	\u3063\u3043	lli',
+'\u3045	lu	\u3063\u3045	llu',
+'\u3047	le	\u3063\u3047	lle',
+'\u3049	lo	\u3063\u3049	llo',
+'\u3083	lya	\u3063\u3083	llya',
+'\u3043	lyi	\u3063\u3043	llyi',
+'\u3085	lyu	\u3063\u3085	llyu',
+'\u3047	lye	\u3063\u3047	llye',
+'\u3087	lyo	\u3063\u3087	llyo',
+'\u308e	lwa	\u3063\u308e	llwa',
+'\u30f5	lka	\u3063\u30f5	llka',
+'\u30f6	lke	\u3063\u30f6	llke',
+'\u3063	ltu	\u3063\u3063	lltu',
+'\u3063	ltsu	\u3063\u3063	lltsu',
+'\u3064\u3041	tsa	\u3063\u3064\u3041	ttsa',
+'\u3064\u3043	tsi	\u3063\u3064\u3043	ttsi',
+'\u3064\u3047	tse	\u3063\u3064\u3047	ttse',
+'\u3064\u3049	tso	\u3063\u3064\u3049	ttso',
+'\u3068\u3045	twu	\u3063\u3068\u3045	ttwu',
+'\u3090	wyi	\u3063\u3090	wwyi',
+'\u3091	wye	\u3063\u3091	wwye',
+'\u30f5	xka	\u3063\u30f5	xxka',
+'\u30f6	xke	\u3063\u30f6	xxke',
+'\u3043	xyi	\u3063\u3043	xxyi',
+'\u3047	xye	\u3063\u3047	xxye'
+	].join('\n'),
+ 
 	/*
 		FIXME: ad hod solution
 		tanni   => tan'i
@@ -356,13 +423,20 @@ pXMigemoTextTransformJa.prototype = {
 		var func = (aKana == this.KANA_ALL) ?
 					function(aChar) {
 						var str = hash[aChar];
+						if (str.charAt(0) == '[')
+							str = '('+(str.substring(1, str.length-1).split('').join('|'))+')';
 						var result = '';
 						while (str.length > 0)
 						{
-							result += '('+
-								str.charAt(0)+'|'+
-								self.hira2kataPattern(str.charAt(0)).replace(/^\(|\)$/g, '')+
-								')';
+							if (/[\(\)\|]/.test(str.charAt(0))) {
+								result += str.charAt(0);
+							}
+							else {
+								result += '('+
+									str.charAt(0)+'|'+
+									self.hira2kataPattern(str.charAt(0)).replace(/^\(|\)$/g, '')+
+									')';
+							}
 							str = str.substring(1);
 						}
 						return self.optimizeRegExp(result);
@@ -378,6 +452,7 @@ pXMigemoTextTransformJa.prototype = {
 				this.normalize_double_n(String(aString).toLowerCase())
 					.replace(this.ROMPAT, func)
 			);
+//dump(aString+' -> '+encodeURIComponent(ret)+'\n');
 		return ret;
 	},
   
@@ -459,26 +534,16 @@ pXMigemoTextTransformJa.prototype = {
   
 	optimizeRegExp : function(aString) 
 	{
-		return aString
+		var ret = aString
 			.replace(/\|\|+/g, '|')
 			.replace(/\(\|/g, '\(').replace(/\|\)/g, '\)')
 			.replace(/\(\)/g, '\)')
-			.replace(/\((.)\|(.)\|(.)\|(.)\|(.)\|(.)\|(.)\|(.)\|(.)\)/g,
-				'[$1$2$3$4$5$6$7$8$9]')
-			.replace(/\((.)\|(.)\|(.)\|(.)\|(.)\|(.)\|(.)\|(.)\)/g,
-				'[$1$2$3$4$5$6$7$8]')
-			.replace(/\((.)\|(.)\|(.)\|(.)\|(.)\|(.)\|(.)\)/g,
-				'[$1$2$3$4$5$6$7]')
-			.replace(/\((.)\|(.)\|(.)\|(.)\|(.)\|(.)\)/g,
-				'[$1$2$3$4$5$6]')
-			.replace(/\((.)\|(.)\|(.)\|(.)\|(.)\)/g,
-				'[$1$2$3$4$5]')
-			.replace(/\((.)\|(.)\|(.)\|(.)\)/g,
-				'[$1$2$3$4]')
-			.replace(/\((.)\|(.)\|(.)\)/g,
-				'[$1$2$3]')
-			.replace(/\((.)\|(.)\)/g,
-				'[$1$2]');
+			.replace(/\(([^()\[\]|]+)\)/g, '$1')
+			.replace(/\[([^()\[\]|])\]/g, '$1')
+			.replace(/\([^()\[\]|](\|[^()\[\]|])+\)/g, function(aString) {
+				return '['+(aString.substring(1, aString.length-1).split('|').join(''))+']';
+			});
+		return ret;
 	},
   
 /* hiragana, katakana */ 

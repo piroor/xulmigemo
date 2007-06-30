@@ -229,7 +229,13 @@ pXMigemoFind.prototype = {
 			else{
 				findRegExpSource = aRegExpSource;
 			}
-			findRegExp = findRegExp.compile(findRegExpSource, 'im');
+			try {
+				findRegExp = findRegExp.compile(findRegExpSource, 'im');
+			}
+			catch(e) {
+				dump(e+'\n'+'original : '+aRegExpSource+'\ncurrent : '+findRegExpSource+'\n');
+				throw e;
+			}
 
 			getFindRange:
 			while (true)
