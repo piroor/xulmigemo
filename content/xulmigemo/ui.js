@@ -1307,6 +1307,14 @@ var XMigemoUI = {
 			XMigemoFind.setSelectionLook(doc, true);
 		}
 	},
+	/*
+		強調表示の有る無しを無視して、終端にあるテキストノードと、
+		そこまでの（normalize()によって結合されるであろう）テキストノードの
+		長さの和を得る。
+		強調表示用の要素は常にテキストノードの直上にしか現れ得ないので、
+		「強調表示用の要素がある＝強調表示が解除されたらそこはテキストノードになる」
+		と判断することができる。
+	*/
 	countPreviousText : function(aNode)
 	{
 		var count = 0;
