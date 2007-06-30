@@ -869,13 +869,13 @@ var XMigemoUI = {
 		eval('gFindBar.'+highlightDocFunc+' = '+gFindBar[highlightDocFunc].toSource()
 			.replace(
 				'var body = doc.body;',
-				'var foundRange = XMigemoUI.shouldRebuildSelection ? XMigemoUI.getFoundRange(win) : null ; var body = doc.body;'
+				'var foundRange = XMigemoUI.shouldRebuildSelection ? XMigemoUI.getFoundRange(win) : null ; var selectOffset = foundRange ? foundRange.toString().length : 0 ; var body = doc.body;'
 			).replace(
 				'parent.removeChild(',
-				'var selectAfter = XMigemoUI.shouldRebuildSelection ? XMigemoUI.isRangeOverlap(foundRange, retRange) : false ; var firstChild = docfrag.firstChild, lastChild = docfrag.lastChild; parent.removeChild('
+				'var selectAfter = XMigemoUI.shouldRebuildSelection ? XMigemoUI.isRangeOverlap(foundRange, retRange) : false ; var firstChild = docfrag.firstChild; parent.removeChild('
 			).replace(
 				'parent.normalize();',
-				'if (selectAfter) { XMigemoUI.selectNode(firstChild, doc, lastChild); } parent.normalize();'
+				'if (selectAfter) { XMigemoUI.selectNode(firstChild, doc, selectOffset); } parent.normalize();'
 			)
 		);
 
@@ -1203,58 +1203,58 @@ var XMigemoUI = {
 		);
 	},
  
-	selectNode : function(aNode, aDocument, aEndAfter) 
+	selectNode : function(aNode, aDocument, aOffset) 
 	{
 		var doc = aDocument || aNode.ownerDocument;
 		var selectRange = doc.createRange();
 
-		var startOffset = 0;
-		if (aNode.nodeType == Node.TEXT_NODE) {
-			while (
-				aNode.previousSibling &&
-				(
-					aNode.previousSibling.nodeType == Node.TEXT_NODE ||
-					aNode.previousSibling.getAttribute('id') == '__firefox-findbar-search-id' ||
-					aNode.previousSibling.getAttribute('class') == '__firefox-findbar-search'
-				)
-				)
-			{
-				aNode = aNode.previousSibling;
-				startOffset += aNode.textContent.length;
-			}
+		/*
+			現在の選択範囲の始点が、normalize()後のテキストノードの中で
+			何文字目になるかを求める
+		*/
+		var startNodeInfo = this.countPreviousText(aNode);
+		var startOffset = startNodeInfo.count;
+		startNodeInfo.lastNode = aNode = startNodeInfo.lastNode;
+
+		/*
+			normalize()後のテキストノードが、親ノードの何番目の子ノードに
+			なるかを求める（強調表示が無い状態を想定）
+		*/
+		var startChildOffset = 0;
+		while (startNodeInfo.lastNode.previousSibling)
+		{
+			startNodeInfo = this.countPreviousText(startNodeInfo.lastNode.previousSibling);
+			startChildOffset++;
 		}
-		var endOffset = 0;
-		if (aEndAfter && aEndAfter.nodeType == Node.TEXT_NODE) {
-			while (
-				aEndAfter.nextSibling &&
-				(
-					aEndAfter.nextSibling.nodeType == Node.TEXT_NODE ||
-					aEndAfter.nextSibling.getAttribute('id') == '__firefox-findbar-search-id' ||
-					aEndAfter.nextSibling.getAttribute('class') == '__firefox-findbar-search'
-				)
-				)
-			{
-				aEndAfter = aEndAfter.nextSibling;
-				endOffset += aEndAfter.textContent.length;
-			}
+
+		var getNext = function(aNode) {
+			aNode = aNode.nextSibling || aNode.parentNode.nextSibling;
+			if (aNode.nodeType != Node.TEXT_NODE)
+				aNode = aNode.firstChild;
+			return !aNode ? null :
+					aNode.nodeType == Node.TEXT_NODE ? aNode :
+					getNext(aNode);
 		}
 
 		var sel = doc.defaultView.getSelection();
-		if (startOffset || endOffset) {
+		if (startOffset || startChildOffset || !aNode.textContent) {
+			// normalize()によって選択範囲の始点が変わる場合
 			var startParent = aNode.parentNode;
-			var endParent   = (aNode || aEndAfter).parentNode;
 			window.setTimeout(function() {
+				// ノードの再構築が終わった後で選択範囲を復元する
 				var node;
-				if (startOffset) {
-					var startNode = startParent.firstChild;
-					var getNext = function(aNode) {
-						aNode = aNode.nextSibling || aNode.parentNode.nextSibling;
-						if (aNode.nodeType != Node.TEXT_NODE)
-							aNode = aNode.firstChild;
-						return !aNode ? null :
-								aNode.nodeType == Node.TEXT_NODE ? aNode :
-								getNext(aNode);
+				var startNode = startParent.firstChild;
+				if (startChildOffset) {
+					// 選択範囲の始点を含むテキストノードまで移動
+					startNodeInfo.lastNode = null;
+					while (startChildOffset--)
+					{
+						startNodeInfo = XMigemoUI.countNextText(startNodeInfo.lastNode ? startNodeInfo.lastNode.nextSibling : startNode );
 					}
+					startNode = startNodeInfo.lastNode.nextSibling;
+				}
+				if (startOffset) {
+					// 始点の位置まで移動して、始点を設定
 					while (startNode.textContent.length <= startOffset)
 					{
 						startOffset -= startNode.textContent.length;
@@ -1268,28 +1268,15 @@ var XMigemoUI = {
 					selectRange.setStartBefore(startParent.firstChild);
 				}
 
-				if (endOffset) {
-					var endNode = endParent.lastChild;
-					var getPrev = function(aNode) {
-						aNode = aNode.previousSibling || aNode.parentNode.previousSibling;
-						if (aNode.nodeType != Node.TEXT_NODE)
-							aNode = aNode.lastChild;
-						return !aNode ? null :
-								aNode.nodeType == Node.TEXT_NODE ? aNode :
-								getPrev(aNode);
-					}
-					while (endNode.textContent.length <= endOffset)
-					{
-						endOffset -= endNode.textContent.length;
-						node = getPrev(endNode);
-						if (!node) break;
-						endNode = node;
-					}
-					selectRange.setEnd(endNode, endNode.textContent.length - endOffset);
+				var endNode = startNode;
+				while (endNode.textContent.length <= aOffset)
+				{
+					aOffset -= endNode.textContent.length;
+					node = getNext(endNode);
+					if (!node) break;
+					endNode = node;
 				}
-				else {
-					selectRange.setEndAfter(endParent.lastChild);
-				}
+				selectRange.setEnd(endNode, aOffset);
 
 				sel.removeAllRanges();
 				sel.addRange(selectRange);
@@ -1297,12 +1284,20 @@ var XMigemoUI = {
 			}, 0);
 		}
 		else {
-			if (aEndAfter) {
-				selectRange.setStartBefore(aNode);
-				selectRange.setEndAfter(aEndAfter || aNode);
-			}
-			else if (aNode.nodeType == Node.ELEMENT_NODE) {
+			if (aNode.nodeType == Node.ELEMENT_NODE) {
 				selectRange.selectNodeContents(aNode);
+			}
+			else if (aOffset) {
+				selectRange.setStart(aNode, 0);
+				var endNode = aNode;
+				while (endNode.textContent.length <= aOffset)
+				{
+					aOffset -= endNode.textContent.length;
+					node = getNext(endNode);
+					if (!node) break;
+					endNode = node;
+				}
+				selectRange.setEnd(endNode, aOffset);
 			}
 			else {
 				selectRange.selectNode(aNode);
@@ -1311,6 +1306,53 @@ var XMigemoUI = {
 			sel.addRange(selectRange);
 			XMigemoFind.setSelectionLook(doc, true);
 		}
+	},
+	countPreviousText : function(aNode)
+	{
+		var count = 0;
+		var node = aNode;
+		var isSelf = true;
+		while (this.isTextNodeOrHighlight(node))
+		{
+			aNode = node;
+			if (!isSelf)
+				count += aNode.textContent.length;
+			else
+				isSelf = false;
+			var node = aNode.previousSibling;
+			if (!node) break;
+		}
+		return { lastNode : aNode, count : count };
+	},
+	countNextText : function(aNode)
+	{
+		var count = 0;
+		var node = aNode;
+		var isSelf = true;
+		while (this.isTextNodeOrHighlight(node))
+		{
+			aNode = node;
+			if (!isSelf)
+				count += aNode.textContent.length;
+			else
+				isSelf = false;
+			var node = aNode.nextSibling;
+			if (!node) break;
+		}
+		return { lastNode : aNode, count : count };
+	},
+	isTextNodeOrHighlight : function(aNode)
+	{
+		return (
+				aNode.nodeType == Node.TEXT_NODE ||
+				(
+					aNode.nodeType == Node.ELEMENT_NODE &&
+					(
+						aNode.getAttribute('id') == '__firefox-findbar-search-id' ||
+						aNode.getAttribute('class') == '__firefox-findbar-search'
+					)
+				)
+			);
 	},
   	
 	init : function() 
