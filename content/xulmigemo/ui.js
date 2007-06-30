@@ -1140,21 +1140,23 @@ var XMigemoUI = {
 	enableFindButtons : function(aEnable) 
 	{
 		var highlightCheck = XMigemoUI.findHighlightCheck;
-		if (!aEnable && !highlightCheck.disabled) {
+		if (!highlightCheck.disabled) {
 			highlightCheck.xmigemoOriginalChecked = highlightCheck.checked;
 		}
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalEnableFindButtons.apply(scope, arguments);
 
-		if (aEnable && XMigemoService.getPref('xulmigemo.checked_by_default.highlight')) {
-			highlightCheck.checked = highlightCheck.xmigemoOriginalChecked;
+		if (aEnable) {
+			highlightCheck.checked = XMigemoUI.highlightCheckFirst ? XMigemoService.getPref('xulmigemo.checked_by_default.highlight') : highlightCheck.xmigemoOriginalChecked ;
+			XMigemoUI.highlightCheckFirst = false;
 		}
 
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarUpdate', true, true);
 		XMigemoUI.findBar.dispatchEvent(event);
 	},
+	highlightCheckFirst : true,
  
 	toggleFindToolbarMode : function(aSilently) 
 	{
