@@ -1212,53 +1212,43 @@ var XMigemoUI = {
 			現在の選択範囲の始点が、normalize()後のテキストノードの中で
 			何文字目になるかを求める
 		*/
-		var startNodeInfo = this.countPreviousText(aNode);
+		var startNodeInfo = this.countPreviousText(aNode.previousSibling);
 		var startOffset = startNodeInfo.count;
-		startNodeInfo.lastNode = aNode = startNodeInfo.lastNode;
 
 		/*
 			normalize()後のテキストノードが、親ノードの何番目の子ノードに
 			なるかを求める（強調表示が無い状態を想定）
 		*/
-		var startChildOffset = 0;
+		var childCount = 0;
+		this.countPreviousText(aNode);
 		while (startNodeInfo.lastNode.previousSibling)
 		{
 			startNodeInfo = this.countPreviousText(startNodeInfo.lastNode.previousSibling);
-			startChildOffset++;
-		}
-
-		var getNext = function(aNode) {
-			aNode = aNode.nextSibling || aNode.parentNode.nextSibling;
-			if (aNode.nodeType != Node.TEXT_NODE)
-				aNode = aNode.firstChild;
-			return !aNode ? null :
-					aNode.nodeType == Node.TEXT_NODE ? aNode :
-					getNext(aNode);
+			childCount++;
 		}
 
 		var sel = doc.defaultView.getSelection();
-		if (startOffset || startChildOffset || !aNode.textContent) {
-			// normalize()によって選択範囲の始点が変わる場合
+		if (startOffset || childCount || this.countNextText(aNode).lastNode != aNode) {
+			// normalize()によって選択範囲の始点・終点が変わる場合
 			var startParent = aNode.parentNode;
 			window.setTimeout(function() {
 				// ノードの再構築が終わった後で選択範囲を復元する
-				var node;
-				var startNode = startParent.firstChild;
-				if (startChildOffset) {
-					// 選択範囲の始点を含むテキストノードまで移動
-					startNodeInfo.lastNode = null;
-					while (startChildOffset--)
-					{
-						startNodeInfo = XMigemoUI.countNextText(startNodeInfo.lastNode ? startNodeInfo.lastNode.nextSibling : startNode );
-					}
-					startNode = startNodeInfo.lastNode.nextSibling;
+
+				// 選択範囲の始点を含むテキストノードまで移動
+				var startNode = startNodeInfo.lastNode = startParent.firstChild;
+				while (childCount--)
+				{
+					startNodeInfo = XMigemoUI.countNextText(startNodeInfo.lastNode);
+					startNodeInfo.lastNode = startNode = startNodeInfo.lastNode.nextSibling;
 				}
+
+				var node;
 				if (startOffset) {
 					// 始点の位置まで移動して、始点を設定
 					while (startNode.textContent.length <= startOffset)
 					{
 						startOffset -= startNode.textContent.length;
-						node = getNext(startNode);
+						node = XMigemoUI.getNextTextNode(startNode);
 						if (!node) break;
 						startNode = node;
 					}
@@ -1272,7 +1262,7 @@ var XMigemoUI = {
 				while (endNode.textContent.length <= aOffset)
 				{
 					aOffset -= endNode.textContent.length;
-					node = getNext(endNode);
+					node = XMigemoUI.getNextTextNode(endNode);
 					if (!node) break;
 					endNode = node;
 				}
@@ -1290,10 +1280,10 @@ var XMigemoUI = {
 			else if (aOffset) {
 				selectRange.setStart(aNode, 0);
 				var endNode = aNode;
-				while (endNode.textContent.length <= aOffset)
+				while (endNode.textContent.length < aOffset)
 				{
 					aOffset -= endNode.textContent.length;
-					node = getNext(endNode);
+					node = this.getNextTextNode(endNode);
 					if (!node) break;
 					endNode = node;
 				}
@@ -1319,14 +1309,10 @@ var XMigemoUI = {
 	{
 		var count = 0;
 		var node = aNode;
-		var isSelf = true;
 		while (this.isTextNodeOrHighlight(node))
 		{
 			aNode = node;
-			if (!isSelf)
-				count += aNode.textContent.length;
-			else
-				isSelf = false;
+			count += aNode.textContent.length;
 			var node = aNode.previousSibling;
 			if (!node) break;
 		}
@@ -1336,14 +1322,10 @@ var XMigemoUI = {
 	{
 		var count = 0;
 		var node = aNode;
-		var isSelf = true;
 		while (this.isTextNodeOrHighlight(node))
 		{
 			aNode = node;
-			if (!isSelf)
-				count += aNode.textContent.length;
-			else
-				isSelf = false;
+			count += aNode.textContent.length;
 			var node = aNode.nextSibling;
 			if (!node) break;
 		}
@@ -1351,7 +1333,7 @@ var XMigemoUI = {
 	},
 	isTextNodeOrHighlight : function(aNode)
 	{
-		return (
+		return aNode && (
 				aNode.nodeType == Node.TEXT_NODE ||
 				(
 					aNode.nodeType == Node.ELEMENT_NODE &&
@@ -1361,6 +1343,15 @@ var XMigemoUI = {
 					)
 				)
 			);
+	},
+	getNextTextNode : function(aNode)
+	{
+		aNode = aNode.nextSibling || aNode.parentNode.nextSibling;
+		if (aNode.nodeType != Node.TEXT_NODE)
+			aNode = aNode.firstChild;
+		return !aNode ? null :
+				aNode.nodeType == Node.TEXT_NODE ? aNode :
+				this.getNextTextNode(aNode);
 	},
   	
 	init : function() 
