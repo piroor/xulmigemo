@@ -1235,11 +1235,11 @@ var XMigemoUI = {
 				// ノードの再構築が終わった後で選択範囲を復元する
 
 				// 選択範囲の始点を含むテキストノードまで移動
-				var startNode = startNodeInfo.lastNode = startParent.firstChild;
+				var startNode = startParent.firstChild;
 				while (childCount--)
 				{
-					startNodeInfo = XMigemoUI.countNextText(startNodeInfo.lastNode);
-					startNodeInfo.lastNode = startNode = startNodeInfo.lastNode.nextSibling;
+					startNodeInfo = XMigemoUI.countNextText(startNode);
+					startNode = startNodeInfo.lastNode.nextSibling;
 				}
 
 				var node;
