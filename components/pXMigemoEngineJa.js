@@ -69,14 +69,13 @@ pXMigemoEngineJa.prototype = {
 				.getService(Components.interfaces.pIXMigemoTextUtils);
 
 		mydump('noCache');
-		var str = XMigemoTextService.expand(
+		var hira = XMigemoTextService.expand(
 				XMigemoTextUtils.sanitize(
 					XMigemoTextService.roman2kana(
 						XMigemoTextService.kata2hira(aInput)
 					)
 				)
 			);
-		var hira = str;
 		var roman = aInput;
 		if (/[\uff66-\uff9f]/.test(roman)) roman = XMigemoTextService.hira2roman(XMigemoTextService.kata2hira(roman))
 		var ignoreHiraKata = Prefs.getBoolPref('xulmigemo.ignoreHiraKata');
@@ -100,9 +99,11 @@ pXMigemoEngineJa.prototype = {
 					),
 					XMigemoTextService.KANA_ALL
 				) :
-				str + '|' + kana ;
+				hira + '|' + kana ;
+		mydump('hiraAndKana: '+encodeURIComponent(hiraAndKana));
+
 		var zen = XMigemoTextService.roman2zen(aInput); // aInput ?
-		mydump('hira:'+hira);
+		mydump('zen: '+encodeURIComponent(zen));
 
 		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, {});
 
@@ -110,15 +111,15 @@ pXMigemoEngineJa.prototype = {
 		if (lines.length) {
 			var arr = [];
 			arr.push(XMigemoTextUtils.sanitize(aInput).toUpperCase());
-			if (zen.indexOf('[') < 0) arr.push(zen);
-			if (hiraAndKana.indexOf('[') < 0) {
+			if (!/[\[\(]/.test(zen)) arr.push(zen);
+			if (!/[\[\(]/.test(hiraAndKana)) {
 				arr.push(hira);
 				arr.push(kana);
 			}
-			searchterm = arr.concat(lines).join('\n').replace(/(\t|\n\n)+/g, '\n');
+			var searchterm = arr.concat(lines).join('\n').replace(/(\t|\n\n)+/g, '\n');
 
-			if (zen.indexOf('[') > -1) pattern += (pattern ? '|' : '') + zen;
-			if (hiraAndKana.indexOf('[') > -1) pattern += (pattern ? '|' : '') + hiraAndKana;
+			if (/[\[\(]/.test(zen)) pattern += (pattern ? '|' : '') + zen;
+			if (/[\[\(]/.test(hiraAndKana)) pattern += (pattern ? '|' : '') + hiraAndKana;
 
 			// 一文字だけの項目だけは、抜き出して文字クラスにまとめる
 			var ichimoji = searchterm.replace(/^..+$\n?/mg, '').split('\n').sort().join('');
@@ -140,11 +141,11 @@ pXMigemoEngineJa.prototype = {
 
 			pattern = pattern.replace(/\n/g, '');
 
-			mydump('pattern(from dic):'+pattern);
+			mydump('pattern(from dic):'+encodeURIComponent(pattern));
 		}
 		else { // 辞書に引っかからなかった模様なので自前の文字列だけ
 			pattern = XMigemoTextUtils.sanitize(aInput) + '|' + zen + '|' + hiraAndKana;
-			mydump('pattern:'+pattern);
+			mydump('pattern:'+encodeURIComponent(pattern));
 		}
 
 		return pattern;
@@ -184,14 +185,13 @@ pXMigemoEngineJa.prototype = {
 				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
 				.getService(Components.interfaces.pIXMigemoTextUtils);
 
-		var str = XMigemoTextService.expand(
+		var hira = XMigemoTextService.expand(
 					XMigemoTextUtils.sanitize(
 						XMigemoTextService.roman2kana(
 							XMigemoTextService.kata2hira(aInput)
 						)
 					)
 				);
-		var hira = str;
 
 		var tmp  = '^' + hira + '.+$'; //日本語
 		var tmpA = '^' + XMigemoTextUtils.sanitize(aInput) + '.+$'; //アルファベット
@@ -320,6 +320,6 @@ function NSGetModule(compMgr, fileSpec)
 function mydump(aString) 
 {
 	if (DEBUG)
-		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
+		dump((aString.length > 1024 ? aString.substring(0, 1024) : aString )+'\n');
 }
  
