@@ -134,9 +134,6 @@
 		<preference id="xulmigemo.linksonly"
 			name="xulmigemo.linksonly"
 			type="bool"/>
-		<preference id="xulmigemo.enableautoexit.nokeyword"
-			name="xulmigemo.enableautoexit.nokeyword"
-			type="bool"/>
 
 		<preference id="xulmigemo.enabletimeout"
 			name="xulmigemo.enabletimeout"
@@ -146,36 +143,26 @@
 			type="int"/>
 	</preferences>
 
-	<groupbox>
-		<caption label="&xulmigemo.caption.quickstart;"/>
-		<checkbox id="xulmigemo.autostart-check" flex="1"
-			label="&xulmigemo.autostart;"
-			preference="xulmigemo.autostart"/>
-		<checkbox id="xulmigemo.linksonly-check" flex="1"
-			label="&xulmigemo.linksonly;"
-			preference="xulmigemo.linksonly"/>
-	</groupbox>
-
-	<groupbox>
-		<caption label="&xulmigemo.caption.quickexit;"/>
-		<checkbox id="xulmigemo.enableautoexit.nokeyword-check" flex="1"
-			label="&xulmigemo.enableautoexit.nokeyword;"
-			preference="xulmigemo.enableautoexit.nokeyword"/>
-		<checkbox id="xulmigemo.enabletimeout-check" flex="1"
-			label="&xulmigemo.enabletimeout;"
-			preference="xulmigemo.enabletimeout"/>
-		<hbox align="center">
-			<spacer style="width:1em;"/>
-			<label value="&xulmigemo.timeout.before;"
-				control="xulmigemo.timeout-textbox"/>
-			<textbox id="xulmigemo.timeout-textbox"
-				preference="xulmigemo.timeout"
-				style="width: 5em;"
-				type="number" min="1" increment="1"/>
-			<label value="&xulmigemo.timeout.after;"
-				control="xulmigemo.timeout-textbox"/>
-		</hbox>
-	</groupbox>
+	<checkbox id="xulmigemo.autostart-check" flex="1"
+		label="&xulmigemo.autostart;"
+		preference="xulmigemo.autostart"/>
+	<checkbox id="xulmigemo.linksonly-check" flex="1"
+		label="&xulmigemo.linksonly;"
+		preference="xulmigemo.linksonly"/>
+	<checkbox id="xulmigemo.enabletimeout-check" flex="1"
+		label="&xulmigemo.enabletimeout;"
+		preference="xulmigemo.enabletimeout"/>
+	<hbox align="center">
+		<spacer style="width:1em;"/>
+		<label value="&xulmigemo.timeout.before;"
+			control="xulmigemo.timeout-textbox"/>
+		<textbox id="xulmigemo.timeout-textbox"
+			preference="xulmigemo.timeout"
+			style="width: 5em;"
+			type="number" min="1" increment="1"/>
+		<label value="&xulmigemo.timeout.after;"
+			control="xulmigemo.timeout-textbox"/>
+	</hbox>
 
 </prefpane>
 
