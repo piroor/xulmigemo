@@ -4,7 +4,7 @@
 	pIXMigemoDicManager
 	pIXMigemoTextUtils
 */
-var DEBUG = false;
+var DEBUG = true;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
@@ -108,7 +108,7 @@ pXMigemoCore.prototype = {
 
 		// 入力を切って、文節として個別に正規表現を生成する
 		var romanTerm;
-		var romanTerms = this.engine.splitInput(aInput, {});
+		var romanTerms = this.engine.splitInput(aInput, this.INPUT_SEPARATOR, {});
 		mydump('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n');
 
 		var pattern, romanTermPart, nextPart;
@@ -143,13 +143,20 @@ pXMigemoCore.prototype = {
 		}
 
 		myExp = (myExp.length == 1) ? myExp[0] :
-				(myExp.length) ? ['(', myExp.join(')('), ')'].join('').replace(/\n/g, '') :
+				(myExp.length) ? ['(', myExp.join(')(['+this.INPUT_SEPARATOR+'\t]+)?('), ')'].join('').replace(/\n/g, '') :
 				'' ;
 
-		return myExp.replace(/\n/im, '');
+		myExp = myExp.replace(/\n/im, '')
+
+		mydump('created pattern: '+encodeURIComponent(myExp));
+
+		return myExp;
 	},
  
 	simplePartOnlyPattern : /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([^\|]+)$/i, 
+ 
+	// SKK方式の入力以外で、文節区切りとして認識する文字 
+	INPUT_SEPARATOR : " ",
   
 	getRegExpFor : function(aInput) 
 	{
@@ -161,12 +168,16 @@ pXMigemoCore.prototype = {
 		var cache = this.dictionaryManager.cache;
 		var cacheText = cache.getCacheFor(aInput);
 		if (cacheText) {
-			mydump('cache:'+cacheText);
+			mydump('cache:'+encodeURIComponent(cacheText));
 			return cacheText;
 		}
 
 		var date1 = new Date();
+
 		var regexpPattern = this.engine.getRegExpFor(aInput);
+
+		mydump('created:'+encodeURIComponent(regexpPattern));
+
 		var date2 = new Date();
 		if (date2.getTime() - date1.getTime() > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Prefs.getIntPref('xulmigemo.cache.update.time'))) {
 			// 遅かったらキャッシュします
@@ -495,6 +506,6 @@ function NSGetModule(compMgr, fileSpec)
 function mydump(aString) 
 {
 	if (DEBUG)
-		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
+		dump((aString.length > 1024 ? aString.substring(0, 1024) : aString )+'\n');
 }
  
