@@ -11,6 +11,7 @@ pref("xulmigemo.ignore_find_links_only_behavior", true);
 pref("xulmigemo.rebuild_selection",             true);
 
 pref("xulmigemo.checked_by_default.findbar",       false);
+
 pref("xulmigemo.checked_by_default.highlight",     false);
 pref("xulmigemo.checked_by_default.caseSensitive", false);
 pref("xulmigemo.checked_by_default.migemo",        false);

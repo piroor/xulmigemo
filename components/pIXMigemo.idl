@@ -102,7 +102,6 @@ interface pIXMigemoEngine : nsIObserver
 
 	void splitInput(
 		in AString input,
-		in AString specialSeparatorCharacter,
 		out unsigned long count, [array, size_is(count), retval] out wstring array
 	);
 

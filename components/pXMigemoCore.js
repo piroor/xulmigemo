@@ -108,7 +108,7 @@ pXMigemoCore.prototype = {
 
 		// 入力を切って、文節として個別に正規表現を生成する
 		var romanTerm;
-		var romanTerms = this.engine.splitInput(aInput, this.INPUT_SEPARATOR, {});
+		var romanTerms = this.engine.splitInput(aInput, {});
 		mydump('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n');
 
 		var pattern, romanTermPart, nextPart;
@@ -143,7 +143,7 @@ pXMigemoCore.prototype = {
 		}
 
 		myExp = (myExp.length == 1) ? myExp[0] :
-				(myExp.length) ? ['(', myExp.join(')(['+this.INPUT_SEPARATOR+'\t]+)?('), ')'].join('').replace(/\n/g, '') :
+				(myExp.length) ? ['(', myExp.join(')([ \t]+)?('), ')'].join('').replace(/\n/g, '') :
 				'' ;
 
 		myExp = myExp.replace(/\n/im, '')
@@ -154,9 +154,6 @@ pXMigemoCore.prototype = {
 	},
  
 	simplePartOnlyPattern : /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([^\|]+)$/i, 
- 
-	// SKK方式の入力以外で、文節区切りとして認識する文字 
-	INPUT_SEPARATOR : " ",
   
 	getRegExpFor : function(aInput) 
 	{

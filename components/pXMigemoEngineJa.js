@@ -151,7 +151,7 @@ pXMigemoEngineJa.prototype = {
 		return pattern;
 	},
  
-	splitInput : function(aInput, aSeparator, aCount) 
+	splitInput : function(aInput, aCount) 
 	{
 		var terms = (
 					(/^[A-Z]{2,}/.test(aInput)) ?
@@ -163,9 +163,8 @@ pXMigemoEngineJa.prototype = {
 				.replace(/([0-9\uff66-\uff9f])([a-z])/i, '$1\t$2')
 				.replace(new RegExp('([!"#\$%&\'\\(\\)=~\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64]+)', 'g'), '\t$1\t');
 
-		var separatorRegExp = new RegExp(aSeparator +'+|\t\t+', 'g');
 		terms = terms
-				.replace(separatorRegExp, '\t')
+				.replace(/ +|\t\t+/g, '\t')
 				.replace(/^[\s\t]+|[\s\t]+$/g, '')
 				.split('\t');
 
