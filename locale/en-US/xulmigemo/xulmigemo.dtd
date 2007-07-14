@@ -24,12 +24,8 @@
 
 <!ENTITY xulmigemo.tab.quickfind           "Quick Migemo Find">
 
-<!ENTITY xulmigemo.caption.quickstart      "Startup Quick Migemo Find">
 <!ENTITY xulmigemo.autostart               "Start the mode automatically for keytypes">
 <!ENTITY xulmigemo.linksonly               "Find only links">
-
-<!ENTITY xulmigemo.caption.quickexit       "Exit Quick Migemo Find">
-<!ENTITY xulmigemo.enableautoexit.nokeyword "Exit the mode automatically when there is no keyword left">
 <!ENTITY xulmigemo.enabletimeout           "Exit the mode automatically with an timeout">
 <!ENTITY xulmigemo.timeout.before          "after">
 <!ENTITY xulmigemo.timeout.after           "msec">
@@ -82,7 +78,7 @@
 <!ENTITY xulmigemo.shortcut.findBackward   "Find Backward">
 <!ENTITY xulmigemo.shortcut.manualStart    "Start Quick Migemo Find">
 <!ENTITY xulmigemo.shortcut.manualStartLinksOnly "Start Quick Migemo Find">
-<!ENTITY xulmigemo.shortcut.manualStartLinksOnly2 "(search only links)">
+<!ENTITY xulmigemo.shortcut.manualStartLinksOnly2 "(find only links)">
 <!ENTITY xulmigemo.shortcut.manualExit     "Exit Quick Migemo Find">
 <!ENTITY xulmigemo.shortcut.goDicManager   "Show Dictionary Manager">
 
@@ -143,12 +139,12 @@
 
 
 <!ENTITY xulmigemo.langchooser.title  "XUL/Migemo: Choose the Engine">
-<!ENTITY xulmigemo.langchooser.label  "Choose the engine of Migemo-find-mode (incremental search assisted by dictionary).">
+<!ENTITY xulmigemo.langchooser.label  "Choose the engine of Migemo-find mode (incremental search assisted by dictionary).">
 
 
 <!ENTITY xulmigemo.init.title  "XUL/Migemo Initialization Wizard">
 
-<!ENTITY xulmigemo.init.page1.label1  "XUL/Migemo cannot find out the dictonary for Migemo-mode search (incremental search assisted by dictionary.) Migemo-mode search requires the dictionary. Please choose an action.">
+<!ENTITY xulmigemo.init.page1.label1  "XUL/Migemo cannot find out the dictonary for Migemo-find mode (incremental search assisted by dictionary.) Migemo-find mode requires the dictionary. Please choose an action.">
 <!ENTITY xulmigemo.init.page1.radio.download "Download Dictionary from the Internet Automatically">
 <!ENTITY xulmigemo.init.page1.radio.choose   "Choose Existing Dictionary">
 <!ENTITY xulmigemo.init.page1.radio.later    "Later (do nothing now)">

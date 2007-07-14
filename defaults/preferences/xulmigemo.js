@@ -21,6 +21,7 @@ pref("xulmigemo.highlight.animateFound",        true);
 
 pref("xulmigemo.timeout",                       4000);
 pref("xulmigemo.enabletimeout",                 true);
+pref("xulmigemo.enableautoexit.inherit",        true);
 pref("xulmigemo.enableautoexit.nokeyword",      true);
 
 pref("xulmigemo.enabletimeout.indicator",       true);

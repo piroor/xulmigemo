@@ -14,7 +14,8 @@ var XMigemoUI = {
 	isFindbarFocused       : false,
  
 	isAutoStart            : false, 
-	isAutoExit             : false,
+	isAutoExitInherit      : true,
+	isAutoExit             : true,
 	timeout                : 0,
 
 	enableByDefault        : false,
@@ -177,6 +178,10 @@ var XMigemoUI = {
 		{
 			case 'xulmigemo.autostart':
 				this.isAutoStart = value;
+				return;
+
+			case 'xulmigemo.enableautoexit.inherit':
+				this.isAutoExitInherit = value;
 				return;
 
 			case 'xulmigemo.enableautoexit.nokeyword':
@@ -406,8 +411,10 @@ var XMigemoUI = {
 				}
 				XMigemoFind.removeKeyword(1);
 				this.updateStatus(XMigemoFind.lastKeyword);
-				if (XMigemoFind.lastKeyword == '' &&
-					this.isAutoExit) {
+				if (
+					XMigemoFind.lastKeyword == '' &&
+					(this.isAutoExitInherit ? this.isAutoStart : this.isAutoExit )
+					) {
 					this.cancel();
 				}
 				else {
@@ -1391,6 +1398,7 @@ var XMigemoUI = {
 
 		XMigemoService.addPrefListener(this);
 		this.observe(null, 'nsPref:changed', 'xulmigemo.autostart');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.inherit');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.nokeyword');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enable_by_default');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');

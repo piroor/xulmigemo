@@ -23,12 +23,9 @@
 
 <!ENTITY xulmigemo.tab.quickfind           "クイックMigemo検索">
 
-<!ENTITY xulmigemo.caption.quickstart      "クイックMigemo検索の開始">
 <!ENTITY xulmigemo.autostart               "キー入力で自動的にクイックMigemo検索を始める">
 <!ENTITY xulmigemo.linksonly               "リンク内の文字列だけを検索する">
 
-<!ENTITY xulmigemo.caption.quickexit       "クイックMigemo検索の終了">
-<!ENTITY xulmigemo.enableautoexit.nokeyword "キーワードがすべて消去されたら自動的にクイックMigemo検索を終了する">
 <!ENTITY xulmigemo.enabletimeout           "一定時間で自動的にクイックMigemo検索を終了する">
 <!ENTITY xulmigemo.timeout.before          "最後の入力から">
 <!ENTITY xulmigemo.timeout.after           "ミリ秒経過したら終了する">
