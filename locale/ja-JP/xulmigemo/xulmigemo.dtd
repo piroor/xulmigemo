@@ -10,7 +10,6 @@
 <!ENTITY xulmigemo.lang.item2.value        "en-US">
 <!ENTITY xulmigemo.lang.description        "※変更の反映には再起動が必要です">
 
-<!ENTITY xulmigemo.enable_by_default       "常にMigemo検索を有効にする">
 <!ENTITY xulmigemo.startfromviewport       "現在見えている領域内から検索を始める">
 <!ENTITY xulmigemo.scrollSelectionToCenter "検索で見つかった箇所を画面の中心に表示する">
 <!ENTITY xulmigemo.highlight.showScreen    "「すべて強調表示」をより強く強調する">
@@ -31,15 +30,25 @@
 <!ENTITY xulmigemo.timeout.after           "ミリ秒経過したら終了する">
 
 
-<!ENTITY xulmigemo.tab.findbar             "検索ツールバー">
 
-<!ENTITY xulmigemo.prefillwithselection    "検索開始時に選択範囲の内容を自動的に取り込む">
+<!ENTITY xulmigemo.tab.findbar             "検索ツールバーの状態">
 
-<!ENTITY xulmigemo.caption.checked_by_default       "検索ツールバーの初期状態">
-<!ENTITY xulmigemo.checked_by_default.findbar       "Firefox起動時に検索ツールバーを表示する">
-<!ENTITY xulmigemo.checked_by_default.migemo        "Migemo検索を有効にする">
-<!ENTITY xulmigemo.checked_by_default.highlight     "「すべて強調表示」を有効にする">
-<!ENTITY xulmigemo.checked_by_default.caseSensitive "「大文字小文字を区別」を有効にする">
+<!ENTITY xulmigemo.findbar.initialState             "起動時の設定：">
+<!ENTITY xulmigemo.checked_by_default.highlight     "すべて強調表示">
+<!ENTITY xulmigemo.checked_by_default.caseSensitive "大文字/小文字を区別">
+<!ENTITY xulmigemo.checked_by_default.migemo        "Migemo検索">
+<!ENTITY xulmigemo.findbar.initialState.description "※ここでチェックした機能は起動時に一度だけ有効になり、任意で無効にできます">
+
+<!ENTITY xulmigemo.findbar.permanentState             "常時有効な設定：">
+<!ENTITY xulmigemo.prefillwithselection         "入力欄の内容">
+<!ENTITY xulmigemo.prefillwithselection.true    "選択範囲のテキスト">
+<!ENTITY xulmigemo.prefillwithselection.false   "前回検索した内容">
+<!ENTITY xulmigemo.checked_by_default.highlight.always     "すべて強調表示">
+<!ENTITY xulmigemo.checked_by_default.caseSensitive.always "大文字/小文字を区別">
+<!ENTITY xulmigemo.enable_by_default                       "Migemo検索">
+<!ENTITY xulmigemo.findbar.permanentState.description "※ここでチェックした機能は検索ツールバーを開くたびに常に有効になり、任意で無効にできません">
+
+<!ENTITY xulmigemo.checked_by_default.findbar  "Firefox起動時に最初から検索ツールバーを表示しておく">
 
 
 <!ENTITY xulmigemo.tab.dictionary          "辞書">
