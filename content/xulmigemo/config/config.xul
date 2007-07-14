@@ -164,40 +164,14 @@
 			control="xulmigemo.timeout-textbox"/>
 	</hbox>
 
-</prefpane>
-
-
-<prefpane id="prefpane-appearance" label="&xulmigemo.tab.appearance;">
-	<preferences>
-		<preference id="xulmigemo.enabletimeout.indicator"
-			name="xulmigemo.enabletimeout.indicator"
-			type="bool"/>
-		<preference id="xulmigemo.appearance.migemobar.overlay"
-			name="xulmigemo.appearance.migemobar.overlay"
-			type="bool"/>
-		<preference id="xulmigemo.appearance.indicator.height"
-			name="xulmigemo.appearance.indicator.height"
-			type="int"/>
-	</preferences>
-
-	<checkbox id="xulmigemo.enabletimeout.indicator-check" flex="1"
-		label="&xulmigemo.enabletimeout.indicator;"
-		preference="xulmigemo.enabletimeout.indicator"/>
 	<hbox align="center">
-		<label value="&xulmigemo.appearance.indicator.height.before;"
-			control="xulmigemo.appearance.indicator.height-textbox"/>
-		<textbox id="xulmigemo.appearance.indicator.height-textbox"
-			preference="xulmigemo.appearance.indicator.height"
-			style="width: 4em;"
-			type="number" min="0" increment="1"/>
-		<label value="&xulmigemo.appearance.indicator.height.after;"
-			control="xulmigemo.appearance.indicator.height-textbox"/>
+		<spacer flex="1"/>
+		<button label="&xulmigemo.quickfind.advanced.button;"
+			oncommand="document.documentElement.openSubDialog('config-quickfind-advanced.xul', 'modal');"/>
 	</hbox>
-	<checkbox id="xulmigemo.appearance.migemobar.overlay-check" flex="1"
-		label="&xulmigemo.appearance.migemobar.overlay;"
-		preference="xulmigemo.appearance.migemobar.overlay"/>
 
 </prefpane>
+
 
 <prefpane id="prefpane-dictionary" label="&xulmigemo.tab.dictionary;"
 	onpaneload="initDicPane();">
