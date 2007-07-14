@@ -101,15 +101,15 @@ pXMigemoEngineEnUS.prototype = {
 		return pattern;
 	},
  
-	splitInput : function(aInput, aCount) 
+	splitInput : function(aInput, aSeparator, aCount) 
 	{
 		var terms = aInput
 				.replace(/([\uff66-\uff9fa-z])([0-9])/i, '$1\t$2')
 				.replace(/([0-9a-z])([\uff66-\uff9f])/i, '$1\t$2')
 				.replace(/([0-9\uff66-\uff9f])([a-z])/i, '$1\t$2')
-				.replace(new RegExp('([!"#\$%&\'\\(\\)=~\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64' + this.INPUT_SEPARATOR + ']+)', 'g'), '\t$1\t');
+				.replace(new RegExp('([!"#\$%&\'\\(\\)=~\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64]+)', 'g'), '\t$1\t');
 
-		var separatorRegExp = new RegExp(this.INPUT_SEPARATOR +'+|\t\t+');
+		var separatorRegExp = new RegExp(aSeparator +'+|\t\t+', 'g');
 		terms = terms
 				.replace(separatorRegExp, '\t')
 				.replace(/^[\s\t]+|[\s\t]+$/g, '')
@@ -118,10 +118,7 @@ pXMigemoEngineEnUS.prototype = {
 		aCount.value = terms.length;
 		return terms;
 	},
-	 
-	// SKK•û®‚Ì“ü—ÍˆÈŠO‚ÅA•¶ß‹æØ‚è‚Æ‚µ‚Ä”F¯‚·‚é•¶š 
-	INPUT_SEPARATOR : " ",
-  
+ 
 	gatherEntriesFor : function(aInput, aTargetDic, aCount) 
 	{
 		if (!aInput) {
