@@ -18,7 +18,9 @@ var XMigemoUI = {
 	isAutoExit             : true,
 	timeout                : 0,
 
-	enableByDefault        : false,
+	highlightCheckedAlways     : false,
+	caseSensitiveCheckedAlways : false,
+	migemoCheckedAlways        : false,
 
 	shouldRebuildSelection : false,
 
@@ -188,8 +190,16 @@ var XMigemoUI = {
 				this.isAutoExit = value;
 				return;
 
+			case 'xulmigemo.checked_by_default.highlight.always':
+				this.highlightCheckedAlways = value;
+				return;
+
+			case 'xulmigemo.checked_by_default.caseSensitive.always':
+				this.caseSensitiveCheckedAlways = value;
+				return;
+
 			case 'xulmigemo.enable_by_default':
-				this.enableByDefault = value;
+				this.migemoCheckedAlways = value;
 				return;
 
 			case 'xulmigemo.timeout':
@@ -988,7 +998,7 @@ var XMigemoUI = {
  
 	openFindBar : function(aShowMinimalUI) 
 	{
-		if (XMigemoUI.enableByDefault && !XMigemoUI.findMigemoCheck.checked)
+		if (XMigemoUI.migemoCheckedAlways && !XMigemoUI.findMigemoCheck.checked)
 			XMigemoUI.findMigemoCheck.checked = true;
 
 		if (XMigemoUI.findMigemoCheck.checked && !XMigemoUI.isActive) {
@@ -1147,6 +1157,7 @@ var XMigemoUI = {
 	enableFindButtons : function(aEnable) 
 	{
 		var highlightCheck = XMigemoUI.findHighlightCheck;
+		var caseSensitive  = this.findCaseSensitiveCheck;
 		if (!highlightCheck.disabled) {
 			highlightCheck.xmigemoOriginalChecked = highlightCheck.checked;
 		}
@@ -1155,8 +1166,16 @@ var XMigemoUI = {
 		scope.xmigemoOriginalEnableFindButtons.apply(scope, arguments);
 
 		if (aEnable) {
-			highlightCheck.checked = XMigemoUI.highlightCheckFirst ? XMigemoService.getPref('xulmigemo.checked_by_default.highlight') : highlightCheck.xmigemoOriginalChecked ;
+			highlightCheck.checked =
+				XMigemoUI.highlightCheckFirst ?
+					XMigemoService.getPref('xulmigemo.checked_by_default.highlight') :
+				XMigemoUI.highlightCheckedAlways ?
+					true :
+					highlightCheck.xmigemoOriginalChecked ;
 			XMigemoUI.highlightCheckFirst = false;
+
+			if (XMigemoUI.caseSensitiveCheckedAlways)
+				caseSensitive.checked = true;
 		}
 
 		var event = document.createEvent('Events');
@@ -1400,6 +1419,8 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.autostart');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.inherit');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.nokeyword');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.highlight.always');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.caseSensitive');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enable_by_default');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.override_findtoolbar');

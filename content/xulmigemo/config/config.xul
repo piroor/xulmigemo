@@ -19,9 +19,6 @@
 			name="xulmigemo.lang"
 			type="string"/>
 
-		<preference id="xulmigemo.enable_by_default"
-			name="xulmigemo.enable_by_default"
-			type="bool"/>
 		<preference id="xulmigemo.startfromviewport"
 			name="xulmigemo.startfromviewport"
 			type="bool"/>
@@ -56,9 +53,6 @@
 
 	<separator/>
 
-	<checkbox id="xulmigemo.enable_by_default-check" flex="1"
-		label="&xulmigemo.enable_by_default;"
-		preference="xulmigemo.enable_by_default"/>
 	<checkbox id="xulmigemo.startfromviewport-check" flex="1"
 		label="&xulmigemo.startfromviewport;"
 		preference="xulmigemo.startfromviewport"/>
@@ -84,13 +78,6 @@
 
 <prefpane id="prefpane-findbar" label="&xulmigemo.tab.findbar;">
 	<preferences>
-		<preference id="xulmigemo.prefillwithselection"
-			name="xulmigemo.prefillwithselection"
-			type="bool"/>
-
-		<preference id="xulmigemo.checked_by_default.findbar"
-			name="xulmigemo.checked_by_default.findbar"
-			type="bool"/>
 		<preference id="xulmigemo.checked_by_default.migemo"
 			name="xulmigemo.checked_by_default.migemo"
 			type="bool"/>
@@ -100,28 +87,75 @@
 		<preference id="xulmigemo.checked_by_default.caseSensitive"
 			name="xulmigemo.checked_by_default.caseSensitive"
 			type="bool"/>
+
+		<preference id="xulmigemo.prefillwithselection"
+			name="xulmigemo.prefillwithselection"
+			type="bool"/>
+		<preference id="xulmigemo.enable_by_default"
+			name="xulmigemo.enable_by_default"
+			type="bool"/>
+		<preference id="xulmigemo.checked_by_default.highlight.always"
+			name="xulmigemo.checked_by_default.highlight.always"
+			type="bool"/>
+		<preference id="xulmigemo.checked_by_default.caseSensitive.always"
+			name="xulmigemo.checked_by_default.caseSensitive.always"
+			type="bool"/>
+
+		<preference id="xulmigemo.checked_by_default.findbar"
+			name="xulmigemo.checked_by_default.findbar"
+			type="bool"/>
 	</preferences>
 
-	<checkbox id="xulmigemo.prefillwithselection-check" flex="1"
-		label="&xulmigemo.prefillwithselection;"
-		preference="xulmigemo.prefillwithselection"/>
-
-	<groupbox>
-		<caption label="&xulmigemo.caption.checked_by_default;"/>
-		<checkbox id="xulmigemo.checked_by_default.findbar-check" flex="1"
-			label="&xulmigemo.checked_by_default.findbar;"
-			preference="xulmigemo.checked_by_default.findbar"/>
-		<separator/>
-		<checkbox id="xulmigemo.checked_by_default.migemo-check" flex="1"
-			label="&xulmigemo.checked_by_default.migemo;"
-			preference="xulmigemo.checked_by_default.migemo"/>
-		<checkbox id="xulmigemo.checked_by_default.highlight-check" flex="1"
-			label="&xulmigemo.checked_by_default.highlight;"
-			preference="xulmigemo.checked_by_default.highlight"/>
-		<checkbox id="xulmigemo.checked_by_default.caseSensitive-check" flex="1"
-			label="&xulmigemo.checked_by_default.caseSensitive;"
-			preference="xulmigemo.checked_by_default.caseSensitive"/>
+	<groupbox orient="vertical">
+		<caption label="&xulmigemo.findbar.initialState;"/>
+		<hbox align="center">
+			<spacer flex="1"/>
+			<checkbox id="xulmigemo.checked_by_default.highlight-check"
+				label="&xulmigemo.checked_by_default.highlight;"
+				preference="xulmigemo.checked_by_default.highlight"
+				style="min-width: 0;"/>
+			<checkbox id="xulmigemo.checked_by_default.caseSensitive-check"
+				label="&xulmigemo.checked_by_default.caseSensitive;"
+				preference="xulmigemo.checked_by_default.caseSensitive"
+				style="min-width: 0;"/>
+			<checkbox id="xulmigemo.checked_by_default.migemo-check"
+				label="&xulmigemo.checked_by_default.migemo;"
+				preference="xulmigemo.checked_by_default.migemo"
+				style="min-width: 0;"/>
+		</hbox>
+		<description flex="1">&xulmigemo.findbar.initialState.description;</description>
 	</groupbox>
+	<groupbox orient="vertical">
+		<caption label="&xulmigemo.findbar.permanentState;"/>
+		<hbox align="center">
+			<groupbox orient="vertical">
+				<caption label="&xulmigemo.prefillwithselection;"/>
+				<radiogroup id="xulmigemo.prefillwithselection-radiogroup"
+					preference="xulmigemo.prefillwithselection"
+					orient="vertical">
+					<radio value="true"  label="&xulmigemo.prefillwithselection.true;"/>
+					<radio value="false" label="&xulmigemo.prefillwithselection.false;"/>
+				</radiogroup>
+			</groupbox>
+			<checkbox id="xulmigemo.checked_by_default.highlight.always-check"
+				label="&xulmigemo.checked_by_default.highlight.always;"
+				preference="xulmigemo.checked_by_default.highlight.always"
+				style="min-width: 0;"/>
+			<checkbox id="xulmigemo.checked_by_default.caseSensitive.always-check"
+				label="&xulmigemo.checked_by_default.caseSensitive.always;"
+				preference="xulmigemo.checked_by_default.caseSensitive.always"
+				style="min-width: 0;"/>
+			<checkbox id="xulmigemo.enable_by_default-check"
+				label="&xulmigemo.enable_by_default;"
+				preference="xulmigemo.enable_by_default"
+				style="min-width: 0;"/>
+		</hbox>
+		<description flex="1">&xulmigemo.findbar.permanentState.description;</description>
+	</groupbox>
+
+	<checkbox id="xulmigemo.checked_by_default.findbar-check" flex="1"
+		label="&xulmigemo.checked_by_default.findbar;"
+		preference="xulmigemo.checked_by_default.findbar"/>
 
 </prefpane>
 

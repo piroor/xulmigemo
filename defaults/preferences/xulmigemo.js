@@ -1,7 +1,6 @@
 pref("xulmigemo.lang", "");
 
 pref("xulmigemo.autostart",                     true);
-pref("xulmigemo.enable_by_default",             false);
 pref("xulmigemo.prefillwithselection",          true);
 pref("xulmigemo.startfromviewport",             true);
 pref("xulmigemo.linksonly",                     false);
@@ -12,9 +11,13 @@ pref("xulmigemo.ignore_find_links_only_behavior", true);
 pref("xulmigemo.rebuild_selection",             true);
 
 pref("xulmigemo.checked_by_default.findbar",       false);
-pref("xulmigemo.checked_by_default.migemo",        false);
 pref("xulmigemo.checked_by_default.highlight",     false);
 pref("xulmigemo.checked_by_default.caseSensitive", false);
+pref("xulmigemo.checked_by_default.migemo",        false);
+
+pref("xulmigemo.checked_by_default.highlight.always",     false);
+pref("xulmigemo.checked_by_default.caseSensitive.always", false);
+pref("xulmigemo.enable_by_default",                       false);
 
 pref("xulmigemo.highlight.showScreen",          true);
 pref("xulmigemo.highlight.animateFound",        true);

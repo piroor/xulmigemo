@@ -12,7 +12,6 @@
 <!ENTITY xulmigemo.lang.description        "*Require restarting.">
 
 
-<!ENTITY xulmigemo.enable_by_default       "Always enter Migemo mode automatically">
 <!ENTITY xulmigemo.startfromviewport       "Find from viewport">
 <!ENTITY xulmigemo.scrollSelectionToCenter "Show the found term in the middle of the screen">
 <!ENTITY xulmigemo.highlight.showScreen    "Strongly emphasise &quot;Highlight all&quot;">
@@ -31,15 +30,24 @@
 <!ENTITY xulmigemo.timeout.after           "msec">
 
 
-<!ENTITY xulmigemo.tab.findbar             "Find Toolbar">
+<!ENTITY xulmigemo.tab.findbar             "State of Find Toolbar">
 
-<!ENTITY xulmigemo.prefillwithselection    "Previously fill the find bar with selection">
+<!ENTITY xulmigemo.findbar.initialState             "Initial state:">
+<!ENTITY xulmigemo.checked_by_default.highlight     "Highlight all">
+<!ENTITY xulmigemo.checked_by_default.caseSensitive "Match cases">
+<!ENTITY xulmigemo.checked_by_default.migemo        "Migemo">
+<!ENTITY xulmigemo.findbar.initialState.description "*Checked features are enabled Once at startup. You can disable them as you like.">
 
-<!ENTITY xulmigemo.caption.checked_by_default       "Initial State of Find Toolbar">
-<!ENTITY xulmigemo.checked_by_default.findbar       "Show find toolbar at startup">
-<!ENTITY xulmigemo.checked_by_default.migemo        "Enable Migemo mode">
-<!ENTITY xulmigemo.checked_by_default.highlight     "Enable &quot;Highlight all&quot;">
-<!ENTITY xulmigemo.checked_by_default.caseSensitive "Enable &quot;Match cases&quot;">
+<!ENTITY xulmigemo.findbar.permanentState           "Permanent state:">
+<!ENTITY xulmigemo.prefillwithselection             "Textbox">
+<!ENTITY xulmigemo.prefillwithselection.true        "Selected term">
+<!ENTITY xulmigemo.prefillwithselection.false       "Last find term">
+<!ENTITY xulmigemo.checked_by_default.highlight.always     "Highlight all">
+<!ENTITY xulmigemo.checked_by_default.caseSensitive.always "Match cases">
+<!ENTITY xulmigemo.enable_by_default                       "Migemo">
+<!ENTITY xulmigemo.findbar.permanentState.description "*Checked features are enabled permanently. They cannot be disabled as you like.">
+
+<!ENTITY xulmigemo.checked_by_default.findbar       "Show Find Toolbar at startup">
 
 
 <!ENTITY xulmigemo.tab.dictionary          "Dictionary">
