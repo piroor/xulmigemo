@@ -42,16 +42,6 @@
 <!ENTITY xulmigemo.checked_by_default.caseSensitive "Enable &quot;Match cases&quot;">
 
 
-
-<!ENTITY xulmigemo.tab.appearance          "Appearance">
-
-<!ENTITY xulmigemo.override_findtoolbar    "Override the Find Toolbar">
-<!ENTITY xulmigemo.enabletimeout.indicator "Indicate remaining time for timeout of Quick Migemo Find">
-<!ENTITY xulmigemo.appearance.indicator.height.before "Height of the remaining time indicator:">
-<!ENTITY xulmigemo.appearance.indicator.height.after "pixel (0=system default)">
-<!ENTITY xulmigemo.appearance.migemobar.overlay "Overlay checkbox to switch Migemo mode on the find toolbar">
-
-
 <!ENTITY xulmigemo.tab.dictionary          "Dictionary">
 
 <!ENTITY xulmigemo.caption.dic             "Dictionaries Folder">
@@ -86,6 +76,23 @@
 <!ENTITY xulmigemo.shortcut.clear          "Clear">
 <!ENTITY xulmigemo.shortcut.dialog.message "Press new shortcut">
 <!ENTITY xulmigemo.shortcut.dialog.button  "Cancel">
+
+
+
+
+
+
+<!ENTITY xulmigemo.quickfind.advanced.button  "Advanced...">
+<!ENTITY xulmigemo.quickfind.advanced.title   "Advanced Configuration of Quick Migemo Find">
+
+<!ENTITY xulmigemo.override_findtoolbar    "Override the Find Toolbar">
+<!ENTITY xulmigemo.enabletimeout.indicator "Indicate remaining time for timeout of Quick Migemo Find">
+<!ENTITY xulmigemo.appearance.indicator.height.before "Height of the remaining time indicator:">
+<!ENTITY xulmigemo.appearance.indicator.height.after "pixel (0=system default)">
+
+<!ENTITY xulmigemo.caption.quickexit       "Exit Quick Migemo Find">
+<!ENTITY xulmigemo.enableautoexit.inherit  "Separate setting of auto-exit and auto-start">
+<!ENTITY xulmigemo.enableautoexit.nokeyword "Exit the mode automatically when there is no keyword left (auto-exit)">
 
 
 

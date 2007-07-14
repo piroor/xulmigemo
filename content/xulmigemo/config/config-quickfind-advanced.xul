@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin/"?>
+
+<!DOCTYPE prefwindow [
+<!ENTITY % mainDTD SYSTEM "chrome://xulmigemo/locale/xulmigemo.dtd">
+%mainDTD;
+]>
+
+<prefwindow id="xulmigemo-advanced-config"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	title="&xulmigemo.quickfind.advanced.title;"
+	type="child">
+
+<prefpane>
+	<preferences>
+		<preference id="xulmigemo.enableautoexit.inherit"
+			name="xulmigemo.enableautoexit.inherit"
+			type="bool"
+			inverted="true"/>
+		<preference id="xulmigemo.enableautoexit.nokeyword"
+			name="xulmigemo.enableautoexit.nokeyword"
+			type="bool"/>
+
+		<preference id="xulmigemo.enabletimeout.indicator"
+			name="xulmigemo.enabletimeout.indicator"
+			type="bool"/>
+		<preference id="xulmigemo.appearance.migemobar.overlay"
+			name="xulmigemo.appearance.migemobar.overlay"
+			type="bool"/>
+		<preference id="xulmigemo.appearance.indicator.height"
+			name="xulmigemo.appearance.indicator.height"
+			type="int"/>
+	</preferences>
+
+	<checkbox id="xulmigemo.enableautoexit.inherit-check" flex="1"
+		label="&xulmigemo.enableautoexit.inherit;"
+		preference="xulmigemo.enableautoexit.inherit"/>
+	<hbox align="center">
+		<spacer style="width:1em;"/>
+		<checkbox id="xulmigemo.enableautoexit.nokeyword-check" flex="1"
+			label="&xulmigemo.enableautoexit.nokeyword;"
+			preference="xulmigemo.enableautoexit.nokeyword"/>
+	</hbox>
+
+	<separator/>
+
+	<checkbox id="xulmigemo.enabletimeout.indicator-check" flex="1"
+		label="&xulmigemo.enabletimeout.indicator;"
+		preference="xulmigemo.enabletimeout.indicator"/>
+	<hbox align="center">
+		<label value="&xulmigemo.appearance.indicator.height.before;"
+			control="xulmigemo.appearance.indicator.height-textbox"/>
+		<textbox id="xulmigemo.appearance.indicator.height-textbox"
+			preference="xulmigemo.appearance.indicator.height"
+			style="width: 4em;"
+			type="number" min="0" increment="1"/>
+		<label value="&xulmigemo.appearance.indicator.height.after;"
+			control="xulmigemo.appearance.indicator.height-textbox"/>
+	</hbox>
+
+</prefpane>
+
+</prefwindow>

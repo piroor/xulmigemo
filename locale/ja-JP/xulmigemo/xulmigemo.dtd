@@ -42,14 +42,6 @@
 <!ENTITY xulmigemo.checked_by_default.caseSensitive "「大文字小文字を区別」を有効にする">
 
 
-<!ENTITY xulmigemo.tab.appearance          "表示">
-
-<!ENTITY xulmigemo.enabletimeout.indicator "クイックMigemo検索終了までの残り時間を表示する">
-<!ENTITY xulmigemo.appearance.indicator.height.before "残り時間を表示するバーの高さ：">
-<!ENTITY xulmigemo.appearance.indicator.height.after "ピクセル（0＝標準の高さ）">
-<!ENTITY xulmigemo.appearance.migemobar.overlay "Migemo検索の切り替えチェックボックスを検索ツールバーに重ねる">
-
-
 <!ENTITY xulmigemo.tab.dictionary          "辞書">
 
 <!ENTITY xulmigemo.caption.dic             "辞書フォルダ">
@@ -84,6 +76,21 @@
 <!ENTITY xulmigemo.shortcut.clear          "消去">
 <!ENTITY xulmigemo.shortcut.dialog.message "ショートカットに使いたいキーを押してください">
 <!ENTITY xulmigemo.shortcut.dialog.button  "キャンセル">
+
+
+
+
+
+<!ENTITY xulmigemo.quickfind.advanced.button  "詳細...">
+<!ENTITY xulmigemo.quickfind.advanced.title   "クイックMigemo検索の詳細設定">
+
+<!ENTITY xulmigemo.enabletimeout.indicator "クイックMigemo検索終了までの残り時間を表示する">
+<!ENTITY xulmigemo.appearance.indicator.height.before "残り時間を表示するバーの高さ：">
+<!ENTITY xulmigemo.appearance.indicator.height.after "ピクセル（0＝標準の高さ）">
+
+<!ENTITY xulmigemo.caption.quickexit       "クイックMigemo検索の終了">
+<!ENTITY xulmigemo.enableautoexit.inherit "クイックMigemo検索の自動開始と自動終了を別々に設定する">
+<!ENTITY xulmigemo.enableautoexit.nokeyword "キーワードがすべて消去されたら自動的にクイックMigemo検索を終了する">
 
 
 
