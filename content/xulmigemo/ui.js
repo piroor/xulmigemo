@@ -1450,6 +1450,7 @@ var XMigemoUI = {
 	},
 	getNextTextNode : function(aNode)
 	{
+		if (!aNode) return null;
 		aNode = aNode.nextSibling || aNode.parentNode.nextSibling;
 		if (aNode.nodeType != Node.TEXT_NODE)
 			aNode = aNode.firstChild;
