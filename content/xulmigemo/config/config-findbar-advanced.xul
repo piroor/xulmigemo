@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin/"?>
+
+<!DOCTYPE prefwindow [
+<!ENTITY % mainDTD SYSTEM "chrome://xulmigemo/locale/xulmigemo.dtd">
+%mainDTD;
+]>
+
+<prefwindow id="xulmigemo-advanced-config"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	title="&xulmigemo.findbar.advanced.title;"
+	type="child">
+
+<prefpane>
+	<preferences>
+		<preference id="xulmigemo.checked_by_default.migemo"
+			name="xulmigemo.checked_by_default.migemo"
+			type="bool"/>
+		<preference id="xulmigemo.checked_by_default.highlight"
+			name="xulmigemo.checked_by_default.highlight"
+			type="bool"/>
+		<preference id="xulmigemo.checked_by_default.caseSensitive"
+			name="xulmigemo.checked_by_default.caseSensitive"
+			type="bool"/>
+	</preferences>
+
+	<groupbox orient="vertical">
+		<caption label="&xulmigemo.findbar.initialState;"/>
+		<hbox align="center">
+			<spacer flex="1"/>
+			<checkbox id="xulmigemo.checked_by_default.highlight-check"
+				label="&xulmigemo.checked_by_default.highlight;"
+				preference="xulmigemo.checked_by_default.highlight"
+				style="min-width: 0;"/>
+			<checkbox id="xulmigemo.checked_by_default.caseSensitive-check"
+				label="&xulmigemo.checked_by_default.caseSensitive;"
+				preference="xulmigemo.checked_by_default.caseSensitive"
+				style="min-width: 0;"/>
+			<checkbox id="xulmigemo.checked_by_default.migemo-check"
+				label="&xulmigemo.checked_by_default.migemo;"
+				preference="xulmigemo.checked_by_default.migemo"
+				style="min-width: 0;"/>
+		</hbox>
+		<description flex="1">&xulmigemo.findbar.initialState.description;</description>
+	</groupbox>
+
+</prefpane>
+
+</prefwindow>
