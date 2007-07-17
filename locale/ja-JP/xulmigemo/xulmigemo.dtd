@@ -31,7 +31,7 @@
 
 
 
-<!ENTITY xulmigemo.tab.findbar             "検索ツールバーの状態">
+<!ENTITY xulmigemo.tab.findbar             "検索ツールバーの機能">
 
 <!ENTITY xulmigemo.findbar.permanentState       "以下の機能を自動的に有効にする：">
 <!ENTITY xulmigemo.prefillwithselection         "入力欄の内容">
@@ -88,7 +88,7 @@
 
 
 <!ENTITY xulmigemo.findbar.advanced.button  "詳細...">
-<!ENTITY xulmigemo.findbar.advanced.title   "検索ツールバーの状態の詳細設定">
+<!ENTITY xulmigemo.findbar.advanced.title   "検索ツールバーの機能の詳細設定">
 
 <!ENTITY xulmigemo.findbar.initialState             "起動時の設定：">
 <!ENTITY xulmigemo.checked_by_default.highlight     "すべて強調表示">
