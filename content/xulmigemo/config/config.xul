@@ -78,21 +78,8 @@
 
 <prefpane id="prefpane-findbar" label="&xulmigemo.tab.findbar;">
 	<preferences>
-		<preference id="xulmigemo.checked_by_default.migemo"
-			name="xulmigemo.checked_by_default.migemo"
-			type="bool"/>
-		<preference id="xulmigemo.checked_by_default.highlight"
-			name="xulmigemo.checked_by_default.highlight"
-			type="bool"/>
-		<preference id="xulmigemo.checked_by_default.caseSensitive"
-			name="xulmigemo.checked_by_default.caseSensitive"
-			type="bool"/>
-
 		<preference id="xulmigemo.prefillwithselection"
 			name="xulmigemo.prefillwithselection"
-			type="bool"/>
-		<preference id="xulmigemo.enable_by_default"
-			name="xulmigemo.enable_by_default"
 			type="bool"/>
 		<preference id="xulmigemo.checked_by_default.highlight.always"
 			name="xulmigemo.checked_by_default.highlight.always"
@@ -103,31 +90,15 @@
 		<preference id="xulmigemo.checked_by_default.caseSensitive.always"
 			name="xulmigemo.checked_by_default.caseSensitive.always"
 			type="bool"/>
+		<preference id="xulmigemo.enable_by_default"
+			name="xulmigemo.enable_by_default"
+			type="bool"/>
 
 		<preference id="xulmigemo.checked_by_default.findbar"
 			name="xulmigemo.checked_by_default.findbar"
 			type="bool"/>
 	</preferences>
 
-	<groupbox orient="vertical">
-		<caption label="&xulmigemo.findbar.initialState;"/>
-		<hbox align="center">
-			<spacer flex="1"/>
-			<checkbox id="xulmigemo.checked_by_default.highlight-check"
-				label="&xulmigemo.checked_by_default.highlight;"
-				preference="xulmigemo.checked_by_default.highlight"
-				style="min-width: 0;"/>
-			<checkbox id="xulmigemo.checked_by_default.caseSensitive-check"
-				label="&xulmigemo.checked_by_default.caseSensitive;"
-				preference="xulmigemo.checked_by_default.caseSensitive"
-				style="min-width: 0;"/>
-			<checkbox id="xulmigemo.checked_by_default.migemo-check"
-				label="&xulmigemo.checked_by_default.migemo;"
-				preference="xulmigemo.checked_by_default.migemo"
-				style="min-width: 0;"/>
-		</hbox>
-		<description flex="1">&xulmigemo.findbar.initialState.description;</description>
-	</groupbox>
 	<groupbox orient="vertical">
 		<caption label="&xulmigemo.findbar.permanentState;"/>
 		<hbox align="center">
@@ -177,6 +148,12 @@
 	<checkbox id="xulmigemo.checked_by_default.findbar-check" flex="1"
 		label="&xulmigemo.checked_by_default.findbar;"
 		preference="xulmigemo.checked_by_default.findbar"/>
+
+	<hbox align="center">
+		<spacer flex="1"/>
+		<button label="&xulmigemo.findbar.advanced.button;"
+			oncommand="document.documentElement.openSubDialog('config-findbar-advanced.xul', 'modal');"/>
+	</hbox>
 
 </prefpane>
 

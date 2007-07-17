@@ -16,7 +16,7 @@ pref("xulmigemo.checked_by_default.highlight",     false);
 pref("xulmigemo.checked_by_default.caseSensitive", false);
 pref("xulmigemo.checked_by_default.migemo",        false);
 
-pref("xulmigemo.checked_by_default.highlight.always",     true);
+pref("xulmigemo.checked_by_default.highlight.always",     false);
 pref("xulmigemo.checked_by_default.highlight.always.minLength", 2);
 pref("xulmigemo.checked_by_default.caseSensitive.always", false);
 pref("xulmigemo.enable_by_default",                       false);

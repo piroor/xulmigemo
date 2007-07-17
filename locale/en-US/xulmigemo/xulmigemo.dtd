@@ -32,13 +32,7 @@
 
 <!ENTITY xulmigemo.tab.findbar             "State of Find Toolbar">
 
-<!ENTITY xulmigemo.findbar.initialState             "Initial state:">
-<!ENTITY xulmigemo.checked_by_default.highlight     "Highlight all">
-<!ENTITY xulmigemo.checked_by_default.caseSensitive "Match cases">
-<!ENTITY xulmigemo.checked_by_default.migemo        "Migemo">
-<!ENTITY xulmigemo.findbar.initialState.description "*Checked features are enabled Once at startup. You can disable them as you like.">
-
-<!ENTITY xulmigemo.findbar.permanentState           "Permanent state:">
+<!ENTITY xulmigemo.findbar.permanentState           "Following features are automatically enabled:">
 <!ENTITY xulmigemo.prefillwithselection             "Textbox">
 <!ENTITY xulmigemo.prefillwithselection.true        "Selected term">
 <!ENTITY xulmigemo.prefillwithselection.false       "Last find term">
@@ -47,7 +41,7 @@
 <!ENTITY xulmigemo.checked_by_default.highlight.always.minLength.after  "or more characters">
 <!ENTITY xulmigemo.checked_by_default.caseSensitive.always "Match cases">
 <!ENTITY xulmigemo.enable_by_default                       "Migemo">
-<!ENTITY xulmigemo.findbar.permanentState.description "*Checked features are enabled permanently. They cannot be disabled as you like.">
+<!ENTITY xulmigemo.findbar.permanentState.description "*Checked features are enabled anytime. They cannot be disabled as you like.">
 
 <!ENTITY xulmigemo.checked_by_default.findbar       "Show Find Toolbar at startup">
 
@@ -87,6 +81,20 @@
 <!ENTITY xulmigemo.shortcut.dialog.message "Press new shortcut">
 <!ENTITY xulmigemo.shortcut.dialog.button  "Cancel">
 
+
+
+
+
+
+
+<!ENTITY xulmigemo.findbar.advanced.button  "Advanced...">
+<!ENTITY xulmigemo.findbar.advanced.title   "Advanced Configuration of the Find Toolbar">
+
+<!ENTITY xulmigemo.findbar.initialState             "Initial state:">
+<!ENTITY xulmigemo.checked_by_default.highlight     "Highlight all">
+<!ENTITY xulmigemo.checked_by_default.caseSensitive "Match cases">
+<!ENTITY xulmigemo.checked_by_default.migemo        "Migemo">
+<!ENTITY xulmigemo.findbar.initialState.description "*Checked features are enabled Once at startup. You can disable them as you like.">
 
 
 
