@@ -5,6 +5,8 @@
 
 
 .status-box label[value=""],
-.status-box description[value=""] {
+.status-box description[value=""],
+.shrinked-label[value=""] {
 	display: none;
 }
+

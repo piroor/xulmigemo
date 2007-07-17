@@ -97,6 +97,9 @@
 		<preference id="xulmigemo.checked_by_default.highlight.always"
 			name="xulmigemo.checked_by_default.highlight.always"
 			type="bool"/>
+		<preference id="xulmigemo.checked_by_default.highlight.always.minLength"
+			name="xulmigemo.checked_by_default.highlight.always.minLength"
+			type="int"/>
 		<preference id="xulmigemo.checked_by_default.caseSensitive.always"
 			name="xulmigemo.checked_by_default.caseSensitive.always"
 			type="bool"/>
@@ -137,18 +140,36 @@
 					<radio value="false" label="&xulmigemo.prefillwithselection.false;"/>
 				</radiogroup>
 			</groupbox>
-			<checkbox id="xulmigemo.checked_by_default.highlight.always-check"
-				label="&xulmigemo.checked_by_default.highlight.always;"
-				preference="xulmigemo.checked_by_default.highlight.always"
-				style="min-width: 0;"/>
-			<checkbox id="xulmigemo.checked_by_default.caseSensitive.always-check"
-				label="&xulmigemo.checked_by_default.caseSensitive.always;"
-				preference="xulmigemo.checked_by_default.caseSensitive.always"
-				style="min-width: 0;"/>
-			<checkbox id="xulmigemo.enable_by_default-check"
-				label="&xulmigemo.enable_by_default;"
-				preference="xulmigemo.enable_by_default"
-				style="min-width: 0;"/>
+			<spacer flex="1"/>
+			<vbox>
+				<hbox align="center">
+					<checkbox id="xulmigemo.checked_by_default.highlight.always-check"
+						label="&xulmigemo.checked_by_default.highlight.always;"
+						preference="xulmigemo.checked_by_default.highlight.always"
+						style="min-width: 0;"/>
+					<checkbox id="xulmigemo.checked_by_default.caseSensitive.always-check"
+						label="&xulmigemo.checked_by_default.caseSensitive.always;"
+						preference="xulmigemo.checked_by_default.caseSensitive.always"
+						style="min-width: 0;"/>
+					<checkbox id="xulmigemo.enable_by_default-check"
+						label="&xulmigemo.enable_by_default;"
+						preference="xulmigemo.enable_by_default"
+						style="min-width: 0;"/>
+				</hbox>
+				<hbox align="center">
+					<label class="shrinked-label"
+						value="&xulmigemo.checked_by_default.highlight.always.minLength.before;"
+						control="xulmigemo.checked_by_default.highlight.always.minLength-textbox"/>
+					<textbox id="xulmigemo.checked_by_default.highlight.always.minLength-textbox"
+						preference="xulmigemo.checked_by_default.highlight.always.minLength"
+						style="width: 3em;"
+						type="number" min="1" increment="1"/>
+					<label class="shrinked-label"
+						value="&xulmigemo.checked_by_default.highlight.always.minLength.after;"
+						control="xulmigemo.checked_by_default.highlight.always.minLength-textbox"/>
+					<spacer flex="1"/>
+				</hbox>
+			</vbox>
 		</hbox>
 		<description flex="1">&xulmigemo.findbar.permanentState.description;</description>
 	</groupbox>

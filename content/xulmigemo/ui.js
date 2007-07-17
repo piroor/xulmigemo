@@ -19,6 +19,7 @@ var XMigemoUI = {
 	timeout                : 0,
 
 	highlightCheckedAlways     : false,
+	highlightCheckedAlwaysMinLength : 2,
 	caseSensitiveCheckedAlways : false,
 	migemoCheckedAlways        : false,
 
@@ -192,6 +193,10 @@ var XMigemoUI = {
 
 			case 'xulmigemo.checked_by_default.highlight.always':
 				this.highlightCheckedAlways = value;
+				return;
+
+			case 'xulmigemo.checked_by_default.highlight.always.minLength':
+				this.highlightCheckedAlwaysMinLength = value;
 				return;
 
 			case 'xulmigemo.checked_by_default.caseSensitive.always':
@@ -1166,12 +1171,16 @@ var XMigemoUI = {
 		scope.xmigemoOriginalEnableFindButtons.apply(scope, arguments);
 
 		if (aEnable) {
+			var prevHighlightState = highlightCheck.checked;
 			highlightCheck.checked =
 				XMigemoUI.highlightCheckFirst ?
 					XMigemoService.getPref('xulmigemo.checked_by_default.highlight') :
-				XMigemoUI.highlightCheckedAlways ?
-					true :
+				(XMigemoUI.highlightCheckedAlways) ?
+					(XMigemoUI.highlightCheckedAlwaysMinLength <= ((XMigemoUI.isActive ? XMigemoFind.lastFoundWord : '' ) || XMigemoUI.findTerm).length) :
 					highlightCheck.xmigemoOriginalChecked ;
+			if (highlightCheck.checked != prevHighlightState) {
+				XMigemoUI.toggleHighlight(highlightCheck.checked);
+			}
 			XMigemoUI.highlightCheckFirst = false;
 
 			if (XMigemoUI.caseSensitiveCheckedAlways)
@@ -1420,6 +1429,7 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.inherit');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.nokeyword');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.highlight.always');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.highlight.always.minLength');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.caseSensitive');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enable_by_default');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');

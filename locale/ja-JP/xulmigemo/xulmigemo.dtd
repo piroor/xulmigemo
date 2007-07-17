@@ -44,6 +44,8 @@
 <!ENTITY xulmigemo.prefillwithselection.true    "選択範囲のテキスト">
 <!ENTITY xulmigemo.prefillwithselection.false   "前回検索した内容">
 <!ENTITY xulmigemo.checked_by_default.highlight.always     "すべて強調表示">
+<!ENTITY xulmigemo.checked_by_default.highlight.always.minLength.before "&#x2514;">
+<!ENTITY xulmigemo.checked_by_default.highlight.always.minLength.after  "文字以上の時のみ">
 <!ENTITY xulmigemo.checked_by_default.caseSensitive.always "大文字/小文字を区別">
 <!ENTITY xulmigemo.enable_by_default                       "Migemo検索">
 <!ENTITY xulmigemo.findbar.permanentState.description "※ここでチェックした機能は検索ツールバーを開くたびに常に有効になり、任意で無効にできません">

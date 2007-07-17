@@ -43,6 +43,8 @@
 <!ENTITY xulmigemo.prefillwithselection.true        "Selected term">
 <!ENTITY xulmigemo.prefillwithselection.false       "Last find term">
 <!ENTITY xulmigemo.checked_by_default.highlight.always     "Highlight all">
+<!ENTITY xulmigemo.checked_by_default.highlight.always.minLength.before "&#x2514; only for">
+<!ENTITY xulmigemo.checked_by_default.highlight.always.minLength.after  "or more characters">
 <!ENTITY xulmigemo.checked_by_default.caseSensitive.always "Match cases">
 <!ENTITY xulmigemo.enable_by_default                       "Migemo">
 <!ENTITY xulmigemo.findbar.permanentState.description "*Checked features are enabled permanently. They cannot be disabled as you like.">
