@@ -889,10 +889,11 @@ var XMigemoUI = {
 
 		var highlightDocFunc = ('_highlightDoc' in gFindBar) ? '_highlightDoc' : // Fx 3
 				'highlightDoc'; // Fx 2, 1.5
+		var highlightDocRetVal = updateGlobalFunc ? '' : 'textFound' ;
 		eval('gFindBar.'+highlightDocFunc+' = '+gFindBar[highlightDocFunc].toSource()
 			.replace(
 				'BackColor) {',
-				'BackColor) { XMigemoUI.clearHighlight(doc); return textFound; '
+				'BackColor) { XMigemoUI.clearHighlight(doc); return '+highlightDocRetVal+'; '
 			)
 		);
 
