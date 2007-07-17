@@ -32,7 +32,7 @@ pXMigemoCore.prototype = {
 	get wrappedJSObject() {
 		return this;
 	},
-	
+	 
 	SYSTEM_DIC : 1, 
 	USER_DIC   : 2,
 	ALL_DIC    : 3,
@@ -99,7 +99,7 @@ pXMigemoCore.prototype = {
 	{
 		return !this.engine ? '' : this.getRegExpInternal(aInput, void(0)) ;
 	},
-	 
+	
 	getRegExpInternal : function(aInput, aEnableAutoSplit) 
 	{
 		var myExp = [];
@@ -206,7 +206,7 @@ pXMigemoCore.prototype = {
 	},
  
 /* Find */ 
-	
+	 
 	get mFind() 
 	{
 		if (!this._mFind)
@@ -217,6 +217,15 @@ pXMigemoCore.prototype = {
  
 	regExpFind : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
 	{
+		if (!aStartPoint) {
+			aStartPoint = aFindRange.startContainer.ownerDocument.createRange();
+			aStartPoint.setStartBefore(aFindRange.startContainer);
+		}
+		if (!aEndPoint) {
+			aEndPoint = aFindRange.endContainer.ownerDocument.createRange();
+			aEndPoint.setEndAfter(aFindRange.endContainer);
+		}
+
 		var XMigemoTextUtils = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
 				.getService(Components.interfaces.pIXMigemoTextUtils);
@@ -236,7 +245,7 @@ pXMigemoCore.prototype = {
 			regExp = XMigemoTextUtils.reverseRegExp(regExp);
 		}
 
-		if (findBackwards) {
+		if (aFindBackwards) {
 			if (txt.match(regExp)) {
 				term = RegExp.lastMatch.split('').reverse().join('');
 			}
@@ -248,19 +257,32 @@ pXMigemoCore.prototype = {
 		}
 
 		this.mFind.findBackwards = aFindBackwards;
-		var docShell = this.getDocShellForFrame(Components.lookupMethod(doc, 'defaultView').call(doc));
+
 		var foundRange = this.mFind.Find(term, aFindRange, aStartPoint, aEndPoint);
 		return foundRange;
 	},
  
 	regExpFindArr : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aCount) 
 	{
+		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, null, aCount);
+	},
+	 
+	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aCount) 
+	{
+		if (!aStartPoint) {
+			aStartPoint = aFindRange.startContainer.ownerDocument.createRange();
+			aStartPoint.setStart(aFindRange.startContainer, aFindRange.startOffset);
+		}
+		if (!aEndPoint) {
+			aEndPoint = aFindRange.endContainer.ownerDocument.createRange();
+			aEndPoint.setStart(aFindRange.endContainer, aFindRange.endOffset);
+		}
+
 		var XMigemoTextUtils = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
 				.getService(Components.interfaces.pIXMigemoTextUtils);
 
-		//patTextはgetRegExp()で得られた正規表現オブジェクト
-		var doc = Components.lookupMethod(aFindRange.startContainer, 'ownerDocument').call(aFindRange.startContainer);
+		var doc = aFindRange.startContainer.ownerDocument;
 		var arrTerms;
 		var arrResults = [];
 		var rightContext;
@@ -274,22 +296,60 @@ pXMigemoCore.prototype = {
 		var txt = XMigemoTextUtils.range2Text(aFindRange);
 		arrTerms = txt.match(new RegExp(regExp.source, 'img'));
 		this.mFind.findBackwards = false;
-		var docShell = this.getDocShellForFrame(Components.lookupMethod(doc, 'defaultView').call(doc));
 		var foundRange;
 		for (var i = 0, maxi = arrTerms.length; i < maxi; i++)
 		{
 			foundRange = this.mFind.Find(arrTerms[i], aFindRange, aStartPoint, aEndPoint);
-			arrResults.push(foundRange);
-			aFindRange.setStart(foundRange.endContainer, foundRange.endOffset);
-			aStartPoint.selectNodeContents(doc.body);
-			aStartPoint.setStart(foundRange.endContainer, foundRange.endOffset);
-			aStartPoint.collapse(true);
+			if (!foundRange) continue;
+			if (aSurroundNode) {
+				var nodeSurround   = aSurroundNode.cloneNode(true);
+				var startContainer = foundRange.startContainer;
+				var startOffset    = foundRange.startOffset;
+				var endOffset      = foundRange.endOffset;
+				var docfrag        = foundRange.extractContents();
+				var before         = startContainer.splitText(startOffset);
+				var parent         = before.parentNode;
+				nodeSurround.appendChild(docfrag);
+				parent.insertBefore(nodeSurround, before);
+
+				foundRange = doc.createRange();
+				foundRange.selectNodeContents(nodeSurround);
+				arrResults.push(foundRange);
+
+				aFindRange.selectNodeContents(doc.body);
+				aFindRange.setStartBefore(before);
+				try {
+					aFindRange.setEnd(aEndPoint.startContainer, aEndPoint.startOffset);
+				}
+				catch(e) {
+				}
+				aStartPoint.selectNodeContents(doc.body);
+				aStartPoint.setStartBefore(before);
+				aStartPoint.collapse(true);
+			}
+			else {
+				arrResults.push(foundRange);
+
+				aFindRange.setStart(foundRange.endContainer, foundRange.endOffset);
+				aStartPoint.selectNodeContents(doc.body);
+				aStartPoint.setStart(foundRange.endContainer, foundRange.endOffset);
+				aStartPoint.collapse(true);
+			}
 		}
 
 		aCount.value = arrResults.length;
 		return arrResults;
 	},
- 
+  
+	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode, aCount) 
+	{
+		if (!aSurrountNode) {
+			aCount.value = 0;
+			return [];
+		}
+		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, aCount);
+	},
+ 	
 	getDocShellForFrame : function(aFrame) 
 	{
 		return aFrame
@@ -430,7 +490,7 @@ pXMigemoFactory.prototype = {
 		return this;
 	}
 };
-  	
+  
 var gModule = { 
 	_firstTime: true,
 

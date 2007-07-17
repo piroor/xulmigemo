@@ -870,6 +870,7 @@ var XMigemoUI = {
 				xmigemoOriginalFindPrevious : window.findPrevious,
 				toggleCaseSensitiveCheckbox : window.toggleCaseSensitivity,
 				highlightDoc                : highlightDoc,
+				highlightText               : highlightText,
 				highlight                   : highlight
 			};
 			window.toggleHighlight = this.toggleHighlight;
@@ -890,14 +891,26 @@ var XMigemoUI = {
 				'highlightDoc'; // Fx 2, 1.5
 		eval('gFindBar.'+highlightDocFunc+' = '+gFindBar[highlightDocFunc].toSource()
 			.replace(
-				'var body = doc.body;',
-				'var foundRange = XMigemoUI.shouldRebuildSelection ? XMigemoUI.getFoundRange(win) : null ; var selectOffset = foundRange ? foundRange.toString().length : 0 ; var body = doc.body;'
-			).replace(
-				'parent.removeChild(',
-				'var selectAfter = XMigemoUI.shouldRebuildSelection ? XMigemoUI.isRangeOverlap(foundRange, retRange) : false ; var firstChild = docfrag.firstChild; parent.removeChild('
-			).replace(
-				'parent.normalize();',
-				'if (selectAfter) { XMigemoUI.selectNode(firstChild, doc, selectOffset); } parent.normalize();'
+				'BackColor) {',
+				'BackColor) { XMigemoUI.clearHighlight(doc); return textFound; '
+			)
+		);
+
+		var highlightTextFunc = ('_highlightText' in gFindBar) ? '_highlightText' : // Fx 3
+				'highlightText'; // Fx 2, 1.5
+		eval('gFindBar.'+highlightTextFunc+' = '+gFindBar[highlightTextFunc].toSource()
+			.replace(
+				'{',
+				<![CDATA[
+				{
+					if (XMigemoUI.isActive) {
+						return XMigemoUI.highlightText(arguments[0], arguments[1],
+								('_searchRange' in this) ? this._searchRange : // Fx 3
+								('mSearchRange' in this) ? this.mSearchRange : // Fx 2
+									searchRange // Fx 1.5
+							);
+					}
+				]]>
 			)
 		);
 
@@ -940,21 +953,14 @@ var XMigemoUI = {
 			);
 		}
 
-		eval(
-			'gFindBar.xmigemoOriginalToggleHighlight = '+
-			gFindBar.xmigemoOriginalToggleHighlight.toSource().replace(
-				/var word = /,
-				'var word = XMigemoUI.isActive ? XMigemoFind.lastFoundWord : '
-			)
-		);
-
 		if (updateGlobalFunc) {
-			window.findNext     = this.findNext;
-			window.findPrevious = this.findPrevious;
-			window.openFindBar  = this.openFindBar;
-			window.closeFindBar = this.closeFindBar;
-			window.highlightDoc = gFindBar.highlightDoc;
-			window.highlight    = gFindBar.highlight;
+			window.findNext      = this.findNext;
+			window.findPrevious  = this.findPrevious;
+			window.openFindBar   = this.openFindBar;
+			window.closeFindBar  = this.closeFindBar;
+			window.highlightDoc  = gFindBar.highlightDoc;
+			window.highlightText = gFindBar.highlightText;
+			window.highlight     = gFindBar.highlight;
 			if ('onFindAgainCmd' in gFindBar) { // Firefox 1.x-2.0
 				window.onFindAgainCmd    = gFindBar.onFindAgainCmd;
 				window.onFindPreviousCmd = gFindBar.onFindPreviousCmd;
@@ -1099,6 +1105,68 @@ var XMigemoUI = {
 		scope.xmigemoOriginalToggleHighlight.apply(scope, arguments);
 	},
  
+	clearHighlight : function(aDocument) 
+	{
+		var foundRange = this.shouldRebuildSelection ? this.getFoundRange(aDocument.defaultView) : null ;
+		var selectOffset = foundRange ? foundRange.toString().length : 0 ;
+
+		var xpathResult = aDocument.evaluate(
+				'descendant::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
+				aDocument,
+				this.NSResolver,
+				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+				null
+			);
+		var range = aDocument.createRange();
+		for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
+		{
+			var elem = xpathResult.snapshotItem(i);
+			range.selectNodeContents(elem);
+
+			var child   = null;
+			var docfrag = aDocument.createDocumentFragment();
+			var next    = elem.nextSibling;
+			var parent  = elem.parentNode;
+			while ((child = elem.firstChild))
+			{
+				docfrag.appendChild(child);
+			}
+			var selectAfter = this.shouldRebuildSelection ? this.isRangeOverlap(foundRange, range) : false ;
+			var firstChild  = docfrag.firstChild;
+
+			parent.removeChild(elem);
+			parent.insertBefore(docfrag, next);
+			if (selectAfter) {
+				this.selectNode(firstChild, aDocument, selectOffset);
+			}
+
+			parent.normalize();
+		}
+	},
+	NSResolver : {
+		lookupNamespaceURI : function(aPrefix)
+		{
+			switch (aPrefix)
+			{
+				case 'xul':
+					return 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
+				case 'html':
+				case 'xhtml':
+					return 'http://www.w3.org/1999/xhtml';
+				case 'xlink':
+					return 'http://www.w3.org/1999/xlink';
+				default:
+					return '';
+			}
+		}
+	},
+ 
+	highlightText : function(aWord, aBaseNode, aRange) 
+	{
+		var ranges = XMigemoFind.core.regExpHighlightText(XMigemoFind.core.getRegExp(aWord), '', aRange, aBaseNode, {});
+		return ranges.length ? true : false ;
+	},
+ 
 	updateStatus : function(aStatusText) 
 	{
 		var bar = this.findBar;
@@ -1176,7 +1244,7 @@ var XMigemoUI = {
 				XMigemoUI.highlightCheckFirst ?
 					XMigemoService.getPref('xulmigemo.checked_by_default.highlight') :
 				(XMigemoUI.highlightCheckedAlways) ?
-					(XMigemoUI.highlightCheckedAlwaysMinLength <= ((XMigemoUI.isActive ? XMigemoFind.lastFoundWord : '' ) || XMigemoUI.findTerm).length) :
+					(XMigemoUI.highlightCheckedAlwaysMinLength <= XMigemoUI.findTerm.length) :
 					highlightCheck.xmigemoOriginalChecked ;
 			if (highlightCheck.checked != prevHighlightState) {
 				XMigemoUI.toggleHighlight(highlightCheck.checked);
