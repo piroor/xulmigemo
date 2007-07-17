@@ -162,6 +162,14 @@ interface pIXMigemo : pIXMigemoEngine
 		out unsigned long count, [array, size_is(count), retval] out nsIDOMRange array
 	);
 
+	void regExpHighlightText(
+		in AString regExpSource,
+		in AString regExpFlags,
+		in nsIDOMRange findRange,
+		in nsIDOMNode surroundNode,
+		out unsigned long count, [array, size_is(count), retval] out nsIDOMRange array
+	);
+
 	attribute double createCacheTimeOverride;
 	readonly attribute pIXMigemoCache cache;
 	readonly attribute pIXMigemoDicManager dictionaryManager;
