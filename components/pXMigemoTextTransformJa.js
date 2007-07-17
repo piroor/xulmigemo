@@ -509,13 +509,15 @@ pXMigemoTextTransformJa.prototype = {
 	 
 	expand2 : function(aString, aKana) 
 	{
-		var target = aString.charAt(aString.length-1)
+		var target = aString.match(/[a-z]+$/i);
+		if (!target) return aString;
+
 		if (!((this.ROMINITIALPAT).test(target))) {
 			return aString;
 		}
 
-		var base   = aString.substring(0, aString.length-1);
-		var regexp = new RegExp('^'+target+'.$', 'i');
+		var base   = aString.replace(/[a-z]+$/i, '');
+		var regexp = new RegExp('^'+target+'.*$', 'i');
 		var checked = {};
 		var ret = base +
 			this.optimizeRegExp('('+this.roman2kana2(
