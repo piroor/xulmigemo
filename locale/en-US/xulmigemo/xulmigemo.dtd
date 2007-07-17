@@ -30,7 +30,7 @@
 <!ENTITY xulmigemo.timeout.after           "msec">
 
 
-<!ENTITY xulmigemo.tab.findbar             "State of Find Toolbar">
+<!ENTITY xulmigemo.tab.findbar             "Find Toolbar Features">
 
 <!ENTITY xulmigemo.findbar.permanentState           "Following features are automatically enabled:">
 <!ENTITY xulmigemo.prefillwithselection             "Textbox">
@@ -88,7 +88,7 @@
 
 
 <!ENTITY xulmigemo.findbar.advanced.button  "Advanced...">
-<!ENTITY xulmigemo.findbar.advanced.title   "Advanced Configuration of the Find Toolbar">
+<!ENTITY xulmigemo.findbar.advanced.title   "Advanced Configuration of the Find Toolbar Features">
 
 <!ENTITY xulmigemo.findbar.initialState             "Initial state:">
 <!ENTITY xulmigemo.checked_by_default.highlight     "Highlight all">
