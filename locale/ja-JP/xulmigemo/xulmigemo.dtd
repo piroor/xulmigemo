@@ -33,13 +33,7 @@
 
 <!ENTITY xulmigemo.tab.findbar             "検索ツールバーの状態">
 
-<!ENTITY xulmigemo.findbar.initialState             "起動時の設定：">
-<!ENTITY xulmigemo.checked_by_default.highlight     "すべて強調表示">
-<!ENTITY xulmigemo.checked_by_default.caseSensitive "大文字/小文字を区別">
-<!ENTITY xulmigemo.checked_by_default.migemo        "Migemo検索">
-<!ENTITY xulmigemo.findbar.initialState.description "※ここでチェックした機能は起動時に一度だけ有効になり、任意で無効にできます">
-
-<!ENTITY xulmigemo.findbar.permanentState             "常時有効な設定：">
+<!ENTITY xulmigemo.findbar.permanentState       "以下の機能を自動的に有効にする：">
 <!ENTITY xulmigemo.prefillwithselection         "入力欄の内容">
 <!ENTITY xulmigemo.prefillwithselection.true    "選択範囲のテキスト">
 <!ENTITY xulmigemo.prefillwithselection.false   "前回検索した内容">
@@ -89,6 +83,18 @@
 <!ENTITY xulmigemo.shortcut.dialog.button  "キャンセル">
 
 
+
+
+
+
+<!ENTITY xulmigemo.findbar.advanced.button  "詳細...">
+<!ENTITY xulmigemo.findbar.advanced.title   "検索ツールバーの状態の詳細設定">
+
+<!ENTITY xulmigemo.findbar.initialState             "起動時の設定：">
+<!ENTITY xulmigemo.checked_by_default.highlight     "すべて強調表示">
+<!ENTITY xulmigemo.checked_by_default.caseSensitive "大文字/小文字を区別">
+<!ENTITY xulmigemo.checked_by_default.migemo        "Migemo検索">
+<!ENTITY xulmigemo.findbar.initialState.description "※ここでチェックした機能は起動時に一度だけ有効になり、任意で無効にできます">
 
 
 
