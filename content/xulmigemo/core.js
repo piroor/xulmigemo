@@ -34,7 +34,21 @@ var XMigemoCore = {
 		var result = this.XMigemo.regExpFindArr(aRegExp.source, flags, aFindRange, aStartPoint, aEndPoint, {});
 		return result;
 	},
-  
+ 
+	regExpFindArrRecursively : function(aRegExp, aWindow) 
+	{
+		var results = [];
+		var frames = aWindow.frames;
+		for (var i = 0, maxi = frames.length; i < maxi; i++)
+		{
+			results = results.concat(this.regExpFindArrRecursively(aRegExp, frames[i]));
+		}
+		var range = aWindow.document.createRange();
+		range.selectNodeContents(aWindow.document.documentElement);
+		results = results.concat(this.regExpFindArr(aRegExp, range));
+		return results;
+	},
+ 	 
 	get XMigemo() { 
 		if (!this._XMigemo) {
 			try {
@@ -52,6 +66,6 @@ var XMigemoCore = {
 	_XMigemo : null
  
 }; 
- 	 
+  
 var xulMigemoCore = XMigemoCore; 
  
