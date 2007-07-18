@@ -362,13 +362,18 @@ var XMigemoHighlight = {
 					);
 			}
 			catch(e) {
-				var xpathResult = document.evaluate(
-						'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
-						node,
-						this.NSResolver,
-						XPathResult.FIRST_ORDERED_NODE_TYPE,
-						null
-					);
+				try {
+					var xpathResult = document.evaluate(
+							'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
+							node,
+							this.NSResolver,
+							XPathResult.FIRST_ORDERED_NODE_TYPE,
+							null
+						);
+				}
+				catch(e) {
+					return false;
+				}
 			}
 			if (xpathResult.singleNodeValue) {
 				this.animateFoundNode(xpathResult.singleNodeValue);
