@@ -517,15 +517,20 @@ pXMigemoTextTransformJa.prototype = {
 		}
 
 		var base   = aString.replace(/[a-z]+$/i, '');
+
 		var regexp = new RegExp('^'+target+'.*$', 'i');
 		var checked = {};
+		var entries = this.ROMKAN.filter(function(aItem) {
+				var ret = regexp.test(aItem.key) && !(aItem.key in checked);
+				checked[aItem.key] = true;
+				return ret;
+			});
+
+		if (!entries.length) return aString;
+
 		var ret = base +
 			this.optimizeRegExp('('+this.roman2kana2(
-				this.ROMKAN.filter(function(aItem) {
-					var ret = regexp.test(aItem.key) && !(aItem.key in checked);
-					checked[aItem.key] = true;
-					return ret;
-				}).map(function(aItem) {
+				entries.map(function(aItem) {
 					return aItem.key;
 				}).join('|'),
 				aKana
