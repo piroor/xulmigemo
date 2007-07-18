@@ -1263,7 +1263,20 @@ var XMigemoUI = {
 				XMigemoUI.highlightCheckFirst ?
 					XMigemoService.getPref('xulmigemo.checked_by_default.highlight') :
 				(XMigemoUI.highlightCheckedAlways) ?
-					(XMigemoUI.highlightCheckedAlwaysMinLength <= XMigemoUI.findTerm.length) :
+					(XMigemoUI.highlightCheckedAlwaysMinLength <= (
+						XMigemoUI.isActive ?
+							Math.max.apply(
+								null,
+								XMigemoCore.regExpFindArrRecursively(
+									new RegExp(XMigemoCore.getRegExp(XMigemoUI.findTerm)),
+									XMigemoUI.activeBrowser.contentWindow
+								).map(function(aItem) {
+									return aItem.toString().length;
+								})
+							) :
+							XMigemoUI.findTerm.length
+						)
+					) :
 					highlightCheck.xmigemoOriginalChecked ;
 			if (highlightCheck.checked != prevHighlightState) {
 				XMigemoUI.toggleHighlight(highlightCheck.checked);
