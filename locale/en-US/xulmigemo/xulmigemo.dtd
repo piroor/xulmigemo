@@ -44,6 +44,7 @@
 <!ENTITY xulmigemo.findbar.permanentState.description "*Checked features are enabled anytime. They cannot be disabled as you like.">
 
 <!ENTITY xulmigemo.checked_by_default.findbar       "Show Find Toolbar at startup">
+<!ENTITY xulmigemo.appearance.hideLabels  "Show Find Toolbar with compact buttons">
 
 
 <!ENTITY xulmigemo.tab.dictionary          "Dictionary">
@@ -193,3 +194,7 @@
 
 <!ENTITY xulmigemo.init.final.label1  "All processes are successfully done.">
 
+
+
+
+<!ENTITY xulmigemo.caseSensitive.shortLabel  "A/a">

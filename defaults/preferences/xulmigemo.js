@@ -30,7 +30,7 @@ pref("xulmigemo.enableautoexit.inherit",        true);
 pref("xulmigemo.enableautoexit.nokeyword",      true);
 
 pref("xulmigemo.enabletimeout.indicator",       true);
-pref("xulmigemo.appearance.migemobar.overlay",  true);
+pref("xulmigemo.appearance.hideLabels",         false);
 pref("xulmigemo.appearance.indicator.height",   5);
 
 pref("xulmigemo.shortcut.manualStart",           "/");

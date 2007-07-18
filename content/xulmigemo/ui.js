@@ -245,6 +245,20 @@ var XMigemoUI = {
 				this.goDicManagerKey = XMigemoService.parseShortcut(value);
 				return;
 
+			case 'xulmigemo.appearance.hideLabels':
+				var caseSensitive = this.findCaseSensitiveCheck;
+				if (value) {
+					caseSensitive.setAttribute('tooltiptext', caseSensitive.getAttribute('long-label'));
+					caseSensitive.setAttribute('label', caseSensitive.getAttribute('short-label'));
+					this.findBar.setAttribute('labelhidden', true);
+				}
+				else {
+					caseSensitive.removeAttribute('tooltiptext');
+					caseSensitive.setAttribute('label', caseSensitive.getAttribute('long-label'));
+					this.findBar.removeAttribute('labelhidden');
+				}
+				return;
+
 			case 'xulmigemo.appearance.indicator.height':
 				var node = this.timeoutIndicator;
 				if (value) {
@@ -975,6 +989,10 @@ var XMigemoUI = {
 				nsBrowserStatusHandler.prototype.onLocationChange.toSource()
 					.replace(/([^\.\s]+\.)+findString/, '(XMigemoUI.findMigemoCheck.checked ? XMigemoFind.lastKeyword : $1findString)')
 			);
+
+		var caseSensitive = this.findCaseSensitiveCheck;
+		caseSensitive.setAttribute('long-label', caseSensitive.getAttribute('label'));
+		caseSensitive.setAttribute('short-label', this.findMigemoBar.getAttribute('caseSensitive-short-label'));
 	},
  
 	getLastFindString : function(aString) 
@@ -1516,6 +1534,8 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.rebuild_selection');
 
 		this.overrideFindBar();
+
+		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.hideLabels');
 
 		window.setTimeout('XMigemoUI.delayedInit()', 0);
 
