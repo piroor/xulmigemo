@@ -97,6 +97,10 @@
 		<preference id="xulmigemo.checked_by_default.findbar"
 			name="xulmigemo.checked_by_default.findbar"
 			type="bool"/>
+
+		<preference id="xulmigemo.appearance.hideLabels"
+			name="xulmigemo.appearance.hideLabels"
+			type="bool"/>
 	</preferences>
 
 	<groupbox orient="vertical">
@@ -148,6 +152,10 @@
 	<checkbox id="xulmigemo.checked_by_default.findbar-check" flex="1"
 		label="&xulmigemo.checked_by_default.findbar;"
 		preference="xulmigemo.checked_by_default.findbar"/>
+
+	<checkbox id="xulmigemo.appearance.hideLabels-check" flex="1"
+		label="&xulmigemo.appearance.hideLabels;"
+		preference="xulmigemo.appearance.hideLabels"/>
 
 	<hbox align="center">
 		<spacer flex="1"/>

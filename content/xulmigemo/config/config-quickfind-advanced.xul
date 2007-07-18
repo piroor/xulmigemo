@@ -25,9 +25,6 @@
 		<preference id="xulmigemo.enabletimeout.indicator"
 			name="xulmigemo.enabletimeout.indicator"
 			type="bool"/>
-		<preference id="xulmigemo.appearance.migemobar.overlay"
-			name="xulmigemo.appearance.migemobar.overlay"
-			type="bool"/>
 		<preference id="xulmigemo.appearance.indicator.height"
 			name="xulmigemo.appearance.indicator.height"
 			type="int"/>

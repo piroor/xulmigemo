@@ -45,6 +45,7 @@
 <!ENTITY xulmigemo.findbar.permanentState.description "※ここでチェックした機能は検索ツールバーを開くたびに常に有効になり、任意で無効にできません">
 
 <!ENTITY xulmigemo.checked_by_default.findbar  "Firefox起動時に最初から検索ツールバーを表示しておく">
+<!ENTITY xulmigemo.appearance.hideLabels  "検索ツールバー内のボタンの表示を小さくする">
 
 
 <!ENTITY xulmigemo.tab.dictionary          "辞書">
@@ -191,3 +192,6 @@
 
 <!ENTITY xulmigemo.init.final.label1  "辞書の初期設定が終わりました。">
 
+
+
+<!ENTITY xulmigemo.caseSensitive.shortLabel  "A/a">
