@@ -295,6 +295,12 @@ pXMigemoCore.prototype = {
 
 		var txt = XMigemoTextUtils.range2Text(aFindRange);
 		arrTerms = txt.match(new RegExp(regExp.source, 'img'));
+
+		if (!arrTerms) {
+			aCount.value = arrResults.length;
+			return arrResults;
+		}
+
 		this.mFind.findBackwards = false;
 		var foundRange;
 		for (var i = 0, maxi = arrTerms.length; i < maxi; i++)

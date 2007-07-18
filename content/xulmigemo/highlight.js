@@ -205,6 +205,7 @@ var XMigemoHighlight = {
 			node.innerHTML = this.highlightStyle+
 				'#__moz_xmigemoFindHighlightScreen {'+
 				'	height: '+pageSize.height+'px;'+
+				'	width: '+pageSize.width+'px;'+
 				'}';
 			objHead.insertBefore(node, objHead.firstChild);
 		}
@@ -238,7 +239,6 @@ var XMigemoHighlight = {
 		#__moz_xmigemoFindHighlightScreen {
 			left: 0;
 			top: 0;
-			width: 100%;
 			border: 0;
 			margin: 0;
 			padding: 0;
