@@ -14,20 +14,20 @@ var Prefs = Components
 			.getService(Components.interfaces.nsIPrefBranch);
  
 function pXMigemoDictionary() { 
-	mydump('create instance pIXMigemoDictionary(lang=en-US)');
+	mydump('create instance pIXMigemoDictionary(lang=*)');
 }
 
 pXMigemoDictionary.prototype = {
-	lang : 'en-US',
+	lang : '',
 
 	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang;
+		return '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*';
 	},
 	get classDescription() {
 		return 'This is a dictionary service for XUL/Migemo.';
 	},
 	get classID() {
-		return Components.ID('{171e0e54-1def-11dc-8314-0800200c9a66}');
+		return Components.ID('{2bf35d7c-36f9-11dc-8314-0800200c9a66}');
 	},
 
 	get wrappedJSObject() {
@@ -46,9 +46,11 @@ pXMigemoDictionary.prototype = {
 	RESULT_ERROR_INVALID_OPERATION : 32,
  
 /* File I/O */ 
-	 
+	
 	load : function() 
 	{
+		if (!this.lang) return false;
+
 		var file;
 		var util = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
@@ -140,9 +142,7 @@ pXMigemoDictionary.prototype = {
 			'remove'
 		);
 	},
-  	
-	// pIXMigemoDictionaryJa 
-	 
+ 
 	getDic : function() 
 	{
 		return this.list['system'];
@@ -154,7 +154,7 @@ pXMigemoDictionary.prototype = {
 	},
   
 	// internal 
-	 
+	
 	list : [], 
  
 	modifyDic : function(aTermSet, aOperation) 
@@ -276,6 +276,7 @@ pXMigemoDictionary.prototype = {
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemoDictionary) &&
+			!aIID.equals(Components.interfaces.pIXMigemoDictionaryUniversal) &&
 			!aIID.equals(Components.interfaces.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
@@ -337,7 +338,7 @@ function NSGetModule(compMgr, fileSpec)
 {
 	return gModule;
 }
- 
+ 	
 function mydump(aString) 
 {
 	if (DEBUG)

@@ -431,9 +431,19 @@ pXMigemoCore.prototype = {
 
 		this.initialized = true;
 
-		this.engine = Components
-			.classes['@piro.sakura.ne.jp/xmigemo/engine;1?lang='+(aLang || Prefs.getCharPref('xulmigemo.lang'))]
-			.getService(Components.interfaces.pIXMigemoEngine);
+		var id = '@piro.sakura.ne.jp/xmigemo/engine;1?lang='+(aLang || Prefs.getCharPref('xulmigemo.lang'));
+		if (id in Components.classes) {
+			this.engine = Components
+				.classes[id]
+				.getService(Components.interfaces.pIXMigemoEngine);
+		}
+		else {
+			this.engine = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/engine;1?lang=*']
+				.createInstance(Components.interfaces.pIXMigemoEngine)
+				.QueryInterface(Components.interfaces.pIXMigemoEngineUniversal);
+			this.engine.lang = aLang || Prefs.getCharPref('xulmigemo.lang');
+		}
 
 		this.dictionaryManager.init(this.dictionary, this.cache);
 

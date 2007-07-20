@@ -92,11 +92,15 @@ interface pIXMigemoDictionary : nsISupports
 	void reload();
 };
 
+[scriptable, uuid(7d78f05c-36f8-11dc-8314-0800200c9a66)]
+interface pIXMigemoDictionaryUniversal : pIXMigemoDictionary
+{
+	attribute ACString lang;
+};
+
 [scriptable, uuid(1a2493f2-1f31-11dc-8314-0800200c9a66)]
 interface pIXMigemoEngine : nsIObserver
 {
-	readonly attribute ACString lang;
-
 	/* create regular expressions from roman letters. */
 	AString getRegExpFor(in AString input);
 
@@ -117,6 +121,12 @@ interface pIXMigemoEngine : nsIObserver
 
 	readonly attribute pIXMigemoDictionary dictionary;
 	readonly attribute pIXMigemoTextTransform textTransform;
+};
+
+[scriptable, uuid(0cfd00c2-36fb-11dc-8314-0800200c9a66)]
+interface pIXMigemoEngineUniversal : pIXMigemoEngine
+{
+	attribute ACString lang;
 };
 
 

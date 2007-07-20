@@ -8,21 +8,21 @@ var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
  
-function pXMigemoEngineEnUS() { 
-	mydump('create instance pIXMigemoEngine(lang=en-US)');
+function pXMigemoEngine() { 
+	mydump('create instance pIXMigemoEngine(lang=*)');
 }
 
-pXMigemoEngineEnUS.prototype = {
-	lang : 'en-US',
+pXMigemoEngine.prototype = {
+	lang : '',
 
 	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/engine;1?lang='+this.lang;
+		return '@piro.sakura.ne.jp/xmigemo/engine;1?lang=*';
 	},
 	get classDescription() {
 		return 'This is a Migemo service itself, for Japanese language.';
 	},
 	get classID() {
-		return Components.ID('{6d1ae644-1ded-11dc-8314-0800200c9a66}');
+		return Components.ID('{706170f0-36fb-11dc-8314-0800200c9a66}');
 	},
 
 	get wrappedJSObject() {
@@ -35,10 +35,20 @@ pXMigemoEngineEnUS.prototype = {
  
 	get dictionary() 
 	{
-		if (!this._dictionary) {
-			this._dictionary = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang]
-				.getService(Components.interfaces.pIXMigemoDictionary);
+		if (!this._dictionary && this.lang) {
+			var id = '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang;
+			if (id in Components.classes) {
+				this._dictionary = Components
+					.classes[id]
+					.getService(Components.interfaces.pIXMigemoDictionary);
+			}
+			else {
+				this._dictionary = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*']
+					.createInstance(Components.interfaces.pIXMigemoDictionary)
+					.QueryInterface(Components.interfaces.pIXMigemoDictionaryUniversal);
+				this._dictionary.lang = this.lang;
+			}
 		}
 		return this._dictionary;
 	},
@@ -57,7 +67,7 @@ pXMigemoEngineEnUS.prototype = {
  
 	getRegExpFor : function(aInput) 
 	{
-		if (!aInput) return null;
+		if (!aInput || !this.lang) return null;
 
 		aInput = aInput.toLowerCase();
 
@@ -120,7 +130,7 @@ pXMigemoEngineEnUS.prototype = {
  
 	gatherEntriesFor : function(aInput, aTargetDic, aCount) 
 	{
-		if (!aInput) {
+		if (!aInput || !this.lang) {
 			aCount.value = 0;
 			return [];
 		}
@@ -168,6 +178,7 @@ pXMigemoEngineEnUS.prototype = {
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemoEngine) &&
+			!aIID.equals(Components.interfaces.pIXMigemoEngineUniversal) &&
 			!aIID.equals(Components.interfaces.nsIObserver) &&
 			!aIID.equals(Components.interfaces.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
@@ -206,15 +217,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoEngineEnUS.prototype.classID,
-			contractID : pXMigemoEngineEnUS.prototype.contractID,
-			className  : pXMigemoEngineEnUS.prototype.classDescription,
+			CID        : pXMigemoEngine.prototype.classID,
+			contractID : pXMigemoEngine.prototype.contractID,
+			className  : pXMigemoEngine.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoEngineEnUS()).QueryInterface(aIID);
+					return (new pXMigemoEngine()).QueryInterface(aIID);
 				}
 			}
 		}
