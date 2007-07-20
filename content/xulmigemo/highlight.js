@@ -43,7 +43,7 @@ var XMigemoHighlight = {
 				'gSearchWPOverlay.toggleHighlight = '+
 				gSearchWPOverlay.toggleHighlight.toSource().replace(
 					'gSearchWPHighlighting.toggleHighlight',
-					'XMigemoHighlight.toggleHighlightScreen(aHighlight);'+
+					'if (XMigemoHighlight.strongHighlight) XMigemoHighlight.toggleHighlightScreen(aHighlight);'+
 					'gSearchWPHighlighting.toggleHighlight'
 				)
 			);
@@ -55,7 +55,7 @@ var XMigemoHighlight = {
 				window.GBL_ToggleHighlighting.toSource().replace(
 					'var hb = document.getElementById("GBL-TB-Highlighter");',
 					'var hb = document.getElementById("GBL-TB-Highlighter");'+
-					'XMigemoHighlight.toggleHighlightScreen(!hb.checked);'
+					'if (XMigemoHighlight.strongHighlight) XMigemoHighlight.toggleHighlightScreen(!hb.checked);'
 				)
 			);
 		}
