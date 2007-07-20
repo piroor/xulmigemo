@@ -66,7 +66,7 @@ pXMigemoDictionary.prototype = {
 		}
 		if (file && file.exists()) {
 //			dump('system dic loaded from '+file.path+'\n');
-			this.list['system'] = util.readFrom(file, 'Shift_JIS');
+			this.list['system'] = util.readFrom(file, 'UTF-8');
 		}
 		else {
 //			dump('system dic not found at '+file.path+'\n');
@@ -82,7 +82,7 @@ pXMigemoDictionary.prototype = {
 		}
 		if (file && file.exists()) {
 //			dump('user dic loaded from '+file.path+'\n');
-			this.list['user'] = util.readFrom(file, 'Shift_JIS');
+			this.list['user'] = util.readFrom(file, 'UTF-8');
 		}
 		else {
 //			dump('user dic not found at '+file.path+'\n');
@@ -118,7 +118,7 @@ pXMigemoDictionary.prototype = {
 		var util = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
 					.getService(Components.interfaces.pIXMigemoFileAccess);
-		util.writeTo(file, (this.list['user'] || ''), 'Shift_JIS');
+		util.writeTo(file, (this.list['user'] || ''), 'UTF-8');
 	},
   
 	addTerm : function(aInput, aTerm) 
