@@ -85,9 +85,19 @@ pXMigemoDicManager.prototype = {
 	get dictionary()
 	{
 		if (!this._dictionary) { // default dictionary; can be overridden.
-			this._dictionary = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-				.getService(Components.interfaces.pIXMigemoDictionary);
+			var id = '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+Prefs.getCharPref('xulmigemo.lang');
+			if (id in Components.classes) {
+				this._dictionary = Components
+					.classes[id]
+					.getService(Components.interfaces.pIXMigemoDictionary);
+			}
+			else {
+				this._dictionary = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*']
+					.createInstance(Components.interfaces.pIXMigemoDictionary)
+					.QueryInterface(Components.interfaces.pIXMigemoDictionaryUniversal);
+				this._dictionary.lang = Prefs.getCharPref('xulmigemo.lang');
+			}
 		}
 		return this._dictionary;
 	},
