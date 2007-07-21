@@ -37,6 +37,27 @@ var XMigemoUI = {
 		return XMigemoFind.isQuickFind;
 	},
  
+	get shouldHighlightAll() 
+	{
+		if (!this.highlightCheckedAlways) return true;
+
+		return (this.highlightCheckedAlwaysMinLength <= (
+				this.isActive ?
+					Math.max.apply(
+						null,
+						XMigemoCore.regExpFindArrRecursively(
+							new RegExp(XMigemoCore.getRegExp(this.findTerm)),
+							this.activeBrowser.contentWindow,
+							true
+						).map(function(aItem) {
+							return (aItem || '').length;
+						})
+					) :
+					this.findTerm.length
+				)
+			);
+	},
+ 	
 	nsITypeAheadFind : Components.interfaces.nsITypeAheadFind, 
  
 	get browser() 
@@ -538,17 +559,12 @@ var XMigemoUI = {
  
 	onXMigemoFindProgress : function(aEvent) 
 	{
+dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
+
 		gFindBar.enableFindButtons(!(
 			aEvent.resultFlag == XMigemoFind.NOTFOUND ||
 			aEvent.resultFlag == XMigemoFind.NOTLINK
 		));
-
-
-		// migemoでヒットした全ての語を強調表示するととんでもないことになるので、
-		// ハイライト表示のボタンだけは常に無効にしておこう。
-		// this.findHighlightCheck.disabled = true;
-		// →最後にヒットした語句のみを強調表示するように仕様変更したので、
-		//   機能を復活させた
 
 		var statusRes;
 		switch (aEvent.resultFlag)
@@ -1115,6 +1131,9 @@ var XMigemoUI = {
  
 	toggleHighlight : function(aHighlight) 
 	{
+		if (XMigemoUI.highlightCheckedAlways)
+			aHighlight = XMigemoUI.shouldHighlightAll;
+
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarToggleHighlight', true, true);
 		event.targetHighlight = aHighlight;
@@ -1263,21 +1282,7 @@ var XMigemoUI = {
 				XMigemoUI.highlightCheckFirst ?
 					XMigemoService.getPref('xulmigemo.checked_by_default.highlight') :
 				(XMigemoUI.highlightCheckedAlways) ?
-					(XMigemoUI.highlightCheckedAlwaysMinLength <= (
-						XMigemoUI.isActive ?
-							Math.max.apply(
-								null,
-								XMigemoCore.regExpFindArrRecursively(
-									new RegExp(XMigemoCore.getRegExp(XMigemoUI.findTerm)),
-									XMigemoUI.activeBrowser.contentWindow,
-									true
-								).map(function(aItem) {
-									return (aItem || '').length;
-								})
-							) :
-							XMigemoUI.findTerm.length
-						)
-					) :
+					XMigemoUI.shouldHighlightAll :
 					highlightCheck.xmigemoOriginalChecked ;
 			if (highlightCheck.checked != prevHighlightState) {
 				XMigemoUI.toggleHighlight(highlightCheck.checked);
@@ -1286,6 +1291,10 @@ var XMigemoUI = {
 
 			if (XMigemoUI.caseSensitiveCheckedAlways)
 				caseSensitive.checked = true;
+		}
+		else {
+			if (XMigemoUI.highlightCheckedAlways)
+				XMigemoUI.toggleHighlight(false);
 		}
 
 		var event = document.createEvent('Events');
@@ -1407,7 +1416,7 @@ var XMigemoUI = {
 				sel.removeAllRanges();
 				sel.addRange(selectRange);
 				XMigemoFind.setSelectionLook(doc, true);
-			}, 0);
+			}, 1);
 		}
 		else {
 			if (aNode.nodeType == Node.ELEMENT_NODE) {
@@ -1490,7 +1499,7 @@ var XMigemoUI = {
 				aNode.nodeType == Node.TEXT_NODE ? aNode :
 				this.getNextTextNode(aNode);
 	},
-  	
+  
 	init : function() 
 	{
 		this.lastFindMode = this.FIND_MODE_NATIVE;
