@@ -78,11 +78,6 @@ pXMigemoEngineJa.prototype = {
 				)
 			);
 
-		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
-			hira = XMigemoTextService.addLatinModifiers(
-					XMigemoTextService.removeLatinModifiers(hira)
-				);
-
 		var roman = aInput;
 		if (/[\uff66-\uff9f]/.test(roman)) roman = XMigemoTextService.hira2roman(XMigemoTextService.kata2hira(roman))
 		var ignoreHiraKata = Prefs.getBoolPref('xulmigemo.ignoreHiraKata');
@@ -114,10 +109,15 @@ pXMigemoEngineJa.prototype = {
 
 		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, {});
 
-		var pattern = '';
+		var original = XMigemoTextUtils.sanitize(aInput);
+		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
+			original = XMigemoTextService.addLatinModifiers(
+					XMigemoTextService.removeLatinModifiers(original)
+				);
+
+		var pattern = original;
 		if (lines.length) {
 			var arr = [];
-			arr.push(XMigemoTextUtils.sanitize(aInput).toUpperCase());
 			if (!/[\[\(]/.test(zen)) arr.push(zen);
 			if (!/[\[\(]/.test(hiraAndKana)) {
 				arr.push(hira);
@@ -151,7 +151,8 @@ pXMigemoEngineJa.prototype = {
 			mydump('pattern(from dic):'+encodeURIComponent(pattern));
 		}
 		else { // é´èëÇ…à¯Ç¡Ç©Ç©ÇÁÇ»Ç©Ç¡ÇΩñÕólÇ»ÇÃÇ≈é©ëOÇÃï∂éöóÒÇæÇØ
-			pattern = XMigemoTextUtils.sanitize(aInput) + '|' + zen + '|' + hiraAndKana;
+			if (original != zen) pattern += '|' + zen;
+			if (original != hiraAndKana) pattern += '|' + hiraAndKana;
 			mydump('pattern:'+encodeURIComponent(pattern));
 		}
 
