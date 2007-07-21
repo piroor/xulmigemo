@@ -32,6 +32,9 @@
 		<preference id="xulmigemo.ignoreHiraKata"
 			name="xulmigemo.ignoreHiraKata"
 			type="bool"/>
+		<preference id="xulmigemo.ignoreLatinModifiers"
+			name="xulmigemo.ignoreLatinModifiers"
+			type="bool"/>
 		<preference id="xulmigemo.splitTermsAutomatically"
 			name="xulmigemo.splitTermsAutomatically"
 			type="bool"/>
@@ -68,6 +71,9 @@
 		<checkbox id="xulmigemo.ignoreHiraKata-check" flex="1"
 			label="&xulmigemo.ignoreHiraKata;"
 			preference="xulmigemo.ignoreHiraKata"/>
+		<checkbox id="xulmigemo.ignoreLatinModifiers-check" flex="1"
+			label="&xulmigemo.ignoreLatinModifiers;"
+			preference="xulmigemo.ignoreLatinModifiers"/>
 		<!--checkbox id="xulmigemo.splitTermsAutomatically-check" flex="1"
 			label="&xulmigemo.splitTermsAutomatically;"
 			preference="xulmigemo.splitTermsAutomatically"/-->

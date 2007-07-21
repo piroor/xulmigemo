@@ -15,8 +15,9 @@
 <!ENTITY xulmigemo.highlight.showScreen    "「すべて強調表示」をより強く強調する">
 
 
-<!ENTITY xulmigemo.caption.recognize       "文字の認識（日本語）">
-<!ENTITY xulmigemo.ignoreHiraKata          "ひらがなとカタカナの違いを無視する">
+<!ENTITY xulmigemo.caption.recognize       "文字の認識">
+<!ENTITY xulmigemo.ignoreHiraKata          "ひらがなとカタカナの違いを無視する（日本語のみ）">
+<!ENTITY xulmigemo.ignoreLatinModifiers    "ラテン文字の修飾記号を無視する">
 <!ENTITY xulmigemo.splitTermsAutomatically "文節の切れ目を自動的に認識する">
 
 
