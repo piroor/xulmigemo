@@ -67,6 +67,9 @@ interface pIXMigemoTextTransform : nsISupports
 	boolean isValidInput(in AString input);
 	AString normalizeInput(in AString input);
 	AString normalizeKeyInput(in AString input);
+
+	AString addLatinModifiers(in AString simpleLatinLetters);
+	AString removeLatinModifiers(in AString latinLettersWithModifiers);
 };
 
 [scriptable, uuid(5a51a982-1dde-11dc-8314-0800200c9a66)]

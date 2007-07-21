@@ -69,6 +69,7 @@ pXMigemoEngineJa.prototype = {
 				.getService(Components.interfaces.pIXMigemoTextUtils);
 
 		mydump('noCache');
+
 		var hira = XMigemoTextService.expand(
 				XMigemoTextUtils.sanitize(
 					XMigemoTextService.roman2kana(
@@ -76,6 +77,12 @@ pXMigemoEngineJa.prototype = {
 					)
 				)
 			);
+
+		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
+			hira = XMigemoTextService.addLatinModifiers(
+					XMigemoTextService.removeLatinModifiers(hira)
+				);
+
 		var roman = aInput;
 		if (/[\uff66-\uff9f]/.test(roman)) roman = XMigemoTextService.hira2roman(XMigemoTextService.kata2hira(roman))
 		var ignoreHiraKata = Prefs.getBoolPref('xulmigemo.ignoreHiraKata');
@@ -192,8 +199,14 @@ pXMigemoEngineJa.prototype = {
 					)
 				);
 
+		var str = XMigemoTextUtils.sanitize(aInput);
+		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
+			str = XMigemoTextService.addLatinModifiers(
+					XMigemoTextService.removeLatinModifiers(str)
+				);
+
 		var tmp  = '^' + hira + '.+$'; //日本語
-		var tmpA = '^' + XMigemoTextUtils.sanitize(aInput) + '.+$'; //アルファベット
+		var tmpA = '^(' + str + ').+$'; //アルファベット
 		var exp  = new RegExp(tmp, 'mg');
 		var expA = new RegExp(tmpA, 'mg');
 
