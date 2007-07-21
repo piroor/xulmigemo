@@ -156,7 +156,10 @@ pXMigemoEngineJa.prototype = {
 			mydump('pattern:'+encodeURIComponent(pattern));
 		}
 
-		return pattern;
+		return pattern.replace(/\n|^\||\|$/g, '')
+				.replace(/\|\|+/g, '|')
+				.replace(/\(\|/g, '(')
+				.replace(/\|\)/g, ')');
 	},
  
 	splitInput : function(aInput, aCount) 

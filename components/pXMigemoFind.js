@@ -1222,6 +1222,6 @@ function NSGetModule(compMgr, fileSpec)
 function mydump(aString) 
 {
 	if (DEBUG)
-		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
+		dump((aString.length > 1024 ? aString.substring(0, 1024) : aString )+'\n');
 }
  
