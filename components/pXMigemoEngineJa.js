@@ -111,9 +111,7 @@ pXMigemoEngineJa.prototype = {
 
 		var original = XMigemoTextUtils.sanitize(aInput);
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
-			original = XMigemoTextService.addLatinModifiers(
-					XMigemoTextService.removeLatinModifiers(original)
-				);
+			original = XMigemoTextService.addLatinModifiers(original);
 
 		var pattern = original;
 		if (lines.length) {
@@ -205,9 +203,7 @@ pXMigemoEngineJa.prototype = {
 
 		var str = XMigemoTextUtils.sanitize(aInput);
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
-			str = XMigemoTextService.addLatinModifiers(
-					XMigemoTextService.removeLatinModifiers(str)
-				);
+			str = XMigemoTextService.addLatinModifiers(str);
 
 		var tmp  = '^' + hira + '.+$'; //日本語
 		var tmpA = '^(' + str + ').+$'; //アルファベット

@@ -100,7 +100,8 @@ pXMigemoTextTransform.prototype = {
 	addLatinModifiers : function(aInput) 
 	{
 		var hash = this.LATMOD_Hash;
-		return String(aInput).replace(this.LATPAT, function(aChar) {
+		return this.removeLatinModifiers(aInput)
+			.replace(this.LATPAT, function(aChar) {
 				return '('+hash[aChar]+')';
 			});
 	},
