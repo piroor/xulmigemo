@@ -146,7 +146,10 @@ pXMigemoCore.prototype = {
 				(myExp.length) ? ['(', myExp.join(')([ \t]+)?('), ')'].join('').replace(/\n/g, '') :
 				'' ;
 
-		myExp = myExp.replace(/\n/im, '');
+		myExp = myExp.replace(/\n|^\||\|$/g, '')
+					.replace(/\|\|+/g, '|')
+					.replace(/\(\|/g, '(')
+					.replace(/\|\)/g, ')');
 
 		mydump('created pattern: '+encodeURIComponent(myExp));
 
