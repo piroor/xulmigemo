@@ -5,6 +5,7 @@ pref("xulmigemo.prefillwithselection",          true);
 pref("xulmigemo.startfromviewport",             true);
 pref("xulmigemo.linksonly",                     false);
 pref("xulmigemo.ignoreHiraKata",                false);
+pref("xulmigemo.ignoreLatinModifiers",          false);
 pref("xulmigemo.splitTermsAutomatically",       false);
 pref("xulmigemo.scrollSelectionToCenter",       false);
 pref("xulmigemo.ignore_find_links_only_behavior", true);

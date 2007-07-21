@@ -42,7 +42,23 @@ pXMigemoTextTransformJa.prototype = {
 				)
 			);
 	},
- 
+
+	addLatinModifiers : function(aInput)
+	{
+		return Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*']
+				.getService(Components.interfaces.pIXMigemoTextTransform)
+				.addLatinModifiers(aInput);
+	},
+
+	removeLatinModifiers : function(aInput)
+	{
+		return Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*']
+				.getService(Components.interfaces.pIXMigemoTextTransform)
+				.removeLatinModifiers(aInput);
+	},
+ 	
 	KANA_HIRA : 0, 
 	KANA_KATA : 1,
 	KANA_ALL  : 2,
@@ -184,7 +200,7 @@ pXMigemoTextTransformJa.prototype = {
 	},
  
 /* based on Ruby/Romkan ( http://0xcc.net/ruby-romkan/ ) */ 
-	 
+	
 	KUNREITAB : [ 
 '\u3041	xa	\u3042	a	\u3043	xi	\u3044	i	\u3045	xu',
 '\u3046	u	\u3046\u309b	vu	\u3046\u309b\u3041	va	\u3046\u309b\u3043	vi 	\u3046\u309b\u3047	ve',
@@ -339,7 +355,7 @@ pXMigemoTextTransformJa.prototype = {
 '\u3058\u3047	je'
 	].join('\n'),
  
-	CUSTOMTAB : [
+	CUSTOMTAB : [ 
 '\u3046\u3043	wi',
 '\u3046\u3047	we',
 '\u3060	dha	\u3063\u3067\u3083	ddha',
@@ -554,7 +570,7 @@ pXMigemoTextTransformJa.prototype = {
 	},
   
 /* hiragana, katakana */ 
-	 
+	
 	KANATAB : [ 
 '\u3042	\u30a2|\uff71',
 '\u3044	\u30a4|\uff72',
@@ -709,7 +725,7 @@ pXMigemoTextTransformJa.prototype = {
 		}
 		return output;
 	},
- 	
+ 
 	zenkaku2hankaku : function(aStr) 
 	{
 		return aStr.replace(/[\uff10-\uff19\uff21-\uff3a\uff41-\uff5a]/g, this.zenkaku2hankakuSub);

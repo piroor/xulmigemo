@@ -79,12 +79,20 @@ pXMigemoEngine.prototype = {
 		mydump('noCache');
 		var str = XMigemoTextUtils.sanitize(aInput);
 
+
+		mydump('REMOVE : '+XMigemoTextService.removeLatinModifiers(str));
+		mydump('ADD : '+XMigemoTextService.addLatinModifiers(XMigemoTextService.removeLatinModifiers(str)));
+
+		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
+			str = XMigemoTextService.addLatinModifiers(
+					XMigemoTextService.removeLatinModifiers(str)
+				);
+
 		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, {});
 
 		var pattern = '';
 		if (lines.length) {
 			var arr = [];
-			arr.push(XMigemoTextUtils.sanitize(aInput).toUpperCase());
 			searchterm = arr.concat(lines).join('\n').replace(/(\t|\n\n)+/g, '\n');
 
 			searchterm = searchterm
@@ -101,10 +109,13 @@ pXMigemoEngine.prototype = {
 				.replace(/\n/g, '|');
 			pattern += (pattern ? '|' : '') + searchterm;
 
+			pattern = str + (pattern ? '|' : '') + pattern;
+
 			pattern = pattern.replace(/\n/g, '');
+			mydump('pattern:'+pattern);
 		}
 		else { // Ž«‘‚Éˆø‚Á‚©‚©‚ç‚È‚©‚Á‚½–Í—l‚È‚Ì‚ÅŽ©‘O‚Ì•¶Žš—ñ‚¾‚¯
-			pattern = XMigemoTextUtils.sanitize(aInput);
+			pattern = str;
 			mydump('pattern:'+pattern);
 		}
 
@@ -141,8 +152,12 @@ pXMigemoEngine.prototype = {
 				.getService(Components.interfaces.pIXMigemoTextUtils);
 
 		var str = XMigemoTextUtils.sanitize(aInput);
+		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
+			str = XMigemoTextService.addLatinModifiers(
+					XMigemoTextService.removeLatinModifiers(str)
+				);
 
-		var tmp = '^' + XMigemoTextUtils.sanitize(aInput) + '.+$';
+		var tmp = '^(' + str + ').+$';
 		var exp = new RegExp(tmp, 'img');
 
 		var lines = [];
@@ -245,6 +260,6 @@ function NSGetModule(compMgr, fileSpec)
 function mydump(aString) 
 {
 	if (DEBUG)
-		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
+		dump((aString.length > 1024 ? aString.substring(0, 1024) : aString )+'\n');
 }
  
