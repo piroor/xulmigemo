@@ -1269,9 +1269,10 @@ var XMigemoUI = {
 								null,
 								XMigemoCore.regExpFindArrRecursively(
 									new RegExp(XMigemoCore.getRegExp(XMigemoUI.findTerm)),
-									XMigemoUI.activeBrowser.contentWindow
+									XMigemoUI.activeBrowser.contentWindow,
+									true
 								).map(function(aItem) {
-									return aItem.toString().length;
+									return (aItem || '').length;
 								})
 							) :
 							XMigemoUI.findTerm.length
