@@ -79,14 +79,8 @@ pXMigemoEngine.prototype = {
 		mydump('noCache');
 		var str = XMigemoTextUtils.sanitize(aInput);
 
-
-		mydump('REMOVE : '+XMigemoTextService.removeLatinModifiers(str));
-		mydump('ADD : '+XMigemoTextService.addLatinModifiers(XMigemoTextService.removeLatinModifiers(str)));
-
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
-			str = XMigemoTextService.addLatinModifiers(
-					XMigemoTextService.removeLatinModifiers(str)
-				);
+			str = XMigemoTextService.addLatinModifiers(str);
 
 		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, {});
 
@@ -151,9 +145,7 @@ pXMigemoEngine.prototype = {
 
 		var str = XMigemoTextUtils.sanitize(aInput);
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
-			str = XMigemoTextService.addLatinModifiers(
-					XMigemoTextService.removeLatinModifiers(str)
-				);
+			str = XMigemoTextService.addLatinModifiers(str);
 
 		var tmp = '^(' + str + ').+$';
 		var exp = new RegExp(tmp, 'img');
