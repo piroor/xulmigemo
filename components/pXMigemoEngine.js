@@ -90,11 +90,9 @@ pXMigemoEngine.prototype = {
 
 		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, {});
 
-		var pattern = '';
+		var pattern = str;
 		if (lines.length) {
-			var arr = [];
-			searchterm = arr.concat(lines).join('\n').replace(/(\t|\n\n)+/g, '\n');
-
+			searchterm = lines.join('\n').replace(/(\t|\n\n)+/g, '\n');
 			searchterm = searchterm
 				.split('\n')
 				.sort()
@@ -109,13 +107,10 @@ pXMigemoEngine.prototype = {
 				.replace(/\n/g, '|');
 			pattern += (pattern ? '|' : '') + searchterm;
 
-			pattern = str + (pattern ? '|' : '') + pattern;
-
 			pattern = pattern.replace(/\n/g, '');
 			mydump('pattern:'+pattern);
 		}
 		else { // «‘‚Éˆø‚Á‚©‚©‚ç‚È‚©‚Á‚½–Í—l‚È‚Ì‚Å©‘O‚Ì•¶š—ñ‚¾‚¯
-			pattern = str;
 			mydump('pattern:'+pattern);
 		}
 
