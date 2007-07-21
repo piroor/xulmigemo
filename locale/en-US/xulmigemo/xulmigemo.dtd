@@ -16,8 +16,9 @@
 <!ENTITY xulmigemo.scrollSelectionToCenter "Show the found term in the middle of the screen">
 <!ENTITY xulmigemo.highlight.showScreen    "Strongly emphasise &quot;Highlight all&quot;">
 
-<!ENTITY xulmigemo.caption.recognize       "Character Recognition (Japanese)">
-<!ENTITY xulmigemo.ignoreHiraKata          "Ignore difference of Hiragana and Katakana">
+<!ENTITY xulmigemo.caption.recognize       "Character Recognition">
+<!ENTITY xulmigemo.ignoreHiraKata          "Ignore difference of Hiragana and Katakana (Japanese)">
+<!ENTITY xulmigemo.ignoreLatinModifiers    "Ignore modifiers of latin letters">
 <!ENTITY xulmigemo.splitTermsAutomatically "Recognize text segments automatically">
 
 

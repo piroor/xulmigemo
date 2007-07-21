@@ -31,7 +31,6 @@ var XMigemoCore = {
 		if (aRegExp.multiline) flags.push('m');
 		flags = flags.join('');
 
-dump('regExpFindArr / '+aRegExp.source+'\n');
 		var result = this.XMigemo.regExpFindArr(aRegExp.source, flags, aFindRange, aStartPoint, aEndPoint, {});
 		return result;
 	},
