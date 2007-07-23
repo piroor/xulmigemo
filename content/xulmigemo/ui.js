@@ -39,16 +39,19 @@ var XMigemoUI = {
  
 	get shouldHighlightAll() 
 	{
-		if (!this.highlightCheckedAlways) return true;
+		var term = this.findTerm;
+		if (!this.highlightCheckedAlways)
+			return term.length ? true : false ;
 
+		var minLength = this.highlightCheckedAlwaysMinLength;
 		return (
-				(this.highlightCheckedAlwaysMinLength <= this.findTerm.length) &&
+				(minLength <= term.length) &&
 				(
 					!this.isActive ||
-					this.highlightCheckedAlwaysMinLength <= Math.max.apply(
+					minLength <= Math.max.apply(
 						null,
 						XMigemoCore.regExpFindArrRecursively(
-							new RegExp(XMigemoCore.getRegExp(this.findTerm)),
+							new RegExp(XMigemoCore.getRegExp(term)),
 							this.activeBrowser.contentWindow,
 							true
 						).map(function(aItem) {
@@ -113,7 +116,7 @@ var XMigemoUI = {
 	get findTerm() 
 	{
 		try {
-			return this.findField.value;
+			return this.findField.value.replace(/^\s+|\s+$/g, '');
 		}
 		catch(e) {
 		}
@@ -1132,8 +1135,10 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
  
 	toggleHighlight : function(aHighlight) 
 	{
-		if (XMigemoUI.highlightCheckedAlways)
+		if (aHighlight && XMigemoUI.highlightCheckedAlways) {
 			aHighlight = XMigemoUI.shouldHighlightAll;
+			window.setTimeout('XMigemoUI.findHighlightCheck.checked = '+aHighlight, 0);
+		}
 
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarToggleHighlight', true, true);
