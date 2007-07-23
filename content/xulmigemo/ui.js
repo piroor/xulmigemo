@@ -41,9 +41,11 @@ var XMigemoUI = {
 	{
 		if (!this.highlightCheckedAlways) return true;
 
-		return (this.highlightCheckedAlwaysMinLength <= (
-				this.isActive ?
-					Math.max.apply(
+		return (
+				(this.highlightCheckedAlwaysMinLength <= this.findTerm.length) &&
+				(
+					!this.isActive ||
+					this.highlightCheckedAlwaysMinLength <= Math.max.apply(
 						null,
 						XMigemoCore.regExpFindArrRecursively(
 							new RegExp(XMigemoCore.getRegExp(this.findTerm)),
@@ -52,8 +54,7 @@ var XMigemoUI = {
 						).map(function(aItem) {
 							return (aItem || '').length;
 						})
-					) :
-					this.findTerm.length
+					)
 				)
 			);
 	},
