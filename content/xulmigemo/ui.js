@@ -43,19 +43,6 @@ var XMigemoUI = {
 		if (!this.highlightCheckedAlways)
 			return term.length ? true : false ;
 
-dump('REGEXP : '+encodeURIComponent(XMigemoCore.getRegExp(term))+'\n');
-dump('MAX LENGTH : '+Math.max.apply(
-						null,
-						XMigemoCore.regExpFindArrRecursively(
-							new RegExp(XMigemoCore.getRegExp(term), 'im'),
-							this.activeBrowser.contentWindow,
-							true
-						).map(function(aItem) {
-							dump('FIND '+aItem+'\n');
-							return (aItem || '').length;
-						})
-					)+'\n');
-
 		var minLength = this.highlightCheckedAlwaysMinLength;
 		return (
 				(minLength <= term.length) &&
