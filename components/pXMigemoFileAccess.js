@@ -45,16 +45,25 @@ pXMigemoFileAccess.prototype = {
 			return null;
 		}
 
-		UConv.charset = aEncoding || 'UTF-8';
-		var converted = UConv.ConvertToUnicode(fileContents);
+		try {
+			UConv.charset = aEncoding || 'UTF-8';
+			fileContents = UConv.ConvertToUnicode(fileContents);
+		}
+		catch(e) {
+			return null;
+		}
 
-		return converted;
+		return fileContents;
 	},
 
 	writeTo : function(aFile, aContent, aEncoding)
 	{
-		UConv.charset = aEncoding || 'UTF-8';
-		var converted = UConv.ConvertFromUnicode(aContent);
+		try {
+			UConv.charset = aEncoding || 'UTF-8';
+			aContent = UConv.ConvertFromUnicode(aContent);
+		}
+		catch(e) {
+		}
 
 		if (aFile.exists()) aFile.remove(true); // 上書き確認は無し。必要があれば処理を追加。
 		aFile.create(aFile.NORMAL_FILE_TYPE, 0666); // アクセス権を8進数で指定。 Win9x などでは無視される。
@@ -63,9 +72,7 @@ pXMigemoFileAccess.prototype = {
 						.classes['@mozilla.org/network/file-output-stream;1']
 						.createInstance(Components.interfaces.nsIFileOutputStream);
 		stream.init(aFile, 2, 0x200, false); // open as "write only"
-
-		stream.write(converted, converted.length);
-
+		stream.write(aContent, aContent.length);
 		stream.close();
 
 		return aFile;
