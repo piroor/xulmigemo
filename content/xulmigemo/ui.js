@@ -63,7 +63,7 @@ var XMigemoUI = {
 				)
 			);
 	},
- 	
+ 
 	nsITypeAheadFind : Components.interfaces.nsITypeAheadFind, 
  
 	get browser() 
@@ -194,6 +194,17 @@ var XMigemoUI = {
 		return this._timeoutIndicatorBox;
 	},
 	_timeoutIndicatorBox : null,
+ 
+	get textUtils() 
+	{
+		if (!this._textUtils) {
+			this._textUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
+		}
+		return this._textUtils;
+	},
+	_textUtils : null,
  
 /* nsIPrefListener(?) */ 
 	
@@ -408,7 +419,7 @@ var XMigemoUI = {
 			if (this.cancelTimer)
 				this.startTimer();
 
-			dump("PrevKeyword:"+XMigemoFind.previousKeyword+"\nCurrentKeyword:"+XMigemoFind.lastKeyword+'\n')
+//			dump("PrevKeyword:"+XMigemoFind.previousKeyword+"\nCurrentKeyword:"+XMigemoFind.lastKeyword+'\n')
 			return true;
 		}
 
@@ -498,7 +509,7 @@ var XMigemoUI = {
 		}
 
 		if (this.isActive) {
-			dump("migemo is active"+'\n');
+//			dump("migemo is active"+'\n');
 			if (
 				aEvent.charCode != 0 &&
 				!aEvent.ctrlKey &&
@@ -514,7 +525,7 @@ var XMigemoUI = {
 			}
 		}
 		else if (this.isAutoStart) {
-			dump("isAutoStart:"+this.isAutoStart+'\n');
+//			dump("isAutoStart:"+this.isAutoStart+'\n');
 			if (aEvent.charCode == 32) { // Space
 				return true;
 			}
@@ -565,8 +576,6 @@ var XMigemoUI = {
  
 	onXMigemoFindProgress : function(aEvent) 
 	{
-dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
-
 		gFindBar.enableFindButtons(!(
 			aEvent.resultFlag == XMigemoFind.NOTFOUND ||
 			aEvent.resultFlag == XMigemoFind.NOTLINK
@@ -652,7 +661,7 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
 	 
 	startTimer : function() 
 	{
-		dump("xmigemoStartTimer"+'\n');
+//		dump("xmigemoStartTimer"+'\n');
 		this.clearTimer();
 		this.cancelTimer = window.setTimeout(this.timerCallback, this.timeout, this);
 		this.updateTimeoutIndicator(this.timeout);
@@ -660,7 +669,7 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
 	 
 	timerCallback : function(aThis) 
 	{
-		dump("xmigemoTimeout"+'\n');
+//		dump("xmigemoTimeout"+'\n');
 		XMigemoFind.shiftLastKeyword();
 		aThis.cancel();
 	},
@@ -673,7 +682,7 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
  
 	clearTimer : function() 
 	{
-		dump("xmigemoClearTimer"+'\n');
+//		dump("xmigemoClearTimer"+'\n');
 		if (this.cancelTimer) {
 			window.clearTimeout(this.cancelTimer);
 			this.cancelTimer = null;
@@ -736,7 +745,7 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
   
 	start : function(aSilently) 
 	{
-		dump('xmigemoStart'+'\n');
+//		dump('xmigemoStart\n');
 		this.isActive = true;
 		this.lastFindMode = this.FIND_MODE_MIGEMO;
 
@@ -762,7 +771,7 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
  
 	cancel : function(aSilently) 
 	{
-		dump("xmigemoCancel"+'\n');
+//		dump("xmigemoCancel"+'\n');
 		this.isActive = false;
 
 		if (!aSilently) XMigemoFind.clear();
@@ -960,12 +969,12 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
 				'{',
 				<![CDATA[
 				{
-					var foundRange = XMigemoUI.shouldRebuildSelection ? XMigemoUI.getFoundRange(arguments[0].startContainer.ownerDocument.defaultView) : null ;
-					var selectAfter = XMigemoUI.shouldRebuildSelection ? XMigemoUI.isRangeOverlap(foundRange, arguments[0]) : false ;
+					var foundRange = XMigemoUI.shouldRebuildSelection ? XMigemoUI.textUtils.getFoundRange(arguments[0].startContainer.ownerDocument.defaultView) : null ;
+					var selectAfter = XMigemoUI.shouldRebuildSelection ? XMigemoUI.textUtils.isRangeOverlap(foundRange, arguments[0]) : false ;
 				]]>
 			).replace(
 				'return',
-				'if (selectAfter) { XMigemoUI.selectNode(arguments[1], arguments[0].startContainer.ownerDocument); } return'
+				'if (selectAfter) { XMigemoUI.textUtils.delayedSelect(arguments[1], foundRange.toString().length, true); } return'
 			)
 		);
 
@@ -1171,9 +1180,8 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
  
 	clearHighlight : function(aDocument) 
 	{
-		var foundRange = this.shouldRebuildSelection ? this.getFoundRange(aDocument.defaultView) : null ;
-		var selectOffset = foundRange ? foundRange.toString().length : 0 ;
-
+		var foundRange = this.shouldRebuildSelection ? this.textUtils.getFoundRange(aDocument.defaultView) : null ;
+		var foundLength = foundRange ? foundRange.toString().length : 0 ;
 		var xpathResult = aDocument.evaluate(
 				'descendant::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
 				aDocument,
@@ -1195,13 +1203,13 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
 			{
 				docfrag.appendChild(child);
 			}
-			var selectAfter = this.shouldRebuildSelection ? this.isRangeOverlap(foundRange, range) : false ;
+			var selectAfter = this.shouldRebuildSelection ? this.textUtils.isRangeOverlap(foundRange, range) : false ;
 			var firstChild  = docfrag.firstChild;
 
 			parent.removeChild(elem);
 			parent.insertBefore(docfrag, next);
 			if (selectAfter) {
-				this.selectNode(firstChild, aDocument, selectOffset);
+				this.textUtils.delayedSelect(firstChild, foundLength, true);
 			}
 
 			parent.normalize();
@@ -1245,7 +1253,7 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
  
 	findNext : function() 
 	{
-		dump('XMigemoUI.findNext'+'\n');
+//		dump('XMigemoUI.findNext\n');
 		var keyword = XMigemoUI.findTerm;
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == this.FIND_MODE_MIGEMO) {
 			if (XMigemoUI.isModeChanged && keyword) {
@@ -1269,7 +1277,7 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
  
 	findPrevious : function() 
 	{
-		dump('XMigemoUI.findPrevious'+'\n');
+//		dump('XMigemoUI.findPrevious\n');
 		var keyword = XMigemoUI.findTerm;
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == this.FIND_MODE_MIGEMO) {
 			if (XMigemoUI.isModeChanged && keyword) {
@@ -1343,189 +1351,7 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
 			caseSensitive.checked  = caseSensitive.xmigemoOriginalChecked;
 		}
 	},
-  
-/* Restore selection after "highlight all" */ 
-	 
-	getFoundRange : function(aFrame) 
-	{
-		var docShell = aFrame
-			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-			.getInterface(Components.interfaces.nsIWebNavigation)
-			.QueryInterface(Components.interfaces.nsIDocShell);
-		var selCon = docShell
-			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-			.getInterface(Components.interfaces.nsISelectionDisplay)
-			.QueryInterface(Components.interfaces.nsISelectionController);
-		if (selCon.getDisplaySelection() == selCon.SELECTION_ATTENTION) {
-			var sel   = aFrame.getSelection();
-			var range = sel.getRangeAt(0);
-			return range;
-		}
-		return null;
-	},
- 
-	isRangeOverlap : function(aBaseRange, aTargetRange) 
-	{
-		if (!aBaseRange || !aTargetRange) return false;
-
-		return (
-			aBaseRange.compareBoundaryPoints(Range.START_TO_START, aTargetRange) >= 0 &&
-			aBaseRange.compareBoundaryPoints(Range.END_TO_END, aTargetRange) <= 0
-		);
-	},
- 
-	selectNode : function(aNode, aDocument, aOffset) 
-	{
-		var doc = aDocument || aNode.ownerDocument;
-		var selectRange = doc.createRange();
-
-		/*
-			現在の選択範囲の始点が、normalize()後のテキストノードの中で
-			何文字目になるかを求める
-		*/
-		var startNodeInfo = this.countPreviousText(aNode.previousSibling);
-		var startOffset = startNodeInfo.count;
-
-		/*
-			normalize()後のテキストノードが、親ノードの何番目の子ノードに
-			なるかを求める（強調表示が無い状態を想定）
-		*/
-		var childCount = 0;
-		this.countPreviousText(aNode);
-		while (startNodeInfo.lastNode.previousSibling)
-		{
-			startNodeInfo = this.countPreviousText(startNodeInfo.lastNode.previousSibling);
-			childCount++;
-		}
-
-		var sel = doc.defaultView.getSelection();
-		if (startOffset || childCount || this.countNextText(aNode).lastNode != aNode) {
-			// normalize()によって選択範囲の始点・終点が変わる場合
-			var startParent = aNode.parentNode;
-			window.setTimeout(function() {
-				// ノードの再構築が終わった後で選択範囲を復元する
-
-				// 選択範囲の始点を含むテキストノードまで移動
-				var startNode = startParent.firstChild;
-				while (childCount--)
-				{
-					startNodeInfo = XMigemoUI.countNextText(startNode);
-					startNode = startNodeInfo.lastNode.nextSibling;
-				}
-
-				var node;
-				if (startOffset) {
-					// 始点の位置まで移動して、始点を設定
-					while (startNode.textContent.length <= startOffset)
-					{
-						startOffset -= startNode.textContent.length;
-						node = XMigemoUI.getNextTextNode(startNode);
-						if (!node) break;
-						startNode = node;
-					}
-					selectRange.setStart(startNode, startOffset);
-				}
-				else {
-					selectRange.setStartBefore(startParent.firstChild);
-				}
-
-				var endNode = startNode;
-				while (endNode.textContent.length <= aOffset)
-				{
-					aOffset -= endNode.textContent.length;
-					node = XMigemoUI.getNextTextNode(endNode);
-					if (!node) break;
-					endNode = node;
-				}
-				selectRange.setEnd(endNode, aOffset);
-
-				sel.removeAllRanges();
-				sel.addRange(selectRange);
-				XMigemoFind.setSelectionLook(doc, true);
-			}, 1);
-		}
-		else {
-			if (aNode.nodeType == Node.ELEMENT_NODE) {
-				selectRange.selectNodeContents(aNode);
-			}
-			else if (aOffset) {
-				selectRange.setStart(aNode, 0);
-				var endNode = aNode;
-				while (endNode.textContent.length < aOffset)
-				{
-					aOffset -= endNode.textContent.length;
-					node = this.getNextTextNode(endNode);
-					if (!node) break;
-					endNode = node;
-				}
-				selectRange.setEnd(endNode, aOffset);
-			}
-			else {
-				selectRange.selectNode(aNode);
-			}
-			sel.removeAllRanges();
-			sel.addRange(selectRange);
-			XMigemoFind.setSelectionLook(doc, true);
-		}
-	},
-	/*
-		強調表示の有る無しを無視して、終端にあるテキストノードと、
-		そこまでの（normalize()によって結合されるであろう）テキストノードの
-		長さの和を得る。
-		強調表示用の要素は常にテキストノードの直上にしか現れ得ないので、
-		「強調表示用の要素がある＝強調表示が解除されたらそこはテキストノードになる」
-		と判断することができる。
-	*/
-	countPreviousText : function(aNode)
-	{
-		var count = 0;
-		var node = aNode;
-		while (this.isTextNodeOrHighlight(node))
-		{
-			aNode = node;
-			count += aNode.textContent.length;
-			var node = aNode.previousSibling;
-			if (!node) break;
-		}
-		return { lastNode : aNode, count : count };
-	},
-	countNextText : function(aNode)
-	{
-		var count = 0;
-		var node = aNode;
-		while (this.isTextNodeOrHighlight(node))
-		{
-			aNode = node;
-			count += aNode.textContent.length;
-			var node = aNode.nextSibling;
-			if (!node) break;
-		}
-		return { lastNode : aNode, count : count };
-	},
-	isTextNodeOrHighlight : function(aNode)
-	{
-		return aNode && (
-				aNode.nodeType == Node.TEXT_NODE ||
-				(
-					aNode.nodeType == Node.ELEMENT_NODE &&
-					(
-						aNode.getAttribute('id') == '__firefox-findbar-search-id' ||
-						aNode.getAttribute('class') == '__firefox-findbar-search'
-					)
-				)
-			);
-	},
-	getNextTextNode : function(aNode)
-	{
-		if (!aNode) return null;
-		aNode = aNode.nextSibling || aNode.parentNode.nextSibling;
-		if (aNode.nodeType != Node.TEXT_NODE)
-			aNode = aNode.firstChild;
-		return !aNode ? null :
-				aNode.nodeType == Node.TEXT_NODE ? aNode :
-				this.getNextTextNode(aNode);
-	},
-  
+  	
 	init : function() 
 	{
 		this.lastFindMode = this.FIND_MODE_NATIVE;
@@ -1591,7 +1417,7 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 	},
-	 
+	
 	delayedInit : function() { 
 		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
 
@@ -1632,10 +1458,10 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
 window.addEventListener('load', XMigemoUI, false); 
  
 //obsolete 
-function xmFind(){dump("xmFind"+'\n');
+function xmFind(){//dump("xmFind"+'\n');
 XMigemoFind.find(false, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword, false);
 }
-function xmFindPrev(){dump("xmFindPrev"+'\n');
+function xmFindPrev(){//dump("xmFindPrev"+'\n');
 XMigemoFind.find(true, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword, false);
 }
  

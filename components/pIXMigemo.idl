@@ -26,6 +26,10 @@ interface pIXMigemoTextUtils : nsISupports
 	AString sanitize(in AString regexpPattern);
 	AString sanitize2(in AString regexpPattern);
 	AString reverseRegExp(in AString regexpPattern);
+
+	nsIDOMRange getFoundRange(in nsIDOMWindow frame);
+	boolean isRangeOverlap(in nsIDOMRange baseRange, in nsIDOMRange targetRange);
+	void delayedSelect(in nsIDOMNode anchorNode, in unsigned long length, in boolean isHighlight);
 };
 
 [scriptable, uuid(159add54-cdf2-11db-8314-0800200c9a66)]

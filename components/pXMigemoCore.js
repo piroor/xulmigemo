@@ -286,6 +286,7 @@ pXMigemoCore.prototype = {
 				.getService(Components.interfaces.pIXMigemoTextUtils);
 
 		var doc = aFindRange.startContainer.ownerDocument;
+		var selRange = (Prefs.getBoolPref('xulmigemo.rebuild_selection')) ? XMigemoTextUtils.getFoundRange(doc.defaultView) : null ;
 		var arrTerms;
 		var arrResults = [];
 		var rightContext;
@@ -304,13 +305,18 @@ pXMigemoCore.prototype = {
 			return arrResults;
 		}
 
+dump('selRange : '+selRange+'\n');
 		this.mFind.findBackwards = false;
 		var foundRange;
+		var foundLength;
 		for (var i = 0, maxi = arrTerms.length; i < maxi; i++)
 		{
 			foundRange = this.mFind.Find(arrTerms[i], aFindRange, aStartPoint, aEndPoint);
 			if (!foundRange) continue;
+			foundLength = foundRange.toString().length;
 			if (aSurroundNode) {
+				var selectAfter = selRange ? XMigemoTextUtils.isRangeOverlap(foundRange, selRange) : false ;
+
 				var nodeSurround   = aSurroundNode.cloneNode(true);
 				var startContainer = foundRange.startContainer;
 				var startOffset    = foundRange.startOffset;
@@ -318,8 +324,14 @@ pXMigemoCore.prototype = {
 				var docfrag        = foundRange.extractContents();
 				var before         = startContainer.splitText(startOffset);
 				var parent         = before.parentNode;
+				var firstChild     = docfrag.firstChild;
 				nodeSurround.appendChild(docfrag);
 				parent.insertBefore(nodeSurround, before);
+
+				dump('selectAfter : '+selectAfter+'\n');
+				if (selectAfter) {
+					XMigemoTextUtils.delayedSelect(firstChild, foundLength, true);
+				}
 
 				foundRange = doc.createRange();
 				foundRange.selectNodeContents(nodeSurround);
@@ -349,7 +361,7 @@ pXMigemoCore.prototype = {
 		aCount.value = arrResults.length;
 		return arrResults;
 	},
-  
+ 	 
 	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode, aCount) 
 	{
 		if (!aSurrountNode) {
@@ -358,7 +370,7 @@ pXMigemoCore.prototype = {
 		}
 		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, aCount);
 	},
- 	
+ 
 	getDocShellForFrame : function(aFrame) 
 	{
 		return aFrame
@@ -368,7 +380,7 @@ pXMigemoCore.prototype = {
 	},
   
 /* Update Cache */ 
-	
+	 
 	updateCacheFor : function(aInputPatterns) 
 	{
 		var patterns = aInputPatterns.split('\n');
@@ -424,6 +436,9 @@ pXMigemoCore.prototype = {
 
 			case 'quit-application':
 				this.destroy();
+				return;
+
+			case 'timer-callback':
 				return;
 		}
 	},
