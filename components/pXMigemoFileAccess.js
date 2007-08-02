@@ -42,6 +42,7 @@ pXMigemoFileAccess.prototype = {
 			stream.close();
 		}
 		catch(e) {
+			dump(e+'\n');
 			return null;
 		}
 
@@ -50,7 +51,12 @@ pXMigemoFileAccess.prototype = {
 			fileContents = UConv.ConvertToUnicode(fileContents);
 		}
 		catch(e) {
-			return null;
+			try {
+				UConv.charset = 'Shift_JIS';
+				fileContents = UConv.ConvertToUnicode(fileContents);
+			}
+			catch(e){
+			}
 		}
 
 		return fileContents;
@@ -63,6 +69,7 @@ pXMigemoFileAccess.prototype = {
 			aContent = UConv.ConvertFromUnicode(aContent);
 		}
 		catch(e) {
+			dump(e+'\n');
 		}
 
 		if (aFile.exists()) aFile.remove(true); // 上書き確認は無し。必要があれば処理を追加。

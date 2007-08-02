@@ -84,27 +84,25 @@ pXMigemoEngine.prototype = {
 
 		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, {});
 
-		var pattern = str;
+		var pattern = '';
 		if (lines.length) {
 			searchterm = lines.join('\n').replace(/(\t|\n\n)+/g, '\n');
 			searchterm = searchterm
 				.split('\n')
 				.sort()
 				.join('\n')
-				.replace(/^(.+)$(\n\1$)+/img, '$1')
-//				.replace(/^.$\n?/mg, '')
-				.split('\n') //
-				.reverse()   // Å’·ˆê’v‚É‚·‚é‚½‚ß‚É‹t‡‚É•À‚×‘Ö‚¦
-				.join('\n'); //
+				.replace(/^(.+)$(\n\1$)+/img, '$1');
 
 			searchterm = XMigemoTextUtils.sanitize(searchterm)
 				.replace(/\n/g, '|');
 			pattern += (pattern ? '|' : '') + searchterm;
+			pattern += (pattern ? '|' : '') + str;
 
 			pattern = pattern.replace(/\n/g, '');
 			mydump('pattern:'+pattern);
 		}
 		else { // «‘‚Éˆø‚Á‚©‚©‚ç‚È‚©‚Á‚½–Í—l‚È‚Ì‚Å©‘O‚Ì•¶š—ñ‚¾‚¯
+			pattern = str;
 			mydump('pattern:'+pattern);
 		}
 
