@@ -75,15 +75,16 @@ pXMigemoFind.prototype = {
 
 	startFromViewport : false,
  
-	FOUND             : 1, 
-	NOTFOUND          : 2,
+	FOUND             : 0, 
+	NOTFOUND          : 1,
+	WRAPPED           : 2,
 	NOTLINK           : 4,
 	FOUND_IN_EDITABLE : 8,
  
 	FIND_DEFAULT    : 1, 
 	FIND_BACK       : 2,
 	FIND_FORWARD    : 4,
-	FIND_FROM_START : 8,
+	FIND_WRAP       : 8,
 
 	FIND_IN_EDITABLE : 128,
  
@@ -276,6 +277,8 @@ pXMigemoFind.prototype = {
 					case this.FOUND:
 					case this.FOUND_IN_EDITABLE:
 						noRepeatL = true;
+						if (aFindFlag & this.FIND_WRAP)
+							found = this.WRAPPED;
 						break getFindRange;
 
 					case this.NOTFOUND:
@@ -288,15 +291,7 @@ pXMigemoFind.prototype = {
 						continue getFindRange;
 
 					default:
-						if (found == (
-								(
-									Components.interfaces.nsITypeAheadFind &&
-									'FIND_WRAPPED' in Components.interfaces.nsITypeAheadFind
-								) ? Components.interfaces.nsITypeAheadFind.FIND_WRAPPED : FIND_WRAPPED
-							)) { // Components.interfaces.nsITypeAheadFind.FIND_WRAPPED is for Firefox 1.5 or later
-							target = rightContext;
-							findRange = this.resetFindRange(findRange, this.foundRange, aFindFlag, doc);
-						}
+						break;
 				}
 
 			}
@@ -336,7 +331,7 @@ pXMigemoFind.prototype = {
 							.QueryInterface(Components.interfaces.nsIWebNavigation)
 							.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 							.getInterface(Components.interfaces.nsIDOMWindow);
-						aFindFlag += this.FIND_FROM_START;
+						aFindFlag += this.FIND_WRAP;
 						continue;
 					}
 					break;
@@ -349,7 +344,7 @@ pXMigemoFind.prototype = {
 						repeat = true;
 						doc = Components.lookupMethod(doc.defaultView.top, 'document').call(doc.defaultView.top);
 						this.document.commandDispatcher.focusedWindow = doc.defaultView.top;
-						aFindFlag += this.FIND_FROM_START;
+						aFindFlag += this.FIND_WRAP;
 						continue;
 					}
 					break;
@@ -630,7 +625,7 @@ pXMigemoFind.prototype = {
 		var node;
 		var offset;
 		if (aFindFlag & this.FIND_DEFAULT || count == 0) {
-			if (aFindFlag & this.FIND_FROM_START ||
+			if (aFindFlag & this.FIND_WRAP ||
 				!this.startFromViewport) {
 				findRange.selectNodeContents(bodyNode);
 				if (aFindFlag & this.FIND_BACK){
@@ -765,7 +760,7 @@ pXMigemoFind.prototype = {
 
 		if (aFindFlag & this.FIND_DEFAULT || count == 0) {
 			if (
-				aFindFlag & this.FIND_FROM_START ||
+				aFindFlag & this.FIND_WRAP ||
 				String(aRangeParent.localName).toLowerCase() != 'body' ||
 				!this.startFromViewport
 				) {
