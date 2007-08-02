@@ -591,8 +591,7 @@ var XMigemoUI = {
 					aEvent.resultFlag != XMigemoFind.NOTLINK ||
 					!XMigemoFind.manualLinksOnly
 					) {
-					if (this.nsITypeAheadFind)
-						statusRes = this.nsITypeAheadFind.FIND_FOUND;
+					statusRes = this.nsITypeAheadFind.FIND_FOUND;
 					//alert(gFoundRange.toString());
 
 					if (this.findHighlightCheck.checked)
@@ -600,17 +599,13 @@ var XMigemoUI = {
 					break;
 				}
 
+			default:
 			case XMigemoFind.NOTFOUND:
-				if (this.nsITypeAheadFind)
-					statusRes = this.nsITypeAheadFind.FIND_NOTFOUND;
+				statusRes = this.nsITypeAheadFind.FIND_NOTFOUND;
 				break;
 
-			default:
-				if (
-					this.nsITypeAheadFind &&
-					aEvent.resultFlag == (('FIND_WRAPPED' in this.nsITypeAheadFind) ? this.nsITypeAheadFind.FIND_WRAPPED : FIND_WRAPPED)
-					) // Components.interfaces.nsITypeAheadFind.FIND_WRAPPED is for Firefox 1.5 or later
-					statusRes = this.nsITypeAheadFind.FIND_NOTFOUND;
+			case XMigemoFind.WRAPPED:
+				statusRes = this.nsITypeAheadFind.FIND_WRAPPED;
 				break;
 		}
 
@@ -989,6 +984,8 @@ var XMigemoUI = {
 				]]>
 			)
 		);
+		if ('setHighlightTimeout' != highlightTimoutFunc)
+			gFindBar.setHighlightTimeout = gFindBar[highlightTimoutFunc];
 
 		// Firefox 3.0-    : onFindAgainCommand / searcgString
 		// Firefox 1.x-2.0 : onFindAgainCmd / onFindPreviousCmd / findString

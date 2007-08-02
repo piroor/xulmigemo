@@ -356,6 +356,7 @@ pXMigemoTextUtils.prototype = {
 	{
 		if (!aNode) return null;
 		aNode = aNode.nextSibling || aNode.parentNode.nextSibling;
+		if (!aNode) return null;
 		if (aNode.nodeType != aNode.TEXT_NODE)
 			aNode = aNode.firstChild;
 		return !aNode ? null :
