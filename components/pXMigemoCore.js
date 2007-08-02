@@ -305,7 +305,6 @@ pXMigemoCore.prototype = {
 			return arrResults;
 		}
 
-dump('selRange : '+selRange+'\n');
 		this.mFind.findBackwards = false;
 		var foundRange;
 		var foundLength;
@@ -328,7 +327,6 @@ dump('selRange : '+selRange+'\n');
 				nodeSurround.appendChild(docfrag);
 				parent.insertBefore(nodeSurround, before);
 
-				dump('selectAfter : '+selectAfter+'\n');
 				if (selectAfter) {
 					XMigemoTextUtils.delayedSelect(firstChild, foundLength, true);
 				}
