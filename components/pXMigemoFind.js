@@ -473,7 +473,6 @@ pXMigemoFind.prototype = {
 				.getInterface(Components.interfaces.nsIWebNavigation)
 				.QueryInterface(Components.interfaces.nsIDocShell);
 	},
-
  
 	getNextDocShell : function(aNode) 
 	{
@@ -899,8 +898,6 @@ pXMigemoFind.prototype = {
 	 
 	setSelectionLook : function(aDocument, aChangeColor) 
 	{
-//		mydump("xmSetSelectionLook");
-
 		var selCon;
 		if (aDocument.foundEditable) {
 			var editor = aDocument.foundEditable.QueryInterface(Components.interfaces.nsIDOMNSEditableElement).editor;

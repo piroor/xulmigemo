@@ -349,7 +349,7 @@ var XMigemoHighlight = {
 		if (!aFrame)
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
 
-		var range = XMigemoUI.getFoundRange(aFrame);
+		var range = XMigemoUI.textUtils.getFoundRange(aFrame);
 		if (range) {
 			var node  = range.startContainer;
 			try {

@@ -20,7 +20,7 @@ pXMigemoTextUtils.prototype = {
 	},
 	 
 /* convert HTML to text */ 
-	 
+	
 	range2Text : function(aRange) 
 	{
 		var doc=aRange.startContainer.ownerDocument;
@@ -107,7 +107,7 @@ pXMigemoTextUtils.prototype = {
 */
   
 /* manipulate regular expressions */ 
-	 
+	
 	sanitize : function(str) 
 	{
 		//	[]^.+*?$|{}\(),  正規表現のメタキャラクタをエスケープ
@@ -136,6 +136,277 @@ pXMigemoTextUtils.prototype = {
 		return tmp;
 	},
   
+/* Restore selection after "highlight all" */ 
+	 
+	getFoundRange : function(aFrame) 
+	{
+		var docShell = aFrame
+			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsIWebNavigation)
+			.QueryInterface(Components.interfaces.nsIDocShell);
+		var selCon = docShell
+			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsISelectionDisplay)
+			.QueryInterface(Components.interfaces.nsISelectionController);
+		if (selCon.getDisplaySelection() == selCon.SELECTION_ATTENTION) {
+			var sel   = aFrame.getSelection();
+			var range = sel.getRangeAt(0);
+			return range;
+		}
+		return null;
+	},
+ 
+	isRangeOverlap : function(aBaseRange, aTargetRange) 
+	{
+		if (!aBaseRange || !aTargetRange) return false;
+
+		return (
+			aBaseRange.compareBoundaryPoints(aBaseRange.START_TO_START, aTargetRange) >= 0 &&
+			aBaseRange.compareBoundaryPoints(aBaseRange.END_TO_END, aTargetRange) <= 0
+		) || (
+			aTargetRange.compareBoundaryPoints(aBaseRange.START_TO_START, aBaseRange) >= 0 &&
+			aTargetRange.compareBoundaryPoints(aBaseRange.END_TO_END, aBaseRange) <= 0
+		);
+	},
+ 
+	delayedSelect : function(aNode, aSelectLength, aIsHighlight) 
+	{
+		/*
+			現在の選択範囲の始点が、normalize()後のテキストノードの中で
+			何文字目になるかを求める
+		*/
+		var startNodeInfo = this.countPreviousText(aNode.previousSibling);
+		var startOffset = startNodeInfo.count;
+
+		/*
+			normalize()後のテキストノードが、親ノードの何番目の子ノードに
+			なるかを求める（強調表示が無い状態を想定）
+		*/
+		var childCount = 0;
+		this.countPreviousText(aNode);
+		while (startNodeInfo.lastNode && startNodeInfo.lastNode.previousSibling)
+		{
+			startNodeInfo = this.countPreviousText(startNodeInfo.lastNode.previousSibling);
+			childCount++;
+		}
+
+		if (startOffset || childCount || this.countNextText(aNode).lastNode != aNode) {
+			// normalize()によって選択範囲の始点・終点が変わる場合
+			if (this.delayedSelectTimer) {
+				this.delayedSelectTimer.cancel();
+				this.delayedSelectTimer = null;
+			}
+			this.delayedSelectTimer = Components
+				.classes['@mozilla.org/timer;1']
+				.getService(Components.interfaces.nsITimer);
+	        this.delayedSelectTimer.init(
+				this.createDelayedSelectObserver(aNode.parentNode, startOffset, childCount, aSelectLength, aIsHighlight),
+				1,
+				Components.interfaces.nsITimer.TYPE_ONE_SHOT
+			);
+		}
+		else {
+			var doc = aNode.ownerDocument;
+			var selectRange = doc.createRange();
+			if (aNode.nodeType == aNode.ELEMENT_NODE) {
+				selectRange.selectNodeContents(aNode);
+			}
+			else if (aSelectLength) {
+				selectRange.setStart(aNode, 0);
+				var endNode = aNode;
+				var offset = aSelectLength;
+				while (endNode.textContent.length < offset)
+				{
+					offset -= endNode.textContent.length;
+					node = this.getNextTextNode(endNode);
+					if (!node) break;
+					endNode = node;
+				}
+				selectRange.setEnd(endNode, offset);
+			}
+			else {
+				selectRange.selectNode(aNode);
+			}
+			var sel = doc.defaultView.getSelection();
+			sel.removeAllRanges();
+			sel.addRange(selectRange);
+			this.setSelectionLook(doc, aIsHighlight);
+		}
+	},
+	 
+	delayedSelectTimer : null, 
+ 
+	// ノードの再構築が終わった後で選択範囲を復元する
+	createDelayedSelectObserver : function(aStartParent, aStartOffset, aChildCount, aSelectLength, aIsHighlight) 
+	{
+		return ({
+			owner       : this,
+			parent      : aStartParent,
+			startOffset : aStartOffset,
+			childCount  : aChildCount,
+			length      : aSelectLength,
+			highlight   : aIsHighlight,
+			observe     : function(aSubject, aTopic, aData)
+			{
+				if (aTopic != 'timer-callback') return;
+
+				var doc = this.parent.ownerDocument;
+
+				// 選択範囲の始点を含むテキストノードまで移動
+				var startNode = this.parent.firstChild;
+				var startNodeInfo;
+				while (this.childCount--)
+				{
+					startNodeInfo = this.owner.countNextText(startNode);
+					startNode = startNodeInfo.lastNode.nextSibling;
+				}
+
+				var node;
+				var startOffset = this.startOffset;
+				var selectRange = doc.createRange();
+				if (startOffset) {
+					// 始点の位置まで移動して、始点を設定
+					while (startNode.textContent.length <= startOffset)
+					{
+						startOffset -= startNode.textContent.length;
+						node = this.owner.getNextTextNode(startNode);
+						if (!node) break;
+						startNode = node;
+					}
+					selectRange.setStart(startNode, startOffset);
+				}
+				else {
+					selectRange.setStartBefore(this.parent.firstChild);
+				}
+
+				var endNode = startNode;
+				var offset = this.length;
+				while (endNode.textContent.length <= offset)
+				{
+					offset -= endNode.textContent.length;
+					node = this.owner.getNextTextNode(endNode);
+					if (!node) break;
+					endNode = node;
+				}
+				if (endNode == startNode) offset += startOffset;
+				selectRange.setEnd(endNode, offset);
+
+				var sel = doc.defaultView.getSelection();
+				sel.removeAllRanges();
+				sel.addRange(selectRange);
+				this.owner.setSelectionLook(doc, this.highlight);
+
+				this.owner.delayedSelectTimer.cancel();
+				this.owner.delayedSelectTimer = null;
+			}
+		});
+	},
+ 
+	/* 
+		強調表示の有る無しを無視して、終端にあるテキストノードと、
+		そこまでの（normalize()によって結合されるであろう）テキストノードの
+		長さの和を得る。
+		強調表示用の要素は常にテキストノードの直上にしか現れ得ないので、
+		「強調表示用の要素がある＝強調表示が解除されたらそこはテキストノードになる」
+		と判断することができる。
+	*/
+	countPreviousText : function(aNode)
+	{
+		var count = 0;
+		var node = aNode;
+		while (this.isTextNodeOrHighlight(node))
+		{
+			aNode = node;
+			count += aNode.textContent.length;
+			var node = aNode.previousSibling;
+			if (!node) break;
+		}
+		return { lastNode : aNode, count : count };
+	},
+ 
+	countNextText : function(aNode) 
+	{
+		var count = 0;
+		var node = aNode;
+		while (this.isTextNodeOrHighlight(node))
+		{
+			aNode = node;
+			count += aNode.textContent.length;
+			var node = aNode.nextSibling;
+			if (!node) break;
+		}
+		return { lastNode : aNode, count : count };
+	},
+ 
+	isTextNodeOrHighlight : function(aNode) 
+	{
+		return aNode && (
+				aNode.nodeType == aNode.TEXT_NODE ||
+				(
+					aNode.nodeType == aNode.ELEMENT_NODE &&
+					(
+						aNode.getAttribute('id') == '__firefox-findbar-search-id' ||
+						aNode.getAttribute('class') == '__firefox-findbar-search'
+					)
+				)
+			);
+	},
+ 
+	getNextTextNode : function(aNode) 
+	{
+		if (!aNode) return null;
+		aNode = aNode.nextSibling || aNode.parentNode.nextSibling;
+		if (aNode.nodeType != aNode.TEXT_NODE)
+			aNode = aNode.firstChild;
+		return !aNode ? null :
+				aNode.nodeType == aNode.TEXT_NODE ? aNode :
+				this.getNextTextNode(aNode);
+	},
+ 
+	setSelectionLook : function(aDocument, aChangeColor) 
+	{
+		var selCon;
+		if (aDocument.foundEditable) {
+			var editor = aDocument.foundEditable.QueryInterface(Components.interfaces.nsIDOMNSEditableElement).editor;
+			selCon = editor.selectionController;
+
+			if (aChangeColor) {
+				selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
+			}else{
+				selCon.setDisplaySelection(selCon.SELECTION_ON);
+			}
+			try {
+				selCon.repaintSelection(selCon.SELECTION_NORMAL);
+			}
+			catch(e) {
+			}
+		}
+
+		var docShell = this.getDocShellForFrame(aDocument.defaultView);
+		selCon = docShell
+			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsISelectionDisplay)
+			.QueryInterface(Components.interfaces.nsISelectionController);
+
+		if (aChangeColor) {
+			selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
+		}else{
+			selCon.setDisplaySelection(selCon.SELECTION_ON);
+		}
+		try {
+			selCon.repaintSelection(selCon.SELECTION_NORMAL);
+		}
+		catch(e) {
+		}
+	},
+	getDocShellForFrame : function(aFrame)
+	{
+		return aFrame
+				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+				.getInterface(Components.interfaces.nsIWebNavigation)
+				.QueryInterface(Components.interfaces.nsIDocShell);
+	},
+ 	  
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemoTextUtils) &&
