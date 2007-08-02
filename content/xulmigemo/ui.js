@@ -26,6 +26,8 @@ var XMigemoUI = {
 	shouldRebuildSelection : false,
 
 	isModeChanged : false,
+
+	ATTR_LAST_HIGHLIGHT : '_moz-xulmigemo-last-highlight',
  
 	get isQuickFind() 
 	{
@@ -905,7 +907,8 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
 				toggleCaseSensitiveCheckbox : window.toggleCaseSensitivity,
 				highlightDoc                : highlightDoc,
 				highlightText               : highlightText,
-				highlight                   : highlight
+				highlight                   : highlight,
+				setHighlightTimeout         : setHighlightTimeout
 			};
 			window.toggleHighlight = this.toggleHighlight;
 		}
@@ -938,6 +941,7 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
 				'{',
 				<![CDATA[
 				{
+					XMigemoUI.activeBrowser.contentDocument.documentElement.setAttribute(XMigemoUI.ATTR_LAST_HIGHLIGHT, arguments[0]);
 					if (XMigemoUI.isActive) {
 						return XMigemoUI.highlightText(arguments[0], arguments[1],
 								('_searchRange' in this) ? this._searchRange : // Fx 3
@@ -962,6 +966,18 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
 			).replace(
 				'return',
 				'if (selectAfter) { XMigemoUI.selectNode(arguments[1], arguments[0].startContainer.ownerDocument); } return'
+			)
+		);
+
+		var highlightTimoutFunc = ('_setHighlightTimeout' in gFindBar) ? '_setHighlightTimeout' : // Fx 3
+				'setHighlightTimeout'; // Fx 2, 1.5
+		eval('gFindBar.'+highlightTimoutFunc+' = '+gFindBar[highlightTimoutFunc].toSource()
+			.replace(
+				'{',
+				<![CDATA[
+				{
+					if (XMigemoUI.findTerm == XMigemoUI.activeBrowser.contentDocument.documentElement.getAttribute(XMigemoUI.ATTR_LAST_HIGHLIGHT)) return;
+				]]>
 			)
 		);
 
@@ -996,6 +1012,7 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
 			window.highlightDoc  = gFindBar.highlightDoc;
 			window.highlightText = gFindBar.highlightText;
 			window.highlight     = gFindBar.highlight;
+			window.setHighlightTimeout = gFindBar.setHighlightTimeout;
 			if ('onFindAgainCmd' in gFindBar) { // Firefox 1.x-2.0
 				window.onFindAgainCmd    = gFindBar.onFindAgainCmd;
 				window.onFindPreviousCmd = gFindBar.onFindPreviousCmd;
@@ -1144,6 +1161,9 @@ dump('onXMigemoFindProgress '+aEvent.resultFlag+'\n');
 		event.initEvent('XMigemoFindBarToggleHighlight', true, true);
 		event.targetHighlight = aHighlight;
 		XMigemoUI.findBar.dispatchEvent(event);
+
+		if (!aHighlight)
+			XMigemoUI.activeBrowser.contentDocument.documentElement.removeAttribute(XMigemoUI.ATTR_LAST_HIGHLIGHT);
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalToggleHighlight.apply(scope, arguments);
