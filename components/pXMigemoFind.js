@@ -81,12 +81,12 @@ pXMigemoFind.prototype = {
 	NOTLINK           : 4,
 	FOUND_IN_EDITABLE : 8,
  
-	FIND_DEFAULT    : 1, 
-	FIND_BACK       : 2,
-	FIND_FORWARD    : 4,
-	FIND_WRAP       : 8,
+	FIND_DEFAULT    : 16, 
+	FIND_BACK       : 32,
+	FIND_FORWARD    : 64,
+	FIND_WRAP       : 128,
 
-	FIND_IN_EDITABLE : 128,
+	FIND_IN_EDITABLE : 256,
  
 	set target(val) 
 	{
@@ -281,6 +281,7 @@ pXMigemoFind.prototype = {
 							found = this.WRAPPED;
 						break getFindRange;
 
+					default:
 					case this.NOTFOUND:
 						noRepeatL = false;
 						break getFindRange;
@@ -289,22 +290,18 @@ pXMigemoFind.prototype = {
 						target = rightContext;
 						findRange = this.resetFindRange(findRange, this.foundRange, aFindFlag, doc);
 						continue getFindRange;
-
-					default:
-						break;
 				}
-
 			}
 
-			var event = this.document.createEvent('Events');
-			event.initEvent('XMigemoFindProgress', true, true);
-			event.resultFlag = found;
-			event.findFlag   = aFindFlag;
-			this.document.dispatchEvent(event);
-
-			this.setSelectionLook(doc, true);
-
 			if (noRepeatL) {
+				var event = this.document.createEvent('Events');
+				event.initEvent('XMigemoFindProgress', true, true);
+				event.resultFlag = found;
+				event.findFlag   = aFindFlag;
+				this.document.dispatchEvent(event);
+
+				this.setSelectionLook(doc, true);
+
 				break doFind;
 			}
 

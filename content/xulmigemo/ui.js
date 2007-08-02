@@ -576,38 +576,25 @@ var XMigemoUI = {
  
 	onXMigemoFindProgress : function(aEvent) 
 	{
-		gFindBar.enableFindButtons(!(
-			aEvent.resultFlag == XMigemoFind.NOTFOUND ||
-			aEvent.resultFlag == XMigemoFind.NOTLINK
-		));
-
-		var statusRes;
-		switch (aEvent.resultFlag)
-		{
-			case XMigemoFind.FOUND:
-			case XMigemoFind.FOUND_IN_EDITABLE:
-			case XMigemoFind.NOTLINK:
-				if (
-					aEvent.resultFlag != XMigemoFind.NOTLINK ||
+		var statusRes = (
+				(
+					aEvent.resultFlag == XMigemoFind.FOUND ||
+					aEvent.resultFlag == XMigemoFind.FOUND_IN_EDITABLE
+				) ||
+				(
+					aEvent.resultFlag == XMigemoFind.NOTLINK &&
 					!XMigemoFind.manualLinksOnly
-					) {
-					statusRes = this.nsITypeAheadFind.FIND_FOUND;
-					//alert(gFoundRange.toString());
+				)
+			) ?
+				this.nsITypeAheadFind.FIND_FOUND :
+			(aEvent.resultFlag == XMigemoFind.WRAPPED) ?
+				this.nsITypeAheadFind.FIND_WRAPPED :
+				this.nsITypeAheadFind.FIND_NOTFOUND;
 
-					if (this.findHighlightCheck.checked)
-						gFindBar.setHighlightTimeout();
-					break;
-				}
-
-			default:
-			case XMigemoFind.NOTFOUND:
-				statusRes = this.nsITypeAheadFind.FIND_NOTFOUND;
-				break;
-
-			case XMigemoFind.WRAPPED:
-				statusRes = this.nsITypeAheadFind.FIND_WRAPPED;
-				break;
-		}
+		var found = (statusRes == this.nsITypeAheadFind.FIND_FOUND || statusRes == this.nsITypeAheadFind.FIND_WRAPPED);
+		gFindBar.enableFindButtons(found);
+		if (found && this.findHighlightCheck.checked)
+			gFindBar.setHighlightTimeout();
 
 		gFindBar.updateStatus(statusRes, !(aEvent.findFlag & XMigemoFind.FIND_BACK));
 	},
