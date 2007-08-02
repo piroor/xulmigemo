@@ -970,11 +970,11 @@ var XMigemoUI = {
 				<![CDATA[
 				{
 					var foundRange = XMigemoUI.shouldRebuildSelection ? XMigemoUI.textUtils.getFoundRange(arguments[0].startContainer.ownerDocument.defaultView) : null ;
-					var selectAfter = XMigemoUI.shouldRebuildSelection ? XMigemoUI.textUtils.isRangeOverlap(foundRange, arguments[0]) : false ;
+					var foundLength = (XMigemoUI.shouldRebuildSelection && XMigemoUI.textUtils.isRangeOverlap(foundRange, arguments[0])) ? foundRange.toString().length : 0 ;
 				]]>
 			).replace(
 				'return',
-				'if (selectAfter) { XMigemoUI.textUtils.delayedSelect(arguments[1], foundRange.toString().length, true); } return'
+				'if (foundLength) { XMigemoUI.textUtils.delayedSelect(arguments[1], foundLength, true); } return'
 			)
 		);
 
