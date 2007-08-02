@@ -113,7 +113,7 @@ pXMigemoEngineJa.prototype = {
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
 			original = XMigemoTextService.addLatinModifiers(original);
 
-		var pattern = original;
+		var pattern = '';
 		if (lines.length) {
 			var arr = [];
 			if (!/[\[\(]/.test(zen)) arr.push(zen);
@@ -144,11 +144,13 @@ pXMigemoEngineJa.prototype = {
 				.replace(/\n/g, '|');
 			pattern += (pattern ? '|' : '') + searchterm;//.substring(0, searchterm.length-1);
 
+			pattern += (pattern ? '|' : '') + original;
 			pattern = pattern.replace(/\n/g, '');
 
 			mydump('pattern(from dic):'+encodeURIComponent(pattern));
 		}
 		else { // «‘‚Éˆø‚Á‚©‚©‚ç‚È‚©‚Á‚½–Í—l‚È‚Ì‚Å©‘O‚Ì•¶š—ñ‚¾‚¯
+			pattern = original;
 			if (original != zen) pattern += '|' + zen;
 			if (original != hiraAndKana) pattern += '|' + hiraAndKana;
 			mydump('pattern:'+encodeURIComponent(pattern));
