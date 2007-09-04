@@ -11,7 +11,7 @@
                    em:homepageURL="http://piro.sakura.ne.jp/xul/xulmigemo/"
                    em:optionsURL="chrome://xulmigemo/content/config/config.xul"
                    em:iconURL="chrome://xulmigemo/content/icon.png"
-                   em:updateURL="http://piro.sakura.ne.jp/xul/xul.rdf">
+                   em:updateURL="https://pub.cozmixng.org/~piro/xul/xul.rdf">
 	<em:developer>SHIMODA Hiroshi</em:developer>
 	<em:contributor>alice0775</em:contributor>
 	<em:contributor>Dear Periwinkle</em:contributor>
