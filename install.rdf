@@ -10,17 +10,21 @@
                    em:creator="plus7"
                    em:homepageURL="http://piro.sakura.ne.jp/xul/xulmigemo/"
                    em:optionsURL="chrome://xulmigemo/content/config/config.xul"
-                   em:iconURL="chrome://xulmigemo/content/icon.png"
-                   em:updateURL="https://pub.cozmixng.org/~piro/xul/xul.rdf">
+                   em:iconURL="chrome://xulmigemo/content/icon.png">
 	<em:developer>SHIMODA Hiroshi</em:developer>
 	<em:contributor>alice0775</em:contributor>
 	<em:contributor>Dear Periwinkle</em:contributor>
+
+
+    <em:updateURL>https://pub.cozmixng.org/~piro/xul/xul.rdf.en</em:updateURL>
+
+
 	<em:targetApplication>
+      <!-- Firefox -->
 	  <RDF:Description em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
 	                   em:minVersion="1.5"
 	                   em:maxVersion="3.0a7" />
-	</em:targetApplication>
-	<em:targetApplication>
+      <!-- Thunderbird -->
 	  <RDF:Description em:id="{3550f703-e582-4d05-9a08-453d09bdfdc6}"
 	                   em:minVersion="2.0"
 	                   em:maxVersion="2.0.0.*" />
