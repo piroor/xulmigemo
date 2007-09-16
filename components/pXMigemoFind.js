@@ -586,106 +586,6 @@ pXMigemoFind.prototype = {
 		return findRange;
 	},
  
-/* 
-	getFindRange : function(aFindFlag, aDocument)
-	{
-//		mydump("getFindRange");
-		var bodyNode = aDocument.body;
-
-		var findRange = aDocument.createRange();
-		findRange.selectNodeContents(bodyNode);
-		var startPt = aDocument.createRange();
-		startPt.selectNodeContents(bodyNode);
-		var endPt = aDocument.createRange();
-		endPt.selectNodeContents(bodyNode);
-
-		var docShell = this.getDocShellForFrame(aDocument.defaultView);
-		var selCon, selection;
-
-		if (aDocument.foundEditable) {
-			selCon = aDocument.foundEditable
-					.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
-					.editor.selectionController;
-		}
-		else {
-			selCon = docShell
-				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-				.getInterface(Components.interfaces.nsISelectionDisplay)
-				.QueryInterface(Components.interfaces.nsISelectionController);
-		}
-		selection = selCon.getSelection(selCon.SELECTION_NORMAL);
-		var count = selection.rangeCount;
-		mydump("count:"+count);
-
-		var childCount = bodyNode.childNodes.length;
-		var range;
-		var node;
-		var offset;
-		if (aFindFlag & this.FIND_DEFAULT || count == 0) {
-			if (aFindFlag & this.FIND_WRAP ||
-				!this.startFromViewport) {
-				findRange.selectNodeContents(bodyNode);
-				if (aFindFlag & this.FIND_BACK){
-					startPt.setStart(bodyNode, childCount);
-					startPt.setEnd(bodyNode, childCount);
-					endPt.collapse(true);
-				}
-				else {
-					startPt.setStart(bodyNode, 0);
-					startPt.setEnd(bodyNode, 0);
-					endPt.collapse(false);
-				}
-			}
-			else{
-				//findVisibleNodeが一番の改造しどころだが、どうしたものか。
-				//案はあっても実際のコードが書けない。
-				if (aFindFlag & this.FIND_BACK){
-					node = this.viewportStartPoint || this.findVisibleNode(aDocument.defaultView, aFindFlag);
-					this.viewportStartPoint = node;
-					findRange.setStart(node, node.childNodes.length);
-					startPt.setStart(node, node.childNodes.length);
-					startPt.setEnd(node, node.childNodes.length);
-					endPt.collapse(true);
-				}
-				else {
-					node = this.viewportEndPoint || this.findVisibleNode(aDocument.defaultView, aFindFlag);
-					this.viewportEndPoint = node;
-					findRange.setStart(node, 0);
-					startPt.setStart(node, 0);
-					startPt.setEnd(node, 0);
-					endPt.collapse(false);
-				}
-			}
-		}
-		else if (aFindFlag & this.FIND_FORWARD) {
-			range = selection.getRangeAt(count-1);
-			node = range.endContainer;
-			offset = range.endOffset;
-			findRange.setStart(node, offset);
-			startPt.setStart(node, offset);
-			startPt.setEnd(node, offset);
-			endPt.collapse(false);
-		}
-		else if (aFindFlag & this.FIND_BACK){
-			range = selection.getRangeAt(0);
-			node = range.startContainer;
-			offset = range.startOffset;
-			findRange.setEnd(node, offset);
-			startPt.setStart(node, offset);
-			startPt.setEnd(node, offset);
-			endPt.collapse(true);
-		}
-
-		var ret = {
-			sRange : findRange,
-			start  : startPt,
-			end    : endPt
-		};
-
-		return ret;
-	},
-*/
- 
 	getFindRange : function(aFindFlag, aDocument) 
 	{
 //		mydump("getFindRange");
@@ -830,62 +730,75 @@ pXMigemoFind.prototype = {
   
 	findVisibleNode : function(aFrame, aFindFlag) 
 	{
-//		mydump("findVisibleNode");
+//		dump("findVisibleNode\n");
 		var doc = aFrame.document;
 
-		var offsetX = aFrame.pageXOffset;
-		var offsetY = aFrame.pageYOffset;
-		var frameWidth = aFrame.innerWidth;
 		var frameHeight = aFrame.innerHeight;
+		var startY      = aFrame.pageYOffset;
+		var endY        = startY+frameHeight;
+		var minPixels   = 12;
 
-		var startX = offsetX;
-		var startY = offsetY;
-		var endX   = startX+frameWidth;
-		var endY   = startY+frameHeight;
+		var isAbove = function(aNode) {
+				return (
+					aNode.offsetTop < startY &&
+					aNode.offsetTop + Math.min(frameHeight, aNode.offsetHeight) < startY + minPixels
+				);
+			};
+		var isBelow = function(aNode) {
+				return (
+					aNode.offsetTop + Math.min(frameHeight, aNode.offsetHeight) > endY &&
+					aNode.offsetTop > endY - minPixels
+				);
+			};
 
-		var minPixels = 12;
+		var isVisible = function(aNode) {
+			return (
+				aNode.nodeType != aNode.ELEMENT_NODE ||
+				aNode.offsetWidth == 0 || aNode.offsetHeight == 0 ||
+				((aFindFlag & this.FIND_BACK) ? isBelow(aNode) : isAbove(aNode))
+				) ? false : true ;
+		};
 
-		this.visibleNodeFilter.isInvisible = (aFindFlag & this.FIND_BACK) ? this.isBelow : this.isAbove ;
-
-		var walker = doc.createTreeWalker(doc, NodeFilter.SHOW_ELEMENT, this.visibleNodeFilter, false);
-		walker.currentNode = doc.body || doc.documentElement;
-		var node;
+		var nodes = doc.getElementsByTagName('*');
+		var visibleNode;
+		var visibleMinNode;
 		if (aFindFlag & this.FIND_BACK){
-			while (walker.currentNode.lastChild) {
-				walker.currentNode = walker.currentNode.lastChild;
+			for (var i = nodes.length-1, mini = -1; i > mini; i--)
+			{
+				var node = nodes[i];
+				if (isVisible(node)) {
+					visibleNode = node;
+					if (node.offsetHeight < frameHeight) {
+						visibleMinNode = node;
+						break;
+					}
+				}
+				else if (visibleNode){
+					break;
+				}
 			}
-			node = walker.previousNode();
+//			dump('PREV '+node+'\n');
 		}
 		else{
-			node = walker.nextNode();
+			for (var i = 0, maxi = nodes.length; i < maxi; i++)
+			{
+				var node = nodes[i];
+				if (isVisible(node)) {
+					visibleNode = node;
+					if (node.offsetHeight < frameHeight) {
+						visibleMinNode = node;
+						break;
+					}
+				}
+				else if (visibleNode){
+					break;
+				}
+			}
+//			dump('NEXT '+node+'\n');
 		}
 		return node || doc.documentElement;
 	},
-	 
-	visibleNodeFilter : { 
-		acceptNode : function(aNode){
-			return (
-				aNode.offsetWidth == 0 || aNode.offsetHeight == 0 ||
-				this.isInvisible(aNode)
-				) ? NodeFilter.FILTER_SKIP : NodeFilter.FILTER_ACCEPT ;
-		},
-		isInvisible : null
-	},
-	
-	isAbove : function(aNode) 
-	{
-//		mydump("isAbove");
-		var height = aNode.offsetHeight > frameHeight ? frameHeight : aNode.offsetHeight ;
-		return (aNode.offsetTop < startY && aNode.offsetTop+height < startY+minPixels);
-	},
- 
-	isBelow : function(aNode) 
-	{
-//		mydump("isBelow");
-		var height = aNode.offsetHeight > frameHeight ? frameHeight : aNode.offsetHeight ;
-		return (aNode.offsetTop+height > endY && aNode.offsetTop > endY-minPixels);
-	},
-    
+  
 /* Update Appearance */ 
 	 
 	setSelectionLook : function(aDocument, aChangeColor) 
@@ -1093,18 +1006,26 @@ pXMigemoFind.prototype = {
 	 
 	domain  : 'xulmigemo', 
  
-	observe : function(aSubject, aTopic, aPrefName) 
+	observe : function(aSubject, aTopic, aData) 
 	{
-		if (aTopic != 'nsPref:changed') return;
-
-		switch (aPrefName)
+		switch (aTopic)
 		{
-			case 'xulmigemo.startfromviewport':
-				this.startFromViewport = Prefs.getBoolPref('xulmigemo.startfromviewport');
+			case 'nsPref:changed':
+				switch (aData)
+				{
+					case 'xulmigemo.startfromviewport':
+						this.startFromViewport = Prefs.getBoolPref('xulmigemo.startfromviewport');
+						return;
+				}
 				return;
 
-			case 'quit-application':
-				this.destroy();
+			default:
+				switch (aData)
+				{
+					case 'quit-application':
+						this.destroy();
+						return;
+				}
 				return;
 		}
 	},
@@ -1122,6 +1043,8 @@ pXMigemoFind.prototype = {
 		}
 		catch(e) {
 		}
+
+		this.observe(null, 'nsPref:changed', 'xulmigemo.startfromviewport');
 
 		var service = this;
 		this.window.addEventListener('unload', function() {
