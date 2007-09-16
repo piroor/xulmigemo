@@ -1303,7 +1303,10 @@ var XMigemoUI = {
 					XMigemoUI.shouldHighlightAll :
 					highlightCheck.xmigemoOriginalChecked ;
 			if (highlightCheck.checked != prevHighlightState) {
-				XMigemoUI.toggleHighlight(highlightCheck.checked);
+				if (highlightCheck.checked)
+					gFindBar.setHighlightTimeout();
+				else
+					XMigemoUI.toggleHighlight(highlightCheck.checked);
 			}
 			XMigemoUI.highlightCheckFirst = false;
 
