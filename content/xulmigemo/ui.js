@@ -1295,21 +1295,7 @@ var XMigemoUI = {
 		scope.xmigemoOriginalEnableFindButtons.apply(scope, arguments);
 
 		if (aEnable) {
-			var prevHighlightState = highlightCheck.checked;
-			highlightCheck.checked =
-				XMigemoUI.highlightCheckFirst ?
-					XMigemoService.getPref('xulmigemo.checked_by_default.highlight') :
-				(XMigemoUI.highlightCheckedAlways) ?
-					XMigemoUI.shouldHighlightAll :
-					highlightCheck.xmigemoOriginalChecked ;
-			if (highlightCheck.checked != prevHighlightState) {
-				if (highlightCheck.checked)
-					gFindBar.setHighlightTimeout();
-				else
-					XMigemoUI.toggleHighlight(highlightCheck.checked);
-			}
-			XMigemoUI.highlightCheckFirst = false;
-
+			XMigemoUI.updateHighlightCheck();
 			if (XMigemoUI.caseSensitiveCheckedAlways)
 				caseSensitive.checked = true;
 		}
@@ -1323,6 +1309,30 @@ var XMigemoUI = {
 		XMigemoUI.findBar.dispatchEvent(event);
 	},
 	highlightCheckFirst : true,
+	updateHighlightCheck : function()
+	{
+		if (this.updateHighlightCheckTimer) {
+			window.clearTimeout(this.updateHighlightCheckTimer);
+			this.updateHighlightCheckTimer = null;
+		}
+		this.updateHighlightCheckTimer = window.setTimeout(this.updateHighlightCheckCallback, 400, this);
+	},
+	updateHighlightCheckCallback : function(aSelf)
+	{
+		var highlightCheck = aSelf.findHighlightCheck;
+		var prevHighlightState = highlightCheck.checked;
+		highlightCheck.checked =
+			aSelf.highlightCheckFirst ?
+				XMigemoService.getPref('xulmigemo.checked_by_default.highlight') :
+			(aSelf.highlightCheckedAlways) ?
+				aSelf.shouldHighlightAll :
+				highlightCheck.xmigemoOriginalChecked ;
+		if (highlightCheck.checked != prevHighlightState) {
+			aSelf.toggleHighlight(highlightCheck.checked);
+		}
+		aSelf.highlightCheckFirst = false;
+	},
+	updateHighlightCheckTimer : null,
  
 	toggleFindToolbarMode : function(aSilently) 
 	{
