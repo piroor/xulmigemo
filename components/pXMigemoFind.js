@@ -170,6 +170,9 @@ pXMigemoFind.prototype = {
 		var roman = aKeyword;
 		if (!roman) return;
 
+		this.viewportStartPoint = null;
+		this.viewportEndPoint   = null;
+
 		var myExp = this.core.getRegExp(roman);
 
 		if (!myExp) {
@@ -796,6 +799,16 @@ pXMigemoFind.prototype = {
 			}
 //			dump('NEXT '+node+'\n');
 		}
+
+/*
+		if (node) {
+			node.style.outline = 'red solid 2px';
+			node.ownerDocument.defaultView.setTimeout(function() {
+				node.style.outline = 'none';
+			}, 10000);
+		}
+*/
+
 		return node || doc.documentElement;
 	},
   
