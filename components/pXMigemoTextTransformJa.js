@@ -406,11 +406,11 @@ pXMigemoTextTransformJa.prototype = {
 '\u30f6	xke	\u3063\u30f6	xxke',
 '\u3043	xyi	\u3063\u3043	xxyi',
 '\u3047	xye	\u3063\u3047	xxye',
-'\u3063\u3042	wwa',
-'\u3063\u3044	wwi',
+'\u3063\u308f	wwa',
+'\u3063\u3046\u3043	wwi',
 '\u3063\u3046	wwu',
-'\u3063\u3048	wwe',
-'\u3063\u304a	wwo'
+'\u3063\u3046\u3047	wwe',
+'\u3063\u3092	wwo'
 	].join('\n'),
  
 	/*
