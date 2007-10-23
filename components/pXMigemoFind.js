@@ -222,7 +222,7 @@ pXMigemoFind.prototype = {
 		doFind:
 		while (true)
 		{
-			if (doc.documentElement.namespaceURI == 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul') {
+			if (!this.isFindableDocument(doc)) {
 				noRepeatL = false;
 				found     = this.NOTFOUND;
 			}
@@ -314,8 +314,10 @@ pXMigemoFind.prototype = {
 				break doFind;
 			}
 
-			this.clearSelection(doc);
-			this.setSelectionLook(doc, false);
+			if (this.isFindableDocument(doc)) {
+				this.clearSelection(doc);
+				this.setSelectionLook(doc, false);
+			}
 
 
 			docShell = this.getDocShellForFrame(doc.defaultView)
@@ -363,6 +365,18 @@ pXMigemoFind.prototype = {
 			if (doc == aDocument) {
 				break doFind;
 			}
+		}
+	},
+	isFindableDocument : function(aDocument)
+	{
+		switch (aDocument.documentElement.namespaceURI)
+		{
+			case 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul':
+			case 'http://www.w3.org/2000/svg':
+				return false;
+
+			default:
+				return true;
 		}
 	},
  
