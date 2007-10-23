@@ -133,9 +133,9 @@ pXMigemoDicManager.prototype = {
 
 		var current = aDefault || decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')));
 		var displayDirectory = Components.classes['@mozilla.org/file/local;1'].createInstance();
-		if (displayDirectory  instanceof Components.interfaces.nsILocalFile) {
+		if (displayDirectory instanceof Components.interfaces.nsILocalFile) {
 			try {
-				displayDirectory .initWithPath(current);
+				displayDirectory.initWithPath(current);
 				filePicker.displayDirectory = displayDirectory;
 			}
 			catch(e) {
