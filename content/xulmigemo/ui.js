@@ -1351,6 +1351,15 @@ var XMigemoUI = {
   	
 	init : function() 
 	{
+		if (window
+			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsIWebNavigation)
+			.QueryInterface(Components.interfaces.nsIDocShell)
+			.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+			.parent) // in subframe
+			return;
+
+
 		this.lastFindMode = this.FIND_MODE_NATIVE;
 
 		document.addEventListener('XMigemoFindProgress', this, false);

@@ -22,6 +22,15 @@ var XMigemoHighlight = {
  
 	init : function() 
 	{
+		if (window
+			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsIWebNavigation)
+			.QueryInterface(Components.interfaces.nsIDocShell)
+			.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+			.parent) // in subframe
+			return;
+
+
 		eval('gFindBar.updateStatus = '+gFindBar.updateStatus.toSource()
 			.replace(
 				'{',

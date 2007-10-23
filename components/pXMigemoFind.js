@@ -222,77 +222,83 @@ pXMigemoFind.prototype = {
 		doFind:
 		while (true)
 		{
-			findRange = this.getFindRange(aFindFlag, doc);
-
-			target = XMigemoTextUtils.range2Text(findRange.sRange);
-
-			if(aFindFlag & this.FIND_BACK){
-				target = target.split('').reverse().join('');
-				findRegExpSource = reversedRegExp || (reversedRegExp = XMigemoTextUtils.reverseRegExp(aRegExpSource));
+			if (doc.documentElement.namespaceURI == 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul') {
+				noRepeatL = false;
+				found     = this.NOTFOUND;
 			}
-			else{
-				findRegExpSource = aRegExpSource;
-			}
-			try {
-				findRegExp = findRegExp.compile(findRegExpSource, 'im');
-			}
-			catch(e) {
-				dump(e+'\n'+'original : '+aRegExpSource+'\ncurrent : '+findRegExpSource+'\n');
-				throw e;
-			}
+			else {
+				findRange = this.getFindRange(aFindFlag, doc);
 
-			getFindRange:
-			while (true)
-			{
-				if (this.isQuickFind && isLinksOnly){
-					var as = doc.getElementsByTagName('a');
-					if (!as.length){
-						noRepeatL = false;
-						break;
-					}
-				}
+				target = XMigemoTextUtils.range2Text(findRange.sRange);
 
-				if (aFindFlag & this.FIND_BACK) {
-					if (target.match(findRegExp)) {
-						result = RegExp.lastMatch.split('').reverse().join('');
-						rightContext = RegExp.rightContext;
-					}
+				if(aFindFlag & this.FIND_BACK){
+					target = target.split('').reverse().join('');
+					findRegExpSource = reversedRegExp || (reversedRegExp = XMigemoTextUtils.reverseRegExp(aRegExpSource));
 				}
 				else{
-					if (target.match(findRegExp)) {
-						result = RegExp.lastMatch;
-						rightContext = RegExp.rightContext;
-					}
+					findRegExpSource = aRegExpSource;
+				}
+				try {
+					findRegExp = findRegExp.compile(findRegExpSource, 'im');
+				}
+				catch(e) {
+					dump(e+'\n'+'original : '+aRegExpSource+'\ncurrent : '+findRegExpSource+'\n');
+					throw e;
 				}
 
-				lastMatch = result || null;
-				if (lastMatch) {
-//					mydump("call findInRange");
-					found = this.findInRange(aFindFlag, lastMatch, findRange, aForceFocus);
-					//alert("lastMatch:"+lastMatch);
-				}
-				else{
-					found = this.NOTFOUND;
-				}
-
-				switch (found)
+				getFindRange:
+				while (true)
 				{
-					case this.FOUND:
-					case this.FOUND_IN_EDITABLE:
-						noRepeatL = true;
-						if (aFindFlag & this.FIND_WRAP)
-							found = this.WRAPPED;
-						break getFindRange;
+					if (this.isQuickFind && isLinksOnly){
+						var as = doc.getElementsByTagName('a');
+						if (!as.length){
+							noRepeatL = false;
+							break;
+						}
+					}
 
-					default:
-					case this.NOTFOUND:
-						noRepeatL = false;
-						break getFindRange;
+					if (aFindFlag & this.FIND_BACK) {
+						if (target.match(findRegExp)) {
+							result = RegExp.lastMatch.split('').reverse().join('');
+							rightContext = RegExp.rightContext;
+						}
+					}
+					else{
+						if (target.match(findRegExp)) {
+							result = RegExp.lastMatch;
+							rightContext = RegExp.rightContext;
+						}
+					}
 
-					case this.NOTLINK:
-						target = rightContext;
-						findRange = this.resetFindRange(findRange, this.foundRange, aFindFlag, doc);
-						continue getFindRange;
+					lastMatch = result || null;
+					if (lastMatch) {
+	//					mydump("call findInRange");
+						found = this.findInRange(aFindFlag, lastMatch, findRange, aForceFocus);
+						//alert("lastMatch:"+lastMatch);
+					}
+					else{
+						found = this.NOTFOUND;
+					}
+
+					switch (found)
+					{
+						case this.FOUND:
+						case this.FOUND_IN_EDITABLE:
+							noRepeatL = true;
+							if (aFindFlag & this.FIND_WRAP)
+								found = this.WRAPPED;
+							break getFindRange;
+
+						default:
+						case this.NOTFOUND:
+							noRepeatL = false;
+							break getFindRange;
+
+						case this.NOTLINK:
+							target = rightContext;
+							findRange = this.resetFindRange(findRange, this.foundRange, aFindFlag, doc);
+							continue getFindRange;
+					}
 				}
 			}
 
@@ -559,7 +565,13 @@ pXMigemoFind.prototype = {
 //		mydump("resetFindRange");
 		var win = this.document.commandDispatcher.focusedWindow;
 		var theDoc = (win && win != this.window) ? Components.lookupMethod(win, 'document').call(win) : aDocument ;
-		var bodyNode = Components.lookupMethod(theDoc, 'body').call(theDoc);
+		var bodyNode;
+		try {
+			bodyNode = Components.lookupMethod(theDoc, 'body').call(theDoc);
+		}
+		catch(e) {
+			bodyNode = theDoc.documentElement;
+		}
 
 		var findRange = aFindRange;
 		findRange.sRange.selectNodeContents(bodyNode);
@@ -592,7 +604,6 @@ pXMigemoFind.prototype = {
 	getFindRange : function(aFindFlag, aDocument) 
 	{
 //		mydump("getFindRange");
-
 		var docShell = this.getDocShellForFrame(aDocument.defaultView);
 		var docSelCon = docShell
 			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
@@ -635,13 +646,12 @@ pXMigemoFind.prototype = {
 			selection.addRange(testRange1);
 		}
 
-		return this.getFindRangeIn(aFindFlag, aDocument, aDocument.body, docSelCon);
+		return this.getFindRangeIn(aFindFlag, aDocument, aDocument.body || aDocument.documentElement, docSelCon);
 	},
 	 
 	getFindRangeIn : function(aFindFlag, aDocument, aRangeParent, aSelCon) 
 	{
 //		mydump("getFindRange");
-
 		var findRange = aDocument.createRange();
 		findRange.selectNodeContents(aRangeParent);
 		var startPt = aDocument.createRange();
