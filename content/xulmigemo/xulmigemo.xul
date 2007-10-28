@@ -17,7 +17,7 @@
 		align="center"
 		pack="end"
 		hidden="true"
-		style="position: fixed; z-index: 65000;">
+		style="position: fixed;/* z-index: 65000;*/">
 		<checkbox id="find-migemo-mode"
 			label="Migemo"
 			oncommand="XMigemoUI.onChangeFindToolbarMode();"/>
@@ -27,7 +27,7 @@
 			（こちらは逆に、Firefox 2までではアニメーションしてくれない）
 		-->
 		<progressmeter id="migemo-timeout-indicator2"
-			style="position: fixed; z-index: 64000; bottom: 0; right: 0;"
+			style="position: fixed; /*z-index: 64000;*/ bottom: 0; right: 0;"
 			hidden="true"
 			type="determined"/>
 	</hbox>
@@ -35,7 +35,7 @@
 		align="center"
 		pack="end"
 		hidden="true"
-		style="position: fixed; z-index: 64000;">
+		style="position: fixed; /*z-index: 64000;*/">
 		<progressmeter id="migemo-timeout-indicator"
 			type="determined"/>
 	</hbox>
