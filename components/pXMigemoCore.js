@@ -208,8 +208,139 @@ pXMigemoCore.prototype = {
 		return !this.engine ? [] : this.engine.gatherEntriesFor(aInput, aTargetDic, aCount) ;
 	},
  
-/* Find */ 
+	flattenRegExp : function(aRegExp, aCount) 
+	{
+		var source = (typeof aRegExp == 'string') ? aRegExp : aRegExp.source;
+		source = source
+			.replace(/\[[^\]]+\]/g, function(aClass) {
+				return '('+aClass.replace(/\[|\]/g, '').split('').join('|')+')'
+			})
+			.replace(/\|\|+/g, '|');
+
+		var array = this.expandParensToArray(source);
+		array = this.expandTermsFromArray(array);
+
+		array = (typeof array == 'string' ? array : array[0])
+				.replace(/\n\n+/g, '\n').split('\n');
+		aCount.value = array.length;
+		return array;
+	},
+	
+	expandParensToArray : function(aSource) 
+	{
+		var array = [];
+		var scope = array;
+		var escaped = false;
+		var next = 'char';
+		for (var i = 0, maxi = aSource.length; i < maxi; i++)
+		{
+			var char = aSource.charAt(i);
+			switch (char)
+			{
+				case '\\':
+					if (!escaped) {
+						escaped = true;
+						break;
+					}
+				case '(':
+					if (!escaped) {
+						var child = [];
+						child.parent = scope;
+						scope.push(child);
+						scope = child;
+						break;
+					}
+				case ')':
+					if (!escaped) {
+						scope = scope.parent;
+						break;
+					}
+				default:
+					if (typeof scope[scope.length-1] != 'string') {
+						scope.push('');
+					}
+					scope[scope.length-1] += char;
+					escaped = false;
+					break;
+			}
+		}
+		return array;
+	},
+ 
+	expandTermsFromArray : function(aArray) 
+	{
+		var self = this;
+		while (
+			(function(aArray)
+			{
+				var shouldContinue = false;
+				for (var i = 0, maxi = aArray.length; i < maxi; i++)
+				{
+					if (typeof aArray[i] == 'string') continue;
+					if (aArray[i].some(function(aItem) {
+							return typeof aItem != 'string' &&
+								(
+									aItem.length > 1 ||
+									typeof aItem[0] != 'string'
+								);
+						})) {
+						arguments.callee(aArray[i]);
+						shouldContinue = true;
+						continue;
+					}
+					aArray[i] = self.expandTerms(aArray[i]);
+				}
+				return shouldContinue;
+			})(aArray)
+		) {};
+		return this.expandTerms(aArray);
+	},
 	 
+	expandTerms : function(aArray) 
+	{
+		var final = '';
+		var result = '';
+		var containsArray = false;
+		aArray.forEach(function(aItem, aIndex, aArray) {
+			var type = typeof aItem;
+			if (type != 'string') {
+				aItem = aItem[0];
+				containsArray = true;
+			}
+
+			if (aItem.charAt(0) == '|') {
+				final += (final ? '\n' : '') + result;
+				result = '';
+				aItem = aItem.substring(1);
+			}
+
+			var next = '';
+			if (aItem.charAt(aItem.length-1) != '|') {
+				aItem = aItem.replace(/\|([^\|]+)$/, '');
+				next = RegExp.$1;
+			}
+
+			var leaves = aItem.replace(/\|/g, '\n');
+			result = result.split('\n').map(function(aItem) {
+				return leaves.split('\n').map(function(aLeaf) {
+					return aItem.replace(/$/mg, aLeaf);
+				}).join('\n');
+			}).join('\n');
+
+			if (next) {
+				final += (final ? '\n' : '') + result;
+				result = next;
+				next = '';
+			}
+		});
+		if (result)
+			final += (final ? '\n' : '') + result;
+
+		return containsArray ? [final] : final ;
+	},
+   	
+/* Find */ 
+	
 	get mFind() 
 	{
 		if (!this._mFind)
@@ -359,7 +490,7 @@ pXMigemoCore.prototype = {
 		aCount.value = arrResults.length;
 		return arrResults;
 	},
- 	 
+  
 	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode, aCount) 
 	{
 		if (!aSurrountNode) {
@@ -378,7 +509,7 @@ pXMigemoCore.prototype = {
 	},
   
 /* Update Cache */ 
-	 
+	
 	updateCacheFor : function(aInputPatterns) 
 	{
 		var patterns = aInputPatterns.split('\n');
