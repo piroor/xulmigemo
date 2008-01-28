@@ -11,6 +11,9 @@ pref("xulmigemo.scrollSelectionToCenter",       false);
 pref("xulmigemo.ignore_find_links_only_behavior", true);
 pref("xulmigemo.rebuild_selection",             true);
 
+pref("xulmigemo.mailnews.threadsearch.enabled", false);
+pref("xulmigemo.mailnews.threadsearch.max",     10);
+
 pref("xulmigemo.checked_by_default.findbar",       false);
 
 pref("xulmigemo.checked_by_default.highlight",     false);

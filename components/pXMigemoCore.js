@@ -210,6 +210,11 @@ pXMigemoCore.prototype = {
  
 	flattenRegExp : function(aRegExp, aCount) 
 	{
+		if (!aRegExp) {
+			aCount.value = 0;
+			return [];
+		}
+
 		var source = (typeof aRegExp == 'string') ? aRegExp : aRegExp.source;
 		source = source
 			.replace(/\[[^\]]+\]/g, function(aClass) {
@@ -218,7 +223,9 @@ pXMigemoCore.prototype = {
 			.replace(/\|\|+/g, '|');
 
 		var array = this.expandParensToArray(source);
+dump('STEP 1: '+array.toSource()+'\n');
 		array = this.expandTermsFromArray(array);
+dump('STEP 2: '+array.toSource()+'\n');
 
 		array = (typeof array == 'string' ? array : array[0])
 				.replace(/\n\n+/g, '\n').split('\n');
