@@ -10,8 +10,13 @@ var XMigemoCore = {
 		return this.XMigemo.gatherEntriesFor(aRoman, aTargetDic, {});
 	},
  
+	flattenRegExp : function(aRegExp) 
+	{
+		return this.XMigemo.flattenRegExp(aRegExp, {});
+	},
+ 	
 /* Find */ 
-	 
+	
 	regExpFind : function(aRegExp, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
 	{
 		var flags = [];
@@ -67,7 +72,7 @@ var XMigemoCore = {
 		}
 		return results;
 	},
- 	 
+  
 	get XMigemo() { 
 		if (!this._XMigemo) {
 			try {

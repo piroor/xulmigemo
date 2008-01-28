@@ -187,6 +187,11 @@ interface pIXMigemo : pIXMigemoEngine
 		out unsigned long count, [array, size_is(count), retval] out nsIDOMRange array
 	);
 
+	void flattenRegExp(
+		in AString regExpSource,
+		out unsigned long count, [array, size_is(count), retval] out wstring array
+	);
+
 	attribute double createCacheTimeOverride;
 	readonly attribute pIXMigemoCache cache;
 	readonly attribute pIXMigemoDicManager dictionaryManager;

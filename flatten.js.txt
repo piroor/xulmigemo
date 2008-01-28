@@ -1,0 +1,145 @@
+//正規表現を単語の一覧に展開する実験
+
+function flattenRegExp(aRegExp)
+{
+	var source = (typeof aRegExp == 'string') ? aRegExp : aRegExp.source;
+	source = source
+		.replace(/\[[^\]]+\]/g, function(aClass) {
+			return '('+aClass.replace(/\[|\]/g, '').split('').join('|')+')'
+		})
+		.replace(/\|\|+/g, '|');
+
+	var array = expandParensToArray(source);
+	return expandTermsFromArray(array);
+}
+
+function expandParensToArray(aSource)
+{
+	var array = [];
+	var scope = array;
+	var escaped = false;
+	var next = 'char';
+	for (var i = 0, maxi = aSource.length; i < maxi; i++)
+	{
+		var char = aSource.charAt(i);
+		switch (char)
+		{
+			case '\\':
+				if (!escaped) {
+					escaped = true;
+					break;
+				}
+			case '(':
+				if (!escaped) {
+					var child = [];
+					child.parent = scope;
+					scope.push(child);
+					scope = child;
+					break;
+				}
+			case ')':
+				if (!escaped) {
+					scope = scope.parent;
+					break;
+				}
+			default:
+				if (typeof scope[scope.length-1] != 'string') {
+					scope.push('');
+				}
+				scope[scope.length-1] += char;
+				escaped = false;
+				break;
+		}
+	}
+	return array;
+}
+
+function expandTermsFromArray(aArray)
+{
+	while (
+		(function(aArray)
+		{
+			var shouldContinue = false;
+			for (var i = 0, maxi = aArray.length; i < maxi; i++)
+			{
+				if (typeof aArray[i] == 'string') continue;
+				if (aArray[i].some(function(aItem) {
+						return typeof aItem != 'string' &&
+							(
+								aItem.length > 1 ||
+								typeof aItem[0] != 'string'
+							);
+					})) {
+					arguments.callee(aArray[i]);
+					shouldContinue = true;
+					continue;
+				}
+				aArray[i] = expandTerms(aArray[i]);
+			}
+			return shouldContinue;
+		})(aArray)
+	) {};
+	return expandTerms(aArray);
+}
+
+function expandTerms(aArray)
+{
+	var final = '';
+	var result = '';
+	var containsArray = false;
+	aArray.forEach(function(aItem, aIndex, aArray) {
+		var type = typeof aItem;
+		if (type != 'string') {
+			aItem = aItem[0];
+			containsArray = true;
+		}
+
+		if (aItem.charAt(0) == '|') {
+			final += (final ? '\n' : '') + result;
+			result = '';
+			aItem = aItem.substring(1);
+		}
+
+		var next = '';
+		if (aItem.charAt(aItem.length-1) != '|') {
+			aItem = aItem.replace(/\|([^\|]+)$/, '');
+			next = RegExp.$1;
+		}
+
+		var leaves = aItem.replace(/\|/g, '\n');
+		result = result.split('\n').map(function(aItem) {
+			return leaves.split('\n').map(function(aLeaf) {
+				return aItem.replace(/$/mg, aLeaf);
+			}).join('\n');
+		}).join('\n');
+
+		if (next) {
+			final += (final ? '\n' : '') + result;
+			result = next;
+			next = '';
+		}
+	});
+	if (result)
+		final += (final ? '\n' : '') + result;
+
+	return containsArray ? [final] : final ;
+}
+
+
+dump('\n\n\n\n\nSTART\n\n\n\n');
+
+flattenRegExp('(a|b|c)(AA(D|E(D|E|F)|F)GG|BB|CC)');
+
+dump('\n\n\n\n\nTEST2\n\n\n\n');
+var regexp = '[ふフﾌ][ぃィｨ][れレﾚ]|fire|ファイア|ファイヤーフォックス|ｆｉｒｅ|f([iìíîïĩīĭįıǐÌÍÎÏĨĪĬĮİǏ]|i[ˋ`ˊ´ˆ^˜~¨ˉ¯˘˛ˇ])([rŕŗřŔŖŘ]|r[ˊ´¸ˇ])([eèéêëÈÉÊË]|e[ˋ`ˊ´ˆ^¨])';
+
+var beforeTime = (new Date()).getTime();
+
+var result = flattenRegExp(regexp);
+dump('\nDONE\n');
+
+dump(((new Date()).getTime() - beforeTime)+'\n');
+
+_setClipBoard(result);
+//dump('RESULT: \n'+result+'\n');
+
