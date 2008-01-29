@@ -13,6 +13,7 @@
 		insertbefore="FindToolbar"/>
 </vbox>
 
+<script type="application/x-javascript" src="strutil.js"/>
 <script type="application/x-javascript; e4x=1" src="mailWindowOverlay.js"/>
 
 </overlay>
