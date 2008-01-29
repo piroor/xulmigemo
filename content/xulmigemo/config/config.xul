@@ -29,6 +29,10 @@
 			name="xulmigemo.highlight.showScreen"
 			type="bool"/>
 
+		<preference id="xulmigemo.mailnews.threadsearch.enabled"
+			name="xulmigemo.mailnews.threadsearch.enabled"
+			type="bool"/>
+
 		<preference id="xulmigemo.ignoreHiraKata"
 			name="xulmigemo.ignoreHiraKata"
 			type="bool"/>
@@ -65,6 +69,12 @@
 	<checkbox id="xulmigemo.highlight.showScreen-check" flex="1"
 		label="&xulmigemo.highlight.showScreen;"
 		preference="xulmigemo.highlight.showScreen"/>
+
+	<separator/>
+
+	<checkbox id="xulmigemo.mailnews.threadsearch.enabled-check" flex="1"
+		label="&xulmigemo.mailnews.threadsearch.enabled;"
+		preference="xulmigemo.mailnews.threadsearch.enabled"/>
 
 	<groupbox>
 		<caption label="&xulmigemo.caption.recognize;"/>

@@ -11,6 +11,8 @@
 <!ENTITY xulmigemo.lang.item2.value        "ja">
 <!ENTITY xulmigemo.lang.description        "*Require restarting.">
 
+<!ENTITY xulmigemo.mailnews.threadsearch.enabled "Activate XUL/Migemo for mail search">
+
 
 <!ENTITY xulmigemo.startfromviewport       "Find from viewport">
 <!ENTITY xulmigemo.scrollSelectionToCenter "Show the found term in the middle of the screen">
