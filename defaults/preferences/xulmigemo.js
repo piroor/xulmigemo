@@ -13,6 +13,8 @@ pref("xulmigemo.rebuild_selection",             true);
 
 pref("xulmigemo.mailnews.threadsearch.enabled", true);
 
+pref("xulmigemo.combination.autocompletemanager", true);
+
 pref("xulmigemo.checked_by_default.findbar",       false);
 
 pref("xulmigemo.checked_by_default.highlight",     false);

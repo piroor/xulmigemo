@@ -5,8 +5,10 @@ var XMigemoMailService = {
 		{
 			case 'load':
 				this.init();
+				return;
 			case 'unload':
 				this.destroy();
+				return;
 		}
 	},
 
