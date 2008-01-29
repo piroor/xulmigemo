@@ -20,7 +20,7 @@ var XMigemoCombinationService = {
 				'var titleMatchPos = candidate.title.toLowerCase().indexOf(acm_typedPrefix);',
 				<><![CDATA[
 					var titleMatchPos = XMigemoService.getPref('xulmigemo.combination.autocompletemanager') ?
-						candidate.title.search(new RegExp(XMigemoCore.getRegExp(acm_typedPrefix), 'i')) :
+						candidate.title.search(XMigemoCore.getCachedRegExp(acm_typedPrefix)) :
 						candidate.title.toLowerCase().indexOf(acm_typedPrefix);
 				]]></>
 			)

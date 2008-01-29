@@ -10,6 +10,15 @@ var XMigemoCore = {
 		return this.XMigemo.gatherEntriesFor(aRoman, aTargetDic, {});
 	},
  
+	getCachedRegExp : function(aInput) 
+	{
+		if (!(aInput in this.cache)) {
+			this.cache[aInput] = new RegExp(this.getRegExp(aInput), 'i');
+		}
+		return this.cache[aInput];
+	},
+	cache : {},
+ 
 	flattenRegExp : function(aRegExp) 
 	{
 		return this.XMigemo.flattenRegExp(aRegExp, {});
