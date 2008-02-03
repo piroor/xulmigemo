@@ -125,7 +125,9 @@ pXMigemoTextUtils.prototype = {
 	reverseRegExp : function(aExp) 
 	{
 		var tmp = aExp;
-		tmp=tmp.replace(/\[\]\|/im,"")
+		tmp = tmp.replace(/\[\]\|/im,"")
+				.replace(/(\([^\)]+\))\?/g, '?$1') // for multiple terms
+				.replace(/(\[[^\]]+\])\+/g, '+$1') // for multiple terms
 				.replace(/\(/g,"[[OPEN-PAREN]]")
 				.replace(/\)/g,"(")
 				.replace(/\[\[OPEN-PAREN\]\]/g,")");
