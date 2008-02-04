@@ -55,7 +55,7 @@ var XMigemoMailService = {
 				return;
 		}
 	},
- 	
+ 
 	summaries : {}, 
  
 	getSummary : function() 
@@ -63,10 +63,13 @@ var XMigemoMailService = {
 		var uri = gDBView.msgFolder.URI;
 		if (uri in this.summaries)
 			return this.summaries[uri];
+
+dump('XMigemoMailService::create new summary for '+uri+'\n');
+
 		this.summaries[uri] = new XMigemoMailFolderSummary(uri);
 		return this.summaries[uri];
 	},
- 
+ 	
 	kQuickSearchSubject       : 0, 
 	kQuickSearchFrom          : 1,
 	kQuickSearchFromOrSubject : 2,
@@ -238,7 +241,8 @@ XMigemoMailFolderSummary.prototype = {
  
 	startToBuild : function() 
 	{
-//dump('XMigemoMailFolderSummary start to build '+this.mFolder+'\n');
+dump('XMigemoMailFolderSummary::startToBuild('+this.mFolder+')\n');
+
 		this.stopToBuild();
 		this.initArray();
 		this.mMessages = this.mDB.EnumerateMessages();
@@ -255,6 +259,8 @@ XMigemoMailFolderSummary.prototype = {
  
 	updateCache : function() 
 	{
+dump('XMigemoMailFolderSummary::updateCache('+this.mFolder+')\n');
+
 		var sv = XMigemoMailService;
 		var statement = sv.summariesDB.createStatement(
 				'INSERT OR REPLACE INTO '+sv.kTABLE+
@@ -277,6 +283,8 @@ XMigemoMailFolderSummary.prototype = {
  
 	loadCache : function() 
 	{
+dump('XMigemoMailFolderSummary::loadCache('+this.mFolder+')\n');
+
 		var sv = XMigemoMailService;
 		var statement = sv.summariesDB.createStatement(
 				'SELECT * FROM '+sv.kTABLE+' WHERE '+sv.kKEY+' = ?1');
@@ -299,6 +307,8 @@ XMigemoMailFolderSummary.prototype = {
  
 	clearCache : function() 
 	{
+dump('XMigemoMailFolderSummary::clearCache('+this.mFolder+')\n');
+
 		this.initArray();
 
 		var sv = XMigemoMailService;
