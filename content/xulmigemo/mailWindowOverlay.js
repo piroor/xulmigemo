@@ -69,7 +69,7 @@ dump('XMigemoMailService::create new summary for '+uri+'\n');
 		this.summaries[uri] = new XMigemoMailFolderSummary(uri);
 		return this.summaries[uri];
 	},
- 	
+ 
 	kQuickSearchSubject       : 0, 
 	kQuickSearchFrom          : 1,
 	kQuickSearchFromOrSubject : 2,
@@ -177,8 +177,6 @@ dump('XMigemoMailService::create new summary for '+uri+'\n');
   
 function XMigemoMailFolderSummary(aFolder) 
 {
-//dump('XMigemoMailFolderSummary initialize'+aFolder+'\n');
-
 	this.mFolder = aFolder;
 	this.init();
 }
@@ -259,28 +257,39 @@ dump('XMigemoMailFolderSummary::startToBuild('+this.mFolder+')\n');
  
 	updateCache : function() 
 	{
-dump('XMigemoMailFolderSummary::updateCache('+this.mFolder+')\n');
-
+		if (this.mUpdateCacheTimer) {
+			window.clearTimeout(this.mUpdateCacheTimer);
+			this.mUpdateCacheTimer = null;
+		}
+		this.mUpdateCacheTimer = window.setTimeout(this.updateCacheCallback, 10, this);
+	},
+	 
+	updateCacheCallback : function(aSelf) 
+	{
 		var sv = XMigemoMailService;
 		var statement = sv.summariesDB.createStatement(
 				'INSERT OR REPLACE INTO '+sv.kTABLE+
 				' VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7)');
-		statement.bindStringParameter(sv.kKEY_INDEX, this.mFolder);
-		statement.bindStringParameter(sv.kID_INDEX, this.mIds.join('\n'));
-		statement.bindStringParameter(sv.kAUTHOR_INDEX, this.mAuthors.join('\n'));
-		statement.bindStringParameter(sv.kSUBJECT_INDEX, this.mSubjects.join('\n'));
-		statement.bindStringParameter(sv.kRECIPIENT_INDEX, this.mRecipients.join('\n'));
-		statement.bindStringParameter(sv.kCC_INDEX, this.mCc.join('\n'));
+		statement.bindStringParameter(sv.kKEY_INDEX, aSelf.mFolder);
+		statement.bindStringParameter(sv.kID_INDEX, aSelf.mIds.join('\n'));
+		statement.bindStringParameter(sv.kAUTHOR_INDEX, aSelf.mAuthors.join('\n'));
+		statement.bindStringParameter(sv.kSUBJECT_INDEX, aSelf.mSubjects.join('\n'));
+		statement.bindStringParameter(sv.kRECIPIENT_INDEX, aSelf.mRecipients.join('\n'));
+		statement.bindStringParameter(sv.kCC_INDEX, aSelf.mCc.join('\n'));
 		statement.bindDoubleParameter(sv.kDATE_INDEX, Date.now());
 		try {
 			statement.executeStep();
 		}
 		catch(e) {
-			dump('updateCache / '+this.mFolder+'\n'+e+'\n');
+			dump('updateCache / '+aSelf.mFolder+'\n'+e+'\n');
 		}
 		statement.reset();
+
+dump('XMigemoMailFolderSummary::updateCache('+aSelf.mFolder+')\n');
+		window.clearTimeout(aSelf.mUpdateCacheTimer);
+		aSelf.mUpdateCacheTimer = null;
 	},
- 
+ 	 
 	loadCache : function() 
 	{
 dump('XMigemoMailFolderSummary::loadCache('+this.mFolder+')\n');
