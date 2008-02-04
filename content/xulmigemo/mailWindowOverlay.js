@@ -42,10 +42,20 @@ var XMigemoMailService = {
 	OnItemUnicharPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
 	OnItemPropertyFlagChanged : function(aItem, aProperty, aOld, aNew) {},
 	OnItemEvent : function(aItem, aEvent) {
-		if (aEvent.toString() == 'FolderLoaded')
-			this.getSummary();
+		switch (aEvent.toString())
+		{
+			case 'FolderLoaded':
+				this.getSummary();
+				return;
+			case 'CompactCompleted':
+				var summary = this.getSummary();
+				summary.stopToBuild();
+				summary.clearCache();
+				summary.startToBuld();
+				return;
+		}
 	},
- 
+ 	
 	summaries : {}, 
  
 	getSummary : function() 
@@ -193,11 +203,14 @@ XMigemoMailFolderSummary.prototype = {
 		return this.mCc.join('\n');
 	},
  
-	mIds : [], 
-	mAuthors : [],
-	mSubjects : [],
-	mRecipients : [],
-	mCc : [],
+	initArray : function() 
+	{
+		this.mIds = [];
+		this.mAuthors = [];
+		this.mSubjects = [];
+		this.mRecipients = [];
+		this.mCc = [];
+	},
  
 	init : function() 
 	{
@@ -227,11 +240,7 @@ XMigemoMailFolderSummary.prototype = {
 	{
 //dump('XMigemoMailFolderSummary start to build '+this.mFolder+'\n');
 		this.stopToBuild();
-		this.mIds = [];
-		this.mAuthors = [];
-		this.mSubjects = [];
-		this.mRecipients = [];
-		this.mCc = [];
+		this.initArray();
 		this.mMessages = this.mDB.EnumerateMessages();
 		this.mTimer = window.setTimeout(this.parseOneMessage, this.delay, this, true);
 	},
@@ -272,26 +281,38 @@ XMigemoMailFolderSummary.prototype = {
 		var statement = sv.summariesDB.createStatement(
 				'SELECT * FROM '+sv.kTABLE+' WHERE '+sv.kKEY+' = ?1');
 		statement.bindStringParameter(0, this.mFolder);
-		statement.executeStep();
 		try {
+			statement.executeStep();
 			this.mIds = statement.getString(sv.kID_INDEX).split('\n');
 			this.mAuthors = statement.getString(sv.kAUTHOR_INDEX).split('\n');
 			this.mSubjects = statement.getString(sv.kSUBJECT_INDEX).split('\n');
 			this.mRecipients = statement.getString(sv.kRECIPIENT_INDEX).split('\n');
 			this.mCc = statement.getString(sv.kCC_INDEX).split('\n');
 		}
-		catch(e) { // there is no thumbnail for the page
-			this.mIds = [];
-			this.mAuthors = [];
-			this.mSubjects = [];
-			this.mRecipients = [];
-			this.mCc = [];
+		catch(e) {
+			this.initArray();
 		}
 		statement.reset();
 
 		return this.mIds.length != 0;
 	},
- 	
+ 
+	clearCache : function() 
+	{
+		this.initArray();
+
+		var sv = XMigemoMailService;
+		var statement = sv.summariesDB.createStatement(
+				'DELETE * FROM '+sv.kTABLE+' WHERE '+sv.kKEY+' = ?1');
+		statement.bindStringParameter(0, this.mFolder);
+		try {
+			statement.executeStep();
+		}
+		catch(e) {
+		}
+		statement.reset();
+	},
+ 
 	parseOneMessage : function(aSelf, aUseTimer) 
 	{
 		if (!aSelf.mMessages.hasMoreElements()) {
