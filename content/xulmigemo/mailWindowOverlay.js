@@ -1,5 +1,25 @@
 var XMigemoMailService = { 
 	 
+	kDATABASE : 'xulmigemo.summary.sqlite', 
+
+	kTABLE   : 'summaries',
+
+	kKEY       : 'key',
+	kID        : 'messageId',
+	kAUTHOR    : 'author',
+	kSUBJECT   : 'subject',
+	kRECIPIENT : 'recipient',
+	kCC        : 'cc',
+	kDATE      : 'last_updated_on',
+
+	kKEY_INDEX       : 0,
+	kID_INDEX        : 1,
+	kAUTHOR_INDEX    : 2,
+	kSUBJECT_INDEX   : 3,
+	kRECIPIENT_INDEX : 4,
+	kCC_INDEX        : 5,
+	kDATE_INDEX      : 6,
+ 
 	handleEvent : function(aEvent) 
 	{
 		switch (aEvent.type)
@@ -78,6 +98,34 @@ var XMigemoMailService = {
 
 		return terms || [];
 	},
+ 
+	get summariesDB() 
+	{
+		if (!this.mSummariesDB) {
+			const DirectoryService = Components.classes['@mozilla.org/file/directory_service;1'].getService(Components.interfaces.nsIProperties);
+			var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
+			file.append(this.kDATABASE);
+
+			var storageService = Components.classes['@mozilla.org/storage/service;1'].getService(Components.interfaces.mozIStorageService);
+			this.mSummariesDB = storageService.openDatabase(file);
+
+			if(!this.mSummariesDB.tableExists(this.kTABLE)){
+				this.mSummariesDB.createTable(this.kTABLE,
+					[
+						this.kKEY+' TEXT PRIMARY KEY',
+						this.kID+' TEXT',
+						this.kAUTHOR+' TEXT',
+						this.kSUBJECT+' TEXT',
+						this.kRECIPIENT+' TEXT',
+						this.kCC+' TEXT',
+						this.kDATE+' DATETIME'
+					].join(', ')
+				);
+			}
+		}
+		return this.mSummariesDB;
+	},
+	mSummariesDB : null,
  
 	init : function() 
 	{
@@ -158,7 +206,10 @@ XMigemoMailFolderSummary.prototype = {
 		mailSession.AddFolderListener(this, nsIFolderListener.added | nsIFolderListener.removed);
 
 		this.mDB = gDBView.db;
-		this.startToBuild();
+
+		if (!this.loadCache()) {
+			this.startToBuild();
+		}
 	},
  
 	destroy : function() 
@@ -193,9 +244,60 @@ XMigemoMailFolderSummary.prototype = {
 		}
 	},
  
+	updateCache : function() 
+	{
+		var sv = XMigemoMailService;
+		var statement = sv.summariesDB.createStatement(
+				'INSERT OR REPLACE INTO '+sv.kTABLE+
+				' VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7)');
+		statement.bindStringParameter(sv.kKEY_INDEX, this.mFolder);
+		statement.bindStringParameter(sv.kID_INDEX, this.mIds.join('\n'));
+		statement.bindStringParameter(sv.kAUTHOR_INDEX, this.mAuthors.join('\n'));
+		statement.bindStringParameter(sv.kSUBJECT_INDEX, this.mSubjects.join('\n'));
+		statement.bindStringParameter(sv.kRECIPIENT_INDEX, this.mRecipients.join('\n'));
+		statement.bindStringParameter(sv.kCC_INDEX, this.mCc.join('\n'));
+		statement.bindDoubleParameter(sv.kDATE_INDEX, Date.now());
+		try {
+			statement.executeStep();
+		}
+		catch(e) {
+			dump('updateCache / '+this.mFolder+'\n'+e+'\n');
+		}
+		statement.reset();
+	},
+ 
+	loadCache : function() 
+	{
+		var sv = XMigemoMailService;
+		var statement = sv.summariesDB.createStatement(
+				'SELECT * FROM '+sv.kTABLE+' WHERE '+sv.kKEY+' = ?1');
+		statement.bindStringParameter(0, this.mFolder);
+		statement.executeStep();
+		try {
+			this.mIds = statement.getString(sv.kID_INDEX).split('\n');
+			this.mAuthors = statement.getString(sv.kAUTHOR_INDEX).split('\n');
+			this.mSubjects = statement.getString(sv.kSUBJECT_INDEX).split('\n');
+			this.mRecipients = statement.getString(sv.kRECIPIENT_INDEX).split('\n');
+			this.mCc = statement.getString(sv.kCC_INDEX).split('\n');
+		}
+		catch(e) { // there is no thumbnail for the page
+			this.mIds = [];
+			this.mAuthors = [];
+			this.mSubjects = [];
+			this.mRecipients = [];
+			this.mCc = [];
+		}
+		statement.reset();
+
+		return this.mIds.length != 0;
+	},
+ 	
 	parseOneMessage : function(aSelf, aUseTimer) 
 	{
-		if (!aSelf.mMessages.hasMoreElements()) return false;
+		if (!aSelf.mMessages.hasMoreElements()) {
+			if (aUseTimer) aSelf.updateCache();
+			return false;
+		}
 
 		var msg = aSelf.mMessages.getNext().QueryInterface(Components.interfaces.nsIMsgDBHdr);
 		aSelf.addItem(msg);
@@ -206,7 +308,7 @@ XMigemoMailFolderSummary.prototype = {
 
 		return true;
 	},
-	 
+	
 	addItem : function(aMsgHdr) 
 	{
 		this.mIds.push(aMsgHdr.messageId);
@@ -227,10 +329,11 @@ XMigemoMailFolderSummary.prototype = {
 		this.mRecipients.splice(index, 1);
 		this.mCc.splice(index, 1);
 	},
- 	 
+  
 	parseAllMessages : function() 
 	{
 		while (this.parseOneMessage(this)) {}
+		this.updateCache();
 //dump('XMigemoMailFolderSummary end of build '+this.mFolder+' ('+this.mAuthors.length+')\n');
 	},
  
@@ -239,6 +342,7 @@ XMigemoMailFolderSummary.prototype = {
 		if (aParentItem.Value == this.mFolder) {
 			var msg = aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr);
 			this.addItem(msg);
+			this.updateCache();
 //			this.startToBuild();
 		}
 	},
@@ -246,6 +350,7 @@ XMigemoMailFolderSummary.prototype = {
 		if (aParentItem.Value == this.mFolder) {
 			var msg = aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr);
 			this.removeItem(msg);
+			this.updateCache();
 //			this.startToBuild();
 		}
 	},
