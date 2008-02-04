@@ -33,8 +33,6 @@ var XMigemoMailService = {
 		var uri = gDBView.msgFolder.URI;
 		if (uri in this.summaries)
 			return this.summaries[uri];
-//dump('make cache for '+uri+'\n');
-
 		this.summaries[uri] = new XMigemoMailFolderSummary(uri);
 		return this.summaries[uri];
 	},
@@ -78,7 +76,7 @@ var XMigemoMailService = {
 		catch(e) {
 		}
 
-		return terms;
+		return terms || [];
 	},
  
 	init : function() 
@@ -118,7 +116,7 @@ var XMigemoMailService = {
   
 function XMigemoMailFolderSummary(aFolder) 
 {
-dump('XMigemoMailFolderSummary initialize'+aFolder+'\n');
+//dump('XMigemoMailFolderSummary initialize'+aFolder+'\n');
 
 	this.mFolder = aFolder;
 	this.init();
@@ -147,7 +145,8 @@ XMigemoMailFolderSummary.prototype = {
 		return this.mCc.join('\n');
 	},
  
-	mAuthors : [], 
+	mIds : [], 
+	mAuthors : [],
 	mSubjects : [],
 	mRecipients : [],
 	mCc : [],
@@ -175,8 +174,9 @@ XMigemoMailFolderSummary.prototype = {
  
 	startToBuild : function() 
 	{
-dump('XMigemoMailFolderSummary start to build '+this.mFolder+'\n');
+//dump('XMigemoMailFolderSummary start to build '+this.mFolder+'\n');
 		this.stopToBuild();
+		this.mIds = [];
 		this.mAuthors = [];
 		this.mSubjects = [];
 		this.mRecipients = [];
@@ -198,12 +198,7 @@ dump('XMigemoMailFolderSummary start to build '+this.mFolder+'\n');
 		if (!aSelf.mMessages.hasMoreElements()) return false;
 
 		var msg = aSelf.mMessages.getNext().QueryInterface(Components.interfaces.nsIMsgDBHdr);
-		aSelf.mAuthors.push(msg.mime2DecodedAuthor);
-		aSelf.mSubjects.push(msg.mime2DecodedSubject);
-		aSelf.mRecipients.push(msg.mime2DecodedRecipients);
-		aSelf.mCc.push(XMigemoStrUtils.unescapeFromMime(msg.ccList));
-
-dump('parse: '+aSelf.mFolder+' / '+msg.mime2DecodedAuthor+'\n');
+		aSelf.addItem(msg);
 
 		if (aUseTimer) {
 			aSelf.mTimer = window.setTimeout(aSelf.parseOneMessage, aSelf.delay, aSelf, true);
@@ -211,21 +206,48 @@ dump('parse: '+aSelf.mFolder+' / '+msg.mime2DecodedAuthor+'\n');
 
 		return true;
 	},
+	 
+	addItem : function(aMsgHdr) 
+	{
+		this.mIds.push(aMsgHdr.messageId);
+		this.mAuthors.push(aMsgHdr.mime2DecodedAuthor);
+		this.mSubjects.push(aMsgHdr.mime2DecodedSubject);
+		this.mRecipients.push(aMsgHdr.mime2DecodedRecipients);
+		this.mCc.push(XMigemoStrUtils.unescapeFromMime(aMsgHdr.ccList));
+//dump('parse: '+this.mFolder+' / '+aMsgHdr.mime2DecodedAuthor+'\n');
+	},
  
+	removeItem : function(aMsgHdr) 
+	{
+		var index = this.mIds.indexOf(aMsgHdr.messageId);
+		if (index < 0) return;
+		this.mIds.splice(index, 1);
+		this.mAuthors.splice(index, 1);
+		this.mSubjects.splice(index, 1);
+		this.mRecipients.splice(index, 1);
+		this.mCc.splice(index, 1);
+	},
+ 	 
 	parseAllMessages : function() 
 	{
 		while (this.parseOneMessage(this)) {}
-dump('XMigemoMailFolderSummary end of build '+this.mFolder+' ('+this.mAuthors.length+')\n');
+//dump('XMigemoMailFolderSummary end of build '+this.mFolder+' ('+this.mAuthors.length+')\n');
 	},
- 	
+ 
 	// nsIFolderListener 
 	OnItemAdded : function(aParentItem, aItem) {
-		if (aParentItem.Value == this.mFolder)
-			this.startToBuild();
+		if (aParentItem.Value == this.mFolder) {
+			var msg = aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr);
+			this.addItem(msg);
+//			this.startToBuild();
+		}
 	},
 	OnItemRemoved : function(aParentItem, aItem) {
-		if (aParentItem.Value == this.mFolder)
-			this.startToBuild();
+		if (aParentItem.Value == this.mFolder) {
+			var msg = aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr);
+			this.removeItem(msg);
+//			this.startToBuild();
+		}
 	},
 	OnItemPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
 	OnItemIntPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
