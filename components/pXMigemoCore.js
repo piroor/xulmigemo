@@ -528,7 +528,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 
 		this.updateCacheTimers[key] = Components
 			.classes['@mozilla.org/timer;1']
-			.getService(Components.interfaces.nsITimer);
+			.createInstance(Components.interfaces.nsITimer);
         this.updateCacheTimers[key].init(
 			this.createUpdateCacheObserver(patterns, key),
 			100,

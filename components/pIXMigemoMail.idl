@@ -20,7 +20,7 @@ interface pIXMigemoMail : nsISupports
 		out wstring recipients,
 		out wstring cc
 	);
-	void updateSummaryCache(
+	void saveSummaryCache(
 		in nsIMsgFolder folder,
 		in AString messageIds,
 		in AString authors,
@@ -29,4 +29,5 @@ interface pIXMigemoMail : nsISupports
 		in AString cc
 	);
 	void clearSummaryCache(in nsIMsgFolder folder);
+	void refreshSummaryCache(in nsIMsgFolder folder);
 };
