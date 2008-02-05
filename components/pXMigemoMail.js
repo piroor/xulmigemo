@@ -131,7 +131,7 @@ dump('pIXMigemoMail::updateSummaryCache('+aFolder.URI+')\n');
 dump('pIXMigemoMail::clearSummaryCache('+aFolder.URI+')\n');
 
 		var statement = this.summariesDB.createStatement(
-				'DELETE * FROM '+this.kTABLE+' WHERE '+this.kKEY+' = ?1');
+				'DELETE FROM '+this.kTABLE+' WHERE '+this.kKEY+' = ?1');
 		statement.bindStringParameter(0, aFolder.URI);
 		try {
 			statement.executeStep();
