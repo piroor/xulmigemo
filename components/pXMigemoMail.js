@@ -94,10 +94,13 @@ dump('pIXMigemoMail::loadSummaryCache('+aFolder.URI+')\n');
 			aCc.value = statement.getString(this.kCC_INDEX);
 		}
 		catch(e) {
+			aIds.value = '';
+			aAuthors.value = '';
+			aSubjects.value = '';
+			aRecipients.value = '';
+			aCc.value = '';
 		}
 		statement.reset();
-
-		return aIds.value ? true : false ;
 	},
  
 	updateSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc) 
@@ -330,7 +333,8 @@ dump('FolderSummary::init 1\n');
 
 		var sv = Components.classes['@piro.sakura.ne.jp/xmigemo/mail;1']
 				.getService(Components.interfaces.pIXMigemoMail);
-		if (!sv.loadSummaryCache(this.mFolder, ids, authors, subjects, recipients, cc)) {
+		sv.loadSummaryCache(this.mFolder, ids, authors, subjects, recipients, cc);
+		if (!ids.value) {
 dump('FolderSummary::init 2\n');
 			this.buildProgressively();
 			return;

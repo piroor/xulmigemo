@@ -12,7 +12,7 @@ interface pIXMigemoMail : nsISupports
 		out unsigned long count, [array, size_is(count), retval] out wstring array
 	);
 
-	boolean loadSummaryCache(
+	void loadSummaryCache(
 		in nsIMsgFolder folder,
 		out AString messageIds,
 		out AString authors,
