@@ -1,0 +1,32 @@
+#include "nsISupports.idl"
+#include "nsIMsgFolder.idl"
+
+
+[scriptable, uuid(0cc43330-d388-11dc-95ff-0800200c9a66)]
+interface pIXMigemoMail : nsISupports
+{
+	void getTermsList(
+		in AString input,
+		in unsigned long searchMode,
+		in nsIMsgFolder folder,
+		out unsigned long count, [array, size_is(count), retval] out wstring array
+	);
+
+	boolean loadSummaryCache(
+		in nsIMsgFolder folder,
+		out AString messageIds,
+		out AString authors,
+		out AString subjects,
+		out AString recipients,
+		out AString cc
+	);
+	void updateSummaryCache(
+		in nsIMsgFolder folder,
+		in AString messageIds,
+		in AString authors,
+		in AString subjects,
+		in AString recipients,
+		in AString cc
+	);
+	void clearSummaryCache(in nsIMsgFolder folder);
+};
