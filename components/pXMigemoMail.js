@@ -60,7 +60,7 @@ pXMigemoMail.prototype = {
 			var storageService = Components.classes['@mozilla.org/storage/service;1'].getService(Components.interfaces.mozIStorageService);
 			this.mSummariesDB = storageService.openDatabase(file);
 
-			if(!this.mSummariesDB.tableExists(this.kTABLE)){
+			if (!this.mSummariesDB.tableExists(this.kTABLE)) {
 				this.mSummariesDB.createTable(this.kTABLE,
 					[
 						this.kKEY+' TEXT PRIMARY KEY',
@@ -126,8 +126,6 @@ dump('pIXMigemoMail::updateSummaryCache('+aFolder.URI+')\n');
 	clearSummaryCache : function(aFolder) 
 	{
 dump('pIXMigemoMail::clearSummaryCache('+aFolder.URI+')\n');
-
-		this.initArray();
 
 		var statement = this.summariesDB.createStatement(
 				'DELETE * FROM '+this.kTABLE+' WHERE '+this.kKEY+' = ?1');
