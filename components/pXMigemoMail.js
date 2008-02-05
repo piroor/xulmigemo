@@ -9,7 +9,7 @@ var Prefs = Components
 var MailSession;
  
 function pXMigemoMail() { 
-	dump('create instance pIXMigemoMail\n');
+//	dump('create instance pIXMigemoMail\n');
 	this.init();
 }
 
@@ -80,7 +80,7 @@ pXMigemoMail.prototype = {
  
 	loadSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc) 
 	{
-dump('pIXMigemoMail::loadSummaryCache('+aFolder.URI+')\n');
+//dump('pIXMigemoMail::loadSummaryCache('+aFolder.URI+')\n');
 
 		var statement = this.summariesDB.createStatement(
 				'SELECT * FROM '+this.kTABLE+' WHERE '+this.kKEY+' = ?1');
@@ -103,7 +103,7 @@ dump('pIXMigemoMail::loadSummaryCache('+aFolder.URI+')\n');
 		statement.reset();
 	},
  
-	updateSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc) 
+	saveSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc) 
 	{
 		var statement = this.summariesDB.createStatement(
 				'INSERT OR REPLACE INTO '+this.kTABLE+
@@ -119,16 +119,16 @@ dump('pIXMigemoMail::loadSummaryCache('+aFolder.URI+')\n');
 			statement.executeStep();
 		}
 		catch(e) {
-			dump('error on pIXMigemoMail::updateSummaryCache / '+aFolder.URI+'\n'+e+'\n');
+			dump('error on pIXMigemoMail::saveSummaryCache / '+aFolder.URI+'\n'+e+'\n');
 		}
 		statement.reset();
 
-dump('pIXMigemoMail::updateSummaryCache('+aFolder.URI+')\n');
+//dump('pIXMigemoMail::saveSummaryCache('+aFolder.URI+')\n');
 	},
  
 	clearSummaryCache : function(aFolder) 
 	{
-dump('pIXMigemoMail::clearSummaryCache('+aFolder.URI+')\n');
+//dump('pIXMigemoMail::clearSummaryCache('+aFolder.URI+')\n');
 
 		var statement = this.summariesDB.createStatement(
 				'DELETE FROM '+this.kTABLE+' WHERE '+this.kKEY+' = ?1');
@@ -140,6 +140,12 @@ dump('pIXMigemoMail::clearSummaryCache('+aFolder.URI+')\n');
 		}
 		statement.reset();
 	},
+ 	
+	refreshSummaryCache : function(aFolder) 
+	{
+		this.clearSummaryCache(aFolder);
+		this.getSummary(aFolder).buildProgressively();
+	},
  
 	summaries : {}, 
  
@@ -149,7 +155,7 @@ dump('pIXMigemoMail::clearSummaryCache('+aFolder.URI+')\n');
 		if (uri in this.summaries)
 			return this.summaries[uri];
 
-dump('pIXMigemoMail::create new summary for '+uri+'\n');
+//dump('pIXMigemoMail::create new summary for '+uri+'\n');
 
 		this.summaries[uri] = new FolderSummary(aFolder);
 		return this.summaries[uri];
@@ -217,10 +223,13 @@ dump('pIXMigemoMail::create new summary for '+uri+'\n');
 	OnItemUnicharPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
 	OnItemPropertyFlagChanged : function(aItem, aProperty, aOld, aNew) {},
 	OnItemEvent : function(aItem, aEvent) {
+//dump('pIXMigemo::OnItemEvent '+aEvent.toString()+'\n');
 		switch (aEvent.toString())
 		{
 			case 'CompactCompleted':
-				this.clearSummaryCache(aItem.QueryInterface(Components.interfaces.nsIMsgFolder));
+				this.refreshSummaryCache(aItem.QueryInterface(Components.interfaces.nsIMsgFolder));
+				return;
+
 			case 'FolderLoaded':
 				this.getSummary(aItem.QueryInterface(Components.interfaces.nsIMsgFolder));
 				return;
@@ -240,8 +249,9 @@ dump('pIXMigemoMail::create new summary for '+uri+'\n');
 		MailSession.AddFolderListener(this, nsIFolderListener.event);
 
 		ObserverService.addObserver(this, 'quit-application', false);
+		ObserverService.addObserver(this, 'XMigemo:compactFolderRequested', false);
 
-dump('pIXMigemoMail::initialize done\n');
+//dump('pIXMigemoMail::initialize done\n');
 	},
  
 	destroy : function() 
@@ -251,9 +261,15 @@ dump('pIXMigemoMail::initialize done\n');
 		this.initialized = false;
 
 		MailSession.RemoveFolderListener(this);
-		ObserverService.removeObserver(this, 'quit-application');
 
-dump('pIXMigemoMail::destroy done\n');
+		ObserverService.removeObserver(this, 'quit-application');
+		ObserverService.removeObserver(this, 'XMigemo:compactFolderRequested');
+
+		for (var i in this.summaries)
+		{
+			this.summaries[i].destroy();
+		}
+//dump('pIXMigemoMail::destroy done\n');
 	},
  
 	observe : function(aSubject, aTopic, aData) 
@@ -262,6 +278,12 @@ dump('pIXMigemoMail::destroy done\n');
 		{
 			case 'quit-application':
 				this.destroy();
+				return;
+
+			case 'XMigemo:compactFolderRequested':
+				var folder = aSubject.QueryInterface(Components.interfaces.nsIMsgFolder);
+				if (!folder.expungedBytes && aData != 'forceCompact')
+					this.refreshSummaryCache(folder);
 				return;
 		}
 	},
@@ -276,7 +298,7 @@ dump('pIXMigemoMail::destroy done\n');
 		return this;
 	}
 };
- 	 
+  
 function FolderSummary(aFolder) 
 {
 	this.mFolder = aFolder;
@@ -317,14 +339,9 @@ FolderSummary.prototype = {
  
 	init : function() 
 	{
-dump('FolderSummary::init\n');
 		var nsIFolderListener = Components.interfaces.nsIFolderListener;
 		MailSession.AddFolderListener(this, nsIFolderListener.added | nsIFolderListener.removed);
 
-dump('FolderSummary::init 0\n');
-		this.mDB = this.mFolder.getMsgDatabase(null);
-
-dump('FolderSummary::init 1\n');
 		var ids = {},
 			authors = {},
 			subjects = {},
@@ -335,19 +352,17 @@ dump('FolderSummary::init 1\n');
 				.getService(Components.interfaces.pIXMigemoMail);
 		sv.loadSummaryCache(this.mFolder, ids, authors, subjects, recipients, cc);
 		if (!ids.value) {
-dump('FolderSummary::init 2\n');
 			this.buildProgressively();
 			return;
 		}
 
-dump('FolderSummary::init 3\n');
 		this.initArray();
 		this.mIds = ids.value.split('\n');
 		this.mAuthors = authors.value.split('\n');
 		this.mSubjects = subjects.value.split('\n');
 		this.mRecipients = recipients.value.split('\n');
 		this.mCc = cc.value.split('\n');
-dump('FolderSummary::initialize done\n');
+//dump('FolderSummary::initialize done\n');
 	},
  
 	destroy : function() 
@@ -355,7 +370,6 @@ dump('FolderSummary::initialize done\n');
 		this.stopToBuild();
 
 		delete this.mFolder;
-		delete this.mDB;
 
 		MailSession.RemoveFolderListener(this);
 	},
@@ -364,13 +378,14 @@ dump('FolderSummary::initialize done\n');
 	 
 	buildProgressively : function() 
 	{
-dump('FolderSummary::buildProgressively('+this.mFolder.URI+')\n');
+//dump('FolderSummary::buildProgressively('+this.mFolder.URI+')\n');
 
 		this.stopToBuild();
 		this.initArray();
-		this.mMessages = this.mDB.EnumerateMessages();
+
+		this.mMessages = this.mFolder.getMsgDatabase(null).EnumerateMessages();
 		this.mProgressiveBuildTimer = Components.classes['@mozilla.org/timer;1']
-					.getService(Components.interfaces.nsITimer);
+					.createInstance(Components.interfaces.nsITimer);
 		this.mProgressiveBuildTimer.init(this, this.delay,
 			this.mProgressiveBuildTimer.TYPE_REPEATING_SLACK);
 	},
@@ -392,7 +407,7 @@ dump('FolderSummary::buildProgressively('+this.mFolder.URI+')\n');
 			this.mUpdateCacheTimer = null;
 		}
 		this.mUpdateCacheTimer = Components.classes['@mozilla.org/timer;1']
-					.getService(Components.interfaces.nsITimer);
+					.createInstance(Components.interfaces.nsITimer);
 		this.mUpdateCacheTimer.init(this, 100,
 			this.mUpdateCacheTimer.TYPE_ONE_SHOT);
 	},
@@ -401,7 +416,7 @@ dump('FolderSummary::buildProgressively('+this.mFolder.URI+')\n');
 	{
 		var sv = Components.classes['@piro.sakura.ne.jp/xmigemo/mail;1']
 				.getService(Components.interfaces.pIXMigemoMail);
-		sv.updateSummaryCache(
+		sv.saveSummaryCache(
 			this.mFolder,
 			this.mIds.join('\n'),
 			this.mAuthors.join('\n'),
@@ -415,13 +430,11 @@ dump('FolderSummary::buildProgressively('+this.mFolder.URI+')\n');
    
 // parse 
 	
-	parseOneMessage : function(aInProgress) 
+	parseOneMessage : function() 
 	{
 		if (!this.mMessages.hasMoreElements()) {
-			if (aInProgress) {
-				this.updateCache();
-				this.stopToBuild();
-			}
+			this.stopToBuild();
+			this.updateCache();
 			return false;
 		}
 
@@ -455,7 +468,6 @@ dump('FolderSummary::buildProgressively('+this.mFolder.URI+')\n');
 	parseAllMessages : function() 
 	{
 		while (this.parseOneMessage()) {}
-		this.updateCache();
 //dump('FolderSummary end of build '+this.mFolder.URI+' ('+this.mAuthors.length+')\n');
 	},
   
@@ -487,7 +499,7 @@ dump('FolderSummary::buildProgressively('+this.mFolder.URI+')\n');
 		{
 			case 'timer-callback':
 				if (aSubject == this.mProgressiveBuildTimer)
-					this.parseOneMessage(true);
+					this.parseOneMessage();
 				else
 					this.updateCacheCallback();
 				return;

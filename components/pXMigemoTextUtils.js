@@ -200,7 +200,7 @@ pXMigemoTextUtils.prototype = {
 			}
 			this.delayedSelectTimer = Components
 				.classes['@mozilla.org/timer;1']
-				.getService(Components.interfaces.nsITimer);
+				.createInstance(Components.interfaces.nsITimer);
 	        this.delayedSelectTimer.init(
 				this.createDelayedSelectObserver(aNode.parentNode, startOffset, childCount, aSelectLength, aIsHighlight),
 				1,
