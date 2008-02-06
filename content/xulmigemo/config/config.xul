@@ -32,6 +32,9 @@
 		<preference id="xulmigemo.mailnews.threadsearch.enabled"
 			name="xulmigemo.mailnews.threadsearch.enabled"
 			type="bool"/>
+		<preference id="xulmigemo.mailnews.threadsearch.body"
+			name="xulmigemo.mailnews.threadsearch.body"
+			type="bool"/>
 
 		<preference id="xulmigemo.ignoreHiraKata"
 			name="xulmigemo.ignoreHiraKata"
@@ -75,6 +78,12 @@
 	<checkbox id="xulmigemo.mailnews.threadsearch.enabled-check" flex="1"
 		label="&xulmigemo.mailnews.threadsearch.enabled;"
 		preference="xulmigemo.mailnews.threadsearch.enabled"/>
+	<hbox>
+		<spacer style="width:1em;"/>
+		<checkbox id="xulmigemo.mailnews.threadsearch.body-check" flex="1"
+			label="&xulmigemo.mailnews.threadsearch.body;"
+			preference="xulmigemo.mailnews.threadsearch.body"/>
+	</hbox>
 
 	<groupbox>
 		<caption label="&xulmigemo.caption.recognize;"/>

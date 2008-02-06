@@ -15,6 +15,7 @@
 <!ENTITY xulmigemo.highlight.showScreen    "「すべて強調表示」をより強く強調する">
 
 <!ENTITY xulmigemo.mailnews.threadsearch.enabled "メールの検索でXUL/Migemoを使用する">
+<!ENTITY xulmigemo.mailnews.threadsearch.body    "本文も検索する（処理が重くなります）">
 
 
 <!ENTITY xulmigemo.caption.recognize       "文字の認識">

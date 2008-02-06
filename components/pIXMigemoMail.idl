@@ -18,7 +18,8 @@ interface pIXMigemoMail : nsISupports
 		out wstring authors,
 		out wstring subjects,
 		out wstring recipients,
-		out wstring cc
+		out wstring cc,
+		out wstring body
 	);
 	void saveSummaryCache(
 		in nsIMsgFolder folder,
@@ -26,7 +27,8 @@ interface pIXMigemoMail : nsISupports
 		in AString authors,
 		in AString subjects,
 		in AString recipients,
-		in AString cc
+		in AString cc,
+		in AString body
 	);
 	void clearSummaryCache(in nsIMsgFolder folder);
 	void refreshSummaryCache(in nsIMsgFolder folder);

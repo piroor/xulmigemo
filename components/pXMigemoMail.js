@@ -40,6 +40,7 @@ pXMigemoMail.prototype = {
 	kSUBJECT   : 'subject',
 	kRECIPIENT : 'recipient',
 	kCC        : 'cc',
+	kBODY      : 'body',
 	kDATE      : 'last_updated_on',
 
 	kKEY_INDEX       : 0,
@@ -48,7 +49,8 @@ pXMigemoMail.prototype = {
 	kSUBJECT_INDEX   : 3,
 	kRECIPIENT_INDEX : 4,
 	kCC_INDEX        : 5,
-	kDATE_INDEX      : 6,
+	kBODY_INDEX      : 6,
+	kDATE_INDEX      : 7,
  
 	get summariesDB() 
 	{
@@ -69,6 +71,7 @@ pXMigemoMail.prototype = {
 						this.kSUBJECT+' TEXT',
 						this.kRECIPIENT+' TEXT',
 						this.kCC+' TEXT',
+						this.kBODY+' TEXT',
 						this.kDATE+' DATETIME'
 					].join(', ')
 				);
@@ -78,7 +81,7 @@ pXMigemoMail.prototype = {
 	},
 	mSummariesDB : null,
  
-	loadSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc) 
+	loadSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc, aBodies) 
 	{
 //dump('pIXMigemoMail::loadSummaryCache('+aFolder.URI+')\n');
 
@@ -92,6 +95,7 @@ pXMigemoMail.prototype = {
 			aSubjects.value = statement.getString(this.kSUBJECT_INDEX);
 			aRecipients.value = statement.getString(this.kRECIPIENT_INDEX);
 			aCc.value = statement.getString(this.kCC_INDEX);
+			aBodies.value = statement.getString(this.kBODY_INDEX);
 		}
 		catch(e) {
 			aIds.value = '';
@@ -99,21 +103,23 @@ pXMigemoMail.prototype = {
 			aSubjects.value = '';
 			aRecipients.value = '';
 			aCc.value = '';
+			aBodies.value = '';
 		}
 		statement.reset();
 	},
  
-	saveSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc) 
+	saveSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc, aBodies) 
 	{
 		var statement = this.summariesDB.createStatement(
 				'INSERT OR REPLACE INTO '+this.kTABLE+
-				' VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7)');
+				' VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)');
 		statement.bindStringParameter(this.kKEY_INDEX, aFolder.URI);
 		statement.bindStringParameter(this.kID_INDEX, aIds);
 		statement.bindStringParameter(this.kAUTHOR_INDEX, aAuthors);
 		statement.bindStringParameter(this.kSUBJECT_INDEX, aSubjects);
 		statement.bindStringParameter(this.kRECIPIENT_INDEX, aRecipients);
 		statement.bindStringParameter(this.kCC_INDEX, aCc);
+		statement.bindStringParameter(this.kBODY_INDEX, aBodies);
 		statement.bindDoubleParameter(this.kDATE_INDEX, Date.now());
 		try {
 			statement.executeStep();
@@ -197,6 +203,9 @@ pXMigemoMail.prototype = {
 				table.push(summaries.recipients);
 				table.push(summaries.cc);
 			}
+			if (aSearchMode == this.kQuickSearchBody) {
+				table.push(summaries.bodies);
+			}
 			if (table.length) {
 				table = table.join('\n');
 				terms = table.match(new RegExp(this.core.getRegExp(aInput), 'ig'));
@@ -215,8 +224,28 @@ pXMigemoMail.prototype = {
 	},
   
 	// nsIFolderListener 
-	OnItemAdded : function(aParentItem, aItem) {},
-	OnItemRemoved : function(aParentItem, aItem) {},
+	OnItemAdded : function(aParentItem, aItem)
+	{
+		try {
+			var summary = this.getSummary(aParentItem.QueryInterface(Components.interfaces.nsIMsgFolder));
+			var msg = aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr);
+			summary.addItem(msg);
+			summary.updateCache();
+		}
+		catch(e) {
+		}
+	},
+	OnItemRemoved : function(aParentItem, aItem)
+	{
+		try {
+			var summary = this.getSummary(aParentItem.QueryInterface(Components.interfaces.nsIMsgFolder));
+			var msg = aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr);
+			summary.removeItem(msg);
+			summary.updateCache();
+		}
+		catch(e) {
+		}
+	},
 	OnItemPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
 	OnItemIntPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
 	OnItemBoolPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
@@ -246,7 +275,7 @@ pXMigemoMail.prototype = {
 					.getService(Components.interfaces.nsIMsgMailSession);
 
 		var nsIFolderListener = Components.interfaces.nsIFolderListener;
-		MailSession.AddFolderListener(this, nsIFolderListener.event);
+		MailSession.AddFolderListener(this, nsIFolderListener.added | nsIFolderListener.removed | nsIFolderListener.event);
 
 		ObserverService.addObserver(this, 'quit-application', false);
 		ObserverService.addObserver(this, 'XMigemo:compactFolderRequested', false);
@@ -327,6 +356,11 @@ FolderSummary.prototype = {
 		this.parseAllMessages();
 		return this.mCc.join('\n');
 	},
+	get bodies()
+	{
+		this.parseAllMessages();
+		return this.mBodies.join('\n');
+	},
  
 	initArray : function() 
 	{
@@ -335,22 +369,21 @@ FolderSummary.prototype = {
 		this.mSubjects = [];
 		this.mRecipients = [];
 		this.mCc = [];
+		this.mBodies = [];
 	},
  
 	init : function() 
 	{
-		var nsIFolderListener = Components.interfaces.nsIFolderListener;
-		MailSession.AddFolderListener(this, nsIFolderListener.added | nsIFolderListener.removed);
-
 		var ids = {},
 			authors = {},
 			subjects = {},
 			recipients = {},
-			cc = {};
+			cc = {},
+			bodies = {};
 
 		var sv = Components.classes['@piro.sakura.ne.jp/xmigemo/mail;1']
 				.getService(Components.interfaces.pIXMigemoMail);
-		sv.loadSummaryCache(this.mFolder, ids, authors, subjects, recipients, cc);
+		sv.loadSummaryCache(this.mFolder, ids, authors, subjects, recipients, cc, bodies);
 		if (!ids.value) {
 			this.buildProgressively();
 			return;
@@ -362,6 +395,7 @@ FolderSummary.prototype = {
 		this.mSubjects = subjects.value.split('\n');
 		this.mRecipients = recipients.value.split('\n');
 		this.mCc = cc.value.split('\n');
+		this.mBodies = bodies.value.split('\n');
 //dump('FolderSummary::initialize done\n');
 	},
  
@@ -370,8 +404,6 @@ FolderSummary.prototype = {
 		this.stopToBuild();
 
 		delete this.mFolder;
-
-		MailSession.RemoveFolderListener(this);
 	},
  
 // build 
@@ -422,7 +454,8 @@ FolderSummary.prototype = {
 			this.mAuthors.join('\n'),
 			this.mSubjects.join('\n'),
 			this.mRecipients.join('\n'),
-			this.mCc.join('\n')
+			this.mCc.join('\n'),
+			this.mBodies.join('\n')
 		);
 		this.mUpdateCacheTimer.cancel();
 		this.mUpdateCacheTimer = null;
@@ -451,7 +484,90 @@ FolderSummary.prototype = {
 		this.mSubjects.push(aMsgHdr.mime2DecodedSubject);
 		this.mRecipients.push(aMsgHdr.mime2DecodedRecipients);
 		this.mCc.push(unescapeFromMime(aMsgHdr.ccList));
+		this.mBodies.push(this.readBody(aMsgHdr));
 //dump('parse: '+this.mFolder.URI+' / '+aMsgHdr.mime2DecodedAuthor+'\n');
+	},
+	readBody : function(aMsgHdr)
+	{
+		if (!Prefs.getBoolPref('xulmigemo.mailnews.threadsearch.body')) return '';
+
+		var stream = this.mFolder.getOfflineFileStream(aMsgHdr.messageKey, {}, {})
+			.QueryInterface(Components.interfaces.nsISeekableStream)
+			.QueryInterface(Components.interfaces.nsILineInputStream);
+		stream.seek(stream.NS_SEEK_SET, aMsgHdr.messageOffset);
+
+		var multipart = false;
+		var boundary = '';
+		var charset = null;
+
+		var charsetRegExp = /Content-Type:[^;]+;.*charset=([^;\s]+)/;
+
+		// read header
+		var line = {};
+		while (stream.readLine(line))
+		{
+			if (!charset && charsetRegExp.test(line.value)) {
+				charset = RegExp.$1;
+			}
+			if (line.value.indexOf('multipart/') || line.value.indexOf('message/')) {
+				multipart = true;
+			}
+			if (!boundary && line.value.indexOf('boundary=') > -1) {
+				boundary = line.value.substring(line.value.indexOf('"')+1);
+				boundary = '--' + boundary.substring(0, boundary.indexOf('"'));
+			}
+			if (!line.value) break;
+		}
+
+		// read body
+		var msg = [];
+		var count  = aMsgHdr.lineCount;
+		for (var i = 0; i < count; i++)
+		{
+			if (!stream.readLine(line)) break;
+			msg.push(line.value);
+		}
+
+		stream.close();
+
+		var UConv = Components
+			.classes['@mozilla.org/intl/scriptableunicodeconverter']
+			.getService(Components.interfaces.nsIScriptableUnicodeConverter);
+
+		msg = msg.join('\n');
+		if (multipart && boundary) {
+			var parts = msg.split(boundary+'\n');
+			msg = [];
+			for (var i in parts)
+			{
+				parts[i] = parts[i].split('\n\n');
+				if (parts[i][0].indexOf('Content-Type: text/') < 0) continue;
+				charsetRegExp.test(parts[i][0]);
+				parts[i].splice(0, 1);
+				var body = parts[i].join('\n\n');
+				if (RegExp.$1) {
+					try {
+						UConv.charset = RegExp.$1;
+						body = UConv.ConvertToUnicode(body);
+					}
+					catch(e) {
+					}
+				}
+				msg.push(body);
+			}
+
+			msg = msg.join('\n\n');
+		}
+		else if (charset) {
+			try {
+				UConv.charset = charset;
+				msg = UConv.ConvertToUnicode(msg);
+			}
+			catch(e) {
+			}
+		}
+
+		return msg;
 	},
  
 	removeItem : function(aMsgHdr) 
@@ -463,6 +579,7 @@ FolderSummary.prototype = {
 		this.mSubjects.splice(index, 1);
 		this.mRecipients.splice(index, 1);
 		this.mCc.splice(index, 1);
+		this.mBodies.splice(index, 1);
 	},
   
 	parseAllMessages : function() 
@@ -471,28 +588,6 @@ FolderSummary.prototype = {
 //dump('FolderSummary end of build '+this.mFolder.URI+' ('+this.mAuthors.length+')\n');
 	},
   
-	// nsIFolderListener 
-	OnItemAdded : function(aParentItem, aItem) {
-		if (aParentItem.Value == this.mFolder.URI) {
-			var msg = aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr);
-			this.addItem(msg);
-			this.updateCache();
-		}
-	},
-	OnItemRemoved : function(aParentItem, aItem) {
-		if (aParentItem.Value == this.mFolder.URI) {
-			var msg = aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr);
-			this.removeItem(msg);
-			this.updateCache();
-		}
-	},
-	OnItemPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
-	OnItemIntPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
-	OnItemBoolPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
-	OnItemUnicharPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
-	OnItemPropertyFlagChanged : function(aItem, aProperty, aOld, aNew) {},
-	OnItemEvent : function(aItem, aEvent) {},
- 
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)

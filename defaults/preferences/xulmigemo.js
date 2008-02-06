@@ -12,6 +12,7 @@ pref("xulmigemo.ignore_find_links_only_behavior", true);
 pref("xulmigemo.rebuild_selection",             true);
 
 pref("xulmigemo.mailnews.threadsearch.enabled", true);
+pref("xulmigemo.mailnews.threadsearch.body",    false);
 
 pref("xulmigemo.combination.autocompletemanager", true);
 
