@@ -30,7 +30,7 @@ pXMigemoMail.prototype = {
 	 
 // summary 
 	 
-	kDATABASE : 'xulmigemo.summary.sqlite', 
+	kDATABASE : 'xulmigemo.sqlite', 
 
 	kTABLE   : 'summaries',
 
@@ -515,7 +515,7 @@ FolderSummary.prototype = {
 		this.mSubjects.push((aMsgHdr.mime2DecodedSubject || '').replace(/[\r\n]+/g, '\t'));
 		this.mRecipients.push((aMsgHdr.mime2DecodedRecipients || '').replace(/[\r\n]+/g, '\t'));
 		this.mCc.push(unescapeFromMime(aMsgHdr.ccList || '').replace(/[\r\n]+/g, '\t'));
-		this.mBodies.push(this.readBody(aMsgHdr).replace(/[\r\n]+/g, '\t'));
+		this.mBodies.push(this.summarize(this.readBody(aMsgHdr)).replace(/[\r\n]+/g, '\t'));
 //dump('parse: '+this.mFolder.URI+' / '+aMsgHdr.mime2DecodedAuthor+'\n');
 	},
 	
@@ -532,7 +532,7 @@ FolderSummary.prototype = {
 		var boundary = '';
 		var charset = null;
 
-		var charsetRegExp = /Content-Type:[^;]+;.*charset=([^;\s]+)/;
+		var charsetRegExp = /Content-Type:[^;]+;.*charset=['"]?([^;'"\s]+)/;
 
 		// read header
 		var line = {};
@@ -600,6 +600,17 @@ FolderSummary.prototype = {
 		}
 
 		return msg;
+	},
+ 
+	summarize : function(aInput)
+	{
+		return aInput
+			.replace(/[\n\r]+/g, '\n')
+			.replace(/\s\s+/g, ' ')
+			.split('\n')
+			.sort()
+			.join('\n')
+			.replace(/^(.+)$(\n\1)+/mg, '$1');
 	},
   	
 	removeItem : function(aMsgHdr) 
