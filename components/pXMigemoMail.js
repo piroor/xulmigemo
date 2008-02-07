@@ -265,7 +265,7 @@ pXMigemoMail.prototype = {
 				return;
 		}
 	},
- 	
+ 
 	init : function(aLang) 
 	{
 		if (this.initialized) return;
@@ -474,7 +474,7 @@ FolderSummary.prototype = {
 		this.mUpdateCacheTimer.init(this, 100,
 			this.mUpdateCacheTimer.TYPE_ONE_SHOT);
 	},
-	 
+	
 	updateCacheCallback : function() 
 	{
 		var sv = Components.classes['@piro.sakura.ne.jp/xmigemo/mail;1']
@@ -510,15 +510,15 @@ FolderSummary.prototype = {
 	 
 	addItem : function(aMsgHdr) 
 	{
-		this.mIds.push(aMsgHdr.messageId.replace(/[\r\n]+/g, '\t'));
-		this.mAuthors.push(aMsgHdr.mime2DecodedAuthor.replace(/[\r\n]+/g, '\t'));
-		this.mSubjects.push(aMsgHdr.mime2DecodedSubject.replace(/[\r\n]+/g, '\t'));
-		this.mRecipients.push(aMsgHdr.mime2DecodedRecipients.replace(/[\r\n]+/g, '\t'));
-		this.mCc.push(unescapeFromMime(aMsgHdr.ccList).replace(/[\r\n]+/g, '\t'));
+		this.mIds.push((aMsgHdr.messageId || '').replace(/[\r\n]+/g, '\t'));
+		this.mAuthors.push((aMsgHdr.mime2DecodedAuthor || '').replace(/[\r\n]+/g, '\t'));
+		this.mSubjects.push((aMsgHdr.mime2DecodedSubject || '').replace(/[\r\n]+/g, '\t'));
+		this.mRecipients.push((aMsgHdr.mime2DecodedRecipients || '').replace(/[\r\n]+/g, '\t'));
+		this.mCc.push(unescapeFromMime(aMsgHdr.ccList || '').replace(/[\r\n]+/g, '\t'));
 		this.mBodies.push(this.readBody(aMsgHdr).replace(/[\r\n]+/g, '\t'));
 //dump('parse: '+this.mFolder.URI+' / '+aMsgHdr.mime2DecodedAuthor+'\n');
 	},
-	 
+	
 	readBody : function(aMsgHdr) 
 	{
 		if (!Prefs.getBoolPref('xulmigemo.mailnews.threadsearch.body')) return '';
@@ -601,7 +601,7 @@ FolderSummary.prototype = {
 
 		return msg;
 	},
-  
+  	
 	removeItem : function(aMsgHdr) 
 	{
 		var index = this.mIds.indexOf(aMsgHdr.messageId);
