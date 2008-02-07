@@ -146,7 +146,7 @@ pXMigemoMail.prototype = {
 		}
 		statement.reset();
 	},
- 	
+ 
 	refreshSummaryCache : function(aFolder) 
 	{
 		this.clearSummaryCache(aFolder);
@@ -228,8 +228,8 @@ pXMigemoMail.prototype = {
 	{
 		try {
 			var summary = this.getSummary(aParentItem.QueryInterface(Components.interfaces.nsIMsgFolder));
-			var msg = aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr);
-			summary.addItem(msg);
+			if (summary.isBuilding) return;
+			summary.addItem(aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr));
 			summary.updateCache();
 		}
 		catch(e) {
@@ -239,8 +239,8 @@ pXMigemoMail.prototype = {
 	{
 		try {
 			var summary = this.getSummary(aParentItem.QueryInterface(Components.interfaces.nsIMsgFolder));
-			var msg = aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr);
-			summary.removeItem(msg);
+			if (summary.isBuilding) return;
+			summary.removeItem(aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr));
 			summary.updateCache();
 		}
 		catch(e) {
@@ -251,7 +251,8 @@ pXMigemoMail.prototype = {
 	OnItemBoolPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
 	OnItemUnicharPropertyChanged : function(aItem, aProperty, aOld, aNew) {},
 	OnItemPropertyFlagChanged : function(aItem, aProperty, aOld, aNew) {},
-	OnItemEvent : function(aItem, aEvent) {
+	OnItemEvent : function(aItem, aEvent)
+	{
 //dump('pIXMigemo::OnItemEvent '+aEvent.toString()+'\n');
 		switch (aEvent.toString())
 		{
@@ -264,7 +265,7 @@ pXMigemoMail.prototype = {
 				return;
 		}
 	},
- 
+ 	
 	init : function(aLang) 
 	{
 		if (this.initialized) return;
@@ -338,38 +339,58 @@ FolderSummary.prototype = {
 	 
 	get authors() 
 	{
-		this.parseAllMessages();
+		if (!this.mAuthors.length) {
+			this.init();
+			if (this.isBuilding) {
+				this.stopToBuild();
+				this.parseAllMessages();
+			}
+		}
 		return this.mAuthors.join('\n');
 	},
 	get subjects()
 	{
-		this.parseAllMessages();
+		if (!this.mSubjects.length) {
+			this.init();
+			if (this.isBuilding) {
+				this.stopToBuild();
+				this.parseAllMessages();
+			}
+		}
 		return this.mSubjects.join('\n');
 	},
 	get recipients()
 	{
-		this.parseAllMessages();
+		if (!this.mRecipients.length) {
+			this.init();
+			if (this.isBuilding) {
+				this.stopToBuild();
+				this.parseAllMessages();
+			}
+		}
 		return this.mRecipients.join('\n');
 	},
 	get cc()
 	{
-		this.parseAllMessages();
+		if (!this.mCc.length) {
+			this.init();
+			if (this.isBuilding) {
+				this.stopToBuild();
+				this.parseAllMessages();
+			}
+		}
 		return this.mCc.join('\n');
 	},
 	get bodies()
 	{
-		this.parseAllMessages();
+		if (!this.mBodies.length) {
+			this.init();
+			if (this.isBuilding) {
+				this.stopToBuild();
+				this.parseAllMessages();
+			}
+		}
 		return this.mBodies.join('\n');
-	},
- 
-	initArray : function() 
-	{
-		this.mIds = [];
-		this.mAuthors = [];
-		this.mSubjects = [];
-		this.mRecipients = [];
-		this.mCc = [];
-		this.mBodies = [];
 	},
  
 	init : function() 
@@ -389,7 +410,6 @@ FolderSummary.prototype = {
 			return;
 		}
 
-		this.initArray();
 		this.mIds = ids.value.split('\n');
 		this.mAuthors = authors.value.split('\n');
 		this.mSubjects = subjects.value.split('\n');
@@ -407,13 +427,24 @@ FolderSummary.prototype = {
 	},
  
 // build 
-	 
+	
+	get isBuilding() 
+	{
+		return this.mProgressiveBuildTimer ? true : false ;
+	},
+ 
 	buildProgressively : function() 
 	{
 //dump('FolderSummary::buildProgressively('+this.mFolder.URI+')\n');
 
 		this.stopToBuild();
-		this.initArray();
+
+		this.mIds = [];
+		this.mAuthors = [];
+		this.mSubjects = [];
+		this.mRecipients = [];
+		this.mCc = [];
+		this.mBodies = [];
 
 		this.mMessages = this.mFolder.getMsgDatabase(null).EnumerateMessages();
 		this.mProgressiveBuildTimer = Components.classes['@mozilla.org/timer;1']
@@ -462,7 +493,7 @@ FolderSummary.prototype = {
 	},
    
 // parse 
-	
+	 
 	parseOneMessage : function() 
 	{
 		if (!this.mMessages.hasMoreElements()) {
@@ -479,15 +510,16 @@ FolderSummary.prototype = {
 	 
 	addItem : function(aMsgHdr) 
 	{
-		this.mIds.push(aMsgHdr.messageId);
-		this.mAuthors.push(aMsgHdr.mime2DecodedAuthor);
-		this.mSubjects.push(aMsgHdr.mime2DecodedSubject);
-		this.mRecipients.push(aMsgHdr.mime2DecodedRecipients);
-		this.mCc.push(unescapeFromMime(aMsgHdr.ccList));
-		this.mBodies.push(this.readBody(aMsgHdr));
+		this.mIds.push(aMsgHdr.messageId.replace(/[\r\n]+/g, '\t'));
+		this.mAuthors.push(aMsgHdr.mime2DecodedAuthor.replace(/[\r\n]+/g, '\t'));
+		this.mSubjects.push(aMsgHdr.mime2DecodedSubject.replace(/[\r\n]+/g, '\t'));
+		this.mRecipients.push(aMsgHdr.mime2DecodedRecipients.replace(/[\r\n]+/g, '\t'));
+		this.mCc.push(unescapeFromMime(aMsgHdr.ccList).replace(/[\r\n]+/g, '\t'));
+		this.mBodies.push(this.readBody(aMsgHdr).replace(/[\r\n]+/g, '\t'));
 //dump('parse: '+this.mFolder.URI+' / '+aMsgHdr.mime2DecodedAuthor+'\n');
 	},
-	readBody : function(aMsgHdr)
+	 
+	readBody : function(aMsgHdr) 
 	{
 		if (!Prefs.getBoolPref('xulmigemo.mailnews.threadsearch.body')) return '';
 
@@ -569,7 +601,7 @@ FolderSummary.prototype = {
 
 		return msg;
 	},
- 
+  
 	removeItem : function(aMsgHdr) 
 	{
 		var index = this.mIds.indexOf(aMsgHdr.messageId);
