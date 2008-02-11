@@ -41,7 +41,12 @@ var XMigemoFileDownloader = {
 
 		this.tempFile = tempFile;
 
-		const Persist = Components.classes['@mozilla.org/embedding/browser/nsWebBrowserPersist;1'].createInstance(Components.interfaces.nsIWebBrowserPersist);
+		const nsIWebBrowserPersist = Components.interfaces.nsIWebBrowserPersist;
+		const Persist = Components.classes['@mozilla.org/embedding/browser/nsWebBrowserPersist;1'].createInstance(nsIWebBrowserPersist);
+
+		Persist.persistFlags = nsIWebBrowserPersist.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION |
+				nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
+				nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE;
 
 		Persist.progressListener = this;
 		Persist.saveURI(source, null, null, null, null, tempFile);
