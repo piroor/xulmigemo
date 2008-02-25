@@ -23,12 +23,14 @@
     <em:localized>
       <RDF:Description em:locale="en-US"
                        em:name="XUL/Migemo"
-                       em:description="This provides advanced incremental search. You can find Japanese words incremental with roman input, like the Migemo."/>
+                       em:description="This provides advanced incremental search. You can find Japanese words incremental with roman input, like the Migemo."
+                       em:homepageURL="http://piro.sakura.ne.jp/xul/_xulmigemo.html.en"/>
     </em:localized>
     <em:localized>
       <RDF:Description em:locale="ja-JP"
                        em:name="XUL/Migemo"
-                       em:description="Migemo風のローマ字入力による日本語逐次検索など、より高機能なインクリメンタル検索機能を提供します。"/>
+                       em:description="Migemo風のローマ字入力による日本語逐次検索など、より高機能なインクリメンタル検索機能を提供します。"
+                       em:homepageURL="http://piro.sakura.ne.jp/xul/_xulmigemo.html"/>
     </em:localized>
 
 
