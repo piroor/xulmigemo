@@ -207,7 +207,7 @@ var XMigemoUI = {
 	_textUtils : null,
  
 /* nsIPrefListener(?) */ 
-	
+	 
 	domain  : 'xulmigemo', 
  
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -346,7 +346,7 @@ var XMigemoUI = {
 			default:
 		}
 	},
-	
+	 
 	keyEvent : function(aEvent) 
 	{
 		if (
@@ -356,7 +356,7 @@ var XMigemoUI = {
 			)
 			return;
 	},
-	
+	 
 	isEventFiredInInputField : function(aEvent) 
 	{
 		try { // in rich-textarea (ex. Gmail)
@@ -808,7 +808,7 @@ var XMigemoUI = {
 	},
  
 /* Override FindBar */ 
-	
+	 
 	overrideFindBar : function() 
 	{
 		/*
@@ -1063,11 +1063,11 @@ var XMigemoUI = {
 
 		if (XMigemoUI.findMigemoCheck.checked && !XMigemoUI.isActive) {
 			XMigemoUI.isActive = true;
-			XMigemoUI.lastFindMode = this.FIND_MODE_MIGEMO;
+			XMigemoUI.lastFindMode = XMigemoUI.FIND_MODE_MIGEMO;
 		}
 		else if (!XMigemoUI.findMigemoCheck.checked) {
 			XMigemoUI.isActive = false;
-			XMigemoUI.lastFindMode = this.FIND_MODE_NATIVE;
+			XMigemoUI.lastFindMode = XMigemoUI.FIND_MODE_NATIVE;
 		}
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
@@ -1119,7 +1119,7 @@ var XMigemoUI = {
 			}
 		}
 	},
- 
+ 	
 	closeFindBar : function() 
 	{
 		var scope = window.gFindBar ? window.gFindBar : this ;
@@ -1348,7 +1348,7 @@ var XMigemoUI = {
 			caseSensitive.checked  = caseSensitive.xmigemoOriginalChecked;
 		}
 	},
-  	
+  
 	init : function() 
 	{
 		if (window
@@ -1423,7 +1423,7 @@ var XMigemoUI = {
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 	},
-	
+	 
 	delayedInit : function() { 
 		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
 
