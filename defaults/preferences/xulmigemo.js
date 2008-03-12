@@ -11,11 +11,6 @@ pref("xulmigemo.scrollSelectionToCenter",       false);
 pref("xulmigemo.ignore_find_links_only_behavior", true);
 pref("xulmigemo.rebuild_selection",             true);
 
-pref("xulmigemo.mailnews.threadsearch.enabled", true);
-pref("xulmigemo.mailnews.threadsearch.body",    false);
-
-pref("xulmigemo.combination.autocompletemanager", true);
-
 pref("xulmigemo.checked_by_default.findbar",       false);
 
 pref("xulmigemo.checked_by_default.highlight",     false);
@@ -53,6 +48,12 @@ pref("xulmigemo.dicpath",                       "");
 pref("xulmigemo.cache.update.time",             500);
 pref("xulmigemo.cache.override.ja",             "migemocache.txt");
 pref("xulmigemo.find_delay",                    50);
+
+
+pref("xulmigemo.mailnews.threadsearch.enabled", true);
+pref("xulmigemo.mailnews.threadsearch.body",    false);
+
+pref("xulmigemo.combination.autocompletemanager", true);
 
 
 pref("xulmigemo.dictionary.useInitializeWizard", true);

@@ -29,13 +29,6 @@
 			name="xulmigemo.highlight.showScreen"
 			type="bool"/>
 
-		<preference id="xulmigemo.mailnews.threadsearch.enabled"
-			name="xulmigemo.mailnews.threadsearch.enabled"
-			type="bool"/>
-		<preference id="xulmigemo.mailnews.threadsearch.body"
-			name="xulmigemo.mailnews.threadsearch.body"
-			type="bool"/>
-
 		<preference id="xulmigemo.ignoreHiraKata"
 			name="xulmigemo.ignoreHiraKata"
 			type="bool"/>
@@ -46,8 +39,6 @@
 			name="xulmigemo.splitTermsAutomatically"
 			type="bool"/>
 	</preferences>
-
-	<vbox>
 
 	<hbox align="center">
 		<label value="&xulmigemo.lang.label;"/>
@@ -66,28 +57,17 @@
 		<description value="&xulmigemo.lang.description;"/>
 	</hbox>
 
-	<checkbox id="xulmigemo.startfromviewport-check" flex="1"
-		label="&xulmigemo.startfromviewport;"
-		preference="xulmigemo.startfromviewport"/>
-	<checkbox id="xulmigemo.scrollSelectionToCenter-check" flex="1"
-		label="&xulmigemo.scrollSelectionToCenter;"
-		preference="xulmigemo.scrollSelectionToCenter"/>
-	<checkbox id="xulmigemo.highlight.showScreen-check" flex="1"
-		label="&xulmigemo.highlight.showScreen;"
-		preference="xulmigemo.highlight.showScreen"/>
-
-	<groupbox>
-		<caption label="&xulmigemo.caption.mailnews;"/>
-		<checkbox id="xulmigemo.mailnews.threadsearch.enabled-check" flex="1"
-			label="&xulmigemo.mailnews.threadsearch.enabled;"
-			preference="xulmigemo.mailnews.threadsearch.enabled"/>
-		<hbox>
-			<spacer style="width:1em;"/>
-			<checkbox id="xulmigemo.mailnews.threadsearch.body-check" flex="1"
-				label="&xulmigemo.mailnews.threadsearch.body;"
-				preference="xulmigemo.mailnews.threadsearch.body"/>
-		</hbox>
-	</groupbox>
+	<vbox>
+		<checkbox id="xulmigemo.startfromviewport-check" flex="1"
+			label="&xulmigemo.startfromviewport;"
+			preference="xulmigemo.startfromviewport"/>
+		<checkbox id="xulmigemo.scrollSelectionToCenter-check" flex="1"
+			label="&xulmigemo.scrollSelectionToCenter;"
+			preference="xulmigemo.scrollSelectionToCenter"/>
+		<checkbox id="xulmigemo.highlight.showScreen-check" flex="1"
+			label="&xulmigemo.highlight.showScreen;"
+			preference="xulmigemo.highlight.showScreen"/>
+	</vbox>
 
 	<groupbox>
 		<caption label="&xulmigemo.caption.recognize;"/>
@@ -101,8 +81,6 @@
 			label="&xulmigemo.splitTermsAutomatically;"
 			preference="xulmigemo.splitTermsAutomatically"/-->
 	</groupbox>
-
-	</vbox>
 
 </prefpane>
 
@@ -133,8 +111,6 @@
 			name="xulmigemo.appearance.hideLabels"
 			type="bool"/>
 	</preferences>
-
-	<vbox>
 
 	<groupbox orient="vertical">
 		<caption label="&xulmigemo.findbar.permanentState;"/>
@@ -179,24 +155,23 @@
 				</hbox>
 			</vbox>
 		</hbox>
-		<description flex="1">&xulmigemo.findbar.permanentState.description;</description>
+		<description flex="1" style="max-width: &xulmigemo.findbar.permanentState.description.maxwidth;">&xulmigemo.findbar.permanentState.description;</description>
 	</groupbox>
 
+	<vbox>
 	<checkbox id="xulmigemo.checked_by_default.findbar-check" flex="1"
 		label="&xulmigemo.checked_by_default.findbar;"
 		preference="xulmigemo.checked_by_default.findbar"/>
-
 	<checkbox id="xulmigemo.appearance.hideLabels-check" flex="1"
 		label="&xulmigemo.appearance.hideLabels;"
 		preference="xulmigemo.appearance.hideLabels"/>
+	</vbox>
 
 	<hbox align="center">
 		<spacer flex="1"/>
 		<button label="&xulmigemo.findbar.advanced.button;"
 			oncommand="document.documentElement.openSubDialog('config-findbar-advanced.xul', 'modal');"/>
 	</hbox>
-
-	</vbox>
 
 </prefpane>
 
@@ -219,7 +194,6 @@
 	</preferences>
 
 	<vbox>
-
 	<checkbox id="xulmigemo.autostart-check" flex="1"
 		label="&xulmigemo.autostart;"
 		preference="xulmigemo.autostart"/>
@@ -229,6 +203,7 @@
 	<checkbox id="xulmigemo.enabletimeout-check" flex="1"
 		label="&xulmigemo.enabletimeout;"
 		preference="xulmigemo.enabletimeout"/>
+	</vbox>
 	<hbox align="center">
 		<spacer style="width:1em;"/>
 		<label value="&xulmigemo.timeout.before;"
@@ -247,8 +222,6 @@
 			oncommand="document.documentElement.openSubDialog('config-quickfind-advanced.xul', 'modal');"/>
 	</hbox>
 
-	</vbox>
-
 </prefpane>
 
 
@@ -266,8 +239,6 @@
 			type="int"/>
 	</preferences>
 
-	<vbox>
-
 	<groupbox>
 		<caption label="&xulmigemo.caption.dic;"/>
 		<hbox align="center">
@@ -277,7 +248,7 @@
 			<button label="&xulmigemo.dic.find;"
 				oncommand="getDP()"/>
 		</hbox>
-		<description flex="1">&xulmigemo.dic.description;</description>
+		<description flex="1" style="max-width: &xulmigemo.dic.description.maxwidth;">&xulmigemo.dic.description;</description>
 		<checkbox id="xulmigemo.dic.useInitializeWizard-check" flex="1"
 			label="&xulmigemo.dic.useInitializeWizard;"
 			preference="xulmigemo.dictionary.useInitializeWizard"/>
@@ -324,8 +295,6 @@
 		</hbox>
 	</groupbox>
 
-	</vbox>
-
 </prefpane>
 
 
@@ -357,8 +326,6 @@
 			name="xulmigemo.shortcut.manualExit"
 			type="string"/>
 	</preferences>
-
-	<vbox>
 
 	<hbox>
 		<grid>
@@ -519,6 +486,44 @@
 		<spacer flex="1"/>
 	</hbox>
 
+</prefpane>
+
+
+<prefpane id="prefpane-combination" label="&xulmigemo.tab.combination;">
+	<preferences>
+		<preference id="xulmigemo.mailnews.threadsearch.enabled"
+			name="xulmigemo.mailnews.threadsearch.enabled"
+			type="bool"/>
+		<preference id="xulmigemo.mailnews.threadsearch.body"
+			name="xulmigemo.mailnews.threadsearch.body"
+			type="bool"/>
+
+		<preference id="xulmigemo.combination.autocompletemanager"
+			name="xulmigemo.combination.autocompletemanager"
+			type="bool"/>
+	</preferences>
+
+	<description flex="1" style="max-width: &xulmigemo.combination.description.maxwidth;">&xulmigemo.combination.description;</description>
+
+	<vbox flex="100">
+	<groupbox>
+		<caption label="&xulmigemo.caption.mailnews;"/>
+		<checkbox id="xulmigemo.mailnews.threadsearch.enabled-check" flex="1"
+			label="&xulmigemo.mailnews.threadsearch.enabled;"
+			preference="xulmigemo.mailnews.threadsearch.enabled"/>
+		<hbox>
+			<spacer style="width:1em;"/>
+			<checkbox id="xulmigemo.mailnews.threadsearch.body-check" flex="1"
+				label="&xulmigemo.mailnews.threadsearch.body;"
+				preference="xulmigemo.mailnews.threadsearch.body"/>
+		</hbox>
+	</groupbox>
+
+	<checkbox id="xulmigemo.combination.autocompletemanager-check" flex="1"
+		label="&xulmigemo.combination.autocompletemanager;"
+		preference="xulmigemo.combination.autocompletemanager"/>
+
+	<spacer flex="100"/>
 	</vbox>
 
 </prefpane>
