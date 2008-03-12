@@ -47,6 +47,8 @@
 			type="bool"/>
 	</preferences>
 
+	<vbox>
+
 	<hbox align="center">
 		<label value="&xulmigemo.lang.label;"/>
 		<menulist id="xulmigemo.lang-menulist"
@@ -98,6 +100,8 @@
 			preference="xulmigemo.splitTermsAutomatically"/-->
 	</groupbox>
 
+	</vbox>
+
 </prefpane>
 
 
@@ -127,6 +131,8 @@
 			name="xulmigemo.appearance.hideLabels"
 			type="bool"/>
 	</preferences>
+
+	<vbox>
 
 	<groupbox orient="vertical">
 		<caption label="&xulmigemo.findbar.permanentState;"/>
@@ -188,6 +194,8 @@
 			oncommand="document.documentElement.openSubDialog('config-findbar-advanced.xul', 'modal');"/>
 	</hbox>
 
+	</vbox>
+
 </prefpane>
 
 
@@ -207,6 +215,8 @@
 			name="xulmigemo.timeout"
 			type="int"/>
 	</preferences>
+
+	<vbox>
 
 	<checkbox id="xulmigemo.autostart-check" flex="1"
 		label="&xulmigemo.autostart;"
@@ -235,6 +245,8 @@
 			oncommand="document.documentElement.openSubDialog('config-quickfind-advanced.xul', 'modal');"/>
 	</hbox>
 
+	</vbox>
+
 </prefpane>
 
 
@@ -251,6 +263,8 @@
 			name="xulmigemo.cache.update.time"
 			type="int"/>
 	</preferences>
+
+	<vbox>
 
 	<groupbox>
 		<caption label="&xulmigemo.caption.dic;"/>
@@ -308,6 +322,8 @@
 		</hbox>
 	</groupbox>
 
+	</vbox>
+
 </prefpane>
 
 
@@ -339,6 +355,8 @@
 			name="xulmigemo.shortcut.manualExit"
 			type="string"/>
 	</preferences>
+
+	<vbox>
 
 	<hbox>
 		<grid>
@@ -499,6 +517,7 @@
 		<spacer flex="1"/>
 	</hbox>
 
+	</vbox>
 
 </prefpane>
 
