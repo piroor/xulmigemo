@@ -42,9 +42,11 @@
 				preference="xulmigemo.checked_by_default.migemo"
 				style="min-width: 0;"/>
 		</hbox>
-		<description flex="1">&xulmigemo.findbar.initialState.description;</description>
+		<description flex="1" style="max-width: &xulmigemo.findbar.initialState.description.maxwidth;">&xulmigemo.findbar.initialState.description;</description>
 	</groupbox>
 
+	<!-- if the description is wrapped, pane contents are overflowed. -->
+	<spacer style="height:1em;"/>
 </prefpane>
 
 </prefwindow>
