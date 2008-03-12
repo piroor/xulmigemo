@@ -11,6 +11,7 @@
 <!ENTITY xulmigemo.lang.item2.value        "ja">
 <!ENTITY xulmigemo.lang.description        "*Require restarting.">
 
+<!ENTITY xulmigemo.caption.mailnews        "Thunderbird">
 <!ENTITY xulmigemo.mailnews.threadsearch.enabled "Activate XUL/Migemo for mail search">
 <!ENTITY xulmigemo.mailnews.threadsearch.body    "Enable for message bodies (possibly makes Thunderbird heavy)">
 

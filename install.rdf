@@ -5,7 +5,7 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}"
                    em:name="XUL/Migemo"
-                   em:version="0.7.13"
+                   em:version="0.7.14"
                    em:description="Provides advanced incremental search for any language."
                    em:creator="plus7"
                    em:homepageURL="http://piro.sakura.ne.jp/xul/xulmigemo/"
@@ -38,7 +38,7 @@
       <!-- Firefox -->
 	  <RDF:Description em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
 	                   em:minVersion="1.5"
-	                   em:maxVersion="3.0a7" />
+	                   em:maxVersion="3.0b5pre" />
     </em:targetApplication>
     <em:targetApplication>
       <!-- Thunderbird -->
