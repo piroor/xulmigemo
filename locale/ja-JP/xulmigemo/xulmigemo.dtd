@@ -14,6 +14,7 @@
 <!ENTITY xulmigemo.scrollSelectionToCenter "検索で見つかった箇所を画面の中心に表示する">
 <!ENTITY xulmigemo.highlight.showScreen    "「すべて強調表示」をより強く強調する">
 
+<!ENTITY xulmigemo.caption.mailnews        "Thunderbird">
 <!ENTITY xulmigemo.mailnews.threadsearch.enabled "メールの検索でXUL/Migemoを使用する">
 <!ENTITY xulmigemo.mailnews.threadsearch.body    "本文も検索する（処理が重くなります）">
 

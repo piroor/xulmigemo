@@ -61,9 +61,10 @@
 			</menupopup>
 		</menulist>
 	</hbox>
-	<description value="&xulmigemo.lang.description;"/>
-
-	<separator/>
+	<hbox>
+		<spacer style="width:1em;"/>
+		<description value="&xulmigemo.lang.description;"/>
+	</hbox>
 
 	<checkbox id="xulmigemo.startfromviewport-check" flex="1"
 		label="&xulmigemo.startfromviewport;"
@@ -75,17 +76,18 @@
 		label="&xulmigemo.highlight.showScreen;"
 		preference="xulmigemo.highlight.showScreen"/>
 
-	<separator/>
-
-	<checkbox id="xulmigemo.mailnews.threadsearch.enabled-check" flex="1"
-		label="&xulmigemo.mailnews.threadsearch.enabled;"
-		preference="xulmigemo.mailnews.threadsearch.enabled"/>
-	<hbox>
-		<spacer style="width:1em;"/>
-		<checkbox id="xulmigemo.mailnews.threadsearch.body-check" flex="1"
-			label="&xulmigemo.mailnews.threadsearch.body;"
-			preference="xulmigemo.mailnews.threadsearch.body"/>
-	</hbox>
+	<groupbox>
+		<caption label="&xulmigemo.caption.mailnews;"/>
+		<checkbox id="xulmigemo.mailnews.threadsearch.enabled-check" flex="1"
+			label="&xulmigemo.mailnews.threadsearch.enabled;"
+			preference="xulmigemo.mailnews.threadsearch.enabled"/>
+		<hbox>
+			<spacer style="width:1em;"/>
+			<checkbox id="xulmigemo.mailnews.threadsearch.body-check" flex="1"
+				label="&xulmigemo.mailnews.threadsearch.body;"
+				preference="xulmigemo.mailnews.threadsearch.body"/>
+		</hbox>
+	</groupbox>
 
 	<groupbox>
 		<caption label="&xulmigemo.caption.recognize;"/>
