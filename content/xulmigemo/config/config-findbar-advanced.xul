@@ -12,7 +12,7 @@
 	title="&xulmigemo.findbar.advanced.title;"
 	type="child">
 
-<prefpane>
+<prefpane flex="1">
 	<preferences>
 		<preference id="xulmigemo.checked_by_default.migemo"
 			name="xulmigemo.checked_by_default.migemo"
