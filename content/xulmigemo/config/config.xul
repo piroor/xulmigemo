@@ -13,7 +13,7 @@
 	title="&xulmigemo.title;">
 
 
-<prefpane id="prefpane-general" label="&xulmigemo.tab.general;">
+<prefpane id="prefpane-general" label="&xulmigemo.tab.general;" flex="1">
 	<preferences>
 		<preference id="xulmigemo.lang"
 			name="xulmigemo.lang"
@@ -85,7 +85,7 @@
 </prefpane>
 
 
-<prefpane id="prefpane-findbar" label="&xulmigemo.tab.findbar;">
+<prefpane id="prefpane-findbar" label="&xulmigemo.tab.findbar;" flex="1">
 	<preferences>
 		<preference id="xulmigemo.prefillwithselection"
 			name="xulmigemo.prefillwithselection"
@@ -176,7 +176,7 @@
 </prefpane>
 
 
-<prefpane id="prefpane-quickfind" label="&xulmigemo.tab.quickfind;">
+<prefpane id="prefpane-quickfind" label="&xulmigemo.tab.quickfind;" flex="1">
 	<preferences>
 		<preference id="xulmigemo.autostart"
 			name="xulmigemo.autostart"
@@ -225,7 +225,7 @@
 </prefpane>
 
 
-<prefpane id="prefpane-dictionary" label="&xulmigemo.tab.dictionary;"
+<prefpane id="prefpane-dictionary" label="&xulmigemo.tab.dictionary;" flex="1"
 	onpaneload="initDicPane();">
 	<preferences>
 		<preference id="xulmigemo.dictionary.useInitializeWizard"
@@ -298,7 +298,7 @@
 </prefpane>
 
 
-<prefpane id="prefpane-shortcut" label="&xulmigemo.tab.shortcut;"
+<prefpane id="prefpane-shortcut" label="&xulmigemo.tab.shortcut;" flex="1"
 	onpaneload="initShortcutPane();">
 	<preferences>
 		<preference id="xulmigemo.shortcut.findForward"
@@ -489,7 +489,7 @@
 </prefpane>
 
 
-<prefpane id="prefpane-combination" label="&xulmigemo.tab.combination;">
+<prefpane id="prefpane-combination" label="&xulmigemo.tab.combination;" flex="1">
 	<preferences>
 		<preference id="xulmigemo.mailnews.threadsearch.enabled"
 			name="xulmigemo.mailnews.threadsearch.enabled"

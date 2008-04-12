@@ -12,7 +12,7 @@
 	title="&xulmigemo.quickfind.advanced.title;"
 	type="child">
 
-<prefpane>
+<prefpane flex="1">
 	<preferences>
 		<preference id="xulmigemo.enableautoexit.inherit"
 			name="xulmigemo.enableautoexit.inherit"
