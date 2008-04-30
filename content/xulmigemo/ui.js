@@ -268,7 +268,7 @@ var XMigemoUI = {
 				return;
 
 			case 'xulmigemo.findMode.always':
-				this.forcedFindMode = Math.max(this.FIND_MODE_NATIVE, Math.min(this.FIND_MODE_REGEXP, parseInt(value)));
+				this.forcedFindMode = (value < 0) ? -1 : Math.max(this.FIND_MODE_NATIVE, Math.min(this.FIND_MODE_REGEXP, parseInt(value))) ;
 				return;
 
 			case 'xulmigemo.timeout':
