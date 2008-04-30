@@ -20,9 +20,11 @@
 		hidden="true"
 		style="position: fixed;/* z-index: 65000;*/">
 		<radiogroup id="find-mode-selector"
+			value="0"
 			orient="horizontal"
 			oncommand="XMigemoUI.onChangeFindToolbarMode();">
-			<radio label="&ui.mode.normal.label;" value="0"/>
+			<radio label="&ui.mode.normal.label;" value="0"
+				selected="true"/>
 			<radio label="&ui.mode.migemo.label;" value="1"/>
 			<radio label="&ui.mode.regexp.label;" value="2"/>
 		</radiogroup>

@@ -14,9 +14,9 @@
 
 <prefpane flex="1">
 	<preferences>
-		<preference id="xulmigemo.checked_by_default.migemo"
-			name="xulmigemo.checked_by_default.migemo"
-			type="bool"/>
+		<preference id="xulmigemo.findMode.default"
+			name="xulmigemo.findMode.default"
+			type="int"/>
 		<preference id="xulmigemo.checked_by_default.highlight"
 			name="xulmigemo.checked_by_default.highlight"
 			type="bool"/>
@@ -37,10 +37,13 @@
 				label="&config.checked_by_default.caseSensitive;"
 				preference="xulmigemo.checked_by_default.caseSensitive"
 				style="min-width: 0;"/>
-			<checkbox id="xulmigemo.checked_by_default.migemo-check"
-				label="&config.checked_by_default.migemo;"
-				preference="xulmigemo.checked_by_default.migemo"
-				style="min-width: 0;"/>
+			<radiogroup id="xulmigemo.findMode.default-radio"
+				orient="horizontal"
+				preference="xulmigemo.findMode.default">
+				<radio label="&ui.mode.normal.label;" value="0"/>
+				<radio label="&ui.mode.migemo.label;" value="1"/>
+				<radio label="&ui.mode.regexp.label;" value="2"/>
+			</radiogroup>
 		</hbox>
 		<description flex="1" style="max-width: &config.findbar.initialState.description.maxwidth;">&config.findbar.initialState.description;</description>
 	</groupbox>

@@ -33,7 +33,7 @@
 
 <!ENTITY config.tab.findbar             "Find Toolbar">
 
-<!ENTITY config.findbar.permanentState           "Following features are automatically enabled:">
+<!ENTITY config.findbar.permanentState           "Always use these settings:">
 <!ENTITY config.prefillwithselection             "Textbox">
 <!ENTITY config.prefillwithselection.true        "Selected term">
 <!ENTITY config.prefillwithselection.false       "Last find term">
@@ -41,7 +41,7 @@
 <!ENTITY config.checked_by_default.highlight.always.minLength.before "&#x2514; only for">
 <!ENTITY config.checked_by_default.highlight.always.minLength.after  "or more characters">
 <!ENTITY config.checked_by_default.caseSensitive.always "Match cases">
-<!ENTITY config.enable_by_default                       "Migemo">
+<!ENTITY config.findMode.always.undefined.label "(Use last mode)">
 <!ENTITY config.findbar.permanentState.description "*Checked features are enabled anytime. They cannot be disabled as you like.">
 <!ENTITY config.findbar.permanentState.description.maxwidth "40em">
 
