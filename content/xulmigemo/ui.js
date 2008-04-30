@@ -168,15 +168,6 @@ var XMigemoUI = {
 	},
 	_findMigemoCheck : null,
  
-	get orFindCheck() 
-	{
-		if (!this._orFindCheck) {
-			this._orFindCheck = document.getElementById('find-or-mode');
-		}
-		return this._orFindCheck;
-	},
-	_orFindCheck : null,
- 
 	get migemoModeBox() 
 	{
 		if (!this._migemoModeBox) {
@@ -1428,8 +1419,6 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.hideLabels');
 
 		window.setTimeout('XMigemoUI.delayedInit()', 0);
-
-		this.orFindCheck.setAttribute('hidden', true);
 
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);

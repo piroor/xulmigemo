@@ -213,5 +213,7 @@
 
 
 <!ENTITY ui.migemo.checkbox.label     "Migemo">
-<!ENTITY ui.or.checkbox.label         "OR">
+<!ENTITY ui.mode.normal.label         "Normal">
+<!ENTITY ui.mode.migemo.label         "Migemo">
+<!ENTITY ui.mode.or.label             "OR Find">
 <!ENTITY ui.caseSensitive.shortLabel  "A/a">
