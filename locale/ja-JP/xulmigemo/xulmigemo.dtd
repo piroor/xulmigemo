@@ -34,7 +34,7 @@
 
 <!ENTITY config.tab.findbar             "検索ツールバー">
 
-<!ENTITY config.findbar.permanentState       "以下の機能を自動的に有効にする：">
+<!ENTITY config.findbar.permanentState       "常に以下の設定で使う：">
 <!ENTITY config.prefillwithselection         "入力欄の内容">
 <!ENTITY config.prefillwithselection.true    "選択範囲のテキスト">
 <!ENTITY config.prefillwithselection.false   "前回検索した内容">
@@ -42,7 +42,7 @@
 <!ENTITY config.checked_by_default.highlight.always.minLength.before "&#x2514;">
 <!ENTITY config.checked_by_default.highlight.always.minLength.after  "文字以上の時のみ">
 <!ENTITY config.checked_by_default.caseSensitive.always "大文字/小文字を区別">
-<!ENTITY config.enable_by_default                       "Migemo検索">
+<!ENTITY config.findMode.always.undefined.label "（最後に使用したモード）">
 <!ENTITY config.findbar.permanentState.description "※ここでチェックした機能は検索ツールバーを開くたびに常に有効になり、任意で無効にできません">
 <!ENTITY config.findbar.permanentState.description.maxwidth "40em">
 

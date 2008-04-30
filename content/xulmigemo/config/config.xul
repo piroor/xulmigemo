@@ -99,9 +99,9 @@
 		<preference id="xulmigemo.checked_by_default.caseSensitive.always"
 			name="xulmigemo.checked_by_default.caseSensitive.always"
 			type="bool"/>
-		<preference id="xulmigemo.enable_by_default"
-			name="xulmigemo.enable_by_default"
-			type="bool"/>
+		<preference id="xulmigemo.findMode.always"
+			name="xulmigemo.findMode.always"
+			type="int"/>
 
 		<preference id="xulmigemo.checked_by_default.findbar"
 			name="xulmigemo.checked_by_default.findbar"
@@ -135,10 +135,17 @@
 						label="&config.checked_by_default.caseSensitive.always;"
 						preference="xulmigemo.checked_by_default.caseSensitive.always"
 						style="min-width: 0;"/>
-					<checkbox id="xulmigemo.enable_by_default-check"
-						label="&config.enable_by_default;"
-						preference="xulmigemo.enable_by_default"
-						style="min-width: 0;"/>
+					<radiogroup id="xulmigemo.findMode.always-radio"
+						orient="vertical"
+						align="center"
+						preference="xulmigemo.findMode.always">
+						<radio label="&config.findMode.always.undefined.label;" value="-1"/>
+						<hbox align="center">
+							<radio label="&ui.mode.normal.label;" value="0"/>
+							<radio label="&ui.mode.migemo.label;" value="1"/>
+							<radio label="&ui.mode.regexp.label;" value="2"/>
+						</hbox>
+					</radiogroup>
 				</hbox>
 				<hbox align="center">
 					<label class="shrinked-label"
