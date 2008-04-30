@@ -213,7 +213,7 @@
 
 
 <!ENTITY ui.migemo.checkbox.label     "Migemo">
-<!ENTITY ui.mode.normal.label         "Normal Find">
-<!ENTITY ui.mode.migemo.label         "Migemo Find">
-<!ENTITY ui.mode.regexp.label         "RegExp Find">
+<!ENTITY ui.mode.normal.label         "Normal">
+<!ENTITY ui.mode.migemo.label         "Migemo">
+<!ENTITY ui.mode.regexp.label         "RegExp">
 <!ENTITY ui.caseSensitive.shortLabel  "A/a">

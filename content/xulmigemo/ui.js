@@ -42,9 +42,10 @@ var XMigemoUI = {
  
 	get findMode() 
 	{
-		if (this.findMigemoCheck.checked || this.findMode.value == this.FIND_MODE_MIGEMO)
+		if (this.findMigemoCheck.checked ||
+			this.findModeSelector.value == this.FIND_MODE_MIGEMO)
 			return this.FIND_MODE_MIGEMO;
-		if (this.findMode.value == this.FIND_MODE_NATIVE)
+		if (this.findModeSelector.value == this.FIND_MODE_NATIVE)
 			return this.FIND_MODE_NATIVE;
 		return this.FIND_MODE_NATIVE;
 	},
@@ -55,18 +56,18 @@ var XMigemoUI = {
 		{
 			case this.FIND_MODE_MIGEMO:
 				this.findMigemoCheck.checked = true;
-				this.findMode.value = mode;
+				this.findModeSelector.value = mode;
 				break;
 
 			case this.FIND_MODE_REGEXP:
 				this.findMigemoCheck.checked = false;
-				this.findMode.value = mode;
+				this.findModeSelector.value = mode;
 				break;
 
 			case this.FIND_MODE_NATIVE:
 			default:
 				this.findMigemoCheck.checked = false;
-				this.findMode.value = mode = this.FIND_MODE_NATIVE;
+				this.findModeSelector.value = mode = this.FIND_MODE_NATIVE;
 				break;
 		}
 		return mode;
@@ -201,14 +202,14 @@ var XMigemoUI = {
 	},
 	_findMigemoCheck : null,
  
-	get findMode() 
+	get findModeSelector() 
 	{
-		if (!this._findMode) {
-			this._findMode = document.getElementById('find-mode-selector');
+		if (!this._findModeSelector) {
+			this._findModeSelector = document.getElementById('find-mode-selector');
 		}
-		return this._findMode;
+		return this._findModeSelector;
 	},
-	_findMode : null,
+	_findModeSelector : null,
  
 	get migemoModeBox() 
 	{
