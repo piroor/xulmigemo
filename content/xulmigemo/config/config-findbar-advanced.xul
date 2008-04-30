@@ -9,7 +9,7 @@
 
 <prefwindow id="xulmigemo-advanced-config"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	title="&xulmigemo.findbar.advanced.title;"
+	title="&config.findbar.advanced.title;"
 	type="child">
 
 <prefpane flex="1">
@@ -26,23 +26,23 @@
 	</preferences>
 
 	<groupbox orient="vertical">
-		<caption label="&xulmigemo.findbar.initialState;"/>
+		<caption label="&config.findbar.initialState;"/>
 		<hbox align="center">
 			<spacer flex="1"/>
 			<checkbox id="xulmigemo.checked_by_default.highlight-check"
-				label="&xulmigemo.checked_by_default.highlight;"
+				label="&config.checked_by_default.highlight;"
 				preference="xulmigemo.checked_by_default.highlight"
 				style="min-width: 0;"/>
 			<checkbox id="xulmigemo.checked_by_default.caseSensitive-check"
-				label="&xulmigemo.checked_by_default.caseSensitive;"
+				label="&config.checked_by_default.caseSensitive;"
 				preference="xulmigemo.checked_by_default.caseSensitive"
 				style="min-width: 0;"/>
 			<checkbox id="xulmigemo.checked_by_default.migemo-check"
-				label="&xulmigemo.checked_by_default.migemo;"
+				label="&config.checked_by_default.migemo;"
 				preference="xulmigemo.checked_by_default.migemo"
 				style="min-width: 0;"/>
 		</hbox>
-		<description flex="1" style="max-width: &xulmigemo.findbar.initialState.description.maxwidth;">&xulmigemo.findbar.initialState.description;</description>
+		<description flex="1" style="max-width: &config.findbar.initialState.description.maxwidth;">&config.findbar.initialState.description;</description>
 	</groupbox>
 
 	<!-- if the description is wrapped, pane contents are overflowed. -->

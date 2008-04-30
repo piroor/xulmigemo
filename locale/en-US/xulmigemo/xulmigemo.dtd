@@ -1,100 +1,100 @@
-<!ENTITY xulmigemo.title                   "XUL/Migemo Configuration">
+<!ENTITY config.title                   "XUL/Migemo Configuration">
 
 
-<!ENTITY xulmigemo.tab.general             "General">
+<!ENTITY config.tab.general             "General">
 
 
-<!ENTITY xulmigemo.lang.label              "Engine:">
-<!ENTITY xulmigemo.lang.item1.label        "English (Dictionary Assisted Find)">
-<!ENTITY xulmigemo.lang.item1.value        "en-US">
-<!ENTITY xulmigemo.lang.item2.label        "Japanese (Find by Roman Input)">
-<!ENTITY xulmigemo.lang.item2.value        "ja">
-<!ENTITY xulmigemo.lang.description        "*Require restarting.">
+<!ENTITY config.lang.label              "Engine:">
+<!ENTITY config.lang.item1.label        "English (Dictionary Assisted Find)">
+<!ENTITY config.lang.item1.value        "en-US">
+<!ENTITY config.lang.item2.label        "Japanese (Find by Roman Input)">
+<!ENTITY config.lang.item2.value        "ja">
+<!ENTITY config.lang.description        "*Require restarting.">
 
 
-<!ENTITY xulmigemo.startfromviewport       "Find from viewport">
-<!ENTITY xulmigemo.scrollSelectionToCenter "Show the found term in the middle of the screen">
-<!ENTITY xulmigemo.highlight.showScreen    "Strongly emphasise &quot;Highlight all&quot;">
+<!ENTITY config.startfromviewport       "Find from viewport">
+<!ENTITY config.scrollSelectionToCenter "Show the found term in the middle of the screen">
+<!ENTITY config.highlight.showScreen    "Strongly emphasise &quot;Highlight all&quot;">
 
-<!ENTITY xulmigemo.caption.recognize       "Character Recognition">
-<!ENTITY xulmigemo.ignoreHiraKata          "Ignore difference of Hiragana and Katakana (Japanese)">
-<!ENTITY xulmigemo.ignoreLatinModifiers    "Ignore modifiers of latin letters">
-<!ENTITY xulmigemo.splitTermsAutomatically "Recognize text segments automatically">
+<!ENTITY config.caption.recognize       "Character Recognition">
+<!ENTITY config.ignoreHiraKata          "Ignore difference of Hiragana and Katakana (Japanese)">
+<!ENTITY config.ignoreLatinModifiers    "Ignore modifiers of latin letters">
+<!ENTITY config.splitTermsAutomatically "Recognize text segments automatically">
 
 
-<!ENTITY xulmigemo.tab.quickfind           "Quick Migemo Find">
+<!ENTITY config.tab.quickfind           "Quick Migemo Find">
 
-<!ENTITY xulmigemo.autostart               "Start the mode automatically for keytypes">
-<!ENTITY xulmigemo.linksonly               "Find only links">
-<!ENTITY xulmigemo.enabletimeout           "Exit the mode automatically with an timeout">
-<!ENTITY xulmigemo.timeout.before          "after">
-<!ENTITY xulmigemo.timeout.after           "msec">
+<!ENTITY config.autostart               "Start the mode automatically for keytypes">
+<!ENTITY config.linksonly               "Find only links">
+<!ENTITY config.enabletimeout           "Exit the mode automatically with an timeout">
+<!ENTITY config.timeout.before          "after">
+<!ENTITY config.timeout.after           "msec">
 
 
-<!ENTITY xulmigemo.tab.findbar             "Find Toolbar">
+<!ENTITY config.tab.findbar             "Find Toolbar">
 
-<!ENTITY xulmigemo.findbar.permanentState           "Following features are automatically enabled:">
-<!ENTITY xulmigemo.prefillwithselection             "Textbox">
-<!ENTITY xulmigemo.prefillwithselection.true        "Selected term">
-<!ENTITY xulmigemo.prefillwithselection.false       "Last find term">
-<!ENTITY xulmigemo.checked_by_default.highlight.always     "Highlight all">
-<!ENTITY xulmigemo.checked_by_default.highlight.always.minLength.before "&#x2514; only for">
-<!ENTITY xulmigemo.checked_by_default.highlight.always.minLength.after  "or more characters">
-<!ENTITY xulmigemo.checked_by_default.caseSensitive.always "Match cases">
-<!ENTITY xulmigemo.enable_by_default                       "Migemo">
-<!ENTITY xulmigemo.findbar.permanentState.description "*Checked features are enabled anytime. They cannot be disabled as you like.">
-<!ENTITY xulmigemo.findbar.permanentState.description.maxwidth "40em">
+<!ENTITY config.findbar.permanentState           "Following features are automatically enabled:">
+<!ENTITY config.prefillwithselection             "Textbox">
+<!ENTITY config.prefillwithselection.true        "Selected term">
+<!ENTITY config.prefillwithselection.false       "Last find term">
+<!ENTITY config.checked_by_default.highlight.always     "Highlight all">
+<!ENTITY config.checked_by_default.highlight.always.minLength.before "&#x2514; only for">
+<!ENTITY config.checked_by_default.highlight.always.minLength.after  "or more characters">
+<!ENTITY config.checked_by_default.caseSensitive.always "Match cases">
+<!ENTITY config.enable_by_default                       "Migemo">
+<!ENTITY config.findbar.permanentState.description "*Checked features are enabled anytime. They cannot be disabled as you like.">
+<!ENTITY config.findbar.permanentState.description.maxwidth "40em">
 
-<!ENTITY xulmigemo.checked_by_default.findbar       "Show Find Toolbar at startup">
-<!ENTITY xulmigemo.appearance.hideLabels  "Show Find Toolbar with compact buttons">
+<!ENTITY config.checked_by_default.findbar       "Show Find Toolbar at startup">
+<!ENTITY config.appearance.hideLabels  "Show Find Toolbar with compact buttons">
 
 
-<!ENTITY xulmigemo.tab.dictionary          "Dictionary">
+<!ENTITY config.tab.dictionary          "Dictionary">
 
-<!ENTITY xulmigemo.caption.dic             "Dictionaries Folder">
-<!ENTITY xulmigemo.dic.useInitializeWizard "Show initialization wizard at the startup if the dictionary is lost">
-<!ENTITY xulmigemo.dic.find                "Find...">
-<!ENTITY xulmigemo.dic.description         "*Specified relative path will be merged to the installation path of Firefox(Thunderbird).">
-<!ENTITY xulmigemo.dic.description.maxwidth "40em">
+<!ENTITY config.caption.dic             "Dictionaries Folder">
+<!ENTITY config.dic.useInitializeWizard "Show initialization wizard at the startup if the dictionary is lost">
+<!ENTITY config.dic.find                "Find...">
+<!ENTITY config.dic.description         "*Specified relative path will be merged to the installation path of Firefox(Thunderbird).">
+<!ENTITY config.dic.description.maxwidth "40em">
 
-<!ENTITY xulmigemo.dic.showManager         "Manage Dictionary">
+<!ENTITY config.dic.showManager         "Manage Dictionary">
 
-<!ENTITY xulmigemo.caption.cache           "Disk Cache">
-<!ENTITY xulmigemo.cache.update.time       "Frequency to create disk cache">
-<!ENTITY xulmigemo.cache.update.time.max   "High">
-<!ENTITY xulmigemo.cache.update.time.min   "Low">
-<!ENTITY xulmigemo.cache.update.time.indicator.above "Cache results to the disk when read-in from dictionaries">
-<!ENTITY xulmigemo.cache.update.time.indicator.before "requires over ">
-<!ENTITY xulmigemo.cache.update.time.indicator.after  "msec.">
-<!ENTITY xulmigemo.cache.update.time.indicator.below  "">
-<!ENTITY xulmigemo.cache.update.time.now   "Update Cache Now">
+<!ENTITY config.caption.cache           "Disk Cache">
+<!ENTITY config.cache.update.time       "Frequency to create disk cache">
+<!ENTITY config.cache.update.time.max   "High">
+<!ENTITY config.cache.update.time.min   "Low">
+<!ENTITY config.cache.update.time.indicator.above "Cache results to the disk when read-in from dictionaries">
+<!ENTITY config.cache.update.time.indicator.before "requires over ">
+<!ENTITY config.cache.update.time.indicator.after  "msec.">
+<!ENTITY config.cache.update.time.indicator.below  "">
+<!ENTITY config.cache.update.time.now   "Update Cache Now">
 
 
-<!ENTITY xulmigemo.tab.shortcut            "Shortcut">
+<!ENTITY config.tab.shortcut            "Shortcut">
 
-<!ENTITY xulmigemo.shortcut.findForward    "Find Next">
-<!ENTITY xulmigemo.shortcut.findBackward   "Find Backward">
-<!ENTITY xulmigemo.shortcut.manualStart    "Start Quick Migemo Find">
-<!ENTITY xulmigemo.shortcut.manualStartLinksOnly "Start Quick Migemo Find">
-<!ENTITY xulmigemo.shortcut.manualStartLinksOnly2 "(find only links)">
-<!ENTITY xulmigemo.shortcut.manualExit     "Exit Quick Migemo Find">
-<!ENTITY xulmigemo.shortcut.goDicManager   "Show Dictionary Manager">
+<!ENTITY config.shortcut.findForward    "Find Next">
+<!ENTITY config.shortcut.findBackward   "Find Backward">
+<!ENTITY config.shortcut.manualStart    "Start Quick Migemo Find">
+<!ENTITY config.shortcut.manualStartLinksOnly "Start Quick Migemo Find">
+<!ENTITY config.shortcut.manualStartLinksOnly2 "(find only links)">
+<!ENTITY config.shortcut.manualExit     "Exit Quick Migemo Find">
+<!ENTITY config.shortcut.goDicManager   "Show Dictionary Manager">
 
-<!ENTITY xulmigemo.shortcut.set            "Set">
-<!ENTITY xulmigemo.shortcut.clear          "Clear">
-<!ENTITY xulmigemo.shortcut.dialog.message "Press new shortcut">
-<!ENTITY xulmigemo.shortcut.dialog.button  "Cancel">
+<!ENTITY config.shortcut.set            "Set">
+<!ENTITY config.shortcut.clear          "Clear">
+<!ENTITY config.shortcut.dialog.message "Press new shortcut">
+<!ENTITY config.shortcut.dialog.button  "Cancel">
 
 
-<!ENTITY xulmigemo.tab.combination         "Combination">
-<!ENTITY xulmigemo.combination.description "You can use find features assisted by XUL/Migemo engine (e.g. finding Japanese terms from roman inputs), in application or add-ons.">
-<!ENTITY xulmigemo.combination.description.maxwidth "40em">
+<!ENTITY config.tab.combination         "Combination">
+<!ENTITY config.combination.description "You can use find features assisted by XUL/Migemo engine (e.g. finding Japanese terms from roman inputs), in application or add-ons.">
+<!ENTITY config.combination.description.maxwidth "40em">
 
-<!ENTITY xulmigemo.caption.mailnews        "Thunderbird">
-<!ENTITY xulmigemo.mailnews.threadsearch.enabled "Activate for quick mail search">
-<!ENTITY xulmigemo.mailnews.threadsearch.body    "Activate for message bodies (possibly makes Thunderbird heavy)">
+<!ENTITY config.caption.mailnews        "Thunderbird">
+<!ENTITY config.mailnews.threadsearch.enabled "Activate for quick mail search">
+<!ENTITY config.mailnews.threadsearch.body    "Activate for message bodies (possibly makes Thunderbird heavy)">
 
-<!ENTITY xulmigemo.combination.autocompletemanager "Activate for AutoComplete Manager">
+<!ENTITY config.combination.autocompletemanager "Activate for AutoComplete Manager">
 
 
 
@@ -102,114 +102,116 @@
 
 
 
-<!ENTITY xulmigemo.findbar.advanced.button  "Advanced...">
-<!ENTITY xulmigemo.findbar.advanced.title   "Advanced Configuration of the Find Toolbar Features">
+<!ENTITY config.findbar.advanced.button  "Advanced...">
+<!ENTITY config.findbar.advanced.title   "Advanced Configuration of the Find Toolbar Features">
 
-<!ENTITY xulmigemo.findbar.initialState             "Initial state:">
-<!ENTITY xulmigemo.checked_by_default.highlight     "Highlight all">
-<!ENTITY xulmigemo.checked_by_default.caseSensitive "Match cases">
-<!ENTITY xulmigemo.checked_by_default.migemo        "Migemo">
-<!ENTITY xulmigemo.findbar.initialState.description "*Checked features are enabled Once at startup. You can disable them as you like.">
-<!ENTITY xulmigemo.findbar.initialState.description.maxwidth "30em">
+<!ENTITY config.findbar.initialState             "Initial state:">
+<!ENTITY config.checked_by_default.highlight     "Highlight all">
+<!ENTITY config.checked_by_default.caseSensitive "Match cases">
+<!ENTITY config.checked_by_default.migemo        "Migemo">
+<!ENTITY config.findbar.initialState.description "*Checked features are enabled Once at startup. You can disable them as you like.">
+<!ENTITY config.findbar.initialState.description.maxwidth "30em">
 
 
 
 
 
-<!ENTITY xulmigemo.quickfind.advanced.button  "Advanced...">
-<!ENTITY xulmigemo.quickfind.advanced.title   "Advanced Configuration of Quick Migemo Find">
+<!ENTITY config.quickfind.advanced.button  "Advanced...">
+<!ENTITY config.quickfind.advanced.title   "Advanced Configuration of Quick Migemo Find">
 
-<!ENTITY xulmigemo.override_findtoolbar    "Override the Find Toolbar">
-<!ENTITY xulmigemo.enabletimeout.indicator "Indicate remaining time for timeout of Quick Migemo Find">
-<!ENTITY xulmigemo.appearance.indicator.height.before "Height of the remaining time indicator:">
-<!ENTITY xulmigemo.appearance.indicator.height.after "pixel (0=system default)">
+<!ENTITY config.override_findtoolbar    "Override the Find Toolbar">
+<!ENTITY config.enabletimeout.indicator "Indicate remaining time for timeout of Quick Migemo Find">
+<!ENTITY config.appearance.indicator.height.before "Height of the remaining time indicator:">
+<!ENTITY config.appearance.indicator.height.after "pixel (0=system default)">
 
-<!ENTITY xulmigemo.caption.quickexit       "Exit Quick Migemo Find">
-<!ENTITY xulmigemo.enableautoexit.inherit  "Separate setting of auto-exit and auto-start">
-<!ENTITY xulmigemo.enableautoexit.nokeyword "Exit the mode automatically when there is no keyword left (auto-exit)">
+<!ENTITY config.caption.quickexit       "Exit Quick Migemo Find">
+<!ENTITY config.enableautoexit.inherit  "Separate setting of auto-exit and auto-start">
+<!ENTITY config.enableautoexit.nokeyword "Exit the mode automatically when there is no keyword left (auto-exit)">
 
 
 
 
 
-<!ENTITY xulmigemo.dicManager.title       "XUL/Migemo Dictionary Manager">
+<!ENTITY dicManager.title       "XUL/Migemo Dictionary Manager">
 
-<!ENTITY xulmigemo.dicManager.tab.add     "Add New Term">
+<!ENTITY dicManager.tab.add     "Add New Term">
 
-<!ENTITY xulmigemo.dicManager.add.input    "Input">
-<!ENTITY xulmigemo.dicManager.add.term     "Term">
-<!ENTITY xulmigemo.dicManager.add.addTerm  "Add">
+<!ENTITY dicManager.add.input    "Input">
+<!ENTITY dicManager.add.term     "Term">
+<!ENTITY dicManager.add.addTerm  "Add">
 
-<!ENTITY xulmigemo.dicManager.add.success      "Successfully Added.">
-<!ENTITY xulmigemo.dicManager.add.errorNoTerm  "Error: No term.">
-<!ENTITY xulmigemo.dicManager.add.errorInvalid "Error: Invalid input.">
-<!ENTITY xulmigemo.dicManager.add.errorInvalid.ja "Error: Invalid input. Only hiragana characters, numbers and alphabets can appear in the input.">
-<!ENTITY xulmigemo.dicManager.add.errorExist   "Error: The term exists.">
+<!ENTITY dicManager.add.success      "Successfully Added.">
+<!ENTITY dicManager.add.errorNoTerm  "Error: No term.">
+<!ENTITY dicManager.add.errorInvalid "Error: Invalid input.">
+<!ENTITY dicManager.add.errorInvalid.ja "Error: Invalid input. Only hiragana characters, numbers and alphabets can appear in the input.">
+<!ENTITY dicManager.add.errorExist   "Error: The term exists.">
 
-<!ENTITY xulmigemo.dicManager.tab.remove         "Remove Term">
+<!ENTITY dicManager.tab.remove         "Remove Term">
 
-<!ENTITY xulmigemo.dicManager.remove.input       "Input">
-<!ENTITY xulmigemo.dicManager.remove.term        "Term">
-<!ENTITY xulmigemo.dicManager.remove.description "If the Term is blank, remove all terms of the Input.">
-<!ENTITY xulmigemo.dicManager.remove.removeTerm  "Remove">
+<!ENTITY dicManager.remove.input       "Input">
+<!ENTITY dicManager.remove.term        "Term">
+<!ENTITY dicManager.remove.description "If the Term is blank, remove all terms of the Input.">
+<!ENTITY dicManager.remove.removeTerm  "Remove">
 
-<!ENTITY xulmigemo.dicManager.remove.success      "Successfully Removed from the User Dictionary.">
-<!ENTITY xulmigemo.dicManager.remove.errorInvalid "Error: Invalid input.">
-<!ENTITY xulmigemo.dicManager.remove.errorInvalid.ja "Error: Invalid input. Only hiragana characters, numbers and alphabets can appear in the input.">
-<!ENTITY xulmigemo.dicManager.remove.errorNotExist   "Error: Terms in the System Dictionary is not removable.">
+<!ENTITY dicManager.remove.success      "Successfully Removed from the User Dictionary.">
+<!ENTITY dicManager.remove.errorInvalid "Error: Invalid input.">
+<!ENTITY dicManager.remove.errorInvalid.ja "Error: Invalid input. Only hiragana characters, numbers and alphabets can appear in the input.">
+<!ENTITY dicManager.remove.errorNotExist   "Error: Terms in the System Dictionary is not removable.">
 
-<!ENTITY xulmigemo.dicManager.tab.list          "List">
+<!ENTITY dicManager.tab.list          "List">
 
-<!ENTITY xulmigemo.dicManager.list.roman        "Search key (roman spell)">
-<!ENTITY xulmigemo.dicManager.list.keys         "Input">
-<!ENTITY xulmigemo.dicManager.list.terms        "Terms">
-<!ENTITY xulmigemo.dicManager.list.dic          "Search for:">
-<!ENTITY xulmigemo.dicManager.list.fromUserDic   "User Dictionary">
-<!ENTITY xulmigemo.dicManager.list.fromSystemDic "System Dictionary">
-<!ENTITY xulmigemo.dicManager.list.fromAllDic    "Both">
-<!ENTITY xulmigemo.dicManager.list.addTerm      "Add Term for this input">
-<!ENTITY xulmigemo.dicManager.list.removeTermEntry "Remove All Terms of this input">
-<!ENTITY xulmigemo.dicManager.list.removeTerm   "Remove Term">
+<!ENTITY dicManager.list.roman        "Search key (roman spell)">
+<!ENTITY dicManager.list.keys         "Input">
+<!ENTITY dicManager.list.terms        "Terms">
+<!ENTITY dicManager.list.dic          "Search for:">
+<!ENTITY dicManager.list.fromUserDic   "User Dictionary">
+<!ENTITY dicManager.list.fromSystemDic "System Dictionary">
+<!ENTITY dicManager.list.fromAllDic    "Both">
+<!ENTITY dicManager.list.addTerm      "Add Term for this input">
+<!ENTITY dicManager.list.removeTermEntry "Remove All Terms of this input">
+<!ENTITY dicManager.list.removeTerm   "Remove Term">
 
-<!ENTITY xulmigemo.dicManager.list.promptAdd "Enter new term you want to be added:">
-<!ENTITY xulmigemo.dicManager.list.successAdd "Successfully Added from the User Dictionary.">
-<!ENTITY xulmigemo.dicManager.list.successRemove "Successfully Removed from the User Dictionary.">
-<!ENTITY xulmigemo.dicManager.list.errorExist   "Error: The term is exists.">
-<!ENTITY xulmigemo.dicManager.list.errorNotInUserDic "Error: Terms in the System Dictionary is not removable.">
+<!ENTITY dicManager.list.promptAdd "Enter new term you want to be added:">
+<!ENTITY dicManager.list.successAdd "Successfully Added from the User Dictionary.">
+<!ENTITY dicManager.list.successRemove "Successfully Removed from the User Dictionary.">
+<!ENTITY dicManager.list.errorExist   "Error: The term is exists.">
+<!ENTITY dicManager.list.errorNotInUserDic "Error: Terms in the System Dictionary is not removable.">
 
 
 
-<!ENTITY xulmigemo.langchooser.title  "XUL/Migemo: Choose the Engine">
-<!ENTITY xulmigemo.langchooser.label  "Choose the engine of Migemo-find mode (incremental search assisted by dictionary).">
+<!ENTITY langchooser.title  "XUL/Migemo: Choose the Engine">
+<!ENTITY langchooser.label  "Choose the engine of Migemo-find mode (incremental search assisted by dictionary).">
 
 
-<!ENTITY xulmigemo.init.title  "XUL/Migemo Initialization Wizard">
+<!ENTITY init.title  "XUL/Migemo Initialization Wizard">
 
-<!ENTITY xulmigemo.init.page1.label1  "XUL/Migemo cannot find out the dictonary for Migemo-find mode (incremental search assisted by dictionary.) Migemo-find mode requires the dictionary. Please choose an action.">
-<!ENTITY xulmigemo.init.page1.radio.download "Download Dictionary from the Internet Automatically">
-<!ENTITY xulmigemo.init.page1.radio.choose   "Choose Existing Dictionary">
-<!ENTITY xulmigemo.init.page1.radio.later    "Later (do nothing now)">
+<!ENTITY init.page1.label1  "XUL/Migemo cannot find out the dictonary for Migemo-find mode (incremental search assisted by dictionary.) Migemo-find mode requires the dictionary. Please choose an action.">
+<!ENTITY init.page1.radio.download "Download Dictionary from the Internet Automatically">
+<!ENTITY init.page1.radio.choose   "Choose Existing Dictionary">
+<!ENTITY init.page1.radio.later    "Later (do nothing now)">
 
 
-<!ENTITY xulmigemo.init.download.title    "Download Dictionary from the Internet">
+<!ENTITY init.download.title    "Download Dictionary from the Internet">
 
-<!ENTITY xulmigemo.init.download.page1.label1  "Dictionary files will be downloaded from the Internet and installed. It may take minutes. To continue, press &quot;Next&quot;.">
+<!ENTITY init.download.page1.label1  "Dictionary files will be downloaded from the Internet and installed. It may take minutes. To continue, press &quot;Next&quot;.">
 
-<!ENTITY xulmigemo.init.download.page2.label.download  "Downloading Dictionary...">
-<!ENTITY xulmigemo.init.download.page2.label.progress  "&#37;s&#37; downloaded">
-<!ENTITY xulmigemo.init.download.page2.label.install  "Installing Dictionary...">
-<!ENTITY xulmigemo.init.download.page2.label.complete  "Dictionary is successfully installed">
-<!ENTITY xulmigemo.init.download.page2.label.error  "Unexpected error occurred while transferring data, and Failed to install the dictionary.">
+<!ENTITY init.download.page2.label.download  "Downloading Dictionary...">
+<!ENTITY init.download.page2.label.progress  "&#37;s&#37; downloaded">
+<!ENTITY init.download.page2.label.install  "Installing Dictionary...">
+<!ENTITY init.download.page2.label.complete  "Dictionary is successfully installed">
+<!ENTITY init.download.page2.label.error  "Unexpected error occurred while transferring data, and Failed to install the dictionary.">
 
 
-<!ENTITY xulmigemo.init.choose.title    "Choose Existing Dictionary">
-<!ENTITY xulmigemo.init.choose.page1.label1  "Input the place of the existing dictionaries folder.">
-<!ENTITY xulmigemo.init.choose.page1.find  "Find...">
+<!ENTITY init.choose.title    "Choose Existing Dictionary">
+<!ENTITY init.choose.page1.label1  "Input the place of the existing dictionaries folder.">
+<!ENTITY init.choose.page1.find  "Find...">
 
 
-<!ENTITY xulmigemo.init.final.label1  "All processes are successfully done.">
+<!ENTITY init.final.label1  "All processes are successfully done.">
 
 
 
 
-<!ENTITY xulmigemo.caseSensitive.shortLabel  "A/a">
+<!ENTITY ui.migemo.checkbox.label     "Migemo">
+<!ENTITY ui.or.checkbox.label         "OR">
+<!ENTITY ui.caseSensitive.shortLabel  "A/a">

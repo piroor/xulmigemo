@@ -10,10 +10,10 @@
 
 <prefwindow id="xulmigemo-config"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	title="&xulmigemo.title;">
+	title="&config.title;">
 
 
-<prefpane id="prefpane-general" label="&xulmigemo.tab.general;" flex="1">
+<prefpane id="prefpane-general" label="&config.tab.general;" flex="1">
 	<preferences>
 		<preference id="xulmigemo.lang"
 			name="xulmigemo.lang"
@@ -41,51 +41,51 @@
 	</preferences>
 
 	<hbox align="center">
-		<label value="&xulmigemo.lang.label;"/>
+		<label value="&config.lang.label;"/>
 		<menulist id="xulmigemo.lang-menulist"
 			preference="xulmigemo.lang">
 			<menupopup>
-				<menuitem label="&xulmigemo.lang.item1.label;"
-					value="&xulmigemo.lang.item1.value;"/>
-				<menuitem label="&xulmigemo.lang.item2.label;"
-					value="&xulmigemo.lang.item2.value;"/>
+				<menuitem label="&config.lang.item1.label;"
+					value="&config.lang.item1.value;"/>
+				<menuitem label="&config.lang.item2.label;"
+					value="&config.lang.item2.value;"/>
 			</menupopup>
 		</menulist>
 	</hbox>
 	<hbox>
 		<spacer style="width:1em;"/>
-		<description value="&xulmigemo.lang.description;"/>
+		<description value="&config.lang.description;"/>
 	</hbox>
 
 	<vbox>
 		<checkbox id="xulmigemo.startfromviewport-check" flex="1"
-			label="&xulmigemo.startfromviewport;"
+			label="&config.startfromviewport;"
 			preference="xulmigemo.startfromviewport"/>
 		<checkbox id="xulmigemo.scrollSelectionToCenter-check" flex="1"
-			label="&xulmigemo.scrollSelectionToCenter;"
+			label="&config.scrollSelectionToCenter;"
 			preference="xulmigemo.scrollSelectionToCenter"/>
 		<checkbox id="xulmigemo.highlight.showScreen-check" flex="1"
-			label="&xulmigemo.highlight.showScreen;"
+			label="&config.highlight.showScreen;"
 			preference="xulmigemo.highlight.showScreen"/>
 	</vbox>
 
 	<groupbox>
-		<caption label="&xulmigemo.caption.recognize;"/>
+		<caption label="&config.caption.recognize;"/>
 		<checkbox id="xulmigemo.ignoreHiraKata-check" flex="1"
-			label="&xulmigemo.ignoreHiraKata;"
+			label="&config.ignoreHiraKata;"
 			preference="xulmigemo.ignoreHiraKata"/>
 		<checkbox id="xulmigemo.ignoreLatinModifiers-check" flex="1"
-			label="&xulmigemo.ignoreLatinModifiers;"
+			label="&config.ignoreLatinModifiers;"
 			preference="xulmigemo.ignoreLatinModifiers"/>
 		<!--checkbox id="xulmigemo.splitTermsAutomatically-check" flex="1"
-			label="&xulmigemo.splitTermsAutomatically;"
+			label="&config.splitTermsAutomatically;"
 			preference="xulmigemo.splitTermsAutomatically"/-->
 	</groupbox>
 
 </prefpane>
 
 
-<prefpane id="prefpane-findbar" label="&xulmigemo.tab.findbar;" flex="1">
+<prefpane id="prefpane-findbar" label="&config.tab.findbar;" flex="1">
 	<preferences>
 		<preference id="xulmigemo.prefillwithselection"
 			name="xulmigemo.prefillwithselection"
@@ -113,70 +113,70 @@
 	</preferences>
 
 	<groupbox orient="vertical">
-		<caption label="&xulmigemo.findbar.permanentState;"/>
+		<caption label="&config.findbar.permanentState;"/>
 		<hbox align="center">
 			<groupbox orient="vertical">
-				<caption label="&xulmigemo.prefillwithselection;"/>
+				<caption label="&config.prefillwithselection;"/>
 				<radiogroup id="xulmigemo.prefillwithselection-radiogroup"
 					preference="xulmigemo.prefillwithselection"
 					orient="vertical">
-					<radio value="true"  label="&xulmigemo.prefillwithselection.true;"/>
-					<radio value="false" label="&xulmigemo.prefillwithselection.false;"/>
+					<radio value="true"  label="&config.prefillwithselection.true;"/>
+					<radio value="false" label="&config.prefillwithselection.false;"/>
 				</radiogroup>
 			</groupbox>
 			<spacer flex="1"/>
 			<vbox>
 				<hbox align="center">
 					<checkbox id="xulmigemo.checked_by_default.highlight.always-check"
-						label="&xulmigemo.checked_by_default.highlight.always;"
+						label="&config.checked_by_default.highlight.always;"
 						preference="xulmigemo.checked_by_default.highlight.always"
 						style="min-width: 0;"/>
 					<checkbox id="xulmigemo.checked_by_default.caseSensitive.always-check"
-						label="&xulmigemo.checked_by_default.caseSensitive.always;"
+						label="&config.checked_by_default.caseSensitive.always;"
 						preference="xulmigemo.checked_by_default.caseSensitive.always"
 						style="min-width: 0;"/>
 					<checkbox id="xulmigemo.enable_by_default-check"
-						label="&xulmigemo.enable_by_default;"
+						label="&config.enable_by_default;"
 						preference="xulmigemo.enable_by_default"
 						style="min-width: 0;"/>
 				</hbox>
 				<hbox align="center">
 					<label class="shrinked-label"
-						value="&xulmigemo.checked_by_default.highlight.always.minLength.before;"
+						value="&config.checked_by_default.highlight.always.minLength.before;"
 						control="xulmigemo.checked_by_default.highlight.always.minLength-textbox"/>
 					<textbox id="xulmigemo.checked_by_default.highlight.always.minLength-textbox"
 						preference="xulmigemo.checked_by_default.highlight.always.minLength"
 						style="width: 3em;"
 						type="number" min="1" increment="1"/>
 					<label class="shrinked-label"
-						value="&xulmigemo.checked_by_default.highlight.always.minLength.after;"
+						value="&config.checked_by_default.highlight.always.minLength.after;"
 						control="xulmigemo.checked_by_default.highlight.always.minLength-textbox"/>
 					<spacer flex="1"/>
 				</hbox>
 			</vbox>
 		</hbox>
-		<description flex="1" style="max-width: &xulmigemo.findbar.permanentState.description.maxwidth;">&xulmigemo.findbar.permanentState.description;</description>
+		<description flex="1" style="max-width: &config.findbar.permanentState.description.maxwidth;">&config.findbar.permanentState.description;</description>
 	</groupbox>
 
 	<vbox>
 	<checkbox id="xulmigemo.checked_by_default.findbar-check" flex="1"
-		label="&xulmigemo.checked_by_default.findbar;"
+		label="&config.checked_by_default.findbar;"
 		preference="xulmigemo.checked_by_default.findbar"/>
 	<checkbox id="xulmigemo.appearance.hideLabels-check" flex="1"
-		label="&xulmigemo.appearance.hideLabels;"
+		label="&config.appearance.hideLabels;"
 		preference="xulmigemo.appearance.hideLabels"/>
 	</vbox>
 
 	<hbox align="center">
 		<spacer flex="1"/>
-		<button label="&xulmigemo.findbar.advanced.button;"
+		<button label="&config.findbar.advanced.button;"
 			oncommand="document.documentElement.openSubDialog('config-findbar-advanced.xul', 'modal');"/>
 	</hbox>
 
 </prefpane>
 
 
-<prefpane id="prefpane-quickfind" label="&xulmigemo.tab.quickfind;" flex="1">
+<prefpane id="prefpane-quickfind" label="&config.tab.quickfind;" flex="1">
 	<preferences>
 		<preference id="xulmigemo.autostart"
 			name="xulmigemo.autostart"
@@ -195,37 +195,37 @@
 
 	<vbox>
 	<checkbox id="xulmigemo.autostart-check" flex="1"
-		label="&xulmigemo.autostart;"
+		label="&config.autostart;"
 		preference="xulmigemo.autostart"/>
 	<checkbox id="xulmigemo.linksonly-check" flex="1"
-		label="&xulmigemo.linksonly;"
+		label="&config.linksonly;"
 		preference="xulmigemo.linksonly"/>
 	<checkbox id="xulmigemo.enabletimeout-check" flex="1"
-		label="&xulmigemo.enabletimeout;"
+		label="&config.enabletimeout;"
 		preference="xulmigemo.enabletimeout"/>
 	</vbox>
 	<hbox align="center">
 		<spacer style="width:1em;"/>
-		<label value="&xulmigemo.timeout.before;"
+		<label value="&config.timeout.before;"
 			control="xulmigemo.timeout-textbox"/>
 		<textbox id="xulmigemo.timeout-textbox"
 			preference="xulmigemo.timeout"
 			style="width: 5em;"
 			type="number" min="1" increment="1"/>
-		<label value="&xulmigemo.timeout.after;"
+		<label value="&config.timeout.after;"
 			control="xulmigemo.timeout-textbox"/>
 	</hbox>
 
 	<hbox align="center">
 		<spacer flex="1"/>
-		<button label="&xulmigemo.quickfind.advanced.button;"
+		<button label="&config.quickfind.advanced.button;"
 			oncommand="document.documentElement.openSubDialog('config-quickfind-advanced.xul', 'modal');"/>
 	</hbox>
 
 </prefpane>
 
 
-<prefpane id="prefpane-dictionary" label="&xulmigemo.tab.dictionary;" flex="1"
+<prefpane id="prefpane-dictionary" label="&config.tab.dictionary;" flex="1"
 	onpaneload="initDicPane();">
 	<preferences>
 		<preference id="xulmigemo.dictionary.useInitializeWizard"
@@ -240,31 +240,31 @@
 	</preferences>
 
 	<groupbox>
-		<caption label="&xulmigemo.caption.dic;"/>
+		<caption label="&config.caption.dic;"/>
 		<hbox align="center">
 			<textbox id="xulmigemo.dicpath-textbox"
 				preference="xulmigemo.dicpath"
 				flex="1"/>
-			<button label="&xulmigemo.dic.find;"
+			<button label="&config.dic.find;"
 				oncommand="getDP()"/>
 		</hbox>
-		<description flex="1" style="max-width: &xulmigemo.dic.description.maxwidth;">&xulmigemo.dic.description;</description>
+		<description flex="1" style="max-width: &config.dic.description.maxwidth;">&config.dic.description;</description>
 		<checkbox id="xulmigemo.dic.useInitializeWizard-check" flex="1"
-			label="&xulmigemo.dic.useInitializeWizard;"
+			label="&config.dic.useInitializeWizard;"
 			preference="xulmigemo.dictionary.useInitializeWizard"/>
 	</groupbox>
 
 	<hbox>
 		<spacer flex="1"/>
-		<button label="&xulmigemo.dic.showManager;"
+		<button label="&config.dic.showManager;"
 			oncommand="XMigemoService.goDicManager();"/>
 	</hbox>
 
 	<groupbox>
-		<caption label="&xulmigemo.caption.cache;"/>
-		<label value="&xulmigemo.cache.update.time;"/>
+		<caption label="&config.caption.cache;"/>
+		<label value="&config.cache.update.time;"/>
 		<hbox align="center">
-			<label value="&xulmigemo.cache.update.time.max;"/>
+			<label value="&config.cache.update.time.max;"/>
 			<scale id="xulmigemo.cache.update.time-slider"
 				flex="1"
 				onchange="syncCacheUpdateTime(this);"
@@ -273,24 +273,24 @@
 				flex="1"
 				onmouseup="syncCacheUpdateTime(this);"
 				maxpos="1000"/>
-			<label value="&xulmigemo.cache.update.time.min;"/>
+			<label value="&config.cache.update.time.min;"/>
 		</hbox>
 		<vbox class="status-box">
-			<label value="&xulmigemo.cache.update.time.indicator.above;"/>
+			<label value="&config.cache.update.time.indicator.above;"/>
 			<hbox align="center">
-				<label value="&xulmigemo.cache.update.time.indicator.before;"/>
+				<label value="&config.cache.update.time.indicator.before;"/>
 				<textbox id="xulmigemo.cache.update.time-textbox"
 					preference="xulmigemo.cache.update.time"
 					style="width: 5em;"
 					type="number" min="0" max="1000" increment="1"
 					oninput="syncCacheUpdateTime(this);"/>
-				<label value="&xulmigemo.cache.update.time.indicator.after;"/>
+				<label value="&config.cache.update.time.indicator.after;"/>
 			</hbox>
-			<label value="&xulmigemo.cache.update.time.indicator.below;"/>
+			<label value="&config.cache.update.time.indicator.below;"/>
 		</vbox>
 		<hbox>
 			<spacer flex="1"/>
-			<button label="&xulmigemo.cache.update.time.now;"
+			<button label="&config.cache.update.time.now;"
 				oncommand="updateCacheNow();"/>
 		</hbox>
 	</groupbox>
@@ -298,7 +298,7 @@
 </prefpane>
 
 
-<prefpane id="prefpane-shortcut" label="&xulmigemo.tab.shortcut;" flex="1"
+<prefpane id="prefpane-shortcut" label="&config.tab.shortcut;" flex="1"
 	onpaneload="initShortcutPane();">
 	<preferences>
 		<preference id="xulmigemo.shortcut.findForward"
@@ -337,47 +337,47 @@
 			</columns>
 			<rows>
 				<row align="center">
-					<label value="&xulmigemo.shortcut.findForward;"/>
+					<label value="&config.shortcut.findForward;"/>
 					<textbox id="shortcutFindForward"
 						readonly="true"
 						style="width: 10em;"
 						preference="xulmigemo.shortcut.findForward"
-						dialogMessage="&xulmigemo.shortcut.dialog.message;"
-						dialogButton="&xulmigemo.shortcut.dialog.button;"/>
-					<button label="&xulmigemo.shortcut.set;"
+						dialogMessage="&config.shortcut.dialog.message;"
+						dialogButton="&config.shortcut.dialog.button;"/>
+					<button label="&config.shortcut.set;"
 						style="min-width: 0;"
 						oncommand="setShortcut(shortcutFindForward);"/>
-					<button label="&xulmigemo.shortcut.clear;"
+					<button label="&config.shortcut.clear;"
 						style="min-width: 0;"
 						oncommand="clearShortcut(shortcutFindForward);"/>
 				</row>
 				<row align="center">
-					<label value="&xulmigemo.shortcut.findBackward;"/>
+					<label value="&config.shortcut.findBackward;"/>
 					<textbox id="shortcutFindBackward"
 						readonly="true"
 						style="width: 10em;"
 						preference="xulmigemo.shortcut.findBackward"
-						dialogMessage="&xulmigemo.shortcut.dialog.message;"
-						dialogButton="&xulmigemo.shortcut.dialog.button;"/>
-					<button label="&xulmigemo.shortcut.set;"
+						dialogMessage="&config.shortcut.dialog.message;"
+						dialogButton="&config.shortcut.dialog.button;"/>
+					<button label="&config.shortcut.set;"
 						style="min-width: 0;"
 						oncommand="setShortcut(shortcutFindBackward);"/>
-					<button label="&xulmigemo.shortcut.clear;"
+					<button label="&config.shortcut.clear;"
 						style="min-width: 0;"
 						oncommand="clearShortcut(shortcutFindBackward);"/>
 				</row>
 				<row align="center">
-					<label value="&xulmigemo.shortcut.goDicManager;"/>
+					<label value="&config.shortcut.goDicManager;"/>
 					<textbox id="shortcutGoDicManager"
 						readonly="true"
 						style="width: 10em;"
 						preference="xulmigemo.shortcut.goDicManager"
-						dialogMessage="&xulmigemo.shortcut.dialog.message;"
-						dialogButton="&xulmigemo.shortcut.dialog.button;"/>
-					<button label="&xulmigemo.shortcut.set;"
+						dialogMessage="&config.shortcut.dialog.message;"
+						dialogButton="&config.shortcut.dialog.button;"/>
+					<button label="&config.shortcut.set;"
 						style="min-width: 0;"
 						oncommand="setShortcut(shortcutGoDicManager);"/>
-					<button label="&xulmigemo.shortcut.clear;"
+					<button label="&config.shortcut.clear;"
 						style="min-width: 0;"
 						oncommand="clearShortcut(shortcutGoDicManager);"/>
 				</row>
@@ -395,7 +395,7 @@
 			<rows>
 				<row>
 					<vbox>
-						<label value="&xulmigemo.shortcut.manualStart;"/>
+						<label value="&config.shortcut.manualStart;"/>
 					</vbox>
 					<vbox>
 						<hbox align="center">
@@ -403,12 +403,12 @@
 								readonly="true"
 								style="width: 10em;"
 								preference="xulmigemo.shortcut.manualStart"
-								dialogMessage="&xulmigemo.shortcut.dialog.message;"
-								dialogButton="&xulmigemo.shortcut.dialog.button;"/>
-							<button label="&xulmigemo.shortcut.set;"
+								dialogMessage="&config.shortcut.dialog.message;"
+								dialogButton="&config.shortcut.dialog.button;"/>
+							<button label="&config.shortcut.set;"
 								style="min-width: 0;"
 								oncommand="setShortcut(shortcutManualStart);"/>
-							<button label="&xulmigemo.shortcut.clear;"
+							<button label="&config.shortcut.clear;"
 								style="min-width: 0;"
 								oncommand="clearShortcut(shortcutManualStart);"/>
 						</hbox>
@@ -417,12 +417,12 @@
 								readonly="true"
 								style="width: 10em;"
 								preference="xulmigemo.shortcut.manualStart2"
-								dialogMessage="&xulmigemo.shortcut.dialog.message;"
-								dialogButton="&xulmigemo.shortcut.dialog.button;"/>
-							<button label="&xulmigemo.shortcut.set;"
+								dialogMessage="&config.shortcut.dialog.message;"
+								dialogButton="&config.shortcut.dialog.button;"/>
+							<button label="&config.shortcut.set;"
 								style="min-width: 0;"
 								oncommand="setShortcut(shortcutManualStart2);"/>
-							<button label="&xulmigemo.shortcut.clear;"
+							<button label="&config.shortcut.clear;"
 								style="min-width: 0;"
 								oncommand="clearShortcut(shortcutManualStart2);"/>
 						</hbox>
@@ -430,8 +430,8 @@
 				</row>
 				<row>
 					<vbox>
-						<label value="&xulmigemo.shortcut.manualStartLinksOnly;"/>
-						<label value="&xulmigemo.shortcut.manualStartLinksOnly2;"/>
+						<label value="&config.shortcut.manualStartLinksOnly;"/>
+						<label value="&config.shortcut.manualStartLinksOnly2;"/>
 					</vbox>
 					<vbox>
 						<hbox align="center">
@@ -439,12 +439,12 @@
 								readonly="true"
 								style="width: 10em;"
 								preference="xulmigemo.shortcut.manualStartLinksOnly"
-								dialogMessage="&xulmigemo.shortcut.dialog.message;"
-								dialogButton="&xulmigemo.shortcut.dialog.button;"/>
-							<button label="&xulmigemo.shortcut.set;"
+								dialogMessage="&config.shortcut.dialog.message;"
+								dialogButton="&config.shortcut.dialog.button;"/>
+							<button label="&config.shortcut.set;"
 								style="min-width: 0;"
 								oncommand="setShortcut(shortcutManualStartLinksOnly);"/>
-							<button label="&xulmigemo.shortcut.clear;"
+							<button label="&config.shortcut.clear;"
 								style="min-width: 0;"
 								oncommand="clearShortcut(shortcutManualStartLinksOnly);"/>
 						</hbox>
@@ -453,30 +453,30 @@
 								readonly="true"
 								style="width: 10em;"
 								preference="xulmigemo.shortcut.manualStartLinksOnly2"
-								dialogMessage="&xulmigemo.shortcut.dialog.message;"
-								dialogButton="&xulmigemo.shortcut.dialog.button;"/>
-							<button label="&xulmigemo.shortcut.set;"
+								dialogMessage="&config.shortcut.dialog.message;"
+								dialogButton="&config.shortcut.dialog.button;"/>
+							<button label="&config.shortcut.set;"
 								style="min-width: 0;"
 								oncommand="setShortcut(shortcutManualStartLinksOnly2);"/>
-							<button label="&xulmigemo.shortcut.clear;"
+							<button label="&config.shortcut.clear;"
 								style="min-width: 0;"
 								oncommand="clearShortcut(shortcutManualStartLinksOnly2);"/>
 						</hbox>
 					</vbox>
 				</row>
 				<row align="center">
-					<label value="&xulmigemo.shortcut.manualExit;"/>
+					<label value="&config.shortcut.manualExit;"/>
 					<hbox align="center">
 						<textbox id="shortcutManualExit"
 							readonly="true"
 							style="width: 10em;"
 							preference="xulmigemo.shortcut.manualExit"
-							dialogMessage="&xulmigemo.shortcut.dialog.message;"
-							dialogButton="&xulmigemo.shortcut.dialog.button;"/>
-						<button label="&xulmigemo.shortcut.set;"
+							dialogMessage="&config.shortcut.dialog.message;"
+							dialogButton="&config.shortcut.dialog.button;"/>
+						<button label="&config.shortcut.set;"
 							style="min-width: 0;"
 							oncommand="setShortcut(shortcutManualExit);"/>
-						<button label="&xulmigemo.shortcut.clear;"
+						<button label="&config.shortcut.clear;"
 							style="min-width: 0;"
 							oncommand="clearShortcut(shortcutManualExit);"/>
 					</hbox>
@@ -489,7 +489,7 @@
 </prefpane>
 
 
-<prefpane id="prefpane-combination" label="&xulmigemo.tab.combination;" flex="1">
+<prefpane id="prefpane-combination" label="&config.tab.combination;" flex="1">
 	<preferences>
 		<preference id="xulmigemo.mailnews.threadsearch.enabled"
 			name="xulmigemo.mailnews.threadsearch.enabled"
@@ -503,24 +503,24 @@
 			type="bool"/>
 	</preferences>
 
-	<description flex="1" style="max-width: &xulmigemo.combination.description.maxwidth;">&xulmigemo.combination.description;</description>
+	<description flex="1" style="max-width: &config.combination.description.maxwidth;">&config.combination.description;</description>
 
 	<vbox flex="100">
 	<groupbox>
-		<caption label="&xulmigemo.caption.mailnews;"/>
+		<caption label="&config.caption.mailnews;"/>
 		<checkbox id="xulmigemo.mailnews.threadsearch.enabled-check" flex="1"
-			label="&xulmigemo.mailnews.threadsearch.enabled;"
+			label="&config.mailnews.threadsearch.enabled;"
 			preference="xulmigemo.mailnews.threadsearch.enabled"/>
 		<hbox>
 			<spacer style="width:1em;"/>
 			<checkbox id="xulmigemo.mailnews.threadsearch.body-check" flex="1"
-				label="&xulmigemo.mailnews.threadsearch.body;"
+				label="&config.mailnews.threadsearch.body;"
 				preference="xulmigemo.mailnews.threadsearch.body"/>
 		</hbox>
 	</groupbox>
 
 	<checkbox id="xulmigemo.combination.autocompletemanager-check" flex="1"
-		label="&xulmigemo.combination.autocompletemanager;"
+		label="&config.combination.autocompletemanager;"
 		preference="xulmigemo.combination.autocompletemanager"/>
 
 	<spacer flex="100"/>
