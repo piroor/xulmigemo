@@ -13,15 +13,20 @@
 <hbox id="XMigemoFindToolbar"
 	collapsed="true"
 	pack="end"
-	caseSensitive-short-label="&xulmigemo.caseSensitive.shortLabel;">
+	caseSensitive-short-label="&ui.caseSensitive.shortLabel;">
 	<hbox id="find-migemo-mode-box"
 		align="center"
 		pack="end"
 		hidden="true"
 		style="position: fixed;/* z-index: 65000;*/">
-		<checkbox id="find-migemo-mode"
-			label="Migemo"
-			oncommand="XMigemoUI.onChangeFindToolbarMode();"/>
+		<hbox center="true">
+			<checkbox id="find-migemo-mode"
+				label="&ui.migemo.checkbox.label;"
+				oncommand="XMigemoUI.onChangeFindToolbarMode();"/>
+			<checkbox id="find-or-mode"
+				label="&ui.or.checkbox.label;"
+				oncommand="XMigemoUI.onChangeOrFindMode();"/>
+		</hbox>
 		<!--
 			Firefox 3では、下の方法で置いたProgressmeterのメーター部分が
 			アニメーションしないという問題が起こるので、代わりにこちらを使う。

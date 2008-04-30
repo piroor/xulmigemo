@@ -1,212 +1,214 @@
-<!ENTITY xulmigemo.title                   "XUL/Migemoの設定">
+<!ENTITY config.title                   "XUL/Migemoの設定">
 
 
-<!ENTITY xulmigemo.tab.general             "全般">
+<!ENTITY config.tab.general             "全般">
 
-<!ENTITY xulmigemo.lang.label              "エンジン：">
-<!ENTITY xulmigemo.lang.item1.label        "日本語（ローマ字入力で日本語検索）">
-<!ENTITY xulmigemo.lang.item1.value        "ja">
-<!ENTITY xulmigemo.lang.item2.label        "英語（辞書アシスト検索）">
-<!ENTITY xulmigemo.lang.item2.value        "en-US">
-<!ENTITY xulmigemo.lang.description        "※変更の反映には再起動が必要です">
+<!ENTITY config.lang.label              "エンジン：">
+<!ENTITY config.lang.item1.label        "日本語（ローマ字入力で日本語検索）">
+<!ENTITY config.lang.item1.value        "ja">
+<!ENTITY config.lang.item2.label        "英語（辞書アシスト検索）">
+<!ENTITY config.lang.item2.value        "en-US">
+<!ENTITY config.lang.description        "※変更の反映には再起動が必要です">
 
-<!ENTITY xulmigemo.startfromviewport       "現在見えている領域内から検索を始める">
-<!ENTITY xulmigemo.scrollSelectionToCenter "検索で見つかった箇所を画面の中心に表示する">
-<!ENTITY xulmigemo.highlight.showScreen    "「すべて強調表示」をより強く強調する">
+<!ENTITY config.startfromviewport       "現在見えている領域内から検索を始める">
+<!ENTITY config.scrollSelectionToCenter "検索で見つかった箇所を画面の中心に表示する">
+<!ENTITY config.highlight.showScreen    "「すべて強調表示」をより強く強調する">
 
 
-<!ENTITY xulmigemo.caption.recognize       "文字の認識">
-<!ENTITY xulmigemo.ignoreHiraKata          "ひらがなとカタカナの違いを無視する（日本語のみ）">
-<!ENTITY xulmigemo.ignoreLatinModifiers    "ラテン文字の修飾記号を無視する">
-<!ENTITY xulmigemo.splitTermsAutomatically "文節の切れ目を自動的に認識する">
+<!ENTITY config.caption.recognize       "文字の認識">
+<!ENTITY config.ignoreHiraKata          "ひらがなとカタカナの違いを無視する（日本語のみ）">
+<!ENTITY config.ignoreLatinModifiers    "ラテン文字の修飾記号を無視する">
+<!ENTITY config.splitTermsAutomatically "文節の切れ目を自動的に認識する">
 
 
-<!ENTITY xulmigemo.tab.quickfind           "クイックMigemo検索">
+<!ENTITY config.tab.quickfind           "クイックMigemo検索">
 
-<!ENTITY xulmigemo.autostart               "キー入力で自動的にクイックMigemo検索を始める">
-<!ENTITY xulmigemo.linksonly               "リンク内の文字列だけを検索する">
+<!ENTITY config.autostart               "キー入力で自動的にクイックMigemo検索を始める">
+<!ENTITY config.linksonly               "リンク内の文字列だけを検索する">
 
-<!ENTITY xulmigemo.enabletimeout           "一定時間で自動的にクイックMigemo検索を終了する">
-<!ENTITY xulmigemo.timeout.before          "最後の入力から">
-<!ENTITY xulmigemo.timeout.after           "ミリ秒経過したら終了する">
+<!ENTITY config.enabletimeout           "一定時間で自動的にクイックMigemo検索を終了する">
+<!ENTITY config.timeout.before          "最後の入力から">
+<!ENTITY config.timeout.after           "ミリ秒経過したら終了する">
 
 
 
-<!ENTITY xulmigemo.tab.findbar             "検索ツールバー">
+<!ENTITY config.tab.findbar             "検索ツールバー">
 
-<!ENTITY xulmigemo.findbar.permanentState       "以下の機能を自動的に有効にする：">
-<!ENTITY xulmigemo.prefillwithselection         "入力欄の内容">
-<!ENTITY xulmigemo.prefillwithselection.true    "選択範囲のテキスト">
-<!ENTITY xulmigemo.prefillwithselection.false   "前回検索した内容">
-<!ENTITY xulmigemo.checked_by_default.highlight.always     "すべて強調表示">
-<!ENTITY xulmigemo.checked_by_default.highlight.always.minLength.before "&#x2514;">
-<!ENTITY xulmigemo.checked_by_default.highlight.always.minLength.after  "文字以上の時のみ">
-<!ENTITY xulmigemo.checked_by_default.caseSensitive.always "大文字/小文字を区別">
-<!ENTITY xulmigemo.enable_by_default                       "Migemo検索">
-<!ENTITY xulmigemo.findbar.permanentState.description "※ここでチェックした機能は検索ツールバーを開くたびに常に有効になり、任意で無効にできません">
-<!ENTITY xulmigemo.findbar.permanentState.description.maxwidth "40em">
+<!ENTITY config.findbar.permanentState       "以下の機能を自動的に有効にする：">
+<!ENTITY config.prefillwithselection         "入力欄の内容">
+<!ENTITY config.prefillwithselection.true    "選択範囲のテキスト">
+<!ENTITY config.prefillwithselection.false   "前回検索した内容">
+<!ENTITY config.checked_by_default.highlight.always     "すべて強調表示">
+<!ENTITY config.checked_by_default.highlight.always.minLength.before "&#x2514;">
+<!ENTITY config.checked_by_default.highlight.always.minLength.after  "文字以上の時のみ">
+<!ENTITY config.checked_by_default.caseSensitive.always "大文字/小文字を区別">
+<!ENTITY config.enable_by_default                       "Migemo検索">
+<!ENTITY config.findbar.permanentState.description "※ここでチェックした機能は検索ツールバーを開くたびに常に有効になり、任意で無効にできません">
+<!ENTITY config.findbar.permanentState.description.maxwidth "40em">
 
-<!ENTITY xulmigemo.checked_by_default.findbar  "Firefox起動時に最初から検索ツールバーを表示しておく">
-<!ENTITY xulmigemo.appearance.hideLabels  "検索ツールバー内のボタンの表示を小さくする">
+<!ENTITY config.checked_by_default.findbar  "Firefox起動時に最初から検索ツールバーを表示しておく">
+<!ENTITY config.appearance.hideLabels  "検索ツールバー内のボタンの表示を小さくする">
 
 
-<!ENTITY xulmigemo.tab.dictionary          "辞書">
+<!ENTITY config.tab.dictionary          "辞書">
 
-<!ENTITY xulmigemo.caption.dic             "辞書フォルダ">
-<!ENTITY xulmigemo.dic.useInitializeWizard "起動時に辞書が見つからないときはウィザードを表示する">
-<!ENTITY xulmigemo.dic.find                "参照...">
+<!ENTITY config.caption.dic             "辞書フォルダ">
+<!ENTITY config.dic.useInitializeWizard "起動時に辞書が見つからないときはウィザードを表示する">
+<!ENTITY config.dic.find                "参照...">
 
-<!ENTITY xulmigemo.dic.showManager         "辞書の管理">
-<!ENTITY xulmigemo.dic.description         "※相対パスはFirefox（Thunderbird）のインストールフォルダを基準として解釈されます">
-<!ENTITY xulmigemo.dic.description.maxwidth "40em">
+<!ENTITY config.dic.showManager         "辞書の管理">
+<!ENTITY config.dic.description         "※相対パスはFirefox（Thunderbird）のインストールフォルダを基準として解釈されます">
+<!ENTITY config.dic.description.maxwidth "40em">
 
-<!ENTITY xulmigemo.caption.cache           "一時ファイル">
-<!ENTITY xulmigemo.cache.update.time       "一時ファイルを生成する頻度">
-<!ENTITY xulmigemo.cache.update.time.max   "高">
-<!ENTITY xulmigemo.cache.update.time.min   "低">
-<!ENTITY xulmigemo.cache.update.time.indicator.above "">
-<!ENTITY xulmigemo.cache.update.time.indicator.before "辞書の読み込みに">
-<!ENTITY xulmigemo.cache.update.time.indicator.after  "ミリ秒以上">
-<!ENTITY xulmigemo.cache.update.time.indicator.below  "かかったら一時ファイルを生成する">
-<!ENTITY xulmigemo.cache.update.time.now   "今すぐキャッシュを更新">
+<!ENTITY config.caption.cache           "一時ファイル">
+<!ENTITY config.cache.update.time       "一時ファイルを生成する頻度">
+<!ENTITY config.cache.update.time.max   "高">
+<!ENTITY config.cache.update.time.min   "低">
+<!ENTITY config.cache.update.time.indicator.above "">
+<!ENTITY config.cache.update.time.indicator.before "辞書の読み込みに">
+<!ENTITY config.cache.update.time.indicator.after  "ミリ秒以上">
+<!ENTITY config.cache.update.time.indicator.below  "かかったら一時ファイルを生成する">
+<!ENTITY config.cache.update.time.now   "今すぐキャッシュを更新">
 
 
-<!ENTITY xulmigemo.tab.shortcut            "ショートカット">
+<!ENTITY config.tab.shortcut            "ショートカット">
 
-<!ENTITY xulmigemo.shortcut.findForward    "次を検索">
-<!ENTITY xulmigemo.shortcut.findBackward   "前を検索">
-<!ENTITY xulmigemo.shortcut.manualStart    "クイックMigemo検索を開始">
-<!ENTITY xulmigemo.shortcut.manualStartLinksOnly "クイックMigemo検索を開始">
-<!ENTITY xulmigemo.shortcut.manualStartLinksOnly2 "（リンク文字列のみ検索）">
-<!ENTITY xulmigemo.shortcut.manualExit     "クイックMigemo検索を終了">
-<!ENTITY xulmigemo.shortcut.goDicManager   "辞書マネージャを開く">
+<!ENTITY config.shortcut.findForward    "次を検索">
+<!ENTITY config.shortcut.findBackward   "前を検索">
+<!ENTITY config.shortcut.manualStart    "クイックMigemo検索を開始">
+<!ENTITY config.shortcut.manualStartLinksOnly "クイックMigemo検索を開始">
+<!ENTITY config.shortcut.manualStartLinksOnly2 "（リンク文字列のみ検索）">
+<!ENTITY config.shortcut.manualExit     "クイックMigemo検索を終了">
+<!ENTITY config.shortcut.goDicManager   "辞書マネージャを開く">
 
-<!ENTITY xulmigemo.shortcut.set            "変更">
-<!ENTITY xulmigemo.shortcut.clear          "消去">
-<!ENTITY xulmigemo.shortcut.dialog.message "ショートカットに使いたいキーを押してください">
-<!ENTITY xulmigemo.shortcut.dialog.button  "キャンセル">
+<!ENTITY config.shortcut.set            "変更">
+<!ENTITY config.shortcut.clear          "消去">
+<!ENTITY config.shortcut.dialog.message "ショートカットに使いたいキーを押してください">
+<!ENTITY config.shortcut.dialog.button  "キャンセル">
 
 
-<!ENTITY xulmigemo.tab.combination         "連携">
-<!ENTITY xulmigemo.combination.description "対応するアプリケーションやアドオンの各機能で、XUL/Migemoによる辞書アシスト検索（ローマ字入力での日本語検索など）を利用できます。">
-<!ENTITY xulmigemo.combination.description.maxwidth "40em">
+<!ENTITY config.tab.combination         "連携">
+<!ENTITY config.combination.description "対応するアプリケーションやアドオンの各機能で、XUL/Migemoによる辞書アシスト検索（ローマ字入力での日本語検索など）を利用できます。">
+<!ENTITY config.combination.description.maxwidth "40em">
 
-<!ENTITY xulmigemo.caption.mailnews        "Thunderbird">
-<!ENTITY xulmigemo.mailnews.threadsearch.enabled "メールのクイック検索で有効にする">
-<!ENTITY xulmigemo.mailnews.threadsearch.body    "本文の検索でも有効にする（処理が重くなります）">
+<!ENTITY config.caption.mailnews        "Thunderbird">
+<!ENTITY config.mailnews.threadsearch.enabled "メールのクイック検索で有効にする">
+<!ENTITY config.mailnews.threadsearch.body    "本文の検索でも有効にする（処理が重くなります）">
 
-<!ENTITY xulmigemo.combination.autocompletemanager "AutoComplete Managerで有効にする">
+<!ENTITY config.combination.autocompletemanager "AutoComplete Managerで有効にする">
 
 
 
 
 
 
-<!ENTITY xulmigemo.findbar.advanced.button  "詳細...">
-<!ENTITY xulmigemo.findbar.advanced.title   "検索ツールバーの機能の詳細設定">
+<!ENTITY config.findbar.advanced.button  "詳細...">
+<!ENTITY config.findbar.advanced.title   "検索ツールバーの機能の詳細設定">
 
-<!ENTITY xulmigemo.findbar.initialState             "起動時の設定：">
-<!ENTITY xulmigemo.checked_by_default.highlight     "すべて強調表示">
-<!ENTITY xulmigemo.checked_by_default.caseSensitive "大文字/小文字を区別">
-<!ENTITY xulmigemo.checked_by_default.migemo        "Migemo検索">
-<!ENTITY xulmigemo.findbar.initialState.description "※ここでチェックした機能は起動時に一度だけ有効になり、任意で無効にできます">
-<!ENTITY xulmigemo.findbar.initialState.description.maxwidth "30em">
+<!ENTITY config.findbar.initialState             "起動時の設定：">
+<!ENTITY config.checked_by_default.highlight     "すべて強調表示">
+<!ENTITY config.checked_by_default.caseSensitive "大文字/小文字を区別">
+<!ENTITY config.checked_by_default.migemo        "Migemo検索">
+<!ENTITY config.findbar.initialState.description "※ここでチェックした機能は起動時に一度だけ有効になり、任意で無効にできます">
+<!ENTITY config.findbar.initialState.description.maxwidth "30em">
 
 
 
-<!ENTITY xulmigemo.quickfind.advanced.button  "詳細...">
-<!ENTITY xulmigemo.quickfind.advanced.title   "クイックMigemo検索の詳細設定">
+<!ENTITY config.quickfind.advanced.button  "詳細...">
+<!ENTITY config.quickfind.advanced.title   "クイックMigemo検索の詳細設定">
 
-<!ENTITY xulmigemo.enabletimeout.indicator "クイックMigemo検索終了までの残り時間を表示する">
-<!ENTITY xulmigemo.appearance.indicator.height.before "残り時間を表示するバーの高さ：">
-<!ENTITY xulmigemo.appearance.indicator.height.after "ピクセル（0＝標準の高さ）">
+<!ENTITY config.enabletimeout.indicator "クイックMigemo検索終了までの残り時間を表示する">
+<!ENTITY config.appearance.indicator.height.before "残り時間を表示するバーの高さ：">
+<!ENTITY config.appearance.indicator.height.after "ピクセル（0＝標準の高さ）">
 
-<!ENTITY xulmigemo.caption.quickexit       "クイックMigemo検索の終了">
-<!ENTITY xulmigemo.enableautoexit.inherit "クイックMigemo検索の自動開始と自動終了を別々に設定する">
-<!ENTITY xulmigemo.enableautoexit.nokeyword "キーワードがすべて消去されたら自動的にクイックMigemo検索を終了する">
+<!ENTITY config.caption.quickexit       "クイックMigemo検索の終了">
+<!ENTITY config.enableautoexit.inherit "クイックMigemo検索の自動開始と自動終了を別々に設定する">
+<!ENTITY config.enableautoexit.nokeyword "キーワードがすべて消去されたら自動的にクイックMigemo検索を終了する">
 
 
 
 
 
-<!ENTITY xulmigemo.dicManager.title        "XUL/Migemo辞書の管理">
+<!ENTITY dicManager.title        "XUL/Migemo辞書の管理">
 
-<!ENTITY xulmigemo.dicManager.tab.add      "語句の追加">
+<!ENTITY dicManager.tab.add      "語句の追加">
 
-<!ENTITY xulmigemo.dicManager.add.input    "読み（入力）">
-<!ENTITY xulmigemo.dicManager.add.term     "語句">
-<!ENTITY xulmigemo.dicManager.add.addTerm  "語句を追加">
+<!ENTITY dicManager.add.input    "読み（入力）">
+<!ENTITY dicManager.add.term     "語句">
+<!ENTITY dicManager.add.addTerm  "語句を追加">
 
-<!ENTITY xulmigemo.dicManager.add.success      "語句をユーザ辞書に追加しました。">
-<!ENTITY xulmigemo.dicManager.add.errorNoTerm  "エラー：語句が入力されていません。">
-<!ENTITY xulmigemo.dicManager.add.errorInvalid "エラー：無効な入力です。">
-<!ENTITY xulmigemo.dicManager.add.errorInvalid.ja "エラー：読み（入力）は半角英数字のみ、もしくは、ひらがなのみで入力してください。">
-<!ENTITY xulmigemo.dicManager.add.errorExist   "エラー：この語句はすでに登録されています。">
+<!ENTITY dicManager.add.success      "語句をユーザ辞書に追加しました。">
+<!ENTITY dicManager.add.errorNoTerm  "エラー：語句が入力されていません。">
+<!ENTITY dicManager.add.errorInvalid "エラー：無効な入力です。">
+<!ENTITY dicManager.add.errorInvalid.ja "エラー：読み（入力）は半角英数字のみ、もしくは、ひらがなのみで入力してください。">
+<!ENTITY dicManager.add.errorExist   "エラー：この語句はすでに登録されています。">
 
-<!ENTITY xulmigemo.dicManager.tab.remove         "語句の削除">
+<!ENTITY dicManager.tab.remove         "語句の削除">
 
-<!ENTITY xulmigemo.dicManager.remove.input       "読み（入力）">
-<!ENTITY xulmigemo.dicManager.remove.term        "語句">
-<!ENTITY xulmigemo.dicManager.remove.description "語句の入力を省略すると、同じ読み（入力）の語をすべて削除します。">
-<!ENTITY xulmigemo.dicManager.remove.removeTerm  "語句を削除">
+<!ENTITY dicManager.remove.input       "読み（入力）">
+<!ENTITY dicManager.remove.term        "語句">
+<!ENTITY dicManager.remove.description "語句の入力を省略すると、同じ読み（入力）の語をすべて削除します。">
+<!ENTITY dicManager.remove.removeTerm  "語句を削除">
 
-<!ENTITY xulmigemo.dicManager.remove.success      "語句をユーザ辞書から削除しました。">
-<!ENTITY xulmigemo.dicManager.remove.errorInvalid "エラー：無効な入力です。">
-<!ENTITY xulmigemo.dicManager.remove.errorInvalid.ja "エラー：読み（入力）は半角英数字のみ、もしくは、ひらがなのみで入力してください。">
-<!ENTITY xulmigemo.dicManager.remove.errorNotExist   "エラー：システム辞書の語句は削除できません。">
+<!ENTITY dicManager.remove.success      "語句をユーザ辞書から削除しました。">
+<!ENTITY dicManager.remove.errorInvalid "エラー：無効な入力です。">
+<!ENTITY dicManager.remove.errorInvalid.ja "エラー：読み（入力）は半角英数字のみ、もしくは、ひらがなのみで入力してください。">
+<!ENTITY dicManager.remove.errorNotExist   "エラー：システム辞書の語句は削除できません。">
 
-<!ENTITY xulmigemo.dicManager.tab.list           "語句の一覧">
+<!ENTITY dicManager.tab.list           "語句の一覧">
 
-<!ENTITY xulmigemo.dicManager.list.roman        "検索キー（読み/入力）">
-<!ENTITY xulmigemo.dicManager.list.keys         "読み（入力）">
-<!ENTITY xulmigemo.dicManager.list.terms        "語句">
-<!ENTITY xulmigemo.dicManager.list.dic          "辞書の選択：">
-<!ENTITY xulmigemo.dicManager.list.fromUserDic   "ユーザ辞書">
-<!ENTITY xulmigemo.dicManager.list.fromSystemDic "システム辞書">
-<!ENTITY xulmigemo.dicManager.list.fromAllDic    "両方">
-<!ENTITY xulmigemo.dicManager.list.addTerm      "この読み（入力）で語句を追加">
-<!ENTITY xulmigemo.dicManager.list.removeTermEntry "この読み（入力）の語句をすべて削除">
-<!ENTITY xulmigemo.dicManager.list.removeTerm   "語句を削除">
+<!ENTITY dicManager.list.roman        "検索キー（読み/入力）">
+<!ENTITY dicManager.list.keys         "読み（入力）">
+<!ENTITY dicManager.list.terms        "語句">
+<!ENTITY dicManager.list.dic          "辞書の選択：">
+<!ENTITY dicManager.list.fromUserDic   "ユーザ辞書">
+<!ENTITY dicManager.list.fromSystemDic "システム辞書">
+<!ENTITY dicManager.list.fromAllDic    "両方">
+<!ENTITY dicManager.list.addTerm      "この読み（入力）で語句を追加">
+<!ENTITY dicManager.list.removeTermEntry "この読み（入力）の語句をすべて削除">
+<!ENTITY dicManager.list.removeTerm   "語句を削除">
 
-<!ENTITY xulmigemo.dicManager.list.promptAdd "追加する語句を入力してください：">
-<!ENTITY xulmigemo.dicManager.list.successAdd "語句をユーザ辞書に追加しました。">
-<!ENTITY xulmigemo.dicManager.list.successRemove "語句をユーザ辞書から削除しました。">
-<!ENTITY xulmigemo.dicManager.list.errorExist   "エラー：この語句はすでに登録されています。">
-<!ENTITY xulmigemo.dicManager.list.errorNotInUserDic "エラー：システム辞書の語句は削除できません。">
+<!ENTITY dicManager.list.promptAdd "追加する語句を入力してください：">
+<!ENTITY dicManager.list.successAdd "語句をユーザ辞書に追加しました。">
+<!ENTITY dicManager.list.successRemove "語句をユーザ辞書から削除しました。">
+<!ENTITY dicManager.list.errorExist   "エラー：この語句はすでに登録されています。">
+<!ENTITY dicManager.list.errorNotInUserDic "エラー：システム辞書の語句は削除できません。">
 
 
 
-<!ENTITY xulmigemo.langchooser.title  "XUL/Migemo エンジン選択">
-<!ENTITY xulmigemo.langchooser.label  "Migemo検索に使用するエンジンを選択してください。">
+<!ENTITY langchooser.title  "XUL/Migemo エンジン選択">
+<!ENTITY langchooser.label  "Migemo検索に使用するエンジンを選択してください。">
 
 
 
-<!ENTITY xulmigemo.init.title  "XUL/Migemo 初期化ウィザード">
+<!ENTITY init.title  "XUL/Migemo 初期化ウィザード">
 
-<!ENTITY xulmigemo.init.page1.label1  "Migemo検索用の辞書が見つかりません。Migemo検索（辞書によって支援された高速検索）を行うには辞書の設定が必要です。操作を選択してください。">
-<!ENTITY xulmigemo.init.page1.radio.download "インターネットから辞書ファイルを自動的にダウンロードする">
-<!ENTITY xulmigemo.init.page1.radio.choose   "すでにインストール済みの辞書を使う">
-<!ENTITY xulmigemo.init.page1.radio.later    "今は初期設定を行わない">
+<!ENTITY init.page1.label1  "Migemo検索用の辞書が見つかりません。Migemo検索（辞書によって支援された高速検索）を行うには辞書の設定が必要です。操作を選択してください。">
+<!ENTITY init.page1.radio.download "インターネットから辞書ファイルを自動的にダウンロードする">
+<!ENTITY init.page1.radio.choose   "すでにインストール済みの辞書を使う">
+<!ENTITY init.page1.radio.later    "今は初期設定を行わない">
 
 
-<!ENTITY xulmigemo.init.download.title    "インターネットから辞書ファイルを自動的にダウンロードする">
+<!ENTITY init.download.title    "インターネットから辞書ファイルを自動的にダウンロードする">
 
-<!ENTITY xulmigemo.init.download.page1.label1  "インターネットからXUL/Migemo用の辞書ファイルをダウンロードしてインストールします。通信回線の状況によってはしばらく時間がかかる場合があります。続行する場合は「次へ」を押してください。">
+<!ENTITY init.download.page1.label1  "インターネットからXUL/Migemo用の辞書ファイルをダウンロードしてインストールします。通信回線の状況によってはしばらく時間がかかる場合があります。続行する場合は「次へ」を押してください。">
 
-<!ENTITY xulmigemo.init.download.page2.label.download  "辞書ファイルをダウンロードしています...">
-<!ENTITY xulmigemo.init.download.page2.label.progress  "辞書ファイルのダウンロードを&#37;s&#37;完了">
-<!ENTITY xulmigemo.init.download.page2.label.install  "辞書ファイルをインストールしています...">
-<!ENTITY xulmigemo.init.download.page2.label.complete  "辞書ファイルのインストールが完了しました">
-<!ENTITY xulmigemo.init.download.page2.label.error  "通信中もしくはダウンロードしたファイルの展開中に何らかのエラーが発生したため、辞書のインストールに失敗しました。">
+<!ENTITY init.download.page2.label.download  "辞書ファイルをダウンロードしています...">
+<!ENTITY init.download.page2.label.progress  "辞書ファイルのダウンロードを&#37;s&#37;完了">
+<!ENTITY init.download.page2.label.install  "辞書ファイルをインストールしています...">
+<!ENTITY init.download.page2.label.complete  "辞書ファイルのインストールが完了しました">
+<!ENTITY init.download.page2.label.error  "通信中もしくはダウンロードしたファイルの展開中に何らかのエラーが発生したため、辞書のインストールに失敗しました。">
 
 
-<!ENTITY xulmigemo.init.choose.title    "すでにインストール済みの辞書ファイルを使う">
-<!ENTITY xulmigemo.init.choose.page1.label1  "インストール済みの辞書フォルダの場所を入力してください。">
-<!ENTITY xulmigemo.init.choose.page1.find  "参照...">
+<!ENTITY init.choose.title    "すでにインストール済みの辞書ファイルを使う">
+<!ENTITY init.choose.page1.label1  "インストール済みの辞書フォルダの場所を入力してください。">
+<!ENTITY init.choose.page1.find  "参照...">
 
 
-<!ENTITY xulmigemo.init.final.label1  "辞書の初期設定が終わりました。">
+<!ENTITY init.final.label1  "辞書の初期設定が終わりました。">
 
 
 
-<!ENTITY xulmigemo.caseSensitive.shortLabel  "A/a">
+<!ENTITY ui.migemo.checkbox.label     "Migemo">
+<!ENTITY ui.or.checkbox.label         "OR">
+<!ENTITY ui.caseSensitive.shortLabel  "A/a">

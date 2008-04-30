@@ -10,7 +10,7 @@
 <dialog id="xulmigemo-dictionary-manager"
 	windowtype="xulmigemo:dictionaryManager"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	title="&xulmigemo.dicManager.title;"
+	title="&dicManager.title;"
 	persist="screenX,screenY"
 	buttons="accept"
 	onload="Startup();">
@@ -20,9 +20,9 @@
 
 <tabbox orient="vertical">
 <tabs>
-	<tab label="&xulmigemo.dicManager.tab.add;"/>
-	<tab label="&xulmigemo.dicManager.tab.remove;"/>
-	<tab label="&xulmigemo.dicManager.tab.list;"/>
+	<tab label="&dicManager.tab.add;"/>
+	<tab label="&dicManager.tab.remove;"/>
+	<tab label="&dicManager.tab.list;"/>
 </tabs>
 <tabpanels>
 
@@ -35,7 +35,7 @@
 		</columns>
 		<rows>
 			<row align="center">
-				<label value="&xulmigemo.dicManager.add.input;"/>
+				<label value="&dicManager.add.input;"/>
 				<textbox id="add-input" flex="1"
 					oninput="updateStatus('addStatus');"
 					onkeypress="handleKeyInput(event, {
@@ -43,7 +43,7 @@
 					});"/>
 			</row>
 			<row align="center">
-				<label value="&xulmigemo.dicManager.add.term;"/>
+				<label value="&dicManager.add.term;"/>
 				<textbox id="add-term" flex="1"
 					oninput="updateStatus('addStatus');"
 					onkeypress="handleKeyInput(event, {
@@ -56,17 +56,17 @@
 	<hbox>
 		<spacer flex="1"/>
 		<button id="addTermButton"
-			label="&xulmigemo.dicManager.add.addTerm;"
+			label="&dicManager.add.addTerm;"
 			oncommand="addTerm()"/>
 	</hbox>
 	<description id="addStatus"
 		flex="1"
 		style="min-height: 5em; border: thin -moz-bg-inset; padding: 0.5em;"
-		statusSuccess="&xulmigemo.dicManager.add.success;"
-		statusErrorNoTerm="&xulmigemo.dicManager.add.errorNoTerm;"
-		statusErrorInvalid="&xulmigemo.dicManager.add.errorInvalid;"
-		statusErrorInvalid-ja="&xulmigemo.dicManager.add.errorInvalid.ja;"
-		statusErrorExist="&xulmigemo.dicManager.add.errorExist;"/>
+		statusSuccess="&dicManager.add.success;"
+		statusErrorNoTerm="&dicManager.add.errorNoTerm;"
+		statusErrorInvalid="&dicManager.add.errorInvalid;"
+		statusErrorInvalid-ja="&dicManager.add.errorInvalid.ja;"
+		statusErrorExist="&dicManager.add.errorExist;"/>
 </tabpanel>
 
 
@@ -78,7 +78,7 @@
 		</columns>
 		<rows>
 			<row align="center">
-				<label value="&xulmigemo.dicManager.remove.input;"/>
+				<label value="&dicManager.remove.input;"/>
 				<textbox id="remove-input" flex="1"
 					oninput="updateStatus('removeStatus');"
 					onkeypress="handleKeyInput(event, {
@@ -86,7 +86,7 @@
 					});"/>
 			</row>
 			<row align="center">
-				<label value="&xulmigemo.dicManager.remove.term;"/>
+				<label value="&dicManager.remove.term;"/>
 				<textbox id="remove-term" flex="1"
 					oninput="updateStatus('removeStatus');"
 					onkeypress="handleKeyInput(event, {
@@ -98,25 +98,25 @@
 	</grid>
 	<hbox align="center">
 		<description flex="1">
-			&xulmigemo.dicManager.remove.description;
+			&dicManager.remove.description;
 		</description>
 		<button id="removeTermButton"
-			label="&xulmigemo.dicManager.remove.removeTerm;"
+			label="&dicManager.remove.removeTerm;"
 			oncommand="removeTerm()"/>
 	</hbox>
 	<description id="removeStatus"
 		flex="1"
 		style="min-height: 5em; border: thin -moz-bg-inset; padding: 0.5em;"
-		statusSuccess="&xulmigemo.dicManager.remove.success;"
-		statusErrorInvalid="&xulmigemo.dicManager.remove.errorInvalid;"
-		statusErrorInvalid-ja="&xulmigemo.dicManager.remove.errorInvalid.ja;"
-		statusErrorNotExist="&xulmigemo.dicManager.remove.errorNotExist;"/>
+		statusSuccess="&dicManager.remove.success;"
+		statusErrorInvalid="&dicManager.remove.errorInvalid;"
+		statusErrorInvalid-ja="&dicManager.remove.errorInvalid.ja;"
+		statusErrorNotExist="&dicManager.remove.errorNotExist;"/>
 </tabpanel>
 
 
 <tabpanel orient="vertical" id="panel-list">
 	<hbox align="center">
-		<label value="&xulmigemo.dicManager.list.roman;"/>
+		<label value="&dicManager.list.roman;"/>
 		<textbox id="list-roman" flex="1"
 			oninput="onListRomanInput();"
 			onkeypress="handleKeyInput(event, {
@@ -124,24 +124,24 @@
 			});"/>
 	</hbox>
 	<hbox align="center">
-		<label value="&xulmigemo.dicManager.list.dic;"/>
+		<label value="&dicManager.list.dic;"/>
 		<radiogroup id="list-target" orient="horizontal" align="center"
 			oncommand="onChangeDictionary()">
 			<radio id="list-target-user"
-				label="&xulmigemo.dicManager.list.fromUserDic;"
+				label="&dicManager.list.fromUserDic;"
 				selected="true"
 				value="user"/>
 			<radio id="list-target-system"
-				label="&xulmigemo.dicManager.list.fromSystemDic;"
+				label="&dicManager.list.fromSystemDic;"
 				value="system"/>
 			<radio id="list-target-all"
-				label="&xulmigemo.dicManager.list.fromAllDic;"
+				label="&dicManager.list.fromAllDic;"
 				value="all"/>
 		</radiogroup>
 	</hbox>
 	<hbox style="min-width: 12em; min-height: 13em;">
 		<vbox flex="1">
-			<label value="&xulmigemo.dicManager.list.keys;"/>
+			<label value="&dicManager.list.keys;"/>
 			<listbox id="list-keys" flex="1"
 				onselect="updateTermsList()"
 				onkeypress="handleKeyInput(event, {
@@ -153,7 +153,7 @@
 		</vbox>
 		<splitter/>
 		<vbox flex="1">
-			<label value="&xulmigemo.dicManager.list.terms;"/>
+			<label value="&dicManager.list.terms;"/>
 			<listbox id="list-terms" flex="1"
 				onselect="updateListCommands()"
 				onkeypress="handleKeyInput(event, {
@@ -166,18 +166,18 @@
 	<hbox align="center">
 		<button id="addTerm"
 			disabled="true"
-			label="&xulmigemo.dicManager.list.addTerm;"
+			label="&dicManager.list.addTerm;"
 			oncommand="addTermList()"
 			observes="listAddCommand"/>
 		<spacer flex="1"/>
 		<button id="removeTermButtonList"
 			disabled="true"
-			label="&xulmigemo.dicManager.list.removeTerm;"
+			label="&dicManager.list.removeTerm;"
 			oncommand="removeTermList()"
 			observes="listRemoveOneCommand"/>
 		<button id="removeTermEntryButtonList"
 			disabled="true"
-			label="&xulmigemo.dicManager.list.removeTermEntry;"
+			label="&dicManager.list.removeTermEntry;"
 			oncommand="removeTermList(true)"
 			observes="listRemoveCommand"/>
 	</hbox>
@@ -186,16 +186,16 @@
 		<popup id="list-context"
 			onpopupshowing="initListContext()">
 			<menuitem disabled="true"
-				label="&xulmigemo.dicManager.list.addTerm;"
+				label="&dicManager.list.addTerm;"
 				oncommand="addTermList()"
 				observes="listAddCommand"/>
 			<menuseparator/>
 			<menuitem id="listContextRemoveTerm" disabled="true"
-				label="&xulmigemo.dicManager.list.removeTerm;"
+				label="&dicManager.list.removeTerm;"
 				oncommand="removeTermList()"
 				observes="listRemoveOneCommand"/>
 			<menuitem disabled="true"
-				label="&xulmigemo.dicManager.list.removeTermEntry;"
+				label="&dicManager.list.removeTermEntry;"
 				oncommand="removeTermList(true)"
 				observes="listRemoveCommand"/>
 		</popup>
@@ -210,11 +210,11 @@
 			disabled="true"/>
 	</broadcasterset>
 	<data id="listStatus"
-		promptAddTerm="&xulmigemo.dicManager.list.promptAdd;"
-		statusAddSuccess="&xulmigemo.dicManager.list.successAdd;"
-		statusRemoveSuccess="&xulmigemo.dicManager.list.successRemove;"
-		statusErrorExist="&xulmigemo.dicManager.list.errorExist;"
-		statusErrorNotInUserDic="&xulmigemo.dicManager.list.errorNotInUserDic;"/>
+		promptAddTerm="&dicManager.list.promptAdd;"
+		statusAddSuccess="&dicManager.list.successAdd;"
+		statusRemoveSuccess="&dicManager.list.successRemove;"
+		statusErrorExist="&dicManager.list.errorExist;"
+		statusErrorNotInUserDic="&dicManager.list.errorNotInUserDic;"/>
 </tabpanel>
 
 

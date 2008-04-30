@@ -9,7 +9,7 @@
 
 <wizard id="xulMigemoInitializer"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-         title="&xulmigemo.init.title;"
+         title="&init.title;"
          windowtype="xulmigemo:initializer">
 
 <wizardpage
@@ -17,16 +17,16 @@
 		document.documentElement.canAdvance = true;
 	"
 	next="download-1">
-	<description>&xulmigemo.init.page1.label1;</description>
+	<description>&init.page1.label1;</description>
 	<radiogroup orient="vertical"
 		oncommand="this.parentNode.setAttribute('next', this.selectedItem.value);">
 
-		<radio label="&xulmigemo.init.page1.radio.download;"
+		<radio label="&init.page1.radio.download;"
 			value="download-1"
 			selected="true"/>
-		<radio label="&xulmigemo.init.page1.radio.choose;"
+		<radio label="&init.page1.radio.choose;"
 			value="choose-1"/>
-		<radio label="&xulmigemo.init.page1.radio.later;"
+		<radio label="&init.page1.radio.later;"
 			value="final"/>
 
 	</radiogroup>
@@ -35,21 +35,21 @@
 
 
 <wizardpage pageid="download-1"
-	description="&xulmigemo.init.download.title;"
+	description="&init.download.title;"
 	next="download-2">
-	<description>&xulmigemo.init.download.page1.label1;</description>
+	<description>&init.download.page1.label1;</description>
 </wizardpage>
 
 <wizardpage pageid="download-2"
-	description="&xulmigemo.init.download.title;"
+	description="&init.download.title;"
 	onpageshow="startDownload();"
 	next="final">
 	<description id="download-status"
-		label-download="&xulmigemo.init.download.page2.label.download;"
-		label-download-progress="&xulmigemo.init.download.page2.label.progress;"
-		label-install="&xulmigemo.init.download.page2.label.install;"
-		label-complete="&xulmigemo.init.download.page2.label.complete;"
-		label-error="&xulmigemo.init.download.page2.label.error;"/>
+		label-download="&init.download.page2.label.download;"
+		label-download-progress="&init.download.page2.label.progress;"
+		label-install="&init.download.page2.label.install;"
+		label-complete="&init.download.page2.label.complete;"
+		label-error="&init.download.page2.label.error;"/>
 	<spacer flex="1"/>
 	<progressmeter id="download-progress"
 		type="undetermined"/>
@@ -59,18 +59,18 @@
 
 
 <wizardpage pageid="choose-1"
-	description="&xulmigemo.init.choose.title;"
+	description="&init.choose.title;"
 	onpageshow="
 		document.documentElement.canAdvance = false;
 	"
 	onpageadvanced="saveChosenFolder()"
 	next="final">
-	<description>&xulmigemo.init.choose.page1.label1;</description>
+	<description>&init.choose.page1.label1;</description>
 	<spacer flex="1"/>
 	<hbox align="center">
 		<textbox id="choose-path" flex="1"
 			oninput="document.documentElement.canAdvance = true"/>
-		<button label="&xulmigemo.init.choose.page1.find;"
+		<button label="&init.choose.page1.find;"
 			oncommand="chooseFolder();"/>
 	</hbox>
 	<spacer flex="1"/>
@@ -83,7 +83,7 @@
 	onpageshow="
 		document.documentElement.canRewind = false;
 	">
-	<description>&xulmigemo.init.final.label1;</description>
+	<description>&init.final.label1;</description>
 </wizardpage>
 
 

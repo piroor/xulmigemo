@@ -9,7 +9,7 @@
 
 <dialog id="xulMigemoInitializer"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-         title="&xulmigemo.langchooser.title;"
+         title="&langchooser.title;"
          windowtype="xulmigemo:langchooser"
          buttons="accept"
          onunload="onUnload()">
@@ -17,16 +17,16 @@
 <hbox align="center">
 	<image src="chrome://xulmigemo/content/icon.png"/>
 	<description flex="1">
-		&xulmigemo.langchooser.label;
+		&langchooser.label;
 	</description>
 </hbox>
 
 <listbox id="lang" rows="3">
-	<listitem label="&xulmigemo.lang.item1.label;"
-		value="&xulmigemo.lang.item1.value;"
+	<listitem label="&config.lang.item1.label;"
+		value="&config.lang.item1.value;"
 		selected="true"/>
-	<listitem label="&xulmigemo.lang.item2.label;"
-		value="&xulmigemo.lang.item2.value;"/>
+	<listitem label="&config.lang.item2.label;"
+		value="&config.lang.item2.value;"/>
 </listbox>
 
 <script src="chrome://xulmigemo/content/service.js" />
