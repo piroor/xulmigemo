@@ -19,18 +19,13 @@
 		pack="end"
 		hidden="true"
 		style="position: fixed;/* z-index: 65000;*/">
-		<deck selectedIndex="0">
-			<checkbox id="find-migemo-mode"
-				label="&ui.migemo.checkbox.label;"
-				oncommand="XMigemoUI.onChangeFindToolbarMode();"/>
-			<radiogroup id="find-mode-selector"
-				orient="horizontal"
-				oncommand="XMigemoUI.onChangeFindToolbarMode();">
-				<radio label="&ui.mode.normal.label;" value="0"/>
-				<radio label="&ui.mode.migemo.label;" value="1"/>
-				<radio label="&ui.mode.regexp.label;" value="2"/>
-			</radiogroup>
-		</deck>
+		<radiogroup id="find-mode-selector"
+			orient="horizontal"
+			oncommand="XMigemoUI.onChangeFindToolbarMode();">
+			<radio label="&ui.mode.normal.label;" value="0"/>
+			<radio label="&ui.mode.migemo.label;" value="1"/>
+			<radio label="&ui.mode.regexp.label;" value="2"/>
+		</radiogroup>
 		<!--
 			Firefox 3では、下の方法で置いたProgressmeterのメーター部分が
 			アニメーションしないという問題が起こるので、代わりにこちらを使う。
