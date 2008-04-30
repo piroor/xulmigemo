@@ -23,13 +23,13 @@
 			<checkbox id="find-migemo-mode"
 				label="&ui.migemo.checkbox.label;"
 				oncommand="XMigemoUI.onChangeFindToolbarMode();"/>
-			<menulist id="find-mode-selector">
-				<menupopup>
-					<menuitem label="&ui.mode.normal.label;" value="0"/>
-					<menuitem label="&ui.mode.migemo.label;" value="1"/>
-					<menuitem label="&ui.mode.regexp.label;" value="2"/>
-				</menupopup>
-			</menulist>
+			<radiogroup id="find-mode-selector"
+				orient="horizontal"
+				oncommand="XMigemoUI.onChangeFindToolbarMode();">
+				<radio label="&ui.mode.normal.label;" value="0"/>
+				<radio label="&ui.mode.migemo.label;" value="1"/>
+				<radio label="&ui.mode.regexp.label;" value="2"/>
+			</radiogroup>
 		</deck>
 		<!--
 			Firefox 3では、下の方法で置いたProgressmeterのメーター部分が
