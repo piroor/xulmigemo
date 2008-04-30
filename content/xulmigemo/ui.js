@@ -755,17 +755,19 @@ var XMigemoUI = {
 	{
 //		dump('xmigemoStart\n');
 		this.isActive = true;
-		this.lastFindMode = this.FIND_MODE_MIGEMO;
 
 		if (!aSilently) {
-			this.isQuickFind = true;
+			if (!this.isQuickFind) {
+				this.isQuickFind = true;
+				this.originalFindMode = this.findMode;
+				this.findMode = this.FIND_MODE_MIGEMO;
+			}
 
 			if (XMigemoService.getPref('xulmigemo.enabletimeout'))
 				this.startTimer();
 		}
 
-		this.originalFindMode = this.findMode;
-		this.findMode = this.FIND_MODE_MIGEMO;
+		this.lastFindMode = this.findMode;
 
 		if (this.findBarHidden)
 			gFindBar.openFindBar();
