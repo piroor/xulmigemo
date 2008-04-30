@@ -10,6 +10,7 @@ var XMigemoUI = {
 	lastFindMode     : -1, 
 	FIND_MODE_NATIVE : 0,
 	FIND_MODE_MIGEMO : 1,
+	FIND_MODE_REGEXP : 2,
 
 	isFindbarFocused       : false,
  
@@ -37,6 +38,28 @@ var XMigemoUI = {
 	{
 		XMigemoFind.isQuickFind = val;
 		return XMigemoFind.isQuickFind;
+	},
+ 
+	get isModeMigemo() 
+	{
+		return this.findMigemoCheck.checked || this.findMode.value == this.FIND_MODE_MIGEMO;
+	},
+	set isModeMigemo(val)
+	{
+		this.findMigemoCheck.checked = val ? true : false ;
+		this.findMode.value = val ? this.FIND_MODE_MIGEMO : this.FIND_MODE_NATIVE ;
+		return val;
+	},
+ 
+	get isModeRegExp() 
+	{
+		return this.findMode.value == this.FIND_MODE_REGEXP;
+	},
+	set isModeRegExp(val)
+	{
+		this.findMigemoCheck.checked = false;
+		this.findMode.value = val ? this.FIND_MODE_REGEXP : this.FIND_MODE_NATIVE ;
+		return val;
 	},
  
 	get shouldHighlightAll() 
@@ -167,6 +190,15 @@ var XMigemoUI = {
 		return this._findMigemoCheck;
 	},
 	_findMigemoCheck : null,
+ 
+	get findMode() 
+	{
+		if (!this._findMode) {
+			this._findMode = document.getElementById('find-mode-selector');
+		}
+		return this._findMode;
+	},
+	_findMode : null,
  
 	get migemoModeBox() 
 	{
@@ -602,7 +634,7 @@ var XMigemoUI = {
 	onInputFindToolbar : function(aEvent) 
 	{
 		XMigemoFind.replaceKeyword(aEvent.target.value);
-		if (XMigemoUI.findMigemoCheck.checked) {
+		if (XMigemoUI.isModeMigemo) {
 			XMigemoUI.start(true);
 			aEvent.stopPropagation();
 			aEvent.preventDefault();
@@ -625,7 +657,7 @@ var XMigemoUI = {
 		this.clearTimer();
 		gFindBar.toggleHighlight(false);
 		var keyword = this.findTerm;
-		if (this.findMigemoCheck.checked) {
+		if (XMigemoUI.isModeMigemo) {
 			this.start(true);
 			this.isModeChanged = true;
 		}
@@ -741,6 +773,7 @@ var XMigemoUI = {
 		var migemoCheck = this.findMigemoCheck;
 		migemoCheck.xmigemoOriginalChecked = migemoCheck.checked;
 		migemoCheck.checked = true;
+		this.isModeMigemo = true;
 
 		if (this.findBarHidden)
 			gFindBar.openFindBar();
@@ -766,6 +799,7 @@ var XMigemoUI = {
 		if (this.isQuickFind) {
 			var migemoCheck = this.findMigemoCheck;
 			migemoCheck.checked = migemoCheck.xmigemoOriginalChecked;
+			this.isModeMigemo = migemoCheck.checked;
 
 			this.isQuickFind = false;
 		}
@@ -1017,7 +1051,7 @@ var XMigemoUI = {
 		if ('nsBrowserStatusHandler' in window)
 			eval('nsBrowserStatusHandler.prototype.onLocationChange = '+
 				nsBrowserStatusHandler.prototype.onLocationChange.toSource()
-					.replace(/([^\.\s]+\.)+findString/, '(XMigemoUI.findMigemoCheck.checked ? XMigemoFind.lastKeyword : $1findString)')
+					.replace(/([^\.\s]+\.)+findString/, '(XMigemoUI.isModeMigemo ? XMigemoFind.lastKeyword : $1findString)')
 			);
 
 		var caseSensitive = this.findCaseSensitiveCheck;
@@ -1058,14 +1092,14 @@ var XMigemoUI = {
  
 	openFindBar : function(aShowMinimalUI) 
 	{
-		if (XMigemoUI.migemoCheckedAlways && !XMigemoUI.findMigemoCheck.checked)
-			XMigemoUI.findMigemoCheck.checked = true;
+		if (XMigemoUI.migemoCheckedAlways && !XMigemoUI.isModeMigemo)
+			XMigemoUI.isModeMigemo = true;
 
-		if (XMigemoUI.findMigemoCheck.checked && !XMigemoUI.isActive) {
+		if (XMigemoUI.isModeMigemo && !XMigemoUI.isActive) {
 			XMigemoUI.isActive = true;
 			XMigemoUI.lastFindMode = XMigemoUI.FIND_MODE_MIGEMO;
 		}
-		else if (!XMigemoUI.findMigemoCheck.checked) {
+		else if (!XMigemoUI.isModeMigemo) {
 			XMigemoUI.isActive = false;
 			XMigemoUI.lastFindMode = XMigemoUI.FIND_MODE_NATIVE;
 		}
@@ -1428,7 +1462,7 @@ var XMigemoUI = {
 		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
 
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.migemo'))
-			this.findMigemoCheck.checked = this.findMigemoCheck.xmigemoOriginalChecked = true;
+			this.isModeMigemo = this.findMigemoCheck.checked = this.findMigemoCheck.xmigemoOriginalChecked = true;
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.highlight'))
 			this.findHighlightCheck.checked = this.findHighlightCheck.xmigemoOriginalChecked = true;
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.caseSensitive')) {
