@@ -210,7 +210,7 @@
 
 
 <!ENTITY ui.migemo.checkbox.label     "Migemo">
-<!ENTITY ui.mode.normal.label         "通常検索">
-<!ENTITY ui.mode.migemo.label         "Migemo検索">
-<!ENTITY ui.mode.regexp.label         "正規表現検索">
+<!ENTITY ui.mode.normal.label         "通常">
+<!ENTITY ui.mode.migemo.label         "Migemo">
+<!ENTITY ui.mode.regexp.label         "正規表現">
 <!ENTITY ui.caseSensitive.shortLabel  "A/a">
