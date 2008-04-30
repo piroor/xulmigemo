@@ -40,26 +40,36 @@ var XMigemoUI = {
 		return XMigemoFind.isQuickFind;
 	},
  
-	get isModeMigemo() 
+	get findMode() 
 	{
-		return this.findMigemoCheck.checked || this.findMode.value == this.FIND_MODE_MIGEMO;
+		if (this.findMigemoCheck.checked || this.findMode.value == this.FIND_MODE_MIGEMO)
+			return this.FIND_MODE_MIGEMO;
+		if (this.findMode.value == this.FIND_MODE_NATIVE)
+			return this.FIND_MODE_NATIVE;
+		return this.FIND_MODE_NATIVE;
 	},
-	set isModeMigemo(val)
+	set findMode(val)
 	{
-		this.findMigemoCheck.checked = val ? true : false ;
-		this.findMode.value = val ? this.FIND_MODE_MIGEMO : this.FIND_MODE_NATIVE ;
-		return val;
-	},
- 
-	get isModeRegExp() 
-	{
-		return this.findMode.value == this.FIND_MODE_REGEXP;
-	},
-	set isModeRegExp(val)
-	{
-		this.findMigemoCheck.checked = false;
-		this.findMode.value = val ? this.FIND_MODE_REGEXP : this.FIND_MODE_NATIVE ;
-		return val;
+		var mode = parseInt(val);
+		switch (mode)
+		{
+			case this.FIND_MODE_MIGEMO:
+				this.findMigemoCheck.checked = true;
+				this.findMode.value = mode;
+				break;
+
+			case this.FIND_MODE_REGEXP:
+				this.findMigemoCheck.checked = false;
+				this.findMode.value = mode;
+				break;
+
+			case this.FIND_MODE_NATIVE:
+			default:
+				this.findMigemoCheck.checked = false;
+				this.findMode.value = mode = this.FIND_MODE_NATIVE;
+				break;
+		}
+		return mode;
 	},
  
 	get shouldHighlightAll() 
@@ -634,7 +644,7 @@ var XMigemoUI = {
 	onInputFindToolbar : function(aEvent) 
 	{
 		XMigemoFind.replaceKeyword(aEvent.target.value);
-		if (XMigemoUI.isModeMigemo) {
+		if (XMigemoUI.findMode == XMigemoUI.FIND_MODE_MIGEMO) {
 			XMigemoUI.start(true);
 			aEvent.stopPropagation();
 			aEvent.preventDefault();
@@ -657,7 +667,7 @@ var XMigemoUI = {
 		this.clearTimer();
 		gFindBar.toggleHighlight(false);
 		var keyword = this.findTerm;
-		if (XMigemoUI.isModeMigemo) {
+		if (XMigemoUI.findMode == XMigemoUI.FIND_MODE_MIGEMO) {
 			this.start(true);
 			this.isModeChanged = true;
 		}
@@ -773,7 +783,7 @@ var XMigemoUI = {
 		var migemoCheck = this.findMigemoCheck;
 		migemoCheck.xmigemoOriginalChecked = migemoCheck.checked;
 		migemoCheck.checked = true;
-		this.isModeMigemo = true;
+		this.findMode = this.FIND_MODE_MIGEMO;
 
 		if (this.findBarHidden)
 			gFindBar.openFindBar();
@@ -799,7 +809,7 @@ var XMigemoUI = {
 		if (this.isQuickFind) {
 			var migemoCheck = this.findMigemoCheck;
 			migemoCheck.checked = migemoCheck.xmigemoOriginalChecked;
-			this.isModeMigemo = migemoCheck.checked;
+			this.findMode = migemoCheck.checked ? this.FIND_MODE_MIGEMO : this.FIND_MODE_NATIVE ;
 
 			this.isQuickFind = false;
 		}
@@ -1051,7 +1061,7 @@ var XMigemoUI = {
 		if ('nsBrowserStatusHandler' in window)
 			eval('nsBrowserStatusHandler.prototype.onLocationChange = '+
 				nsBrowserStatusHandler.prototype.onLocationChange.toSource()
-					.replace(/([^\.\s]+\.)+findString/, '(XMigemoUI.isModeMigemo ? XMigemoFind.lastKeyword : $1findString)')
+					.replace(/([^\.\s]+\.)+findString/, '((XMigemoUI.findMode != XMigemoUI.FIND_MODE_NATIVE) ? XMigemoFind.lastKeyword : $1findString)')
 			);
 
 		var caseSensitive = this.findCaseSensitiveCheck;
@@ -1092,14 +1102,14 @@ var XMigemoUI = {
  
 	openFindBar : function(aShowMinimalUI) 
 	{
-		if (XMigemoUI.migemoCheckedAlways && !XMigemoUI.isModeMigemo)
-			XMigemoUI.isModeMigemo = true;
+		if (XMigemoUI.migemoCheckedAlways && XMigemoUI.findMode != XMigemoUI.FIND_MODE_MIGEMO)
+			XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 
-		if (XMigemoUI.isModeMigemo && !XMigemoUI.isActive) {
+		if (XMigemoUI.findMode == XMigemoUI.FIND_MODE_MIGEMO && !XMigemoUI.isActive) {
 			XMigemoUI.isActive = true;
 			XMigemoUI.lastFindMode = XMigemoUI.FIND_MODE_MIGEMO;
 		}
-		else if (!XMigemoUI.isModeMigemo) {
+		else if (XMigemoUI.findMode == XMigemoUI.FIND_MODE_NATIVE) {
 			XMigemoUI.isActive = false;
 			XMigemoUI.lastFindMode = XMigemoUI.FIND_MODE_NATIVE;
 		}
@@ -1462,7 +1472,7 @@ var XMigemoUI = {
 		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
 
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.migemo'))
-			this.isModeMigemo = this.findMigemoCheck.checked = this.findMigemoCheck.xmigemoOriginalChecked = true;
+			this.findMigemoCheck.checked = this.findMigemoCheck.xmigemoOriginalChecked = true;
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.highlight'))
 			this.findHighlightCheck.checked = this.findHighlightCheck.xmigemoOriginalChecked = true;
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.caseSensitive')) {
