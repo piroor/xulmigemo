@@ -11,6 +11,7 @@ var XMigemoUI = {
 	FIND_MODE_MIGEMO : 1,
 	FIND_MODE_REGEXP : 2,
 
+	forcedFindMode   : -1,
 	lastFindMode     : -1,
 	originalFindMode : 0, // FIND_MODE_NATIVE
 
@@ -66,11 +67,6 @@ var XMigemoUI = {
 				break;
 		}
 		return mode;
-	},
- 
-	get findModeAlways() 
-	{
-		return XMigemoService.getPref('xulmigemo.findMode.always');
 	},
  
 	get shouldHighlightAll() 
@@ -273,6 +269,10 @@ var XMigemoUI = {
 
 			case 'xulmigemo.checked_by_default.caseSensitive.always':
 				this.caseSensitiveCheckedAlways = value;
+				return;
+
+			case 'xulmigemo.findMode.always':
+				this.forcedFindMode = Math.max(this.FIND_MODE_NATIVE, Math.min(this.FIND_MODE_REGEXP, parseInt(value)));
 				return;
 
 			case 'xulmigemo.timeout':
@@ -1085,8 +1085,8 @@ var XMigemoUI = {
  
 	openFindBar : function(aShowMinimalUI) 
 	{
-		if (XMigemoUI.findModeAlways > -1 && XMigemoUI.findMode != XMigemoUI.findModeAlways)
-			XMigemoUI.findMode = XMigemoUI.findModeAlways;
+		if (XMigemoUI.forcedFindMode > -1 && XMigemoUI.findMode != XMigemoUI.forcedFindMode)
+			XMigemoUI.findMode = XMigemoUI.forcedFindMode;
 
 		if (XMigemoUI.findMode != XMigemoUI.FIND_MODE_NATIVE && !XMigemoUI.isActive) {
 			XMigemoUI.isActive = true;
@@ -1427,6 +1427,7 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.highlight.always');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.highlight.always.minLength');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.caseSensitive');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.findMode.always');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.override_findtoolbar');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.findForward');
