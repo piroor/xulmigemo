@@ -45,11 +45,7 @@ var XMigemoUI = {
  
 	get findMode() 
 	{
-		if (this.findModeSelector.value == this.FIND_MODE_MIGEMO)
-			return this.FIND_MODE_MIGEMO;
-		if (this.findModeSelector.value == this.FIND_MODE_NATIVE)
-			return this.FIND_MODE_NATIVE;
-		return this.FIND_MODE_NATIVE;
+		return parseInt(this.findModeSelector.value || this.FIND_MODE_NATIVE);
 	},
 	set findMode(val)
 	{
