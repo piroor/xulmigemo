@@ -126,7 +126,7 @@
 			</groupbox>
 			<spacer flex="1"/>
 			<vbox>
-				<hbox align="center">
+				<hbox align="end">
 					<checkbox id="xulmigemo.checked_by_default.highlight.always-check"
 						label="&config.checked_by_default.highlight.always;"
 						preference="xulmigemo.checked_by_default.highlight.always"
