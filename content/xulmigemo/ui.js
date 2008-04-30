@@ -275,10 +275,6 @@ var XMigemoUI = {
 				this.caseSensitiveCheckedAlways = value;
 				return;
 
-			case 'xulmigemo.enable_by_default':
-				this.migemoCheckedAlways = value;
-				return;
-
 			case 'xulmigemo.timeout':
 				this.timeout = value;
 				if (this.timeout === null)
@@ -1431,7 +1427,6 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.highlight.always');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.highlight.always.minLength');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.caseSensitive');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.enable_by_default');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.override_findtoolbar');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.findForward');
