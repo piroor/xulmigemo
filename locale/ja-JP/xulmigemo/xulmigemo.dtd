@@ -210,5 +210,7 @@
 
 
 <!ENTITY ui.migemo.checkbox.label     "Migemo">
-<!ENTITY ui.or.checkbox.label         "OR">
+<!ENTITY ui.mode.normal.label         "通常検索">
+<!ENTITY ui.mode.migemo.label         "Migemo検索">
+<!ENTITY ui.mode.or.label             "OR検索">
 <!ENTITY ui.caseSensitive.shortLabel  "A/a">

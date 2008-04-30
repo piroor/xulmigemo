@@ -19,14 +19,18 @@
 		pack="end"
 		hidden="true"
 		style="position: fixed;/* z-index: 65000;*/">
-		<hbox center="true">
+		<deck selectedIndex="0">
 			<checkbox id="find-migemo-mode"
 				label="&ui.migemo.checkbox.label;"
 				oncommand="XMigemoUI.onChangeFindToolbarMode();"/>
-			<checkbox id="find-or-mode"
-				label="&ui.or.checkbox.label;"
-				oncommand="XMigemoUI.onChangeOrFindMode();"/>
-		</hbox>
+			<menulist id="find-mode-selector">
+				<menupopup>
+					<menuitem label="&ui.mode.normal.label;" value=""/>
+					<menuitem label="&ui.mode.migemo.label;" value="migemo"/>
+					<menuitem label="&ui.mode.or.label;" value="migemo,or"/>
+				</menupopup>
+			</menulist>
+		</deck>
 		<!--
 			Firefox 3では、下の方法で置いたProgressmeterのメーター部分が
 			アニメーションしないという問題が起こるので、代わりにこちらを使う。
