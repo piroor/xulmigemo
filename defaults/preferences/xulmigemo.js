@@ -15,12 +15,14 @@ pref("xulmigemo.checked_by_default.findbar",       false);
 
 pref("xulmigemo.checked_by_default.highlight",     false);
 pref("xulmigemo.checked_by_default.caseSensitive", false);
-pref("xulmigemo.checked_by_default.migemo",        false);
 
 pref("xulmigemo.checked_by_default.highlight.always",     false);
 pref("xulmigemo.checked_by_default.highlight.always.minLength", 2);
 pref("xulmigemo.checked_by_default.caseSensitive.always", false);
-pref("xulmigemo.enable_by_default",                       false);
+
+// 0 = native, 1 = migemo, 2 = regexp
+pref("xulmigemo.findMode.always", -1);
+pref("xulmigemo.findMode.default", 0);
 
 pref("xulmigemo.highlight.showScreen",          true);
 pref("xulmigemo.highlight.animateFound",        true);

@@ -7,10 +7,12 @@ var XMigemoFind;
  
 var XMigemoUI = { 
 	 
-	lastFindMode     : -1, 
-	FIND_MODE_NATIVE : 0,
+	FIND_MODE_NATIVE : 0, 
 	FIND_MODE_MIGEMO : 1,
 	FIND_MODE_REGEXP : 2,
+
+	lastFindMode     : -1,
+	originalFindMode : 0, // FIND_MODE_NATIVE
 
 	isFindbarFocused       : false,
  
@@ -42,8 +44,7 @@ var XMigemoUI = {
  
 	get findMode() 
 	{
-		if (this.findMigemoCheck.checked ||
-			this.findModeSelector.value == this.FIND_MODE_MIGEMO)
+		if (this.findModeSelector.value == this.FIND_MODE_MIGEMO)
 			return this.FIND_MODE_MIGEMO;
 		if (this.findModeSelector.value == this.FIND_MODE_NATIVE)
 			return this.FIND_MODE_NATIVE;
@@ -55,22 +56,21 @@ var XMigemoUI = {
 		switch (mode)
 		{
 			case this.FIND_MODE_MIGEMO:
-				this.findMigemoCheck.checked = true;
-				this.findModeSelector.value = mode;
-				break;
-
 			case this.FIND_MODE_REGEXP:
-				this.findMigemoCheck.checked = false;
+			case this.FIND_MODE_NATIVE:
 				this.findModeSelector.value = mode;
 				break;
 
-			case this.FIND_MODE_NATIVE:
 			default:
-				this.findMigemoCheck.checked = false;
 				this.findModeSelector.value = mode = this.FIND_MODE_NATIVE;
 				break;
 		}
 		return mode;
+	},
+ 
+	get findModeAlways() 
+	{
+		return XMigemoService.getPref('xulmigemo.findMode.always');
 	},
  
 	get shouldHighlightAll() 
@@ -192,15 +192,6 @@ var XMigemoUI = {
 		return this._findHighlightCheck;
 	},
 //	_findHighlightCheck : null,
- 
-	get findMigemoCheck() 
-	{
-		if (!this._findMigemoCheck) {
-			this._findMigemoCheck = document.getElementById('find-migemo-mode');
-		}
-		return this._findMigemoCheck;
-	},
-	_findMigemoCheck : null,
  
 	get findModeSelector() 
 	{
@@ -645,7 +636,7 @@ var XMigemoUI = {
 	onInputFindToolbar : function(aEvent) 
 	{
 		XMigemoFind.replaceKeyword(aEvent.target.value);
-		if (XMigemoUI.findMode == XMigemoUI.FIND_MODE_MIGEMO) {
+		if (XMigemoUI.findMode != XMigemoUI.FIND_MODE_NATIVE) {
 			XMigemoUI.start(true);
 			aEvent.stopPropagation();
 			aEvent.preventDefault();
@@ -668,7 +659,7 @@ var XMigemoUI = {
 		this.clearTimer();
 		gFindBar.toggleHighlight(false);
 		var keyword = this.findTerm;
-		if (XMigemoUI.findMode == XMigemoUI.FIND_MODE_MIGEMO) {
+		if (XMigemoUI.findMode != XMigemoUI.FIND_MODE_NATIVE) {
 			this.start(true);
 			this.isModeChanged = true;
 		}
@@ -781,9 +772,7 @@ var XMigemoUI = {
 				this.startTimer();
 		}
 
-		var migemoCheck = this.findMigemoCheck;
-		migemoCheck.xmigemoOriginalChecked = migemoCheck.checked;
-		migemoCheck.checked = true;
+		this.originalFindMode = this.findMode;
 		this.findMode = this.FIND_MODE_MIGEMO;
 
 		if (this.findBarHidden)
@@ -808,10 +797,7 @@ var XMigemoUI = {
 			this.toggleFindToolbarMode();
 
 		if (this.isQuickFind) {
-			var migemoCheck = this.findMigemoCheck;
-			migemoCheck.checked = migemoCheck.xmigemoOriginalChecked;
-			this.findMode = migemoCheck.checked ? this.FIND_MODE_MIGEMO : this.FIND_MODE_NATIVE ;
-
+			this.findMode = this.originalFindMode;
 			this.isQuickFind = false;
 		}
 
@@ -1103,16 +1089,16 @@ var XMigemoUI = {
  
 	openFindBar : function(aShowMinimalUI) 
 	{
-		if (XMigemoUI.migemoCheckedAlways && XMigemoUI.findMode != XMigemoUI.FIND_MODE_MIGEMO)
-			XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
+		if (XMigemoUI.findModeAlways > -1 && XMigemoUI.findMode != XMigemoUI.findModeAlways)
+			XMigemoUI.findMode = XMigemoUI.findModeAlways;
 
-		if (XMigemoUI.findMode == XMigemoUI.FIND_MODE_MIGEMO && !XMigemoUI.isActive) {
+		if (XMigemoUI.findMode != XMigemoUI.FIND_MODE_NATIVE && !XMigemoUI.isActive) {
 			XMigemoUI.isActive = true;
-			XMigemoUI.lastFindMode = XMigemoUI.FIND_MODE_MIGEMO;
+			XMigemoUI.lastFindMode = XMigemoUI.findMode;
 		}
 		else if (XMigemoUI.findMode == XMigemoUI.FIND_MODE_NATIVE) {
 			XMigemoUI.isActive = false;
-			XMigemoUI.lastFindMode = XMigemoUI.FIND_MODE_NATIVE;
+			XMigemoUI.lastFindMode = XMigemoUI.findMode;
 		}
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
@@ -1472,8 +1458,8 @@ var XMigemoUI = {
 	delayedInit : function() { 
 		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
 
-		if (XMigemoService.getPref('xulmigemo.checked_by_default.migemo'))
-			this.findMigemoCheck.checked = this.findMigemoCheck.xmigemoOriginalChecked = true;
+		if (XMigemoService.getPref('xulmigemo.findMode.default') > -1)
+			this.originalFindMode = this.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.highlight'))
 			this.findHighlightCheck.checked = this.findHighlightCheck.xmigemoOriginalChecked = true;
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.caseSensitive')) {
