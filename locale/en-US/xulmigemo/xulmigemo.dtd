@@ -33,7 +33,7 @@
 
 <!ENTITY config.tab.findbar             "Find Toolbar">
 
-<!ENTITY config.findbar.permanentState           "Always use these settings:">
+<!ENTITY config.findbar.permanentState           "Always apply these settings when the Find Toolbar is shown:">
 <!ENTITY config.prefillwithselection             "Textbox">
 <!ENTITY config.prefillwithselection.true        "Selected term">
 <!ENTITY config.prefillwithselection.false       "Last find term">
@@ -102,8 +102,8 @@
 
 
 
-<!ENTITY config.findbar.advanced.button  "Advanced...">
-<!ENTITY config.findbar.advanced.title   "Advanced Configuration of the Find Toolbar Features">
+<!ENTITY config.findbar.advanced.button  "Change initial state of the Find Toolbar Features...">
+<!ENTITY config.findbar.advanced.title   "Initial state of the Find Toolbar Features">
 
 <!ENTITY config.findbar.initialState             "Initial state:">
 <!ENTITY config.checked_by_default.highlight     "Highlight all">
@@ -214,6 +214,12 @@
 
 <!ENTITY ui.migemo.checkbox.label     "Migemo">
 <!ENTITY ui.mode.normal.label         "Normal">
+<!ENTITY ui.mode.normal.shortLabel    "N">
+<!ENTITY ui.mode.normal.tooltiptext   "Normal Find">
 <!ENTITY ui.mode.migemo.label         "Migemo">
+<!ENTITY ui.mode.migemo.shortLabel    "M">
+<!ENTITY ui.mode.migemo.tooltiptext   "Migemo Find">
 <!ENTITY ui.mode.regexp.label         "RegExp">
+<!ENTITY ui.mode.regexp.shortLabel    "R">
+<!ENTITY ui.mode.regexp.tooltiptext   "Use Regular Expressions">
 <!ENTITY ui.caseSensitive.shortLabel  "A/a">

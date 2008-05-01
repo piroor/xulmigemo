@@ -34,7 +34,7 @@
 
 <!ENTITY config.tab.findbar             "検索ツールバー">
 
-<!ENTITY config.findbar.permanentState       "常に以下の設定で使う：">
+<!ENTITY config.findbar.permanentState       "検索を実行する度に常に以下の状態にリセットする：">
 <!ENTITY config.prefillwithselection         "入力欄の内容">
 <!ENTITY config.prefillwithselection.true    "選択範囲のテキスト">
 <!ENTITY config.prefillwithselection.false   "前回検索した内容">
@@ -102,8 +102,8 @@
 
 
 
-<!ENTITY config.findbar.advanced.button  "詳細...">
-<!ENTITY config.findbar.advanced.title   "検索ツールバーの機能の詳細設定">
+<!ENTITY config.findbar.advanced.button  "検索ツールバーの初期状態を変更...">
+<!ENTITY config.findbar.advanced.title   "検索ツールバーの初期状態">
 
 <!ENTITY config.findbar.initialState             "起動時の設定：">
 <!ENTITY config.checked_by_default.highlight     "すべて強調表示">
@@ -211,6 +211,12 @@
 
 <!ENTITY ui.migemo.checkbox.label     "Migemo">
 <!ENTITY ui.mode.normal.label         "通常">
+<!ENTITY ui.mode.normal.shortLabel    "N">
+<!ENTITY ui.mode.normal.tooltiptext   "通常の検索">
 <!ENTITY ui.mode.migemo.label         "Migemo">
+<!ENTITY ui.mode.migemo.shortLabel    "M">
+<!ENTITY ui.mode.migemo.tooltiptext   "Migemo検索">
 <!ENTITY ui.mode.regexp.label         "正規表現">
+<!ENTITY ui.mode.regexp.shortLabel    "R">
+<!ENTITY ui.mode.regexp.tooltiptext   "正規表現検索">
 <!ENTITY ui.caseSensitive.shortLabel  "A/a">
