@@ -28,15 +28,8 @@
 	<groupbox orient="vertical">
 		<caption label="&config.findbar.initialState;"/>
 		<hbox align="center">
-			<spacer flex="1"/>
-			<checkbox id="xulmigemo.checked_by_default.highlight-check"
-				label="&config.checked_by_default.highlight;"
-				preference="xulmigemo.checked_by_default.highlight"
-				style="min-width: 0;"/>
-			<checkbox id="xulmigemo.checked_by_default.caseSensitive-check"
-				label="&config.checked_by_default.caseSensitive;"
-				preference="xulmigemo.checked_by_default.caseSensitive"
-				style="min-width: 0;"/>
+			<label value="&config.findMode.default.caption;"
+				control="xulmigemo.findMode.default-radio"/>
 			<radiogroup id="xulmigemo.findMode.default-radio"
 				orient="horizontal"
 				preference="xulmigemo.findMode.default">
@@ -45,7 +38,14 @@
 				<radio label="&ui.mode.regexp.label;" value="2"/>
 			</radiogroup>
 		</hbox>
-		<description flex="1" style="max-width: &config.findbar.initialState.description.maxwidth;">&config.findbar.initialState.description;</description>
+		<checkbox id="xulmigemo.checked_by_default.highlight-check"
+			label="&config.checked_by_default.highlight;"
+			preference="xulmigemo.checked_by_default.highlight"
+			style="min-width: 0;"/>
+		<checkbox id="xulmigemo.checked_by_default.caseSensitive-check"
+			label="&config.checked_by_default.caseSensitive;"
+			preference="xulmigemo.checked_by_default.caseSensitive"
+			style="min-width: 0;"/>
 	</groupbox>
 
 	<!-- if the description is wrapped, pane contents are overflowed. -->
