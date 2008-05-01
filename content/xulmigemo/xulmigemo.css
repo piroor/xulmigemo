@@ -3,25 +3,3 @@
 #FindToolbar[labelhidden="true"] toolbarbutton > label {
 	visibility: collapse !important;
 }
-
-#find-mode-selector {
-	font-size: 90% !important;
-}
-#find-mode-selector .radio-check-box1 {
-	display: none !important;
-}
-#find-mode-selector .radio-label-box {
-	margin: 0 !important;
-	padding: 0 !important;
-	min-width: 0 !important;
-}
-#find-mode-selector radio {
-	margin: 0 !important;
-	padding: 0.1em 0.15em !important;
-	min-width: 0 !important;
-	-moz-appearance: none !important;
-}
-#find-mode-selector radio[selected="true"] {
-	color: white !important;
-	background: #666 !important;
-}
