@@ -122,6 +122,7 @@ pXMigemoTextUtils.prototype = {
 		return str;
 	},
  
+	// obsolete (from 0.8.0)
 	reverseRegExp : function(aExp) 
 	{
 		var tmp = aExp;

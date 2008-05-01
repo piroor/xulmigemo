@@ -30,7 +30,6 @@ pXMigemoFind.prototype = {
 	lastKeyword     : '', 
 	previousKeyword : '',
 	lastFoundWord   : '',
-	isRegExpFind : false,
 	 
 	appendKeyword : function(aString) 
 	{
@@ -88,6 +87,12 @@ pXMigemoFind.prototype = {
 	FIND_WRAP       : 128,
 
 	FIND_IN_EDITABLE : 256,
+ 
+	findMode : 2, 
+
+	FIND_MODE_NATIVE : 0,
+	FIND_MODE_MIGEMO : 1,
+	FIND_MODE_REGEXP : 2,
  
 	set target(val) 
 	{
@@ -174,7 +179,9 @@ pXMigemoFind.prototype = {
 		this.viewportStartPoint = null;
 		this.viewportEndPoint   = null;
 
-		var myExp = this.isRegExpFind ? roman : this.core.getRegExp(roman) ;
+		var myExp = (this.findMode == this.FIND_MODE_MIGEMO) ?
+				this.core.getRegExp(roman) :
+				roman ;
 
 		if (!myExp) {
 			this.previousKeyword = roman;
@@ -203,7 +210,7 @@ pXMigemoFind.prototype = {
 		var findRange;
 		var result;
 		var lastMatch;
-		var findRegExp = new RegExp(aRegExpSource, 'gim');
+		var findRegExp = new RegExp();
 		var found;
 		var docShell;
 		var doc = aDocument;
@@ -230,17 +237,19 @@ pXMigemoFind.prototype = {
 
 				target = XMigemoTextUtils.range2Text(findRange.sRange);
 
-				if (aFindFlag & this.FIND_BACK) {
-					findRegExp = findRegExp.compile(aRegExpSource, 'gim');
-				}
-				else{
-					findRegExp = findRegExp.compile(aRegExpSource, 'im');
+				if (this.findMode != this.FIND_MODE_NATIVE) {
+					if (aFindFlag & this.FIND_BACK) {
+						findRegExp = findRegExp.compile(aRegExpSource, 'gim');
+					}
+					else {
+						findRegExp = findRegExp.compile(aRegExpSource, 'im');
+					}
 				}
 
 				getFindRange:
 				while (true)
 				{
-					if (this.isQuickFind && isLinksOnly){
+					if (this.isQuickFind && isLinksOnly) {
 						var as = doc.getElementsByTagName('a');
 						if (!as.length){
 							noRepeatL = false;
@@ -248,17 +257,22 @@ pXMigemoFind.prototype = {
 						}
 					}
 
-					if (aFindFlag & this.FIND_BACK) {
-						if (target.match(findRegExp)) {
-							result = RegExp.lastMatch;
-							nextRange = RegExp.leftContext;
+					if (this.findMode != this.FIND_MODE_NATIVE) {
+						if (aFindFlag & this.FIND_BACK) {
+							if (target.match(findRegExp)) {
+								result = RegExp.lastMatch;
+								nextRange = RegExp.leftContext;
+							}
+						}
+						else{
+							if (target.match(findRegExp)) {
+								result = RegExp.lastMatch;
+								nextRange = RegExp.rightContext;
+							}
 						}
 					}
-					else{
-						if (target.match(findRegExp)) {
-							result = RegExp.lastMatch;
-							nextRange = RegExp.rightContext;
-						}
+					else {
+						result = aRegExpSource;
 					}
 
 					lastMatch = result || null;
@@ -267,7 +281,7 @@ pXMigemoFind.prototype = {
 						found = this.findInRange(aFindFlag, lastMatch, findRange, aForceFocus);
 						//alert("lastMatch:"+lastMatch);
 					}
-					else{
+					else {
 						found = this.NOTFOUND;
 					}
 

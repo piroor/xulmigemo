@@ -218,7 +218,12 @@ interface pIXMigemoFind : nsIObserver
 
 	attribute boolean manualLinksOnly;
 	attribute boolean isQuickFind;
-	attribute boolean isRegExpFind;
+
+	attribute unsigned short findMode;
+
+	const unsigned short FIND_MODE_NATIVE = 0;
+	const unsigned short FIND_MODE_MIGEMO = 1;
+	const unsigned short FIND_MODE_REGEXP = 2;
 
 	readonly attribute AString lastKeyword;
 	readonly attribute AString previousKeyword;
