@@ -408,7 +408,7 @@ var XMigemoUI = {
 			)
 			return;
 	},
-	 
+	
 	isEventFiredInInputField : function(aEvent) 
 	{
 		try { // in rich-textarea (ex. Gmail)
@@ -718,7 +718,30 @@ var XMigemoUI = {
 			aSelf.onChangeFindToolbarMode();
 		}, 0, this, aEvent.target.value);
 	},
-  
+ 
+	onFindStartCommand : function() 
+	{
+		if (this.findBarHidden || this.isQuickFind) return;
+		window.setTimeout(function(aSelf) {
+			aSelf.onFindStartCommandCallback();
+		}, 0, this);
+	},
+	onFindStartCommandCallback : function()
+	{
+		switch (XMigemoService.getPref('xulmigemo.shortcut.openAgain'))
+		{
+			case 1:
+				var selector = this.findModeSelector;
+				var items = selector.childNodes;
+				this.findMode = items[(selector.selectedIndex + 1) % (items.length)].value;
+				break;
+
+			case 2:
+				gFindBar.closeFindBar();
+				break;
+		}
+	},
+ 	 
 /* timer */ 
 	
 /* Cancel Timer */ 
@@ -963,6 +986,7 @@ var XMigemoUI = {
 				)
 			);
 			window.gFindBar = {
+				onFindCmd                   : window.onFindCmd,
 				openFindBar                 : this.openFindBar,
 				closeFindBar                : this.closeFindBar,
 				xmigemoOriginalOpen         : window.openFindBar,
@@ -1057,8 +1081,8 @@ var XMigemoUI = {
 		if ('setHighlightTimeout' != highlightTimoutFunc)
 			gFindBar.setHighlightTimeout = gFindBar[highlightTimoutFunc];
 
-		// Firefox 3.0-    : onFindAgainCommand / searcgString
-		// Firefox 1.x-2.0 : onFindAgainCmd / onFindPreviousCmd / findString
+		// Firefox 3.0-    : onFindAgainCommand / searcgString / onFindCommand
+		// Firefox 1.x-2.0 : onFindAgainCmd / onFindPreviousCmd / findString / onFindCmd
 		if ('onFindAgainCommand' in gFindBar) {
 			eval('gFindBar.onFindAgainCommand = '+gFindBar.onFindAgainCommand.toSource()
 				.replace(/([^=\s]+\.(find|search)String)/g, 'XMigemoUI.getLastFindString($1)')
@@ -1070,6 +1094,9 @@ var XMigemoUI = {
 				else
 					this.findNext();
 			};
+			eval('gFindBar.onFindCommand = '+gFindBar.onFindCommand.toSource()
+				.replace('{', '$& XMigemoUI.onFindStartCommand();')
+			);
 		}
 		else {
 			eval('gFindBar.onFindAgainCmd = '+gFindBar.onFindAgainCmd.toSource()
@@ -1078,9 +1105,14 @@ var XMigemoUI = {
 			eval('gFindBar.onFindPreviousCmd = '+gFindBar.onFindPreviousCmd.toSource()
 				.replace(/([^=\s]+\.(find|search)String)/g, 'XMigemoUI.getLastFindString($1)')
 			);
+			if (gFindBar.onFindCmd)
+				eval('gFindBar.onFindCmd = '+gFindBar.onFindCmd.toSource()
+					.replace('{', '$& XMigemoUI.onFindStartCommand();')
+				);
 		}
 
 		if (updateGlobalFunc) {
+			window.onFindCmd     = this.onFindCmd;
 			window.findNext      = this.findNext;
 			window.findPrevious  = this.findPrevious;
 			window.openFindBar   = this.openFindBar;
@@ -1141,68 +1173,70 @@ var XMigemoUI = {
  
 	openFindBar : function(aShowMinimalUI) 
 	{
-		if (XMigemoUI.forcedFindMode > -1 && XMigemoUI.findMode != XMigemoUI.forcedFindMode)
-			XMigemoUI.findMode = XMigemoUI.forcedFindMode;
+		var ui = XMigemoUI;
 
-		if (XMigemoUI.findMode != XMigemoUI.FIND_MODE_NATIVE && !XMigemoUI.isActive) {
-			XMigemoUI.isActive = true;
-			XMigemoUI.lastFindMode = XMigemoUI.findMode;
+		if (ui.forcedFindMode > -1 && ui.findMode != ui.forcedFindMode)
+			ui.findMode = ui.forcedFindMode;
+
+		if (ui.findMode != ui.FIND_MODE_NATIVE && !ui.isActive) {
+			ui.isActive = true;
+			ui.lastFindMode = ui.findMode;
 		}
-		else if (XMigemoUI.findMode == XMigemoUI.FIND_MODE_NATIVE) {
-			XMigemoUI.isActive = false;
-			XMigemoUI.lastFindMode = XMigemoUI.findMode;
+		else if (ui.findMode == ui.FIND_MODE_NATIVE) {
+			ui.isActive = false;
+			ui.lastFindMode = ui.findMode;
 		}
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalOpen.apply(scope, arguments);
-		XMigemoUI.findMigemoBar.removeAttribute('collapsed');
+		ui.findMigemoBar.removeAttribute('collapsed');
 
-		var box = XMigemoUI.migemoModeBox;
+		var box = ui.migemoModeBox;
 		box.removeAttribute('hidden');
-		box.style.height = XMigemoUI.findBar.boxObject.height+'px';
+		box.style.height = ui.findBar.boxObject.height+'px';
 		box.style.right = (
 			document.documentElement.boxObject.width
-			- XMigemoUI.findBar.boxObject.x
-			- XMigemoUI.findBar.boxObject.width
+			- ui.findBar.boxObject.x
+			- ui.findBar.boxObject.width
 		)+'px';
 		box.style.bottom = (
 			document.documentElement.boxObject.height
-			- XMigemoUI.findBar.boxObject.y
-			- XMigemoUI.findBar.boxObject.height
+			- ui.findBar.boxObject.y
+			- ui.findBar.boxObject.height
 		)+'px';
 
-		XMigemoUI.toggleFindToolbarMode();
+		ui.toggleFindToolbarMode();
 
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarOpen', true, true);
-		XMigemoUI.findBar.dispatchEvent(event);
+		ui.findBar.dispatchEvent(event);
 
 		if (XMigemoService.getPref('xulmigemo.prefillwithselection')) {
 			var win = document.commandDispatcher.focusedWindow || window.content ;
 			var sel = (win && win.getSelection() ? win.getSelection().toString() : '' ).replace(/^\s+|\s+$/g, '');
 			if (!sel) return;
 
-			if (XMigemoUI.isActive) {
+			if (ui.isActive) {
 				if (
-					XMigemoUI.cancelTimer ||
+					ui.cancelTimer ||
 					XMigemoFind.lastKeyword == sel ||
 					XMigemoFind.lastFoundWord == sel
 					)
 					return;
-				XMigemoUI.findAgain(sel, XMigemoUI.FIND_MODE_MIGEMO);
+				ui.findAgain(sel, ui.findMode);
 			}
 			else {
 				if (
 					 aShowMinimalUI ||
-					 XMigemoUI.findTerm == sel
+					 ui.findTerm == sel
 					 )
 					 return;
-				XMigemoUI.findTerm = sel;
-				XMigemoUI.findAgain(sel, XMigemoUI.FIND_MODE_NATIVE);
+				ui.findTerm = sel;
+				ui.findAgain(sel, ui.FIND_MODE_NATIVE);
 			}
 		}
 	},
- 	
+ 
 	closeFindBar : function() 
 	{
 		var scope = window.gFindBar ? window.gFindBar : this ;
