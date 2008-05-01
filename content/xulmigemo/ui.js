@@ -79,7 +79,14 @@ var XMigemoUI = {
 					minLength <= Math.max.apply(
 						null,
 						XMigemoCore.regExpFindArrRecursively(
-							new RegExp(XMigemoCore.getRegExp(term), 'im'),
+							new RegExp(
+								(
+									this.findMode == this.FIND_MODE_REGEXP ?
+										term :
+										XMigemoCore.getRegExp(term)
+								),
+								'im'
+							),
 							this.activeBrowser.contentWindow,
 							true
 						).map(function(aItem) {
@@ -311,14 +318,19 @@ var XMigemoUI = {
 
 			case 'xulmigemo.appearance.hideLabels':
 				var caseSensitive = this.findCaseSensitiveCheck;
+				var nodes = this.findModeSelector.childNodes;
 				if (value) {
 					caseSensitive.setAttribute('tooltiptext', caseSensitive.getAttribute('long-label'));
 					caseSensitive.setAttribute('label', caseSensitive.getAttribute('short-label'));
+					for (var i = 0, maxi = nodes.length; i < maxi; i++)
+						nodes[i].setAttribute('label', nodes[i].getAttribute('short-label'));
 					this.findBar.setAttribute('labelhidden', true);
 				}
 				else {
 					caseSensitive.removeAttribute('tooltiptext');
 					caseSensitive.setAttribute('label', caseSensitive.getAttribute('long-label'));
+					for (var i = 0, maxi = nodes.length; i < maxi; i++)
+						nodes[i].setAttribute('label', nodes[i].getAttribute('long-label'));
 					this.findBar.removeAttribute('labelhidden');
 				}
 				return;
@@ -806,6 +818,7 @@ var XMigemoUI = {
  
 	find : function() 
 	{
+		XMigemoFind.isRegExpFind = (this.findMode == this.FIND_MODE_REGEXP);
 		XMigemoFind.find(false, XMigemoFind.lastKeyword, false);
 	},
  

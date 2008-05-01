@@ -218,6 +218,7 @@ interface pIXMigemoFind : nsIObserver
 
 	attribute boolean manualLinksOnly;
 	attribute boolean isQuickFind;
+	attribute boolean isRegExpFind;
 
 	readonly attribute AString lastKeyword;
 	readonly attribute AString previousKeyword;

@@ -30,6 +30,7 @@ pXMigemoFind.prototype = {
 	lastKeyword     : '', 
 	previousKeyword : '',
 	lastFoundWord   : '',
+	isRegExpFind : false,
 	 
 	appendKeyword : function(aString) 
 	{
@@ -173,7 +174,7 @@ pXMigemoFind.prototype = {
 		this.viewportStartPoint = null;
 		this.viewportEndPoint   = null;
 
-		var myExp = this.core.getRegExp(roman);
+		var myExp = this.isRegExpFind ? roman : this.core.getRegExp(roman) ;
 
 		if (!myExp) {
 			this.previousKeyword = roman;
@@ -231,7 +232,7 @@ pXMigemoFind.prototype = {
 
 				target = XMigemoTextUtils.range2Text(findRange.sRange);
 
-				if(aFindFlag & this.FIND_BACK){
+				if (aFindFlag & this.FIND_BACK) {
 					target = target.split('').reverse().join('');
 					findRegExpSource = reversedRegExp || (reversedRegExp = XMigemoTextUtils.reverseRegExp(aRegExpSource));
 				}

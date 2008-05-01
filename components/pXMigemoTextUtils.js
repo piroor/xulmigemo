@@ -126,15 +126,20 @@ pXMigemoTextUtils.prototype = {
 	{
 		var tmp = aExp;
 		tmp = tmp.replace(/\[\]\|/im,"")
-				.replace(/(\([^\)]+\))\?/g, '?$1') // for multiple terms
-				.replace(/(\[[^\]]+\])\+/g, '+$1') // for multiple terms
-				.replace(/\(/g,"[[OPEN-PAREN]]")
+				.replace(/(\([^\)]+\))\?/g, '[[OPERATOR-QUESTION]]$1') // for multiple terms
+				.replace(/(\[[^\]]+\])\+/g, '[[OPERATOR-PLUS]]$1') // for multiple terms
+				.replace(/(\[[^\]]+\])\*/g, '[[OPERATOR-STAR]]$1') // for multiple terms
+				.replace(/(.)\?/g, '[[OPERATOR-QUESTION]]$1')
+				.replace(/(.)\+/g, '[[OPERATOR-PLUS]]$1')
+				.replace(/(.)\*/g, '[[OPERATOR-STAR]]$1')
+				.replace(/\(/g,"[[OPERATOR-OPEN-PAREN]]")
 				.replace(/\)/g,"(")
-				.replace(/\[\[OPEN-PAREN\]\]/g,")");
+				.replace(/\[\[OPERATOR-OPEN-PAREN\]\]/g,")")
+				.replace(/\[\[OPERATOR-QUESTION\]\]/g,"?")
+				.replace(/\[\[OPERATOR-PLUS\]\]/g,"+")
+				.replace(/\[\[OPERATOR-STAR\]\]/g,"*");
 		tmp = tmp.replace(/\[([^\[]+?)\]/img,"\]$1\[").split("").reverse().join("")
-		tmp = tmp.replace(/(.)\\/g,"\\$1")
-				.replace(/\*(\[[^\]]*\])/g,"$1*")
-				.replace(/\*(\([^\)]*\))/g,"$1*");
+		tmp = tmp.replace(/(.)\\/g,"\\$1");
 		return tmp;
 	},
   
