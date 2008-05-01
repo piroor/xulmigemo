@@ -1,0 +1,34 @@
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+#find-mode-selector {
+	font-size: 90%;
+}
+
+#find-mode-selector .radio-spacer-box,
+#find-mode-selector .radio-check-box1,
+#find-mode-selector radio[selected] .label-textshadow-shadow-stack {
+	display: none;
+}
+
+#find-mode-selector .radio-label-box {
+	margin: 0;
+	padding: 0;
+	min-width: 0;
+}
+
+#find-mode-selector radio {
+	margin: 0;
+	padding: 0.1em 0.15em;
+	min-width: 0;
+	-moz-appearance: none;
+	border-right: 1px solid ThreeDLightShadow;
+}
+
+#find-mode-selector radio:last-child {
+	border-right: none;
+}
+
+#find-mode-selector radio[selected="true"] {
+	color: white;
+	background: #666;
+}
