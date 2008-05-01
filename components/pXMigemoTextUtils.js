@@ -111,15 +111,31 @@ pXMigemoTextUtils.prototype = {
 	sanitize : function(str) 
 	{
 		//	[]^.+*?$|{}\(),  正規表現のメタキャラクタをエスケープ
-		str = str.replace(/([\-\:\}\{\|\$\?\*\+\.\^\]\/\[\;\\\(\)])/g,"\\$1");
+		str = str.replace(this.kSANITIZE_PATTERN, "\\$1");
 		return str;
 	},
+	kSANITIZE_PATTERN : /([\-\:\}\{\|\$\?\*\+\.\^\]\/\[\;\\\(\)])/g,
  
 	sanitize2 : function(str) 
 	{
 		//	^.+*?${}\,
-		str = str.replace(/([\-\:\}\{\$\?\*\+\.\^\/\;\\])/g,"\\$1");
+		str = str.replace(this.kSANITIZE2_PATTERN, "\\$1");
 		return str;
+	},
+	kSANITIZE2_PATTERN : /([\-\:\}\{\$\?\*\+\.\^\/\;\\])/g,
+ 
+	kREGEXP_PATTERN : /^\/((?:\\.|[^\/])+)\/[gimy]*$/,
+ 
+	isRegExp : function(aInput) 
+	{
+		return this.kREGEXP_PATTERN.test(aInput);
+	},
+ 
+	extractRegExpSource : function(aInput) 
+	{
+		return this.kREGEXP_PATTERN.test(aInput) ?
+			RegExp.$1 :
+			aInput ;
 	},
  
 	// obsolete (from 0.8.0)

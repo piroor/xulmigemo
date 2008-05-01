@@ -17,10 +17,12 @@ var XMigemoUI = {
 
 	isFindbarFocused       : false,
  
-	isAutoStart            : false, 
-	isAutoExitInherit      : true,
-	isAutoExit             : true,
-	timeout                : 0,
+	autoStartQuickFind       : false, 
+	autoExitQuickFindInherit : true,
+	autoExitQuickFind        : true,
+	timeout                  : 0,
+
+	autoStartRegExpFind      : false,
 
 	highlightCheckedAlways     : false,
 	highlightCheckedAlwaysMinLength : 2,
@@ -82,7 +84,7 @@ var XMigemoUI = {
 							new RegExp(
 								(
 									this.findMode == this.FIND_MODE_REGEXP ?
-										term :
+										this.textUtils.extractRegExpSource(term) :
 										XMigemoCore.getRegExp(term)
 								),
 								'im'
@@ -251,15 +253,19 @@ var XMigemoUI = {
 		switch (aPrefName)
 		{
 			case 'xulmigemo.autostart':
-				this.isAutoStart = value;
+				this.autoStartQuickFind = value;
 				return;
 
 			case 'xulmigemo.enableautoexit.inherit':
-				this.isAutoExitInherit = value;
+				this.autoExitQuickFindInherit = value;
 				return;
 
 			case 'xulmigemo.enableautoexit.nokeyword':
-				this.isAutoExit = value;
+				this.autoExitQuickFind = value;
+				return;
+
+			case 'xulmigemo.autostart.regExpFind':
+				this.autoStartRegExpFind = value;
 				return;
 
 			case 'xulmigemo.checked_by_default.highlight.always':
@@ -357,6 +363,10 @@ var XMigemoUI = {
 	{
 		switch (aEvent.type)
 		{
+			case 'input':
+				this.onInput(aEvent);
+				return;
+
 			case 'keypress':
 				this.keyEvent(aEvent);
 				return;
@@ -367,6 +377,10 @@ var XMigemoUI = {
 
 			case 'XMigemoFindProgress':
 				this.onXMigemoFindProgress(aEvent);
+				return;
+
+			case 'blur':
+				this.onBlur(aEvent);
 				return;
 
 			case 'load':
@@ -464,7 +478,7 @@ var XMigemoUI = {
 		if (
 			!this.isActive &&
 			(
-				!this.isAutoStart ||
+				!this.autoStartQuickFind ||
 				aEvent.charCode == 0 ||
 				aEvent.altKey ||
 				aEvent.ctrlKey ||
@@ -518,7 +532,7 @@ var XMigemoUI = {
 				this.updateStatus(XMigemoFind.lastKeyword);
 				if (
 					XMigemoFind.lastKeyword == '' &&
-					(this.isAutoExitInherit ? this.isAutoStart : this.isAutoExit )
+					(this.autoExitQuickFindInherit ? this.autoStartQuickFind : this.autoExitQuickFind )
 					) {
 					this.cancel();
 				}
@@ -562,8 +576,8 @@ var XMigemoUI = {
 				return true;
 			}
 		}
-		else if (this.isAutoStart) {
-//			dump("isAutoStart:"+this.isAutoStart+'\n');
+		else if (this.autoStartQuickFind) {
+//			dump("autoStartQuickFind:"+this.autoStartQuickFind+'\n');
 			if (aEvent.charCode == 32) { // Space
 				return true;
 			}
@@ -637,25 +651,38 @@ var XMigemoUI = {
 		gFindBar.updateStatus(statusRes, !(aEvent.findFlag & XMigemoFind.FIND_BACK));
 	},
  
-	onInputFindToolbar : function(aEvent) 
+	onInput : function(aEvent) 
 	{
 		XMigemoFind.replaceKeyword(aEvent.target.value);
-		if (XMigemoUI.findMode != XMigemoUI.FIND_MODE_NATIVE) {
-			XMigemoUI.start(true);
+
+		if (this.autoStartRegExpFind) {
+			if (this.findMode != this.FIND_MODE_REGEXP &&
+				this.textUtils.isRegExp(aEvent.target.value)) {
+				this.originalFindMode = this.findMode;
+				this.findMode = this.FIND_MODE_REGEXP;
+			}
+			else if (this.findMode == this.FIND_MODE_REGEXP &&
+					!this.textUtils.isRegExp(aEvent.target.value)) {
+				this.findMode = this.originalFindMode;
+			}
+		}
+
+		if (this.findMode != this.FIND_MODE_NATIVE) {
+			this.start(true);
 			aEvent.stopPropagation();
 			aEvent.preventDefault();
-			XMigemoUI.delayedFind();
+			this.delayedFind();
 		}
 		else {
-			XMigemoUI.lastFindMode = XMigemoUI.FIND_MODE_NATIVE;
+			this.lastFindMode = this.FIND_MODE_NATIVE;
 		}
 	},
  
-	onFindBlur : function() 
+	onBlur : function() 
 	{
-		if (XMigemoUI.isQuickFind)
-			XMigemoUI.cancel();
-//			XMigemoUI.cancel(true);
+		if (this.isQuickFind)
+			this.cancel();
+//			this.cancel(true);
 	},
  
 	onChangeFindToolbarMode : function() 
@@ -1068,7 +1095,7 @@ var XMigemoUI = {
 			}
 		}
 
-		this.findField.addEventListener('input', this.onInputFindToolbar, true);
+		this.findField.addEventListener('input', this, true);
 
 		if ('nsBrowserStatusHandler' in window)
 			eval('nsBrowserStatusHandler.prototype.onLocationChange = '+
@@ -1275,7 +1302,9 @@ var XMigemoUI = {
  
 	highlightText : function(aWord, aBaseNode, aRange) 
 	{
-		var regexp = this.findMode == this.FIND_MODE_REGEXP ? aWord : XMigemoFind.core.getRegExp(aWord) ;
+		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
+				this.textUtils.extractRegExpSource(aWord) :
+				XMigemoFind.core.getRegExp(aWord) ;
 		var ranges = XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode, {});
 		return ranges.length ? true : false ;
 	},
@@ -1452,6 +1481,7 @@ var XMigemoUI = {
 
 		XMigemoService.addPrefListener(this);
 		this.observe(null, 'nsPref:changed', 'xulmigemo.autostart');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.autostart.regExpFind');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.inherit');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.nokeyword');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.highlight.always');
@@ -1482,7 +1512,7 @@ var XMigemoUI = {
 	},
 	 
 	delayedInit : function() { 
-		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  XMigemoUI.onFindBlur, false);", 0);
+		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  this, false);", 0);
 
 		if (XMigemoService.getPref('xulmigemo.findMode.default') > -1)
 			this.originalFindMode = this.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
@@ -1510,7 +1540,8 @@ var XMigemoUI = {
 			target.removeEventListener('mouseup', this, true);
 		}
 
-		this.findField.removeEventListener('blur', this.onFindBlur, false);
+		this.findField.removeEventListener('blur', this, false);
+		this.findField.removeEventListener('input', this, false);
 
 		window.removeEventListener('unload', this, false);
 	},
