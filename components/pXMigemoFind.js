@@ -138,6 +138,16 @@ pXMigemoFind.prototype = {
 		return this._core;
 	},
 	_core : null,
+ 
+	get textUtils() 
+	{
+		if (!this._utils)
+			this._utils = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+					.getService(Components.interfaces.pIXMigemoTextUtils);
+		return this._utils;
+	},
+	_utils : null,
  	
 /* Find */ 
 	
@@ -179,9 +189,21 @@ pXMigemoFind.prototype = {
 		this.viewportStartPoint = null;
 		this.viewportEndPoint   = null;
 
-		var myExp = (this.findMode == this.FIND_MODE_MIGEMO) ?
-				this.core.getRegExp(roman) :
-				roman ;
+		var myExp;
+		switch (this.findMode)
+		{
+			case this.FIND_MODE_MIGEMO:
+				myExp = this.core.getRegExp(roman);
+				break;
+
+			case this.FIND_MODE_REGEXP:
+				myExp = this.textUtils.extractRegExpSource(roman);
+				break;
+
+			default:
+				myExp = roman;
+				break;
+		}
 
 		if (!myExp) {
 			this.previousKeyword = roman;
@@ -221,10 +243,6 @@ pXMigemoFind.prototype = {
 		var statusRes;
 		var isLinksOnly = Prefs.getBoolPref('xulmigemo.linksonly');
 
-		const XMigemoTextUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
-
 		doFind:
 		while (true)
 		{
@@ -235,7 +253,7 @@ pXMigemoFind.prototype = {
 			else {
 				findRange = this.getFindRange(aFindFlag, doc);
 
-				target = XMigemoTextUtils.range2Text(findRange.sRange);
+				target = this.textUtils.range2Text(findRange.sRange);
 
 				if (this.findMode != this.FIND_MODE_NATIVE) {
 					if (aFindFlag & this.FIND_BACK) {

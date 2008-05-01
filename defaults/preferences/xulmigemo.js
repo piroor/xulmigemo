@@ -1,6 +1,7 @@
 pref("xulmigemo.lang", "");
 
 pref("xulmigemo.autostart",                     false);
+pref("xulmigemo.autostart.regExpFind",          true);
 pref("xulmigemo.prefillwithselection",          true);
 pref("xulmigemo.startfromviewport",             true);
 pref("xulmigemo.linksonly",                     false);

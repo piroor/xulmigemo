@@ -123,6 +123,7 @@
 				<radio value="false" label="&config.prefillwithselection.false;"/>
 			</radiogroup>
 		</hbox>
+		<separator class="groove"/>
 		<hbox align="center">
 			<label value="&config.findMode.always.caption;"
 				control="xulmigemo.findMode.always-radio"/>
@@ -136,6 +137,7 @@
 				<radio label="&ui.mode.migemo.label;" value="1"/>
 			</radiogroup>
 		</hbox>
+		<separator class="groove"/>
 		<hbox align="center">
 			<checkbox id="xulmigemo.checked_by_default.highlight.always-check"
 				label="&config.checked_by_default.highlight.always;"

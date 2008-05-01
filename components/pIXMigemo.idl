@@ -25,6 +25,8 @@ interface pIXMigemoTextUtils : nsISupports
 
 	AString sanitize(in AString regexpPattern);
 	AString sanitize2(in AString regexpPattern);
+	boolean isRegExp(in AString regexpPattern);
+	AString extractRegExpSource(in AString regexpPattern);
 	AString reverseRegExp(in AString regexpPattern);
 
 	nsIDOMRange getFoundRange(in nsIDOMWindow frame);
