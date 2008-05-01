@@ -380,21 +380,12 @@ dump('STEP 2: '+array.toSource()+'\n');
 			aRegExpFlags == 'undefined' ||
 			aRegExpFlags == 'false')
 			aRegExpFlags = '';
-		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
-		if (aFindBackwards) {
-			txt = txt.split('').reverse().join('');
-			regExp = XMigemoTextUtils.reverseRegExp(regExp);
-		}
 
-		if (aFindBackwards) {
-			if (txt.match(regExp)) {
-				term = RegExp.lastMatch.split('').reverse().join('');
-			}
-		}
-		else {
-			if (txt.match(regExp)) {
-				term = RegExp.lastMatch;
-			}
+		if (aFindBackwards && aRegExpFlags.indexOf('g') < 0) aRegExpFlags += 'g';
+
+		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
+		if (txt.match(regExp)) {
+			term = RegExp.lastMatch;
 		}
 
 		this.mFind.findBackwards = aFindBackwards;

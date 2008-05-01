@@ -203,15 +203,13 @@ pXMigemoFind.prototype = {
 		var findRange;
 		var result;
 		var lastMatch;
-		var findRegExp = new RegExp();
-		var findRegExpSource;
-		var reversedRegExp;
+		var findRegExp = new RegExp(aRegExpSource, 'gim');
 		var found;
 		var docShell;
 		var doc = aDocument;
 		var selection;
 		var repeat = false;
-		var rightContext;
+		var nextRange;
 		var noRepeatL;
 		var statusRes;
 		var isLinksOnly = Prefs.getBoolPref('xulmigemo.linksonly');
@@ -233,18 +231,10 @@ pXMigemoFind.prototype = {
 				target = XMigemoTextUtils.range2Text(findRange.sRange);
 
 				if (aFindFlag & this.FIND_BACK) {
-					target = target.split('').reverse().join('');
-					findRegExpSource = reversedRegExp || (reversedRegExp = XMigemoTextUtils.reverseRegExp(aRegExpSource));
+					findRegExp = findRegExp.compile(aRegExpSource, 'gim');
 				}
 				else{
-					findRegExpSource = aRegExpSource;
-				}
-				try {
-					findRegExp = findRegExp.compile(findRegExpSource, 'im');
-				}
-				catch(e) {
-					dump(e+'\n'+'original : '+aRegExpSource+'\ncurrent : '+findRegExpSource+'\n');
-					throw e;
+					findRegExp = findRegExp.compile(aRegExpSource, 'im');
 				}
 
 				getFindRange:
@@ -260,14 +250,14 @@ pXMigemoFind.prototype = {
 
 					if (aFindFlag & this.FIND_BACK) {
 						if (target.match(findRegExp)) {
-							result = RegExp.lastMatch.split('').reverse().join('');
-							rightContext = RegExp.rightContext;
+							result = RegExp.lastMatch;
+							nextRange = RegExp.leftContext;
 						}
 					}
 					else{
 						if (target.match(findRegExp)) {
 							result = RegExp.lastMatch;
-							rightContext = RegExp.rightContext;
+							nextRange = RegExp.rightContext;
 						}
 					}
 
@@ -296,7 +286,7 @@ pXMigemoFind.prototype = {
 							break getFindRange;
 
 						case this.NOTLINK:
-							target = rightContext;
+							target = nextRange;
 							findRange = this.resetFindRange(findRange, this.foundRange, aFindFlag, doc);
 							continue getFindRange;
 					}
