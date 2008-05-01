@@ -4,6 +4,7 @@
 	font-size: 90%;
 }
 
+#find-mode-selector .radio-check,
 #find-mode-selector .radio-spacer-box,
 #find-mode-selector .radio-check-box1,
 #find-mode-selector radio[selected] .label-textshadow-shadow-stack {
