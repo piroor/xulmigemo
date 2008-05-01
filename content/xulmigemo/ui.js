@@ -1257,7 +1257,8 @@ var XMigemoUI = {
  
 	highlightText : function(aWord, aBaseNode, aRange) 
 	{
-		var ranges = XMigemoFind.core.regExpHighlightText(XMigemoFind.core.getRegExp(aWord), '', aRange, aBaseNode, {});
+		var regexp = this.findMode == this.FIND_MODE_REGEXP ? aWord : XMigemoFind.core.getRegExp(aWord) ;
+		var ranges = XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode, {});
 		return ranges.length ? true : false ;
 	},
  
