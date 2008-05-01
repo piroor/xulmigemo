@@ -19,6 +19,7 @@
 	margin: 0 !important;
 	padding: 0.1em 0.15em !important;
 	min-width: 0 !important;
+	-moz-appearance: none !important;
 }
 #find-mode-selector radio[selected="true"] {
 	color: white !important;
