@@ -141,13 +141,13 @@ pXMigemoFind.prototype = {
  
 	get textUtils() 
 	{
-		if (!this._utils)
-			this._utils = Components
+		if (!this._textUtils)
+			this._textUtils = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
 					.getService(Components.interfaces.pIXMigemoTextUtils);
-		return this._utils;
+		return this._textUtils;
 	},
-	_utils : null,
+	_textUtils : null,
  	
 /* Find */ 
 	
