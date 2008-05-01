@@ -115,54 +115,43 @@
 	<groupbox orient="vertical">
 		<caption label="&config.findbar.permanentState;"/>
 		<hbox align="center">
-			<groupbox orient="vertical">
-				<caption label="&config.prefillwithselection;"/>
-				<radiogroup id="xulmigemo.prefillwithselection-radiogroup"
-					preference="xulmigemo.prefillwithselection"
-					orient="vertical">
-					<radio value="true"  label="&config.prefillwithselection.true;"/>
-					<radio value="false" label="&config.prefillwithselection.false;"/>
-				</radiogroup>
-			</groupbox>
-			<spacer flex="1"/>
-			<vbox>
-				<hbox align="end">
-					<checkbox id="xulmigemo.checked_by_default.highlight.always-check"
-						label="&config.checked_by_default.highlight.always;"
-						preference="xulmigemo.checked_by_default.highlight.always"
-						style="min-width: 0;"/>
-					<checkbox id="xulmigemo.checked_by_default.caseSensitive.always-check"
-						label="&config.checked_by_default.caseSensitive.always;"
-						preference="xulmigemo.checked_by_default.caseSensitive.always"
-						style="min-width: 0;"/>
-					<radiogroup id="xulmigemo.findMode.always-radio"
-						orient="vertical"
-						align="center"
-						preference="xulmigemo.findMode.always">
-						<radio label="&config.findMode.always.undefined.label;" value="-1"/>
-						<hbox align="center">
-							<radio label="&ui.mode.normal.label;" value="0"/>
-							<radio label="&ui.mode.migemo.label;" value="1"/>
-							<radio label="&ui.mode.regexp.label;" value="2"/>
-						</hbox>
-					</radiogroup>
-				</hbox>
-				<hbox align="center">
-					<label class="shrinked-label"
-						value="&config.checked_by_default.highlight.always.minLength.before;"
-						control="xulmigemo.checked_by_default.highlight.always.minLength-textbox"/>
-					<textbox id="xulmigemo.checked_by_default.highlight.always.minLength-textbox"
-						preference="xulmigemo.checked_by_default.highlight.always.minLength"
-						style="width: 3em;"
-						type="number" min="1" increment="1"/>
-					<label class="shrinked-label"
-						value="&config.checked_by_default.highlight.always.minLength.after;"
-						control="xulmigemo.checked_by_default.highlight.always.minLength-textbox"/>
-					<spacer flex="1"/>
-				</hbox>
-			</vbox>
+			<label value="&config.prefillwithselection;"/>
+			<radiogroup id="xulmigemo.prefillwithselection-radiogroup"
+				preference="xulmigemo.prefillwithselection"
+				orient="horizontal">
+				<radio value="true"  label="&config.prefillwithselection.true;"/>
+				<radio value="false" label="&config.prefillwithselection.false;"/>
+			</radiogroup>
 		</hbox>
-		<description flex="1" style="max-width: &config.findbar.permanentState.description.maxwidth;">&config.findbar.permanentState.description;</description>
+		<hbox align="center">
+			<label value="&config.findMode.always.caption;"
+				control="xulmigemo.findMode.always-radio"/>
+			<radiogroup id="xulmigemo.findMode.always-radio"
+				orient="horizontal"
+				align="center"
+				preference="xulmigemo.findMode.always">
+				<radio label="&config.findMode.always.undefined.label;" value="-1"/>
+				<radio label="&ui.mode.normal.label;" value="0"/>
+				<radio label="&ui.mode.migemo.label;" value="1"/>
+				<radio label="&ui.mode.regexp.label;" value="2"/>
+			</radiogroup>
+		</hbox>
+		<hbox align="center">
+			<checkbox id="xulmigemo.checked_by_default.highlight.always-check"
+				label="&config.checked_by_default.highlight.always;"
+				preference="xulmigemo.checked_by_default.highlight.always"/>
+			<label value="&config.checked_by_default.highlight.always.minLength.before;"
+				control="xulmigemo.checked_by_default.highlight.always.minLength-textbox"/>
+			<textbox id="xulmigemo.checked_by_default.highlight.always.minLength-textbox"
+				preference="xulmigemo.checked_by_default.highlight.always.minLength"
+				style="width: 3em;"
+				type="number" min="1" increment="1"/>
+			<label value="&config.checked_by_default.highlight.always.minLength.after;"
+				control="xulmigemo.checked_by_default.highlight.always.minLength-textbox"/>
+		</hbox>
+		<checkbox id="xulmigemo.checked_by_default.caseSensitive.always-check"
+			label="&config.checked_by_default.caseSensitive.always;"
+			preference="xulmigemo.checked_by_default.caseSensitive.always"/>
 	</groupbox>
 
 	<vbox>
