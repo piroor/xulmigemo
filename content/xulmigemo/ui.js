@@ -7,13 +7,13 @@ var XMigemoFind;
  
 var XMigemoUI = { 
 	 
-	FIND_MODE_NATIVE : 0, 
-	FIND_MODE_MIGEMO : 1,
-	FIND_MODE_REGEXP : 2,
+	FIND_MODE_NATIVE : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE, 
+	FIND_MODE_MIGEMO : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
+	FIND_MODE_REGEXP : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP,
 
 	forcedFindMode   : -1,
 	lastFindMode     : -1,
-	originalFindMode : 0, // FIND_MODE_NATIVE
+	originalFindMode : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
 
 	isFindbarFocused       : false,
  
@@ -275,7 +275,7 @@ var XMigemoUI = {
 				return;
 
 			case 'xulmigemo.findMode.always':
-				this.forcedFindMode = (value < 0) ? -1 : Math.max(this.FIND_MODE_NATIVE, Math.min(this.FIND_MODE_REGEXP, parseInt(value))) ;
+				this.forcedFindMode = value;
 				return;
 
 			case 'xulmigemo.timeout':
@@ -818,7 +818,7 @@ var XMigemoUI = {
  
 	find : function() 
 	{
-		XMigemoFind.isRegExpFind = (this.findMode == this.FIND_MODE_REGEXP);
+		XMigemoFind.findMode = this.findMode;
 		XMigemoFind.find(false, XMigemoFind.lastKeyword, false);
 	},
  
