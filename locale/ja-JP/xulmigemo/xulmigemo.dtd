@@ -13,6 +13,7 @@
 <!ENTITY config.startfromviewport       "現在見えている領域内から検索を始める">
 <!ENTITY config.scrollSelectionToCenter "検索で見つかった箇所を画面の中心に表示する">
 <!ENTITY config.highlight.showScreen    "「すべて強調表示」をより強く強調する">
+<!ENTITY config.autoStartRegExpFind     "/regexp/ のような入力を正規表現と見なして検索する">
 
 
 <!ENTITY config.caption.recognize       "文字の認識">

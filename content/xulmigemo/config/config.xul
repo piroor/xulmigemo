@@ -28,6 +28,9 @@
 		<preference id="xulmigemo.highlight.showScreen"
 			name="xulmigemo.highlight.showScreen"
 			type="bool"/>
+		<preference id="xulmigemo.autostart.regExpFind"
+			name="xulmigemo.autostart.regExpFind"
+			type="bool"/>
 
 		<preference id="xulmigemo.ignoreHiraKata"
 			name="xulmigemo.ignoreHiraKata"
@@ -67,6 +70,9 @@
 		<checkbox id="xulmigemo.highlight.showScreen-check" flex="1"
 			label="&config.highlight.showScreen;"
 			preference="xulmigemo.highlight.showScreen"/>
+		<checkbox id="xulmigemo.autostart.regExpFind-check" flex="1"
+			label="&config.autoStartRegExpFind;"
+			preference="xulmigemo.autostart.regExpFind"/>
 	</vbox>
 
 	<groupbox>

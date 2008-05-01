@@ -187,6 +187,16 @@ pXMigemoMail.prototype = {
 	},
 	_core : null,
  
+	get textUtils() 
+	{
+		if (!this._textUtils)
+			this._textUtils = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+					.getService(Components.interfaces.pIXMigemoTextUtils);
+		return this._textUtils;
+	},
+	_textUtils : null,
+ 
 	getTermsList : function(aInput, aSearchMode, aFolder, aCount) 
 	{
 		var terms = [];
@@ -207,8 +217,19 @@ pXMigemoMail.prototype = {
 				table.push(summaries.bodies);
 			}
 			if (table.length) {
+				var regexp = new RegExp(
+						(
+							(
+								Prefs.getBoolPref('xulmigemo.autostart.regExpFind') &&
+								this.textUtils.isRegExp(aInput)
+							) ?
+								this.textUtils.extractRegExpSource(aInput) :
+								this.core.getRegExp(aInput)
+						),
+						'ig'
+					);
 				table = table.join('\n');
-				terms = table.match(new RegExp(this.core.getRegExp(aInput), 'ig'));
+				terms = table.match(regexp);
 				terms = terms
 					.sort()
 					.join('\n')

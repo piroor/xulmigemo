@@ -15,6 +15,7 @@
 <!ENTITY config.startfromviewport       "Find from viewport">
 <!ENTITY config.scrollSelectionToCenter "Show the found term in the middle of the screen">
 <!ENTITY config.highlight.showScreen    "Strongly emphasise &quot;Highlight all&quot;">
+<!ENTITY config.autoStartRegExpFind     "Do regular expression search for /REGEXP/ inputs">
 
 <!ENTITY config.caption.recognize       "Character Recognition">
 <!ENTITY config.ignoreHiraKata          "Ignore difference of Hiragana and Katakana (Japanese)">
