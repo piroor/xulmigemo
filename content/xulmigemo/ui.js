@@ -616,8 +616,8 @@ var XMigemoUI = {
 	mouseEvent : function(aEvent) 
 	{
 		if (!this.isQuickFind) {
-			XMigemoUI.isActive = false;
-//			XMigemoUI.cancel(true);
+			this.isActive = false;
+//			this.cancel(true);
 			return;
 		}
 
@@ -655,7 +655,7 @@ var XMigemoUI = {
 	{
 		XMigemoFind.replaceKeyword(aEvent.target.value);
 
-		if (this.autoStartRegExpFind) {
+		if (this.autoStartRegExpFind && !this.isQuickFind) {
 			if (this.findMode != this.FIND_MODE_REGEXP &&
 				this.textUtils.isRegExp(aEvent.target.value)) {
 				this.originalFindMode = this.findMode;
@@ -690,13 +690,13 @@ var XMigemoUI = {
 		this.clearTimer();
 		gFindBar.toggleHighlight(false);
 		var keyword = this.findTerm;
-		if (XMigemoUI.findMode != XMigemoUI.FIND_MODE_NATIVE) {
+		if (this.findMode != this.FIND_MODE_NATIVE) {
 			this.start(true);
 			this.isModeChanged = true;
 		}
 		else {
 			this.cancel(true);
-			this.lastFindMode = XMigemoUI.FIND_MODE_NATIVE;
+			this.lastFindMode = this.FIND_MODE_NATIVE;
 			this.isModeChanged = true;
 		}
 
@@ -1119,7 +1119,7 @@ var XMigemoUI = {
 		if (XMigemoService.getPref('xulmigemo.ignore_find_links_only_behavior')) return;
 
 		if (!aString)
-			aString = XMigemoUI.findTerm;
+			aString = this.findTerm;
 
 		/*
 			accessibility.typeaheadfind.linksonly‚ªtrue‚ÌŽž‚É
@@ -1512,7 +1512,7 @@ var XMigemoUI = {
 	},
 	 
 	delayedInit : function() { 
-		window.setTimeout("XMigemoUI.findField.addEventListener('blur',  this, false);", 0);
+		window.setTimeout("XMigemoUI.findField.addEventListener('blur', this, false);", 0);
 
 		if (XMigemoService.getPref('xulmigemo.findMode.default') > -1)
 			this.originalFindMode = this.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
