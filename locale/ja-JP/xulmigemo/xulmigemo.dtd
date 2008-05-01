@@ -80,6 +80,10 @@
 <!ENTITY config.shortcut.manualStartLinksOnly2 "（リンク文字列のみ検索）">
 <!ENTITY config.shortcut.manualExit     "クイックMigemo検索を終了">
 <!ENTITY config.shortcut.goDicManager   "辞書マネージャを開く">
+<!ENTITY config.shortcut.openAgain.caption "検索を実行中にもう一度Ctrl(Command)-Fを入力した時：">
+<!ENTITY config.shortcut.openAgain.none    "何もしない（Firefox既定の動作）">
+<!ENTITY config.shortcut.openAgain.switch  "検索モードを切り替える">
+<!ENTITY config.shortcut.openAgain.toggle  "検索を終了する">
 
 <!ENTITY config.shortcut.set            "変更">
 <!ENTITY config.shortcut.clear          "消去">

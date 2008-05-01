@@ -305,6 +305,9 @@
 <prefpane id="prefpane-shortcut" label="&config.tab.shortcut;" flex="1"
 	onpaneload="initShortcutPane();">
 	<preferences>
+		<preference id="xulmigemo.shortcut.openAgain"
+			name="xulmigemo.shortcut.openAgain"
+			type="int"/>
 		<preference id="xulmigemo.shortcut.findForward"
 			name="xulmigemo.shortcut.findForward"
 			type="string"/>
@@ -331,7 +334,19 @@
 			type="string"/>
 	</preferences>
 
+	<groupbox>
+		<caption label="&config.shortcut.openAgain.caption;"/>
+		<radiogroup id="xulmigemo.shortcut.openAgain-radio"
+			orient="horizontal"
+			align="center"
+			preference="xulmigemo.shortcut.openAgain">
+			<radio label="&config.shortcut.openAgain.none;"   value="0"/>
+			<radio label="&config.shortcut.openAgain.switch;" value="1"/>
+			<radio label="&config.shortcut.openAgain.toggle;" value="2"/>
+		</radiogroup>
+	</groupbox>
 	<hbox>
+		<spacer flex="1"/>
 		<grid>
 			<columns>
 				<column/>
@@ -391,6 +406,7 @@
 	</hbox>
 	<separator/>
 	<hbox>
+		<spacer flex="1"/>
 		<grid>
 			<columns>
 				<column/>

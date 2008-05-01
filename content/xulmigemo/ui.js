@@ -13,7 +13,7 @@ var XMigemoUI = {
 
 	forcedFindMode   : -1,
 	lastFindMode     : -1,
-	originalFindMode : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
+	backupFindMode   : -1,
 
 	isFindbarFocused       : false,
  
@@ -656,14 +656,17 @@ var XMigemoUI = {
 		XMigemoFind.replaceKeyword(aEvent.target.value);
 
 		if (this.autoStartRegExpFind && !this.isQuickFind) {
+			var isRegExp = this.textUtils.isRegExp(aEvent.target.value);
 			if (this.findMode != this.FIND_MODE_REGEXP &&
-				this.textUtils.isRegExp(aEvent.target.value)) {
-				this.originalFindMode = this.findMode;
+				isRegExp) {
+				this.backupFindMode = this.findMode;
 				this.findMode = this.FIND_MODE_REGEXP;
 			}
 			else if (this.findMode == this.FIND_MODE_REGEXP &&
-					!this.textUtils.isRegExp(aEvent.target.value)) {
-				this.findMode = this.originalFindMode;
+					!isRegExp &&
+					this.backupFindMode > -1) {
+				this.findMode = this.backupFindMode;
+				this.backupFindMode = -1;
 			}
 		}
 
@@ -734,6 +737,7 @@ var XMigemoUI = {
 				var selector = this.findModeSelector;
 				var items = selector.childNodes;
 				this.findMode = items[(selector.selectedIndex + 1) % (items.length)].value;
+				this.onChangeFindToolbarMode();
 				break;
 
 			case 2:
@@ -839,7 +843,7 @@ var XMigemoUI = {
 		if (!aSilently) {
 			if (!this.isQuickFind) {
 				this.isQuickFind = true;
-				this.originalFindMode = this.findMode;
+				this.backupFindMode = this.findMode;
 				this.findMode = this.FIND_MODE_MIGEMO;
 			}
 
@@ -871,7 +875,8 @@ var XMigemoUI = {
 			this.toggleFindToolbarMode();
 
 		if (this.isQuickFind) {
-			this.findMode = this.originalFindMode;
+			this.findMode = this.backupFindMode;
+			this.backupFindMode = -1;
 			this.isQuickFind = false;
 		}
 
@@ -1246,7 +1251,9 @@ var XMigemoUI = {
 		event.initEvent('XMigemoFindBarClose', true, true);
 		XMigemoUI.findBar.dispatchEvent(event);
 
-		window.setTimeout('XMigemoUI.delayedCloseFindBar()', 0);
+		window.setTimeout(function(aSelf) {
+			aSelf.delayedCloseFindBar();
+		}, 0, this);
 	},
 	delayedCloseFindBar : function()
 	{
@@ -1255,6 +1262,8 @@ var XMigemoUI = {
 			this.migemoModeBox.setAttribute('hidden', true);
 			this.findMigemoBar.setAttribute('collapsed', true);
 		}
+
+		this.isActive = false;
 
 		this.toggleFindToolbarMode();
 		XMigemoFind.exitFind();
@@ -1549,7 +1558,7 @@ var XMigemoUI = {
 		window.setTimeout("XMigemoUI.findField.addEventListener('blur', this, false);", 0);
 
 		if (XMigemoService.getPref('xulmigemo.findMode.default') > -1)
-			this.originalFindMode = this.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
+			this.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.highlight'))
 			this.findHighlightCheck.checked = this.findHighlightCheck.xmigemoOriginalChecked = true;
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.caseSensitive')) {
