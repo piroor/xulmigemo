@@ -672,6 +672,24 @@ var XMigemoUI = {
 			this.lastFindMode = XMigemoUI.FIND_MODE_NATIVE;
 			this.isModeChanged = true;
 		}
+
+		this.findField.focus();
+	},
+ 
+	// flip back to another find mode
+	onClickFindToolbarMode : function(aEvent) 
+	{
+		if (!aEvent.target.selected) return;
+
+		aEvent.stopPropagation();
+		aEvent.preventDefault();
+
+		window.setTimeout(function(aSelf, aValue) {
+			aSelf.findMode = aValue == aSelf.FIND_MODE_NATIVE ?
+				aSelf.FIND_MODE_MIGEMO :
+				aSelf.FIND_MODE_NATIVE ;
+			aSelf.onChangeFindToolbarMode();
+		}, 0, this, aEvent.target.value);
 	},
   
 /* timer */ 

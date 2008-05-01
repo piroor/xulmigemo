@@ -29,17 +29,20 @@
 				long-label="&ui.mode.normal.label;"
 				short-label="&ui.mode.normal.shortLabel;"
 				tooltiptext="&ui.mode.normal.tooltiptext;"
-				selected="true"/>
-			<radio value="1"
-				label="&ui.mode.migemo.label;"
-				long-label="&ui.mode.migemo.label;"
-				short-label="&ui.mode.migemo.shortLabel;"
-				tooltiptext="&ui.mode.migemo.tooltiptext;"/>
+				selected="true"
+				onclick="XMigemoUI.onClickFindToolbarMode(event);"/>
 			<radio value="2"
 				label="&ui.mode.regexp.label;"
 				long-label="&ui.mode.regexp.label;"
 				short-label="&ui.mode.regexp.shortLabel;"
-				tooltiptext="&ui.mode.regexp.tooltiptext;"/>
+				tooltiptext="&ui.mode.regexp.tooltiptext;"
+				onclick="XMigemoUI.onClickFindToolbarMode(event);"/>
+			<radio value="1"
+				label="&ui.mode.migemo.label;"
+				long-label="&ui.mode.migemo.label;"
+				short-label="&ui.mode.migemo.shortLabel;"
+				tooltiptext="&ui.mode.migemo.tooltiptext;"
+				onclick="XMigemoUI.onClickFindToolbarMode(event);"/>
 		</radiogroup>
 		<!--
 			Firefox 3では、下の方法で置いたProgressmeterのメーター部分が
