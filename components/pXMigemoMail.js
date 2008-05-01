@@ -217,17 +217,17 @@ pXMigemoMail.prototype = {
 				table.push(summaries.bodies);
 			}
 			if (table.length) {
-				var regexp = new RegExp(
-						(
-							(
-								Prefs.getBoolPref('xulmigemo.autostart.regExpFind') &&
-								this.textUtils.isRegExp(aInput)
-							) ?
-								this.textUtils.extractRegExpSource(aInput) :
-								this.core.getRegExp(aInput)
-						),
-						'ig'
-					);
+				var regexp;
+				if (
+					Prefs.getBoolPref('xulmigemo.autostart.regExpFind') &&
+					this.textUtils.isRegExp(aInput)
+					) {
+					regexp = this.textUtils.extractRegExpSource(aInput);
+				}
+				else {
+					regexp = this.core.getRegExp(aInput);
+				}
+				regexp = new RegExp(regexp, 'ig');
 				table = table.join('\n');
 				terms = table.match(regexp);
 				terms = terms
