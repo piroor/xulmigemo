@@ -14,8 +14,6 @@ var XMigemoUI = {
 	forcedFindMode   : -1,
 	lastFindMode     : -1,
 	backupFindMode   : -1,
-
-	isFindbarFocused       : false,
  
 	autoStartQuickFind       : false, 
 	autoExitQuickFindInherit : true,
@@ -724,7 +722,23 @@ var XMigemoUI = {
  
 	onFindStartCommand : function() 
 	{
-		if (this.findBarHidden || this.isQuickFind) return;
+		var focused = document.commandDispatcher.focusedElement;
+		if (this.findBarHidden || this.isQuickFind || !focused) return;
+
+		try {
+			var xpathResult = document.evaluate(
+					'ancestor-or-self::*[local-name()="textbox"]',
+					focused,
+					this.NSResolver,
+					XPathResult.FIRST_ORDERED_NODE_TYPE,
+					null
+				);
+			if (xpathResult.singleNodeValue != this.findField) return;
+		}
+		catch(e) {
+			return;
+		}
+
 		window.setTimeout(function(aSelf) {
 			aSelf.onFindStartCommandCallback();
 		}, 0, this);
@@ -980,6 +994,8 @@ var XMigemoUI = {
 
 			gFindBar.xmigemoOriginalToggleHighlight = gFindBar.toggleHighlight;
 			gFindBar.toggleHighlight = this.toggleHighlight;
+
+			gFindBar.prefillWithSelection = false; // disable Firefox 3's native feature
 		}
 		else {
 			updateGlobalFunc = true;
@@ -1253,7 +1269,7 @@ var XMigemoUI = {
 
 		window.setTimeout(function(aSelf) {
 			aSelf.delayedCloseFindBar();
-		}, 0, this);
+		}, 0, XMigemoUI);
 	},
 	delayedCloseFindBar : function()
 	{
