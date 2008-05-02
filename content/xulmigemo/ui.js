@@ -984,6 +984,7 @@ var XMigemoUI = {
 				gFindBar._enableFindButtons = this.enableFindButtons;
 				gFindBar.find               = gFindBar._find;
 
+				// disable Firefox's focus
 				eval('gFindBar.close = '+gFindBar.close.toSource().replace(
 					'if (focusedElement) {',
 					'if (focusedElement && false) {'
@@ -995,6 +996,12 @@ var XMigemoUI = {
 				gFindBar.close                = this.closeFindBar;
 			}
 			else {
+				// disable Firefox's focus
+				eval('gFindBar.delayedCloseFindBar = '+gFindBar.delayedCloseFindBar.toSource().replace(
+					'if (focusedElement &&',
+					'if (focusedElement && false &&'
+				));
+
 				gFindBar.xmigemoOriginalEnableFindButtons = gFindBar.enableFindButtons;
 				gFindBar.xmigemoOriginalOpen  = gFindBar.openFindBar;
 				gFindBar.xmigemoOriginalClose = gFindBar.closeFindBar;
@@ -1303,7 +1310,17 @@ var XMigemoUI = {
 		this.isActive = false;
 
 		this.toggleFindToolbarMode();
-		XMigemoFind.exitFind(true);
+
+		var WindowWatcher = Components
+				.classes['@mozilla.org/embedcomp/window-watcher;1']
+				.getService(Components.interfaces.nsIWindowWatcher);
+		if (window == WindowWatcher.activeWindow &&
+			this.findFieldIsFocused) {
+			var scrollSuppressed = document.commandDispatcher.suppressFocusScroll;
+			document.commandDispatcher.suppressFocusScroll = true;
+			XMigemoFind.exitFind(true);
+			document.commandDispatcher.suppressFocusScroll = scrollSuppressed;
+		}
 	},
  
 	toggleHighlight : function(aHighlight) 
