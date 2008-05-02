@@ -2,7 +2,7 @@
 	pIXMigemo
 	pIXMigemoTextUtils
 */
-var DEBUG = false;
+var DEBUG = true;
  
 var Prefs = Components 
 			.classes['@mozilla.org/preferences;1']
@@ -182,7 +182,7 @@ pXMigemoFind.prototype = {
 		if (!this.target)
 			throw Components.results.NS_ERROR_NOT_INITIALIZED;
 
-//		mydump("find");
+mydump("find");
 		var roman = aKeyword;
 		if (!roman) return;
 
@@ -228,7 +228,7 @@ pXMigemoFind.prototype = {
 	 
 	findInDocument : function(aFindFlag, aDocument, aRegExpSource, aForceFocus) 
 	{
-//		mydump("findInDocument");
+mydump("findInDocument ==========================================");
 		var findRange;
 		var result;
 		var lastMatch;
@@ -243,15 +243,24 @@ pXMigemoFind.prototype = {
 		var statusRes;
 		var isLinksOnly = Prefs.getBoolPref('xulmigemo.linksonly');
 
+		var isEditable = false;
+		var isPrevEditable = false;
+		var editableInOut = false;
+
 		doFind:
 		while (true)
 		{
+mydump("<<<<<<<<<<doFind roop>>>>>>>>>>");
 			if (!this.isFindableDocument(doc)) {
 				repeat = true;
 				found = this.NOTFOUND;
 			}
 			else {
 				findRange = this.getFindRange(aFindFlag, doc);
+
+				isPrevEditable = isEditable;
+				isEditable = this.findParentEditable(findRange.sRange) ? true : false ;
+				editableInOut = isEditable != isPrevEditable;
 
 				target = this.textUtils.range2Text(findRange.sRange);
 
@@ -267,9 +276,10 @@ pXMigemoFind.prototype = {
 				getFindRange:
 				while (true)
 				{
+mydump("<<<<<<getFindRange roop>>>>>>");
 					if (this.isQuickFind && isLinksOnly) {
 						var links = doc.getElementsByTagName('a');
-						if (!links.length){
+						if (!links.length) {
 							repeat = true;
 							break getFindRange;
 						}
@@ -282,7 +292,7 @@ pXMigemoFind.prototype = {
 								nextRange = RegExp.leftContext;
 							}
 						}
-						else{
+						else {
 							if (target.match(findRegExp)) {
 								result = RegExp.lastMatch;
 								nextRange = RegExp.rightContext;
@@ -355,7 +365,7 @@ pXMigemoFind.prototype = {
 							.QueryInterface(Components.interfaces.nsIWebNavigation)
 							.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 							.getInterface(Components.interfaces.nsIDOMWindow);
-						aFindFlag |= this.FIND_WRAP;
+						if (!editableInOut) aFindFlag |= this.FIND_WRAP;
 						continue;
 					}
 					this.dispatchProgressEvent(found, aFindFlag);
@@ -369,7 +379,7 @@ pXMigemoFind.prototype = {
 						wrapped = true;
 						doc = Components.lookupMethod(doc.defaultView.top, 'document').call(doc.defaultView.top);
 						this.document.commandDispatcher.focusedWindow = doc.defaultView.top;
-						aFindFlag |= this.FIND_WRAP;
+						if (!editableInOut) aFindFlag |= this.FIND_WRAP;
 						continue;
 					}
 					this.dispatchProgressEvent(found, aFindFlag);
@@ -409,7 +419,7 @@ pXMigemoFind.prototype = {
  
 	findInRange : function(aFindFlag, aTerm, aRanges, aForceFocus) 
 	{
-//		mydump("findInRange");
+mydump("findInRange");
 
 		this.mFind.findBackwards = Boolean(aFindFlag & this.FIND_BACK);
 
@@ -473,7 +483,7 @@ pXMigemoFind.prototype = {
  
 	findParentLink : function(aRange) 
 	{
-//		mydump("findParentLink");
+mydump("findParentLink");
 		//後でXLinkを考慮したコードに直す
 
 		var node = aRange.commonAncestorContainer;
@@ -489,7 +499,7 @@ pXMigemoFind.prototype = {
  
 	findParentEditable : function(aRange) 
 	{
-//		mydump('findParentEditable');
+mydump('findParentEditable');
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
 		{
@@ -603,7 +613,7 @@ pXMigemoFind.prototype = {
 	
 	resetFindRange : function(aFindRange, aRange, aFindFlag, aDocument) 
 	{
-//		mydump("resetFindRange");
+mydump("resetFindRange");
 		var win = this.document.commandDispatcher.focusedWindow;
 		var theDoc = (win && win != this.window) ? Components.lookupMethod(win, 'document').call(win) : aDocument ;
 		var bodyNode;
@@ -644,7 +654,7 @@ pXMigemoFind.prototype = {
  
 	getFindRange : function(aFindFlag, aDocument) 
 	{
-//		mydump("getFindRange");
+mydump("getFindRange");
 		var docShell = this.getDocShellForFrame(aDocument.defaultView);
 		var docSelCon = docShell
 			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
@@ -693,7 +703,7 @@ pXMigemoFind.prototype = {
 	 
 	getFindRangeIn : function(aFindFlag, aDocument, aRangeParent, aSelCon) 
 	{
-//		mydump("getFindRange");
+mydump("getFindRange");
 		var findRange = aDocument.createRange();
 		findRange.selectNodeContents(aRangeParent);
 		var startPt = aDocument.createRange();
@@ -703,7 +713,7 @@ pXMigemoFind.prototype = {
 
 		var selection = aSelCon.getSelection(aSelCon.SELECTION_NORMAL);
 		var count = selection.rangeCount;
-//		mydump("count:"+count);
+mydump("count:"+count);
 
 		var childCount = aRangeParent.childNodes.length;
 		var range;
@@ -905,7 +915,7 @@ pXMigemoFind.prototype = {
  
 	setSelectionAndScroll : function(aRange, aDocument) 
 	{
-//		mydump("setSelectionAndScroll");
+mydump("setSelectionAndScroll");
 
 		var selection;
 
