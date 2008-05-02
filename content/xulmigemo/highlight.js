@@ -359,7 +359,7 @@ var XMigemoHighlight = {
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
 
 		var range = XMigemoUI.textUtils.getFoundRange(aFrame);
-		if (range) {
+		if (range && !this.findParentEditable(range)) {
 			var node  = range.startContainer;
 			try {
 				var xpathResult = aFrame.document.evaluate(
@@ -399,6 +399,22 @@ var XMigemoHighlight = {
 			}
 		}
 		return false;
+	},
+	findParentEditable : function(aRange) 
+	{
+		var node = aRange.commonAncestorContainer;
+		while (node && node.parentNode)
+		{
+			var isEditable = false;
+			try {
+				node.QueryInterface(Components.interfaces.nsIDOMNSEditableElement);
+				return node;
+			}
+			catch(e) {
+			}
+			node = node.parentNode;
+		}
+		return null;
 	},
 	 
 	animateFoundNode : function(aNode) 
