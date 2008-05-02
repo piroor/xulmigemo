@@ -13,7 +13,8 @@ function init()
 					aEvent.keyCode,
 					String.fromCharCode(aEvent.charCode),
 					aEvent.target,
-					aEvent.target.localName
+					aEvent.target.localName,
+					(new Date()).getTime()
 				].join(' : ')
 			)
 		);
@@ -22,15 +23,18 @@ function init()
 }
 </script>
 
-<p>This is a sample text and a <a href="javascript:alert('link loaded!')">sample link</a>.
+<p>This is a sample text and a <a href="javascript:alert('link loaded!')">sample link</a>.</p>
+<p>single-row field
 <br /><input type="text" size="20" value="text in input field"/>
 <br /><input type="password" size="20" value="text in password field"/></p>
+<p>multirow field</p>
 <textarea rows="5" cols="30">text in textarea</textarea>
 
-<p>Pressed:</p>
-<ul id="indicator">
+<div style="position: fixed; bottom: 0; height: 10em; width: 95%; margin: 0; padding: 0; background: #BFBFBF;">
+Pressed:
+<ul id="indicator" style="height: 8em; overflow: auto;">
 </ul>
-
+</div>
 
 </body>
 
