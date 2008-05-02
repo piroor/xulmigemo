@@ -237,9 +237,9 @@ pXMigemoFind.prototype = {
 		var docShell;
 		var doc = aDocument;
 		var selection;
-		var repeat = false;
+		var repeat = true;
+		var wrapped = false;
 		var nextRange;
-		var noRepeatL;
 		var statusRes;
 		var isLinksOnly = Prefs.getBoolPref('xulmigemo.linksonly');
 
@@ -247,8 +247,8 @@ pXMigemoFind.prototype = {
 		while (true)
 		{
 			if (!this.isFindableDocument(doc)) {
-				noRepeatL = false;
-				found     = this.NOTFOUND;
+				repeat = true;
+				found = this.NOTFOUND;
 			}
 			else {
 				findRange = this.getFindRange(aFindFlag, doc);
@@ -268,10 +268,10 @@ pXMigemoFind.prototype = {
 				while (true)
 				{
 					if (this.isQuickFind && isLinksOnly) {
-						var as = doc.getElementsByTagName('a');
-						if (!as.length){
-							noRepeatL = false;
-							break;
+						var links = doc.getElementsByTagName('a');
+						if (!links.length){
+							repeat = true;
+							break getFindRange;
 						}
 					}
 
@@ -306,14 +306,14 @@ pXMigemoFind.prototype = {
 					{
 						case this.FOUND:
 						case this.FOUND_IN_EDITABLE:
-							noRepeatL = true;
+							repeat = false;
 							if (aFindFlag & this.FIND_WRAP)
 								found = this.WRAPPED;
 							break getFindRange;
 
 						default:
 						case this.NOTFOUND:
-							noRepeatL = false;
+							repeat = true;
 							break getFindRange;
 
 						case this.NOTLINK:
@@ -324,15 +324,9 @@ pXMigemoFind.prototype = {
 				}
 			}
 
-			if (noRepeatL) {
-				var event = this.document.createEvent('Events');
-				event.initEvent('XMigemoFindProgress', true, true);
-				event.resultFlag = found;
-				event.findFlag   = aFindFlag;
-				this.document.dispatchEvent(event);
-
+			if (!repeat) {
+				this.dispatchProgressEvent(found, aFindFlag);
 				this.setSelectionLook(doc, true);
-
 				break doFind;
 			}
 
@@ -348,8 +342,8 @@ pXMigemoFind.prototype = {
 			if (aFindFlag & this.FIND_BACK) { // back
 				docShell = this.getPrevDocShell(docShell);
 				if (!docShell) {
-					if (!repeat) {
-						repeat = true;
+					if (!wrapped) {
+						wrapped = true;
 						docShell = this.getDocShellForFrame(doc.defaultView.top);
 						docShell = this.getLastChildDocShell(docShell.QueryInterface(Components.interfaces.nsIDocShellTreeNode));
 						doc = docShell
@@ -361,23 +355,25 @@ pXMigemoFind.prototype = {
 							.QueryInterface(Components.interfaces.nsIWebNavigation)
 							.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 							.getInterface(Components.interfaces.nsIDOMWindow);
-						aFindFlag += this.FIND_WRAP;
+						aFindFlag |= this.FIND_WRAP;
 						continue;
 					}
-					break;
+					this.dispatchProgressEvent(found, aFindFlag);
+					break doFind;
 				}
 			}
 			else { // forward
 				docShell = this.getNextDocShell(docShell);
 				if (!docShell) {
-					if (!repeat) {
-						repeat = true;
+					if (!wrapped) {
+						wrapped = true;
 						doc = Components.lookupMethod(doc.defaultView.top, 'document').call(doc.defaultView.top);
 						this.document.commandDispatcher.focusedWindow = doc.defaultView.top;
-						aFindFlag += this.FIND_WRAP;
+						aFindFlag |= this.FIND_WRAP;
 						continue;
 					}
-					break;
+					this.dispatchProgressEvent(found, aFindFlag);
+					break doFind;
 				}
 			}
 			doc = docShell
@@ -385,9 +381,18 @@ pXMigemoFind.prototype = {
 					.QueryInterface(Components.interfaces.nsIWebNavigation)
 					.document;
 			if (doc == aDocument) {
+				this.dispatchProgressEvent(found, aFindFlag);
 				break doFind;
 			}
 		}
+	},
+	dispatchProgressEvent : function(aFound, aFlag)
+	{
+		var event = this.document.createEvent('Events');
+		event.initEvent('XMigemoFindProgress', true, true);
+		event.resultFlag = aFound;
+		event.findFlag   = aFlag;
+		this.document.dispatchEvent(event);
 	},
 	isFindableDocument : function(aDocument)
 	{
@@ -422,9 +427,9 @@ pXMigemoFind.prototype = {
 
 		var doc = aRanges.sRange.startContainer.ownerDocument;
 
-		doc.lastFoundEditable = doc.foundEditable;
 		doc.foundEditable = this.findParentEditable(foundRange);
 		if (doc.foundEditable) {
+			doc.lastFoundEditable = doc.foundEditable;
 			this.foundRange = foundRange;
 			this.lastFoundWord = foundRange.toString();
 			this.setSelectionAndScroll(foundRange, doc);
@@ -646,8 +651,8 @@ pXMigemoFind.prototype = {
 			.getInterface(Components.interfaces.nsISelectionDisplay)
 			.QueryInterface(Components.interfaces.nsISelectionController);
 
-		if (aDocument.foundEditable) {
-			var selCon = aDocument.foundEditable
+		if (aDocument.lastFoundEditable) {
+			var selCon = aDocument.lastFoundEditable
 					.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
 					.editor.selectionController;
 			var selection = selCon.getSelection(selCon.SELECTION_NORMAL);
@@ -663,24 +668,24 @@ pXMigemoFind.prototype = {
 					var testRange2 = selection.getRangeAt(selection.rangeCount-1);
 					var node = testRange2.endContainer;
 				}
-				while (node != aDocument.foundEditable &&
-						node.parentNode != aDocument.foundEditable)
+				while (node != aDocument.lastFoundEditable &&
+						node.parentNode != aDocument.lastFoundEditable)
 					node = node.parentNode;
 				return this.getFindRangeIn(aFindFlag, aDocument, node, selCon);
 			}
 
 			selection.removeAllRanges();
 
-			testRange1.selectNode(aDocument.foundEditable);
+			testRange1.selectNode(aDocument.lastFoundEditable);
 			if (aFindFlag & this.FIND_BACK) {
-				testRange1.setEndBefore(aDocument.foundEditable);
+				testRange1.setEndBefore(aDocument.lastFoundEditable);
 			}
 			else {
-				testRange1.setStartAfter(aDocument.foundEditable);
+				testRange1.setStartAfter(aDocument.lastFoundEditable);
 			}
 			selection = docSelCon.getSelection(docSelCon.SELECTION_NORMAL);
 			selection.addRange(testRange1);
-			aDocument.foundEditable = null;
+			aDocument.lastFoundEditable = null;
 		}
 
 		return this.getFindRangeIn(aFindFlag, aDocument, aDocument.body || aDocument.documentElement, docSelCon);
@@ -906,8 +911,8 @@ pXMigemoFind.prototype = {
 
 		// clear old range
 		var oldSelCon;
-		if (aDocument.lastFoundEditable) {
-			var editor = aDocument.lastFoundEditable
+		if (aDocument.foundEditable || aDocument.lastFoundEditable) {
+			var editor = (aDocument.foundEditable || aDocument.lastFoundEditable)
 						.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
 						.editor;
 			oldSelCon = editor.selectionController;
@@ -1034,6 +1039,7 @@ pXMigemoFind.prototype = {
 		this.exitFind(aFocusToFoundTarget);
 
 		doc.foundEditable = null;
+		doc.lastFoundEditable = null;
 	},
  
 	exitFind : function(aFocusToFoundTarget) 
