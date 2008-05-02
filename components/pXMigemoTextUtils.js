@@ -203,9 +203,16 @@ pXMigemoTextUtils.prototype = {
 			.getInterface(Components.interfaces.nsISelectionDisplay)
 			.QueryInterface(Components.interfaces.nsISelectionController);
 		if (selCon.getDisplaySelection() == selCon.SELECTION_ATTENTION) {
-			var sel   = aFrame.getSelection();
-			var range = sel.getRangeAt(0);
-			return range;
+			var sel = aFrame.getSelection();
+			if (!sel.rangeCount && aFrame.document.foundEditable) {
+
+				selCon = aFrame.document.foundEditable
+						.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+						.editor.selectionController;
+				sel = selCon.getSelection(selCon.SELECTION_ATTENTION);
+			}
+			if (sel && sel.rangeCount)
+				return sel.getRangeAt(0);
 		}
 		return null;
 	},
