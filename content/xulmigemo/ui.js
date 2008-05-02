@@ -590,7 +590,6 @@ var XMigemoUI = {
 			})
 			)
 			return true;
-		}
 
 		var selection = aFrame.getSelection();
 		if (selection.rangeCount) {
