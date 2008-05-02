@@ -46,8 +46,8 @@ pXMigemoTextUtils.prototype = {
 					[
 						'descendant-or-self::*[local-name()="BODY" or local-name()="body"]/',
 						'descendant::*[',
-							'contains(" SCRIPT TEXTAREA SELECT script textarea select textbox ", concat(" ", local-name(), " ")) or ',
-							'(contains(" INPUT input ", concat(" ", local-name(), " ")) and contains("TEXT text", @type))',
+							'contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " ")) or ',
+							'(contains(" INPUT input ", concat(" ", local-name(), " ")) and contains("TEXT text FILE file", @type))',
 						']'
 					].join(''),
 					aRange.commonAncestorContainer,
@@ -66,8 +66,13 @@ pXMigemoTextUtils.prototype = {
 
 				textRange.setEndBefore(node);
 				result.push(textRange.toString());
-				if (node.localName.toLowerCase() != 'script') {
-					result.push(node.value);
+				switch (node.localName.toLowerCase())
+				{
+					case 'script':
+						break;
+					default:
+						result.push(node.value);
+						break;
 				}
 				textRange.selectNode(node);
 				textRange.collapse(false);
