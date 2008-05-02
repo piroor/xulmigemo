@@ -67,7 +67,7 @@ pXMigemoTextUtils.prototype = {
 				textRange.setEndBefore(node);
 				result.push(textRange.toString());
 				if (node.localName.toLowerCase() != 'script') {
-					result.push(target.value);
+					result.push(node.value);
 				}
 				textRange.selectNode(node);
 				textRange.collapse(false);
