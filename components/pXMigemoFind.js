@@ -462,6 +462,7 @@ mydump("findInRange");
 				link.focus();
 			}
 		}
+		this.updateStatusBarWithDelay(link);
 		if (
 			this.manualLinksOnly ||
 			(this.isQuickFind && Prefs.getBoolPref('xulmigemo.linksonly'))
@@ -486,6 +487,73 @@ mydump("findInRange");
 		this.foundRange = null;
 		this.lastFoundWord = '';
 		return this.NOTFOUND;
+	},
+ 
+	updateStatusBar : function(aLink)
+	{
+		var xulBrowserWindow;
+		try {
+			xulBrowserWindow = this.window
+					.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+					.getInterface(Components.interfaces.nsIWebNavigation)
+					.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+					.treeOwner
+					.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+					.getInterface(Components.interfaces.nsIXULWindow)
+					.XULBrowserWindow;
+		}
+		catch(e) {
+			return;
+		}
+
+		if (!aLink || !aLink.href) {
+			xulBrowserWindow.setOverLink('', null);
+		}
+		else {
+			var charset = aLink.ownerDocument.characterSet;
+			var uri = Components
+						.classes['@mozilla.org/intl/texttosuburi;1']
+						.getService(Components.interfaces.nsITextToSubURI)
+						.unEscapeURIForUI(charset, aLink.href);
+			xulBrowserWindow.setOverLink(uri, null);
+		}
+	},
+	updateStatusBarWithDelay : function(aLink) 
+	{
+		this.cancelUpdateStatusBarTimer();
+		this.updateStatusBarTimer = Components
+				.classes['@mozilla.org/timer;1']
+				.createInstance(Components.interfaces.nsITimer);
+		this.updateStatusBarTimer.init(
+			this.createDelayedUpdateStatusBarObserver(aLink),
+			1,
+			Components.interfaces.nsITimer.TYPE_ONE_SHOT
+		);
+	},
+	cancelUpdateStatusBarTimer : function(aLink)
+	{
+		try {
+			if (this.updateStatusBarTimer) {
+				this.updateStatusBarTimer.cancel();
+				this.updateStatusBarTimer = null;
+			}
+		}
+		catch(e) {
+		}
+	},
+	createDelayedUpdateStatusBarObserver : function(aLink)
+	{
+		return ({
+				owner   : this,
+				link    : aLink,
+				observe : function(aSubject, aTopic, aData)
+				{
+					this.owner.updateStatusBar(this.link);
+					this.link = null;
+					this.owner.cancelUpdateStatusBarTimer();
+					this.owner = null;
+				}
+			});
 	},
  
 	findParentLink : function(aRange) 
