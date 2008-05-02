@@ -1077,9 +1077,18 @@ mydump("setSelectionAndScroll");
 				.getService(Components.interfaces.nsIWindowWatcher);
 		if (this.window != WindowWatcher.activeWindow) return;
 
-		var selection = doc.defaultView.getSelection();
-		if (selection.rangeCount) {
-			var range = selection.getRangeAt(0);
+		this.focusToFound(doc.defaultView);
+	},
+	focusToFound : function(aFrame)
+	{
+		var self = this;
+		if (Array.prototype.slice.call(aFrame.frames).some(function(aFrame) {
+				return self.focusToFound(aFrame);
+			}))
+			return true;
+
+		var range = this.getFoundRange(aFrame);
+		if (range) {
 			var foundLink = this.findParentLink(range);
 			var foundEditable = this.findParentEditable(range);
 			var target = foundLink || foundEditable;
@@ -1092,7 +1101,7 @@ mydump("setSelectionAndScroll");
 						target.focus();
 				}
 				if (!foundLink) {
-					var editor = editable
+					var editor = foundEditable
 								.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
 								.editor;
 					var selCon = editor.selectionController;
@@ -1100,11 +1109,27 @@ mydump("setSelectionAndScroll");
 					if (selection)
 						selection.collapseToStart();
 				}
-				return;
+				return true;
 			}
+			Components.lookupMethod(aFrame, 'focus').call(aFrame);
+			return true;
 		}
+		return false;
+	},
+	getFoundRange : function(aFrame)
+	{
+		var sel = aFrame.getSelection();
+		if (!sel.rangeCount && aFrame.document.foundEditable) {
+			var selCon = aFrame.document.foundEditable
+					.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+					.editor.selectionController;
+			sel = selCon.getSelection(selCon.SELECTION_ATTENTION);
+			if (!sel.rangeCount) sel = selCon.getSelection(selCon.SELECTION_NORMAL);
+		}
+		if (sel && sel.rangeCount)
+			return sel.getRangeAt(0);
 
-		Components.lookupMethod(win, 'focus').call(target);
+		return null;
 	},
  
 /* nsIPrefListener(?) */ 
