@@ -23,40 +23,67 @@ pXMigemoTextUtils.prototype = {
 	
 	range2Text : function(aRange) 
 	{
-		var doc=aRange.startContainer.ownerDocument;
-		var scrs=doc.getElementsByTagName("script");
-		var trash=doc.createRange();
-		var noscrs=doc.getElementsByTagName("noscript");
-		if(Prefs.getBoolPref('javascript.enabled')){
-			for(var i=0;i<noscrs.length;i++){
-				trash.selectNode(noscrs[i]);
+		var doc = aRange.startContainer.ownerDocument;
+
+		if (Prefs.getBoolPref('javascript.enabled')) {
+			var noscript = doc.getElementsByTagName('noscript');
+			var trash = doc.createRange();
+			Array.prototype.slice.call(noscript).forEach(function(aNode) {
+				trash.selectNode(aNode);
 				trash.deleteContents();
-			}
-		}
-		var str=new String();
-		var tmp = doc.createRange();
-		tmp.setStart(aRange.startContainer,aRange.startOffset);
-		var tmp2 = doc.createRange();
-		var st=aRange.startContainer;
-		var en=aRange.endContainer;
-		for(var i=0;i<scrs.length;i++){
-			if(scrs[i].parentNode.tagName.toUpperCase()=="HEAD"){continue;}
-
-			tmp2.selectNode(scrs[i]);
-			if(aRange.compareBoundaryPoints(0,tmp2)==-1&&
-			tmp2.compareBoundaryPoints(2,aRange)==-1){
-
-			tmp.setEndBefore(scrs[i]);
-			str+=tmp.toString();
-			tmp.selectNode(scrs[i]);
-			tmp.collapse(false);
-			//tmp.setStartAfter(scrs[i]);なぜかエラーが出る
-			}
+			});
+			trash.detach();
 		}
 
-		tmp.setEnd(aRange.endContainer,aRange.endOffset);
-		str+=tmp.toString();
-		return str;
+		var result = [];
+
+		var textRange = doc.createRange();
+		textRange.setStart(aRange.startContainer, aRange.startOffset);
+		var nodeRange = doc.createRange();
+
+		try {
+			var specialNodes = doc.evaluate(
+					[
+						'descendant-or-self::*[local-name()="BODY" or local-name()="body"]/',
+						'descendant::*[',
+							'contains(" SCRIPT TEXTAREA SELECT script textarea select textbox ", concat(" ", local-name(), " ")) or ',
+							'(contains(" INPUT input ", concat(" ", local-name(), " ")) and contains("TEXT text", @type))',
+						']'
+					].join(''),
+					aRange.commonAncestorContainer,
+					null,
+					XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+					null
+				);
+
+			var node;
+			while (node = specialNodes.iterateNext())
+			{
+				nodeRange.selectNode(node);
+				if (aRange.compareBoundaryPoints(aRange.START_TO_START, nodeRange) != -1 ||
+					nodeRange.compareBoundaryPoints(aRange.END_TO_END, aRange) != -1)
+					continue;
+
+				textRange.setEndBefore(node);
+				result.push(textRange.toString());
+				if (node.localName.toLowerCase() != 'script') {
+					result.push(target.value);
+				}
+				textRange.selectNode(node);
+				textRange.collapse(false);
+				//textRange.setStartAfter(node);なぜかエラーが出る
+			}
+		}
+		catch(e) {
+		}
+
+		textRange.setEnd(aRange.endContainer, aRange.endOffset);
+		result.push(textRange.toString());
+
+		nodeRange.detach();
+		textRange.detach();
+
+		return result.join('');
 	},
  
 /* 
