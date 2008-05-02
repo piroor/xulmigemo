@@ -2,7 +2,7 @@
 	pIXMigemo
 	pIXMigemoTextUtils
 */
-var DEBUG = true;
+var DEBUG = false;
  
 var Prefs = Components 
 			.classes['@mozilla.org/preferences;1']
@@ -238,7 +238,6 @@ mydump("findInDocument ==========================================");
 		var doc = aDocument;
 		var selection;
 		var repeat = true;
-		var wrapped = false;
 		var nextRange;
 		var statusRes;
 		var isLinksOnly = Prefs.getBoolPref('xulmigemo.linksonly');
@@ -352,8 +351,7 @@ mydump("<<<<<<getFindRange roop>>>>>>");
 			if (aFindFlag & this.FIND_BACK) { // back
 				docShell = this.getPrevDocShell(docShell);
 				if (!docShell) {
-					if (!wrapped) {
-						wrapped = true;
+					if (!(aFindFlag & this.FIND_WRAP)) {
 						docShell = this.getDocShellForFrame(doc.defaultView.top);
 						docShell = this.getLastChildDocShell(docShell.QueryInterface(Components.interfaces.nsIDocShellTreeNode));
 						doc = docShell
@@ -365,7 +363,12 @@ mydump("<<<<<<getFindRange roop>>>>>>");
 							.QueryInterface(Components.interfaces.nsIWebNavigation)
 							.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 							.getInterface(Components.interfaces.nsIDOMWindow);
-						if (!editableInOut) aFindFlag |= this.FIND_WRAP;
+						if (
+							!editableInOut ||
+							findRange.sRange.startContainer == aDocument.body ||
+							findRange.sRange.startContainer == aDocument.documentElement
+							)
+							aFindFlag |= this.FIND_WRAP;
 						continue;
 					}
 					this.dispatchProgressEvent(found, aFindFlag);
@@ -375,11 +378,15 @@ mydump("<<<<<<getFindRange roop>>>>>>");
 			else { // forward
 				docShell = this.getNextDocShell(docShell);
 				if (!docShell) {
-					if (!wrapped) {
-						wrapped = true;
+					if (!(aFindFlag & this.FIND_WRAP)) {
 						doc = Components.lookupMethod(doc.defaultView.top, 'document').call(doc.defaultView.top);
 						this.document.commandDispatcher.focusedWindow = doc.defaultView.top;
-						if (!editableInOut) aFindFlag |= this.FIND_WRAP;
+						if (
+							!editableInOut ||
+							findRange.sRange.endContainer == aDocument.body ||
+							findRange.sRange.endContainer == aDocument.documentElement
+							)
+							aFindFlag |= this.FIND_WRAP;
 						continue;
 					}
 					this.dispatchProgressEvent(found, aFindFlag);

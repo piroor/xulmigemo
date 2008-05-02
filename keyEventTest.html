@@ -23,16 +23,39 @@ function init()
 }
 </script>
 
+
 <p>This is a sample text and a <a href="javascript:alert('link loaded!')">sample link</a>.</p>
 <p>single-row field
-<br /><input type="text" size="20" value="text in input field"/>
-<br /><input type="password" size="20" value="text in password field"/></p>
+<br /><input type="text" size="50" value="text in input field"/>
+<br /><input type="password" size="50" value="text in password field"/></p>
 <p>multirow field</p>
-<textarea rows="5" cols="30">text in textarea</textarea>
 
-text
+<textarea rows="5" cols="50">text in textarea</textarea>
 
-<div style="position: fixed; bottom: 0; height: 10em; width: 95%; margin: 0; padding: 0; background: #BFBFBF;">
+
+<p>word1, out of text field
+<br />word1, out of text field
+<br /><input type="text" size="50" value="word1, in text field"/>
+<br /><input type="text" size="50" value="word1, in text field"/>
+<br />word1, out of text field
+<br />word1, out of text field
+<br /><input type="text" size="50" value="word1, in text field"/>
+<br /><input type="text" size="50" value="word1, in text field"/>
+<br />word1, out of text field
+<br />word1, out of text field</p>
+
+<p>word2, out of text field
+<br />word2, out of text field
+<br /><input type="text" size="50" value="word2, in text field"/>
+<br /><input type="text" size="50" value="word2, in text field"/></p>
+
+<p><input type="text" size="50" value="word3, in text field"/>
+<br /><input type="text" size="50" value="word3, in text field"/>
+<br />word3, out of text field
+<br />word3, out of text field</p>
+
+
+<div style="position: fixed; bottom: 0; right: 0; height: 15em; width: 50%; margin: 0; padding: 0; background: #BFBFBF; opacity: 0.5; font-size: small;">
 Pressed:
 <ul id="indicator" style="height: 8em; overflow: auto;">
 </ul>

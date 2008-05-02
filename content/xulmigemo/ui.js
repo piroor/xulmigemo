@@ -1470,15 +1470,18 @@ var XMigemoUI = {
 	{
 //		dump('XMigemoUI.findNext\n');
 		var keyword = XMigemoUI.findTerm;
-		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == this.FIND_MODE_MIGEMO) {
+		var findBarShown = this.findBar && !this.findBar.hidden;
+		if (XMigemoUI.isActive || XMigemoUI.lastFindMode != this.FIND_MODE_NATIVE) {
 			if (XMigemoUI.isModeChanged && keyword) {
-				XMigemoUI.findAgain(keyword, XMigemoUI.FIND_MODE_MIGEMO);
+				XMigemoUI.findAgain(keyword, XMigemoUI.lastFindMode);
 				XMigemoUI.isModeChanged = false;
 				return;
 			}
-			XMigemoFind.findNext(this.findBar && this.findBar.hidden ? true : false );
+			XMigemoFind.findNext(!findBarShown ? true : false );
 			if (XMigemoUI.cancelTimer)
 				XMigemoUI.startTimer();
+			if (findBarShown && XMigemoUI.isQuickFind)
+				XMigemoUI.findField.focus();
 		}
 		else {
 			if (XMigemoUI.isModeChanged && keyword) {
@@ -1494,19 +1497,22 @@ var XMigemoUI = {
 	{
 //		dump('XMigemoUI.findPrevious\n');
 		var keyword = XMigemoUI.findTerm;
+		var findBarShown = this.findBar && !this.findBar.hidden;
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == this.FIND_MODE_MIGEMO) {
 			if (XMigemoUI.isModeChanged && keyword) {
-				XMigemoUI.findAgain(keyword, true);
+				XMigemoUI.findAgain(keyword, XMigemoUI.lastFindMode);
 				XMigemoUI.isModeChanged = false;
 				return;
 			}
-			XMigemoFind.findPrevious(this.findBar && this.findBar.hidden ? true : false );
+			XMigemoFind.findPrevious(!findBarShown ? true : false );
 			if (XMigemoUI.cancelTimer)
 				XMigemoUI.startTimer();
+			if (findBarShown && XMigemoUI.isQuickFind)
+				XMigemoUI.findField.focus();
 		}
 		else {
 			if (XMigemoUI.isModeChanged && keyword) {
-				XMigemoUI.findAgain(keyword, false);
+				XMigemoUI.findAgain(keyword, XMigemoUI.FIND_MODE_NATIVE);
 				XMigemoUI.isModeChanged = false;
 				return;
 			}

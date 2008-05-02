@@ -23,7 +23,8 @@
 		<radiogroup id="find-mode-selector"
 			value="0"
 			orient="horizontal"
-			oncommand="XMigemoUI.onChangeFindToolbarMode();">
+			oncommand="XMigemoUI.onChangeFindToolbarMode();"
+			style="width: 100%; -moz-box-pack: end;">
 			<radio value="0"
 				label="&ui.mode.normal.label;"
 				long-label="&ui.mode.normal.label;"
