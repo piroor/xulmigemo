@@ -1077,7 +1077,9 @@ mydump("setSelectionAndScroll");
 				.getService(Components.interfaces.nsIWindowWatcher);
 		if (this.window != WindowWatcher.activeWindow) return;
 
-		this.focusToFound(doc.defaultView);
+		win = Components.lookupMethod(doc, 'defaultView').call(doc);
+		if (!this.focusToFound(win))
+			Components.lookupMethod(win, 'focus').call(win);
 	},
 	focusToFound : function(aFrame)
 	{
