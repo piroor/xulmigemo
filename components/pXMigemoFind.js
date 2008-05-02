@@ -960,7 +960,8 @@ mydump("count:"+count);
 
 			if (aChangeColor) {
 				selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
-			}else{
+			}
+			else {
 				selCon.setDisplaySelection(selCon.SELECTION_ON);
 			}
 			try {
@@ -978,7 +979,8 @@ mydump("count:"+count);
 
 		if (aChangeColor) {
 			selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
-		}else{
+		}
+		else {
 			selCon.setDisplaySelection(selCon.SELECTION_ON);
 		}
 		try {
