@@ -1,0 +1,35 @@
+<html>
+
+<body onload="init()">
+<script type="text/javascript">
+function init()
+{
+	document.addEventListener('keypress', function(aEvent) {
+		var ul = document.getElementById('indicator');
+		var li = document.createElement('li');
+		li.appendChild(
+			document.createTextNode(
+				[
+					aEvent.keyCode,
+					String.fromCharCode(aEvent.charCode),
+					aEvent.target,
+					aEvent.target.localName
+				].join(' : ')
+			)
+		);
+		ul.insertBefore(li, ul.firstChild);
+	}, false);
+}
+</script>
+
+<p>This is a sample text and a <a href="javascript:alert('link loaded!')">sample link</a>.
+<br /><input type="text" size="20" value="text in input field"/></p>
+
+<p>Pressed:</p>
+<ul id="indicator">
+</ul>
+
+
+</body>
+
+</html>
