@@ -431,12 +431,27 @@ var XMigemoUI = {
 			var doc = Components.lookupMethod(aEvent.originalTarget, 'ownerDocument').call(aEvent.originalTarget);
 			if (Components.lookupMethod(doc, 'designMode').call(doc) == 'on')
 				return true;
+
+			var win = Components.lookupMethod(doc, 'defaultView').call(doc);;
+			var editingSession = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+								.getInterface(Components.interfaces.nsIWebNavigation)
+								.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+								.getInterface(Components.interfaces.nsIEditingSession);
+			if (editingSession.windowIsEditable(win)) return true;
+		}
+		catch(e) {
+		}
+
+		try { // in rich-textarea (ex. Gmail)
+			var doc = Components.lookupMethod(aEvent.originalTarget, 'ownerDocument').call(aEvent.originalTarget);
+			if (Components.lookupMethod(doc, 'designMode').call(doc) == 'on')
+				return true;
 		}
 		catch(e) {
 		}
 
 		if (
-			/^(input|textarea|textbox|select)$/i.test(
+			/^(input|textarea|textbox|select|isindex|object|embed)$/i.test(
 				Components.lookupMethod(
 					aEvent.originalTarget,
 					'localName'
@@ -445,6 +460,13 @@ var XMigemoUI = {
 			) return true;
 
 		return false;
+	},
+ 
+	isEventFiredInFindableDocument : function(aEvent) 
+	{
+		var doc = Components.lookupMethod(aEvent.originalTarget, 'ownerDocument').call(aEvent.originalTarget);
+		var contentType = Components.lookupMethod(doc, 'contentType').call(doc);
+		return /^text\/|\+xml$|^application\/((x-)?javascript|xml)$/.test(contentType);
 	},
  
 	processFunctionalShortcuts : function(aEvent, aFromFindField) 
@@ -457,9 +479,8 @@ var XMigemoUI = {
 				aEvent.ctrlKey ||
 				aEvent.metaKey
 			)
-			) {
+			)
 			return false;
-		}
 
 		if (aFromFindField && this.isActive && !this.isQuickFind)
 			return false;
@@ -478,6 +499,9 @@ var XMigemoUI = {
 			aEvent.preventDefault();
 			return true;
 		}
+
+		if (!this.isEventFiredInFindableDocument(aEvent))
+			return false;
 
 		if (isForwardKey || isBackwardKey) {
 			aEvent.preventDefault();
@@ -630,9 +654,11 @@ var XMigemoUI = {
  
 	processKeyEvent : function(aEvent, aFromFindField) 
 	{
-		if (this.isEventFiredInInputField(aEvent) && !this.isActive) {
+		if (
+			(this.isEventFiredInInputField(aEvent) && !this.isActive) ||
+			!this.isEventFiredInFindableDocument(aEvent)
+			)
 			return false;
-		}
 
 		if (this.isActive) {
 //			dump("migemo is active"+'\n');
