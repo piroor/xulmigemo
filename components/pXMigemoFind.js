@@ -30,7 +30,7 @@ pXMigemoFind.prototype = {
 	lastKeyword     : '', 
 	previousKeyword : '',
 	lastFoundWord   : '',
-	 
+	
 	appendKeyword : function(aString) 
 	{
 		if (!this.target)
@@ -148,9 +148,9 @@ pXMigemoFind.prototype = {
 		return this._textUtils;
 	},
 	_textUtils : null,
- 	
+ 
 /* Find */ 
-	
+	 
 	get mFind() 
 	{
 		if (!this._mFind)
@@ -229,181 +229,199 @@ mydump("find");
 	findInDocument : function(aFindFlag, aDocument, aRegExpSource, aForceFocus) 
 	{
 mydump("findInDocument ==========================================");
-		var findRange;
-		var result;
-		var lastMatch;
-		var findRegExp = new RegExp();
-		var found;
-		var docShell;
-		var doc = aDocument;
-		var selection;
-		var repeat = true;
-		var nextRange;
-		var statusRes;
-		var isLinksOnly = Prefs.getBoolPref('xulmigemo.linksonly');
+		var info = {
+				range      : null,
+
+				findTerm   : aRegExpSource,
+				findRegExp : new RegExp(),
+
+				findFlag   : aFindFlag,
+				foundFlag  : -1,
+
+				currentDoc : aDocument,
+				initialDoc : aDocument,
+
+				findNext      : true,
+				forceFocus    : aForceFocus,
+				editableInOut : false
+			};
 
 		var isEditable = false;
 		var isPrevEditable = false;
-		var editableInOut = false;
 
-		doFind:
 		while (true)
 		{
 mydump("<<<<<<<<<<doFind roop>>>>>>>>>>");
-			if (!this.isFindableDocument(doc)) {
-				repeat = true;
-				found = this.NOTFOUND;
+			if (!this.isFindableDocument(info.currentDoc)) {
+				info.findNext = true;
+				info.foundFlag = this.NOTFOUND;
 			}
 			else {
-				findRange = this.getFindRange(aFindFlag, doc);
+				info.range = this.getFindRange(info.findFlag, info.currentDoc);
 
 				isPrevEditable = isEditable;
-				isEditable = this.findParentEditable(findRange.sRange) ? true : false ;
-				editableInOut = isEditable != isPrevEditable;
-
-				target = this.textUtils.range2Text(findRange.sRange);
+				isEditable = this.findEditableFromRange(info.range.sRange) ? true : false ;
+				info.editableInOut = isEditable != isPrevEditable;
 
 				if (this.findMode != this.FIND_MODE_NATIVE) {
-					if (aFindFlag & this.FIND_BACK) {
-						findRegExp = findRegExp.compile(aRegExpSource, 'gim');
+					if (info.findFlag & this.FIND_BACK) {
+						info.findRegExp = info.findRegExp.compile(info.findTerm, 'gim');
 					}
 					else {
-						findRegExp = findRegExp.compile(aRegExpSource, 'im');
+						info.findRegExp = info.findRegExp.compile(info.findTerm, 'im');
 					}
 				}
 
-				getFindRange:
-				while (true)
-				{
+				this.findInDocumentInternal(info);
+			}
+
+			if (!info.findNext) {
+				this.dispatchProgressEvent(info.foundFlag, info.findFlag);
+				this.setSelectionLook(info.currentDoc, true);
+				break;
+			}
+
+			if (!this.iterateDocumentTree(info)) break;
+		}
+	},
+	 
+	findInDocumentInternal : function(aInfo) 
+	{
+		var isLinksOnly = Prefs.getBoolPref('xulmigemo.linksonly');
+		var result;
+		var lastMatch;
+		var rangeText = this.textUtils.range2Text(aInfo.range.sRange);
+		var nextRangeText;
+
+		getFindRange:
+		while (true)
+		{
 mydump("<<<<<<getFindRange roop>>>>>>");
-					if (this.isQuickFind && isLinksOnly) {
-						var links = doc.getElementsByTagName('a');
-						if (!links.length) {
-							repeat = true;
-							break getFindRange;
-						}
-					}
-
-					if (this.findMode != this.FIND_MODE_NATIVE) {
-						if (aFindFlag & this.FIND_BACK) {
-							if (target.match(findRegExp)) {
-								result = RegExp.lastMatch;
-								nextRange = RegExp.leftContext;
-							}
-						}
-						else {
-							if (target.match(findRegExp)) {
-								result = RegExp.lastMatch;
-								nextRange = RegExp.rightContext;
-							}
-						}
-					}
-					else {
-						result = aRegExpSource;
-					}
-
-					lastMatch = result || null;
-					if (lastMatch) {
-						found = this.findInRange(aFindFlag, lastMatch, findRange, aForceFocus);
-						//alert("lastMatch:"+lastMatch);
-					}
-					else {
-						found = this.NOTFOUND;
-					}
-
-					switch (found)
-					{
-						case this.FOUND:
-						case this.FOUND_IN_EDITABLE:
-							repeat = false;
-							if (aFindFlag & this.FIND_WRAP)
-								found = this.WRAPPED;
-							break getFindRange;
-
-						default:
-						case this.NOTFOUND:
-							repeat = true;
-							break getFindRange;
-
-						case this.NOTLINK:
-							target = nextRange;
-							findRange = this.resetFindRange(findRange, this.foundRange, aFindFlag, doc);
-							continue getFindRange;
-					}
+			if (this.isQuickFind && isLinksOnly) {
+				var links = aInfo.currentDoc.getElementsByTagName('a');
+				if (!links.length) {
+					aInfo.findNext = true;
+					break getFindRange;
 				}
 			}
 
-			if (!repeat) {
-				this.dispatchProgressEvent(found, aFindFlag);
-				this.setSelectionLook(doc, true);
-				break doFind;
-			}
-
-			if (this.isFindableDocument(doc)) {
-				this.clearSelection(doc);
-				this.setSelectionLook(doc, false);
-			}
-
-
-			docShell = this.getDocShellForFrame(doc.defaultView)
-				.QueryInterface(Components.interfaces.nsIDocShellTreeNode);
-
-			if (aFindFlag & this.FIND_BACK) { // back
-				docShell = this.getPrevDocShell(docShell);
-				if (!docShell) {
-					if (!(aFindFlag & this.FIND_WRAP)) {
-						docShell = this.getDocShellForFrame(doc.defaultView.top);
-						docShell = this.getLastChildDocShell(docShell.QueryInterface(Components.interfaces.nsIDocShellTreeNode));
-						doc = docShell
-							.QueryInterface(Components.interfaces.nsIDocShell)
-							.QueryInterface(Components.interfaces.nsIWebNavigation)
-							.document;
-						this.document.commandDispatcher.focusedWindow = docShell
-							.QueryInterface(Components.interfaces.nsIDocShell)
-							.QueryInterface(Components.interfaces.nsIWebNavigation)
-							.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-							.getInterface(Components.interfaces.nsIDOMWindow);
-						if (
-							!editableInOut ||
-							findRange.sRange.startContainer == aDocument.body ||
-							findRange.sRange.startContainer == aDocument.documentElement
-							)
-							aFindFlag |= this.FIND_WRAP;
-						continue;
+			if (this.findMode != this.FIND_MODE_NATIVE) {
+				if (aInfo.findFlag & this.FIND_BACK) {
+					if (rangeText.match(aInfo.findRegExp)) {
+						result = RegExp.lastMatch;
+						nextRangeText = RegExp.leftContext;
 					}
-					this.dispatchProgressEvent(found, aFindFlag);
-					break doFind;
+				}
+				else {
+					if (rangeText.match(aInfo.findRegExp)) {
+						result = RegExp.lastMatch;
+						nextRangeText = RegExp.rightContext;
+					}
 				}
 			}
-			else { // forward
-				docShell = this.getNextDocShell(docShell);
-				if (!docShell) {
-					if (!(aFindFlag & this.FIND_WRAP)) {
-						doc = Components.lookupMethod(doc.defaultView.top, 'document').call(doc.defaultView.top);
-						this.document.commandDispatcher.focusedWindow = doc.defaultView.top;
-						if (
-							!editableInOut ||
-							findRange.sRange.endContainer == aDocument.body ||
-							findRange.sRange.endContainer == aDocument.documentElement
-							)
-							aFindFlag |= this.FIND_WRAP;
-						continue;
-					}
-					this.dispatchProgressEvent(found, aFindFlag);
-					break doFind;
-				}
+			else {
+				result = aInfo.findTerm;
 			}
-			doc = docShell
-					.QueryInterface(Components.interfaces.nsIDocShell)
-					.QueryInterface(Components.interfaces.nsIWebNavigation)
-					.document;
-			if (doc == aDocument) {
-				this.dispatchProgressEvent(found, aFindFlag);
-				break doFind;
+
+			lastMatch = result || null;
+			if (lastMatch) {
+				aInfo.foundFlag = this.findInRange(aInfo.findFlag, lastMatch, aInfo.range, aInfo.forceFocus);
+				//alert("lastMatch:"+lastMatch);
+			}
+			else {
+				aInfo.foundFlag = this.NOTFOUND;
+			}
+
+			switch (aInfo.foundFlag)
+			{
+				case this.FOUND:
+				case this.FOUND_IN_EDITABLE:
+					aInfo.findNext = false;
+					if (aInfo.findFlag & this.FIND_WRAP)
+						aInfo.foundFlag = this.WRAPPED;
+					break getFindRange;
+
+				default:
+				case this.NOTFOUND:
+					aInfo.findNext = true;
+					break getFindRange;
+
+				case this.NOTLINK:
+					rangeText = nextRangeText;
+					aInfo.range = this.resetFindRange(aInfo.range, this.foundRange, aInfo.findFlag, aInfo.currentDoc);
+					continue getFindRange;
 			}
 		}
 	},
-	dispatchProgressEvent : function(aFound, aFlag)
+ 
+	iterateDocumentTree : function(aInfo) 
+	{
+		if (this.isFindableDocument(aInfo.currentDoc)) {
+			this.clearSelection(aInfo.currentDoc);
+			this.setSelectionLook(aInfo.currentDoc, false);
+		}
+
+		var docShell = this.getDocShellForFrame(aInfo.currentDoc.defaultView)
+			.QueryInterface(Components.interfaces.nsIDocShellTreeNode);
+
+		if (aInfo.findFlag & this.FIND_BACK) { // back
+			docShell = this.getPrevDocShell(docShell);
+			if (!docShell) {
+				if (!(aInfo.findFlag & this.FIND_WRAP)) {
+					docShell = this.getDocShellForFrame(aInfo.currentDoc.defaultView.top);
+					docShell = this.getLastChildDocShell(docShell.QueryInterface(Components.interfaces.nsIDocShellTreeNode));
+					aInfo.currentDoc = docShell
+						.QueryInterface(Components.interfaces.nsIDocShell)
+						.QueryInterface(Components.interfaces.nsIWebNavigation)
+						.document;
+					this.document.commandDispatcher.focusedWindow = docShell
+						.QueryInterface(Components.interfaces.nsIDocShell)
+						.QueryInterface(Components.interfaces.nsIWebNavigation)
+						.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+						.getInterface(Components.interfaces.nsIDOMWindow);
+					if (
+						!aInfo.editableInOut ||
+						aInfo.range.sRange.startContainer == aInfo.initialDoc.body ||
+						aInfo.range.sRange.startContainer == aInfo.initialDoc.documentElement
+						)
+						aInfo.findFlag |= this.FIND_WRAP;
+					return true;
+				}
+				this.dispatchProgressEvent(aInfo.foundFlag, aInfo.findFlag);
+				return false;
+			}
+		}
+		else { // forward
+			docShell = this.getNextDocShell(docShell);
+			if (!docShell) {
+				if (!(aInfo.findFlag & this.FIND_WRAP)) {
+					aInfo.currentDoc = Components.lookupMethod(aInfo.currentDoc.defaultView.top, 'document').call(aInfo.currentDoc.defaultView.top);
+					this.document.commandDispatcher.focusedWindow = aInfo.currentDoc.defaultView.top;
+					if (
+						!aInfo.editableInOut ||
+						aInfo.range.sRange.endContainer == aInfo.initialDoc.body ||
+						aInfo.range.sRange.endContainer == aInfo.initialDoc.documentElement
+						)
+						aInfo.findFlag |= this.FIND_WRAP;
+					return true;
+				}
+				this.dispatchProgressEvent(aInfo.foundFlag, aInfo.findFlag);
+				return false;
+			}
+		}
+		aInfo.currentDoc = docShell
+				.QueryInterface(Components.interfaces.nsIDocShell)
+				.QueryInterface(Components.interfaces.nsIWebNavigation)
+				.document;
+		if (aInfo.currentDoc == aInfo.initialDoc) {
+			this.dispatchProgressEvent(aInfo.foundFlag, aInfo.findFlag);
+			return false;
+		}
+
+		return true;
+	},
+ 
+	dispatchProgressEvent : function(aFound, aFlag) 
 	{
 		var event = this.document.createEvent('Events');
 		event.initEvent('XMigemoFindProgress', true, true);
@@ -411,7 +429,8 @@ mydump("<<<<<<getFindRange roop>>>>>>");
 		event.findFlag   = aFlag;
 		this.document.dispatchEvent(event);
 	},
-	isFindableDocument : function(aDocument)
+ 
+	isFindableDocument : function(aDocument) 
 	{
 		switch (aDocument.documentElement.namespaceURI)
 		{
@@ -423,37 +442,69 @@ mydump("<<<<<<getFindRange roop>>>>>>");
 				return true;
 		}
 	},
- 
+  
 	findInRange : function(aFindFlag, aTerm, aRanges, aForceFocus) 
 	{
 mydump("findInRange");
 
 		this.mFind.findBackwards = Boolean(aFindFlag & this.FIND_BACK);
 
-		var foundRange = this.mFind.Find(aTerm, aRanges.sRange, aRanges.start, aRanges.end);
-		if (!foundRange){
-			this.foundRange = null;
+		this.foundRange = this.mFind.Find(aTerm, aRanges.sRange, aRanges.start, aRanges.end) || null ;
+		if (!this.foundRange) {
 			return this.NOTFOUND;
 		}
 
 		//※mozilla.party.jp 5.0でMac OS Xで動いてるのを見たが、
 		//どうも選択範囲の色が薄いらしい…
-		var v = foundRange.commonAncestorContainer.parentNode.ownerDocument.defaultView;
+		var v = this.foundRange.commonAncestorContainer.parentNode.ownerDocument.defaultView;
 		if (aForceFocus)
 			Components.lookupMethod(v, 'focus').call(v);
 
-		var doc = aRanges.sRange.startContainer.ownerDocument;
+		if (this.findEditable())
+			return this.FOUND_IN_EDITABLE;
 
-		doc.foundEditable = this.findParentEditable(foundRange);
+		var doc = aRanges.sRange.startContainer.ownerDocument;
+		var link = this.findLink(aForceFocus);
+		if (
+			this.manualLinksOnly ||
+			(this.isQuickFind && Prefs.getBoolPref('xulmigemo.linksonly'))
+			) {
+			if (link) {
+				this.lastFoundWord = this.foundRange.toString();
+				this.setSelectionAndScroll(this.foundRange, doc);
+				return this.FOUND;
+			}
+			else {
+				return this.NOTLINK;
+			}
+		}
+		else {
+			this.lastFoundWord = this.foundRange.toString();
+			this.setSelectionAndScroll(this.foundRange, doc);
+			return this.FOUND;
+		}
+		this.lastFoundWord = '';
+		return this.NOTFOUND;
+	},
+	 
+	findEditable : function() 
+	{
+		if (!this.foundRange) return false;
+
+		var doc = this.foundRange.startContainer.ownerDocument;
+		doc.foundEditable = this.findEditableFromRange(this.foundRange);
 		if (doc.foundEditable) {
 			doc.lastFoundEditable = doc.foundEditable;
-			this.foundRange = foundRange;
-			this.lastFoundWord = foundRange.toString();
-			this.setSelectionAndScroll(foundRange, doc);
-			return this.FOUND_IN_EDITABLE;
+			this.lastFoundWord = this.foundRange.toString();
+			this.setSelectionAndScroll(this.foundRange, doc);
+			return true;
 		}
-
-		var link = this.findParentLink(foundRange);
+		return false;
+	},
+ 
+	findLink : function(aForceFocus) 
+	{
+		var link = this.findLinkFromRange(this.foundRange);
 		if (link && aForceFocus) {
 			try{
 				Components.lookupMethod(link, 'focus').call(link);
@@ -463,102 +514,12 @@ mydump("findInRange");
 			}
 		}
 		this.updateStatusBarWithDelay(link);
-		if (
-			this.manualLinksOnly ||
-			(this.isQuickFind && Prefs.getBoolPref('xulmigemo.linksonly'))
-			) {
-			if (link) {
-				this.foundRange = foundRange;
-				this.lastFoundWord = foundRange.toString();
-				this.setSelectionAndScroll(foundRange, doc);
-				return this.FOUND;
-			}
-			else {
-				this.foundRange = foundRange;
-				return this.NOTLINK;
-			}
-		}
-		else {
-			this.foundRange = foundRange;
-			this.lastFoundWord = foundRange.toString();
-			this.setSelectionAndScroll(foundRange, doc);
-			return this.FOUND;
-		}
-		this.foundRange = null;
-		this.lastFoundWord = '';
-		return this.NOTFOUND;
+		return link;
 	},
- 
-	updateStatusBar : function(aLink)
+   	
+	findLinkFromRange : function(aRange) 
 	{
-		var xulBrowserWindow;
-		try {
-			xulBrowserWindow = this.window
-					.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-					.getInterface(Components.interfaces.nsIWebNavigation)
-					.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-					.treeOwner
-					.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-					.getInterface(Components.interfaces.nsIXULWindow)
-					.XULBrowserWindow;
-		}
-		catch(e) {
-			return;
-		}
-
-		if (!aLink || !aLink.href) {
-			xulBrowserWindow.setOverLink('', null);
-		}
-		else {
-			var charset = aLink.ownerDocument.characterSet;
-			var uri = Components
-						.classes['@mozilla.org/intl/texttosuburi;1']
-						.getService(Components.interfaces.nsITextToSubURI)
-						.unEscapeURIForUI(charset, aLink.href);
-			xulBrowserWindow.setOverLink(uri, null);
-		}
-	},
-	updateStatusBarWithDelay : function(aLink) 
-	{
-		this.cancelUpdateStatusBarTimer();
-		this.updateStatusBarTimer = Components
-				.classes['@mozilla.org/timer;1']
-				.createInstance(Components.interfaces.nsITimer);
-		this.updateStatusBarTimer.init(
-			this.createDelayedUpdateStatusBarObserver(aLink),
-			1,
-			Components.interfaces.nsITimer.TYPE_ONE_SHOT
-		);
-	},
-	cancelUpdateStatusBarTimer : function(aLink)
-	{
-		try {
-			if (this.updateStatusBarTimer) {
-				this.updateStatusBarTimer.cancel();
-				this.updateStatusBarTimer = null;
-			}
-		}
-		catch(e) {
-		}
-	},
-	createDelayedUpdateStatusBarObserver : function(aLink)
-	{
-		return ({
-				owner   : this,
-				link    : aLink,
-				observe : function(aSubject, aTopic, aData)
-				{
-					this.owner.updateStatusBar(this.link);
-					this.link = null;
-					this.owner.cancelUpdateStatusBarTimer();
-					this.owner = null;
-				}
-			});
-	},
- 
-	findParentLink : function(aRange) 
-	{
-mydump("findParentLink");
+mydump("findLinkFromRange");
 		//後でXLinkを考慮したコードに直す
 
 		var node = aRange.commonAncestorContainer;
@@ -572,9 +533,9 @@ mydump("findParentLink");
 		return null;
 	},
  
-	findParentEditable : function(aRange) 
+	findEditableFromRange : function(aRange) 
 	{
-mydump('findParentEditable');
+mydump('findEditableFromRange');
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
 		{
@@ -589,9 +550,9 @@ mydump('findParentEditable');
 		}
 		return null;
 	},
-   
+  
 /* DocShell Traversal */ 
-	
+	 
 	getDocShellForFrame : function(aFrame) 
 	{
 //		mydump('getDocShellForFrame');
@@ -685,7 +646,7 @@ mydump('findParentEditable');
 	},
   
 /* Range Manipulation */ 
-	
+	 
 	resetFindRange : function(aFindRange, aRange, aFindFlag, aDocument) 
 	{
 mydump("resetFindRange");
@@ -950,7 +911,7 @@ mydump("count:"+count);
 	},
   
 /* Update Appearance */ 
-	 
+	
 	setSelectionLook : function(aDocument, aChangeColor) 
 	{
 		var selCon;
@@ -1016,7 +977,7 @@ mydump("setSelectionAndScroll");
 
 		// set new range
 		var newSelCon;
-		var editable = this.findParentEditable(aRange);
+		var editable = this.findEditableFromRange(aRange);
 		if (editable) {
 			var editor = editable
 						.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
@@ -1108,7 +1069,75 @@ mydump("setSelectionAndScroll");
 
 		aDocument.defaultView.getSelection().removeAllRanges();
 	},
-  
+ 
+	updateStatusBar : function(aLink) 
+	{
+		var xulBrowserWindow;
+		try {
+			xulBrowserWindow = this.window
+					.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+					.getInterface(Components.interfaces.nsIWebNavigation)
+					.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+					.treeOwner
+					.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+					.getInterface(Components.interfaces.nsIXULWindow)
+					.XULBrowserWindow;
+		}
+		catch(e) {
+			return;
+		}
+
+		if (!aLink || !aLink.href) {
+			xulBrowserWindow.setOverLink('', null);
+		}
+		else {
+			var charset = aLink.ownerDocument.characterSet;
+			var uri = Components
+						.classes['@mozilla.org/intl/texttosuburi;1']
+						.getService(Components.interfaces.nsITextToSubURI)
+						.unEscapeURIForUI(charset, aLink.href);
+			xulBrowserWindow.setOverLink(uri, null);
+		}
+	},
+	
+	updateStatusBarWithDelay : function(aLink) 
+	{
+		this.cancelUpdateStatusBarTimer();
+		this.updateStatusBarTimer = Components
+				.classes['@mozilla.org/timer;1']
+				.createInstance(Components.interfaces.nsITimer);
+		this.updateStatusBarTimer.init(
+			this.createDelayedUpdateStatusBarObserver(aLink),
+			1,
+			Components.interfaces.nsITimer.TYPE_ONE_SHOT
+		);
+	},
+	cancelUpdateStatusBarTimer : function(aLink)
+	{
+		try {
+			if (this.updateStatusBarTimer) {
+				this.updateStatusBarTimer.cancel();
+				this.updateStatusBarTimer = null;
+			}
+		}
+		catch(e) {
+		}
+	},
+	createDelayedUpdateStatusBarObserver : function(aLink)
+	{
+		return ({
+				owner   : this,
+				link    : aLink,
+				observe : function(aSubject, aTopic, aData)
+				{
+					this.owner.updateStatusBar(this.link);
+					this.link = null;
+					this.owner.cancelUpdateStatusBarTimer();
+					this.owner = null;
+				}
+			});
+	},
+   
 	clear : function(aFocusToFoundTarget) 
 	{
 		if (!this.target)
@@ -1161,8 +1190,8 @@ mydump("setSelectionAndScroll");
 
 		var range = this.getFoundRange(aFrame);
 		if (range) {
-			var foundLink = this.findParentLink(range);
-			var foundEditable = this.findParentEditable(range);
+			var foundLink = this.findLinkFromRange(range);
+			var foundEditable = this.findEditableFromRange(range);
 			var target = foundLink || foundEditable;
 			if (target) {
 				try {
@@ -1178,8 +1207,13 @@ mydump("setSelectionAndScroll");
 								.editor;
 					var selCon = editor.selectionController;
 					selection = selCon.getSelection(selCon.SELECTION_NORMAL);
-					if (selection)
-						selection.collapseToStart();
+					if (selection) {
+						try {
+							selection.collapseToStart();
+						}
+						catch(e) {
+						}
+					}
 				}
 				return true;
 			}
@@ -1205,7 +1239,7 @@ mydump("setSelectionAndScroll");
 	},
  
 /* nsIPrefListener(?) */ 
-	 
+	
 	domain  : 'xulmigemo', 
  
 	observe : function(aSubject, aTopic, aData) 

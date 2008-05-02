@@ -20,7 +20,7 @@ pXMigemoTextUtils.prototype = {
 	},
 	 
 /* convert HTML to text */ 
-	
+	 
 	range2Text : function(aRange) 
 	{
 		var doc = aRange.startContainer.ownerDocument;
@@ -90,56 +90,9 @@ pXMigemoTextUtils.prototype = {
 
 		return result.join('');
 	},
- 
-/* 
-	body2text : function()
-	{
-		var scrs = document.getElementsByTagName("script");
-		var tmp=document.createRange();
-		var str="";
-		tmp.setStartBefore(document.body);
-		for(var i=0;i<scrs.length;i++){
-			if(scrs[i].parentNode.tagName.toUpperCase()=="HEAD"){continue;}
-			tmp.setEndBefore(scrs[i]);
-			str+=tmp.toString();
-			tmp.selectNode(scrs[i]);
-			tmp.collapse(false);
-			//tmp.setStartAfter(scrs[i]);なぜかエラーが出る
-		}
-		tmp.setEndAfter(document.body);
-		str+=tmp.toString();
-		return str;
-		//alert(str);
-	},
-*/
- 
-/* 
-	//htmlToText(by flyson)
-	htmlToText : function(aStr)
-	{
-	    var formatConverter = Components.classes["@mozilla.org/widget/htmlformatconverter;1"]
-	                                .createInstance(Components.interfaces.nsIFormatConverter);
-	    var fromStr = Components.classes["@mozilla.org/supports-string;1"]
-	                                .createInstance(Components.interfaces.nsISupportsString);
-	    fromStr.data = aStr;
-	    var toStr = { value: null };
-
-	    formatConverter.convert("text/html", fromStr, fromStr.toString().length,
-	                            "text/unicode", toStr, {});
-	    toStr = toStr.value.QueryInterface(Components.interfaces.nsISupportsString);
-	    toStr = toStr.toString();
-	    return toStr;
-	},
-*/
- 
-/* 
-	htmlToPureText : function(aStr)
-	{
-	},
-*/
   
 /* manipulate regular expressions */ 
-	
+	 
 	sanitize : function(str) 
 	{
 		//	[]^.+*?$|{}\(),  正規表現のメタキャラクタをエスケープ
@@ -156,20 +109,20 @@ pXMigemoTextUtils.prototype = {
 	},
 	kSANITIZE2_PATTERN : /([\-\:\}\{\$\?\*\+\.\^\/\;\\])/g,
  
-	kREGEXP_PATTERN : /^\/((?:\\.|[^\/])+)\/[gimy]*$/,
- 
-	isRegExp : function(aInput) 
-	{
-		return this.kREGEXP_PATTERN.test(aInput);
-	},
- 
 	extractRegExpSource : function(aInput) 
 	{
 		return this.kREGEXP_PATTERN.test(aInput) ?
 			RegExp.$1 :
 			aInput ;
 	},
+	
+	isRegExp : function(aInput) 
+	{
+		return this.kREGEXP_PATTERN.test(aInput);
+	},
  
+	kREGEXP_PATTERN : /^\/((?:\\.|[^\/])+)\/[gimy]*$/, 
+  
 	// obsolete (from 0.8.0)
 	reverseRegExp : function(aExp) 
 	{
@@ -221,18 +174,28 @@ pXMigemoTextUtils.prototype = {
 		}
 		return null;
 	},
- 
+ 	
 	isRangeOverlap : function(aBaseRange, aTargetRange) 
 	{
-		if (!aBaseRange || !aTargetRange) return false;
+		if (
+			!aBaseRange ||
+			!aTargetRange ||
+			aBaseRange.startContainer.ownerDocument != aTargetRange.startContainer.ownerDocument
+			)
+			return false;
 
-		return (
-			aBaseRange.compareBoundaryPoints(aBaseRange.START_TO_START, aTargetRange) >= 0 &&
-			aBaseRange.compareBoundaryPoints(aBaseRange.END_TO_END, aTargetRange) <= 0
-		) || (
-			aTargetRange.compareBoundaryPoints(aBaseRange.START_TO_START, aBaseRange) >= 0 &&
-			aTargetRange.compareBoundaryPoints(aBaseRange.END_TO_END, aBaseRange) <= 0
-		);
+		try {
+			return (
+				aBaseRange.compareBoundaryPoints(aBaseRange.START_TO_START, aTargetRange) >= 0 &&
+				aBaseRange.compareBoundaryPoints(aBaseRange.END_TO_END, aTargetRange) <= 0
+			) || (
+				aTargetRange.compareBoundaryPoints(aBaseRange.START_TO_START, aBaseRange) >= 0 &&
+				aTargetRange.compareBoundaryPoints(aBaseRange.END_TO_END, aBaseRange) <= 0
+			);
+		}
+		catch(e) {
+		}
+		return false;
 	},
  
 	delayedSelect : function(aNode, aSelectLength, aIsHighlight) 
@@ -299,7 +262,7 @@ pXMigemoTextUtils.prototype = {
 			this.setSelectionLook(doc, aIsHighlight);
 		}
 	},
-	 
+	
 	delayedSelectTimer : null, 
  
 	// ノードの再構築が終わった後で選択範囲を復元する
@@ -473,7 +436,7 @@ pXMigemoTextUtils.prototype = {
 				.getInterface(Components.interfaces.nsIWebNavigation)
 				.QueryInterface(Components.interfaces.nsIDocShell);
 	},
- 	  
+   
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemoTextUtils) &&
