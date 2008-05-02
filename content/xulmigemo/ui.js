@@ -570,6 +570,7 @@ var XMigemoUI = {
 				if (aFromFindField && this.isQuickFind) {
 					aEvent.stopPropagation();
 					aEvent.preventDefault();
+					this.dispatchKeyEventForLink(aEvent, this.activeBrowser.contentWindow);
 				}
 				this.cancel();
 				this.clearTimer(); // ここでタイマーを殺さないといじられてしまう
@@ -578,6 +579,54 @@ var XMigemoUI = {
 			default:
 				return false;
 		}
+	},
+	dispatchKeyEventForLink : function(aEvent, aFrame)
+	{
+		var self = this;
+		if (
+			aFrame.frames &&
+			Array.prototype.slice.call(aFrame.frames).some(function(aFrame) {
+				return self.dispatchKeyEventForLink(aEvent, aFrame);
+			})
+			)
+			return true;
+		}
+
+		var selection = aFrame.getSelection();
+		if (selection.rangeCount) {
+			var range = selection.getRangeAt(0);
+			var foundLink = this.findParentLink(range);
+			if (foundLink) {
+				var event = aFrame.document.createEvent('KeyEvents');
+				event.initKeyEvent(
+					aEvent.type,
+					aEvent.bubbles,
+					aEvent.cancelable,
+					aEvent.view,
+					aEvent.ctrlKey,
+					aEvent.altKey,
+					aEvent.shiftKey,
+					aEvent.metaKey,
+					aEvent.keyCode,
+					aEvent.charCode
+				);
+				foundLink.dispatchEvent(event);
+				return true;
+			}
+		}
+		return false;
+	},
+	findParentLink : function(aRange)
+	{
+		var node = aRange.commonAncestorContainer;
+		while (node && node.parentNode)
+		{
+			if (String(node.localName).toLowerCase() == 'a') {
+				return node;
+			}
+			node = node.parentNode;
+		}
+		return null;
 	},
  
 	processKeyEvent : function(aEvent, aFromFindField) 
