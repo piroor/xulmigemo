@@ -295,7 +295,6 @@ pXMigemoFind.prototype = {
 
 					lastMatch = result || null;
 					if (lastMatch) {
-	//					mydump("call findInRange");
 						found = this.findInRange(aFindFlag, lastMatch, findRange, aForceFocus);
 						//alert("lastMatch:"+lastMatch);
 					}
@@ -346,10 +345,10 @@ pXMigemoFind.prototype = {
 			docShell = this.getDocShellForFrame(doc.defaultView)
 				.QueryInterface(Components.interfaces.nsIDocShellTreeNode);
 
-			if (aFindFlag & this.FIND_BACK){ // back
+			if (aFindFlag & this.FIND_BACK) { // back
 				docShell = this.getPrevDocShell(docShell);
-				if (!docShell){
-					if (!repeat){
+				if (!docShell) {
+					if (!repeat) {
 						repeat = true;
 						docShell = this.getDocShellForFrame(doc.defaultView.top);
 						docShell = this.getLastChildDocShell(docShell.QueryInterface(Components.interfaces.nsIDocShellTreeNode));
@@ -370,8 +369,8 @@ pXMigemoFind.prototype = {
 			}
 			else { // forward
 				docShell = this.getNextDocShell(docShell);
-				if (!docShell){
-					if (!repeat){
+				if (!docShell) {
+					if (!repeat) {
 						repeat = true;
 						doc = Components.lookupMethod(doc.defaultView.top, 'document').call(doc.defaultView.top);
 						this.document.commandDispatcher.focusedWindow = doc.defaultView.top;
@@ -681,6 +680,7 @@ pXMigemoFind.prototype = {
 			}
 			selection = docSelCon.getSelection(docSelCon.SELECTION_NORMAL);
 			selection.addRange(testRange1);
+			aDocument.foundEditable = null;
 		}
 
 		return this.getFindRangeIn(aFindFlag, aDocument, aDocument.body || aDocument.documentElement, docSelCon);
@@ -698,7 +698,7 @@ pXMigemoFind.prototype = {
 
 		var selection = aSelCon.getSelection(aSelCon.SELECTION_NORMAL);
 		var count = selection.rangeCount;
-		mydump("count:"+count);
+//		mydump("count:"+count);
 
 		var childCount = aRangeParent.childNodes.length;
 		var range;
@@ -723,7 +723,7 @@ pXMigemoFind.prototype = {
 					endPt.collapse(false);
 				}
 			}
-			else{
+			else {
 				//findVisibleNodeが一番の改造しどころだが、どうしたものか。
 				//案はあっても実際のコードが書けない。
 				if (aFindFlag & this.FIND_BACK){
@@ -1048,6 +1048,11 @@ pXMigemoFind.prototype = {
 		this.setSelectionLook(doc, false);
 
 		if (!aFocusToFoundTarget) return;
+
+		var WindowWatcher = Components
+				.classes['@mozilla.org/embedcomp/window-watcher;1']
+				.getService(Components.interfaces.nsIWindowWatcher);
+		if (this.window != WindowWatcher.activeWindow) return;
 
 		var selection = doc.defaultView.getSelection();
 		if (selection.rangeCount) {
