@@ -148,6 +148,24 @@ var XMigemoUI = {
 	},
 //	_findField : null,
  
+	get findFieldIsFocused() 
+	{
+		try {
+			var focused = document.commandDispatcher.focusedElement;
+			var xpathResult = document.evaluate(
+					'ancestor-or-self::*[local-name()="textbox"]',
+					focused,
+					this.NSResolver,
+					XPathResult.FIRST_ORDERED_NODE_TYPE,
+					null
+				);
+			return xpathResult.singleNodeValue == this.findField;
+		}
+		catch(e) {
+		}
+		return false;
+	},
+ 
 	get findTerm() 
 	{
 		try {
@@ -240,7 +258,7 @@ var XMigemoUI = {
 	_textUtils : null,
  
 /* nsIPrefListener(?) */ 
-	 
+	
 	domain  : 'xulmigemo', 
  
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -366,7 +384,7 @@ var XMigemoUI = {
 				return;
 
 			case 'keypress':
-				this.keyEvent(aEvent);
+				this.keyEvent(aEvent, aEvent.currentTarget == this.findField);
 				return;
 
 			case 'mouseup':
@@ -396,13 +414,13 @@ var XMigemoUI = {
 			default:
 		}
 	},
-	 
-	keyEvent : function(aEvent) 
+	
+	keyEvent : function(aEvent, aFromFindField) 
 	{
 		if (
-			this.processFunctionalKeyEvent(aEvent) || // XUL/Migemoの終了その他のチェック
-			this.processFunctionalShortcuts(aEvent) ||
-			this.processKeyEvent(aEvent)
+			this.processFunctionalKeyEvent(aEvent, aFromFindField) || // XUL/Migemoの終了その他のチェック
+			this.processFunctionalShortcuts(aEvent, aFromFindField) ||
+			this.processKeyEvent(aEvent, aFromFindField)
 			)
 			return;
 	},
@@ -429,7 +447,7 @@ var XMigemoUI = {
 		return false;
 	},
  
-	processFunctionalShortcuts : function(aEvent) 
+	processFunctionalShortcuts : function(aEvent, aFromFindField) 
 	{
 		if (
 			this.isEventFiredInInputField(aEvent) &&
@@ -442,6 +460,9 @@ var XMigemoUI = {
 			) {
 			return false;
 		}
+
+		if (aFromFindField && this.isActive && !this.isQuickFind)
+			return false;
 
 		var shouldGoDicManager   = XMigemoService.checkShortcutForKeyEvent(this.goDicManagerKey, aEvent);
 		var isForwardKey         = XMigemoService.checkShortcutForKeyEvent(this.findForwardKey, aEvent);
@@ -489,8 +510,9 @@ var XMigemoUI = {
 				isStartKeyLinksOnly2
 			)
 			) {
-			XMigemoFind.clear();
+			XMigemoFind.clear(false);
 			this.start();
+			this.findField.focus();
 			XMigemoFind.manualLinksOnly = (isStartKeyLinksOnly || isStartKeyLinksOnly2) ? true : false ;
 			aEvent.preventDefault();
 			return true;
@@ -512,13 +534,15 @@ var XMigemoUI = {
 		return false;
 	},
  
-	processFunctionalKeyEvent : function(aEvent) 
+	processFunctionalKeyEvent : function(aEvent, aFromFindField) 
 	{
 		if (!this.isActive) return false;
 
 		switch (aEvent.keyCode)
 		{
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE:
+				if (aFromFindField && this.isQuickFind) return true;
+
 				if (XMigemoFind.lastKeyword.length == 0) {
 					this.cancel();
 					return true;
@@ -543,6 +567,10 @@ var XMigemoUI = {
 
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_ENTER:
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN:
+				if (aFromFindField && this.isQuickFind) {
+					aEvent.stopPropagation();
+					aEvent.preventDefault();
+				}
 				this.cancel();
 				this.clearTimer(); // ここでタイマーを殺さないといじられてしまう
 				return true;
@@ -552,7 +580,7 @@ var XMigemoUI = {
 		}
 	},
  
-	processKeyEvent : function(aEvent) 
+	processKeyEvent : function(aEvent, aFromFindField) 
 	{
 		if (this.isEventFiredInInputField(aEvent) && !this.isActive) {
 			return false;
@@ -568,6 +596,7 @@ var XMigemoUI = {
 				) { //普通。フックする。
 				XMigemoFind.appendKeyword(String.fromCharCode(aEvent.charCode));
 				this.updateStatus(XMigemoFind.lastKeyword);
+				this.findField.focus();
 				aEvent.preventDefault();
 				this.delayedFind();
 				this.restartTimer();
@@ -585,10 +614,11 @@ var XMigemoUI = {
 				!aEvent.metaKey &&
 				!aEvent.altKey
 				) {
-				XMigemoFind.clear();
+				XMigemoFind.clear(false);
 				this.start();
 				XMigemoFind.appendKeyword(String.fromCharCode(aEvent.charCode));
 				this.updateStatus(XMigemoFind.lastKeyword);
+				this.findField.focus();
 				aEvent.preventDefault();
 				this.delayedFind();
 				this.restartTimer();
@@ -615,7 +645,6 @@ var XMigemoUI = {
 	{
 		if (!this.isQuickFind) {
 			this.isActive = false;
-//			this.cancel(true);
 			return;
 		}
 
@@ -683,7 +712,6 @@ var XMigemoUI = {
 	{
 		if (this.isQuickFind)
 			this.cancel();
-//			this.cancel(true);
 	},
  
 	onChangeFindToolbarMode : function() 
@@ -722,22 +750,9 @@ var XMigemoUI = {
  
 	onFindStartCommand : function() 
 	{
-		var focused = document.commandDispatcher.focusedElement;
-		if (this.findBarHidden || this.isQuickFind || !focused) return;
+		if (this.findBarHidden || this.isQuickFind) return;
 
-		try {
-			var xpathResult = document.evaluate(
-					'ancestor-or-self::*[local-name()="textbox"]',
-					focused,
-					this.NSResolver,
-					XPathResult.FIRST_ORDERED_NODE_TYPE,
-					null
-				);
-			if (xpathResult.singleNodeValue != this.findField) return;
-		}
-		catch(e) {
-			return;
-		}
+		if (!this.findFieldIsFocused) return;
 
 		window.setTimeout(function(aSelf) {
 			aSelf.onFindStartCommandCallback();
@@ -759,7 +774,7 @@ var XMigemoUI = {
 				break;
 		}
 	},
- 	 
+  
 /* timer */ 
 	
 /* Cancel Timer */ 
@@ -881,7 +896,7 @@ var XMigemoUI = {
 //		dump("xmigemoCancel"+'\n');
 		this.isActive = false;
 
-		if (!aSilently) XMigemoFind.clear();
+		if (!aSilently) XMigemoFind.clear(this.isQuickFind);
 
 		if (!aSilently || this.isQuickFind)
 			gFindBar.closeFindBar();
@@ -931,9 +946,9 @@ var XMigemoUI = {
 			gFindBar.find();
 		}
 	},
- 
+ 	
 /* Override FindBar */ 
-	 
+	
 	overrideFindBar : function() 
 	{
 		/*
@@ -968,6 +983,11 @@ var XMigemoUI = {
 				gFindBar.xmigemoOriginalEnableFindButtons = gFindBar._enableFindButtons;
 				gFindBar._enableFindButtons = this.enableFindButtons;
 				gFindBar.find               = gFindBar._find;
+
+				eval('gFindBar.close = '+gFindBar.close.toSource().replace(
+					'if (focusedElement) {',
+					'if (focusedElement && false) {'
+				));
 
 				gFindBar.xmigemoOriginalOpen  = gFindBar.open;
 				gFindBar.xmigemoOriginalClose = gFindBar.close;
@@ -1149,6 +1169,7 @@ var XMigemoUI = {
 		}
 
 		this.findField.addEventListener('input', this, true);
+		this.findField.addEventListener('keypress', this, true);
 
 		if ('nsBrowserStatusHandler' in window)
 			eval('nsBrowserStatusHandler.prototype.onLocationChange = '+
@@ -1282,7 +1303,7 @@ var XMigemoUI = {
 		this.isActive = false;
 
 		this.toggleFindToolbarMode();
-		XMigemoFind.exitFind();
+		XMigemoFind.exitFind(true);
 	},
  
 	toggleHighlight : function(aHighlight) 
@@ -1601,6 +1622,7 @@ var XMigemoUI = {
 
 		this.findField.removeEventListener('blur', this, false);
 		this.findField.removeEventListener('input', this, false);
+		this.findField.removeEventListener('keypress', this, false);
 
 		window.removeEventListener('unload', this, false);
 	},
