@@ -47,7 +47,7 @@ pXMigemoTextUtils.prototype = {
 						'descendant-or-self::*[local-name()="BODY" or local-name()="body"]/',
 						'descendant::*[',
 							'contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " ")) or ',
-							'(contains(" INPUT input ", concat(" ", local-name(), " ")) and contains("TEXT text FILE file", @type))',
+							'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
 						']'
 					].join(''),
 					aRange.commonAncestorContainer,
