@@ -1064,6 +1064,17 @@ var XMigemoUI = {
 					'if (focusedElement && false) {'
 				));
 
+				if ('_updateFindUI' in gFindBar)
+					eval('gFindBar._updateFindUI = '+gFindBar._updateFindUI.toSource()
+						.replace(
+							/(var showMinimalUI = )([^;]+)/,
+							'$1(XMigemoUI.findMode == XMigemoUI.FIND_MODE_NATIVE && $2)'
+						).replace(
+							/if \((this._findMode == this.(FIND_TYPEAHEAD|FIND_LINKS))\)/g,
+							'if ($1 && XMigemoUI.findMode == XMigemoUI.FIND_MODE_NATIVE)'
+						)
+					);
+
 				gFindBar.xmigemoOriginalOpen  = gFindBar.open;
 				gFindBar.xmigemoOriginalClose = gFindBar.close;
 				gFindBar.open                 = this.openFindBar;
