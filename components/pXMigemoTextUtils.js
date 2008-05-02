@@ -52,7 +52,7 @@ pXMigemoTextUtils.prototype = {
 					].join(''),
 					aRange.commonAncestorContainer,
 					null,
-					XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+					Components.interfaces.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE,
 					null
 				);
 
