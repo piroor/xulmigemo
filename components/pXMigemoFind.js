@@ -418,7 +418,7 @@ pXMigemoFind.prototype = {
 		//※mozilla.party.jp 5.0でMac OS Xで動いてるのを見たが、
 		//どうも選択範囲の色が薄いらしい…
 		var v = foundRange.commonAncestorContainer.parentNode.ownerDocument.defaultView;
-		if (aForceFocus || this.isQuickFind)
+		if (aForceFocus)
 			Components.lookupMethod(v, 'focus').call(v);
 
 		var doc = aRanges.sRange.startContainer.ownerDocument;
@@ -433,7 +433,7 @@ pXMigemoFind.prototype = {
 		}
 
 		var link = this.findParentLink(foundRange);
-		if (link && (aForceFocus || this.isQuickFind)) {
+		if (link && aForceFocus) {
 			try{
 				Components.lookupMethod(link, 'focus').call(link);
 			}
@@ -472,7 +472,7 @@ pXMigemoFind.prototype = {
 //		mydump("findParentLink");
 		//後でXLinkを考慮したコードに直す
 
-		var node = aRange.commonAncestorContainer.parentNode;
+		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
 		{
 			if (String(node.localName).toLowerCase() == 'a') {
@@ -486,7 +486,7 @@ pXMigemoFind.prototype = {
 	findParentEditable : function(aRange) 
 	{
 //		mydump('findParentEditable');
-		var node = aRange.commonAncestorContainer.parentNode;
+		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
 		{
 			var isEditable = false;
@@ -1017,7 +1017,7 @@ pXMigemoFind.prototype = {
 		aDocument.defaultView.getSelection().removeAllRanges();
 	},
   
-	clear : function() 
+	clear : function(aFocusToFoundTarget) 
 	{
 		if (!this.target)
 			throw Components.results.NS_ERROR_NOT_INITIALIZED;
@@ -1031,12 +1031,12 @@ pXMigemoFind.prototype = {
 		var doc = (win != this.window) ? Components.lookupMethod(win, 'document').call(win) :
 					this.target.contentDocument;
 
-		this.exitFind();
+		this.exitFind(aFocusToFoundTarget);
 
 		doc.foundEditable = null;
 	},
  
-	exitFind : function() 
+	exitFind : function(aFocusToFoundTarget) 
 	{
 		if (!this.target)
 			throw Components.results.NS_ERROR_NOT_INITIALIZED;
@@ -1045,10 +1045,16 @@ pXMigemoFind.prototype = {
 		var doc = (win != this.window) ? Components.lookupMethod(win, 'document').call(win) :
 					this.target.contentDocument;
 
+		this.setSelectionLook(doc, false);
+
+		if (!aFocusToFoundTarget) return;
+
 		var selection = doc.defaultView.getSelection();
 		if (selection.rangeCount) {
 			var range = selection.getRangeAt(0);
-			var target = this.findParentLink(range) || this.findParentEditable(range);
+			var foundLink = this.findParentLink(range);
+			var foundEditable = this.findParentEditable(range);
+			var target = foundLink || foundEditable;
 			if (target) {
 				try {
 					Components.lookupMethod(target, 'focus').call(target);
@@ -1057,9 +1063,20 @@ pXMigemoFind.prototype = {
 					if ('focus' in target)
 						target.focus();
 				}
+				if (!foundLink) {
+					var editor = editable
+								.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+								.editor;
+					var selCon = editor.selectionController;
+					selection = selCon.getSelection(selCon.SELECTION_NORMAL);
+					if (selection)
+						selection.collapseToStart();
+				}
+				return;
 			}
 		}
-		this.setSelectionLook(doc, false);
+
+		Components.lookupMethod(win, 'focus').call(target);
 	},
  
 /* nsIPrefListener(?) */ 
