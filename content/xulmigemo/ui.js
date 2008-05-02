@@ -1429,11 +1429,44 @@ var XMigemoUI = {
  
 	clearHighlight : function(aDocument) 
 	{
+		var xpathResult = aDocument.evaluate(
+				[
+					'descendant::*[',
+						'local-name()="TEXTAREA" or local-name()="textarea" or ',
+						'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
+					']'
+				].join(''),
+				aDocument,
+				this.NSResolver,
+				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+				null
+			);
+		try {
+			var editable;
+			for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
+			{
+				editable = xpathResult.snapshotItem(i);
+				this.clearHighlightInternal(
+					aDocument,
+					editable
+						.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+						.editor
+						.rootElement
+				);
+			}
+		}
+		catch(e) {
+			alert(e);
+		}
+		this.clearHighlightInternal(aDocument, aDocument);
+	},
+	clearHighlightInternal : function(aDocument, aTarget)
+	{
 		var foundRange = this.shouldRebuildSelection ? this.textUtils.getFoundRange(aDocument.defaultView) : null ;
 		var foundLength = foundRange ? foundRange.toString().length : 0 ;
 		var xpathResult = aDocument.evaluate(
 				'descendant::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
-				aDocument,
+				aTarget,
 				this.NSResolver,
 				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
 				null
