@@ -1452,7 +1452,6 @@ var XMigemoUI = {
 			}
 		}
 		catch(e) {
-			alert(e);
 		}
 		this.clearHighlightInternal(aDocument, aDocument);
 	},
