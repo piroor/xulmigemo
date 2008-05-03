@@ -591,7 +591,7 @@ mydump("count:"+count);
 			else {
 				if (aFindFlag & this.FIND_BACK) {
 					node = this.viewportStartPoint ||
-							this.findVisibleNode(aFindFlag, aDocument.defaultView);
+							this.findFirstVisibleNode(aFindFlag, aDocument.defaultView);
 					this.viewportStartPoint = node;
 					findRange.setStartAfter(node);
 					startPt.setStartAfter(node);
@@ -600,7 +600,7 @@ mydump("count:"+count);
 				}
 				else {
 					node = this.viewportEndPoint ||
-							this.findVisibleNode(aFindFlag, aDocument.defaultView);
+							this.findFirstVisibleNode(aFindFlag, aDocument.defaultView);
 					this.viewportEndPoint = node;
 					findRange.setStartBefore(node);
 					startPt.setStartBefore(node);
@@ -643,9 +643,8 @@ mydump("count:"+count);
 	viewportStartPoint : null, 
 	viewportEndPoint   : null,
  
-	findVisibleNode : function(aFindFlag, aFrame) 
+	findFirstVisibleNode : function(aFindFlag, aFrame) 
 	{
-//		dump("findVisibleNode\n");
 		var doc = aFrame.document;
 
 		this.visibleNodeFilter.frameHeight = aFrame.innerHeight;
@@ -653,8 +652,10 @@ mydump("count:"+count);
 		this.visibleNodeFilter.endY        = aFrame.scrollY + aFrame.innerHeight;
 		this.visibleNodeFilter.minPixels   = 12;
 		this.visibleNodeFilter.minSize     = aFrame.innerWidth * aFrame.innerHeight;
-		this.visibleNodeFilter.rejectMethod = (aFindFlag & this.FIND_BACK) ? 'isBelow' : 'isAbove' ;
-		this.visibleNodeFilter.acceptMethod = (aFindFlag & this.FIND_BACK) ? 'isAbove' : 'isBelow' ;
+		this.visibleNodeFilter.shouldReject  =
+			this.visibleNodeFilter[(aFindFlag & this.FIND_BACK) ? 'isBelow' : 'isAbove' ];
+		this.visibleNodeFilter.shouldAccept =
+			this.visibleNodeFilter[(aFindFlag & this.FIND_BACK) ? 'isAbove' : 'isBelow' ];
 		this.visibleNodeFilter.lastResult  = this.visibleNodeFilter.kSKIP;
 
 		var walker = doc.createTreeWalker(
@@ -670,8 +671,8 @@ mydump("count:"+count);
 			{
 				walker.currentNode = node;
 			}
-			this.visibleNodeFilter.stop = false;
-			while (!this.visibleNodeFilter.stop &&
+			this.visibleNodeFilter.found = false;
+			while (!this.visibleNodeFilter.found &&
 				(node = walker.previousNode()))
 			{
 				walker.currentNode = node;
@@ -679,8 +680,8 @@ mydump("count:"+count);
 		}
 		else {
 			node = walker.firstChild();
-			this.visibleNodeFilter.stop = false;
-			while (!this.visibleNodeFilter.stop &&
+			this.visibleNodeFilter.found = false;
+			while (!this.visibleNodeFilter.found &&
 				(node = walker.nextNode()))
 			{
 				walker.currentNode = node;
@@ -698,7 +699,7 @@ mydump("count:"+count);
 			result = (
 				size == 0 ||
 				aNode.offsetHeight > this.frameHeight ||
-				this[this.rejectMethod](aNode, true)
+				this.shouldReject(aNode, true)
 				) ? this.kSKIP : this.kACCEPT ;
 
 			if (result == this.kACCEPT) {
@@ -706,8 +707,8 @@ mydump("count:"+count);
 				this.minSize = Math.min(this.minSize, size);
 			}
 
-			if (!this.stop && this[this.acceptMethod](aNode, false))
-				this.stop = true;
+			if (!this.found && this.shouldAccept(aNode, false))
+				this.found = true;
 
 			this.lastResult = result;
 
@@ -735,15 +736,15 @@ mydump("count:"+count);
 		{
 			return aNode.ownerDocument.getBoxObjectFor(aNode).y;
 		},
-		rejectMethod : null,
-		acceptMethod : null,
+		shouldReject : null,
+		shouldAccept : null,
 		frameHeight  : 0,
 		startY       : 0,
 		endY         : 0,
 		minPixels    : 12,
 		minSize      : 0,
 		lastResult   : null,
-		stop         : false
+		found        : false
 	},
   	 
 	resetFindRangeSet : function(aRangeSet, aFoundRange, aFindFlag, aDocument) 
