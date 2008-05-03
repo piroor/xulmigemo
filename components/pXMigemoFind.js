@@ -107,19 +107,20 @@ pXMigemoFind.prototype = {
 		return this._target;
 	},
 	_target : null,
-
-	get document()
+	
+	get document() 
 	{
 		if (!this.target)
 			throw Components.results.NS_ERROR_NOT_INITIALIZED;
 
 		return this.target.ownerDocument;
 	},
-	get window()
+ 
+	get window() 
 	{
 		return this.document.defaultView;
 	},
- 
+  
 	set core(val) 
 	{
 		if (val) {
@@ -150,7 +151,7 @@ pXMigemoFind.prototype = {
 	_textUtils : null,
  
 /* Find */ 
-	
+	 
 	get mFind() 
 	{
 		if (!this._mFind)
@@ -226,7 +227,7 @@ mydump("find");
 		iterator.destroy();
 		this.previousKeyword = roman;
 	},
-	
+	 
 	findInDocument : function(aFindFlag, aDocShellIterator, aRegExpSource, aForceFocus) 
 	{
 mydump("findInDocument ==========================================");
@@ -234,8 +235,6 @@ mydump("findInDocument ==========================================");
 				range      : null,
 
 				findTerm   : aRegExpSource,
-				findRegExp : new RegExp(),
-
 				findFlag   : aFindFlag,
 				foundFlag  : -1,
 
@@ -244,6 +243,15 @@ mydump("findInDocument ==========================================");
 				findNext   : true,
 				forceFocus : aForceFocus
 			};
+
+		if (this.findMode != this.FIND_MODE_NATIVE) {
+			if (info.findFlag & this.FIND_BACK) {
+				info.findTerm = new RegExp(info.findTerm, 'gim');
+			}
+			else {
+				info.findTerm = new RegExp(info.findTerm, 'im');
+			}
+		}
 
 		var isEditable     = false;
 		var isPrevEditable = false;
@@ -266,15 +274,6 @@ mydump("<<<<<<<<<<doFind roop>>>>>>>>>>");
 				isPrevEditable = isEditable;
 				isEditable = this.findEditableFromRange(info.range.sRange) ? true : false ;
 				editableInOut = isEditable != isPrevEditable;
-
-				if (this.findMode != this.FIND_MODE_NATIVE) {
-					if (info.findFlag & this.FIND_BACK) {
-						info.findRegExp = info.findRegExp.compile(info.findTerm, 'gim');
-					}
-					else {
-						info.findRegExp = info.findRegExp.compile(info.findTerm, 'im');
-					}
-				}
 
 				this.findInDocumentInternal(info);
 			}
@@ -317,12 +316,9 @@ mydump("<<<<<<<<<<doFind roop>>>>>>>>>>");
 	{
 		var isLinksOnly = Prefs.getBoolPref('xulmigemo.linksonly');
 		var result;
-		var lastMatch;
 		var rangeText = this.textUtils.range2Text(aInfo.range.sRange);
-		var nextRangeText;
 		var doc = aInfo.docShell.document;
 
-		getFindRange:
 		while (true)
 		{
 mydump("<<<<<<getFindRange roop>>>>>>");
@@ -330,36 +326,15 @@ mydump("<<<<<<getFindRange roop>>>>>>");
 				var links = doc.getElementsByTagName('a');
 				if (!links.length) {
 					aInfo.findNext = true;
-					break getFindRange;
+					return;
 				}
 			}
 
-			if (this.findMode != this.FIND_MODE_NATIVE) {
-				if (aInfo.findFlag & this.FIND_BACK) {
-					if (rangeText.match(aInfo.findRegExp)) {
-						result = RegExp.lastMatch;
-						nextRangeText = RegExp.leftContext;
-					}
-				}
-				else {
-					if (rangeText.match(aInfo.findRegExp)) {
-						result = RegExp.lastMatch;
-						nextRangeText = RegExp.rightContext;
-					}
-				}
-			}
-			else {
-				result = aInfo.findTerm;
-			}
+			result = this.findInText(aInfo.findTerm, rangeText, aInfo.findFlag);
 
-			lastMatch = result || null;
-			if (lastMatch) {
-				aInfo.foundFlag = this.findInRange(aInfo.findFlag, lastMatch, aInfo.range, aInfo.forceFocus);
-				//alert("lastMatch:"+lastMatch);
-			}
-			else {
-				aInfo.foundFlag = this.NOTFOUND;
-			}
+			aInfo.foundFlag = result.foundTerm ?
+				this.findInRange(aInfo.findFlag, result.foundTerm, aInfo.range, aInfo.forceFocus) :
+				this.NOTFOUND ;
 
 			switch (aInfo.foundFlag)
 			{
@@ -368,19 +343,54 @@ mydump("<<<<<<getFindRange roop>>>>>>");
 					aInfo.findNext = false;
 					if (aInfo.findFlag & this.FIND_WRAP)
 						aInfo.foundFlag = this.WRAPPED;
-					break getFindRange;
+					return;
 
 				default:
 				case this.NOTFOUND:
 					aInfo.findNext = true;
-					break getFindRange;
+					return;
 
 				case this.NOTLINK:
-					rangeText = nextRangeText;
+					rangeText = result.rest;
 					aInfo.range = this.resetFindRange(aInfo.range, this.foundRange, aInfo.findFlag, doc);
-					continue getFindRange;
+					continue;
 			}
 		}
+	},
+ 	
+	findInText : function(aTerm, aText, aFindFlag) 
+	{
+		var result = {
+				foundTerm : null,
+				rest      : aText
+			};
+		if (this.findMode != this.FIND_MODE_NATIVE) {
+			if (aText.match(aTerm)) {
+				if (aFindFlag & this.FIND_BACK) {
+					result.foundTerm = RegExp.lastMatch;
+					result.rest = RegExp.leftContext;
+				}
+				else {
+					result.foundTerm = RegExp.lastMatch;
+					result.rest = RegExp.rightContext;
+				}
+			}
+		}
+		else if (aFindFlag & this.FIND_BACK) {
+			var index = rangeText.lastIndexOf(aTerm);
+			if (index > -1) {
+				result.foundTerm = aTerm;
+				result.rest = rangeText.substring(0, index);
+			}
+		}
+		else {
+			var index = rangeText.indexOf(aTerm);
+			if (index > -1) {
+				result.foundTerm = aTerm;
+				result.rest = rangeText.substring(index);
+			}
+		}
+		return result;
 	},
  
 	dispatchProgressEvent : function(aFound, aFlag) 
@@ -501,7 +511,7 @@ mydump('findEditableFromRange');
 	},
   
 /* Range Manipulation */ 
-	 
+	
 	resetFindRange : function(aFindRange, aRange, aFindFlag, aDocument) 
 	{
 mydump("resetFindRange");
@@ -587,7 +597,7 @@ mydump("getFindRange");
 
 		return this.getFindRangeIn(aFindFlag, doc, doc.body || doc.documentElement, docSelCon);
 	},
-	 
+	
 	getFindRangeIn : function(aFindFlag, aDocument, aRangeParent, aSelCon) 
 	{
 mydump("getFindRange");
@@ -679,7 +689,7 @@ mydump("count:"+count);
  
 	viewportStartPoint : null, 
 	viewportEndPoint   : null,
-  	
+  
 	findVisibleNode : function(aFrame, aFindFlag) 
 	{
 //		dump("findVisibleNode\n");
