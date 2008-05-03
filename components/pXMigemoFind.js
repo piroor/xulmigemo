@@ -150,7 +150,7 @@ pXMigemoFind.prototype = {
 	_textUtils : null,
  
 /* Find */ 
-	 
+	
 	get mFind() 
 	{
 		if (!this._mFind)
@@ -226,7 +226,7 @@ mydump("find");
 		iterator.destroy();
 		this.previousKeyword = roman;
 	},
-	 
+	
 	findInDocument : function(aFindFlag, aDocShellIterator, aRegExpSource, aForceFocus) 
 	{
 mydump("findInDocument ==========================================");
@@ -548,15 +548,10 @@ mydump("resetFindRange");
 mydump("getFindRange");
 		var doc       = aDocShellIterator.document;
 		var docShell  = aDocShellIterator.current;
-		var docSelCon = docShell
-			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-			.getInterface(Components.interfaces.nsISelectionDisplay)
-			.QueryInterface(Components.interfaces.nsISelectionController);
+		var selCon    = this.getSelectionController(aDocShellIterator.view);
 
 		if (doc.lastFoundEditable) {
-			var selCon = doc.lastFoundEditable
-					.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
-					.editor.selectionController;
+			var selCon = this.getSelectionController(doc.lastFoundEditable);
 			var selection = selCon.getSelection(selCon.SELECTION_NORMAL);
 			var testRange1 = doc.createRange();
 
@@ -684,7 +679,7 @@ mydump("count:"+count);
  
 	viewportStartPoint : null, 
 	viewportEndPoint   : null,
-  
+  	
 	findVisibleNode : function(aFrame, aFindFlag) 
 	{
 //		dump("findVisibleNode\n");
@@ -767,86 +762,66 @@ mydump("count:"+count);
 	},
   
 /* Update Appearance */ 
-	
+	 
+	getSelectionController : function(aTarget) 
+	{
+		if (!aTarget) return null;
+
+		const nsIDOMNSEditableElement = Components.interfaces.nsIDOMNSEditableElement;
+		const nsIDOMWindow = Components.interfaces.nsIDOMWindow;
+		try {
+			return (aTarget instanceof nsIDOMNSEditableElement) ?
+						aTarget.QueryInterface(nsIDOMNSEditableElement).editor.selectionController :
+					(aTarget instanceof nsIDOMWindow) ?
+						DocShellIterator.prototype.getDocShellFromFrame(aTarget)
+							.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+							.getInterface(Components.interfaces.nsISelectionDisplay)
+							.QueryInterface(Components.interfaces.nsISelectionController) :
+					null;
+		}
+		catch(e) {
+		}
+		return null;
+	},
+ 
 	setSelectionLook : function(aDocument, aChangeColor) 
 	{
-		var selCon;
-		if (aDocument.foundEditable) {
-			var editor = aDocument.foundEditable.QueryInterface(Components.interfaces.nsIDOMNSEditableElement).editor;
-			selCon = editor.selectionController;
-
-			if (aChangeColor) {
+		var self = this;
+		[aDocument.foundEditable, aDocument.defaultView].forEach(function(aTarget) {
+			var selCon = self.getSelectionController(aTarget);
+			if (!selCon) return;
+			if (aChangeColor)
 				selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
-			}
-			else {
+			else
 				selCon.setDisplaySelection(selCon.SELECTION_ON);
-			}
 			try {
 				selCon.repaintSelection(selCon.SELECTION_NORMAL);
 			}
 			catch(e) {
 			}
-		}
-
-		var docShell = DocShellIterator.prototype.getDocShellFromFrame(aDocument.defaultView);
-		selCon = docShell
-			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-			.getInterface(Components.interfaces.nsISelectionDisplay)
-			.QueryInterface(Components.interfaces.nsISelectionController);
-
-		if (aChangeColor) {
-			selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
-		}
-		else {
-			selCon.setDisplaySelection(selCon.SELECTION_ON);
-		}
-		try {
-			selCon.repaintSelection(selCon.SELECTION_NORMAL);
-		}
-		catch(e) {
-		}
+		});
 	},
  
 	setSelectionAndScroll : function(aRange, aDocument) 
 	{
 mydump("setSelectionAndScroll");
 
-		var selection;
-
 		// clear old range
-		var oldSelCon;
-		if (aDocument.foundEditable || aDocument.lastFoundEditable) {
-			var editor = (aDocument.foundEditable || aDocument.lastFoundEditable)
-						.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
-						.editor;
-			oldSelCon = editor.selectionController;
-			selection = oldSelCon.getSelection(oldSelCon.SELECTION_NORMAL);
+		var self = this;
+		[
+			(aDocument.foundEditable || aDocument.lastFoundEditable),
+			aDocument.defaultView
+		].forEach(function(aTarget) {
+			var oldSelCon = self.getSelectionController(aTarget);
+			if (!oldSelCon) return;
+			var selection = oldSelCon.getSelection(oldSelCon.SELECTION_NORMAL);
 			selection.removeAllRanges();
-		}
-		var docShell = DocShellIterator.prototype.getDocShellFromFrame(aDocument.defaultView);
-		oldSelCon = docShell
-			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-			.getInterface(Components.interfaces.nsISelectionDisplay)
-			.QueryInterface(Components.interfaces.nsISelectionController);
-		selection = oldSelCon.getSelection(oldSelCon.SELECTION_NORMAL);
-		selection.removeAllRanges();
+		});
 
 		// set new range
-		var newSelCon;
-		var editable = this.findEditableFromRange(aRange);
-		if (editable) {
-			var editor = editable
-						.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
-						.editor;
-			newSelCon = editor.selectionController;
-		}
-		else {
-			newSelCon = docShell
-				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-				.getInterface(Components.interfaces.nsISelectionDisplay)
-				.QueryInterface(Components.interfaces.nsISelectionController);
-		}
-		selection = newSelCon.getSelection(newSelCon.SELECTION_NORMAL);
+		var newSelCon = this.getSelectionController(this.findEditableFromRange(aRange)) ||
+				this.getSelectionController(aDocument.defaultView);
+		var selection = newSelCon.getSelection(newSelCon.SELECTION_NORMAL);
 		selection.addRange(aRange);
 
 		newSelCon.scrollSelectionIntoView(
@@ -855,7 +830,8 @@ mydump("setSelectionAndScroll");
 
 		this.scrollSelectionToCenter(aDocument.defaultView);
 	},
-	scrollSelectionToCenter : function(aFrame)
+	 
+	scrollSelectionToCenter : function(aFrame) 
 	{
 		if (!Prefs.getBoolPref('xulmigemo.scrollSelectionToCenter')) return;
 
@@ -890,7 +866,8 @@ mydump("setSelectionAndScroll");
 			range.detach();
 		}
 	},
-	getSelectionFrame : function(aFrame)
+ 
+	getSelectionFrame : function(aFrame) 
 	{
 		var selection = aFrame.getSelection();
 		if (selection && selection.rangeCount)
@@ -904,7 +881,8 @@ mydump("setSelectionAndScroll");
 		}
 		return null;
 	},
-	getPageOffsetTop : function(aNode)
+ 
+	getPageOffsetTop : function(aNode) 
 	{
 		if (!aNode) return 0;
 		var top = aNode.offsetTop;
@@ -915,7 +893,7 @@ mydump("setSelectionAndScroll");
 		}
 		return top;
 	},
- 
+  
 	clearSelection : function(aDocument) 
 	{
 		if (aDocument.foundEditable)
@@ -1036,7 +1014,8 @@ mydump("setSelectionAndScroll");
 		if (!this.focusToFound(win))
 			Components.lookupMethod(win, 'focus').call(win);
 	},
-	focusToFound : function(aFrame)
+	 
+	focusToFound : function(aFrame) 
 	{
 		var self = this;
 		if (Array.prototype.slice.call(aFrame.frames).some(function(aFrame) {
@@ -1058,12 +1037,9 @@ mydump("setSelectionAndScroll");
 						target.focus();
 				}
 				if (!foundLink) {
-					var editor = foundEditable
-								.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
-								.editor;
-					var selCon = editor.selectionController;
-					selection = selCon.getSelection(selCon.SELECTION_NORMAL);
-					if (selection) {
+					var selCon = this.getSelectionController(foundEditable);
+					var selection = selCon.getSelection(selCon.SELECTION_NORMAL);
+					if (selection && selection.rangeCount) {
 						try {
 							selection.collapseToStart();
 						}
@@ -1078,13 +1054,12 @@ mydump("setSelectionAndScroll");
 		}
 		return false;
 	},
-	getFoundRange : function(aFrame)
+ 
+	getFoundRange : function(aFrame) 
 	{
 		var sel = aFrame.getSelection();
 		if (!sel.rangeCount && aFrame.document.foundEditable) {
-			var selCon = aFrame.document.foundEditable
-					.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
-					.editor.selectionController;
+			var selCon = this.getSelectionController(aFrame.document.foundEditable);
 			sel = selCon.getSelection(selCon.SELECTION_ATTENTION);
 			if (!sel.rangeCount) sel = selCon.getSelection(selCon.SELECTION_NORMAL);
 		}
@@ -1093,7 +1068,7 @@ mydump("setSelectionAndScroll");
 
 		return null;
 	},
- 
+  
 /* nsIPrefListener(?) */ 
 	
 	domain  : 'xulmigemo', 
@@ -1346,7 +1321,7 @@ DocShellIterator.prototype = {
 				aRange.endContainer == doc.documentElement
 			) ;
 	},
- 	
+ 
 	destroy : function() 
 	{
 		delete this.mCurrentDocShell;
