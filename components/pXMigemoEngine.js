@@ -7,6 +7,8 @@ var DEBUG = false;
 var Prefs = Components 
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
+
+const pIXMigemoEngine = Components.interfaces.pIXMigemoEngine;
  
 function pXMigemoEngine() { 
 	mydump('create instance pIXMigemoEngine(lang=*)');
@@ -29,9 +31,9 @@ pXMigemoEngine.prototype = {
 		return this;
 	},
 	 
-	SYSTEM_DIC : 1, 
-	USER_DIC   : 2,
-	ALL_DIC    : 3,
+	SYSTEM_DIC : pIXMigemoEngine.SYSTEM_DIC, 
+	USER_DIC   : pIXMigemoEngine.USER_DIC,
+	ALL_DIC    : pIXMigemoEngine.ALL_DIC,
  
 	get dictionary() 
 	{
@@ -180,7 +182,7 @@ pXMigemoEngine.prototype = {
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemoEngine) &&
+		if(!aIID.equals(pIXMigemoEngine) &&
 			!aIID.equals(Components.interfaces.pIXMigemoEngineUniversal) &&
 			!aIID.equals(Components.interfaces.nsIObserver) &&
 			!aIID.equals(Components.interfaces.nsISupports))

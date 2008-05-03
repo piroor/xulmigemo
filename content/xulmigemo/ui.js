@@ -537,7 +537,7 @@ var XMigemoUI = {
 			XMigemoFind.clear(false);
 			this.start();
 			this.findField.focus();
-			XMigemoFind.manualLinksOnly = (isStartKeyLinksOnly || isStartKeyLinksOnly2) ? true : false ;
+			XMigemoFind.isLinksOnly = (isStartKeyLinksOnly || isStartKeyLinksOnly2) ? true : false ;
 			aEvent.preventDefault();
 			return true;
 		}
@@ -730,17 +730,12 @@ var XMigemoUI = {
 	onXMigemoFindProgress : function(aEvent) 
 	{
 		var statusRes = (
-				(
-					aEvent.resultFlag == XMigemoFind.FOUND ||
-					aEvent.resultFlag == XMigemoFind.FOUND_IN_EDITABLE
-				) ||
-				(
-					aEvent.resultFlag == XMigemoFind.NOTLINK &&
-					!XMigemoFind.manualLinksOnly
-				)
+				 XMigemoFind.isLinksOnly ?
+				 	aEvent.resultFlag & XMigemoFind.FOUND_IN_LINK :
+					aEvent.resultFlag & XMigemoFind.FOUND
 			) ?
 				this.nsITypeAheadFind.FIND_FOUND :
-			(aEvent.resultFlag == XMigemoFind.WRAPPED) ?
+			(aEvent.resultFlag & XMigemoFind.WRAPPED) ?
 				this.nsITypeAheadFind.FIND_WRAPPED :
 				this.nsITypeAheadFind.FIND_NOTFOUND;
 

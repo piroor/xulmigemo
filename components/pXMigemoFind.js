@@ -7,6 +7,8 @@ var DEBUG = false;
 var Prefs = Components 
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
+
+const pIXMigemoFind = Components.interfaces.pIXMigemoFind;
  
 function pXMigemoFind() { 
 	mydump('create instance pIXMigemoFind');
@@ -39,7 +41,6 @@ pXMigemoFind.prototype = {
 		this.lastKeyword += aString;
 		return this.lastKeyword;
 	},
-
  
 	replaceKeyword : function(aString) 
 	{
@@ -49,7 +50,6 @@ pXMigemoFind.prototype = {
 		this.lastKeyword = aString;
 		return this.lastKeyword;
 	},
-
  
 	removeKeyword : function(aLength) 
 	{
@@ -59,7 +59,6 @@ pXMigemoFind.prototype = {
 		this.lastKeyword = this.lastKeyword.substr(0, this.lastKeyword.length - aLength);
 		return this.lastKeyword;
 	},
-
  
 	shiftLastKeyword : function() 
 	{
@@ -68,31 +67,41 @@ pXMigemoFind.prototype = {
 
 		this.previousKeyword = this.lastKeyword;
 	},
-
   
-	manualLinksOnly : false, 
+	get isLinksOnly() 
+	{
+		return this.manualLinksOnly ||
+			(this.isQuickFind && Prefs.getBoolPref('xulmigemo.linksonly'));
+	},
+	set isLinksOnly(val) 
+	{
+		this.manualLinksOnly = val;
+		return this.isLinksOnly;
+	},
 	isQuickFind     : false,
+	manualLinksOnly : false,
 
 	startFromViewport : false,
  
-	FOUND             : 0, 
-	NOTFOUND          : 1,
-	WRAPPED           : 2,
-	NOTLINK           : 4,
-	FOUND_IN_EDITABLE : 8,
+	NOTFOUND          : pIXMigemoFind.NOTFOUND, 
+	FOUND             : pIXMigemoFind.FOUND,
+	WRAPPED           : pIXMigemoFind.WRAPPED,
+	FOUND_IN_LINK     : pIXMigemoFind.FOUND_IN_LINK,
+	FOUND_IN_EDITABLE : pIXMigemoFind.FOUND_IN_EDITABLE,
+	FINISH_FIND       : pIXMigemoFind.FINISH_FIND,
  
-	FIND_DEFAULT    : 16, 
-	FIND_BACK       : 32,
-	FIND_FORWARD    : 64,
-	FIND_WRAP       : 128,
-
-	FIND_IN_EDITABLE : 256,
+	FIND_DEFAULT     : pIXMigemoFind.FIND_DEFAULT, 
+	FIND_BACK        : pIXMigemoFind.FIND_BACK,
+	FIND_FORWARD     : pIXMigemoFind.FIND_FORWARD,
+	FIND_WRAP        : pIXMigemoFind.FIND_WRAP,
+	FIND_IN_LINK     : pIXMigemoFind.FIND_IN_LINK,
+	FIND_IN_EDITABLE : pIXMigemoFind.FIND_IN_EDITABLE,
  
-	findMode : 2, 
+	findMode : pIXMigemoFind.FIND_MODE_MIGEMO, 
 
-	FIND_MODE_NATIVE : 0,
-	FIND_MODE_MIGEMO : 1,
-	FIND_MODE_REGEXP : 2,
+	FIND_MODE_NATIVE : pIXMigemoFind.FIND_MODE_NATIVE,
+	FIND_MODE_MIGEMO : pIXMigemoFind.FIND_MODE_MIGEMO,
+	FIND_MODE_REGEXP : pIXMigemoFind.FIND_MODE_REGEXP,
  
 	set target(val) 
 	{
@@ -212,153 +221,136 @@ mydump("find");
 		}
 
 		//XMigemoCache.dump();
-		var findFlag;
-		if (this.previousKeyword == roman) {
-			findFlag = aBackward ? this.FIND_BACK : this.FIND_FORWARD ;
-		}
-		else {
-			findFlag = this.FIND_DEFAULT;
-		}
+		var findFlag = (this.previousKeyword == roman) ?
+				(aBackward ? this.FIND_BACK : this.FIND_FORWARD ) :
+				this.FIND_DEFAULT;
+
+		if (this.isLinksOnly)
+			findFlag |= this.FIND_IN_LINK;
+
 		var win = this.document.commandDispatcher.focusedWindow;
 		if (win.top == this.window.top) win = this.target.contentWindow;
 
 		var iterator = new DocShellIterator(win, findFlag & this.FIND_BACK ? true : false );
-		this.findInDocument(findFlag, iterator, myExp, aForceFocus);
+		var result = this.findInDocument(findFlag, myExp, iterator, aForceFocus);
 		iterator.destroy();
 		this.previousKeyword = roman;
 	},
 	 
-	findInDocument : function(aFindFlag, aDocShellIterator, aRegExpSource, aForceFocus) 
+	findInDocument : function(aFindFlag, aFindTerm, aDocShellIterator, aForceFocus) 
 	{
 mydump("findInDocument ==========================================");
-		var info = {
-				range      : null,
-
-				findTerm   : aRegExpSource,
-				findFlag   : aFindFlag,
-				foundFlag  : -1,
-
-				docShell   : aDocShellIterator,
-
-				findNext   : true,
-				forceFocus : aForceFocus
-			};
-
-		if (this.findMode != this.FIND_MODE_NATIVE) {
-			if (info.findFlag & this.FIND_BACK) {
-				info.findTerm = new RegExp(info.findTerm, 'gim');
-			}
-			else {
-				info.findTerm = new RegExp(info.findTerm, 'im');
-			}
-		}
+		var rangeSet;
+		var doc;
+		var resultFlag;
 
 		var isEditable     = false;
 		var isPrevEditable = false;
 		var editableInOut  = false;
 
-		var doc;
+		if (this.findMode != this.FIND_MODE_NATIVE) {
+			if (aFindFlag & this.FIND_BACK) {
+				aFindTerm = new RegExp(aFindTerm, 'gim');
+			}
+			else {
+				aFindTerm = new RegExp(aFindTerm, 'im');
+			}
+		}
 
 		while (true)
 		{
-mydump("<<<<<<<<<<doFind roop>>>>>>>>>>");
-			doc = info.docShell.document;
+			doc = aDocShellIterator.document;
 
-			if (!info.docShell.isFindable) {
-				info.findNext = true;
-				info.foundFlag = this.NOTFOUND;
+			if (!aDocShellIterator.isFindable) {
+				rangeSet = null;
+				resultFlag = this.NOTFOUND;
 			}
 			else {
-				info.range = this.getFindRange(info.findFlag, info.docShell);
+				rangeSet = this.getFindRangeSet(aFindFlag, aDocShellIterator);
 
 				isPrevEditable = isEditable;
-				isEditable = this.findEditableFromRange(info.range.sRange) ? true : false ;
-				editableInOut = isEditable != isPrevEditable;
+				isEditable     = this.findEditableFromRange(rangeSet.range) ? true : false ;
+				editableInOut  = isEditable != isPrevEditable;
 
-				this.findInDocumentInternal(info);
+				resultFlag = this.findInDocumentInternal(aFindFlag, aFindTerm, rangeSet, doc, aForceFocus);
 			}
 
-			if (!info.findNext) {
-				this.dispatchProgressEvent(info.foundFlag, info.findFlag);
+			if (resultFlag & this.FINISH_FIND) {
+				this.dispatchProgressEvent(aFindFlag, resultFlag);
 				this.setSelectionLook(doc, true);
 				break;
 			}
 
-			if (info.docShell.isFindable) {
+			if (aDocShellIterator.isFindable) {
 				this.clearSelection(doc);
 				this.setSelectionLook(doc, false);
 			}
 
-			info.docShell.iterateNext();
+			aDocShellIterator.iterateNext();
 
-			if (info.docShell.wrapped) {
-				if (!(info.findFlag & this.FIND_WRAP)) {
-					this.document.commandDispatcher.focusedWindow = info.docShell.view;
+			if (aDocShellIterator.wrapped) {
+				if (!(aFindFlag & this.FIND_WRAP)) {
+					this.document.commandDispatcher.focusedWindow = aDocShellIterator.view;
 					if (
 						!editableInOut ||
-						info.docShell.isRangeTopLevel(info.range.sRange)
+						!rangeSet ||
+						aDocShellIterator.isRangeTopLevel(rangeSet.range)
 						)
-						info.findFlag |= this.FIND_WRAP;
+						aFindFlag |= this.FIND_WRAP;
 					continue;
 				}
-				this.dispatchProgressEvent(info.foundFlag, info.findFlag);
+				this.dispatchProgressEvent(aFindFlag, resultFlag);
 				break;
 			}
 
-			if (info.docShell.isInitial) {
-				this.dispatchProgressEvent(info.foundFlag, info.findFlag);
+			if (aDocShellIterator.isInitial) {
+				this.dispatchProgressEvent(aFindFlag, resultFlag);
 				break;
 			}
 		}
+
+		if (resultFlag & this.FINISH_FIND)
+			resultFlag ^= this.FINISH_FIND;
+
+		return resultFlag;
 	},
 	 
-	findInDocumentInternal : function(aInfo) 
+	findInDocumentInternal : function(aFindFlag, aFindTerm, aRangeSet, aDocument, aForceFocus) 
 	{
-		var isLinksOnly = Prefs.getBoolPref('xulmigemo.linksonly');
 		var result;
-		var rangeText = this.textUtils.range2Text(aInfo.range.sRange);
-		var doc = aInfo.docShell.document;
+		var rangeText = this.textUtils.range2Text(aRangeSet.range);
+
+		var resultFlag;
 
 		while (true)
 		{
-mydump("<<<<<<getFindRange roop>>>>>>");
-			if (this.isQuickFind && isLinksOnly) {
-				var links = doc.getElementsByTagName('a');
-				if (!links.length) {
-					aInfo.findNext = true;
-					return;
-				}
+			if (this.isLinksOnly) {
+				var links = aDocument.getElementsByTagName('a');
+				if (!links.length)
+					return this.NOTFOUND;
 			}
 
-			result = this.findInText(aInfo.findTerm, rangeText, aInfo.findFlag);
+			result = this.findInText(aFindFlag, aFindTerm, rangeText);
 
-			aInfo.foundFlag = result.foundTerm ?
-				this.findInRange(aInfo.findFlag, result.foundTerm, aInfo.range, aInfo.forceFocus) :
+			resultFlag = result.foundTerm ?
+				this.findInRange(aFindFlag, result.foundTerm, aRangeSet, aForceFocus) :
 				this.NOTFOUND ;
 
-			switch (aInfo.foundFlag)
-			{
-				case this.FOUND:
-				case this.FOUND_IN_EDITABLE:
-					aInfo.findNext = false;
-					if (aInfo.findFlag & this.FIND_WRAP)
-						aInfo.foundFlag = this.WRAPPED;
-					return;
-
-				default:
-				case this.NOTFOUND:
-					aInfo.findNext = true;
-					return;
-
-				case this.NOTLINK:
+			if (resultFlag & this.FOUND) {
+				if (this.isLinksOnly && !(resultFlag & this.FOUND_IN_LINK)) {
 					rangeText = result.rest;
-					aInfo.range = this.resetFindRange(aInfo.range, this.foundRange, aInfo.findFlag, doc);
+					this.resetFindRange(aRangeSet, this.foundRange, aFindFlag, aDocument);
 					continue;
+				}
+				resultFlag |= this.FINISH_FIND;
+				if (aFindFlag & this.FIND_WRAP)
+					resultFlag |= this.WRAPPED;
 			}
+			return resultFlag;
 		}
 	},
  	
-	findInText : function(aTerm, aText, aFindFlag) 
+	findInText : function(aFindFlag, aTerm, aText) 
 	{
 		var result = {
 				foundTerm : null,
@@ -393,25 +385,28 @@ mydump("<<<<<<getFindRange roop>>>>>>");
 		return result;
 	},
  
-	dispatchProgressEvent : function(aFound, aFlag) 
+	dispatchProgressEvent : function(aFindFlag, aResultFlag) 
 	{
 		var event = this.document.createEvent('Events');
 		event.initEvent('XMigemoFindProgress', true, true);
-		event.resultFlag = aFound;
-		event.findFlag   = aFlag;
+		event.resultFlag = aResultFlag;
+		event.findFlag   = aFindFlag;
 		this.document.dispatchEvent(event);
 	},
   
-	findInRange : function(aFindFlag, aTerm, aRanges, aForceFocus) 
+	findInRange : function(aFindFlag, aTerm, aRangeSet, aForceFocus) 
 	{
 mydump("findInRange");
+		var resultFlag = this.NOTFOUND;
 
 		this.mFind.findBackwards = Boolean(aFindFlag & this.FIND_BACK);
 
-		this.foundRange = this.mFind.Find(aTerm, aRanges.sRange, aRanges.start, aRanges.end) || null ;
+		this.foundRange = this.mFind.Find(aTerm, aRangeSet.range, aRangeSet.start, aRangeSet.end) || null ;
 		if (!this.foundRange) {
-			return this.NOTFOUND;
+			return resultFlag;
 		}
+
+		resultFlag = this.FOUND;
 
 		//※mozilla.party.jp 5.0でMac OS Xで動いてるのを見たが、
 		//どうも選択範囲の色が薄いらしい…
@@ -419,31 +414,26 @@ mydump("findInRange");
 		if (aForceFocus)
 			Components.lookupMethod(v, 'focus').call(v);
 
-		if (this.findEditable())
-			return this.FOUND_IN_EDITABLE;
+		if (this.findEditable()) {
+			resultFlag |= this.FOUND_IN_EDITABLE;
+			return resultFlag;
+		}
 
-		var doc = aRanges.sRange.startContainer.ownerDocument;
 		var link = this.findLink(aForceFocus);
-		if (
-			this.manualLinksOnly ||
-			(this.isQuickFind && Prefs.getBoolPref('xulmigemo.linksonly'))
-			) {
+		if (link) resultFlag |= this.FOUND_IN_LINK;
+
+		var doc = aRangeSet.range.startContainer.ownerDocument;
+		if (this.isLinksOnly) {
 			if (link) {
 				this.lastFoundWord = this.foundRange.toString();
 				this.setSelectionAndScroll(this.foundRange, doc);
-				return this.FOUND;
-			}
-			else {
-				return this.NOTLINK;
 			}
 		}
 		else {
 			this.lastFoundWord = this.foundRange.toString();
 			this.setSelectionAndScroll(this.foundRange, doc);
-			return this.FOUND;
 		}
-		this.lastFoundWord = '';
-		return this.NOTFOUND;
+		return resultFlag;
 	},
 	 
 	findEditable : function() 
@@ -512,53 +502,43 @@ mydump('findEditableFromRange');
   
 /* Range Manipulation */ 
 	
-	resetFindRange : function(aFindRange, aRange, aFindFlag, aDocument) 
+	resetFindRange : function(aRangeSet, aFoundRange, aFindFlag, aDocument) 
 	{
 mydump("resetFindRange");
 		var win = this.document.commandDispatcher.focusedWindow;
-		var theDoc = (win && win != this.window) ? Components.lookupMethod(win, 'document').call(win) : aDocument ;
-		var bodyNode;
-		try {
-			bodyNode = Components.lookupMethod(theDoc, 'body').call(theDoc);
-		}
-		catch(e) {
-			bodyNode = theDoc.documentElement;
-		}
+		var theDoc = (win && win.top != this.window.top) ?
+					Components.lookupMethod(win, 'document').call(win) :
+					aDocument ;
 
-		var findRange = aFindRange;
-		findRange.sRange.selectNodeContents(bodyNode);
-		findRange.start.selectNodeContents(bodyNode);
+		var root = theDoc.body || theDoc.documentElement;
+		aRangeSet.range.selectNodeContents(root);
+		aRangeSet.start.selectNodeContents(root);
 
-		var docShell = DocShellIterator.prototype.getDocShellFromFrame(Components.lookupMethod(theDoc, 'defaultView').call(theDoc));
-	//	var childCount = bodyNode.childNodes.length;
-		var range;
 		var node;
 		var offset;
 		if (aFindFlag & this.FIND_DEFAULT || aFindFlag & this.FIND_FORWARD) {
-			range = aRange;
-			node = range.endContainer;
-			offset = range.endOffset;
-			findRange.sRange.setStart(node, offset);
-			findRange.start.setStart(node, offset);
-			findRange.start.setEnd(node, offset);
+			node = aFoundRange.endContainer;
+			offset = aFoundRange.endOffset;
+			aRangeSet.range.setStart(node, offset);
+			aRangeSet.start.setStart(node, offset);
+			aRangeSet.start.setEnd(node, offset);
 		}
 		else if (aFindFlag & this.FIND_BACK) {
-			range = aRange;
-			node = range.startContainer;
-			offset = range.startOffset;
-			findRange.sRange.setEnd(node, offset);
-			findRange.start.setStart(node, offset);
-			findRange.start.setEnd(node, offset);
+			node = aFoundRange.startContainer;
+			offset = aFoundRange.startOffset;
+			aRangeSet.range.setEnd(node, offset);
+			aRangeSet.start.setStart(node, offset);
+			aRangeSet.start.setEnd(node, offset);
 		}
-		return findRange;
+		return aRangeSet;
 	},
  
-	getFindRange : function(aFindFlag, aDocShellIterator) 
+	getFindRangeSet : function(aFindFlag, aDocShellIterator) 
 	{
-mydump("getFindRange");
+mydump("getFindRangeSet");
 		var doc       = aDocShellIterator.document;
 		var docShell  = aDocShellIterator.current;
-		var selCon    = this.getSelectionController(aDocShellIterator.view);
+		var docSelCon = this.getSelectionController(aDocShellIterator.view);
 
 		if (doc.lastFoundEditable) {
 			var selCon = this.getSelectionController(doc.lastFoundEditable);
@@ -578,7 +558,7 @@ mydump("getFindRange");
 				while (node != doc.lastFoundEditable &&
 						node.parentNode != doc.lastFoundEditable)
 					node = node.parentNode;
-				return this.getFindRangeIn(aFindFlag, doc, node, selCon);
+				return this.getFindRangeSetIn(aFindFlag, doc, node, selCon);
 			}
 
 			selection.removeAllRanges();
@@ -595,12 +575,12 @@ mydump("getFindRange");
 			doc.lastFoundEditable = null;
 		}
 
-		return this.getFindRangeIn(aFindFlag, doc, doc.body || doc.documentElement, docSelCon);
+		return this.getFindRangeSetIn(aFindFlag, doc, doc.body || doc.documentElement, docSelCon);
 	},
 	
-	getFindRangeIn : function(aFindFlag, aDocument, aRangeParent, aSelCon) 
+	getFindRangeSetIn : function(aFindFlag, aDocument, aRangeParent, aSelCon) 
 	{
-mydump("getFindRange");
+mydump("getFindRangeSetIn");
 		var findRange = aDocument.createRange();
 		findRange.selectNodeContents(aRangeParent);
 		var startPt = aDocument.createRange();
@@ -676,10 +656,10 @@ mydump("count:"+count);
 		}
 
 		var ret = {
-			sRange : findRange,
-			start  : startPt,
-			end    : endPt,
-			owner  : aRangeParent
+			range : findRange,
+			start : startPt,
+			end   : endPt,
+			owner : aRangeParent
 		};
 
 		return ret;
@@ -1049,13 +1029,8 @@ mydump("setSelectionAndScroll");
 				if (!foundLink) {
 					var selCon = this.getSelectionController(foundEditable);
 					var selection = selCon.getSelection(selCon.SELECTION_NORMAL);
-					if (selection && selection.rangeCount) {
-						try {
-							selection.collapseToStart();
-						}
-						catch(e) {
-						}
-					}
+					if (selection && selection.rangeCount)
+						selection.collapseToStart();
 				}
 				return true;
 			}
@@ -1145,7 +1120,7 @@ mydump("setSelectionAndScroll");
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemoFind) &&
+		if(!aIID.equals(pIXMigemoFind) &&
 			!aIID.equals(Components.interfaces.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
