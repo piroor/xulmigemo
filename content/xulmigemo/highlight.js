@@ -169,28 +169,7 @@ var XMigemoHighlight = {
 
 		}
 	},
-	 
-	resendClickEvent : function(aEvent) 
-	{
-		var utils = aEvent.view
-			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-			.getInterface(Components.interfaces.nsIDOMWindowUtils);
-		if ('sendMouseEvent' in utils) { // Firefox 3
-			var flags = 0;
-			const nsIDOMNSEvent = Components.interfaces.nsIDOMNSEvent;
-			if (aEvent.altKey) flags |= nsIDOMNSEvent.ALT_MARK;
-			if (aEvent.ctrlKey) flags |= nsIDOMNSEvent.CONTROL_MARK;
-			if (aEvent.shiftKey) flags |= nsIDOMNSEvent.SHIFT_MARK;
-			if (aEvent.metaKey) flags |= nsIDOMNSEvent.META_MARK;
-			window.setTimeout(function(aX, aY, aButton) {
-				utils.sendMouseEvent('mousedown', aX, aY, aButton, 1, flags);
-				utils.sendMouseEvent('mouseup', aX, aY, aButton, 1, flags);
-			}, 0, aEvent.clientX, aEvent.clientY, aEvent.button);
-		}
-		else {
-		}
-	},
- 	 
+ 
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
 		if (aTopic != 'nsPref:changed') return;
@@ -470,7 +449,105 @@ var XMigemoHighlight = {
 	},
 	animationTimer : null,
 	animationTime  : 250,
-     
+    
+	resendClickEvent : function(aEvent) 
+	{
+		var utils = aEvent.view
+			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsIDOMWindowUtils);
+		if ('sendMouseEvent' in utils) { // Firefox 3
+			var flags = 0;
+			const nsIDOMNSEvent = Components.interfaces.nsIDOMNSEvent;
+			if (aEvent.altKey) flags |= nsIDOMNSEvent.ALT_MARK;
+			if (aEvent.ctrlKey) flags |= nsIDOMNSEvent.CONTROL_MARK;
+			if (aEvent.shiftKey) flags |= nsIDOMNSEvent.SHIFT_MARK;
+			if (aEvent.metaKey) flags |= nsIDOMNSEvent.META_MARK;
+			window.setTimeout(function(aX, aY, aButton) {
+				utils.sendMouseEvent('mousedown', aX, aY, aButton, 1, flags);
+				utils.sendMouseEvent('mouseup', aX, aY, aButton, 1, flags);
+			}, 0, aEvent.clientX, aEvent.clientY, aEvent.button);
+		}
+		else { // Firefox 2, emulation
+			var args = [
+					'click',
+					aEvent.bubbles,
+					aEvent.cancelable,
+					aEvent.view,
+					1,
+					aEvent.screenX,
+					aEvent.screenY,
+					aEvent.clientX,
+					aEvent.clientY,
+					aEvent.ctrlKey,
+					aEvent.altKey,
+					aEvent.shiftKey,
+					aEvent.metaKey,
+					aEvent.button
+				];
+			window.setTimeout(function(aSelf, aFrame, aX, aY) {
+				var node = aSelf.getClickableElementFromPoint(aFrame, aX, aY);
+				if (!node) return;
+				var event = aFrame.document.createEvent('MouseEvents');
+				args.push(node);
+				event.initMouseEvent.apply(event, args);
+				node.dispatchEvent(event);
+				if ('focus' in node) node.focus();
+			}, 0, this, aEvent.view, aEvent.screenX, aEvent.screenY);
+		}
+	},
+	 
+	getClickableElementFromPoint : function(aWindow, aScreenX, aScreenY) 
+	{
+		var accNode;
+		try {
+			var accService = Components.classes['@mozilla.org/accessibilityService;1']
+								.getService(Components.interfaces.nsIAccessibilityService);
+			var acc = accService.getAccessibleFor(aWindow.document);
+			var box = aWindow.document.getBoxObjectFor(aWindow.document.documentElement);
+			accNode = /* acc.getChildAtPoint(aScreenX - box.screenX, aScreenY - box.screenY) || */ acc.getChildAtPoint(aScreenX, aScreenY);
+			accNode = accNode.QueryInterface(Components.interfaces.nsIAccessNode).DOMNode;
+		}
+		catch(e) {
+		}
+
+		var filter = function(aNode) {
+			switch (aNode.localName.toUpperCase()) {
+				case 'A':
+					if (aNode.href)
+						return NodeFilter.FILTER_ACCEPT;
+					break;
+				case 'INPUT':
+				case 'TEXTAREA':
+				case 'BUTTON':
+				case 'SELECT':
+					return NodeFilter.FILTER_ACCEPT;
+					break;
+			}
+			return NodeFilter.FILTER_SKIP;
+		};
+
+		if (accNode &&
+			accNode.nodeType == Node.ELEMENT_NODE &&
+			filter(accNode) == NodeFilter.FILTER_ACCEPT)
+			return accNode;
+
+		var doc = aWindow.document;
+		var startNode = accNode || doc;
+		var walker = aWindow.document.createTreeWalker(startNode, NodeFilter.SHOW_ELEMENT, filter, false);
+		for (var node = walker.firstChild(); node != null; node = walker.nextNode())
+		{
+			var box = doc.getBoxObjectFor(node);
+			var l = box.screenX;
+			var t = box.screenY;
+			var r = l + box.width;
+			var b = t + box.height;
+			if (l <= aScreenX && aScreenX <= r && t <= aScreenY && aScreenY <= b)
+				return node;
+		}
+		return null;
+	},
+  	 
+	dummy : null
 }; 
  
 window.addEventListener('load', XMigemoHighlight, false); 
