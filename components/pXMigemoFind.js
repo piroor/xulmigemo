@@ -219,14 +219,15 @@ mydump("find");
 			findFlag = this.FIND_DEFAULT;
 		}
 		var win = this.document.commandDispatcher.focusedWindow;
-		var doc = (win != this.window) ? Components.lookupMethod(win, 'document').call(win) :
-					(findFlag & this.FIND_BACK) ? this.getLastChildDocument(this.target.contentDocument) :
-					this.target.contentDocument;
-		this.findInDocument(findFlag, doc, myExp, aForceFocus);
+		if (win.top == this.window.top) win = this.target.contentWindow;
+
+		var iterator = new DocShellIterator(win, findFlag & this.FIND_BACK ? true : false );
+		this.findInDocument(findFlag, iterator, myExp, aForceFocus);
+		iterator.destroy();
 		this.previousKeyword = roman;
 	},
 	 
-	findInDocument : function(aFindFlag, aDocument, aRegExpSource, aForceFocus) 
+	findInDocument : function(aFindFlag, aDocShellIterator, aRegExpSource, aForceFocus) 
 	{
 mydump("findInDocument ==========================================");
 		var info = {
@@ -238,30 +239,33 @@ mydump("findInDocument ==========================================");
 				findFlag   : aFindFlag,
 				foundFlag  : -1,
 
-				currentDoc : aDocument,
-				initialDoc : aDocument,
+				docShell   : aDocShellIterator,
 
-				findNext      : true,
-				forceFocus    : aForceFocus,
-				editableInOut : false
+				findNext   : true,
+				forceFocus : aForceFocus
 			};
 
-		var isEditable = false;
+		var isEditable     = false;
 		var isPrevEditable = false;
+		var editableInOut  = false;
+
+		var doc;
 
 		while (true)
 		{
 mydump("<<<<<<<<<<doFind roop>>>>>>>>>>");
-			if (!this.isFindableDocument(info.currentDoc)) {
+			doc = info.docShell.document;
+
+			if (!info.docShell.isFindable) {
 				info.findNext = true;
 				info.foundFlag = this.NOTFOUND;
 			}
 			else {
-				info.range = this.getFindRange(info.findFlag, info.currentDoc);
+				info.range = this.getFindRange(info.findFlag, info.docShell);
 
 				isPrevEditable = isEditable;
 				isEditable = this.findEditableFromRange(info.range.sRange) ? true : false ;
-				info.editableInOut = isEditable != isPrevEditable;
+				editableInOut = isEditable != isPrevEditable;
 
 				if (this.findMode != this.FIND_MODE_NATIVE) {
 					if (info.findFlag & this.FIND_BACK) {
@@ -277,11 +281,35 @@ mydump("<<<<<<<<<<doFind roop>>>>>>>>>>");
 
 			if (!info.findNext) {
 				this.dispatchProgressEvent(info.foundFlag, info.findFlag);
-				this.setSelectionLook(info.currentDoc, true);
+				this.setSelectionLook(doc, true);
 				break;
 			}
 
-			if (!this.iterateDocumentTree(info)) break;
+			if (info.docShell.isFindable) {
+				this.clearSelection(doc);
+				this.setSelectionLook(doc, false);
+			}
+
+			info.docShell.iterateNext();
+
+			if (info.docShell.wrapped) {
+				if (!(info.findFlag & this.FIND_WRAP)) {
+					this.document.commandDispatcher.focusedWindow = info.docShell.view;
+					if (
+						!editableInOut ||
+						info.docShell.isRangeTopLevel(info.range.sRange)
+						)
+						info.findFlag |= this.FIND_WRAP;
+					continue;
+				}
+				this.dispatchProgressEvent(info.foundFlag, info.findFlag);
+				break;
+			}
+
+			if (info.docShell.isInitial) {
+				this.dispatchProgressEvent(info.foundFlag, info.findFlag);
+				break;
+			}
 		}
 	},
 	 
@@ -292,13 +320,14 @@ mydump("<<<<<<<<<<doFind roop>>>>>>>>>>");
 		var lastMatch;
 		var rangeText = this.textUtils.range2Text(aInfo.range.sRange);
 		var nextRangeText;
+		var doc = aInfo.docShell.document;
 
 		getFindRange:
 		while (true)
 		{
 mydump("<<<<<<getFindRange roop>>>>>>");
 			if (this.isQuickFind && isLinksOnly) {
-				var links = aInfo.currentDoc.getElementsByTagName('a');
+				var links = doc.getElementsByTagName('a');
 				if (!links.length) {
 					aInfo.findNext = true;
 					break getFindRange;
@@ -348,77 +377,10 @@ mydump("<<<<<<getFindRange roop>>>>>>");
 
 				case this.NOTLINK:
 					rangeText = nextRangeText;
-					aInfo.range = this.resetFindRange(aInfo.range, this.foundRange, aInfo.findFlag, aInfo.currentDoc);
+					aInfo.range = this.resetFindRange(aInfo.range, this.foundRange, aInfo.findFlag, doc);
 					continue getFindRange;
 			}
 		}
-	},
- 
-	iterateDocumentTree : function(aInfo) 
-	{
-		if (this.isFindableDocument(aInfo.currentDoc)) {
-			this.clearSelection(aInfo.currentDoc);
-			this.setSelectionLook(aInfo.currentDoc, false);
-		}
-
-		var docShell = this.getDocShellForFrame(aInfo.currentDoc.defaultView)
-			.QueryInterface(Components.interfaces.nsIDocShellTreeNode);
-
-		if (aInfo.findFlag & this.FIND_BACK) { // back
-			docShell = this.getPrevDocShell(docShell);
-			if (!docShell) {
-				if (!(aInfo.findFlag & this.FIND_WRAP)) {
-					docShell = this.getDocShellForFrame(aInfo.currentDoc.defaultView.top);
-					docShell = this.getLastChildDocShell(docShell.QueryInterface(Components.interfaces.nsIDocShellTreeNode));
-					aInfo.currentDoc = docShell
-						.QueryInterface(Components.interfaces.nsIDocShell)
-						.QueryInterface(Components.interfaces.nsIWebNavigation)
-						.document;
-					this.document.commandDispatcher.focusedWindow = docShell
-						.QueryInterface(Components.interfaces.nsIDocShell)
-						.QueryInterface(Components.interfaces.nsIWebNavigation)
-						.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-						.getInterface(Components.interfaces.nsIDOMWindow);
-					if (
-						!aInfo.editableInOut ||
-						aInfo.range.sRange.startContainer == aInfo.initialDoc.body ||
-						aInfo.range.sRange.startContainer == aInfo.initialDoc.documentElement
-						)
-						aInfo.findFlag |= this.FIND_WRAP;
-					return true;
-				}
-				this.dispatchProgressEvent(aInfo.foundFlag, aInfo.findFlag);
-				return false;
-			}
-		}
-		else { // forward
-			docShell = this.getNextDocShell(docShell);
-			if (!docShell) {
-				if (!(aInfo.findFlag & this.FIND_WRAP)) {
-					aInfo.currentDoc = Components.lookupMethod(aInfo.currentDoc.defaultView.top, 'document').call(aInfo.currentDoc.defaultView.top);
-					this.document.commandDispatcher.focusedWindow = aInfo.currentDoc.defaultView.top;
-					if (
-						!aInfo.editableInOut ||
-						aInfo.range.sRange.endContainer == aInfo.initialDoc.body ||
-						aInfo.range.sRange.endContainer == aInfo.initialDoc.documentElement
-						)
-						aInfo.findFlag |= this.FIND_WRAP;
-					return true;
-				}
-				this.dispatchProgressEvent(aInfo.foundFlag, aInfo.findFlag);
-				return false;
-			}
-		}
-		aInfo.currentDoc = docShell
-				.QueryInterface(Components.interfaces.nsIDocShell)
-				.QueryInterface(Components.interfaces.nsIWebNavigation)
-				.document;
-		if (aInfo.currentDoc == aInfo.initialDoc) {
-			this.dispatchProgressEvent(aInfo.foundFlag, aInfo.findFlag);
-			return false;
-		}
-
-		return true;
 	},
  
 	dispatchProgressEvent : function(aFound, aFlag) 
@@ -428,19 +390,6 @@ mydump("<<<<<<getFindRange roop>>>>>>");
 		event.resultFlag = aFound;
 		event.findFlag   = aFlag;
 		this.document.dispatchEvent(event);
-	},
- 
-	isFindableDocument : function(aDocument) 
-	{
-		switch (aDocument.documentElement.namespaceURI)
-		{
-			case 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul':
-			case 'http://www.w3.org/2000/svg':
-				return false;
-
-			default:
-				return true;
-		}
 	},
   
 	findInRange : function(aFindFlag, aTerm, aRanges, aForceFocus) 
@@ -516,7 +465,7 @@ mydump("findInRange");
 		this.updateStatusBarWithDelay(link);
 		return link;
 	},
-   	
+   
 	findLinkFromRange : function(aRange) 
 	{
 mydump("findLinkFromRange");
@@ -551,100 +500,6 @@ mydump('findEditableFromRange');
 		return null;
 	},
   
-/* DocShell Traversal */ 
-	 
-	getDocShellForFrame : function(aFrame) 
-	{
-//		mydump('getDocShellForFrame');
-		return aFrame
-				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-				.getInterface(Components.interfaces.nsIWebNavigation)
-				.QueryInterface(Components.interfaces.nsIDocShell);
-	},
- 
-	getNextDocShell : function(aNode) 
-	{
-//		mydump("getNextDocShell");
-	//	mydump("XXX Find NEXT, from\n"
-	//			+aNode.QueryInterface(Components.interfaces.nsIWebNavigation).document.URL+'\n');
-		// 子がある場合、最初の子を返す
-		if (aNode.childCount) return aNode.getChildAt(0);
-		var curNode = aNode;
-		var curItem;
-		var parentNode;
-		var parentItem;
-		var childOffset;
-		while (curNode)
-		{
-			// このノードが最上位である場合、検索終了
-			curItem = curNode.QueryInterface(Components.interfaces.nsIDocShellTreeItem);
-			var parentItem = curItem.sameTypeParent;
-			if (!parentItem) return null;
-
-			// nextSIblingに相当するノードを取得して返す
-			childOffset = curItem.childOffset;
-			parentNode = parentItem.QueryInterface(Components.interfaces.nsIDocShellTreeNode);
-			if (childOffset < parentNode.childCount-1)
-				return parentNode.getChildAt(childOffset+1);
-
-			// nextSiblingに相当するノードが無いので、
-			// ひとつ上位のノードにフォーカスを移して再検索
-			curNode = parentItem;
-		}
-	},
-
- 
-	getPrevDocShell : function(aNode) 
-	{
-	//	mydump("XXX Find PREVIOUS, from\n"
-	//			+aNode.QueryInterface(Components.interfaces.nsIWebNavigation).document.URL+'\n');
-		var curNode = aNode;
-		var curItem = curNode.QueryInterface(Components.interfaces.nsIDocShellTreeItem);
-		// このノードが最上位（一番最初）である場合、検索終了
-		var parentNode;
-		var parentItem = curItem.sameTypeParent;
-		if (!parentItem) return null;
-
-		// previousSiblingに相当するノードが無い場合、
-		// parentNodeに相当するノードを返す
-		var childOffset = curItem.childOffset;
-		if (!childOffset) return parentItem;
-
-		// previousSiblingに相当するノードが子を持っている場合、
-		// 最後の子を返す。
-		// 子が無ければ、previousSiblingに相当するノードそれ自体を返す。
-		parentNode = parentItem.QueryInterface(Components.interfaces.nsIDocShellTreeNode);
-		curItem = parentNode.getChildAt(childOffset-1);
-		return this.getLastChildDocShell(curItem);
-	},
- 
-	getLastChildDocShell : function(aItem) 
-	{
-//		mydump("getLastChildDocShell");
-		var curItem = aItem.QueryInterface(Components.interfaces.nsIDocShellTreeItem);
-		var curNode;
-		var childCount;
-		while (true)
-		{
-			curNode = curItem.QueryInterface(Components.interfaces.nsIDocShellTreeNode);
-			childCount = curNode.childCount;
-			if (!childCount) return curItem;
-			curItem = curNode.getChildAt(childCount-1);
-		}
-	},
- 
-	getLastChildDocument : function(aDocument) 
-	{
-//		mydump("getLastChildDocument");
-		var docShell = this.getDocShellForFrame(Components.lookupMethod(aDocument, 'defaultView').call(aDocument));
-		docShell = this.getLastChildDocShell(docShell);
-		var doc = docShell
-			.QueryInterface(Components.interfaces.nsIDocShell)
-			.QueryInterface(Components.interfaces.nsIWebNavigation)
-			.document;
-		return doc;
-	},
-  
 /* Range Manipulation */ 
 	 
 	resetFindRange : function(aFindRange, aRange, aFindFlag, aDocument) 
@@ -664,7 +519,7 @@ mydump("resetFindRange");
 		findRange.sRange.selectNodeContents(bodyNode);
 		findRange.start.selectNodeContents(bodyNode);
 
-		var docShell = this.getDocShellForFrame(Components.lookupMethod(theDoc, 'defaultView').call(theDoc));
+		var docShell = DocShellIterator.prototype.getDocShellFromFrame(Components.lookupMethod(theDoc, 'defaultView').call(theDoc));
 	//	var childCount = bodyNode.childNodes.length;
 		var range;
 		var node;
@@ -688,21 +543,22 @@ mydump("resetFindRange");
 		return findRange;
 	},
  
-	getFindRange : function(aFindFlag, aDocument) 
+	getFindRange : function(aFindFlag, aDocShellIterator) 
 	{
 mydump("getFindRange");
-		var docShell = this.getDocShellForFrame(aDocument.defaultView);
+		var doc       = aDocShellIterator.document;
+		var docShell  = aDocShellIterator.current;
 		var docSelCon = docShell
 			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 			.getInterface(Components.interfaces.nsISelectionDisplay)
 			.QueryInterface(Components.interfaces.nsISelectionController);
 
-		if (aDocument.lastFoundEditable) {
-			var selCon = aDocument.lastFoundEditable
+		if (doc.lastFoundEditable) {
+			var selCon = doc.lastFoundEditable
 					.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
 					.editor.selectionController;
 			var selection = selCon.getSelection(selCon.SELECTION_NORMAL);
-			var testRange1 = aDocument.createRange();
+			var testRange1 = doc.createRange();
 
 			if (selection.rangeCount) {
 				var testRange2, node;
@@ -714,27 +570,27 @@ mydump("getFindRange");
 					var testRange2 = selection.getRangeAt(selection.rangeCount-1);
 					var node = testRange2.endContainer;
 				}
-				while (node != aDocument.lastFoundEditable &&
-						node.parentNode != aDocument.lastFoundEditable)
+				while (node != doc.lastFoundEditable &&
+						node.parentNode != doc.lastFoundEditable)
 					node = node.parentNode;
-				return this.getFindRangeIn(aFindFlag, aDocument, node, selCon);
+				return this.getFindRangeIn(aFindFlag, doc, node, selCon);
 			}
 
 			selection.removeAllRanges();
 
-			testRange1.selectNode(aDocument.lastFoundEditable);
+			testRange1.selectNode(doc.lastFoundEditable);
 			if (aFindFlag & this.FIND_BACK) {
-				testRange1.setEndBefore(aDocument.lastFoundEditable);
+				testRange1.setEndBefore(doc.lastFoundEditable);
 			}
 			else {
-				testRange1.setStartAfter(aDocument.lastFoundEditable);
+				testRange1.setStartAfter(doc.lastFoundEditable);
 			}
 			selection = docSelCon.getSelection(docSelCon.SELECTION_NORMAL);
 			selection.addRange(testRange1);
-			aDocument.lastFoundEditable = null;
+			doc.lastFoundEditable = null;
 		}
 
-		return this.getFindRangeIn(aFindFlag, aDocument, aDocument.body || aDocument.documentElement, docSelCon);
+		return this.getFindRangeIn(aFindFlag, doc, doc.body || doc.documentElement, docSelCon);
 	},
 	 
 	getFindRangeIn : function(aFindFlag, aDocument, aRangeParent, aSelCon) 
@@ -932,7 +788,7 @@ mydump("count:"+count);
 			}
 		}
 
-		var docShell = this.getDocShellForFrame(aDocument.defaultView);
+		var docShell = DocShellIterator.prototype.getDocShellFromFrame(aDocument.defaultView);
 		selCon = docShell
 			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 			.getInterface(Components.interfaces.nsISelectionDisplay)
@@ -967,7 +823,7 @@ mydump("setSelectionAndScroll");
 			selection = oldSelCon.getSelection(oldSelCon.SELECTION_NORMAL);
 			selection.removeAllRanges();
 		}
-		var docShell = this.getDocShellForFrame(aDocument.defaultView);
+		var docShell = DocShellIterator.prototype.getDocShellFromFrame(aDocument.defaultView);
 		oldSelCon = docShell
 			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 			.getInterface(Components.interfaces.nsISelectionDisplay)
@@ -1310,6 +1166,196 @@ mydump("setSelectionAndScroll");
 		return this;
 	}
 };
+  
+/* DocShell Traversal */ 
+function DocShellIterator(aFrame, aFromBack)
+{
+	this.mInitialDocShell = this.getDocShellFromFrame(aFrame);
+	this.mCurrentDocShell = this.mInitialDocShell;
+	this.mFromBack = aFromBack;
+	if (this.mFromBack)
+		this.mCurrentDocShell = this.getLastChildDocShell(this.mCurrentDocShell);
+}
+
+DocShellIterator.prototype = {
+	nsIDocShell           : Components.interfaces.nsIDocShell,
+	nsIDocShellTreeNode   : Components.interfaces.nsIDocShellTreeNode,
+	nsIDocShellTreeItem   : Components.interfaces.nsIDocShellTreeItem,
+	nsIWebNavigation      : Components.interfaces.nsIWebNavigation,
+	nsIInterfaceRequestor : Components.interfaces.nsIInterfaceRequestor,
+
+	mCurrentDocShell : null,
+	mInitialDocShell : null,
+	mFromBack : false,
+
+	wrapped : false,
+	 
+	get current() 
+	{
+		return this.mCurrentDocShell;
+	},
+	get root()
+	{
+		return this.getDocShellFromFrame(this.view.top);
+	},
+	get document()
+	{
+		return this.mCurrentDocShell
+			.QueryInterface(this.nsIDocShell)
+			.QueryInterface(this.nsIWebNavigation)
+			.document;
+	},
+	get view()
+	{
+		return this.mCurrentDocShell
+			.QueryInterface(this.nsIDocShell)
+			.QueryInterface(this.nsIWebNavigation)
+			.QueryInterface(this.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsIDOMWindow);
+	},
+	
+	getDocShellFromFrame : function(aFrame) 
+	{
+		return aFrame
+			.QueryInterface(this.nsIInterfaceRequestor)
+			.getInterface(this.nsIWebNavigation)
+			.QueryInterface(this.nsIDocShell);
+	},
+  
+	get isInitital() 
+	{
+		return this.mCurrentDocShell == this.mInitialDocShell;
+	},
+	get initialDocument()
+	{
+		return this.mInitialDocShell
+			.QueryInterface(this.nsIDocShell)
+			.QueryInterface(this.nsIWebNavigation)
+			.document;
+	},
+ 
+	iterateNext : function() 
+	{
+		this.wrapped = false;
+		if (this.mFromBack) {
+			nextItem = this.getPrevDocShell(this.mCurrentDocShell);
+			if (!nextItem) {
+				nextItem = this.getLastChildDocShell(this.root.QueryInterface(this.nsIDocShellTreeNode));
+				this.wrapped = true;
+			}
+		}
+		else {
+			nextItem = this.getNextDocShell(this.mCurrentDocShell);
+			if (!nextItem) {
+				nextItem = this.root;
+				this.wrapped = true;
+			}
+		}
+		this.mCurrentDocShell = nextItem;
+		return nextItem;
+	},
+	
+	getNextDocShell : function(aNode) 
+	{
+		// 子がある場合、最初の子を返す
+		if (aNode.childCount) return aNode.getChildAt(0);
+		var curNode = aNode;
+		var curItem;
+		var parentNode;
+		var parentItem;
+		var childOffset;
+		while (curNode)
+		{
+			// このノードが最上位である場合、検索終了
+			curItem = curNode.QueryInterface(this.nsIDocShellTreeItem);
+			var parentItem = curItem.sameTypeParent;
+			if (!parentItem) return null;
+
+			// nextSIblingに相当するノードを取得して返す
+			childOffset = curItem.childOffset;
+			parentNode = parentItem.QueryInterface(this.nsIDocShellTreeNode);
+			if (childOffset < parentNode.childCount-1)
+				return parentNode.getChildAt(childOffset+1);
+
+			// nextSiblingに相当するノードが無いので、
+			// ひとつ上位のノードにフォーカスを移して再検索
+			curNode = parentItem;
+		}
+	},
+ 
+	getPrevDocShell : function(aNode) 
+	{
+		var curNode = aNode;
+		var curItem = curNode.QueryInterface(this.nsIDocShellTreeItem);
+		// このノードが最上位（一番最初）である場合、検索終了
+		var parentNode;
+		var parentItem = curItem.sameTypeParent;
+		if (!parentItem) return null;
+
+		// previousSiblingに相当するノードが無い場合、
+		// parentNodeに相当するノードを返す
+		var childOffset = curItem.childOffset;
+		if (!childOffset) return parentItem;
+
+		// previousSiblingに相当するノードが子を持っている場合、
+		// 最後の子を返す。
+		// 子が無ければ、previousSiblingに相当するノードそれ自体を返す。
+		parentNode = parentItem.QueryInterface(this.nsIDocShellTreeNode);
+		curItem = parentNode.getChildAt(childOffset-1);
+		return this.getLastChildDocShell(curItem);
+	},
+ 
+	getLastChildDocShell : function(aItem) 
+	{
+		var curItem = aItem.QueryInterface(this.nsIDocShellTreeItem);
+		var curNode;
+		var childCount;
+		while (true)
+		{
+			curNode = curItem.QueryInterface(this.nsIDocShellTreeNode);
+			childCount = curNode.childCount;
+			if (!childCount) return curItem;
+			curItem = curNode.getChildAt(childCount-1);
+		}
+	},
+  
+	get isFindable() 
+	{
+		var doc = this.document;
+		switch (doc.documentElement.namespaceURI)
+		{
+			case 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul':
+			case 'http://www.w3.org/2000/svg':
+				return false;
+
+			default:
+				return true;
+		}
+	},
+ 
+	isRangeTopLevel : function(aRange) 
+	{
+		var doc = this.initialDocument;
+		return this.mFromBack ?
+			(
+				aRange.startContainer == doc.body ||
+				aRange.startContainer == doc.documentElement
+			) :
+			(
+				aRange.endContainer == doc.body ||
+				aRange.endContainer == doc.documentElement
+			) ;
+	},
+ 	
+	destroy : function() 
+	{
+		delete this.mCurrentDocShell;
+		delete this.mInitialDocShell;
+		delete this.mFromBack;
+		delete this.wrapped;
+	}
+ 
+}; 
   
 var gModule = { 
 	_firstTime: true,
