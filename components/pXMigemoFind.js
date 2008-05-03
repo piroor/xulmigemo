@@ -591,7 +591,7 @@ mydump("count:"+count);
 			else {
 				if (aFindFlag & this.FIND_BACK) {
 					node = this.viewportStartPoint ||
-							this.findVisibleNode(aFindFlag, aDocument.defaultView);
+							this.findFirstVisibleNode(aFindFlag, aDocument.defaultView);
 					this.viewportStartPoint = node;
 					findRange.setStartAfter(node);
 					startPt.setStartAfter(node);
@@ -600,7 +600,7 @@ mydump("count:"+count);
 				}
 				else {
 					node = this.viewportEndPoint ||
-							this.findVisibleNode(aFindFlag, aDocument.defaultView);
+							this.findFirstVisibleNode(aFindFlag, aDocument.defaultView);
 					this.viewportEndPoint = node;
 					findRange.setStartBefore(node);
 					startPt.setStartBefore(node);
@@ -643,17 +643,19 @@ mydump("count:"+count);
 	viewportStartPoint : null, 
 	viewportEndPoint   : null,
  
-	findVisibleNode : function(aFindFlag, aFrame) 
+	findFirstVisibleNode : function(aFindFlag, aFrame) 
 	{
-//		dump("findVisibleNode\n");
 		var doc = aFrame.document;
 
 		this.visibleNodeFilter.frameHeight = aFrame.innerHeight;
-		this.visibleNodeFilter.startY      = aFrame.pageYOffset;
-		this.visibleNodeFilter.endY        = aFrame.pageYOffset + aFrame.innerHeight;
+		this.visibleNodeFilter.startY      = aFrame.scrollY;
+		this.visibleNodeFilter.endY        = aFrame.scrollY + aFrame.innerHeight;
 		this.visibleNodeFilter.minPixels   = 12;
-		this.visibleNodeFilter.minSize     = aFrame.innerHeight;
-		this.visibleNodeFilter.method      = (aFindFlag & this.FIND_BACK) ? 'isBelow' : 'isAbove' ;
+		this.visibleNodeFilter.minSize     = aFrame.innerWidth * aFrame.innerHeight;
+		this.visibleNodeFilter.shouldReject  =
+			this.visibleNodeFilter[(aFindFlag & this.FIND_BACK) ? 'isBelow' : 'isAbove' ];
+		this.visibleNodeFilter.shouldAccept =
+			this.visibleNodeFilter[(aFindFlag & this.FIND_BACK) ? 'isAbove' : 'isBelow' ];
 		this.visibleNodeFilter.lastResult  = this.visibleNodeFilter.kSKIP;
 
 		var walker = doc.createTreeWalker(
@@ -669,11 +671,21 @@ mydump("count:"+count);
 			{
 				walker.currentNode = node;
 			}
-			this.visibleNodeFilter.stop = true;
+			this.visibleNodeFilter.found = false;
+			while (!this.visibleNodeFilter.found &&
+				(node = walker.previousNode()))
+			{
+				walker.currentNode = node;
+			}
 		}
 		else {
 			node = walker.firstChild();
-			this.visibleNodeFilter.stop = true;
+			this.visibleNodeFilter.found = false;
+			while (!this.visibleNodeFilter.found &&
+				(node = walker.nextNode()))
+			{
+				walker.currentNode = node;
+			}
 		}
 		return node || doc.documentElement;
 	},
@@ -683,47 +695,56 @@ mydump("count:"+count);
 		kACCEPT : Components.interfaces.nsIDOMNodeFilter.FILTER_ACCEPT,
 		acceptNode : function(aNode)
 		{
+			var size = aNode.offsetWidth * aNode.offsetHeight;
 			result = (
-				aNode.offsetWidth == 0 ||
-				aNode.offsetHeight == 0 ||
+				size == 0 ||
 				aNode.offsetHeight > this.frameHeight ||
-				this[this.method](aNode)
+				this.shouldReject(aNode, true)
 				) ? this.kSKIP : this.kACCEPT ;
 
 			if (result == this.kACCEPT) {
-				if (aNode.offsetHeight > this.minSize ) result = this.kSKIP;
-				this.minSize = Math.min(this.minSize, Math.min(this.frameHeight, aNode.offsetHeight));
+				if (size > this.minSize) result = this.kSKIP;
+				this.minSize = Math.min(this.minSize, size);
 			}
 
-			if (result == this.kSKIP && this.lastResult == this.kACCEPT)
-				this.stop = true;
+			if (!this.found && this.shouldAccept(aNode, false))
+				this.found = true;
 
 			this.lastResult = result;
 
 			return result;
 		},
-		isAbove : function(aNode)
+		isAbove : function(aNode, aOutside)
 		{
+			var y = this.getY(aNode);
+			var edge = aOutside ? this.startY : this.endY ;
 			return (
-				aNode.offsetTop < this.startY &&
-				aNode.offsetTop + Math.min(this.frameHeight, aNode.offsetHeight) < this.startY + this.minPixels
+				y < edge &&
+				y + Math.min(this.frameHeight, aNode.offsetHeight) < edge + this.minPixels
 			);
 		},
-		isBelow : function(aNode)
+		isBelow : function(aNode, aOutside)
 		{
+			var y = this.getY(aNode);
+			var edge = aOutside ? this.endY : this.startY ;
 			return (
-				aNode.offsetTop + Math.min(this.frameHeight, aNode.offsetHeight) > this.endY &&
-				aNode.offsetTop > this.endY - this.minPixels
+				y + Math.min(this.frameHeight, aNode.offsetHeight) > edge &&
+				y > edge - this.minPixels
 			);
 		},
-		method      : null,
-		frameHeight : 0,
-		startY      : 0,
-		endY        : 0,
-		minPixels   : 12,
-		minSize     : 0,
-		lastResult  : null,
-		stop        : false
+		getY : function(aNode)
+		{
+			return aNode.ownerDocument.getBoxObjectFor(aNode).y;
+		},
+		shouldReject : null,
+		shouldAccept : null,
+		frameHeight  : 0,
+		startY       : 0,
+		endY         : 0,
+		minPixels    : 12,
+		minSize      : 0,
+		lastResult   : null,
+		found        : false
 	},
   	 
 	resetFindRangeSet : function(aRangeSet, aFoundRange, aFindFlag, aDocument) 
