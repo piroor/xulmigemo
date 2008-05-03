@@ -1015,9 +1015,9 @@ var XMigemoUI = {
 			gFindBar.find();
 		}
 	},
- 	
+ 
 /* Override FindBar */ 
-	
+	 
 	overrideFindBar : function() 
 	{
 		/*
@@ -1168,6 +1168,7 @@ var XMigemoUI = {
 				<![CDATA[
 				{
 					XMigemoUI.activeBrowser.contentDocument.documentElement.setAttribute(XMigemoUI.ATTR_LAST_HIGHLIGHT, arguments[0]);
+					XMigemoUI.updateHighlightNode(arguments[1]);
 					if (XMigemoUI.isActive) {
 						return XMigemoUI.highlightText(arguments[0], arguments[1],
 								('_searchRange' in this) ? this._searchRange : // Fx 3
@@ -1518,7 +1519,39 @@ var XMigemoUI = {
 		var ranges = XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode, {});
 		return ranges.length ? true : false ;
 	},
+	 
+	updateHighlightNode : function(aNode) 
+	{
+		aNode.setAttribute('onmousedown', <><![CDATA[
+			try {
+				var xpathResult = this.ownerDocument.evaluate(
+						'ancestor::*[contains(" INPUT input TEXTAREA textarea ", concat(" ", local-name(), " "))]',
+						this,
+						null,
+						XPathResult.FIRST_ORDERED_NODE_TYPE,
+						null
+					);
+				if (!xpathResult.singleNodeValue) return;
+			}
+			catch(e) {
+				// permission denied, then this is in the input area!
+			}
+			var range = document.createRange();
+			range.selectNodeContents(this);
+			var contents = range.extractContents(true);
+			range.selectNode(this);
+			range.deleteContents();
+			range.insertNode(contents);
+			range.detach();
+		]]></>);
+	},
  
+	onHighlightClickedOrTyped : function(aEvent) 
+	{
+		alert(aEvent.target);
+		alert(aEvent.originalTarget);
+	},
+ 	 
 	updateStatus : function(aStatusText) 
 	{
 		var bar = this.findBar;

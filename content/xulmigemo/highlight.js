@@ -132,21 +132,7 @@ var XMigemoHighlight = {
 					window.content &&
 					window.content.__moz_xmigemoHighlightedScreen) {
 					this.toggleHighlightScreen(false);
-					var utils = aEvent.view
-						.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-						.getInterface(Components.interfaces.nsIDOMWindowUtils);
-					if ('sendMouseEvent' in utils) {
-						var flags = 0;
-						const nsIDOMNSEvent = Components.interfaces.nsIDOMNSEvent;
-						if (aEvent.altKey) flags |= nsIDOMNSEvent.ALT_MARK;
-						if (aEvent.ctrlKey) flags |= nsIDOMNSEvent.CONTROL_MARK;
-						if (aEvent.shiftKey) flags |= nsIDOMNSEvent.SHIFT_MARK;
-						if (aEvent.metaKey) flags |= nsIDOMNSEvent.META_MARK;
-						window.setTimeout(function(aX, aY, aButton) {
-							utils.sendMouseEvent('mousedown', aX, aY, aButton, 1, flags);
-							utils.sendMouseEvent('mouseup', aX, aY, aButton, 1, flags);
-						}, 0, aEvent.clientX, aEvent.clientY, aEvent.button);
-					}
+					this.resendClickEvent(aEvent);
 				}
 				break;
 
@@ -183,7 +169,28 @@ var XMigemoHighlight = {
 
 		}
 	},
- 
+	 
+	resendClickEvent : function(aEvent) 
+	{
+		var utils = aEvent.view
+			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsIDOMWindowUtils);
+		if ('sendMouseEvent' in utils) { // Firefox 3
+			var flags = 0;
+			const nsIDOMNSEvent = Components.interfaces.nsIDOMNSEvent;
+			if (aEvent.altKey) flags |= nsIDOMNSEvent.ALT_MARK;
+			if (aEvent.ctrlKey) flags |= nsIDOMNSEvent.CONTROL_MARK;
+			if (aEvent.shiftKey) flags |= nsIDOMNSEvent.SHIFT_MARK;
+			if (aEvent.metaKey) flags |= nsIDOMNSEvent.META_MARK;
+			window.setTimeout(function(aX, aY, aButton) {
+				utils.sendMouseEvent('mousedown', aX, aY, aButton, 1, flags);
+				utils.sendMouseEvent('mouseup', aX, aY, aButton, 1, flags);
+			}, 0, aEvent.clientX, aEvent.clientY, aEvent.button);
+		}
+		else {
+		}
+	},
+ 	 
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
 		if (aTopic != 'nsPref:changed') return;
@@ -201,7 +208,7 @@ var XMigemoHighlight = {
 		}
 	},
 	domain  : 'xulmigemo',
- 	
+ 
 /* Safari style highlight, dark screen 
 	based on http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
 */
@@ -416,7 +423,7 @@ var XMigemoHighlight = {
 		}
 		return false;
 	},
-	findParentEditable : function(aRange) 
+	findParentEditable : function(aRange)
 	{
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
