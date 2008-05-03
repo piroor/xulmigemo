@@ -137,15 +137,20 @@ var XMigemoHighlight = {
 				break;
 
 			case 'XMigemoFindBarOpen':
-				if (this.strongHighlight &&
-					!XMigemoUI.findHighlightCheck.disabled &&
-					XMigemoUI.findHighlightCheck.checked)
-					this.toggleHighlightScreen(true);
+				window.setTimeout(function(aSelf) {
+					if (!XMigemoUI.findBarHidden &&
+						aSelf.strongHighlight &&
+						!XMigemoUI.findHighlightCheck.disabled &&
+						XMigemoUI.findHighlightCheck.checked)
+						aSelf.toggleHighlightScreen(true);
+				}, 0, this);
 				break;
 
 			case 'XMigemoFindBarClose':
-				if (this.strongHighlight)
-					this.destroyHighlightScreen();
+				window.setTimeout(function(aSelf) {
+					if (aSelf.strongHighlight)
+						aSelf.destroyHighlightScreen();
+				}, 0, this);
 				break;
 
 			case 'XMigemoFindBarToggleHighlight':
@@ -153,13 +158,15 @@ var XMigemoHighlight = {
 					window.content.__moz_xmigemoHighlighted = aEvent.targetHighlight;
 
 				if (
-					this.strongHighlight/* &&
+					this.strongHighlight &&
+					XMigemoUI.findBarHidden != aEvent.targetHighlight /* &&
 					((XMigemoUI.isActive ? XMigemoFind.lastFoundWord : XMigemoUI.findTerm ) || '').length > 1*/
 					)
 					this.toggleHighlightScreen(aEvent.targetHighlight);
 				break;
 
 			case 'XMigemoFindBarUpdate':
+				if (XMigemoUI.findBarHidden) return;
 				var highlightCheck = XMigemoUI.findHighlightCheck;
 				if (highlightCheck.checked &&
 					!window.content.__moz_xmigemoHighlighted) {
