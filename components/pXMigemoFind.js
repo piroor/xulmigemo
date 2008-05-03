@@ -73,7 +73,7 @@ pXMigemoFind.prototype = {
 		return this.manualLinksOnly ||
 			(this.isQuickFind && Prefs.getBoolPref('xulmigemo.linksonly'));
 	},
-	set isLinksOnly(val) 
+	set isLinksOnly(val)
 	{
 		this.manualLinksOnly = val;
 		return this.isLinksOnly;
@@ -339,7 +339,7 @@ mydump("findInDocument ==========================================");
 			if (resultFlag & this.FOUND) {
 				if (this.isLinksOnly && !(resultFlag & this.FOUND_IN_LINK)) {
 					rangeText = result.rest;
-					this.resetFindRange(aRangeSet, this.foundRange, aFindFlag, aDocument);
+					this.resetFindRangeSet(aRangeSet, this.foundRange, aFindFlag, aDocument);
 					continue;
 				}
 				resultFlag |= this.FINISH_FIND;
@@ -349,7 +349,7 @@ mydump("findInDocument ==========================================");
 			return resultFlag;
 		}
 	},
- 	
+ 
 	findInText : function(aFindFlag, aTerm, aText) 
 	{
 		var result = {
@@ -501,38 +501,7 @@ mydump('findEditableFromRange');
 	},
   
 /* Range Manipulation */ 
-	
-	resetFindRange : function(aRangeSet, aFoundRange, aFindFlag, aDocument) 
-	{
-mydump("resetFindRange");
-		var win = this.document.commandDispatcher.focusedWindow;
-		var theDoc = (win && win.top != this.window.top) ?
-					Components.lookupMethod(win, 'document').call(win) :
-					aDocument ;
-
-		var root = theDoc.body || theDoc.documentElement;
-		aRangeSet.range.selectNodeContents(root);
-		aRangeSet.start.selectNodeContents(root);
-
-		var node;
-		var offset;
-		if (aFindFlag & this.FIND_DEFAULT || aFindFlag & this.FIND_FORWARD) {
-			node = aFoundRange.endContainer;
-			offset = aFoundRange.endOffset;
-			aRangeSet.range.setStart(node, offset);
-			aRangeSet.start.setStart(node, offset);
-			aRangeSet.start.setEnd(node, offset);
-		}
-		else if (aFindFlag & this.FIND_BACK) {
-			node = aFoundRange.startContainer;
-			offset = aFoundRange.startOffset;
-			aRangeSet.range.setEnd(node, offset);
-			aRangeSet.start.setStart(node, offset);
-			aRangeSet.start.setEnd(node, offset);
-		}
-		return aRangeSet;
-	},
- 
+	 
 	getFindRangeSet : function(aFindFlag, aDocShellIterator) 
 	{
 mydump("getFindRangeSet");
@@ -575,9 +544,9 @@ mydump("getFindRangeSet");
 			doc.lastFoundEditable = null;
 		}
 
-		return this.getFindRangeSetIn(aFindFlag, doc, doc.body || doc.documentElement, docSelCon);
+		return this.getFindRangeSetIn(aFindFlag, doc, (doc.body || doc.documentElement), docSelCon);
 	},
-	
+	 
 	getFindRangeSetIn : function(aFindFlag, aDocument, aRangeParent, aSelCon) 
 	{
 mydump("getFindRangeSetIn");
@@ -588,8 +557,12 @@ mydump("getFindRangeSetIn");
 		var endPt = aDocument.createRange();
 		endPt.selectNodeContents(aRangeParent);
 
-		var selection = aSelCon.getSelection(aSelCon.SELECTION_NORMAL);
-		var count = selection.rangeCount;
+		var selection;
+		var count = 0;
+		if (aSelCon) {
+			selection = aSelCon.getSelection(aSelCon.SELECTION_NORMAL);
+			count = selection.rangeCount;
+		}
 mydump("count:"+count);
 
 		var childCount = aRangeParent.childNodes.length;
@@ -604,7 +577,7 @@ mydump("count:"+count);
 				!this.startFromViewport
 				) {
 				findRange.selectNodeContents(aRangeParent);
-				if (aFindFlag & this.FIND_BACK){
+				if (aFindFlag & this.FIND_BACK) {
 					startPt.setStart(aRangeParent, childCount);
 					startPt.setEnd(aRangeParent, childCount);
 					endPt.collapse(true);
@@ -616,22 +589,22 @@ mydump("count:"+count);
 				}
 			}
 			else {
-				//findVisibleNodeが一番の改造しどころだが、どうしたものか。
-				//案はあっても実際のコードが書けない。
-				if (aFindFlag & this.FIND_BACK){
-					node = this.viewportStartPoint || this.findVisibleNode(aDocument.defaultView, aFindFlag);
+				if (aFindFlag & this.FIND_BACK) {
+					node = this.viewportStartPoint ||
+							this.findVisibleNode(aFindFlag, aDocument.defaultView);
 					this.viewportStartPoint = node;
-					findRange.setStart(node, node.childNodes.length);
-					startPt.setStart(node, node.childNodes.length);
-					startPt.setEnd(node, node.childNodes.length);
+					findRange.setStartAfter(node);
+					startPt.setStartAfter(node);
+					startPt.setEndAfter(node);
 					endPt.collapse(true);
 				}
 				else {
-					node = this.viewportEndPoint || this.findVisibleNode(aDocument.defaultView, aFindFlag);
+					node = this.viewportEndPoint ||
+							this.findVisibleNode(aFindFlag, aDocument.defaultView);
 					this.viewportEndPoint = node;
-					findRange.setStart(node, 0);
-					startPt.setStart(node, 0);
-					startPt.setEnd(node, 0);
+					findRange.setStartBefore(node);
+					startPt.setStartBefore(node);
+					startPt.setEndBefore(node);
 					endPt.collapse(false);
 				}
 			}
@@ -669,90 +642,123 @@ mydump("count:"+count);
  
 	viewportStartPoint : null, 
 	viewportEndPoint   : null,
-  
-	findVisibleNode : function(aFrame, aFindFlag) 
+ 
+	findVisibleNode : function(aFindFlag, aFrame) 
 	{
 //		dump("findVisibleNode\n");
 		var doc = aFrame.document;
 
-		var frameHeight = aFrame.innerHeight;
-		var startY      = aFrame.pageYOffset;
-		var endY        = startY+frameHeight;
-		var minPixels   = 12;
+		this.visibleNodeFilter.frameHeight = aFrame.innerHeight;
+		this.visibleNodeFilter.startY      = aFrame.pageYOffset;
+		this.visibleNodeFilter.endY        = aFrame.pageYOffset + aFrame.innerHeight;
+		this.visibleNodeFilter.minPixels   = 12;
+		this.visibleNodeFilter.minSize     = aFrame.innerHeight;
+		this.visibleNodeFilter.method      = (aFindFlag & this.FIND_BACK) ? 'isBelow' : 'isAbove' ;
+		this.visibleNodeFilter.lastResult  = this.visibleNodeFilter.kSKIP;
 
-		var isAbove = function(aNode) {
-				return (
-					aNode.offsetTop < startY &&
-					aNode.offsetTop + Math.min(frameHeight, aNode.offsetHeight) < startY + minPixels
-				);
-			};
-		var isBelow = function(aNode) {
-				return (
-					aNode.offsetTop + Math.min(frameHeight, aNode.offsetHeight) > endY &&
-					aNode.offsetTop > endY - minPixels
-				);
-			};
+		var walker = doc.createTreeWalker(
+				doc.documentElement,
+				Components.interfaces.nsIDOMNodeFilter.SHOW_ELEMENT,
+				this.visibleNodeFilter,
+				false
+			);
 
-		var isVisible = function(aNode) {
-			return (
-				aNode.nodeType != aNode.ELEMENT_NODE ||
-				aNode.offsetWidth == 0 || aNode.offsetHeight == 0 ||
-				((aFindFlag & this.FIND_BACK) ? isBelow(aNode) : isAbove(aNode))
-				) ? false : true ;
-		};
-
-		var nodes = doc.getElementsByTagName('*');
-		var visibleNode;
-		var visibleMinNode;
-		if (aFindFlag & this.FIND_BACK){
-			for (var i = nodes.length-1, mini = -1; i > mini; i--)
+		var node;
+		if (aFindFlag & this.FIND_BACK) {
+			while (node = walker.lastChild())
 			{
-				var node = nodes[i];
-				if (isVisible(node)) {
-					visibleNode = node;
-					if (node.offsetHeight < frameHeight) {
-						visibleMinNode = node;
-						break;
-					}
-				}
-				else if (visibleNode){
-					break;
-				}
+				walker.currentNode = node;
 			}
-//			dump('PREV '+node+'\n');
+			this.visibleNodeFilter.stop = true;
 		}
-		else{
-			for (var i = 0, maxi = nodes.length; i < maxi; i++)
-			{
-				var node = nodes[i];
-				if (isVisible(node)) {
-					visibleNode = node;
-					if (node.offsetHeight < frameHeight) {
-						visibleMinNode = node;
-						break;
-					}
-				}
-				else if (visibleNode){
-					break;
-				}
-			}
-//			dump('NEXT '+node+'\n');
+		else {
+			node = walker.firstChild();
+			this.visibleNodeFilter.stop = true;
 		}
-
-/*
-		if (node) {
-			node.style.outline = 'red solid 2px';
-			node.ownerDocument.defaultView.setTimeout(function() {
-				node.style.outline = 'none';
-			}, 10000);
-		}
-*/
-
 		return node || doc.documentElement;
+	},
+	 
+	visibleNodeFilter : { 
+		kSKIP   : Components.interfaces.nsIDOMNodeFilter.FILTER_SKIP,
+		kACCEPT : Components.interfaces.nsIDOMNodeFilter.FILTER_ACCEPT,
+		acceptNode : function(aNode)
+		{
+			result = (
+				aNode.offsetWidth == 0 ||
+				aNode.offsetHeight == 0 ||
+				aNode.offsetHeight > this.frameHeight ||
+				this[this.method](aNode)
+				) ? this.kSKIP : this.kACCEPT ;
+
+			if (result == this.kACCEPT) {
+				if (aNode.offsetHeight > this.minSize ) result = this.kSKIP;
+				this.minSize = Math.min(this.minSize, Math.min(this.frameHeight, aNode.offsetHeight));
+			}
+
+			if (result == this.kSKIP && this.lastResult == this.kACCEPT)
+				this.stop = true;
+
+			this.lastResult = result;
+
+			return result;
+		},
+		isAbove : function(aNode)
+		{
+			return (
+				aNode.offsetTop < this.startY &&
+				aNode.offsetTop + Math.min(this.frameHeight, aNode.offsetHeight) < this.startY + this.minPixels
+			);
+		},
+		isBelow : function(aNode)
+		{
+			return (
+				aNode.offsetTop + Math.min(this.frameHeight, aNode.offsetHeight) > this.endY &&
+				aNode.offsetTop > this.endY - this.minPixels
+			);
+		},
+		method      : null,
+		frameHeight : 0,
+		startY      : 0,
+		endY        : 0,
+		minPixels   : 12,
+		minSize     : 0,
+		lastResult  : null,
+		stop        : false
+	},
+  	 
+	resetFindRangeSet : function(aRangeSet, aFoundRange, aFindFlag, aDocument) 
+	{
+mydump("resetFindRangeSet");
+		var win = this.document.commandDispatcher.focusedWindow;
+		var theDoc = (win && win.top != this.window.top) ?
+					Components.lookupMethod(win, 'document').call(win) :
+					aDocument ;
+
+		var root = theDoc.body || theDoc.documentElement;
+		aRangeSet.range.selectNodeContents(root);
+		aRangeSet.start.selectNodeContents(root);
+
+		var node;
+		var offset;
+		if (aFindFlag & this.FIND_DEFAULT || aFindFlag & this.FIND_FORWARD) {
+			node = aFoundRange.endContainer;
+			offset = aFoundRange.endOffset;
+			aRangeSet.range.setStart(node, offset);
+			aRangeSet.start.setStart(node, offset);
+			aRangeSet.start.setEnd(node, offset);
+		}
+		else if (aFindFlag & this.FIND_BACK) {
+			node = aFoundRange.startContainer;
+			offset = aFoundRange.startOffset;
+			aRangeSet.range.setEnd(node, offset);
+			aRangeSet.start.setStart(node, offset);
+			aRangeSet.start.setEnd(node, offset);
+		}
+		return aRangeSet;
 	},
   
 /* Update Appearance */ 
-	 
+	
 	getSelectionController : function(aTarget) 
 	{
 		if (!aTarget) return null;
@@ -891,7 +897,8 @@ mydump("setSelectionAndScroll");
 				.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
 				.editor.selection.removeAllRanges();
 
-		aDocument.defaultView.getSelection().removeAllRanges();
+		var sel = aDocument.defaultView.getSelection();
+		if (sel) sel.removeAllRanges();
 	},
  
 	updateStatusBar : function(aLink) 
@@ -1004,7 +1011,7 @@ mydump("setSelectionAndScroll");
 		if (!this.focusToFound(win))
 			Components.lookupMethod(win, 'focus').call(win);
 	},
-	 
+	
 	focusToFound : function(aFrame) 
 	{
 		var self = this;
@@ -1043,7 +1050,7 @@ mydump("setSelectionAndScroll");
 	getFoundRange : function(aFrame) 
 	{
 		var sel = aFrame.getSelection();
-		if (!sel.rangeCount && aFrame.document.foundEditable) {
+		if ((!sel || !sel.rangeCount) && aFrame.document.foundEditable) {
 			var selCon = this.getSelectionController(aFrame.document.foundEditable);
 			sel = selCon.getSelection(selCon.SELECTION_ATTENTION);
 			if (!sel.rangeCount) sel = selCon.getSelection(selCon.SELECTION_NORMAL);

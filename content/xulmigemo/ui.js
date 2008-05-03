@@ -616,7 +616,7 @@ var XMigemoUI = {
 			return true;
 
 		var selection = aFrame.getSelection();
-		if (selection.rangeCount) {
+		if (selection && selection.rangeCount) {
 			var range = selection.getRangeAt(0);
 			var foundLink = this.findParentLink(range);
 			if (foundLink) {
