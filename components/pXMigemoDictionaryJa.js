@@ -12,6 +12,8 @@ var ObserverService = Components
 var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
+
+const pIXMigemoDictionary = Components.interfaces.pIXMigemoDictionary;
  
 function pXMigemoDictionary() { 
 	mydump('create instance pIXMigemoDictionary(lang=ja)');
@@ -38,12 +40,12 @@ pXMigemoDictionary.prototype = {
 	
 	initialized : false, 
  
-	RESULT_OK                      : 1, 
-	RESULT_ERROR_INVALID_INPUT     : 2,
-	RESULT_ERROR_ALREADY_EXIST     : 4,
-	RESULT_ERROR_NOT_EXIST         : 8,
-	RESULT_ERROR_NO_TARGET         : 16,
-	RESULT_ERROR_INVALID_OPERATION : 32,
+	RESULT_OK                      : pIXMigemoDictionary.RESULT_OK, 
+	RESULT_ERROR_INVALID_INPUT     : pIXMigemoDictionary.RESULT_ERROR_INVALID_INPUT,
+	RESULT_ERROR_ALREADY_EXIST     : pIXMigemoDictionary.RESULT_ERROR_ALREADY_EXIST,
+	RESULT_ERROR_NOT_EXIST         : pIXMigemoDictionary.RESULT_ERROR_NOT_EXIST,
+	RESULT_ERROR_NO_TARGET         : pIXMigemoDictionary.RESULT_ERROR_NO_TARGET,
+	RESULT_ERROR_INVALID_OPERATION : pIXMigemoDictionary.RESULT_ERROR_INVALID_OPERATION,
  
 /* File I/O */ 
 	
@@ -397,7 +399,7 @@ pXMigemoDictionary.prototype = {
   
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemoDictionary) &&
+		if(!aIID.equals(pIXMigemoDictionary) &&
 			!aIID.equals(Components.interfaces.pIXMigemoDictionaryJa) &&
 			!aIID.equals(Components.interfaces.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;

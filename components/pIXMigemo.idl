@@ -218,7 +218,7 @@ interface pIXMigemoFind : nsIObserver
 	/* target node; <xul:browser/>, <xul:tabbrowser/> or <xul:iframe/> */
 	attribute nsIDOMNode target;
 
-	attribute boolean manualLinksOnly;
+	attribute boolean isLinksOnly;
 	attribute boolean isQuickFind;
 
 	attribute unsigned short findMode;
@@ -240,17 +240,19 @@ interface pIXMigemoFind : nsIObserver
 	void findNext(in boolean forceFocus);
 	void findPrevious(in boolean forceFocus);
 
-	const unsigned short FOUND             = 0;
-	const unsigned short NOTFOUND          = 1;
+	const unsigned short NOTFOUND          = 0;
+	const unsigned short FOUND             = 1;
 	const unsigned short WRAPPED           = 2;
-	const unsigned short NOTLINK           = 4;
+	const unsigned short FOUND_IN_LINK     = 4;
 	const unsigned short FOUND_IN_EDITABLE = 8;
+	const unsigned short FINISH_FIND       = 16; /* for internal purpose */
 
 	const unsigned short FIND_DEFAULT     = 1;
 	const unsigned short FIND_BACK        = 2;
 	const unsigned short FIND_FORWARD     = 4;
 	const unsigned short FIND_WRAP        = 8;
-	const unsigned short FIND_IN_EDITABLE = 128;
+	const unsigned short FIND_IN_LINK     = 128;
+	const unsigned short FIND_IN_EDITABLE = 256;
 
 	void setSelectionLook(in nsIDOMDocument document, in boolean changeColor);
 
@@ -272,7 +274,7 @@ interface pIXMigemoTextTransformJa : pIXMigemoTextTransform
 	AString getKana(in AString key, in unsigned short kanaFlag);
 	const unsigned short KANA_HIRA = 0;
 	const unsigned short KANA_KATA = 1;
-	const unsigned short KANA_ALL = 2;
+	const unsigned short KANA_ALL  = 2;
 
 	AString hira2roman(in AString hiragana); // hiragana => roman
 	AString hira2kata(in AString hiragana); // hiragana => katakana

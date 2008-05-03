@@ -1,6 +1,8 @@
 var Prefs = Components 
 			.classes['@mozilla.org/preferences;1']
 			.getService(Components.interfaces.nsIPrefBranch);
+
+const pIXMigemoTextTransformJa = Components.interfaces.pIXMigemoTextTransformJa;
  
 function pXMigemoTextTransformJa() { 
 	this.init();
@@ -59,9 +61,9 @@ pXMigemoTextTransformJa.prototype = {
 				.removeLatinModifiers(aInput);
 	},
  	
-	KANA_HIRA : 0, 
-	KANA_KATA : 1,
-	KANA_ALL  : 2,
+	KANA_HIRA : pIXMigemoTextTransformJa.KANA_HIRA, 
+	KANA_KATA : pIXMigemoTextTransformJa.KANA_KATA,
+	KANA_ALL  : pIXMigemoTextTransformJa.KANA_ALL,
  
 	normalizeForYomi : function(aStr) 
 	{
@@ -800,7 +802,7 @@ pXMigemoTextTransformJa.prototype = {
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemoTextTransform) &&
-			!aIID.equals(Components.interfaces.pIXMigemoTextTransformJa) &&
+			!aIID.equals(pIXMigemoTextTransformJa) &&
 			!aIID.equals(Components.interfaces.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
