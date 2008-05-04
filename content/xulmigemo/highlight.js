@@ -7,6 +7,7 @@ var XMigemoHighlight = {
 	STYLE_JUMP     : 1,
 
 	kSCREEN : '__moz_xmigemoFindHighlightScreen',
+	kANIMATION : '__moz_xmigemoFindHighlightAnimation',
 	 
 	NSResolver : { 
 		lookupNamespaceURI : function(aPrefix)
@@ -277,20 +278,28 @@ var XMigemoHighlight = {
 	},
 	
 	highlightStyle : String(<![CDATA[ 
-		:root[%SCREEN%="on"] * {
+		:root[%SCREEN%="on"] *,
+		:root[%ANIMATION%="on"] * {
 			z-index: auto !important;
 		}
 		:root[%SCREEN%="on"] #__firefox-findbar-search-id, /* Fx 2 */
+		:root[%ANIMATION%="true"] #__firefox-findbar-search-id,
 		:root[%SCREEN%="on"] .__mozilla-findbar-search, /* Fx 3 */
+		:root[%ANIMATION%="true"] .__mozilla-findbar-search,
 		:root[%SCREEN%="on"] .searchwp-term-highlight1, /* SearchWP */
 		:root[%SCREEN%="on"] .searchwp-term-highlight2,
 		:root[%SCREEN%="on"] .searchwp-term-highlight3,
 		:root[%SCREEN%="on"] .searchwp-term-highlight4,
-		:root[%SCREEN%="on"] .GBL-Highlighted /* Googlebar Lite */ {
+		:root[%ANIMATION%="true"] .searchwp-term-highlight1,
+		:root[%ANIMATION%="true"] .searchwp-term-highlight2,
+		:root[%ANIMATION%="true"] .searchwp-term-highlight3,
+		:root[%ANIMATION%="true"] .searchwp-term-highlight4,
+		:root[%SCREEN%="on"] .GBL-Highlighted, /* Googlebar Lite */
+		:root[%ANIMATION%="true"] .GBL-Highlighted {
 			position: relative !important;
 			z-index: 3000000 !important;
 		}
-		:root[%SCREEN%="on"] .__mozilla-findbar-animation {
+		.__mozilla-findbar-animation {
 			position: absolute !important;
 			z-index: 3000100 !important;
 			overflow: hidden !important;
@@ -499,6 +508,10 @@ var XMigemoHighlight = {
 	clearAnimationStyle : function() 
 	{
 		if (!this.animationNode || !this.animationNode.parentNode) return;
+
+		var doc = this.animationNode.ownerDocument;
+		doc.documentElement.removeAttribute(this.kANIMATION);
+
 		switch (this.animationStyle)
 		{
 			case this.STYLE_JUMP:
@@ -520,10 +533,13 @@ var XMigemoHighlight = {
 	initAnimationStyle : function() 
 	{
 		if (!this.animationNode) return;
+
+		var doc = this.animationNode.ownerDocument;
+		doc.documentElement.setAttribute(this.kANIMATION, true);
+
 		switch (this.animationStyle)
 		{
 			case this.STYLE_ZOOM:
-				var doc = this.animationNode.ownerDocument;
 				var range = doc.createRange();
 				range.selectNode(this.animationNode);
 				var contents = range.cloneContents(true);
