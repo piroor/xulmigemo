@@ -1,6 +1,12 @@
 var XMigemoHighlight = { 
 	strongHighlight  : false,
 	animationEnabled : false,
+
+	animationStyle : 0,
+	STYLE_ZOOM     : 0,
+	STYLE_JUMP     : 1,
+
+	kSCREEN : '__moz_xmigemoFindHighlightScreen',
 	 
 	NSResolver : { 
 		lookupNamespaceURI : function(aPrefix)
@@ -73,6 +79,7 @@ var XMigemoHighlight = {
 		XMigemoService.addPrefListener(this);
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.showScreen');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animateFound');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animationStyle');
 
 		XMigemoService.ObserverService.addObserver(this, 'XMigemo:highlightNodeReaday', false);
 
@@ -88,6 +95,8 @@ var XMigemoHighlight = {
 
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
+
+		this.highlightStyle = this.highlightStyle.replace(/%SCREEN%/g, this.kSCREEN);
 	},
  
 	destroy : function() 
@@ -196,6 +205,10 @@ var XMigemoHighlight = {
 					case 'xulmigemo.highlight.animateFound':
 						this.animationEnabled = value;
 						return;
+
+					case 'xulmigemo.highlight.animationStyle':
+						this.animationStyle = value;
+						return;
 				}
 				break;
 
@@ -205,7 +218,7 @@ var XMigemoHighlight = {
 		}
 	},
 	domain  : 'xulmigemo',
- 	
+ 
 /* Safari style highlight, dark screen 
 	based on http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
 */
@@ -243,7 +256,7 @@ var XMigemoHighlight = {
 			node.id = '__moz_xmigemoFindHighlightStyle';
 			node.type = 'text/css';
 			node.innerHTML = this.highlightStyle+
-				'#__moz_xmigemoFindHighlightScreen {'+
+				'#'+this.kSCREEN+' {'+
 				'	height: '+pageSize.height+'px;'+
 				'	width: '+pageSize.width+'px;'+
 				'}';
@@ -257,26 +270,30 @@ var XMigemoHighlight = {
 		var objBody = bodies[0];
 
 		var screen = doc.createElement('div');
-		screen.setAttribute('id', '__moz_xmigemoFindHighlightScreen');
+		screen.setAttribute('id', this.kSCREEN);
 
 		objBody.insertBefore(screen, objBody.firstChild);
 	},
 	
 	highlightStyle : String(<![CDATA[ 
-		:root[__moz_xmigemoFindHighlightScreen="on"] * {
+		:root[%SCREEN%="on"] * {
 			z-index: auto !important;
 		}
-		:root[__moz_xmigemoFindHighlightScreen="on"] #__firefox-findbar-search-id, /* Fx 2 */
-		:root[__moz_xmigemoFindHighlightScreen="on"] .__mozilla-findbar-search, /* Fx 3 */
-		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight1, /* SearchWP */
-		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight2,
-		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight3,
-		:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight4,
-		:root[__moz_xmigemoFindHighlightScreen="on"] .GBL-Highlighted /* Googlebar Lite */ {
+		:root[%SCREEN%="on"] #__firefox-findbar-search-id, /* Fx 2 */
+		:root[%SCREEN%="on"] .__mozilla-findbar-search, /* Fx 3 */
+		:root[%SCREEN%="on"] .searchwp-term-highlight1, /* SearchWP */
+		:root[%SCREEN%="on"] .searchwp-term-highlight2,
+		:root[%SCREEN%="on"] .searchwp-term-highlight3,
+		:root[%SCREEN%="on"] .searchwp-term-highlight4,
+		:root[%SCREEN%="on"] .GBL-Highlighted /* Googlebar Lite */ {
 			position: relative !important;
 			z-index: 3000000 !important;
 		}
-		#__moz_xmigemoFindHighlightScreen {
+		:root[%SCREEN%="on"] .__mozilla-findbar-animation {
+			position: absolute !important;
+			z-index: 3000100 !important;
+		}
+		#%SCREEN% {
 			left: 0;
 			top: 0;
 			border: 0;
@@ -289,13 +306,13 @@ var XMigemoHighlight = {
 			display: none;
 			z-index: 1000000 !important;
 		}
-		:root[__moz_xmigemoFindHighlightScreen="on"] > body > #__moz_xmigemoFindHighlightScreen {
+		:root[%SCREEN%="on"] > body > #%SCREEN% {
 			display: block !important;
 		}
-		:root[__moz_xmigemoFindHighlightScreen="on"] embed {
+		:root[%SCREEN%="on"] embed {
 			visibility: hidden !important;
 		}
-		:root[__moz_xmigemoFindHighlightScreen="on"] iframe {
+		:root[%SCREEN%="on"] iframe {
 			position: relative;
 			z-index: 2000000 !important;
 		}
@@ -331,7 +348,7 @@ var XMigemoHighlight = {
 
 		if (!(aFrame.document instanceof HTMLDocument)) return;
 
-		aFrame.document.documentElement.removeAttribute('__moz_xmigemoFindHighlightScreen');
+		aFrame.document.documentElement.removeAttribute(this.kSCREEN);
 	},
  
 	toggleHighlightScreen : function(aHighlight, aFrame) 
@@ -354,13 +371,13 @@ var XMigemoHighlight = {
 		aFrame.__moz_xmigemoHighlightedScreen = aHighlight;
 
 		if (aHighlight)
-			aFrame.document.documentElement.setAttribute('__moz_xmigemoFindHighlightScreen', 'on');
+			aFrame.document.documentElement.setAttribute(this.kSCREEN, 'on');
 		else
-			aFrame.document.documentElement.removeAttribute('__moz_xmigemoFindHighlightScreen');
+			aFrame.document.documentElement.removeAttribute(this.kSCREEN);
 	},
   
 /* Safari style highlight, animation */ 
-	
+	 
 	highlightFocusedFound : function(aFrame) 
 	{
 		if (!this.animationEnabled) return;
@@ -381,9 +398,10 @@ var XMigemoHighlight = {
 		var range = XMigemoUI.textUtils.getFoundRange(aFrame);
 		if (range && !this.findParentEditable(range)) {
 			var node  = range.startContainer;
+			const expression = 'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]';
 			try {
 				var xpathResult = aFrame.document.evaluate(
-						'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
+						expression,
 						node,
 						this.NSResolver,
 						XPathResult.FIRST_ORDERED_NODE_TYPE,
@@ -393,7 +411,7 @@ var XMigemoHighlight = {
 			catch(e) {
 				try {
 					var xpathResult = document.evaluate(
-							'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
+							expression,
 							node,
 							this.NSResolver,
 							XPathResult.FIRST_ORDERED_NODE_TYPE,
@@ -440,12 +458,13 @@ var XMigemoHighlight = {
 	animateFoundNode : function(aNode) 
 	{
 		if (this.animationTimer) {
-			this.animationNode.style.top = 0;
+			this.clearAnimationStyle();
 			window.clearInterval(this.animationTimer);
 			this.animationTimer = null;
 			this.animationNode  = null;
 		}
 		this.animationNode = aNode;
+		this.initAnimationStyle();
 		this.animationStart = (new Date()).getTime();
 		this.animationTimer = window.setInterval(this.animateFoundNodeCallback, 1, this);
 	},
@@ -454,29 +473,94 @@ var XMigemoHighlight = {
 		var node = aThis.animationNode;
 		var now = (new Date()).getTime();
 		if (aThis.animationTime <= (now - aThis.animationStart) || !node.parentNode) {
-			node.style.top = 0;
+			aThis.clearAnimationStyle();
 			window.clearInterval(aThis.animationTimer);
 			aThis.animationTimer = null;
 			aThis.animationNode  = null;
 		}
 		else {
 			var step = ((now - aThis.animationStart) || 1) / aThis.animationTime;
-			var y = parseInt(10 * Math.sin((180 - (180 * step)) * Math.PI / 180));
-			node.style.top = '-0.'+y+'em';
+			aThis.updateAnimationStyle(step);
 		}
 	},
 	animationTimer : null,
 	animationTime  : 250,
-    
+   
+	clearAnimationStyle : function() 
+	{
+		if (!this.animationNode) return;
+		switch (this.animationStyle)
+		{
+			case this.STYLE_JUMP:
+				this.animationNode.style.top = 0;
+				break;
+
+			case this.STYLE_ZOOM:
+				var parent = this.animationNode.parentNode;
+				var doc = this.animationNode.ownerDocument;
+				var range = doc.createRange();
+				range.selectNode(this.animationNode);
+				range.deleteContents();
+				range.detach();
+				this.animationNode = parent;
+				break;
+		}
+	},
+ 
+	initAnimationStyle : function() 
+	{
+		if (!this.animationNode) return;
+		switch (this.animationStyle)
+		{
+			case this.STYLE_ZOOM:
+				var doc = this.animationNode.ownerDocument;
+				var range = doc.createRange();
+				range.selectNode(this.animationNode);
+				var contents = range.cloneContents(true);
+				contents.firstChild.className += ' __mozilla-findbar-animation';
+				range.selectNodeContents(this.animationNode);
+				range.collapse(false);
+				range.insertNode(contents);
+				range.detach();
+				this.animationNode = this.animationNode.lastChild;
+				this.animationNode.style.overflow = 'hidden';
+				this.animationNode.style.textAlign = 'center';
+				this.animationNode.style.background = 'orange';
+				this.animationNode.style.outlineColor = 'red';
+				break;
+		}
+	},
+ 
+	updateAnimationStyle : function(aStep) 
+	{
+		if (!this.animationNode) return;
+		switch (this.animationStyle)
+		{
+			case this.STYLE_JUMP:
+				var y = parseInt(10 * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
+				this.animationNode.style.top = '-0.'+y+'em';
+				break;
+
+			case this.STYLE_ZOOM:
+				var unit = parseInt(10 * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
+				this.animationNode.style.top =
+					this.animationNode.style.bottom =(-(unit*0.025))+'em';
+				this.animationNode.style.left =
+					this.animationNode.style.right = (-(unit*0.05))+'em';
+				this.animationNode.style.fontSize = (1+(unit*0.02))+'em';
+				break;
+		}
+	},
+ 	 
 	updateHighlightNode : function(aNode) 
 	{
 		if (this.strongHighlight) {
 			aNode.setAttribute('style',
 				aNode.getAttribute('style')+';'+
 				<><![CDATA[
-					outline: 2px solid orange !important;
-					-moz-outline: 2px solid orange !important;
-					-moz-outline-radius: 4px !important;
+					outline: 2px solid orange;
+					-moz-outline: 2px solid orange;
+					-moz-outline-radius: 4px;
 				]]></>
 			);
 		}

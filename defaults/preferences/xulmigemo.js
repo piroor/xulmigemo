@@ -25,8 +25,10 @@ pref("xulmigemo.checked_by_default.caseSensitive.always", false);
 pref("xulmigemo.findMode.always", -1);
 pref("xulmigemo.findMode.default", 0);
 
-pref("xulmigemo.highlight.showScreen",          true);
-pref("xulmigemo.highlight.animateFound",        true);
+pref("xulmigemo.highlight.showScreen",     true);
+pref("xulmigemo.highlight.animateFound",   true);
+// 0 = zoom (like webkit), 1 = jump (old XUL/Migemo)
+pref("xulmigemo.highlight.animationStyle", 0);
 
 pref("xulmigemo.timeout",                       4000);
 pref("xulmigemo.enabletimeout",                 true);
