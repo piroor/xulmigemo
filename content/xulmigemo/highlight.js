@@ -7,27 +7,14 @@ var XMigemoHighlight = {
 	STYLE_JUMP     : 1,
 	animationSize : [15, 10],
 
-	kSCREEN : '__moz_xmigemoFindHighlightScreen',
+	kSTYLE     : '__moz_xmigemoFindHighlightStyle',
+	kSCREEN    : '__moz_xmigemoFindHighlightScreen',
 	kANIMATION : '__moz_xmigemoFindHighlightAnimation',
+
+	kANIMATION_NODE : '__mozilla-findbar-animation',
+
+	kHIGHLIGHTS : 'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
 	 
-	NSResolver : { 
-		lookupNamespaceURI : function(aPrefix)
-		{
-			switch (aPrefix)
-			{
-				case 'xul':
-					return 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
-				case 'html':
-				case 'xhtml':
-					return 'http://www.w3.org/1999/xhtml';
-				case 'xlink':
-					return 'http://www.w3.org/1999/xlink';
-				default:
-					return '';
-			}
-		}
-	},
- 
 	init : function() 
 	{
 		if (window
@@ -102,7 +89,8 @@ var XMigemoHighlight = {
 
 		this.highlightStyle = this.highlightStyle
 			.replace(/%SCREEN%/g, this.kSCREEN)
-			.replace(/%ANIMATION%/g, this.kANIMATION);
+			.replace(/%ANIMATION%/g, this.kANIMATION)
+			.replace(/%ANIMATION_NODE%/g, this.kANIMATION_NODE);
 	},
  
 	destroy : function() 
@@ -258,7 +246,7 @@ var XMigemoHighlight = {
 	addHighlightScreen : function(aDocument) 
 	{
 		var doc = aDocument;
-		if (doc.getElementById('__moz_xmigemoFindHighlightStyle'))
+		if (doc.getElementById(this.kSTYLE))
 			return;
 
 		var pageSize = this.getPageSize(doc.defaultView);
@@ -267,7 +255,7 @@ var XMigemoHighlight = {
 		if (heads.length > 0) {
 			var objHead = heads[0];
 			var node = doc.createElement('style');
-			node.id = '__moz_xmigemoFindHighlightStyle';
+			node.id = this.kSTYLE;
 			node.type = 'text/css';
 			node.innerHTML = this.highlightStyle+
 				'#'+this.kSCREEN+' {'+
@@ -311,7 +299,7 @@ var XMigemoHighlight = {
 			position: relative !important;
 			z-index: 3000000 !important;
 		}
-		.__mozilla-findbar-animation {
+		.%ANIMATION_NODE% {
 			position: absolute !important;
 			z-index: 3000100 !important;
 			overflow: hidden !important;
@@ -429,12 +417,11 @@ var XMigemoHighlight = {
 		var range = XMigemoUI.textUtils.getFoundRange(aFrame);
 		if (range && !this.findParentEditable(range)) {
 			var node  = range.startContainer;
-			const expression = 'ancestor-or-self::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]';
 			try {
 				var xpathResult = aFrame.document.evaluate(
-						expression,
+						this.kHIGHLIGHTS,
 						node,
-						this.NSResolver,
+						null,
 						XPathResult.FIRST_ORDERED_NODE_TYPE,
 						null
 					);
@@ -442,9 +429,9 @@ var XMigemoHighlight = {
 			catch(e) {
 				try {
 					var xpathResult = document.evaluate(
-							expression,
+							this.kHIGHLIGHTS,
 							node,
-							this.NSResolver,
+							null,
 							XPathResult.FIRST_ORDERED_NODE_TYPE,
 							null
 						);
@@ -556,7 +543,7 @@ var XMigemoHighlight = {
 				range.selectNode(this.animationNode);
 				var contents = range.cloneContents(true);
 				contents.firstChild.removeAttribute('id'); // Firefox 2
-				contents.firstChild.className = '__mozilla-findbar-animation';
+				contents.firstChild.className = this.kANIMATION_NODE;
 				range.selectNodeContents(this.animationNode);
 				range.collapse(false);
 				range.insertNode(contents);
