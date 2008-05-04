@@ -1,4 +1,6 @@
 var XMigemoHighlight = { 
+	useGlobalStyleSheets : false,
+
 	strongHighlight  : false,
 	animationEnabled : false,
 
@@ -88,10 +90,10 @@ var XMigemoHighlight = {
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 
-		this.highlightStyle = this.highlightStyle
-			.replace(/%SCREEN%/g, this.kSCREEN)
-			.replace(/%ANIMATION%/g, this.kANIMATION)
-			.replace(/%ANIMATION_NODE%/g, this.kANIMATION_NODE);
+		if (this.SSS) {
+			this.useGlobalStyleSheets = true;
+			this.updateGlobalStyleSheets();
+		}
 	},
  
 	destroy : function() 
@@ -229,7 +231,7 @@ var XMigemoHighlight = {
 /* Safari style highlight, dark screen 
 	based on http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
 */
-	
+	 
 	initializeHighlightScreen : function(aFrame, aDontFollowSubFrames) 
 	{
 		if (!aFrame)
@@ -247,7 +249,7 @@ var XMigemoHighlight = {
 
 		aFrame.__moz_xmigemoHighlightedScreenInitialized = true;
 	},
-	
+	 
 	addHighlightScreen : function(aDocument) 
 	{
 		var doc = aDocument;
@@ -262,13 +264,15 @@ var XMigemoHighlight = {
 			var node = doc.createElement('style');
 			node.id = this.kSTYLE;
 			node.type = 'text/css';
-			node.innerHTML = this.highlightStyle+
-				'#'+this.kSCREEN+' {'+
+			node.innerHTML = '#'+this.kSCREEN+' {'+
 				'	height: '+pageSize.height+'px;'+
 				'	width: '+pageSize.width+'px;'+
 				'}';
 			objHead.insertBefore(node, objHead.firstChild);
 		}
+
+		if (!this.useGlobalStyleSheets)
+			this.addStyleSheet('chrome://xulmigemo/content/highlight.css', doc);
 
 		var bodies = doc.getElementsByTagName('body');
 		if(bodies.length == 0)
@@ -281,66 +285,43 @@ var XMigemoHighlight = {
 
 		objBody.insertBefore(screen, objBody.firstChild);
 	},
-	
-	highlightStyle : String(<![CDATA[ 
-		:root[%SCREEN%="on"] *,
-		:root[%ANIMATION%="on"] * {
-			z-index: auto !important;
+	 
+	get SSS() 
+	{
+		if (this._SSS === void(0)) {
+			if ('@mozilla.org/content/style-sheet-service;1' in Components.classes) {
+				this._SSS = Components.classes['@mozilla.org/content/style-sheet-service;1'].getService(Components.interfaces.nsIStyleSheetService);
+			}
+			if (!this._SSS)
+				this._SSS = null;
 		}
-		:root[%SCREEN%="on"] #__firefox-findbar-search-id, /* Fx 2 */
-		:root[%ANIMATION%="true"] #__firefox-findbar-search-id,
-		:root[%SCREEN%="on"] .__mozilla-findbar-search, /* Fx 3 */
-		:root[%ANIMATION%="true"] .__mozilla-findbar-search,
-		:root[%SCREEN%="on"] .searchwp-term-highlight1, /* SearchWP */
-		:root[%SCREEN%="on"] .searchwp-term-highlight2,
-		:root[%SCREEN%="on"] .searchwp-term-highlight3,
-		:root[%SCREEN%="on"] .searchwp-term-highlight4,
-		:root[%ANIMATION%="true"] .searchwp-term-highlight1,
-		:root[%ANIMATION%="true"] .searchwp-term-highlight2,
-		:root[%ANIMATION%="true"] .searchwp-term-highlight3,
-		:root[%ANIMATION%="true"] .searchwp-term-highlight4,
-		:root[%SCREEN%="on"] .GBL-Highlighted, /* Googlebar Lite */
-		:root[%ANIMATION%="true"] .GBL-Highlighted {
-			position: relative !important;
-			z-index: 3000000 !important;
+		return this._SSS;
+	},
+//	_SSS : null,
+ 
+	get IOService()
+	{
+		if (!this._IOService)
+			this._IOService = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces.nsIIOService);
+		return this._IOService;
+	},
+	_IOService : null,
+ 
+	updateGlobalStyleSheets : function() 
+	{
+		var sheet = this.IOService.newURI('chrome://xulmigemo/content/highlight.css', null, null);
+		if (!this.SSS.sheetRegistered(sheet, this.SSS.AGENT_SHEET)) {
+			this.SSS.loadAndRegisterSheet(sheet, this.SSS.AGENT_SHEET);
 		}
-		.%ANIMATION_NODE% {
-			position: absolute !important;
-			z-index: 3000100 !important;
-			overflow: hidden !important;
-			text-align: center !important;
-			color: black !important;
-			background: #ffdf00 !important;
-			outline: #ff9500 2px solid !important;
-			-moz-outline: #ff9500 2px solid !important;
-			-moz-outline-radius: 6px !important;
-			text-decoration: none !important;
-		}
-		#%SCREEN% {
-			left: 0;
-			top: 0;
-			border: 0;
-			margin: 0;
-			padding: 0;
-			background: #000000;
-			position: absolute;
-			opacity: 0.3;
-			-moz-opacity: 0.3;
-			display: none;
-			z-index: 1000000 !important;
-		}
-		:root[%SCREEN%="on"] > body > #%SCREEN% {
-			display: block !important;
-		}
-		:root[%SCREEN%="on"] embed {
-			visibility: hidden !important;
-		}
-		:root[%SCREEN%="on"] iframe {
-			position: relative;
-			z-index: 2000000 !important;
-		}
-	]]>),
-  
+	},
+ 
+	addStyleSheet : function(aURI, aDocument) 
+	{
+		var newPI = document.createProcessingInstruction('xml-stylesheet',
+				'href="'+aURI+'" type="text/css" media="all"');
+		aDocument.insertBefore(newPI, document.firstChild);
+	},
+  	
 	getPageSize : function(aWindow) 
 	{
 		var xScroll = aWindow.innerWidth + aWindow.scrollMaxX;
@@ -402,7 +383,7 @@ var XMigemoHighlight = {
 	},
   
 /* Safari style highlight, animation */ 
-	 
+	
 	highlightFocusedFound : function(aFrame) 
 	{
 		if (!this.animationEnabled) return;
@@ -558,8 +539,8 @@ var XMigemoHighlight = {
 				range.detach();
 				this.animationNode = this.animationNode.lastChild;
 				this.animationNode.style.top =
-					this.animationNode.style.bottom = 
-					this.animationNode.style.left = 
+					this.animationNode.style.bottom =
+					this.animationNode.style.left =
 					this.animationNode.style.right = 0;
 				break;
 		}
@@ -576,6 +557,8 @@ var XMigemoHighlight = {
 				break;
 
 			case this.STYLE_ZOOM:
+				if (this.animationNode.getAttribute('class') != this.kANIMATION_NODE)
+					return;
 				var unit = parseInt(this.animationSize[this.STYLE_ZOOM] * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
 				this.animationNode.style.top =
 					this.animationNode.style.bottom =(-(unit*0.025))+'em';
@@ -585,7 +568,7 @@ var XMigemoHighlight = {
 				break;
 		}
 	},
- 	 
+  
 	updateHighlightNode : function(aNode) 
 	{
 		if (this.strongHighlight) {
