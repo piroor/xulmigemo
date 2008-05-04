@@ -1572,6 +1572,11 @@ var XMigemoUI = {
 	findNext : function() 
 	{
 //		dump('XMigemoUI.findNext\n');
+		var event = document.createEvent('Events');
+		event.initEvent('XMigemoFindAgain', true, true);
+		event.direction = XMigemoFind.FIND_FORWARD;
+		document.dispatchEvent(event);
+
 		var keyword = XMigemoUI.findTerm;
 		var findBarShown = this.findBar && !this.findBar.hidden;
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode != this.FIND_MODE_NATIVE) {
@@ -1599,6 +1604,11 @@ var XMigemoUI = {
 	findPrevious : function() 
 	{
 //		dump('XMigemoUI.findPrevious\n');
+		var event = document.createEvent('Events');
+		event.initEvent('XMigemoFindAgain', true, true);
+		event.direction = XMigemoFind.FIND_BACK;
+		document.dispatchEvent(event);
+
 		var keyword = XMigemoUI.findTerm;
 		var findBarShown = this.findBar && !this.findBar.hidden;
 		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == this.FIND_MODE_MIGEMO) {
