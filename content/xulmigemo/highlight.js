@@ -160,6 +160,7 @@ var XMigemoHighlight = {
 				break;
 
 			case 'XMigemoFindBarClose':
+				this.clearAnimationStyle();
 				window.setTimeout(function(aSelf) {
 					if (aSelf.strongHighlight)
 						aSelf.destroyHighlightScreen();
@@ -289,7 +290,8 @@ var XMigemoHighlight = {
 			position: relative !important;
 			z-index: 3000000 !important;
 		}
-		:root[%SCREEN%="on"] .__mozilla-findbar-animation {
+		:root[%SCREEN%="on"] .__mozilla-findbar-animation,
+		:root[%SCREEN%="on"] #__firefox-findbar-search-id.__mozilla-findbar-animation {
 			position: absolute !important;
 			z-index: 3000100 !important;
 		}
@@ -353,6 +355,8 @@ var XMigemoHighlight = {
  
 	toggleHighlightScreen : function(aHighlight, aFrame) 
 	{
+		this.clearAnimationStyle();
+
 		if (!aFrame)
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
 
@@ -488,7 +492,7 @@ var XMigemoHighlight = {
    
 	clearAnimationStyle : function() 
 	{
-		if (!this.animationNode) return;
+		if (!this.animationNode || !this.animationNode.parentNode) return;
 		switch (this.animationStyle)
 		{
 			case this.STYLE_JUMP:
@@ -527,6 +531,7 @@ var XMigemoHighlight = {
 				this.animationNode.style.textAlign = 'center';
 				this.animationNode.style.background = 'orange';
 				this.animationNode.style.outlineColor = 'red';
+				this.animationNode.style.position = 'absolute';
 				break;
 		}
 	},
