@@ -83,6 +83,7 @@ var XMigemoHighlight = {
 		bar.addEventListener('XMigemoFindBarClose', this, false);
 		bar.addEventListener('XMigemoFindBarToggleHighlight', this, false);
 		bar.addEventListener('XMigemoFindBarUpdate', this, false);
+		document.addEventListener('XMigemoFindAgain', this, false);
 
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
@@ -108,6 +109,7 @@ var XMigemoHighlight = {
 		bar.removeEventListener('XMigemoFindBarClose', this, false);
 		bar.removeEventListener('XMigemoFindBarToggleHighlight', this, false);
 		bar.removeEventListener('XMigemoFindBarUpdate', this, false);
+		document.removeEventListener('XMigemoFindAgain', this, false);
 
 		window.removeEventListener('unload', this, false);
 	},
@@ -182,6 +184,9 @@ var XMigemoHighlight = {
 				}
 				break;
 
+			case 'XMigemoFindAgain':
+				this.clearAnimationStyle()
+				break;
 		}
 	},
  
@@ -519,6 +524,8 @@ var XMigemoHighlight = {
 				break;
 
 			case this.STYLE_ZOOM:
+				if (this.animationNode.getAttribute('class') != this.kANIMATION_NODE)
+					return;
 				var parent = this.animationNode.parentNode;
 				var doc = this.animationNode.ownerDocument;
 				var range = doc.createRange();
