@@ -1470,6 +1470,12 @@ var XMigemoUI = {
 		for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
 		{
 			var elem = xpathResult.snapshotItem(i);
+			if (elem.getAttribute('class') == '__mozilla-findbar-animation') {
+				range.selectNode(elem);
+				range.deleteContents();
+				continue;
+			}
+
 			range.selectNodeContents(elem);
 
 			var child   = null;
