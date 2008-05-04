@@ -564,7 +564,7 @@ var XMigemoHighlight = {
 					this.animationNode.style.bottom =(-(unit*0.025))+'em';
 				this.animationNode.style.left =
 					this.animationNode.style.right = (-(unit*0.05))+'em';
-//				this.animationNode.style.fontSize = (1+(unit*0.02))+'em';
+				this.animationNode.style.fontSize = Math.min(1.1, 1+(unit*0.02))+'em';
 				break;
 		}
 	},
