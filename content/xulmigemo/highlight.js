@@ -74,6 +74,8 @@ var XMigemoHighlight = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.showScreen');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animateFound');
 
+		XMigemoService.ObserverService.addObserver(this, 'XMigemo:highlightNodeReaday', false);
+
 		var target = document.getElementById('appcontent') || XMigemoUI.browser;
 		if (target)
 			target.addEventListener('mouseup', this, true);
@@ -91,6 +93,8 @@ var XMigemoHighlight = {
 	destroy : function() 
 	{
 		XMigemoService.removePrefListener(this);
+
+		XMigemoService.ObserverService.removeObserver(this, 'XMigemo:highlightNodeReaday');
 
 		var target = document.getElementById('appcontent') || XMigemoUI.browser;
 		if (target)
@@ -177,24 +181,31 @@ var XMigemoHighlight = {
 		}
 	},
  
-	observe : function(aSubject, aTopic, aPrefName) 
+	observe : function(aSubject, aTopic, aData) 
 	{
-		if (aTopic != 'nsPref:changed') return;
-
-		var value = XMigemoService.getPref(aPrefName);
-		switch (aPrefName)
+		switch (aTopic)
 		{
-			case 'xulmigemo.highlight.showScreen':
-				this.strongHighlight = value;
-				return;
+			case 'nsPref:changed':
+				var value = XMigemoService.getPref(aData);
+				switch (aData)
+				{
+					case 'xulmigemo.highlight.showScreen':
+						this.strongHighlight = value;
+						return;
 
-			case 'xulmigemo.highlight.animateFound':
-				this.animationEnabled = value;
-				return;
+					case 'xulmigemo.highlight.animateFound':
+						this.animationEnabled = value;
+						return;
+				}
+				break;
+
+			case 'XMigemo:highlightNodeReaday':
+				this.updateHighlightNode(aSubject);
+				break;
 		}
 	},
 	domain  : 'xulmigemo',
- 
+ 	
 /* Safari style highlight, dark screen 
 	based on http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
 */
@@ -457,6 +468,20 @@ var XMigemoHighlight = {
 	animationTimer : null,
 	animationTime  : 250,
     
+	updateHighlightNode : function(aNode) 
+	{
+		if (this.strongHighlight) {
+			aNode.setAttribute('style',
+				aNode.getAttribute('style')+';'+
+				<><![CDATA[
+					outline: 2px solid orange !important;
+					-moz-outline: 2px solid orange !important;
+					-moz-outline-radius: 4px !important;
+				]]></>
+			);
+		}
+	},
+ 
 	resendClickEvent : function(aEvent) 
 	{
 		var utils = aEvent.view
@@ -502,7 +527,7 @@ var XMigemoHighlight = {
 			}, 0, this, aEvent.view, aEvent.screenX, aEvent.screenY);
 		}
 	},
-	 
+	
 	getClickableElementFromPoint : function(aWindow, aScreenX, aScreenY) 
 	{
 		var accNode;
@@ -553,7 +578,7 @@ var XMigemoHighlight = {
 		}
 		return null;
 	},
-  	 
+   
 	dummy : null
 }; 
  
