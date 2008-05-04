@@ -308,7 +308,7 @@ var XMigemoHighlight = {
 			background: #ffdf00 !important;
 			outline: #ff9500 2px solid !important;
 			-moz-outline: #ff9500 2px solid !important;
-			-moz-outline-radius: 4px !important;
+			-moz-outline-radius: 6px !important;
 			text-decoration: none !important;
 		}
 		#%SCREEN% {
