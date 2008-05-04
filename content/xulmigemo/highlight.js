@@ -13,7 +13,7 @@ var XMigemoHighlight = {
 
 	kANIMATION_NODE : '__mozilla-findbar-animation',
 
-	kHIGHLIGHTS : 'ancestor-or-self::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search" or @class="__mozilla-findbar-animation"]',
+	kHIGHLIGHTS : 'ancestor-or-self::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search"]',
 	 
 	init : function() 
 	{
