@@ -30,7 +30,7 @@ pref("xulmigemo.highlight.animateFound",   true);
 // 0 = zoom (like webkit), 1 = jump (old XUL/Migemo)
 pref("xulmigemo.highlight.animationStyle", 0);
 pref("xulmigemo.highlight.animationStyle.0.size", 10);
-pref("xulmigemo.highlight.animationStyle.1.size", 15);
+pref("xulmigemo.highlight.animationStyle.1.size", 12);
 
 pref("xulmigemo.timeout",                       4000);
 pref("xulmigemo.enabletimeout",                 true);
