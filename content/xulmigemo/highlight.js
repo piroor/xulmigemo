@@ -290,10 +290,16 @@ var XMigemoHighlight = {
 			position: relative !important;
 			z-index: 3000000 !important;
 		}
-		:root[%SCREEN%="on"] .__mozilla-findbar-animation,
-		:root[%SCREEN%="on"] #__firefox-findbar-search-id.__mozilla-findbar-animation {
+		:root[%SCREEN%="on"] .__mozilla-findbar-animation {
 			position: absolute !important;
 			z-index: 3000100 !important;
+			overflow: hidden !important;
+			text-align: center !important;
+			color: black !important;
+			background: #ffdf00 !important;
+			outline: #ff9500 2px solid !important;
+			-moz-outline: #ff9500 2px solid !important;
+			-moz-outline-radius: 4px !important;
 		}
 		#%SCREEN% {
 			left: 0;
@@ -521,17 +527,13 @@ var XMigemoHighlight = {
 				var range = doc.createRange();
 				range.selectNode(this.animationNode);
 				var contents = range.cloneContents(true);
-				contents.firstChild.className += ' __mozilla-findbar-animation';
+				contents.firstChild.removeAttribute('id'); // Firefox 2
+				contents.firstChild.className = '__mozilla-findbar-animation';
 				range.selectNodeContents(this.animationNode);
 				range.collapse(false);
 				range.insertNode(contents);
 				range.detach();
 				this.animationNode = this.animationNode.lastChild;
-				this.animationNode.style.overflow = 'hidden';
-				this.animationNode.style.textAlign = 'center';
-				this.animationNode.style.background = 'orange';
-				this.animationNode.style.outlineColor = 'red';
-				this.animationNode.style.position = 'absolute';
 				break;
 		}
 	},
@@ -560,14 +562,11 @@ var XMigemoHighlight = {
 	updateHighlightNode : function(aNode) 
 	{
 		if (this.strongHighlight) {
-			aNode.setAttribute('style',
-				aNode.getAttribute('style')+';'+
-				<><![CDATA[
-					outline: 2px solid orange;
-					-moz-outline: 2px solid orange;
-					-moz-outline-radius: 4px;
-				]]></>
-			);
+//			aNode.setAttribute('style',
+//				aNode.getAttribute('style')+';'+
+//				<><![CDATA[
+//				]]></>
+//			);
 		}
 	},
  
