@@ -549,6 +549,10 @@ var XMigemoHighlight = {
 				range.insertNode(contents);
 				range.detach();
 				this.animationNode = this.animationNode.lastChild;
+				this.animationNode.style.top =
+					this.animationNode.style.bottom = 
+					this.animationNode.style.left = 
+					this.animationNode.style.right = 0;
 				break;
 		}
 	},
