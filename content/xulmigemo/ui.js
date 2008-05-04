@@ -1460,7 +1460,7 @@ var XMigemoUI = {
 		var foundRange = this.shouldRebuildSelection ? this.textUtils.getFoundRange(aDocument.defaultView) : null ;
 		var foundLength = foundRange ? foundRange.toString().length : 0 ;
 		var xpathResult = aDocument.evaluate(
-				'descendant::*[@id = "__firefox-findbar-search-id" or @class = "__mozilla-findbar-search"]',
+				'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search" or @class="__mozilla-findbar-animation"]',
 				aTarget,
 				this.NSResolver,
 				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
