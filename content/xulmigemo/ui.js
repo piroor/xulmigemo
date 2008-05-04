@@ -850,6 +850,7 @@ var XMigemoUI = {
 	startTimer : function() 
 	{
 //		dump("xmigemoStartTimer"+'\n');
+		if (!this.isQuickFind) return;
 		this.clearTimer();
 		this.cancelTimer = window.setTimeout(this.timerCallback, this.timeout, this);
 		this.updateTimeoutIndicator(this.timeout);
@@ -864,6 +865,7 @@ var XMigemoUI = {
   
 	restartTimer : function() 
 	{
+		if (!this.isQuickFind) return;
 		if (XMigemoService.getPref('xulmigemo.enabletimeout'))
 			this.startTimer();
 	},
