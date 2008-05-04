@@ -5,6 +5,7 @@ var XMigemoHighlight = {
 	animationStyle : 0,
 	STYLE_ZOOM     : 0,
 	STYLE_JUMP     : 1,
+	animationSize : [15, 10],
 
 	kSCREEN : '__moz_xmigemoFindHighlightScreen',
 	kANIMATION : '__moz_xmigemoFindHighlightAnimation',
@@ -81,6 +82,8 @@ var XMigemoHighlight = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.showScreen');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animateFound');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animationStyle');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animationStyle.0.size');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animationStyle.1.size');
 
 		XMigemoService.ObserverService.addObserver(this, 'XMigemo:highlightNodeReaday', false);
 
@@ -97,7 +100,9 @@ var XMigemoHighlight = {
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 
-		this.highlightStyle = this.highlightStyle.replace(/%SCREEN%/g, this.kSCREEN);
+		this.highlightStyle = this.highlightStyle
+			.replace(/%SCREEN%/g, this.kSCREEN)
+			.replace(/%ANIMATION%/g, this.kANIMATION);
 	},
  
 	destroy : function() 
@@ -202,15 +207,22 @@ var XMigemoHighlight = {
 				{
 					case 'xulmigemo.highlight.showScreen':
 						this.strongHighlight = value;
-						return;
+						break;
 
 					case 'xulmigemo.highlight.animateFound':
 						this.animationEnabled = value;
-						return;
+						break;
 
 					case 'xulmigemo.highlight.animationStyle':
 						this.animationStyle = value;
-						return;
+						break;
+
+					case 'xulmigemo.highlight.animationStyle.0.size':
+						this.animationSize[0] = value;
+						break;
+					case 'xulmigemo.highlight.animationStyle.1.size':
+						this.animationSize[1] = value;
+						break;
 				}
 				break;
 
@@ -560,12 +572,12 @@ var XMigemoHighlight = {
 		switch (this.animationStyle)
 		{
 			case this.STYLE_JUMP:
-				var y = parseInt(10 * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
+				var y = parseInt(this.animationSize[this.STYLE_JUMP] * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
 				this.animationNode.style.top = '-0.'+y+'em';
 				break;
 
 			case this.STYLE_ZOOM:
-				var unit = parseInt(10 * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
+				var unit = parseInt(this.animationSize[this.STYLE_ZOOM] * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
 				this.animationNode.style.top =
 					this.animationNode.style.bottom =(-(unit*0.025))+'em';
 				this.animationNode.style.left =
