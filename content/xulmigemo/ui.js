@@ -565,8 +565,6 @@ var XMigemoUI = {
 		switch (aEvent.keyCode)
 		{
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE:
-				if (aFromFindField && this.isQuickFind) return true;
-
 				if (XMigemoFind.lastKeyword.length == 0) {
 					this.cancel();
 					return true;
