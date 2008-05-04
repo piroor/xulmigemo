@@ -28,6 +28,7 @@
 	padding: 0 !important;
 	text-indent: 0 !important;
 	vertical-align: baseline !important;
+	white-space: pre !important; /* Ü‚è•Ô‚µ‚É‘Î‚µ‚Ä‚Í‚Æ‚è‚ ‚¦‚¸‰½‚à‚µ‚È‚¢cc */
 	overflow: hidden !important;
 	text-align: center !important;
 	color: black !important;
