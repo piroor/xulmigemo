@@ -1,0 +1,62 @@
+:root[__moz_xmigemoFindHighlightScreen="on"] *,
+:root[__moz_xmigemoFindHighlightAnimation="on"] * {
+	z-index: auto !important;
+}
+:root[__moz_xmigemoFindHighlightScreen="on"] #__firefox-findbar-search-id, /* Firefox 2 */
+:root[__moz_xmigemoFindHighlightAnimation="true"] #__firefox-findbar-search-id,
+:root[__moz_xmigemoFindHighlightScreen="on"] .__mozilla-findbar-search, /* Firefox 3 */
+:root[__moz_xmigemoFindHighlightAnimation="true"] .__mozilla-findbar-search,
+:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight1, /* SearchWP */
+:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight2,
+:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight3,
+:root[__moz_xmigemoFindHighlightScreen="on"] .searchwp-term-highlight4,
+:root[__moz_xmigemoFindHighlightAnimation="true"] .searchwp-term-highlight1,
+:root[__moz_xmigemoFindHighlightAnimation="true"] .searchwp-term-highlight2,
+:root[__moz_xmigemoFindHighlightAnimation="true"] .searchwp-term-highlight3,
+:root[__moz_xmigemoFindHighlightAnimation="true"] .searchwp-term-highlight4,
+:root[__moz_xmigemoFindHighlightScreen="on"] .GBL-Highlighted, /* Googlebar Lite */
+:root[__moz_xmigemoFindHighlightAnimation="true"] .GBL-Highlighted {
+	position: relative !important;
+	z-index: 3000000 !important;
+}
+.__mozilla-findbar-animation,
+/* セレクタを重ねて詳細度を上げておかないと、rubysupportのスタイル指定に負けてしまう */
+:root[__moz_xmigemoFindHighlightScreen="on"] .__mozilla-findbar-animation,
+:root[__moz_xmigemoFindHighlightAnimation="true"] .__mozilla-findbar-animation {
+	position: absolute !important;
+	z-index: 3000100 !important;
+	padding: 0 !important;
+	text-indent: 0 !important;
+	vertical-align: baseline !important;
+	overflow: hidden !important;
+	text-align: center !important;
+	color: black !important;
+	background: #ffdf00 !important;
+	outline: #ff9500 2px solid !important;
+	-moz-outline: #ff9500 2px solid !important;
+	-moz-outline-radius: 6px !important;
+	text-decoration: none !important;
+}
+#__moz_xmigemoFindHighlightScreen {
+	left: 0;
+	top: 0;
+	border: 0;
+	margin: 0;
+	padding: 0;
+	background: #000000;
+	position: absolute;
+	opacity: 0.3;
+	-moz-opacity: 0.3;
+	display: none;
+	z-index: 1000000 !important;
+}
+:root[__moz_xmigemoFindHighlightScreen="on"] > body > #__moz_xmigemoFindHighlightScreen {
+	display: block !important;
+}
+:root[__moz_xmigemoFindHighlightScreen="on"] embed {
+	visibility: hidden !important;
+}
+:root[__moz_xmigemoFindHighlightScreen="on"] iframe {
+	position: relative;
+	z-index: 2000000 !important;
+}
