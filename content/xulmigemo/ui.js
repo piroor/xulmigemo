@@ -1543,6 +1543,8 @@ var XMigemoUI = {
 			range.insertNode(contents);
 			range.detach();
 		]]></>);
+
+		XMigemoService.ObserverService.notifyObservers(aNode, 'XMigemo:highlightNodeReaday', null);
 	},
  
 	onHighlightClickedOrTyped : function(aEvent) 

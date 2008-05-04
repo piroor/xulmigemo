@@ -6,7 +6,7 @@ var DEBUG = false;
  
 var ObserverService = Components 
 			.classes['@mozilla.org/observer-service;1']
-			.getService(Components.interfaces.nsIObserverService);;
+			.getService(Components.interfaces.nsIObserverService);
 
 var Prefs = Components
 			.classes['@mozilla.org/preferences;1']
