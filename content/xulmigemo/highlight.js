@@ -173,11 +173,7 @@ var XMigemoHighlight = {
 				if (window.content)
 					window.content.__moz_xmigemoHighlighted = aEvent.targetHighlight;
 
-				if (
-					this.strongHighlight &&
-					XMigemoUI.findBarHidden != aEvent.targetHighlight /* &&
-					((XMigemoUI.isActive ? XMigemoFind.lastFoundWord : XMigemoUI.findTerm ) || '').length > 1*/
-					)
+				if (this.strongHighlight)
 					this.toggleHighlightScreen(aEvent.targetHighlight);
 				break;
 
