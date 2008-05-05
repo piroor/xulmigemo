@@ -31,6 +31,8 @@ pref("xulmigemo.highlight.animateFound",   true);
 pref("xulmigemo.highlight.animationStyle", 0);
 pref("xulmigemo.highlight.animationStyle.0.size", 10);
 pref("xulmigemo.highlight.animationStyle.1.size", 12);
+// "0,1" => screen will be hidden by left and middle click, right click keeps it shown
+pref("xulmigemo.highlight.hideScreen.buttons", "0,2");
 
 pref("xulmigemo.timeout",                       4000);
 pref("xulmigemo.enabletimeout",                 true);
