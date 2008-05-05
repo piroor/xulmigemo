@@ -3,6 +3,7 @@ var XMigemoHighlight = {
 
 	strongHighlight  : false,
 	animationEnabled : false,
+	hideOnClick : '',
 
 	animationStyle : 0,
 	STYLE_ZOOM     : 0,
@@ -69,6 +70,7 @@ var XMigemoHighlight = {
 
 		XMigemoService.addPrefListener(this);
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.showScreen');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.hideScreen.buttons');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animateFound');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animationStyle');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animationStyle.0.size');
@@ -78,7 +80,7 @@ var XMigemoHighlight = {
 
 		var target = document.getElementById('appcontent') || XMigemoUI.browser;
 		if (target)
-			target.addEventListener('mouseup', this, true);
+			target.addEventListener('mousedown', this, true);
 
 		var bar = XMigemoUI.findBar;
 		bar.addEventListener('XMigemoFindBarOpen', this, false);
@@ -104,7 +106,7 @@ var XMigemoHighlight = {
 
 		var target = document.getElementById('appcontent') || XMigemoUI.browser;
 		if (target)
-			target.removeEventListener('mouseup', this, true);
+			target.removeEventListener('mousedown', this, true);
 
 		var bar = XMigemoUI.findBar;
 		bar.removeEventListener('XMigemoFindBarOpen', this, false);
@@ -128,22 +130,24 @@ var XMigemoHighlight = {
 				this.destroy();
 				return;
 
-			case 'mouseup':
-				var inScrollBar = false;
-				var node = aEvent.originalTarget;
-				do
-				{
-					if (/^(scrollbar|scrollbarbutton|slider|thumb|gripper)$/i.test(node.localName)) {
-						inScrollBar = true;
-						break;
-					}
-					node = node.parentNode;
-				} while (node.parentNode);
-				if (!inScrollBar &&
-					window.content &&
+			case 'mousedown':
+				if (aEvent.originalTarget.id != this.kSCREEN ||
+					aEvent.originalTarget.ownerDocument.defaultView.top == window.top)
+					return;
+				if (window.content &&
 					window.content.__moz_xmigemoHighlightedScreen) {
 					this.toggleHighlightScreen(false);
-					this.resendClickEvent(aEvent);
+					var self = this;
+					var checker = function() {
+							var screen = window.content.document.getElementById(self.kSCREEN);
+							return !screen || !window.content.document.getBoxObjectFor(screen).width;
+						};
+					var callback = (this.hideOnClick.indexOf(aEvent.button) < 0) ?
+							function() { self.toggleHighlightScreen(true); } :
+							null ;
+					this.resendClickEvent(aEvent, checker, callback);
+					aEvent.stopPropagation();
+					aEvent.preventDefault();
 				}
 				break;
 
@@ -202,6 +206,10 @@ var XMigemoHighlight = {
 				{
 					case 'xulmigemo.highlight.showScreen':
 						this.strongHighlight = value;
+						break;
+
+					case 'xulmigemo.highlight.hideScreen.buttons':
+						this.hideOnClick = value;
 						break;
 
 					case 'xulmigemo.highlight.animateFound':
@@ -580,7 +588,7 @@ var XMigemoHighlight = {
 		}
 	},
  
-	resendClickEvent : function(aEvent) 
+	resendClickEvent : function(aEvent, aChecker, aCallback) 
 	{
 		var utils = aEvent.view
 			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
@@ -593,8 +601,13 @@ var XMigemoHighlight = {
 			if (aEvent.shiftKey) flags |= nsIDOMNSEvent.SHIFT_MARK;
 			if (aEvent.metaKey) flags |= nsIDOMNSEvent.META_MARK;
 			window.setTimeout(function(aX, aY, aButton) {
+				if (aChecker && !aChecker()) {
+					window.setTimeout(arguments.callee, 0, aX, aY, aButton);
+					return;
+				}
 				utils.sendMouseEvent('mousedown', aX, aY, aButton, 1, flags);
 				utils.sendMouseEvent('mouseup', aX, aY, aButton, 1, flags);
+				if (aCallback) aCallback();
 			}, 0, aEvent.clientX, aEvent.clientY, aEvent.button);
 		}
 		else { // Firefox 2, emulation
@@ -615,6 +628,10 @@ var XMigemoHighlight = {
 					aEvent.button
 				];
 			window.setTimeout(function(aSelf, aFrame, aX, aY) {
+				if (aChecker && !aChecker()) {
+					window.setTimeout(arguments.callee, 0, aSelf, aFrame, aX, aY);
+					return;
+				}
 				var node = aSelf.getClickableElementFromPoint(aFrame, aX, aY);
 				if (!node) return;
 				var event = aFrame.document.createEvent('MouseEvents');
@@ -622,6 +639,7 @@ var XMigemoHighlight = {
 				event.initMouseEvent.apply(event, args);
 				node.dispatchEvent(event);
 				if ('focus' in node) node.focus();
+				if (aCallback) aCallback();
 			}, 0, this, aEvent.view, aEvent.screenX, aEvent.screenY);
 		}
 	},
