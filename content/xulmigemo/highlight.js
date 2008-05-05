@@ -3,7 +3,7 @@ var XMigemoHighlight = {
 
 	strongHighlight  : false,
 	animationEnabled : false,
-	hideOnClick : '',
+	combinations : [],
 
 	animationStyle : 0,
 	STYLE_ZOOM     : 0,
@@ -70,7 +70,7 @@ var XMigemoHighlight = {
 
 		XMigemoService.addPrefListener(this);
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.showScreen');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.hideScreen.buttons');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.hideScreen.restoreButtons');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animateFound');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animationStyle');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animationStyle.0.size');
@@ -142,9 +142,15 @@ var XMigemoHighlight = {
 							var screen = window.content.document.getElementById(self.kSCREEN);
 							return !screen || !window.content.document.getBoxObjectFor(screen).width;
 						};
-					var callback = (this.hideOnClick.indexOf(aEvent.button) < 0) ?
-							function() { self.toggleHighlightScreen(true); } :
-							null ;
+					var callback = this.combinations.some(function(aCombination) {
+								return aCombination.button == aEvent.button &&
+									aCombination.altKey == aEvent.altKey &&
+									aCombination.ctrlKey == aEvent.ctrlKey &&
+									aCombination.shiftKey == aEvent.shiftKey &&
+									aCombination.metaKey == aEvent.metaKey;
+							}) ?
+								function() { self.toggleHighlightScreen(true); } :
+								null ;
 					this.resendClickEvent(aEvent, checker, callback);
 					aEvent.stopPropagation();
 					aEvent.preventDefault();
@@ -204,8 +210,29 @@ var XMigemoHighlight = {
 						this.strongHighlight = value;
 						break;
 
-					case 'xulmigemo.highlight.hideScreen.buttons':
-						this.hideOnClick = value;
+					case 'xulmigemo.highlight.hideScreen.restoreButtons':
+						const nsIDOMNSEvent = Components.interfaces.nsIDOMNSEvent;
+						this.combinations = value.split(',').map(function(aValue) {
+							aValue = aValue.split('+');
+							var result = {
+									button   : parseInt(aValue[0]),
+									altKey   : false,
+									ctrlKey  : false,
+									shiftKey : false,
+									metaKey  : false
+								};
+							if (aValue.length < 2) return result;
+							aValue = parseInt(aValue[1]);
+							if (aValue & nsIDOMNSEvent.ALT_MASK)
+								result.ctrlKey = true;
+							if (aValue & nsIDOMNSEvent.CONTROL_MASK)
+								result.altKey = true;
+							if (aValue & nsIDOMNSEvent.SHIFT_MASK)
+								result.shiftKey = true;
+							if (aValue & nsIDOMNSEvent.META_MASK)
+								result.metaKey = true;
+							return result;
+						});
 						break;
 
 					case 'xulmigemo.highlight.animateFound':
@@ -592,10 +619,10 @@ var XMigemoHighlight = {
 		if ('sendMouseEvent' in utils) { // Firefox 3
 			var flags = 0;
 			const nsIDOMNSEvent = Components.interfaces.nsIDOMNSEvent;
-			if (aEvent.altKey) flags |= nsIDOMNSEvent.ALT_MARK;
-			if (aEvent.ctrlKey) flags |= nsIDOMNSEvent.CONTROL_MARK;
-			if (aEvent.shiftKey) flags |= nsIDOMNSEvent.SHIFT_MARK;
-			if (aEvent.metaKey) flags |= nsIDOMNSEvent.META_MARK;
+			if (aEvent.altKey) flags |= nsIDOMNSEvent.ALT_MASK;
+			if (aEvent.ctrlKey) flags |= nsIDOMNSEvent.CONTROL_MASK;
+			if (aEvent.shiftKey) flags |= nsIDOMNSEvent.SHIFT_MASK;
+			if (aEvent.metaKey) flags |= nsIDOMNSEvent.META_MASK;
 			window.setTimeout(function(aX, aY, aButton) {
 				if (aChecker && !aChecker()) {
 					window.setTimeout(arguments.callee, 0, aX, aY, aButton);
