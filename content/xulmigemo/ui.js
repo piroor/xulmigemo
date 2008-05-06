@@ -1674,10 +1674,10 @@ var XMigemoUI = {
 		var highlightCheck = aSelf.findHighlightCheck;
 		var prevHighlightState = highlightCheck.checked;
 		highlightCheck.checked =
+			aSelf.highlightCheckedAlways ?
+				aSelf.shouldHighlightAll :
 			aSelf.highlightCheckFirst ?
 				XMigemoService.getPref('xulmigemo.checked_by_default.highlight') :
-			(aSelf.highlightCheckedAlways) ?
-				aSelf.shouldHighlightAll :
 				highlightCheck.xmigemoOriginalChecked ;
 		if (highlightCheck.checked != prevHighlightState) {
 			aSelf.toggleHighlight(highlightCheck.checked);
