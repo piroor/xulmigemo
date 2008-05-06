@@ -9,6 +9,7 @@ var XMigemoHighlight = {
 	STYLE_ZOOM     : 0,
 	STYLE_JUMP     : 1,
 	animationSize : [15, 10],
+	animationUnit : 10,
 
 	kSTYLE     : '__moz_xmigemoFindHighlightStyle',
 	kSCREEN    : '__moz_xmigemoFindHighlightScreen',
@@ -17,6 +18,7 @@ var XMigemoHighlight = {
 	kANIMATION_NODE : '__mozilla-findbar-animation',
 
 	kHIGHLIGHTS : 'ancestor-or-self::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search"]',
+	kANIMATIONS : 'descendant::*[@class="__mozilla-findbar-animation"]',
 	 
 	init : function() 
 	{
@@ -168,6 +170,7 @@ var XMigemoHighlight = {
 				break;
 
 			case 'XMigemoFindBarClose':
+				this.clearAnimationStyleIn(XMigemoUI.activeBrowser.contentDocument, true);
 				this.clearAnimationStyle();
 				window.setTimeout(function(aSelf) {
 					if (aSelf.strongHighlight)
@@ -193,6 +196,8 @@ var XMigemoHighlight = {
 				break;
 
 			case 'XMigemoFindAgain':
+				if (this.animationStyle == this.STYLE_ZOOM)
+					this.clearAnimationStyleIn(XMigemoUI.activeBrowser.contentDocument, true);
 				this.clearAnimationStyle()
 				break;
 		}
@@ -388,10 +393,12 @@ var XMigemoHighlight = {
  
 	toggleHighlightScreen : function(aHighlight, aFrame) 
 	{
-		this.clearAnimationStyle();
-
 		if (!aFrame)
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
+
+		if (this.animationStyle == this.STYLE_ZOOM)
+			this.clearAnimationStyleIn(aFrame.document, true);
+		this.clearAnimationStyle();
 
 		if (aFrame.frames && aFrame.frames.length) {
 			var self = this;
@@ -493,6 +500,7 @@ var XMigemoHighlight = {
 	 
 	animateFoundNode : function(aNode) 
 	{
+		this.clearAnimationStyleIn(aNode.ownerDocument);
 		if (this.animationTimer) {
 			this.clearAnimationStyle();
 			window.clearInterval(this.animationTimer);
@@ -509,7 +517,7 @@ var XMigemoHighlight = {
 		var node = aThis.animationNode;
 		var now = (new Date()).getTime();
 		if (aThis.animationTime <= (now - aThis.animationStart) || !node.parentNode) {
-			aThis.clearAnimationStyle();
+			aThis.clearAnimationStyle(true);
 			window.clearInterval(aThis.animationTimer);
 			aThis.animationTimer = null;
 			aThis.animationNode  = null;
@@ -522,21 +530,48 @@ var XMigemoHighlight = {
 	animationTimer : null,
 	animationTime  : 250,
    
-	clearAnimationStyle : function() 
+	clearAnimationStyleIn : function(aDocument, aRecursively) 
+	{
+		if (!aDocument) return;
+
+		var nodes = aDocument.evaluate(
+				this.kANIMATIONS,
+				aDocument,
+				null,
+				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+				null
+			);
+		for (var i = nodes.snapshotLength-1; i > -1; i--)
+		{
+			nodes.snapshotItem(i).parentNode.removeChild(nodes.snapshotItem(i));
+		}
+		aDocument.documentElement.removeAttribute(this.kANIMATION);
+
+		if (!aRecursively) return;
+
+		var self = this;
+		Array.prototype.slice.call(aDocument.defaultView.frames)
+			.forEach(function(aFrame) {
+				self.clearAnimationStyleIn(aFrame.document, true);
+			});
+	},
+ 
+	clearAnimationStyle : function(aEndOfAnimation) 
 	{
 		if (!this.animationNode || !this.animationNode.parentNode) return;
 
 		var doc = this.animationNode.ownerDocument;
-		doc.documentElement.removeAttribute(this.kANIMATION);
 
 		switch (this.animationStyle)
 		{
 			case this.STYLE_JUMP:
 				this.animationNode.style.top = 0;
+				doc.documentElement.removeAttribute(this.kANIMATION);
 				break;
 
 			case this.STYLE_ZOOM:
-				if (this.animationNode.getAttribute('class') != this.kANIMATION_NODE)
+				if (this.animationNode.getAttribute('class') != this.kANIMATION_NODE ||
+					aEndOfAnimation)
 					return;
 				var parent = this.animationNode.parentNode;
 				var doc = this.animationNode.ownerDocument;
@@ -545,6 +580,7 @@ var XMigemoHighlight = {
 				range.deleteContents();
 				range.detach();
 				this.animationNode = parent;
+				doc.documentElement.removeAttribute(this.kANIMATION);
 				break;
 		}
 	},
@@ -559,16 +595,23 @@ var XMigemoHighlight = {
 		switch (this.animationStyle)
 		{
 			case this.STYLE_ZOOM:
+				var node = doc.createElement('span');
+				node.setAttribute('class', this.kANIMATION_NODE);
+
 				var range = doc.createRange();
-				range.selectNode(this.animationNode);
-				var contents = range.cloneContents(true);
-				contents.firstChild.removeAttribute('id'); // Firefox 2
-				contents.firstChild.className = this.kANIMATION_NODE;
 				range.selectNodeContents(this.animationNode);
+				var contents = range.cloneContents(true);
+
 				range.collapse(false);
+				range.insertNode(node);
+
+				var box = doc.getAnonymousNodes(node)[0];
+				range.selectNodeContents(box);
 				range.insertNode(contents);
+
 				range.detach();
-				this.animationNode = this.animationNode.lastChild;
+
+				this.animationNode = node;
 				this.animationNode.style.top =
 					this.animationNode.style.bottom =
 					this.animationNode.style.left =
@@ -585,19 +628,20 @@ var XMigemoHighlight = {
 		{
 			case this.STYLE_JUMP:
 				var y = parseInt(this.animationSize[this.STYLE_JUMP] * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
-				this.animationNode.style.top = '-0.'+y+'em';
+				this.animationNode.style.top = '-'+(y * this.animationUnit)+'px';
 				break;
 
 			case this.STYLE_ZOOM:
 				if (this.animationNode.getAttribute('class') != this.kANIMATION_NODE)
 					return;
+				aStep = Math.min(0.9, aStep);
 				var unit = parseInt(this.animationSize[this.STYLE_ZOOM] * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
 				this.animationNode.style.top =
-					this.animationNode.style.bottom = (-(unit*0.025))+'em';
+					this.animationNode.style.bottom = (-(unit * 0.025 * this.animationUnit))+'px';
 				this.animationNode.style.left =
-					this.animationNode.style.right = (-(unit*0.05))+'em';
+					this.animationNode.style.right = (-(unit * 0.05 * this.animationUnit))+'px';
 				this.animationNode.style.fontSize = Math.min(1.1, 1+(unit*0.02))+'em';
-				this.animationNode.style.paddingTop = (unit*0.0125)+'em';
+//				this.animationNode.style.paddingTop = (unit * 0.025 * this.animationUnit)+'px';
 				break;
 		}
 	},

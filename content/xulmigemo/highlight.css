@@ -23,9 +23,10 @@
 /* セレクタを重ねて詳細度を上げておかないと、rubysupportのスタイル指定に負けてしまう */
 :root[__moz_xmigemoFindHighlightScreen="on"] .__mozilla-findbar-animation,
 :root[__moz_xmigemoFindHighlightAnimation="true"] .__mozilla-findbar-animation {
+	-moz-binding: url("chrome://xulmigemo/content/highlight.xml#animation-box") !important;
 	position: absolute !important;
 	z-index: 3000100 !important;
-	padding: 0 !important;
+	padding: 0;
 	text-indent: 0 !important;
 	vertical-align: baseline !important;
 	white-space: pre !important; /* 折り返しに対してはとりあえず何もしない…… */
