@@ -26,19 +26,34 @@
 	-moz-binding: url("chrome://xulmigemo/content/highlight.xml#animation-box") !important;
 	position: absolute !important;
 	z-index: 3000100 !important;
-	padding: 0;
-	text-indent: 0 !important;
-	vertical-align: baseline !important;
-	white-space: pre !important; /* 折り返しに対してはとりあえず何もしない…… */
-	overflow: hidden !important;
-	text-align: center !important;
+	padding: 0 !important;
 	color: black !important;
 	background: #ffdf00 !important;
 	outline: #ff9500 2px solid !important;
 	-moz-outline: #ff9500 2px solid !important;
 	-moz-outline-radius: 6px !important;
-	text-decoration: none !important;
 }
+.__mozilla-findbar-animation-inner-box {
+	position: absolute !important;
+	top: 50% !important;
+	margin: -0.5em 0 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	line-height: 1 !important;
+}
+.__mozilla-findbar-animation,
+:root[__moz_xmigemoFindHighlightScreen="on"] .__mozilla-findbar-animation,
+:root[__moz_xmigemoFindHighlightAnimation="true"] .__mozilla-findbar-animation,
+.__mozilla-findbar-animation-inner-box {
+	text-indent: 0 !important;
+	text-align: center !important;
+	vertical-align: baseline !important;
+	white-space: pre !important; /* 折り返しに対してはとりあえず何もしない…… */
+	overflow: hidden !important;
+	text-decoration: none !important;
+	padding: 0 !important;
+}
+
 #__moz_xmigemoFindHighlightScreen {
 	left: 0;
 	top: 0;

@@ -570,9 +570,12 @@ var XMigemoHighlight = {
 				break;
 
 			case this.STYLE_ZOOM:
-				if (this.animationNode.getAttribute('class') != this.kANIMATION_NODE ||
-					aEndOfAnimation)
+				if (this.animationNode.getAttribute('class') != this.kANIMATION_NODE)
 					return;
+				if (aEndOfAnimation) {
+					this.animationNode.style.fontSize = '1em';
+					return;
+				}
 				var parent = this.animationNode.parentNode;
 				var doc = this.animationNode.ownerDocument;
 				var range = doc.createRange();
@@ -634,14 +637,13 @@ var XMigemoHighlight = {
 			case this.STYLE_ZOOM:
 				if (this.animationNode.getAttribute('class') != this.kANIMATION_NODE)
 					return;
-				aStep = Math.min(0.9, aStep);
 				var unit = parseInt(this.animationSize[this.STYLE_ZOOM] * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
+				var padding = this.animationUnit / 6;
 				this.animationNode.style.top =
-					this.animationNode.style.bottom = (-(unit * 0.025 * this.animationUnit))+'px';
+					this.animationNode.style.bottom = (-(unit * 0.025 * this.animationUnit) - padding)+'px';
 				this.animationNode.style.left =
-					this.animationNode.style.right = (-(unit * 0.05 * this.animationUnit))+'px';
-				this.animationNode.style.fontSize = Math.min(1.1, 1+(unit*0.02))+'em';
-//				this.animationNode.style.paddingTop = (unit * 0.025 * this.animationUnit)+'px';
+					this.animationNode.style.right = (-(unit * 0.05 * this.animationUnit) - padding)+'px';
+				this.animationNode.style.fontSize = Math.min(1.1, 1 + (unit * 0.02))+'em';
 				break;
 		}
 	},
