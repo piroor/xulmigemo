@@ -573,6 +573,7 @@ var XMigemoHighlight = {
 					this.animationNode.style.bottom =
 					this.animationNode.style.left =
 					this.animationNode.style.right = 0;
+				this.animationNode.style.padding = 0;
 				break;
 		}
 	},
@@ -592,10 +593,11 @@ var XMigemoHighlight = {
 					return;
 				var unit = parseInt(this.animationSize[this.STYLE_ZOOM] * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
 				this.animationNode.style.top =
-					this.animationNode.style.bottom =(-(unit*0.025))+'em';
+					this.animationNode.style.bottom = (-(unit*0.025))+'em';
 				this.animationNode.style.left =
 					this.animationNode.style.right = (-(unit*0.05))+'em';
 				this.animationNode.style.fontSize = Math.min(1.1, 1+(unit*0.02))+'em';
+				this.animationNode.style.paddingTop = (unit*0.0125)+'em';
 				break;
 		}
 	},
