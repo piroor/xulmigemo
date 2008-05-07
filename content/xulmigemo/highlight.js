@@ -98,10 +98,9 @@ var XMigemoHighlight = {
 
 		if (this.SSS) {
 			this.useGlobalStyleSheets = true;
-			this.updateGlobalStyleSheets();
 		}
 	},
- 
+ 	
 	destroy : function() 
 	{
 		XMigemoService.removePrefListener(this);
@@ -360,29 +359,13 @@ var XMigemoHighlight = {
 	},
 //	_SSS : null,
  
-	get IOService()
-	{
-		if (!this._IOService)
-			this._IOService = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces.nsIIOService);
-		return this._IOService;
-	},
-	_IOService : null,
- 
-	updateGlobalStyleSheets : function() 
-	{
-		var sheet = this.IOService.newURI('chrome://xulmigemo/content/highlight.css', null, null);
-		if (!this.SSS.sheetRegistered(sheet, this.SSS.AGENT_SHEET)) {
-			this.SSS.loadAndRegisterSheet(sheet, this.SSS.AGENT_SHEET);
-		}
-	},
- 
 	addStyleSheet : function(aURI, aDocument) 
 	{
 		var newPI = document.createProcessingInstruction('xml-stylesheet',
 				'href="'+aURI+'" type="text/css" media="all"');
 		aDocument.insertBefore(newPI, document.firstChild);
 	},
-  	
+  
 	getPageSize : function(aWindow) 
 	{
 		var xScroll = aWindow.innerWidth + aWindow.scrollMaxX;
