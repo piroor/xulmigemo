@@ -822,6 +822,10 @@ mydump("resetFindRangeSet");
 	setSelectionAndScroll : function(aRange, aDocument) 
 	{
 mydump("setSelectionAndScroll");
+		if (!aRange && !aDocument) return;
+
+		if (!aDocument)
+			aDocument = aRange.startContainer.ownerDocument;
 
 		// clear old range
 		var self = this;
