@@ -214,20 +214,23 @@ var XMigemoUI = {
  
 	get findFieldIsFocused() 
 	{
+		return this.getFindFieldFromContent(document.commandDispatcher.focusedElement) == this.findField;
+	},
+	getFindFieldFromContent : function(aNode)
+	{
 		try {
-			var focused = document.commandDispatcher.focusedElement;
 			var xpathResult = document.evaluate(
 					'ancestor-or-self::*[local-name()="textbox"]',
-					focused,
+					aNode,
 					this.NSResolver,
 					XPathResult.FIRST_ORDERED_NODE_TYPE,
 					null
 				);
-			return xpathResult.singleNodeValue == this.findField;
+			return xpathResult.singleNodeValue;
 		}
 		catch(e) {
 		}
-		return false;
+		return null;
 	},
  
 	get shouldHighlightAll() 
@@ -433,7 +436,7 @@ var XMigemoUI = {
 				return;
 
 			case 'keypress':
-				this.keyEvent(aEvent, aEvent.currentTarget == this.findField);
+				this.keyEvent(aEvent, this.getFindFieldFromContent(aEvent.originalTarget));
 				return;
 
 			case 'mouseup':
@@ -1325,7 +1328,6 @@ var XMigemoUI = {
 		}
 
 		this.findField.addEventListener('input', this, true);
-		this.findField.addEventListener('keypress', this, true);
 
 		if ('nsBrowserStatusHandler' in window)
 			eval('nsBrowserStatusHandler.prototype.onLocationChange = '+
@@ -1801,8 +1803,9 @@ var XMigemoUI = {
 			if (browser.getAttribute('onkeypress'))
 				browser.setAttribute('onkeypress', '');
 
+			document.addEventListener('keypress', this, true);
+
 			var target = document.getElementById('appcontent') || browser;
-			target.addEventListener('keypress', this, true);
 			target.addEventListener('mouseup', this, true);
 		}
 
@@ -1863,14 +1866,13 @@ var XMigemoUI = {
 
 		var browser = this.browser;
 		if (browser) {
+			document.removeEventListener('keypress', this, true);
 			var target = document.getElementById('appcontent') || browser;
-			target.removeEventListener('keypress', this, true);
 			target.removeEventListener('mouseup', this, true);
 		}
 
 		this.findField.removeEventListener('blur', this, false);
 		this.findField.removeEventListener('input', this, false);
-		this.findField.removeEventListener('keypress', this, false);
 
 		window.removeEventListener('unload', this, false);
 	},
