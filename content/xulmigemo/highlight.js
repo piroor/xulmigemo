@@ -523,14 +523,8 @@ var XMigemoHighlight = {
 		if (!aFrame)
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
 
-		var range = XMigemoUI.textUtils.getFoundRange(aFrame);
-		if (!range) {
-			var sel = aFrame.getSelection();
-			if (sel &&
-				sel.rangeCount &&
-				sel.toString() == XMigemoUI.lastFoundTerm)
-				range = sel.getRangeAt(0);
-		}
+		var range = XMigemoUI.textUtils.getFoundRange(aFrame) ||
+					XMigemoUI.lastFoundRange;
 		if (range && !this.findParentEditable(range)) {
 			var node  = range.startContainer;
 			try {
