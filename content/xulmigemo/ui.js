@@ -153,7 +153,7 @@ var XMigemoUI = {
 	_timeoutIndicatorBox : null,
   
 /* status */ 
-	
+	 
 	get isQuickFind() 
 	{
 		return XMigemoFind.isQuickFind;
@@ -206,6 +206,36 @@ var XMigemoUI = {
 		return this.findTerm;
 	},
  
+	get lastFoundTerm() 
+	{
+		return (this.lastFindMode == this.FIND_MODE_NATIVE) ? this.findTerm : XMigemoFind.lastFoundWord;
+	},
+ 
+	get lastFoundRange() 
+	{
+		return this.getLastFoundRangeIn(this.activeBrowser.contentWindow);
+	},
+	getLastFoundRangeIn : function(aFrame)
+	{
+		var range = this.textUtils.getFoundRange(aFrame);
+		if (!range) {
+			var sel = aFrame.getSelection();
+			if (sel &&
+				sel.rangeCount &&
+				sel.toString() == XMigemoUI.lastFoundTerm)
+				range = sel.getRangeAt(0);
+		}
+		if (range) return range;
+
+		var self = this;
+		Array.prototype.slice.call(aFrame.frames)
+			.some(function(aFrame) {
+				range = self.getLastFoundRangeIn(aFrame);
+				return range;
+			});
+		return range;
+	},
+ 	
 	get findBarHidden() 
 	{
 		return (this.findBar.getAttribute('collapsed') == 'true' ||
@@ -384,7 +414,7 @@ var XMigemoUI = {
 	},
   
 /* utilities */ 
-	 
+	
 	getEditableNodes : function(aDocument) 
 	{
 		return aDocument.evaluate(
@@ -426,7 +456,7 @@ var XMigemoUI = {
 				self.clearSelectionInEditable(aFrame);
 			});
 	},
- 	 
+  
 	handleEvent : function(aEvent) /* DOMEventListener */ 
 	{
 		switch (aEvent.type)
@@ -1345,11 +1375,6 @@ var XMigemoUI = {
 		return (this.lastFindMode == this.FIND_MODE_NATIVE) ? (aString || migemoString) : (migemoString || aString) ;
 	},
  
-	get lastFoundTerm() 
-	{
-		return (this.lastFindMode == this.FIND_MODE_NATIVE) ? this.findTerm : XMigemoFind.lastFoundWord;
-	},
- 
 	presetSearchString : function(aString) 
 	{
 		if (XMigemoService.getPref('xulmigemo.ignore_find_links_only_behavior')) return;
@@ -1482,7 +1507,7 @@ var XMigemoUI = {
 	},
  
 /* highlight */ 
-	 
+	
 	toggleHighlight : function(aHighlight) 
 	{
 		if (aHighlight && XMigemoUI.highlightCheckedAlways) {
