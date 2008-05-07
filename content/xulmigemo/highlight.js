@@ -695,6 +695,10 @@ var XMigemoHighlight = {
 					window.setTimeout(arguments.callee, 0, aX, aY, aButton);
 					return;
 				}
+				if (ZoomManager.useFullZoom) {
+					aX = aX * ZoomManager.zoom;
+					aY = aY * ZoomManager.zoom;
+				}
 				utils.sendMouseEvent('mousedown', aX, aY, aButton, 1, flags);
 				utils.sendMouseEvent('mouseup', aX, aY, aButton, 1, flags);
 				if (aCallback) aCallback();
