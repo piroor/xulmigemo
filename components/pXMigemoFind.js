@@ -913,8 +913,8 @@ mydump("setSelectionAndScroll");
   
 	clearSelection : function(aDocument) 
 	{
-		if (aDocument.foundEditable)
-			aDocument.foundEditable
+		if (aDocument.foundEditable || aDocument.lastFoundEditable)
+			(aDocument.foundEditable || aDocument.lastFoundEditable)
 				.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
 				.editor.selection.removeAllRanges();
 
