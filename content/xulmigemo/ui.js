@@ -1412,6 +1412,7 @@ var XMigemoUI = {
 					XMigemoFind.lastFoundWord == sel
 					)
 					return;
+				ui.findTerm = sel;
 				ui.findAgain(sel, ui.findMode);
 			}
 			else {
