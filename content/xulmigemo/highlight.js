@@ -133,30 +133,43 @@ var XMigemoHighlight = {
 				return;
 
 			case 'mousedown':
-				if (aEvent.originalTarget.id != this.kSCREEN ||
-					aEvent.originalTarget.ownerDocument.defaultView.top == window.top)
+				if (aEvent.originalTarget.ownerDocument.defaultView.top == window.top)
 					return;
-				if (window.content &&
-					window.content.__moz_xmigemoHighlightedScreen) {
-					this.toggleHighlightScreen(false);
-					var self = this;
-					var checker = function() {
-							var screen = window.content.document.getElementById(self.kSCREEN);
-							return !screen || !window.content.document.getBoxObjectFor(screen).width;
-						};
-					var callback = this.combinations.some(function(aCombination) {
-								return aCombination.button == aEvent.button &&
-									aCombination.altKey == aEvent.altKey &&
-									aCombination.ctrlKey == aEvent.ctrlKey &&
-									aCombination.shiftKey == aEvent.shiftKey &&
-									aCombination.metaKey == aEvent.metaKey;
-							}) ?
-								function() { self.toggleHighlightScreen(true); } :
-								null ;
-					this.resendClickEvent(aEvent, checker, callback);
-					aEvent.stopPropagation();
-					aEvent.preventDefault();
-				}
+
+				var inScrollBar = false;
+				var node = aEvent.originalTarget;
+				do
+				{
+					if (/^(scrollbar|scrollbarbutton|slider|thumb|gripper)$/i.test(node.localName)) {
+						inScrollBar = true;
+						break;
+					}
+					node = node.parentNode;
+				} while (node.parentNode);
+
+				if (inScrollBar ||
+					!window.content ||
+					!window.content.__moz_xmigemoHighlightedScreen)
+					return;
+
+				this.toggleHighlightScreen(false);
+				var self = this;
+				var checker = function() {
+						var screen = window.content.document.getElementById(self.kSCREEN);
+						return !screen || !window.content.document.getBoxObjectFor(screen).width;
+					};
+				var callback = this.combinations.some(function(aCombination) {
+							return aCombination.button == aEvent.button &&
+								aCombination.altKey == aEvent.altKey &&
+								aCombination.ctrlKey == aEvent.ctrlKey &&
+								aCombination.shiftKey == aEvent.shiftKey &&
+								aCombination.metaKey == aEvent.metaKey;
+						}) ?
+							function() { self.toggleHighlightScreen(true); } :
+							null ;
+				this.resendClickEvent(aEvent, checker, callback);
+				aEvent.stopPropagation();
+				aEvent.preventDefault();
 				break;
 
 			case 'XMigemoFindBarOpen':
