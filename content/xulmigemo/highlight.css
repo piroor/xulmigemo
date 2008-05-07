@@ -55,16 +55,16 @@
 }
 
 #__moz_xmigemoFindHighlightScreen {
-	left: 0;
-	top: 0;
-	border: 0;
-	margin: 0;
-	padding: 0;
-	background: #000000;
-	position: absolute;
-	opacity: 0.3;
-	-moz-opacity: 0.3;
-	display: none;
+	left: 0 !important;
+	top: 0 !important;
+	border: 0 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	background: #000000 !important;
+	position: absolute !important;
+	opacity: 0.3 !important;
+	-moz-opacity: 0.3 !important;
+	display: none !important;
 	z-index: 1000000 !important;
 }
 :root[__moz_xmigemoFindHighlightScreen="on"] > body > #__moz_xmigemoFindHighlightScreen {
