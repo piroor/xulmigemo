@@ -621,6 +621,8 @@ var XMigemoUI = {
 	{
 		if (!this.isActive) return false;
 
+		aFromFindField = (aFromFindField && this.isQuickFind);
+
 		switch (aEvent.keyCode)
 		{
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE:
@@ -629,9 +631,11 @@ var XMigemoUI = {
 					return true;
 				}
 				else if (XMigemoFind.lastKeyword.length == 1) {
-					aEvent.preventDefault();
+					if (!aFromFindField)
+						aEvent.preventDefault();
 				}
-				XMigemoFind.removeKeyword(1);
+				if (!aFromFindField)
+					XMigemoFind.removeKeyword(1);
 				this.updateStatus(XMigemoFind.lastKeyword);
 				if (
 					XMigemoFind.lastKeyword == '' &&
@@ -640,7 +644,8 @@ var XMigemoUI = {
 					this.cancel();
 				}
 				else {
-					aEvent.preventDefault();
+					if (!aFromFindField)
+						aEvent.preventDefault();
 					this.delayedFind();
 					this.restartTimer();
 				}
@@ -648,7 +653,7 @@ var XMigemoUI = {
 
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_ENTER:
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN:
-				if (aFromFindField && this.isQuickFind) {
+				if (aFromFindField) {
 					aEvent.stopPropagation();
 					aEvent.preventDefault();
 					this.dispatchKeyEventForLink(aEvent, this.activeBrowser.contentWindow);
@@ -658,6 +663,10 @@ var XMigemoUI = {
 				return true;
 
 			default:
+				if (aFromFindField) {
+					this.restartTimer();
+					return true;
+				}
 				return false;
 		}
 	},
