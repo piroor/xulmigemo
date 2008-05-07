@@ -81,8 +81,10 @@ var XMigemoHighlight = {
 		XMigemoService.ObserverService.addObserver(this, 'XMigemo:highlightNodeReaday', false);
 
 		var target = document.getElementById('appcontent') || XMigemoUI.browser;
-		if (target)
+		if (target) {
 			target.addEventListener('mousedown', this, true);
+			target.addEventListener('mouseup', this, true);
+		}
 
 		var bar = XMigemoUI.findBar;
 		bar.addEventListener('XMigemoFindBarOpen', this, false);
@@ -107,8 +109,10 @@ var XMigemoHighlight = {
 		XMigemoService.ObserverService.removeObserver(this, 'XMigemo:highlightNodeReaday');
 
 		var target = document.getElementById('appcontent') || XMigemoUI.browser;
-		if (target)
+		if (target) {
 			target.removeEventListener('mousedown', this, true);
+			target.removeEventListener('mouseup', this, true);
+		}
 
 		var bar = XMigemoUI.findBar;
 		bar.removeEventListener('XMigemoFindBarOpen', this, false);
@@ -133,21 +137,18 @@ var XMigemoHighlight = {
 				return;
 
 			case 'mousedown':
-				if (aEvent.originalTarget.ownerDocument.defaultView.top == window.top)
+				if (aEvent.originalTarget.ownerDocument.defaultView.top == window.top ||
+					this.isEventFiredOnScrollBar(aEvent) ||
+					!window.content ||
+					!window.content.__moz_xmigemoHighlightedScreen)
 					return;
+//				aEvent.stopPropagation();
+//				aEvent.preventDefault();
+				break;
 
-				var inScrollBar = false;
-				var node = aEvent.originalTarget;
-				do
-				{
-					if (/^(scrollbar|scrollbarbutton|slider|thumb|gripper)$/i.test(node.localName)) {
-						inScrollBar = true;
-						break;
-					}
-					node = node.parentNode;
-				} while (node.parentNode);
-
-				if (inScrollBar ||
+			case 'mouseup':
+				if (aEvent.originalTarget.ownerDocument.defaultView.top == window.top ||
+					this.isEventFiredOnScrollBar(aEvent) ||
 					!window.content ||
 					!window.content.__moz_xmigemoHighlightedScreen)
 					return;
@@ -214,6 +215,17 @@ var XMigemoHighlight = {
 				this.clearAnimationStyle()
 				break;
 		}
+	},
+	isEventFiredOnScrollBar : function(aEvent)
+	{
+		var node = aEvent.originalTarget;
+		do
+		{
+			if (/^(scrollbar|scrollbarbutton|slider|thumb|gripper)$/i.test(node.localName))
+				return true;
+			node = node.parentNode;
+		} while (node.parentNode);
+		return false;
 	},
  
 	observe : function(aSubject, aTopic, aData) 
@@ -721,25 +733,38 @@ var XMigemoHighlight = {
 					aEvent.metaKey,
 					aEvent.button
 				];
-			window.setTimeout(function(aSelf, aFrame, aX, aY) {
+			window.setTimeout(function(aSelf, aFrame, aScreenX, aScreenY, aClientX, aClientY) {
 				if (aChecker && !aChecker()) {
-					window.setTimeout(arguments.callee, 0, aSelf, aFrame, aX, aY);
+					window.setTimeout(arguments.callee, 0, aSelf, aFrame, aScreenX, aScreenY, aClientX, aClientY);
 					return;
 				}
-				var node = aSelf.getClickableElementFromPoint(aFrame, aX, aY);
-				if (!node) return;
-				var event = aFrame.document.createEvent('MouseEvents');
-				args.push(node);
-				event.initMouseEvent.apply(event, args);
-				node.dispatchEvent(event);
-				if ('focus' in node) node.focus();
+				var node = aSelf.getClickableElementFromPoint(aFrame, aScreenX, aScreenY, aClientX, aClientY);
+				if (node) {
+					var event = aFrame.document.createEvent('MouseEvents');
+					args.push(node);
+					event.initMouseEvent.apply(event, args);
+					node.dispatchEvent(event);
+					if ('focus' in node) node.focus();
+				}
 				if (aCallback) aCallback();
-			}, 0, this, aEvent.view, aEvent.screenX, aEvent.screenY);
+			}, 0, this, aEvent.view, aEvent.screenX, aEvent.screenY, aEvent.clientX, aEvent.clientY);
 		}
 	},
 	
-	getClickableElementFromPoint : function(aWindow, aScreenX, aScreenY) 
+	getClickableElementFromPoint : function(aWindow, aScreenX, aScreenY, aClientX, aClientY) 
 	{
+		if ('elementFromPoint' in aWindow.document) {
+			try {
+				if ('useFullZoom' in ZoomManager && ZoomManager.useFullZoom) {
+					aClientX = aClientX * ZoomManager.zoom;
+					aClientY = aClientY * ZoomManager.zoom;
+				}
+				return aWindow.document.elementFromPoint(aClientX, aClientY);
+			}
+			catch(e) {
+			}
+		}
+
 		var accNode;
 		try {
 			var accService = Components.classes['@mozilla.org/accessibilityService;1']
