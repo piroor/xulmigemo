@@ -33,72 +33,22 @@ var XMigemoUI = {
 
 	ATTR_LAST_HIGHLIGHT : '_moz-xulmigemo-last-highlight',
  
-	get isQuickFind() 
-	{
-		return XMigemoFind.isQuickFind;
-	},
-	set isQuickFind(val)
-	{
-		XMigemoFind.isQuickFind = val;
-		return XMigemoFind.isQuickFind;
-	},
- 
-	get findMode() 
-	{
-		return parseInt(this.findModeSelector.value || this.FIND_MODE_NATIVE);
-	},
-	set findMode(val)
-	{
-		var mode = parseInt(val);
-		switch (mode)
-		{
-			case this.FIND_MODE_MIGEMO:
-			case this.FIND_MODE_REGEXP:
-			case this.FIND_MODE_NATIVE:
-				this.findModeSelector.value = mode;
-				break;
-
-			default:
-				this.findModeSelector.value = mode = this.FIND_MODE_NATIVE;
-				break;
-		}
-		return mode;
-	},
- 
-	get shouldHighlightAll() 
-	{
-		var term = this.findTerm;
-		if (!this.highlightCheckedAlways)
-			return term.length ? true : false ;
-
-		var minLength = this.highlightCheckedAlwaysMinLength;
-		return (
-				(minLength <= term.length) &&
-				(
-					!this.isActive ||
-					minLength <= Math.max.apply(
-						null,
-						XMigemoCore.regExpFindArrRecursively(
-							new RegExp(
-								(
-									this.findMode == this.FIND_MODE_REGEXP ?
-										this.textUtils.extractRegExpSource(term) :
-										XMigemoCore.getRegExp(term)
-								),
-								'im'
-							),
-							this.activeBrowser.contentWindow,
-							true
-						).map(function(aItem) {
-							return (aItem || '').length;
-						})
-					)
-				)
-			);
-	},
- 
 	nsITypeAheadFind : Components.interfaces.nsITypeAheadFind, 
+	nsIDOMNSEditableElement : Components.interfaces.nsIDOMNSEditableElement,
  
+	get textUtils() 
+	{
+		if (!this._textUtils) {
+			this._textUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
+		}
+		return this._textUtils;
+	},
+	_textUtils : null,
+ 
+/* elements */ 
+	
 	get browser() 
 	{
 		return document.getElementById('content') || // Firefox
@@ -130,12 +80,6 @@ var XMigemoUI = {
 	},
 	_findBar : null,
  
-	get findBarHidden() 
-	{
-		return (this.findBar.getAttribute('collapsed') == 'true' ||
-				this.findBar.getAttribute('hidden') == 'true');
-	},
- 
 	get findField() 
 	{
 		if (this._findField === void(0)) {
@@ -147,44 +91,6 @@ var XMigemoUI = {
 		return this._findField;
 	},
 //	_findField : null,
- 
-	get findFieldIsFocused() 
-	{
-		try {
-			var focused = document.commandDispatcher.focusedElement;
-			var xpathResult = document.evaluate(
-					'ancestor-or-self::*[local-name()="textbox"]',
-					focused,
-					this.NSResolver,
-					XPathResult.FIRST_ORDERED_NODE_TYPE,
-					null
-				);
-			return xpathResult.singleNodeValue == this.findField;
-		}
-		catch(e) {
-		}
-		return false;
-	},
- 
-	get findTerm() 
-	{
-		try {
-			return this.findField.value.replace(/^\s+|\s+$/g, '');
-		}
-		catch(e) {
-		}
-		return '';
-	},
-	set findTerm(val)
-	{
-		try {
-			if (this.findField)
-				this.findField.value = val;
-		}
-		catch(e) {
-		}
-		return this.findTerm;
-	},
  
 	get findCaseSensitiveCheck() 
 	{
@@ -245,18 +151,117 @@ var XMigemoUI = {
 		return this._timeoutIndicatorBox;
 	},
 	_timeoutIndicatorBox : null,
- 
-	get textUtils() 
+  
+/* status */ 
+	
+	get isQuickFind() 
 	{
-		if (!this._textUtils) {
-			this._textUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
-		}
-		return this._textUtils;
+		return XMigemoFind.isQuickFind;
 	},
-	_textUtils : null,
+	set isQuickFind(val)
+	{
+		XMigemoFind.isQuickFind = val;
+		return XMigemoFind.isQuickFind;
+	},
  
+	get findMode() 
+	{
+		return parseInt(this.findModeSelector.value || this.FIND_MODE_NATIVE);
+	},
+	set findMode(val)
+	{
+		var mode = parseInt(val);
+		switch (mode)
+		{
+			case this.FIND_MODE_MIGEMO:
+			case this.FIND_MODE_REGEXP:
+			case this.FIND_MODE_NATIVE:
+				this.findModeSelector.value = mode;
+				break;
+
+			default:
+				this.findModeSelector.value = mode = this.FIND_MODE_NATIVE;
+				break;
+		}
+		return mode;
+	},
+ 
+	get findTerm() 
+	{
+		try {
+			return this.findField.value.replace(/^\s+|\s+$/g, '');
+		}
+		catch(e) {
+		}
+		return '';
+	},
+	set findTerm(val)
+	{
+		try {
+			if (this.findField)
+				this.findField.value = val;
+		}
+		catch(e) {
+		}
+		return this.findTerm;
+	},
+ 
+	get findBarHidden() 
+	{
+		return (this.findBar.getAttribute('collapsed') == 'true' ||
+				this.findBar.getAttribute('hidden') == 'true');
+	},
+ 
+	get findFieldIsFocused() 
+	{
+		try {
+			var focused = document.commandDispatcher.focusedElement;
+			var xpathResult = document.evaluate(
+					'ancestor-or-self::*[local-name()="textbox"]',
+					focused,
+					this.NSResolver,
+					XPathResult.FIRST_ORDERED_NODE_TYPE,
+					null
+				);
+			return xpathResult.singleNodeValue == this.findField;
+		}
+		catch(e) {
+		}
+		return false;
+	},
+ 
+	get shouldHighlightAll() 
+	{
+		var term = this.findTerm;
+		if (!this.highlightCheckedAlways)
+			return term.length ? true : false ;
+
+		var minLength = this.highlightCheckedAlwaysMinLength;
+		return (
+				(minLength <= term.length) &&
+				(
+					!this.isActive ||
+					minLength <= Math.max.apply(
+						null,
+						XMigemoCore.regExpFindArrRecursively(
+							new RegExp(
+								(
+									this.findMode == this.FIND_MODE_REGEXP ?
+										this.textUtils.extractRegExpSource(term) :
+										XMigemoCore.getRegExp(term)
+								),
+								'im'
+							),
+							this.activeBrowser.contentWindow,
+							true
+						).map(function(aItem) {
+							return (aItem || '').length;
+						})
+					)
+				)
+			);
+	},
+  
 /* nsIPrefListener(?) */ 
 	
 	domain  : 'xulmigemo', 
@@ -375,6 +380,50 @@ var XMigemoUI = {
 		}
 	},
   
+/* utilities */ 
+	 
+	getEditableNodes : function(aDocument) 
+	{
+		return aDocument.evaluate(
+				[
+					'descendant::*[',
+						'local-name()="TEXTAREA" or local-name()="textarea" or ',
+						'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
+					']'
+				].join(''),
+				aDocument,
+				this.NSResolver,
+				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+				null
+			);
+	},
+ 
+	clearSelectionInEditable : function(aFrame) 
+	{
+		var xpathResult = this.getEditableNodes(aFrame.document);
+		try {
+			var selCon, selection;
+			for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
+			{
+				selCon = xpathResult.snapshotItem(i)
+					.QueryInterface(this.nsIDOMNSEditableElement)
+					.editor
+					.selectionController;
+				if (selCon.getDisplaySelection() == selCon.SELECTION_ON &&
+					(selection = selCon.getSelection(selCon.SELECTION_NORMAL)) &&
+					selection.rangeCount)
+					selection.removeAllRanges();
+			}
+		}
+		catch(e) {
+		}
+		var self = this;
+		Array.prototype.slice.call(aFrame.frames)
+			.some(function(aFrame) {
+				self.clearSelectionInEditable(aFrame);
+			});
+	},
+ 	 
 	handleEvent : function(aEvent) /* DOMEventListener */ 
 	{
 		switch (aEvent.type)
@@ -393,6 +442,16 @@ var XMigemoUI = {
 
 			case 'XMigemoFindProgress':
 				this.onXMigemoFindProgress(aEvent);
+				return;
+
+			case 'XMigemoFindAgain':
+				if (!this.isActive &&
+					this.lastFindMode == this.FIND_MODE_NATIVE &&
+					this.findHighlightCheck.checked) {
+					window.setTimeout(function(aSelf) {
+						aSelf.clearSelectionInEditable(aSelf.activeBrowser.contentWindow);
+					}, 0, this);
+				}
 				return;
 
 			case 'blur':
@@ -1006,7 +1065,7 @@ var XMigemoUI = {
 			if (d) {
 				if (d.foundEditable) {
 					d.foundEditable
-						.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+						.QueryInterface(this.nsIDOMNSEditableElement)
 						.editor.selection.removeAllRanges();
 					d.foundEditable = null;
 				}
@@ -1017,7 +1076,7 @@ var XMigemoUI = {
 	},
  
 /* Override FindBar */ 
-	 
+	
 	overrideFindBar : function() 
 	{
 		/*
@@ -1404,6 +1463,8 @@ var XMigemoUI = {
 		}
 	},
  
+/* highlight */ 
+	 
 	toggleHighlight : function(aHighlight) 
 	{
 		if (aHighlight && XMigemoUI.highlightCheckedAlways) {
@@ -1425,18 +1486,7 @@ var XMigemoUI = {
  
 	clearHighlight : function(aDocument) 
 	{
-		var xpathResult = aDocument.evaluate(
-				[
-					'descendant::*[',
-						'local-name()="TEXTAREA" or local-name()="textarea" or ',
-						'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
-					']'
-				].join(''),
-				aDocument,
-				this.NSResolver,
-				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-				null
-			);
+		var xpathResult = this.getEditableNodes(aDocument);
 		try {
 			var editable;
 			for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
@@ -1445,7 +1495,7 @@ var XMigemoUI = {
 				this.clearHighlightInternal(
 					aDocument,
 					editable
-						.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+						.QueryInterface(this.nsIDOMNSEditableElement)
 						.editor
 						.rootElement
 				);
@@ -1558,7 +1608,7 @@ var XMigemoUI = {
 		alert(aEvent.target);
 		alert(aEvent.originalTarget);
 	},
- 	 
+   
 	updateStatus : function(aStatusText) 
 	{
 		var bar = this.findBar;
@@ -1715,6 +1765,7 @@ var XMigemoUI = {
 		this.lastFindMode = this.FIND_MODE_NATIVE;
 
 		document.addEventListener('XMigemoFindProgress', this, false);
+		document.addEventListener('XMigemoFindAgain', this, false);
 
 		var browser = this.browser;
 		if (browser) {
@@ -1776,7 +1827,7 @@ var XMigemoUI = {
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 	},
-	 
+	
 	delayedInit : function() { 
 		window.setTimeout("XMigemoUI.findField.addEventListener('blur', this, false);", 0);
 
@@ -1798,6 +1849,7 @@ var XMigemoUI = {
 		XMigemoService.removePrefListener(this);
 
 		document.removeEventListener('XMigemoFindProgress', this, false);
+		document.removeEventListener('XMigemoFindAgain', this, false);
 
 		var browser = this.browser;
 		if (browser) {
