@@ -1405,7 +1405,7 @@ var XMigemoUI = {
 			var sel = (win && win.getSelection() ? win.getSelection().toString() : '' ).replace(/^\s+|\s+$/g, '');
 			if (!sel) return;
 
-			if (ui.isActive) {
+			if (ui.isActive || ui.findMode != ui.FIND_MODE_NATIVE) {
 				if (
 					ui.cancelTimer ||
 					XMigemoFind.lastKeyword == sel ||
