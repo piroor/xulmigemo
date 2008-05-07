@@ -141,8 +141,23 @@ var XMigemoHighlight = {
 					!window.content ||
 					!window.content.__moz_xmigemoHighlightedScreen)
 					return;
-//				aEvent.stopPropagation();
-//				aEvent.preventDefault();
+
+				var node = aEvent.originalTarget;
+				var doc = node.ownerDocument;
+				var view = doc.defaultView;
+
+				doc.documentElement.removeAttribute(this.kSCREEN);
+				node = this.getClickableElementFromPoint(view, aEvent.screenX, aEvent.screenY, aEvent.clientX, aEvent.clientY);
+				doc.documentElement.setAttribute(this.kSCREEN, 'on');
+
+				var b = XMigemoUI.activeBrowser;
+				if (b.localName == 'tabbrowser') b = b.selectedBrowser;
+				if (node && b.isAutoscrollBlocker(node)) {
+					b.setAttribute('autoscroll', 'false');
+					window.setTimeout(function() {
+						b.removeAttribute('autoscroll');
+					}, 0);
+				}
 				break;
 
 			case 'mouseup':
@@ -151,6 +166,13 @@ var XMigemoHighlight = {
 					!window.content ||
 					!window.content.__moz_xmigemoHighlightedScreen)
 					return;
+
+				var b = XMigemoUI.activeBrowser;
+				if (b.localName == 'tabbrowser') b = b.selectedBrowser;
+				if ('_autoScrollPopup' in b) // Firefox 3
+					this._autoScrollPopup.hidePopup();
+				else if (!b._snapOn) // Firefox 2
+					b.stopScroll();
 
 				this.toggleHighlightScreen(false);
 				var self = this;
