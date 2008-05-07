@@ -610,9 +610,12 @@ var XMigemoHighlight = {
 
 				// anonymous contentsの中に挿入した内容は検索されない。
 				// （複製した内容は検索されて欲しくないのでこうする）
-				var box = doc.getAnonymousNodes(node)[0];
-				range.selectNodeContents(box);
-				range.insertNode(contents);
+				var box = doc.getAnonymousNodes(node);
+				if (box && box.length) {
+					box = box[0];
+					range.selectNodeContents(box);
+					range.insertNode(contents);
+				}
 
 				range.detach();
 
