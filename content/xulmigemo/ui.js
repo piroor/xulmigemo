@@ -1054,7 +1054,7 @@ var XMigemoUI = {
  
 	findAgain : function(aKeyword, aMode) 
 	{
-		if (aMode == this.FIND_MODE_MIGEMO) {
+		if (aMode != this.FIND_MODE_NATIVE) {
 			XMigemoFind.replaceKeyword(aKeyword);
 			this.updateStatus(aKeyword);
 			this.find();
