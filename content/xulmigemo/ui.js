@@ -534,6 +534,7 @@ var XMigemoUI = {
 	processFunctionalShortcuts : function(aEvent, aFromFindField) 
 	{
 		if (
+			!aFromFindField &&
 			this.isEventFiredInInputField(aEvent) &&
 			!(
 				aEvent.charCode == 0 ||
@@ -1344,6 +1345,11 @@ var XMigemoUI = {
 		return (this.lastFindMode == this.FIND_MODE_NATIVE) ? (aString || migemoString) : (migemoString || aString) ;
 	},
  
+	get lastFoundTerm() 
+	{
+		return (this.lastFindMode == this.FIND_MODE_NATIVE) ? this.findTerm : XMigemoFind.lastFoundWord;
+	},
+ 
 	presetSearchString : function(aString) 
 	{
 		if (XMigemoService.getPref('xulmigemo.ignore_find_links_only_behavior')) return;
@@ -1456,6 +1462,8 @@ var XMigemoUI = {
 			this.migemoModeBox.setAttribute('hidden', true);
 			this.findMigemoBar.setAttribute('collapsed', true);
 		}
+
+		if (this.isActive) this.cancel(true);
 
 		this.isActive = false;
 
