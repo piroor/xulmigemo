@@ -244,6 +244,10 @@ var XMigemoHighlight = {
 		}
 
 		this.toggleHighlightScreen(false);
+
+		if (this.fireGesturesDragging)
+			return;
+
 		var self = this;
 		var checker = function() {
 				var screen = window.content.document.getElementById(self.kSCREEN);
@@ -262,7 +266,18 @@ var XMigemoHighlight = {
 		aEvent.stopPropagation();
 		aEvent.preventDefault();
 	},
-  	
+ 
+	get fireGesturesDragging() 
+	{
+		if (
+			!('FireGestures' in window) ||
+			!('_gestureHandler' in FireGestures) ||
+			!('xdIGestureHandler' in Components.interfaces)
+			)
+			return false;
+		return FireGestures._gestureHandler.sourceNode;
+	},
+ 	 
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)
@@ -327,7 +342,7 @@ var XMigemoHighlight = {
 /* Safari style highlight, dark screen 
 	based on http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
 */
-	 
+	
 	initializeHighlightScreen : function(aFrame, aDontFollowSubFrames) 
 	{
 		if (!aFrame)
