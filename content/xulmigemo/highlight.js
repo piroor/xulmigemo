@@ -183,7 +183,7 @@ var XMigemoHighlight = {
 				break;
 
 			case 'XMigemoFindBarClose':
-				this.clearAnimationStyleIn(XMigemoUI.activeBrowser.contentDocument, true);
+				this.clearAnimationStyleIn(XMigemoUI.activeBrowser.contentWindow, true);
 				this.clearAnimationStyle();
 				window.setTimeout(function(aSelf) {
 					if (aSelf.strongHighlight)
@@ -210,7 +210,7 @@ var XMigemoHighlight = {
 
 			case 'XMigemoFindAgain':
 				if (this.animationStyle == this.STYLE_ZOOM)
-					this.clearAnimationStyleIn(XMigemoUI.activeBrowser.contentDocument, true);
+					this.clearAnimationStyleIn(XMigemoUI.activeBrowser.contentWindow, true);
 				this.clearAnimationStyle()
 				break;
 		}
@@ -410,7 +410,7 @@ var XMigemoHighlight = {
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
 
 		if (this.animationStyle == this.STYLE_ZOOM)
-			this.clearAnimationStyleIn(aFrame.document, true);
+			this.clearAnimationStyleIn(aFrame, true);
 		this.clearAnimationStyle();
 
 		if (aFrame.frames && aFrame.frames.length) {
@@ -513,7 +513,7 @@ var XMigemoHighlight = {
 	 
 	animateFoundNode : function(aNode) 
 	{
-		this.clearAnimationStyleIn(aNode.ownerDocument);
+		this.clearAnimationStyleIn(aNode.ownerDocument.defaultView);
 		if (this.animationTimer) {
 			this.clearAnimationStyle();
 			window.clearInterval(this.animationTimer);
@@ -543,13 +543,14 @@ var XMigemoHighlight = {
 	animationTimer : null,
 	animationTime  : 250,
    
-	clearAnimationStyleIn : function(aDocument, aRecursively) 
+	clearAnimationStyleIn : function(aFrame, aRecursively) 
 	{
-		if (!aDocument) return;
+		if (!aFrame) return;
 
-		var nodes = aDocument.evaluate(
+		var doc = aFrame.document;
+		var nodes = doc.evaluate(
 				this.kANIMATIONS,
-				aDocument,
+				doc,
 				null,
 				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
 				null
@@ -558,14 +559,14 @@ var XMigemoHighlight = {
 		{
 			nodes.snapshotItem(i).parentNode.removeChild(nodes.snapshotItem(i));
 		}
-		aDocument.documentElement.removeAttribute(this.kANIMATION);
+		doc.documentElement.removeAttribute(this.kANIMATION);
 
 		if (!aRecursively) return;
 
 		var self = this;
-		Array.prototype.slice.call(aDocument.defaultView.frames)
+		Array.prototype.slice.call(aFrame.frames)
 			.forEach(function(aFrame) {
-				self.clearAnimationStyleIn(aFrame.document, true);
+				self.clearAnimationStyleIn(aFrame, true);
 			});
 	},
  
