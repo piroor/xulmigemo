@@ -622,9 +622,7 @@ var XMigemoUI = {
  
 	processFunctionalKeyEvent : function(aEvent, aFromFindField) 
 	{
-		if (!this.isActive) return false;
-
-		aFromFindField = (aFromFindField && this.isQuickFind);
+		if (!this.isActive || !this.isQuickFind) return false;
 
 		switch (aEvent.keyCode)
 		{
@@ -1642,17 +1640,16 @@ var XMigemoUI = {
 		document.dispatchEvent(event);
 
 		var keyword = XMigemoUI.findTerm;
-		var findBarShown = this.findBar && !this.findBar.hidden;
-		if (XMigemoUI.isActive || XMigemoUI.lastFindMode != this.FIND_MODE_NATIVE) {
+		if (XMigemoUI.isActive || XMigemoUI.lastFindMode != XMigemoUI.FIND_MODE_NATIVE) {
 			if (XMigemoUI.isModeChanged && keyword) {
 				XMigemoUI.findAgain(keyword, XMigemoUI.lastFindMode);
 				XMigemoUI.isModeChanged = false;
 				return;
 			}
-			XMigemoFind.findNext(!findBarShown ? true : false );
+			XMigemoFind.findNext(XMigemoUI.findBarHidden ? true : false );
 			if (XMigemoUI.cancelTimer)
 				XMigemoUI.startTimer();
-			if (findBarShown && XMigemoUI.isQuickFind)
+			if (!XMigemoUI.findBarHidden && XMigemoUI.isQuickFind)
 				XMigemoUI.findField.focus();
 		}
 		else {
@@ -1674,17 +1671,16 @@ var XMigemoUI = {
 		document.dispatchEvent(event);
 
 		var keyword = XMigemoUI.findTerm;
-		var findBarShown = this.findBar && !this.findBar.hidden;
-		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == this.FIND_MODE_MIGEMO) {
+		if (XMigemoUI.isActive || XMigemoUI.lastFindMode == XMigemoUI.FIND_MODE_MIGEMO) {
 			if (XMigemoUI.isModeChanged && keyword) {
 				XMigemoUI.findAgain(keyword, XMigemoUI.lastFindMode);
 				XMigemoUI.isModeChanged = false;
 				return;
 			}
-			XMigemoFind.findPrevious(!findBarShown ? true : false );
+			XMigemoFind.findPrevious(XMigemoUI.findBarHidden ? true : false );
 			if (XMigemoUI.cancelTimer)
 				XMigemoUI.startTimer();
-			if (findBarShown && XMigemoUI.isQuickFind)
+			if (!XMigemoUI.findBarHidden && XMigemoUI.isQuickFind)
 				XMigemoUI.findField.focus();
 		}
 		else {
