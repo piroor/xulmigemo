@@ -245,8 +245,7 @@ var XMigemoHighlight = {
 
 		this.toggleHighlightScreen(false);
 
-		if (this.fireGesturesDragging)
-			return;
+		if (this.isGestureInProgress) return;
 
 		var self = this;
 		var checker = function() {
@@ -266,8 +265,24 @@ var XMigemoHighlight = {
 		aEvent.stopPropagation();
 		aEvent.preventDefault();
 	},
+	 
+	get isGestureInProgress() 
+	{
+		return (
+			this.aioGesturesInProgress ||
+			this.fireGesturesInProgress ||
+			this.mozGesturesInProgress
+			);
+	},
  
-	get fireGesturesDragging() 
+	get aioGesturesInProgress() // All-in-One Gestures 
+	{
+		if (!('aioGestInProgress' in window))
+			return false;
+		return window.aioGestInProgress || window.aioGrabTarget;
+	},
+ 
+	get fireGesturesInProgress() // FireGestures 
 	{
 		if (
 			!('FireGestures' in window) ||
@@ -277,7 +292,17 @@ var XMigemoHighlight = {
 			return false;
 		return FireGestures._gestureHandler.sourceNode;
 	},
- 	 
+ 
+	get mozGesturesInProgress() // Optimoz Mouse Gestures (Mouse Gestures Redox) 
+	{
+		if (
+			!('mgObserver' in window) ||
+			!('gestureInProgress' in window)
+			)
+			return false;
+		return window.gestureInProgress;
+	},
+ 	  
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)
