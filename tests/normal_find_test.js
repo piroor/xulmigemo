@@ -1,14 +1,11 @@
 // 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
 // UTF-8にしてください。
 
-var keyEventTest = baseURL+'keyEventTest.html';
-
-
 var XMigemoUI, win, browser;
+var keyEventTest = baseURL+'keyEventTest.html';
+var wait = 300;
 
 var basicTest = new TestCase('基本機能のテスト', {runStrategy: 'async'});
-
-var wait = 500;
 
 basicTest.tests = {
 	setUp : function() {
@@ -34,7 +31,7 @@ basicTest.tests = {
 		utils.tearDownTestWindow();
 	},
 
-	'モード切り替えのテスト': function() {
+	'モード切り替え': function() {
 		win.gFindBar.closeFindBar();
 		yield wait;
 		assert.isTrue(XMigemoUI.findBarHidden);
@@ -126,7 +123,7 @@ basicTest.tests = {
 		assert.isTrue(XMigemoUI.findBarHidden);
 	},
 
-	'通常の検索のテスト': function() {
+	'通常の検索': function() {
 		win.gFindBar.openFindBar();
 		yield wait;
 
@@ -208,7 +205,7 @@ basicTest.tests = {
 		assert.notEquals(lastFoundRange.startContainer, foundRange.startContainer);
 	},
 
-	'正規表現検索のテスト': function() {
+	'正規表現検索': function() {
 		win.gFindBar.openFindBar();
 		yield wait;
 
@@ -285,7 +282,7 @@ basicTest.tests = {
 		assert.equals('text', XMigemoUI.lastFoundRange.toString());
 	},
 
-	'Migemo検索のテスト': function() {
+	'Migemo検索': function() {
 		win.gFindBar.openFindBar();
 		yield wait;
 
@@ -350,5 +347,64 @@ basicTest.tests = {
 		action.fireKeyEventOnElement(field, key);
 		yield wait;
 		assert.equals('ニホンゴ', XMigemoUI.lastFoundRange.toString());
+	},
+
+	'検索モードの自動切り替え': function() {
+		var field = XMigemoUI.findField;
+
+		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
+		yield wait;
+
+		action.inputTextToField(field, 'text field');
+		yield wait;
+		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.matches('text field', XMigemoUI.lastFoundRange.toString());
+
+		action.inputTextToField(field, '');
+		yield wait;
+		action.inputTextToField(field, '/(single-row|multirow) field/');
+		yield wait;
+		assert.equals(XMigemoUI.FIND_MODE_REGEXP, XMigemoUI.findMode);
+		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.matches('single-row field', XMigemoUI.lastFoundRange.toString());
+
+		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
+		action.fireKeyEventOnElement(field, key);
+		yield wait;
+		assert.equals('multirow field', XMigemoUI.lastFoundRange.toString());
+
+		action.inputTextToField(field, '');
+		yield wait;
+		action.inputTextToField(field, '(single-row|multirow) field');
+		yield wait;
+		assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
+		assert.equals('notfound', field.getAttribute('status'));
+	},
+
+	'複数のモードを切り替えながらの検索': function() {
+		var field = XMigemoUI.findField;
+
+		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
+		yield wait;
+
+		action.inputTextToField(field, 'text field');
+		yield wait;
+		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.matches('text field', XMigemoUI.lastFoundRange.toString());
+
+		action.inputTextToField(field, '');
+		yield wait;
+
+		action.fireMouseEventOnElement(XMigemoUI.findModeSelector.childNodes[2]);
+		yield wait;
+		action.inputTextToField(field, 'nihongo');
+		yield wait;
+		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.matches('日本語', XMigemoUI.lastFoundRange.toString());
+
+		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
+		action.fireKeyEventOnElement(field, key);
+		yield wait;
+		assert.equals('にほんご', XMigemoUI.lastFoundRange.toString());
 	}
 };
