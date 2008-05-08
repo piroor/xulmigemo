@@ -27,6 +27,11 @@ var XMigemoUI = {
 	caseSensitiveCheckedAlways : false,
 	migemoCheckedAlways        : false,
 
+	openAgainAction : 0,
+	ACTION_NONE     : 0,
+	ACTION_SWITCH   : 1,
+	ACTION_CLOSE    : 2,
+
 	shouldRebuildSelection : false,
 
 	isModeChanged : false,
@@ -374,6 +379,10 @@ var XMigemoUI = {
 
 			case 'xulmigemo.shortcut.goDicManager':
 				this.goDicManagerKey = XMigemoService.parseShortcut(value);
+				return;
+
+			case 'xulmigemo.shortcut.openAgain':
+				this.openAgainAction = value;
 				return;
 
 			case 'xulmigemo.appearance.hideLabels':
@@ -927,16 +936,16 @@ var XMigemoUI = {
 	},
 	onFindStartCommandCallback : function()
 	{
-		switch (XMigemoService.getPref('xulmigemo.shortcut.openAgain'))
+		switch (this.openAgainAction)
 		{
-			case 1:
+			case this.ACTION_SWITCH:
 				var selector = this.findModeSelector;
 				var items = selector.childNodes;
 				this.findMode = items[(selector.selectedIndex + 1) % (items.length)].value;
 				this.onChangeFindToolbarMode();
 				break;
 
-			case 2:
+			case this.ACTION_CLOSE:
 				gFindBar.closeFindBar();
 				break;
 		}
@@ -1857,6 +1866,7 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.manualStartLinksOnly2');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.goDicManager');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.manualExit');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.openAgain');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.indicator.height');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.rebuild_selection');
 
