@@ -317,45 +317,38 @@ basicTest.tests = {
 
 		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN };
 		action.fireKeyEventOnElement(field, key);
-		yield wait;
-		assert.equals('にほんご', XMigemoUI.lastFoundRange.toString());
-
 		action.fireKeyEventOnElement(field, key);
 		action.fireKeyEventOnElement(field, key);
 		yield wait;
 		assert.equals('nihongo', XMigemoUI.lastFoundRange.toString());
 
-		key.shiftKey = true;
 		action.fireKeyEventOnElement(field, key);
-		yield wait;
-		assert.equals('ニホンゴ', XMigemoUI.lastFoundRange.toString());
-
 		action.fireKeyEventOnElement(field, key);
 		yield wait;
 		assert.equals('にほんご', XMigemoUI.lastFoundRange.toString());
 
+		key.shiftKey = true;
 		action.fireKeyEventOnElement(field, key);
 		yield wait;
 		assert.equals('日本語', XMigemoUI.lastFoundRange.toString());
+
+		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(field, key);
+		yield wait;
+		assert.equals('ニホンゴ', XMigemoUI.lastFoundRange.toString());
 
 
 		// F3キーでの再検索
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
 		action.fireKeyEventOnElement(field, key);
-		yield wait;
-		assert.equals('にほんご', XMigemoUI.lastFoundRange.toString());
-
-		action.fireKeyEventOnElement(field, key);
-		yield wait;
-		assert.equals('ニホンゴ', XMigemoUI.lastFoundRange.toString());
-
-		key.shiftKey = true;
-		action.fireKeyEventOnElement(field, key);
-		yield wait;
-		assert.equals('にほんご', XMigemoUI.lastFoundRange.toString());
-
 		action.fireKeyEventOnElement(field, key);
 		yield wait;
 		assert.equals('日本語', XMigemoUI.lastFoundRange.toString());
+
+		key.shiftKey = true;
+		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(field, key);
+		yield wait;
+		assert.equals('ニホンゴ', XMigemoUI.lastFoundRange.toString());
 	}
 };
