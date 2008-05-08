@@ -17,11 +17,11 @@ var XMigemoCombinationService = {
 	{
 		eval('window.acm_applyFilters = '+
 			window.acm_applyFilters.toSource().replace(
-				'var titleMatchPos = candidate.title.toLowerCase().indexOf(acm_typedPrefix);',
+				/var (titleMatchPos) = (candidate.strippedTitle.indexOf\([^)]+\));/,
 				<><![CDATA[
-					var titleMatchPos = XMigemoService.getPref('xulmigemo.combination.autocompletemanager') ?
+					var $1 = XMigemoService.getPref('xulmigemo.combination.autocompletemanager') ?
 						candidate.title.search(XMigemoCore.getCachedRegExp(acm_typedPrefix)) :
-						candidate.title.toLowerCase().indexOf(acm_typedPrefix);
+						$2;
 				]]></>
 			)
 		);
