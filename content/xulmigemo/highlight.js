@@ -11,9 +11,9 @@ var XMigemoHighlight = {
 	animationSize : [15, 10],
 	animationUnit : 10,
 
-	kSTYLE     : '__moz_xmigemoFindHighlightStyle',
-	kSCREEN    : '__moz_xmigemoFindHighlightScreen',
-	kANIMATION : '__moz_xmigemoFindHighlightAnimation',
+	kSTYLE     : '__moz_xmigemo-find-highlight-style',
+	kSCREEN    : '__moz_xmigemo-find-highlight-screen',
+	kANIMATION : '__moz_xmigemo-find-highlight-animation',
 
 	kANIMATION_NODE : '__mozilla-findbar-animation',
 
