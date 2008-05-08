@@ -188,6 +188,7 @@ var XMigemoUI = {
 				this.findModeSelector.value = mode = this.FIND_MODE_NATIVE;
 				break;
 		}
+		this.onChangeFindToolbarMode();
 		return mode;
 	},
  
@@ -904,7 +905,6 @@ var XMigemoUI = {
 			this.lastFindMode = this.FIND_MODE_NATIVE;
 			this.isModeChanged = true;
 		}
-
 		this.findField.focus();
 	},
  
@@ -920,7 +920,6 @@ var XMigemoUI = {
 			aSelf.findMode = aValue == aSelf.FIND_MODE_NATIVE ?
 				aSelf.FIND_MODE_MIGEMO :
 				aSelf.FIND_MODE_NATIVE ;
-			aSelf.onChangeFindToolbarMode();
 		}, 0, this, aEvent.target.value);
 	},
  
