@@ -19,6 +19,7 @@ var XMigemoUI = {
 	autoExitQuickFindInherit : true,
 	autoExitQuickFind        : true,
 	timeout                  : 0,
+	disableIMEOnQuickFind    : false,
 
 	autoStartRegExpFind      : false,
 
@@ -158,7 +159,7 @@ var XMigemoUI = {
 	_timeoutIndicatorBox : null,
   
 /* status */ 
-	 
+	
 	get isQuickFind() 
 	{
 		return XMigemoFind.isQuickFind;
@@ -241,7 +242,7 @@ var XMigemoUI = {
 			});
 		return range;
 	},
- 	
+ 
 	get findBarHidden() 
 	{
 		return (this.findBar.getAttribute('collapsed') == 'true' ||
@@ -345,6 +346,10 @@ var XMigemoUI = {
 				this.forcedFindMode = value;
 				return;
 
+			case 'xulmigemo.disableIME.quickFind':
+				this.disableIMEOnQuickFind = value;
+				return;
+
 			case 'xulmigemo.timeout':
 				this.timeout = value;
 				if (this.timeout === null)
@@ -425,7 +430,7 @@ var XMigemoUI = {
 	},
   
 /* utilities */ 
-	
+	 
 	getEditableNodes : function(aDocument) 
 	{
 		return aDocument.evaluate(
@@ -467,7 +472,18 @@ var XMigemoUI = {
 				self.clearSelectionInEditable(aFrame);
 			});
 	},
-  
+ 
+	disableFindFieldIME : function() 
+	{
+		if (!('imeMode' in this.findField.style)) return;
+
+		this.lastFindFieldIMEState = window.getComputedStyle(this.findField, null).getPropertyValue('imge-mode');
+		this.findField.inputField.setAttribute('style', 'ime-mode: inactive !important;');
+		window.setTimeout(function(aField) {
+			aField.removeAttribute('style');
+		}, 1, this.findField.inputField);
+	},
+ 	 
 	handleEvent : function(aEvent) /* DOMEventListener */ 
 	{
 		switch (aEvent.type)
@@ -629,6 +645,8 @@ var XMigemoUI = {
 				isStartKeyLinksOnly2
 			)
 			) {
+			if (this.disableIMEOnQuickFind)
+				this.disableFindFieldIME();
 			XMigemoFind.clear(false);
 			this.start();
 			this.findField.focus();
@@ -788,6 +806,7 @@ var XMigemoUI = {
 				!aEvent.metaKey &&
 				!aEvent.altKey
 				) {
+				this.disableFindFieldIME();
 				XMigemoFind.clear(false);
 				this.start();
 				XMigemoFind.appendKeyword(String.fromCharCode(aEvent.charCode));
@@ -1062,7 +1081,9 @@ var XMigemoUI = {
  
 	cancel : function(aSilently) 
 	{
-//		dump("xmigemoCancel"+'\n');
+		if (this.inCancelingProcess) return;
+		this.inCancelingProcess = true;
+
 		this.isActive = false;
 
 		if (!aSilently) XMigemoFind.clear(this.isQuickFind);
@@ -1085,7 +1106,10 @@ var XMigemoUI = {
 
 		this.updateTimeoutIndicator(-1);
 		this.clearTimer();
+
+		this.inCancelingProcess = false;
 	},
+	inCancelingProcess : false,
  
 	find : function() 
 	{
@@ -1847,6 +1871,7 @@ var XMigemoUI = {
 		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.highlight.always.minLength');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.caseSensitive');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.findMode.always');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.disableIME.quickFind');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.override_findtoolbar');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.findForward');
