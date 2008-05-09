@@ -37,7 +37,8 @@ var XMigemoUI = {
 
 	isModeChanged : false,
 
-	ATTR_LAST_HIGHLIGHT : '_moz-xulmigemo-last-highlight',
+	kLAST_HIGHLIGHT : '_moz-xmigemo-last-highlight',
+	kDISABLE_IME    : '_moz-xmigemo-disable-ime',
  
 	nsITypeAheadFind : Components.interfaces.nsITypeAheadFind, 
 	nsIDOMNSEditableElement : Components.interfaces.nsIDOMNSEditableElement,
@@ -478,10 +479,10 @@ var XMigemoUI = {
 		if (!('imeMode' in this.findField.style)) return;
 
 		this.lastFindFieldIMEState = window.getComputedStyle(this.findField, null).getPropertyValue('imge-mode');
-		this.findField.inputField.setAttribute('style', 'ime-mode: inactive !important;');
-		window.setTimeout(function(aField) {
-			aField.removeAttribute('style');
-		}, 1, this.findField.inputField);
+		this.findField.inputField.setAttribute(this.kDISABLE_IME, true);
+		window.setTimeout(function(aSelf) {
+			aSelf.findField.inputField.removeAttribute(aSelf.kDISABLE_IME);
+		}, 100, this);
 	},
  	 
 	handleEvent : function(aEvent) /* DOMEventListener */ 
@@ -1295,7 +1296,7 @@ var XMigemoUI = {
 				'{',
 				<![CDATA[
 				{
-					XMigemoUI.activeBrowser.contentDocument.documentElement.setAttribute(XMigemoUI.ATTR_LAST_HIGHLIGHT, arguments[0]);
+					XMigemoUI.activeBrowser.contentDocument.documentElement.setAttribute(XMigemoUI.kLAST_HIGHLIGHT, arguments[0]);
 					XMigemoUI.updateHighlightNode(arguments[1]);
 					if (XMigemoUI.isActive) {
 						return XMigemoUI.highlightText(arguments[0], arguments[1],
@@ -1331,7 +1332,7 @@ var XMigemoUI = {
 				'{',
 				<![CDATA[
 				{
-					if (XMigemoUI.findTerm == XMigemoUI.activeBrowser.contentDocument.documentElement.getAttribute(XMigemoUI.ATTR_LAST_HIGHLIGHT)) return;
+					if (XMigemoUI.findTerm == XMigemoUI.activeBrowser.contentDocument.documentElement.getAttribute(XMigemoUI.kLAST_HIGHLIGHT)) return;
 				]]>
 			)
 		);
@@ -1549,7 +1550,7 @@ var XMigemoUI = {
 		XMigemoUI.findBar.dispatchEvent(event);
 
 		if (!aHighlight)
-			XMigemoUI.activeBrowser.contentDocument.documentElement.removeAttribute(XMigemoUI.ATTR_LAST_HIGHLIGHT);
+			XMigemoUI.activeBrowser.contentDocument.documentElement.removeAttribute(XMigemoUI.kLAST_HIGHLIGHT);
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalToggleHighlight.apply(scope, arguments);
