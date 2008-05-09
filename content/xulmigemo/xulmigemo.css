@@ -1,5 +1,10 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
 
 #FindToolbar[labelhidden="true"] toolbarbutton > label {
 	visibility: collapse !important;
+}
+
+*|*[_moz-xmigemo-disable-ime="true"] {
+	ime-mode: inactive !important;
 }
