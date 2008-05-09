@@ -680,6 +680,10 @@ var XMigemoUI = {
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE:
 				if (XMigemoFind.lastKeyword.length == 0) {
 					this.cancel();
+					if (aFromFindField) {
+						aEvent.stopPropagation();
+						aEvent.preventDefault();
+					}
 					return true;
 				}
 				else if (XMigemoFind.lastKeyword.length == 1) {
