@@ -478,7 +478,6 @@ var XMigemoUI = {
 	{
 		if (!('imeMode' in this.findField.style)) return;
 
-		this.lastFindFieldIMEState = window.getComputedStyle(this.findField, null).getPropertyValue('imge-mode');
 		this.findField.inputField.setAttribute(this.kDISABLE_IME, true);
 		window.setTimeout(function(aSelf) {
 			aSelf.findField.inputField.removeAttribute(aSelf.kDISABLE_IME);
