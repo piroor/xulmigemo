@@ -250,7 +250,7 @@ var XMigemoUI = {
  
 	get findFieldIsFocused() 
 	{
-		return this.getFindFieldFromContent(document.commandDispatcher.focusedElement) == this.findField;
+		return this.getFindFieldFromContent(document.commandDispatcher.focusedElement);
 	},
 	getFindFieldFromContent : function(aNode)
 	{
@@ -262,7 +262,8 @@ var XMigemoUI = {
 					XPathResult.FIRST_ORDERED_NODE_TYPE,
 					null
 				);
-			return xpathResult.singleNodeValue;
+			if (xpathResult.singleNodeValue == this.findField)
+				return xpathResult.singleNodeValue;
 		}
 		catch(e) {
 		}
@@ -552,16 +553,7 @@ var XMigemoUI = {
 		catch(e) {
 		}
 
-		if (
-			/^(input|textarea|textbox|select|isindex|object|embed)$/i.test(
-				Components.lookupMethod(
-					aEvent.originalTarget,
-					'localName'
-				).call(aEvent.originalTarget)
-			)
-			) return true;
-
-		return false;
+		return /^(input|textarea|textbox|select|isindex|object|embed)$/i.test(aEvent.originalTarget.localName);
 	},
  
 	isEventFiredInFindableDocument : function(aEvent) 
