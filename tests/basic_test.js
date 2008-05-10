@@ -1,7 +1,7 @@
 // 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
 // UTF-8にしてください。
 
-var XMigemoUI, win, browser;
+var XMigemoUI, win, browser, findCommand;
 var keyEventTest = baseURL+'keyEventTest.html';
 var wait = 300;
 
@@ -25,6 +25,10 @@ basicTest.tests = {
 		XMigemoUI.autoStartRegExpFind = true;
 		XMigemoUI.autoStartQuickFind = false;
 
+		findCommand = 'with (win) {'+
+			win.document.getElementById('cmd_find').getAttribute('oncommand')+
+		'}';
+
 		win.gFindBar.closeFindBar();
 		yield wait;
 	},
@@ -36,10 +40,6 @@ basicTest.tests = {
 	'モード切り替え': function() {
 		assert.isTrue(XMigemoUI.findBarHidden);
 		yield wait;
-
-		var findCommand = 'with (win) {'+
-				win.document.getElementById('cmd_find').getAttribute('oncommand')+
-			'}';
 
 		eval(findCommand);
 		yield wait;

@@ -1,7 +1,7 @@
 // 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
 // UTF-8にしてください。
 
-var XMigemoUI, win, browser;
+var XMigemoUI, win, browser, findCommand;
 var keyEventTest = baseURL+'keyEventTest.html';
 var wait = 300;
 
@@ -31,6 +31,10 @@ quickFindTest.tests = {
 		XMigemoUI.shouldTimeout = true;
 		XMigemoUI.shouldIndicateTimeout = true;
 
+		findCommand = 'with (win) {'+
+			win.document.getElementById('cmd_find').getAttribute('oncommand')+
+		'}';
+
 		win.gFindBar.closeFindBar();
 		yield wait;
 		assert.isTrue(XMigemoUI.findBarHidden);
@@ -53,10 +57,17 @@ quickFindTest.tests = {
 		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
 		assert.notEquals('notfound', field.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 
 		yield XMigemoUI.timeout + wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
+
+		eval(findCommand);
+		yield wait;
+		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.equals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 	},
 
 	'自動開始→手動終了（BS）': function() {
@@ -83,6 +94,12 @@ quickFindTest.tests = {
 		yield wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
+
+		eval(findCommand);
+		yield wait;
+		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.equals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 	},
 
 	'自動開始→手動終了（ESC）': function() {
@@ -104,6 +121,12 @@ quickFindTest.tests = {
 		yield wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
+
+		eval(findCommand);
+		yield wait;
+		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.equals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 	},
 
 	'自動開始の時に手動開始を試みた場合': function() {
@@ -118,8 +141,6 @@ quickFindTest.tests = {
 	},
 
 	'手動開始→自動終了': function() {
-		XMigemoUI.autoStartQuickFind = false;
-
 		var field = XMigemoUI.findField;
 		var findTerm = 'nihongo';
 
@@ -130,15 +151,20 @@ quickFindTest.tests = {
 		assert.equals('', XMigemoUI.findTerm);
 		assert.notEquals('notfound', field.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 
 		yield XMigemoUI.timeout + wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
+
+		eval(findCommand);
+		yield wait;
+		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.equals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 	},
 
 	'手動開始→手動終了（BS）': function() {
-		XMigemoUI.autoStartQuickFind = false;
-
 		var field = XMigemoUI.findField;
 		var findTerm = 'nihongo';
 
@@ -155,11 +181,15 @@ quickFindTest.tests = {
 		yield wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
+
+		eval(findCommand);
+		yield wait;
+		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.equals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 	},
 
 	'手動開始→手動終了（ESC）': function() {
-		XMigemoUI.autoStartQuickFind = false;
-
 		var field = XMigemoUI.findField;
 		var findTerm = 'nihongo';
 
@@ -176,11 +206,15 @@ quickFindTest.tests = {
 		yield wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
+
+		eval(findCommand);
+		yield wait;
+		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.equals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 	},
 
 	'手動開始の時に自動開始を試みた場合': function() {
-		XMigemoUI.autoStartQuickFind = false;
-
 		var key = { charCode : 'n'.charCodeAt(0) };
 		action.fireKeyEventOnElement(win.content.document.documentElement, key);
 		yield wait;
