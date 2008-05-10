@@ -251,13 +251,17 @@ quickFindTest.tests = {
 		assert.isFalse(XMigemoUI.findBarHidden);
 		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 
+		lastInput = XMigemoUI.findTerm;
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE };
-		action.fireKeyEventOnElement(field, key);
-		yield wait;
-		action.fireKeyEventOnElement(field, key);
-		yield wait;
-		action.fireKeyEventOnElement(field, key);
-		yield wait;
+		for (var i = findTerm.length; i > 0; i--)
+		{
+			action.fireKeyEventOnElement(field, key);
+			yield wait;
+			assert.equals(lastInput, XMigemoUI.findTerm);
+			action.inputTextToField(field, findTerm.substring(0, i));
+			yield wait;
+			lastInput = XMigemoUI.findTerm;
+		}
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isFalse(XMigemoUI.findBarHidden);
 		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
