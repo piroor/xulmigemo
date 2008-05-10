@@ -219,5 +219,47 @@ quickFindTest.tests = {
 		action.fireKeyEventOnElement(win.content.document.documentElement, key);
 		yield wait;
 		assert.isTrue(XMigemoUI.findBarHidden);
+	},
+
+	'文字入力操作でタイマーが正しくリセットされるか': function() {
+		XMigemoUI.autoStartQuickFind = true;
+
+		var field = XMigemoUI.findField;
+		var findTerm = 'nihongoNoTekisuto';
+
+		var key = { charCode : findTerm.charCodeAt(0) };
+		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		yield wait;
+		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
+		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+
+		var lastInput = XMigemoUI.findTerm;
+		for (var i = 1, maxi = findTerm.length+1; i < maxi; i++)
+		{
+			key = { charCode : findTerm.charCodeAt(i) };
+			action.fireKeyEventOnElement(field, key);
+			yield wait;
+			assert.equals(lastInput, XMigemoUI.findTerm);
+			action.inputTextToField(field, findTerm.substring(0, i));
+			yield wait;
+			lastInput = XMigemoUI.findTerm;
+		}
+		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+
+		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE };
+		action.fireKeyEventOnElement(field, key);
+		yield wait;
+		action.fireKeyEventOnElement(field, key);
+		yield wait;
+		action.fireKeyEventOnElement(field, key);
+		yield wait;
+		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 	}
 };
