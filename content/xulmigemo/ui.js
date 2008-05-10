@@ -26,7 +26,6 @@ var XMigemoUI = {
 	highlightCheckedAlways     : false,
 	highlightCheckedAlwaysMinLength : 2,
 	caseSensitiveCheckedAlways : false,
-	migemoCheckedAlways        : false,
 
 	openAgainAction : 0,
 	ACTION_NONE     : 0,
