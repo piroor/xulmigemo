@@ -5,16 +5,16 @@
 var DEBUG = false;
  
 var ObserverService = Components 
-			.classes['@mozilla.org/observer-service;1']
-			.getService(Components.interfaces.nsIObserverService);;
+		.classes['@mozilla.org/observer-service;1']
+		.getService(Components.interfaces.nsIObserverService);;
 
 var Prefs = Components
-			.classes['@mozilla.org/preferences;1']
-			.getService(Components.interfaces.nsIPrefBranch);
+		.classes['@mozilla.org/preferences;1']
+		.getService(Components.interfaces.nsIPrefBranch);
 
 var WindowManager = Components
-			.classes['@mozilla.org/appshell/window-mediator;1']
-			.getService(Components.interfaces.nsIWindowMediator);
+		.classes['@mozilla.org/appshell/window-mediator;1']
+		.getService(Components.interfaces.nsIWindowMediator);
  
 function pXMigemoDicManager() { 
 	mydump('create instance pIXMigemoDicManager');
