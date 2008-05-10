@@ -23,7 +23,9 @@ basicTest.tests = {
 		XMigemoUI.highlightCheckedAlways = false;
 		XMigemoUI.caseSensitiveCheckedAlways = false;
 		XMigemoUI.autoStartRegExpFind = true;
+		XMigemoUI.autoStartQuickFind = false;
 
+		win.gFindBar.closeFindBar();
 		yield wait;
 	},
 
@@ -32,8 +34,6 @@ basicTest.tests = {
 	},
 
 	'モード切り替え': function() {
-		win.gFindBar.closeFindBar();
-		yield wait;
 		assert.isTrue(XMigemoUI.findBarHidden);
 		yield wait;
 
