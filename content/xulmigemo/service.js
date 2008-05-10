@@ -104,6 +104,15 @@ var XMigemoService = {
 		}
 		catch(e) {
 		}
+		if ('preferences' in aObserver &&
+			typeof aObserver.preferences == 'string') {
+			aObserver.preferences
+				.replace(/^\s+|\s+$/g, '')
+				.split(/\s+/)
+				.forEach(function(aPref) {
+					aObserver.observe(null, 'nsPref:changed', aPref);
+				});
+		}
 	},
  
 	removePrefListener : function(aObserver) 

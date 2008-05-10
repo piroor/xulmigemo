@@ -308,6 +308,37 @@ var XMigemoUI = {
 	
 	domain  : 'xulmigemo', 
  
+	preferences : <><![CDATA[
+		xulmigemo.autostart
+		xulmigemo.autostart.regExpFind
+		xulmigemo.enableautoexit.inherit
+		xulmigemo.enableautoexit.nokeyword
+		xulmigemo.checked_by_default.highlight.always
+		xulmigemo.checked_by_default.highlight.always.minLength
+		xulmigemo.checked_by_default.caseSensitive
+		xulmigemo.findMode.always
+		xulmigemo.enabletimeout
+		xulmigemo.enabletimeout.indicator
+		xulmigemo.timeout
+		xulmigemo.override_findtoolbar
+		xulmigemo.shortcut.findForward
+		xulmigemo.shortcut.findBackward
+		xulmigemo.shortcut.manualStart
+		xulmigemo.shortcut.manualStart2
+		xulmigemo.shortcut.manualStartLinksOnly
+		xulmigemo.shortcut.manualStartLinksOnly2
+		xulmigemo.shortcut.goDicManager
+		xulmigemo.shortcut.manualExit
+		xulmigemo.shortcut.openAgain
+		xulmigemo.appearance.hideLabels
+		xulmigemo.appearance.indicator.height
+		xulmigemo.disableIME.quickFind
+		xulmigemo.rebuild_selection
+		xulmigemo.find_delay
+		xulmigemo.ignore_find_links_only_behavior
+		xulmigemo.prefillwithselection
+	]]></>.toString(),
+ 
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
 		if (aTopic != 'nsPref:changed') return;
@@ -347,8 +378,12 @@ var XMigemoUI = {
 				this.forcedFindMode = value;
 				return;
 
-			case 'xulmigemo.disableIME.quickFind':
-				this.disableIMEOnQuickFind = value;
+			case 'xulmigemo.enabletimeout':
+				this.shouldTimeout = value;
+				return;
+
+			case 'xulmigemo.enabletimeout.indicator':
+				this.shouldIndicateTimeout = value;
 				return;
 
 			case 'xulmigemo.timeout':
@@ -424,8 +459,24 @@ var XMigemoUI = {
 				}
 				return;
 
+			case 'xulmigemo.disableIME.quickFind':
+				this.disableIMEOnQuickFind = value;
+				return;
+
 			case 'xulmigemo.rebuild_selection':
 				this.shouldRebuildSelection = value;
+				return;
+
+			case 'xulmigemo.find_delay':
+				this.delayedFindDelay = value;
+				return;
+
+			case 'xulmigemo.ignore_find_links_only_behavior':
+				this.shouldIgnoreFindLinksOnlyBehavior = value;
+				return;
+
+			case 'xulmigemo.prefillwithselection':
+				this.prefillWithSelection = value;
 				return;
 		}
 	},
@@ -829,7 +880,7 @@ var XMigemoUI = {
 			window.clearTimeout(this.delayedFindTimer);
 			this.delayedFindTimer = null;
 		}
-		this.delayedFindTimer = window.setTimeout(this.delayedFindCallback, XMigemoService.getPref('xulmigemo.find_delay'));
+		this.delayedFindTimer = window.setTimeout(this.delayedFindCallback, this.delayedFindDelay);
 	},
 	delayedFindCallback : function()
 	{
@@ -837,6 +888,7 @@ var XMigemoUI = {
 		XMigemoUI.delayedFindTimer = null;
 	},
 	delayedFindTimer : null,
+	delayedFindDelay : 0,
   
 	mouseEvent : function(aEvent) 
 	{
@@ -968,6 +1020,7 @@ var XMigemoUI = {
 /* timer */ 
 	
 /* Cancel Timer */ 
+	shouldTimeout : true,
 	cancelTimer : null,
 	 
 	startTimer : function() 
@@ -989,7 +1042,7 @@ var XMigemoUI = {
 	restartTimer : function() 
 	{
 		if (!this.isQuickFind) return;
-		if (XMigemoService.getPref('xulmigemo.enabletimeout'))
+		if (this.shouldTimeout)
 			this.startTimer();
 	},
  
@@ -1009,6 +1062,7 @@ var XMigemoUI = {
 /* Indicator Timer */ 
 	indicatorTimer : null,
 	indicatorStartTime : null,
+	shouldIndicateTimeout : true,
 
 	updateTimeoutIndicator : function(aTimeout, aCurrent, aThis)
 	{
@@ -1036,7 +1090,7 @@ var XMigemoUI = {
 			if (aThis.indicatorStartTime)
 				aThis.indicatorStartTime = null;
 		}
-		else if (XMigemoService.getPref('xulmigemo.enabletimeout.indicator')) {
+		else if (aThis.shouldIndicateTimeout) {
 			aThis.timeoutIndicator.setAttribute('value', value+'%');
 			aThis.timeoutIndicatorBox.removeAttribute('hidden');
 			aThis.timeoutIndicatorBox.style.right = (
@@ -1068,7 +1122,7 @@ var XMigemoUI = {
 				this.findMode = this.FIND_MODE_MIGEMO;
 			}
 
-			if (XMigemoService.getPref('xulmigemo.enabletimeout'))
+			if (this.shouldTimeout)
 				this.startTimer();
 		}
 
@@ -1405,7 +1459,7 @@ var XMigemoUI = {
  
 	presetSearchString : function(aString) 
 	{
-		if (XMigemoService.getPref('xulmigemo.ignore_find_links_only_behavior')) return;
+		if (this.shouldIgnoreFindLinksOnlyBehavior) return;
 
 		if (!aString)
 			aString = this.findTerm;
@@ -1427,6 +1481,7 @@ var XMigemoUI = {
 		catch(e) {
 		}
 	},
+	shouldIgnoreFindLinksOnlyBehavior : true,
  
 	openFindBar : function(aShowMinimalUI) 
 	{
@@ -1468,7 +1523,7 @@ var XMigemoUI = {
 		event.initEvent('XMigemoFindBarOpen', true, true);
 		ui.findBar.dispatchEvent(event);
 
-		if (XMigemoService.getPref('xulmigemo.prefillwithselection')) {
+		if (ui.prefillWithSelection) {
 			var win = document.commandDispatcher.focusedWindow || window.content ;
 			var sel = (win && win.getSelection() ? win.getSelection().toString() : '' ).replace(/^\s+|\s+$/g, '');
 			if (!sel) return;
@@ -1838,20 +1893,6 @@ var XMigemoUI = {
 
 		var browser = this.browser;
 		if (browser) {
-			if (!XMigemoService.getPref('xulmigemo.lang') &&
-				!XMigemoService.WindowManager.getMostRecentWindow('xulmigemo:langchooser')) {
-				var WindowWatcher = Components
-					.classes['@mozilla.org/embedcomp/window-watcher;1']
-					.getService(Components.interfaces.nsIWindowWatcher);
-				WindowWatcher.openWindow(
-					null,
-					'chrome://xulmigemo/content/initializer/langchooser.xul',
-					'xulmigemo:langchooser',
-					'chrome,dialog,modal,centerscreen,dependent',
-					null
-				);
-			}
-
 			XMigemoFind = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/find;1']
 				.createInstance(Components.interfaces.pIXMigemoFind);
@@ -1866,33 +1907,9 @@ var XMigemoUI = {
 			target.addEventListener('mouseup', this, true);
 		}
 
-		XMigemoService.addPrefListener(this);
-		this.observe(null, 'nsPref:changed', 'xulmigemo.autostart');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.autostart.regExpFind');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.inherit');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.enableautoexit.nokeyword');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.highlight.always');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.highlight.always.minLength');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.checked_by_default.caseSensitive');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.findMode.always');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.disableIME.quickFind');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.timeout');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.override_findtoolbar');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.findForward');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.findBackward');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.manualStart');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.manualStart2');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.manualStartLinksOnly');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.manualStartLinksOnly2');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.goDicManager');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.manualExit');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.shortcut.openAgain');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.indicator.height');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.rebuild_selection');
-
 		this.overrideFindBar();
 
-		this.observe(null, 'nsPref:changed', 'xulmigemo.appearance.hideLabels');
+		XMigemoService.addPrefListener(this);
 
 		window.setTimeout('XMigemoUI.delayedInit()', 0);
 

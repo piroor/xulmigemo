@@ -2,11 +2,17 @@ const kCID  = Components.ID('{28a475d0-1c24-11dd-bd0b-0800200c9a66}');
 const kID   = '@piro.sakura.ne.jp/xmigemo/startup;1';
 const kNAME = "XUL/Migemo Startup Service";
 
-const ObserverService = Components.classes['@mozilla.org/observer-service;1']
+const ObserverService = Components
+		.classes['@mozilla.org/observer-service;1']
 		.getService(Components.interfaces.nsIObserverService);
 
-const IOService = Components.classes['@mozilla.org/network/io-service;1']
+const IOService = Components
+		.classes['@mozilla.org/network/io-service;1']
 		.getService(Components.interfaces.nsIIOService);
+
+const Prefs = Components
+		.classes['@mozilla.org/preferences;1']
+		.getService(Components.interfaces.nsIPrefBranch);
  
 function XMigemoStartupService() { 
 }
@@ -22,10 +28,27 @@ XMigemoStartupService.prototype = {
 
 			case 'final-ui-startup':
 				ObserverService.removeObserver(this, 'final-ui-startup');
-
-				if (this.SSS)
-					this.updateGlobalStyleSheets();
+				this.init();
 				return;
+		}
+	},
+ 
+	init : function() 
+	{
+		if (this.SSS)
+			this.updateGlobalStyleSheets();
+
+		if (Prefs.getCharPref('xulmigemo.lang') == '') {
+			var WindowWatcher = Components
+				.classes['@mozilla.org/embedcomp/window-watcher;1']
+				.getService(Components.interfaces.nsIWindowWatcher);
+			WindowWatcher.openWindow(
+				null,
+				'chrome://xulmigemo/content/initializer/langchooser.xul',
+				'xulmigemo:langchooser',
+				'chrome,dialog,modal,centerscreen,dependent',
+				null
+			);
 		}
 	},
  

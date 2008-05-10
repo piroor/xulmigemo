@@ -71,12 +71,6 @@ var XMigemoHighlight = {
 
 
 		XMigemoService.addPrefListener(this);
-		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.showScreen');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.hideScreen.restoreButtons');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animateFound');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animationStyle');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animationStyle.0.size');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.highlight.animationStyle.1.size');
 
 		XMigemoService.ObserverService.addObserver(this, 'XMigemo:highlightNodeReaday', false);
 
@@ -363,6 +357,14 @@ var XMigemoHighlight = {
 		}
 	},
 	domain  : 'xulmigemo',
+	preferences : <><![CDATA[
+		xulmigemo.highlight.showScreen
+		xulmigemo.highlight.hideScreen.restoreButtons
+		xulmigemo.highlight.animateFound
+		xulmigemo.highlight.animationStyle
+		xulmigemo.highlight.animationStyle.0.size
+		xulmigemo.highlight.animationStyle.1.size
+	]]></>.toString(),
  
 /* Safari style highlight, dark screen 
 	based on http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
