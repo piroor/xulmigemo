@@ -129,6 +129,32 @@ quickFindTest.tests = {
 		assert.equals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 	},
 
+	'自動開始→手動終了（画面クリック）': function() {
+		XMigemoUI.autoStartQuickFind = true;
+
+		var field = XMigemoUI.findField;
+		var findTerm = 'nihongo';
+
+		var key = { charCode : findTerm.charCodeAt(0) };
+		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		yield wait;
+		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
+		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.isFalse(XMigemoUI.findBarHidden);
+
+		action.fireMouseEventOnElement(win.content.document.documentElement);
+		yield wait;
+		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.isTrue(XMigemoUI.findBarHidden);
+
+		eval(findCommand);
+		yield wait;
+		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.equals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+	},
+
 	'自動開始の時に手動開始を試みた場合': function() {
 		XMigemoUI.autoStartQuickFind = true;
 
@@ -214,6 +240,31 @@ quickFindTest.tests = {
 		assert.equals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 	},
 
+	'手動開始→手動終了（画面クリック）': function() {
+		var field = XMigemoUI.findField;
+		var findTerm = 'nihongo';
+
+		var key = { charCode : '/'.charCodeAt(0) };
+		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		yield wait;
+		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.equals('', XMigemoUI.findTerm);
+		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.isFalse(XMigemoUI.findBarHidden);
+
+		action.fireMouseEventOnElement(win.content.document.documentElement);
+		win.content.focus();
+		yield wait;
+		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.isTrue(XMigemoUI.findBarHidden);
+
+		eval(findCommand);
+		yield wait;
+		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+		assert.equals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+	},
+
 	'手動開始の時に自動開始を試みた場合': function() {
 		var key = { charCode : 'n'.charCodeAt(0) };
 		action.fireKeyEventOnElement(win.content.document.documentElement, key);
@@ -236,6 +287,8 @@ quickFindTest.tests = {
 		assert.isFalse(XMigemoUI.findBarHidden);
 		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 
+		var startAt = (new Date()).getTime();
+
 		var lastInput = XMigemoUI.findTerm;
 		for (var i = 1, maxi = findTerm.length+1; i < maxi; i++)
 		{
@@ -246,10 +299,15 @@ quickFindTest.tests = {
 			action.inputTextToField(field, findTerm.substring(0, i));
 			yield wait;
 			lastInput = XMigemoUI.findTerm;
+			if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
 		}
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isFalse(XMigemoUI.findBarHidden);
 		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+
+		action.inputTextToField(field, findTerm);
+		yield wait;
+		startAt = (new Date()).getTime();
 
 		lastInput = XMigemoUI.findTerm;
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE };
@@ -261,6 +319,7 @@ quickFindTest.tests = {
 			action.inputTextToField(field, findTerm.substring(0, i));
 			yield wait;
 			lastInput = XMigemoUI.findTerm;
+			if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
 		}
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isFalse(XMigemoUI.findBarHidden);
