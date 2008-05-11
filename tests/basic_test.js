@@ -368,6 +368,7 @@ basicTest.tests = {
 		action.inputTextToField(findField, '');
 		yield wait;
 
+
 		action.fireMouseEventOnElement(XMigemoUI.findModeSelector.childNodes[2]);
 		yield wait;
 		action.inputTextToField(findField, 'nihongo');
@@ -379,5 +380,90 @@ basicTest.tests = {
 		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('にほんご', XMigemoUI.lastFoundRange.toString());
+
+		action.inputTextToField(findField, '');
+		yield wait;
+
+
+		action.fireMouseEventOnElement(XMigemoUI.findModeSelector.childNodes[0]);
+		yield wait;
+		action.inputTextToField(findField, 'link');
+		yield wait;
+		assert.notEquals('notfound', findField.getAttribute('status'));
+		assert.matches('link', XMigemoUI.lastFoundRange.toString());
+
+		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
+		action.fireKeyEventOnElement(findField, key);
+		yield wait;
+		assert.equals('link', XMigemoUI.lastFoundRange.toString());
+	},
+
+	'検索欄を選択範囲で埋める': function() {
+		function selectInContent()
+		{
+			var range = content.document.createRange();
+			range.selectNodeContents(content.document.getElementsByTagName('A')[0]);
+			var selectedTerm = range.toString();
+			var sel = content.getSelection();
+			sel.removeAllRanges();
+			sel.addRange(range);
+			return selectedTerm;
+		}
+
+
+		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
+		XMigemoUI.prefillWithSelection = false;
+		var selectedTerm = selectInContent();
+		gFindBar.openFindBar();
+		yield wait;
+		assert.equals('', XMigemoUI.findTerm);
+		gFindBar.closeFindBar();
+		yield wait;
+
+		XMigemoUI.prefillWithSelection = true;
+		selectedTerm = selectInContent();
+		gFindBar.openFindBar();
+		yield wait;
+		assert.equals(selectedTerm, XMigemoUI.findTerm);
+		action.inputTextToField(findField, '');
+		yield wait;
+		gFindBar.closeFindBar();
+		yield wait;
+
+
+		XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
+		XMigemoUI.prefillWithSelection = false;
+		selectedTerm = selectInContent();
+		gFindBar.openFindBar();
+		yield wait;
+		assert.equals('', XMigemoUI.findTerm);
+		gFindBar.closeFindBar();
+		yield wait;
+
+		XMigemoUI.prefillWithSelection = true;
+		selectedTerm = selectInContent();
+		gFindBar.openFindBar();
+		yield wait;
+		assert.equals(selectedTerm, XMigemoUI.findTerm);
+		action.inputTextToField(findField, '');
+		yield wait;
+		gFindBar.closeFindBar();
+		yield wait;
+
+
+		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
+		XMigemoUI.prefillWithSelection = false;
+		selectedTerm = selectInContent();
+		gFindBar.openFindBar();
+		yield wait;
+		assert.equals('', XMigemoUI.findTerm);
+		gFindBar.closeFindBar();
+		yield wait;
+
+		XMigemoUI.prefillWithSelection = true;
+		selectedTerm = selectInContent();
+		gFindBar.openFindBar();
+		yield wait;
+		assert.equals(selectedTerm, XMigemoUI.findTerm);
 	}
 };
