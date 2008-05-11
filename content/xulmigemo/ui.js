@@ -278,29 +278,30 @@ var XMigemoUI = {
 			return term.length ? true : false ;
 
 		var minLength = this.highlightCheckedAlwaysMinLength;
-		return (
-				(minLength <= term.length) &&
-				(
-					!this.isActive ||
-					minLength <= Math.max.apply(
-						null,
-						XMigemoCore.regExpFindArrRecursively(
-							new RegExp(
-								(
-									this.findMode == this.FIND_MODE_REGEXP ?
-										this.textUtils.extractRegExpSource(term) :
-										XMigemoCore.getRegExp(term)
-								),
-								'im'
-							),
-							this.activeBrowser.contentWindow,
-							true
-						).map(function(aItem) {
-							return (aItem || '').length;
-						})
-					)
-				)
+
+		if (this.isActive) {
+			maxLength = Math.max.apply(
+				null,
+				XMigemoCore.regExpFindArrRecursively(
+					new RegExp(
+						(
+							this.findMode == this.FIND_MODE_REGEXP ?
+								this.textUtils.extractRegExpSource(term) :
+								XMigemoCore.getRegExp(term)
+						),
+						'im'
+					),
+					this.activeBrowser.contentWindow,
+					true
+				).map(function(aItem) {
+					return (aItem || '').length;
+				})
+				.concat(0) // to prevent "-Infinity" error
 			);
+			if (!maxLength) maxLength = term.length;
+		}
+
+		return minLength <= term.length;
 	},
   
 /* nsIPrefListener(?) */ 
