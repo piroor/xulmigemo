@@ -1,4 +1,11 @@
-var XMigemoUI, XMigemoHighlight, win, browser, findCommand, field, input;
+var XMigemoUI,
+	XMigemoHighlight,
+	win,
+	browser,
+	findCommand,
+	gFindBar,
+	findField,
+	inputElem;
 var keyEventTest = baseURL+'keyEventTest.html';
 var wait = 300;
 
@@ -8,6 +15,9 @@ function commonSetUp(aRetVal)
 	browser.removeAllTabsBut(aRetVal.tab);
 
 	win = utils.getTestWindow();
+
+	gFindBar = win.gFindBar;
+
 	XMigemoUI = win.XMigemoUI;
 	XMigemoUI.openAgainAction = XMigemoUI.ACTION_NONE;
 	XMigemoUI.highlightCheckedAlways = false;
@@ -23,8 +33,8 @@ function commonSetUp(aRetVal)
 		win.document.getElementById('cmd_find').getAttribute('oncommand')+
 	'}';
 
-	field = XMigemoUI.findField;
-	input = field.inputField;
+	findField = XMigemoUI.findField;
+	inputElem = findField.inputField;
 
 	win.gFindBar.closeFindBar();
 }

@@ -23,7 +23,6 @@ quickFindTest.tests = {
 	'自動開始→自動終了': function() {
 		XMigemoUI.autoStartQuickFind = true;
 
-		var field = XMigemoUI.findField;
 		var findTerm = 'nihongo';
 
 		var key = { charCode : findTerm.charCodeAt(0) };
@@ -31,7 +30,7 @@ quickFindTest.tests = {
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 
@@ -49,7 +48,6 @@ quickFindTest.tests = {
 	'自動開始→手動終了（BS）': function() {
 		XMigemoUI.autoStartQuickFind = true;
 
-		var field = XMigemoUI.findField;
 		var findTerm = 'nihongo';
 
 		var key = { charCode : findTerm.charCodeAt(0) };
@@ -57,16 +55,16 @@ quickFindTest.tests = {
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 
-		action.inputTextToField(field, '');
+		action.inputTextToField(findField, '');
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isFalse(XMigemoUI.findBarHidden);
 
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE };
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
@@ -81,7 +79,6 @@ quickFindTest.tests = {
 	'自動開始→手動終了（ESC）': function() {
 		XMigemoUI.autoStartQuickFind = true;
 
-		var field = XMigemoUI.findField;
 		var findTerm = 'nihongo';
 
 		var key = { charCode : findTerm.charCodeAt(0) };
@@ -89,11 +86,11 @@ quickFindTest.tests = {
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_ESCAPE };
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
@@ -108,7 +105,6 @@ quickFindTest.tests = {
 	'自動開始→手動終了（画面クリック）': function() {
 		XMigemoUI.autoStartQuickFind = true;
 
-		var field = XMigemoUI.findField;
 		var findTerm = 'nihongo';
 
 		var key = { charCode : findTerm.charCodeAt(0) };
@@ -116,7 +112,7 @@ quickFindTest.tests = {
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 
 		action.fireMouseEventOnElement(win.content.document.documentElement);
@@ -143,7 +139,6 @@ quickFindTest.tests = {
 	},
 
 	'手動開始→自動終了': function() {
-		var field = XMigemoUI.findField;
 		var findTerm = 'nihongo';
 
 		var key = { charCode : '/'.charCodeAt(0) };
@@ -151,7 +146,7 @@ quickFindTest.tests = {
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals('', XMigemoUI.findTerm);
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 
@@ -167,7 +162,6 @@ quickFindTest.tests = {
 	},
 
 	'手動開始→手動終了（BS）': function() {
-		var field = XMigemoUI.findField;
 		var findTerm = 'nihongo';
 
 		var key = { charCode : '/'.charCodeAt(0) };
@@ -175,11 +169,11 @@ quickFindTest.tests = {
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals('', XMigemoUI.findTerm);
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE };
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
@@ -192,7 +186,6 @@ quickFindTest.tests = {
 	},
 
 	'手動開始→手動終了（ESC）': function() {
-		var field = XMigemoUI.findField;
 		var findTerm = 'nihongo';
 
 		var key = { charCode : '/'.charCodeAt(0) };
@@ -200,11 +193,11 @@ quickFindTest.tests = {
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals('', XMigemoUI.findTerm);
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_ESCAPE };
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
@@ -217,7 +210,6 @@ quickFindTest.tests = {
 	},
 
 	'手動開始→手動終了（画面クリック）': function() {
-		var field = XMigemoUI.findField;
 		var findTerm = 'nihongo';
 
 		var key = { charCode : '/'.charCodeAt(0) };
@@ -225,7 +217,7 @@ quickFindTest.tests = {
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals('', XMigemoUI.findTerm);
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 
 		action.fireMouseEventOnElement(win.content.document.documentElement);
@@ -251,7 +243,6 @@ quickFindTest.tests = {
 	'文字入力操作でタイマーが正しくリセットされるか': function() {
 		XMigemoUI.autoStartQuickFind = true;
 
-		var field = XMigemoUI.findField;
 		var findTerm = 'nihongoNoTekisuto';
 
 		var key = { charCode : findTerm.charCodeAt(0) };
@@ -259,7 +250,7 @@ quickFindTest.tests = {
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 
@@ -269,10 +260,10 @@ quickFindTest.tests = {
 		for (var i = 1, maxi = findTerm.length+1; i < maxi; i++)
 		{
 			key = { charCode : findTerm.charCodeAt(i) };
-			action.fireKeyEventOnElement(field, key);
+			action.fireKeyEventOnElement(findField, key);
 			yield wait;
 			assert.equals(lastInput, XMigemoUI.findTerm);
-			action.inputTextToField(field, findTerm.substring(0, i));
+			action.inputTextToField(findField, findTerm.substring(0, i));
 			yield wait;
 			lastInput = XMigemoUI.findTerm;
 			if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
@@ -281,7 +272,7 @@ quickFindTest.tests = {
 		assert.isFalse(XMigemoUI.findBarHidden);
 		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 
-		action.inputTextToField(field, findTerm);
+		action.inputTextToField(findField, findTerm);
 		yield wait;
 		startAt = (new Date()).getTime();
 
@@ -289,10 +280,10 @@ quickFindTest.tests = {
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE };
 		for (var i = findTerm.length; i > 0; i--)
 		{
-			action.fireKeyEventOnElement(field, key);
+			action.fireKeyEventOnElement(findField, key);
 			yield wait;
 			assert.equals(lastInput, XMigemoUI.findTerm);
-			action.inputTextToField(field, findTerm.substring(0, i));
+			action.inputTextToField(findField, findTerm.substring(0, i));
 			yield wait;
 			lastInput = XMigemoUI.findTerm;
 			if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
