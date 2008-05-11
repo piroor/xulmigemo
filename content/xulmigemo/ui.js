@@ -1534,13 +1534,13 @@ var XMigemoUI = {
 			if (!sel) return;
 
 			if (ui.isActive || ui.findMode != ui.FIND_MODE_NATIVE) {
+				ui.findTerm = sel;
 				if (
 					ui.cancelTimer ||
 					XMigemoFind.lastKeyword == sel ||
 					XMigemoFind.lastFoundWord == sel
 					)
 					return;
-				ui.findTerm = sel;
 				ui.findAgain(sel, ui.findMode);
 			}
 			else {
