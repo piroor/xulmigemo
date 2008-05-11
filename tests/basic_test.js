@@ -107,44 +107,44 @@ basicTest.tests = {
 	},
 
 	'通常の検索': function() {
-		win.gFindBar.openFindBar();
+		gFindBar.openFindBar();
 		yield wait;
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		XMigemoUI.findCaseSensitiveCheck.checked = false;
-		field.focus();
+		findField.focus();
 
 
 		// 検索に成功するケース
 		var findTerm = 'text';
 		for (var i = 1, maxi = findTerm.length+1; i < maxi; i++)
 		{
-			action.inputTextToField(field, findTerm.substring(0, i));
+			action.inputTextToField(findField, findTerm.substring(0, i));
 			yield wait;
 		}
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.equals('text', XMigemoUI.lastFoundRange.toString());
 
 
 		// 見つからない単語
-		action.inputTextToField(field, 'not found text');
+		action.inputTextToField(findField, 'not found text');
 		yield wait;
-		assert.equals('notfound', field.getAttribute('status'));
+		assert.equals('notfound', findField.getAttribute('status'));
 
 
 		// Enterキーでの再検索
 		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN };
-		action.inputTextToField(field, findTerm);
-		action.fireKeyEventOnElement(field, key);
+		action.inputTextToField(findField, findTerm);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		var lastFoundRange = XMigemoUI.lastFoundRange;
 		assert.isTrue(lastFoundRange);
 
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		var foundRange = XMigemoUI.lastFoundRange;
 		assert.isTrue(foundRange);
@@ -152,10 +152,10 @@ basicTest.tests = {
 		lastFoundRange = foundRange;
 
 		key.shiftKey = true;
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		foundRange = XMigemoUI.lastFoundRange;
 		assert.isTrue(foundRange);
@@ -165,10 +165,10 @@ basicTest.tests = {
 
 		// F3キーでの再検索
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		foundRange = XMigemoUI.lastFoundRange;
 		assert.isTrue(foundRange);
@@ -176,10 +176,10 @@ basicTest.tests = {
 		lastFoundRange = foundRange;
 
 		key.shiftKey = true;
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		foundRange = XMigemoUI.lastFoundRange;
 		assert.isTrue(foundRange);
@@ -187,141 +187,141 @@ basicTest.tests = {
 	},
 
 	'正規表現検索': function() {
-		win.gFindBar.openFindBar();
+		gFindBar.openFindBar();
 		yield wait;
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
-		field.focus();
+		findField.focus();
 
 
 		// 検索に成功するケース
 		var findTerm = 'text|field|single';
-		action.inputTextToField(field, findTerm);
+		action.inputTextToField(findField, findTerm);
 		yield wait;
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.matches(/text|field|single/, XMigemoUI.lastFoundRange.toString());
 
 
 		// 見つからない単語
-		action.inputTextToField(field, 'not found text');
+		action.inputTextToField(findField, 'not found text');
 		yield wait;
-		assert.equals('notfound', field.getAttribute('status'));
+		assert.equals('notfound', findField.getAttribute('status'));
 
 
 		// Enterキーでの再検索
-		action.inputTextToField(field, findTerm);
+		action.inputTextToField(findField, findTerm);
 		yield wait;
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.equals('single', XMigemoUI.lastFoundRange.toString());
 
 		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN };
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('field', XMigemoUI.lastFoundRange.toString());
 
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('field', XMigemoUI.lastFoundRange.toString());
 
 		key.shiftKey = true;
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('field', XMigemoUI.lastFoundRange.toString());
 
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('single', XMigemoUI.lastFoundRange.toString());
 
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('text', XMigemoUI.lastFoundRange.toString());
 
 
 		// F3キーでの再検索
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('single', XMigemoUI.lastFoundRange.toString());
 
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('field', XMigemoUI.lastFoundRange.toString());
 
 		key.shiftKey = true;
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('single', XMigemoUI.lastFoundRange.toString());
 
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('text', XMigemoUI.lastFoundRange.toString());
 	},
 
 	'Migemo検索': function() {
-		win.gFindBar.openFindBar();
+		gFindBar.openFindBar();
 		yield wait;
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-		field.focus();
+		findField.focus();
 
 
 		// 検索に成功するケース
 		var findTerm = 'nihongo';
-		action.inputTextToField(field, findTerm);
+		action.inputTextToField(findField, findTerm);
 		yield wait;
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.matches('日本語', XMigemoUI.lastFoundRange.toString());
 
 
 		// 見つからない単語
-		action.inputTextToField(field, 'eigo');
+		action.inputTextToField(findField, 'eigo');
 		yield wait;
-		assert.equals('notfound', field.getAttribute('status'));
+		assert.equals('notfound', findField.getAttribute('status'));
 
 
 		// Enterキーでの再検索
-		action.inputTextToField(field, findTerm);
+		action.inputTextToField(findField, findTerm);
 		yield wait;
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.equals('日本語', XMigemoUI.lastFoundRange.toString());
 
 		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN };
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('nihongo', XMigemoUI.lastFoundRange.toString());
 
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('にほんご', XMigemoUI.lastFoundRange.toString());
 
 		key.shiftKey = true;
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('日本語', XMigemoUI.lastFoundRange.toString());
 
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('ニホンゴ', XMigemoUI.lastFoundRange.toString());
 
 
 		// F3キーでの再検索
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('日本語', XMigemoUI.lastFoundRange.toString());
 
 		key.shiftKey = true;
-		action.fireKeyEventOnElement(field, key);
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('ニホンゴ', XMigemoUI.lastFoundRange.toString());
 	},
@@ -330,53 +330,53 @@ basicTest.tests = {
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		yield wait;
 
-		action.inputTextToField(field, 'text field');
+		action.inputTextToField(findField, 'text field');
 		yield wait;
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.matches('text field', XMigemoUI.lastFoundRange.toString());
 
-		action.inputTextToField(field, '');
+		action.inputTextToField(findField, '');
 		yield wait;
-		action.inputTextToField(field, '/(single-row|multirow) field/');
+		action.inputTextToField(findField, '/(single-row|multirow) field/');
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_REGEXP, XMigemoUI.findMode);
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.matches('single-row field', XMigemoUI.lastFoundRange.toString());
 
 		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('multirow field', XMigemoUI.lastFoundRange.toString());
 
-		action.inputTextToField(field, '');
+		action.inputTextToField(findField, '');
 		yield wait;
-		action.inputTextToField(field, '(single-row|multirow) field');
+		action.inputTextToField(findField, '(single-row|multirow) field');
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
-		assert.equals('notfound', field.getAttribute('status'));
+		assert.equals('notfound', findField.getAttribute('status'));
 	},
 
 	'複数のモードを切り替えながらの検索': function() {
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		yield wait;
 
-		action.inputTextToField(field, 'text field');
+		action.inputTextToField(findField, 'text field');
 		yield wait;
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.matches('text field', XMigemoUI.lastFoundRange.toString());
 
-		action.inputTextToField(field, '');
+		action.inputTextToField(findField, '');
 		yield wait;
 
 		action.fireMouseEventOnElement(XMigemoUI.findModeSelector.childNodes[2]);
 		yield wait;
-		action.inputTextToField(field, 'nihongo');
+		action.inputTextToField(findField, 'nihongo');
 		yield wait;
-		assert.notEquals('notfound', field.getAttribute('status'));
+		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.matches('日本語', XMigemoUI.lastFoundRange.toString());
 
 		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
-		action.fireKeyEventOnElement(field, key);
+		action.fireKeyEventOnElement(findField, key);
 		yield wait;
 		assert.equals('にほんご', XMigemoUI.lastFoundRange.toString());
 	}

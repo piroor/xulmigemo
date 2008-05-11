@@ -34,112 +34,112 @@ inputTest.tests = {
 	},
 
 	'BSキーで全削除': function() {
-		win.gFindBar.openFindBar();
+		gFindBar.openFindBar();
 
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		yield wait;
-		action.inputTextToField(input, 'text');
+		action.inputTextToField(inputElem, 'text');
 		yield wait;
-		action.fireKeyEventOnElement(input, key_Ctrl_A);
+		action.fireKeyEventOnElement(inputElem, key_Ctrl_A);
 		yield wait;
-		action.fireKeyEventOnElement(input, key_BS);
+		action.fireKeyEventOnElement(inputElem, key_BS);
 		yield wait;
 		assert.equals('', XMigemoUI.findTerm);
 
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 		yield wait;
-		action.inputTextToField(input, 'text');
+		action.inputTextToField(inputElem, 'text');
 		yield wait;
-		action.fireKeyEventOnElement(input, key_Ctrl_A);
+		action.fireKeyEventOnElement(inputElem, key_Ctrl_A);
 		yield wait;
-		action.fireKeyEventOnElement(input, key_BS);
+		action.fireKeyEventOnElement(inputElem, key_BS);
 		yield wait;
 		assert.equals('', XMigemoUI.findTerm);
 
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 		yield wait;
-		action.inputTextToField(input, 'text');
+		action.inputTextToField(inputElem, 'text');
 		yield wait;
-		action.fireKeyEventOnElement(input, key_Ctrl_A);
+		action.fireKeyEventOnElement(inputElem, key_Ctrl_A);
 		yield wait;
-		action.fireKeyEventOnElement(input, key_BS);
+		action.fireKeyEventOnElement(inputElem, key_BS);
 		yield wait;
 		assert.equals('', XMigemoUI.findTerm);
 	},
 
 	'Delキーで全削除': function() {
-		win.gFindBar.openFindBar();
+		gFindBar.openFindBar();
 
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		yield wait;
-		action.inputTextToField(input, 'text');
+		action.inputTextToField(inputElem, 'text');
 		yield wait;
-		action.fireKeyEventOnElement(input, key_Ctrl_A);
+		action.fireKeyEventOnElement(inputElem, key_Ctrl_A);
 		yield wait;
-		action.fireKeyEventOnElement(input, key_DEL);
+		action.fireKeyEventOnElement(inputElem, key_DEL);
 		yield wait;
 		assert.equals('', XMigemoUI.findTerm);
 
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 		yield wait;
-		action.inputTextToField(input, 'text');
+		action.inputTextToField(inputElem, 'text');
 		yield wait;
-		action.fireKeyEventOnElement(input, key_Ctrl_A);
+		action.fireKeyEventOnElement(inputElem, key_Ctrl_A);
 		yield wait;
-		action.fireKeyEventOnElement(input, key_DEL);
+		action.fireKeyEventOnElement(inputElem, key_DEL);
 		yield wait;
 		assert.equals('', XMigemoUI.findTerm);
 
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 		yield wait;
-		action.inputTextToField(input, 'text');
+		action.inputTextToField(inputElem, 'text');
 		yield wait;
-		action.fireKeyEventOnElement(input, key_Ctrl_A);
+		action.fireKeyEventOnElement(inputElem, key_Ctrl_A);
 		yield wait;
-		action.fireKeyEventOnElement(input, key_DEL);
+		action.fireKeyEventOnElement(inputElem, key_DEL);
 		yield wait;
 		assert.equals('', XMigemoUI.findTerm);
 	},
 
 	'文字入力で全削除': function() {
-		win.gFindBar.openFindBar();
+		gFindBar.openFindBar();
 
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		yield wait;
-		action.inputTextToField(input, 'text');
+		action.inputTextToField(inputElem, 'text');
 		yield wait;
-		action.fireKeyEventOnElement(input, key_Ctrl_A);
+		action.fireKeyEventOnElement(inputElem, key_Ctrl_A);
 		yield wait;
-		action.fireKeyEventOnElement(input, key_input_a);
+		action.fireKeyEventOnElement(inputElem, key_input_a);
 		yield wait;
 		assert.equals('a', XMigemoUI.findTerm);
 
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 		yield wait;
-		action.inputTextToField(input, 'text');
+		action.inputTextToField(inputElem, 'text');
 		yield wait;
-		action.fireKeyEventOnElement(input, key_Ctrl_A);
+		action.fireKeyEventOnElement(inputElem, key_Ctrl_A);
 		yield wait;
-		action.fireKeyEventOnElement(input, key_input_a);
+		action.fireKeyEventOnElement(inputElem, key_input_a);
 		yield wait;
 		assert.equals('a', XMigemoUI.findTerm);
 
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 		yield wait;
-		action.inputTextToField(input, 'text');
+		action.inputTextToField(inputElem, 'text');
 		yield wait;
-		action.fireKeyEventOnElement(input, key_Ctrl_A);
+		action.fireKeyEventOnElement(inputElem, key_Ctrl_A);
 		yield wait;
-		action.fireKeyEventOnElement(input, key_input_a);
+		action.fireKeyEventOnElement(inputElem, key_input_a);
 		yield wait;
 		assert.equals('a', XMigemoUI.findTerm);
 	}
