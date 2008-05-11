@@ -1,7 +1,7 @@
 // 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
 // UTF-8にしてください。
 
-var XMigemoUI, win, browser, findCommand;
+var XMigemoUI, XMigemoHighlight, win, browser, findCommand;
 var keyEventTest = baseURL+'keyEventTest.html';
 var wait = 300;
 
@@ -30,6 +30,10 @@ quickFindTest.tests = {
 		XMigemoUI.timeout = 2000;
 		XMigemoUI.shouldTimeout = true;
 		XMigemoUI.shouldIndicateTimeout = true;
+
+		XMigemoHighlight = win.XMigemoHighlight;
+		XMigemoHighlight.strongHighlight = false;
+		XMigemoHighlight.animationEnabled = false;
 
 		findCommand = 'with (win) {'+
 			win.document.getElementById('cmd_find').getAttribute('oncommand')+
