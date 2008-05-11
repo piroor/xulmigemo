@@ -914,7 +914,7 @@ var XMigemoUI = {
 				this.nsITypeAheadFind.FIND_NOTFOUND;
 
 		var found = (statusRes == this.nsITypeAheadFind.FIND_FOUND || statusRes == this.nsITypeAheadFind.FIND_WRAPPED);
-		gFindBar.enableFindButtons(found);
+		gFindBar.enableFindButtons(this.findTerm);
 		if (found && this.findHighlightCheck.checked)
 			gFindBar.setHighlightTimeout();
 
