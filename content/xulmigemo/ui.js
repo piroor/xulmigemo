@@ -828,6 +828,7 @@ var XMigemoUI = {
 	processKeyEvent : function(aEvent, aFromFindField) 
 	{
 		if (
+			aFromFindField ||
 			(this.isEventFiredInInputField(aEvent) && !this.isActive) ||
 			!this.isEventFiredInFindableDocument(aEvent)
 			)
