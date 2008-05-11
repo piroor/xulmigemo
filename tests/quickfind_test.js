@@ -26,7 +26,7 @@ quickFindTest.tests = {
 		var findTerm = 'nihongo';
 
 		var key = { charCode : findTerm.charCodeAt(0) };
-		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		action.fireKeyEventOnElement(content.document.documentElement, key);
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
@@ -51,7 +51,7 @@ quickFindTest.tests = {
 		var findTerm = 'nihongo';
 
 		var key = { charCode : findTerm.charCodeAt(0) };
-		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		action.fireKeyEventOnElement(content.document.documentElement, key);
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
@@ -82,7 +82,7 @@ quickFindTest.tests = {
 		var findTerm = 'nihongo';
 
 		var key = { charCode : findTerm.charCodeAt(0) };
-		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		action.fireKeyEventOnElement(content.document.documentElement, key);
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
@@ -108,14 +108,14 @@ quickFindTest.tests = {
 		var findTerm = 'nihongo';
 
 		var key = { charCode : findTerm.charCodeAt(0) };
-		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		action.fireKeyEventOnElement(content.document.documentElement, key);
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 
-		action.fireMouseEventOnElement(win.content.document.documentElement);
+		action.fireMouseEventOnElement(content.document.documentElement);
 		yield wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
@@ -131,7 +131,7 @@ quickFindTest.tests = {
 		XMigemoUI.autoStartQuickFind = true;
 
 		var key = { charCode : '/'.charCodeAt(0) };
-		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		action.fireKeyEventOnElement(content.document.documentElement, key);
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals('/', XMigemoUI.findTerm);
@@ -142,7 +142,7 @@ quickFindTest.tests = {
 		var findTerm = 'nihongo';
 
 		var key = { charCode : '/'.charCodeAt(0) };
-		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		action.fireKeyEventOnElement(content.document.documentElement, key);
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals('', XMigemoUI.findTerm);
@@ -165,7 +165,7 @@ quickFindTest.tests = {
 		var findTerm = 'nihongo';
 
 		var key = { charCode : '/'.charCodeAt(0) };
-		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		action.fireKeyEventOnElement(content.document.documentElement, key);
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals('', XMigemoUI.findTerm);
@@ -189,7 +189,7 @@ quickFindTest.tests = {
 		var findTerm = 'nihongo';
 
 		var key = { charCode : '/'.charCodeAt(0) };
-		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		action.fireKeyEventOnElement(content.document.documentElement, key);
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals('', XMigemoUI.findTerm);
@@ -213,15 +213,15 @@ quickFindTest.tests = {
 		var findTerm = 'nihongo';
 
 		var key = { charCode : '/'.charCodeAt(0) };
-		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		action.fireKeyEventOnElement(content.document.documentElement, key);
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals('', XMigemoUI.findTerm);
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 
-		action.fireMouseEventOnElement(win.content.document.documentElement);
-		win.content.focus();
+		action.fireMouseEventOnElement(content.document.documentElement);
+		content.focus();
 		yield wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
@@ -235,7 +235,7 @@ quickFindTest.tests = {
 
 	'手動開始の時に自動開始を試みた場合': function() {
 		var key = { charCode : 'n'.charCodeAt(0) };
-		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		action.fireKeyEventOnElement(content.document.documentElement, key);
 		yield wait;
 		assert.isTrue(XMigemoUI.findBarHidden);
 	},
@@ -246,7 +246,7 @@ quickFindTest.tests = {
 		var findTerm = 'nihongoNoTekisuto';
 
 		var key = { charCode : findTerm.charCodeAt(0) };
-		action.fireKeyEventOnElement(win.content.document.documentElement, key);
+		action.fireKeyEventOnElement(content.document.documentElement, key);
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);

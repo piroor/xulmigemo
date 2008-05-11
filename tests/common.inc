@@ -2,6 +2,7 @@ var XMigemoUI,
 	XMigemoHighlight,
 	win,
 	browser,
+	content,
 	findCommand,
 	gFindBar,
 	findField,
@@ -16,6 +17,8 @@ function commonSetUp(aRetVal)
 
 	win = utils.getTestWindow();
 
+	content = win.content;
+
 	gFindBar = win.gFindBar;
 
 	XMigemoUI = win.XMigemoUI;
@@ -24,6 +27,7 @@ function commonSetUp(aRetVal)
 	XMigemoUI.caseSensitiveCheckedAlways = false;
 	XMigemoUI.autoStartRegExpFind = true;
 	XMigemoUI.autoStartQuickFind = false;
+	XMigemoUI.prefillWithSelection = false;
 
 	XMigemoHighlight = win.XMigemoHighlight;
 	XMigemoHighlight.strongHighlight = false;
