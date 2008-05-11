@@ -379,8 +379,5 @@ basicTest.tests = {
 		action.fireKeyEventOnElement(field, key);
 		yield wait;
 		assert.equals('にほんご', XMigemoUI.lastFoundRange.toString());
-	},
-
-	'文字入力の一般的な操作': function() {
 	}
 };
