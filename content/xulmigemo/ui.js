@@ -33,6 +33,7 @@ var XMigemoUI = {
 	ACTION_CLOSE    : 2,
 
 	shouldRebuildSelection : false,
+	prefillWithSelection : false,
 
 	isModeChanged : false,
 
@@ -1525,8 +1526,11 @@ var XMigemoUI = {
 		ui.findBar.dispatchEvent(event);
 
 		if (ui.prefillWithSelection) {
-			var win = document.commandDispatcher.focusedWindow || window.content ;
-			var sel = (win && win.getSelection() ? win.getSelection().toString() : '' ).replace(/^\s+|\s+$/g, '');
+			var win = document.commandDispatcher.focusedWindow;
+			if (!win || win.top == window.top) win = window.content;
+			var sel = (win && win.getSelection() ? win.getSelection().toString() : '' )
+						.replace(/^\s+|\s+$/g, '')
+						.replace(/\n/g, '');
 			if (!sel) return;
 
 			if (ui.isActive || ui.findMode != ui.FIND_MODE_NATIVE) {
