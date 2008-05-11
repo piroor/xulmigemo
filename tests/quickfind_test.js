@@ -1,9 +1,7 @@
 // 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
 // UTF-8にしてください。
 
-var XMigemoUI, XMigemoHighlight, win, browser, findCommand;
-var keyEventTest = baseURL+'keyEventTest.html';
-var wait = 300;
+utils.include(baseURL+'common.inc');
 
 var quickFindTest = new TestCase('クイックMigemo検索のテスト', {runStrategy: 'async'});
 
@@ -13,39 +11,13 @@ quickFindTest.tests = {
 
 		var retVal = utils.addTab(keyEventTest);
 		yield retVal;
-
-		browser = utils.getBrowser();
-		browser.removeAllTabsBut(retVal.tab);
-
-		win = utils.getTestWindow();
-		XMigemoUI = win.XMigemoUI;
-		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
-		XMigemoUI.openAgainAction = XMigemoUI.ACTION_NONE;
-		XMigemoUI.highlightCheckedAlways = false;
-		XMigemoUI.caseSensitiveCheckedAlways = false;
-		XMigemoUI.autoStartRegExpFind = true;
-		XMigemoUI.autoStartQuickFind = false;
-		XMigemoUI.autoExitQuickFindInherit = true;
-		XMigemoUI.autoExitQuickFind = true;
-		XMigemoUI.timeout = 2000;
-		XMigemoUI.shouldTimeout = true;
-		XMigemoUI.shouldIndicateTimeout = true;
-
-		XMigemoHighlight = win.XMigemoHighlight;
-		XMigemoHighlight.strongHighlight = false;
-		XMigemoHighlight.animationEnabled = false;
-
-		findCommand = 'with (win) {'+
-			win.document.getElementById('cmd_find').getAttribute('oncommand')+
-		'}';
-
-		win.gFindBar.closeFindBar();
+		commonSetUp(retVal);
 		yield wait;
 		assert.isTrue(XMigemoUI.findBarHidden);
 	},
 
 	tearDown : function() {
-		utils.tearDownTestWindow();
+		commonTearDown();
 	},
 
 	'自動開始→自動終了': function() {

@@ -1,9 +1,7 @@
 // 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
 // UTF-8にしてください。
 
-var XMigemoUI, XMigemoHighlight, win, browser, findCommand;
-var keyEventTest = baseURL+'keyEventTest.html';
-var wait = 300;
+utils.include(baseURL+'common.inc');
 
 var basicTest = new TestCase('基本機能のテスト', {runStrategy: 'async'});
 
@@ -13,32 +11,13 @@ basicTest.tests = {
 
 		var retVal = utils.addTab(keyEventTest);
 		yield retVal;
-
-		browser = utils.getBrowser();
-		browser.removeAllTabsBut(retVal.tab);
-
-		win = utils.getTestWindow();
-		XMigemoUI = win.XMigemoUI;
-		XMigemoUI.openAgainAction = XMigemoUI.ACTION_NONE;
-		XMigemoUI.highlightCheckedAlways = false;
-		XMigemoUI.caseSensitiveCheckedAlways = false;
-		XMigemoUI.autoStartRegExpFind = true;
-		XMigemoUI.autoStartQuickFind = false;
-
-		XMigemoHighlight = win.XMigemoHighlight;
-		XMigemoHighlight.strongHighlight = false;
-		XMigemoHighlight.animationEnabled = false;
-
-		findCommand = 'with (win) {'+
-			win.document.getElementById('cmd_find').getAttribute('oncommand')+
-		'}';
-
-		win.gFindBar.closeFindBar();
+		commonSetUp(retVal);
 		yield wait;
+		assert.isTrue(XMigemoUI.findBarHidden);
 	},
 
 	tearDown : function() {
-		utils.tearDownTestWindow();
+		commonTearDown();
 	},
 
 	'モード切り替え': function() {
@@ -131,8 +110,6 @@ basicTest.tests = {
 		win.gFindBar.openFindBar();
 		yield wait;
 
-		var field = XMigemoUI.findField;
-
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		XMigemoUI.findCaseSensitiveCheck.checked = false;
 		field.focus();
@@ -213,8 +190,6 @@ basicTest.tests = {
 		win.gFindBar.openFindBar();
 		yield wait;
 
-		var field = XMigemoUI.findField;
-
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 		field.focus();
 
@@ -290,8 +265,6 @@ basicTest.tests = {
 		win.gFindBar.openFindBar();
 		yield wait;
 
-		var field = XMigemoUI.findField;
-
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 		field.focus();
 
@@ -354,8 +327,6 @@ basicTest.tests = {
 	},
 
 	'検索モードの自動切り替え': function() {
-		var field = XMigemoUI.findField;
-
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		yield wait;
 
@@ -386,8 +357,6 @@ basicTest.tests = {
 	},
 
 	'複数のモードを切り替えながらの検索': function() {
-		var field = XMigemoUI.findField;
-
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		yield wait;
 
@@ -410,5 +379,8 @@ basicTest.tests = {
 		action.fireKeyEventOnElement(field, key);
 		yield wait;
 		assert.equals('にほんご', XMigemoUI.lastFoundRange.toString());
+	},
+
+	'文字入力の一般的な操作': function() {
 	}
 };
