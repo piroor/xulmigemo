@@ -1572,9 +1572,9 @@ var XMigemoUI = {
 			if (!sel) return;
 
 			if (ui.isActive || ui.findMode != ui.FIND_MODE_NATIVE) {
+				if (ui.isQuickFind) return;
 				ui.findTerm = sel;
 				if (
-					ui.cancelTimer ||
 					XMigemoFind.lastKeyword == sel ||
 					XMigemoFind.lastFoundWord == sel
 					)
