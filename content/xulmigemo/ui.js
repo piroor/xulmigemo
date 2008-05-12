@@ -1002,7 +1002,8 @@ var XMigemoUI = {
 			this.lastFindMode = this.FIND_MODE_NATIVE;
 			this.isModeChanged = true;
 		}
-		this.findField.focus();
+		if (!this.inCancelingProcess)
+			this.findField.focus();
 	},
  
 	// flip back to another find mode
