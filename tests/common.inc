@@ -31,7 +31,7 @@ function commonSetUp(aRetVal)
 	XMigemoUI.autoExitQuickFindInherit = true;
 	XMigemoUI.autoExitQuickFind = true;
 	XMigemoUI.timeout = 2500;
-	XMigemoUI.prefillWithSelection = false;
+	XMigemoUI.prefillWithSelection = true;
 	XMigemoUI.workForAnyXMLDocuments = true;
 
 	XMigemoHighlight = win.XMigemoHighlight;
