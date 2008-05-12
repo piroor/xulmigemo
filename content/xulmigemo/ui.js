@@ -712,7 +712,7 @@ var XMigemoUI = {
 		if (
 			!this.isActive &&
 			(
-				!this.autoStartQuickFind ||
+				(!this.autoStartQuickFind && !aFromFindField) ||
 				aEvent.charCode == 0 ||
 				aEvent.altKey ||
 				aEvent.ctrlKey ||
