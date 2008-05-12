@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="Shift_JIS"?>
+<html xml:lang="ja">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
+</head>
+
+<body onload="init()">
+<script type="text/javascript">
+function init()
+{
+	document.addEventListener('keypress', function(aEvent) {
+		var ul = document.getElementById('indicator');
+		var li = document.createElement('li');
+		li.appendChild(
+			document.createTextNode(
+				[
+					aEvent.keyCode,
+					String.fromCharCode(aEvent.charCode),
+					aEvent.target,
+					aEvent.target.localName,
+					(new Date()).getTime()
+				].join(' : ')
+			)
+		);
+		ul.insertBefore(li, ul.firstChild);
+	}, false);
+}
+</script>
+
+
+<p>This is a sample text and a <a href="#link">sample link</a>.</p>
+<p>single-row field
+<br /><input type="text" size="50" value="text in input field"/>
+<br /><input type="password" size="50" value="text in password field"/></p>
+<p>multirow field</p>
+
+<textarea rows="5" cols="50">text in textarea</textarea>
+
+
+<p>word1, out of text field
+<br />word1, out of text field
+<br /><input type="text" size="50" value="word1, in text field"/>
+<br /><input type="text" size="50" value="word1, in text field"/>
+<br />word1, out of text field
+<br />word1, out of text field
+<br /><input type="text" size="50" value="word1, in text field"/>
+<br /><input type="text" size="50" value="word1, in text field"/>
+<br />word1, out of text field
+<br />word1, out of text field</p>
+
+<p>word2, out of text field
+<br />word2, out of text field
+<br /><input type="text" size="50" value="word2, in text field"/>
+<br /><input type="text" size="50" value="word2, in text field"/></p>
+
+<p><input type="text" size="50" value="word3, in text field"/>
+<br /><input type="text" size="50" value="word3, in text field"/>
+<br />word3, out of text field
+<br />word3, out of text field</p>
+
+<p>日本語のテキスト　にほんごのテキスト　ニホンゴのテキスト　nihongoのテキスト</p>
+
+<p><a href="#another">another link</a></p>
+
+<div style="position: fixed; bottom: 0; right: 0; height: 15em; width: 50%; margin: 0; padding: 0; background: #BFBFBF; opacity: 0.5; font-size: small;">
+Pressed:
+<ul id="indicator" style="height: 8em; overflow: auto;">
+</ul>
+</div>
+
+</body>
+
+</html>
