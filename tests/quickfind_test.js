@@ -285,5 +285,51 @@ quickFindTest.tests = {
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isFalse(XMigemoUI.findBarHidden);
 		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+	},
+
+	'クイックMigemo検索実行中にテキストエリアにフォーカス': function() {
+		XMigemoUI.autoStartQuickFind = true;
+
+		var findTerm = 'foobar';
+
+		var key = { charCode : findTerm.charCodeAt(0) };
+		action.fireKeyEventOnElement(content.document.documentElement, key);
+		yield wait;
+		action.inputTextToField(findField, findTerm.substring(1), true);
+		yield wait;
+
+		var input = content.document.getElementsByTagName('input')[0];
+		input.focus();
+		action.fireMouseEventOnElement(input);
+		yield wait;
+		assert.isTrue(XMigemoUI.findBarHidden);
+
+		var originalValue = input.value;
+		var focused = win.document.commandDispatcher.focusedElement;
+		action.fireKeyEventOnElement(focused, key_input_a);
+		yield wait;
+		action.fireKeyEventOnElement(focused, key_input_a);
+		yield wait;
+		action.fireKeyEventOnElement(focused, key_input_a);
+		yield wait;
+		assert.equals(originalValue+'aaa', focused.value);
+	},
+
+	'クイックMigemo検索で通常の文字列にヒットした後に再びクイックMigemo検索': function() {
+		XMigemoUI.autoStartQuickFind = true;
+
+		var findTerm = 'multirow';
+
+		var key = { charCode : findTerm.charCodeAt(0) };
+		action.fireKeyEventOnElement(content.document.documentElement, key);
+		yield wait;
+		action.inputTextToField(findField, findTerm.substring(1), true);
+
+		yield XMigemoUI.timeout + wait;
+
+		action.fireKeyEventOnElement(content.document.documentElement, key);
+		yield wait;
+		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
 	}
 };
