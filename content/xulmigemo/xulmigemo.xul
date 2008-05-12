@@ -14,6 +14,8 @@
 <hbox id="XMigemoFindToolbar"
 	collapsed="true"
 	pack="end"
+	main-label-migemo-normal="&ui.label.migemo.normal;"
+	main-label-migemo-link="&ui.label.migemo.link;"
 	caseSensitive-short-label="&ui.caseSensitive.shortLabel;">
 	<hbox id="find-migemo-mode-box"
 		align="center"

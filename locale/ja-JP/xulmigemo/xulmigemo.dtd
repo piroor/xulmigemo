@@ -222,3 +222,5 @@
 <!ENTITY ui.mode.regexp.shortLabel    "R">
 <!ENTITY ui.mode.regexp.tooltiptext   "正規表現検索">
 <!ENTITY ui.caseSensitive.shortLabel  "A/a">
+<!ENTITY ui.label.migemo.normal       "クイックMigemo:">
+<!ENTITY ui.label.migemo.link         "クイックMigemo（リンクのみ）:">

@@ -225,3 +225,5 @@
 <!ENTITY ui.mode.regexp.shortLabel    "R">
 <!ENTITY ui.mode.regexp.tooltiptext   "Use Regular Expressions">
 <!ENTITY ui.caseSensitive.shortLabel  "A/a">
+<!ENTITY ui.label.migemo.normal       "Quick Migemo:">
+<!ENTITY ui.label.migemo.link         "Quick Migemo (links only):">

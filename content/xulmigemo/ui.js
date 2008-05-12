@@ -58,7 +58,7 @@ var XMigemoUI = {
 	_textUtils : null,
  
 /* elements */ 
-	
+	 
 	get browser() 
 	{
 		return document.getElementById('content') || // Firefox
@@ -101,6 +101,18 @@ var XMigemoUI = {
 		return this._findField;
 	},
 //	_findField : null,
+ 
+	get findLabel() 
+	{
+		if (this._findLabel === void(0)) {
+			this._findLabel = document.getElementById('find-label');
+			if (!this._findLabel && this.findBar) {
+				this._findLabel = this.findBar.getElement('findbar-label');
+			}
+		}
+		return this._findLabel;
+	},
+//	_findLabel : null,
  
 	get findCaseSensitiveCheck() 
 	{
@@ -163,7 +175,7 @@ var XMigemoUI = {
 	_timeoutIndicatorBox : null,
   
 /* status */ 
-	
+	 
 	get isQuickFind() 
 	{
 		return XMigemoFind.isQuickFind;
@@ -563,7 +575,7 @@ var XMigemoUI = {
 		}
 		return null;
 	},
- 	 
+  
 	handleEvent : function(aEvent) /* DOMEventListener */ 
 	{
 		switch (aEvent.type)
@@ -613,7 +625,7 @@ var XMigemoUI = {
 			default:
 		}
 	},
-	
+	 
 	keyEvent : function(aEvent, aFromFindField) 
 	{
 		if (
@@ -623,7 +635,7 @@ var XMigemoUI = {
 			)
 			return;
 	},
-	
+	 
 	isEventFiredInInputField : function(aEvent) 
 	{
 		try { // in rich-textarea (ex. Gmail)
@@ -1280,6 +1292,9 @@ var XMigemoUI = {
 						).replace(
 							/if \((this._findMode == this.(FIND_TYPEAHEAD|FIND_LINKS))\)/g,
 							'if ($1 && XMigemoUI.findMode == XMigemoUI.FIND_MODE_NATIVE)'
+						).replace(
+							/(\}\)?)$/,
+							'XMigemoUI.updateFindUI();$1'
 						)
 					);
 
@@ -1302,6 +1317,14 @@ var XMigemoUI = {
 			gFindBar.enableFindButtons = this.enableFindButtons;
 			gFindBar.openFindBar  = this.openFindBar;
 			gFindBar.closeFindBar = this.closeFindBar;
+
+			if ('updateFindUI' in gFindBar) // Firefox 2
+				eval('gFindBar.updateFindUI = '+gFindBar.updateFindUI.toSource()
+					.replace(
+						/(\}\)?)$/,
+						'XMigemoUI.updateFindUI();$1'
+					)
+				);
 
 			if (!('updateStatus' in gFindBar)) {
 				if ('updateStatusBar' in gFindBar) // old
@@ -1633,7 +1656,7 @@ var XMigemoUI = {
 	},
  
 /* highlight */ 
-	 
+	
 	toggleHighlight : function(aHighlight) 
 	{
 		if (aHighlight && XMigemoUI.highlightCheckedAlways) {
@@ -1743,7 +1766,7 @@ var XMigemoUI = {
 		var ranges = XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode, {});
 		return ranges.length ? true : false ;
 	},
-	 
+	
 	updateHighlightNode : function(aNode) 
 	{
 		aNode.setAttribute('onmousedown', <><![CDATA[
@@ -1790,6 +1813,16 @@ var XMigemoUI = {
 		}
 	},
  
+	updateFindUI : function() 
+	{
+		if (this.findMode != this.FIND_MODE_MIGEMO || !this.isQuickFind) return;
+		this.findLabel.value = this.findMigemoBar.getAttribute(
+			XMigemoFind.isLinksOnly ?
+				'main-label-migemo-link' :
+				'main-label-migemo-normal'
+		);
+	},
+ 	
 	findNext : function() 
 	{
 //		dump('XMigemoUI.findNext\n');
