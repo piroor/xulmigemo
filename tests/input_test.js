@@ -3,20 +3,6 @@
 
 utils.include('common.inc');
 
-var key_Ctrl_A = {
-		charCode : 'a'.charCodeAt(0),
-		ctrlKey  : true
-	};
-var key_input_a = {
-		charCode : 'a'.charCodeAt(0)
-	};
-var key_BS = {
-		keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE
-	};
-var key_DEL = {
-		keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_DELETE
-	};
-
 var inputTest = new TestCase('文字入力の一般的な操作のテスト', {runStrategy: 'async'});
 
 inputTest.tests = {

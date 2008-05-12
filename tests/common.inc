@@ -28,6 +28,9 @@ function commonSetUp(aRetVal)
 	XMigemoUI.caseSensitiveCheckedAlways = false;
 	XMigemoUI.autoStartRegExpFind = true;
 	XMigemoUI.autoStartQuickFind = false;
+	XMigemoUI.autoExitQuickFindInherit = true;
+	XMigemoUI.autoExitQuickFind = true;
+	XMigemoUI.timeout = 2500;
 	XMigemoUI.prefillWithSelection = false;
 	XMigemoUI.workForAnyXMLDocuments = true;
 
@@ -65,3 +68,17 @@ function commonTearDown()
 {
 	utils.tearDownTestWindow();
 }
+
+var key_Ctrl_A = {
+		charCode : 'a'.charCodeAt(0),
+		ctrlKey  : true
+	};
+var key_input_a = {
+		charCode : 'a'.charCodeAt(0)
+	};
+var key_BS = {
+		keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE
+	};
+var key_DEL = {
+		keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_DELETE
+	};

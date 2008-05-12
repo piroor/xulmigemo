@@ -117,11 +117,8 @@ basicTest.tests = {
 
 		// 検索に成功するケース
 		var findTerm = 'text';
-		for (var i = 1, maxi = findTerm.length+1; i < maxi; i++)
-		{
-			action.inputTextToField(findField, findTerm.substring(0, i));
-			yield wait;
-		}
+		action.inputTextToField(findField, findTerm);
+		yield wait;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.equals('text', XMigemoUI.lastFoundRange.toString());
 
@@ -327,6 +324,9 @@ basicTest.tests = {
 	},
 
 	'検索モードの自動切り替え': function() {
+		gFindBar.openFindBar();
+		yield wait;
+		findField.focus();
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		yield wait;
 
@@ -357,6 +357,8 @@ basicTest.tests = {
 	},
 
 	'複数のモードを切り替えながらの検索': function() {
+		gFindBar.openFindBar();
+		yield wait;
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		yield wait;
 
