@@ -1,7 +1,7 @@
 // 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
 // UTF-8にしてください。
 
-utils.include(baseURL+'common.inc');
+utils.include('common.inc');
 
 var quickFindTest = new TestCase('クイックMigemo検索のテスト', {runStrategy: 'async'});
 
