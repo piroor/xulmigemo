@@ -224,8 +224,8 @@ highlightTest.tests = {
 		var box = browser.selectedBrowser.boxObject;
 		var click = {
 				button : 0,
-				x : 10,
-				y : 10,
+				x : box.x + 10,
+				y : box.y + 10,
 				screenX : box.screenX + 10,
 				screenY : box.screenY + 10
 			};
@@ -233,5 +233,34 @@ highlightTest.tests = {
 		yield wait;
 		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 
+
+		var tabNum = browser.mTabContainer.childNodes.length;
+
+
+		XMigemoHighlight.toggleHighlightScreen(true);
+		yield wait;
+		var link = content.document.getElementsByTagName('A')[0];
+		var linkBox = content.document.getBoxObjectFor(link);
+		click.button = 1;
+		click.x = linkBox.x + 10;
+		click.y = linkBox.y + 5;
+		click.screenX = linkBox.screenX + 10;
+		click.screenY = linkBox.screenY + 5;
+		action.fireMouseEventOnElement(screen, click);
+		yield 1000;
+		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
+		assert.equals(tabNum+1, browser.mTabContainer.childNodes.length);
+
+
+		linkBox = content.document.getBoxObjectFor(link);
+		click.button = 0;
+		click.x = linkBox.x + 10;
+		click.y = linkBox.y + 5;
+		click.screenX = linkBox.screenX + 10;
+		click.screenY = linkBox.screenY + 5;
+		action.fireMouseEventOnElement(screen, click);
+		yield 1000;
+		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
+		assert.equals(keyEventTest+'#link', content.location.href);
 	}
 };

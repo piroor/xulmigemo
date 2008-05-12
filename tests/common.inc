@@ -36,11 +36,18 @@ function commonSetUp(aRetVal)
 	XMigemoHighlight.animationEnabled = false;
 	XMigemoHighlight.combinations = [
 		{
-			button : 1
+			button   : 1,
+			altKey   : false,
+			ctrlKey  : false,
+			shiftKey : false,
+			metaKey  : false
 		},
 		{
-			button : 0,
-			ctrlKey : true
+			button   : 0,
+			altKey   : false,
+			ctrlKey  : true,
+			shiftKey : false,
+			metaKey  : false
 		}
 	];
 
