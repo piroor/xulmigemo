@@ -195,5 +195,43 @@ highlightTest.tests = {
 		box = content.document.getBoxObjectFor(screen);
 		assert.isTrue(box.width);
 		assert.isTrue(box.height);
+
+
+		action.inputTextToField(findField, '');
+		yield 1000;
+		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
+		box = content.document.getBoxObjectFor(screen);
+		assert.isFalse(box.width);
+		assert.isFalse(box.height);
+	},
+
+	'スクリーン上でのクリック操作': function() {
+		XMigemoUI.highlightCheckedAlways = true;
+		XMigemoUI.highlightCheckedAlwaysMinLength = 5;
+		XMigemoHighlight.strongHighlight = true;
+
+		gFindBar.openFindBar();
+		yield wait;
+		findField.focus();
+
+
+		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NORMAL;
+
+		action.inputTextToField(findField, 'text field');
+		yield 1000;
+		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
+		var screen = content.document.getElementById(kSCREEN);
+		var box = browser.selectedBrowser.boxObject;
+		var click = {
+				button : 0,
+				x : 10,
+				y : 10,
+				screenX : box.screenX + 10,
+				screenY : box.screenY + 10
+			};
+		action.fireMouseEventOnElement(screen, click);
+		yield wait;
+		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
+
 	}
 };
