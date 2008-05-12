@@ -58,13 +58,12 @@ quickFindTest.tests = {
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 
-		action.inputTextToField(findField, '');
+		action.fireKeyEventOnElement(findField, key_BS);
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isFalse(XMigemoUI.findBarHidden);
 
-		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE };
-		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key_BS);
 		yield wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
@@ -172,8 +171,7 @@ quickFindTest.tests = {
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 
-		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE };
-		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(findField, key_BS);
 		yield wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isTrue(XMigemoUI.findBarHidden);
@@ -262,9 +260,7 @@ quickFindTest.tests = {
 			key = { charCode : findTerm.charCodeAt(i) };
 			action.fireKeyEventOnElement(findField, key);
 			yield wait;
-			assert.equals(lastInput, XMigemoUI.findTerm);
-			action.inputTextToField(findField, findTerm.substring(0, i));
-			yield wait;
+			assert.equals(lastInput+findTerm.charAt(i), XMigemoUI.findTerm);
 			lastInput = XMigemoUI.findTerm;
 			if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
 		}
@@ -280,11 +276,9 @@ quickFindTest.tests = {
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE };
 		for (var i = findTerm.length; i > 0; i--)
 		{
-			action.fireKeyEventOnElement(findField, key);
+			action.fireKeyEventOnElement(findField, key_BS);
 			yield wait;
-			assert.equals(lastInput, XMigemoUI.findTerm);
-			action.inputTextToField(findField, findTerm.substring(0, i));
-			yield wait;
+			assert.equals(lastInput.substring(0, lastInput.length-1), XMigemoUI.findTerm);
 			lastInput = XMigemoUI.findTerm;
 			if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
 		}

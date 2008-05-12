@@ -15,7 +15,7 @@ function init()
 			document.createTextNode(
 				[
 					aEvent.keyCode,
-					String.fromCharCode(aEvent.charCode),
+					String.fromCharCode(aEvent.charCode) +'('+aEvent.charCode+')',
 					aEvent.target,
 					aEvent.target.localName,
 					(new Date()).getTime()

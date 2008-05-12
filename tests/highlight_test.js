@@ -35,13 +35,13 @@ highlightTest.tests = {
 		findField.focus();
 
 		action.inputTextToField(findField, 'text');
-		yield 1000;
+		yield 1500;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'text field');
-		yield 1000;
+		yield 1500;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
@@ -55,13 +55,13 @@ highlightTest.tests = {
 		assert.equals(10, xpathResult.snapshotLength);
 
 		action.inputTextToField(findField, 'qute');
-		yield 1000;
+		yield 1500;
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'not found long term');
-		yield 1000;
+		yield 1500;
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
@@ -79,13 +79,13 @@ highlightTest.tests = {
 		findField.focus();
 
 		action.inputTextToField(findField, 'tex');
-		yield 1000;
+		yield 1500;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'text ?(field|area)');
-		yield 1000;
+		yield 1500;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
@@ -99,13 +99,13 @@ highlightTest.tests = {
 		assert.equals(10, xpathResult.snapshotLength);
 
 		action.inputTextToField(findField, 'qute');
-		yield 1000;
+		yield 1500;
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'not found long term');
-		yield 1000;
+		yield 1500;
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
@@ -123,13 +123,13 @@ highlightTest.tests = {
 		findField.focus();
 
 		action.inputTextToField(findField, 'niho');
-		yield 1000;
+		yield 1500;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'nihongo');
-		yield 1000;
+		yield 1500;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
@@ -143,13 +143,13 @@ highlightTest.tests = {
 		assert.equals(4, xpathResult.snapshotLength);
 
 		action.inputTextToField(findField, 'qute');
-		yield 1000;
+		yield 1500;
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'not found long term');
-		yield 1000;
+		yield 1500;
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
@@ -170,7 +170,7 @@ highlightTest.tests = {
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NORMAL;
 
 		action.inputTextToField(findField, 'text field');
-		yield 1000;
+		yield 1500;
 		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
 		var screen = content.document.getElementById(kSCREEN);
 		assert.isTrue(screen);
@@ -180,7 +180,7 @@ highlightTest.tests = {
 
 
 		action.inputTextToField(findField, '');
-		yield 1000;
+		yield 1500;
 		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 		box = content.document.getBoxObjectFor(screen);
 		assert.isFalse(box.width);
@@ -190,7 +190,7 @@ highlightTest.tests = {
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 
 		action.inputTextToField(findField, 'nihongo');
-		yield 1000;
+		yield 1500;
 		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
 		box = content.document.getBoxObjectFor(screen);
 		assert.isTrue(box.width);
@@ -198,7 +198,7 @@ highlightTest.tests = {
 
 
 		action.inputTextToField(findField, '');
-		yield 1000;
+		yield 1500;
 		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 		box = content.document.getBoxObjectFor(screen);
 		assert.isFalse(box.width);
@@ -218,7 +218,7 @@ highlightTest.tests = {
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NORMAL;
 
 		action.inputTextToField(findField, 'text field');
-		yield 1000;
+		yield 1500;
 		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
 		var screen = content.document.getElementById(kSCREEN);
 		var box = browser.selectedBrowser.boxObject;
@@ -247,7 +247,7 @@ highlightTest.tests = {
 		click.screenX = linkBox.screenX + 10;
 		click.screenY = linkBox.screenY + 5;
 		action.fireMouseEventOnElement(screen, click);
-		yield 1000;
+		yield 1500;
 		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
 		assert.equals(tabNum+1, browser.mTabContainer.childNodes.length);
 
@@ -259,7 +259,7 @@ highlightTest.tests = {
 		click.screenX = linkBox.screenX + 10;
 		click.screenY = linkBox.screenY + 5;
 		action.fireMouseEventOnElement(screen, click);
-		yield 1000;
+		yield 1500;
 		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 		assert.equals(keyEventTest+'#link', content.location.href);
 	}
