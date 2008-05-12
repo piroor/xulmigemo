@@ -33,3 +33,11 @@
 	color: white;
 	background: #666;
 }
+
+
+#XMigemoFindToolbar progressmeter,
+#XMigemoFindToolbar progressmeter > * {
+	min-height: 5px;
+	margin: 0;
+	padding: 0;
+}
