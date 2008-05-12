@@ -8,6 +8,7 @@ var XMigemoUI,
 	findField,
 	inputElem;
 var keyEventTest = baseURL+'keyEventTest.html';
+var keyEventTestXML = baseURL+'keyEventTest.xml';
 var wait = 300;
 
 function commonSetUp(aRetVal)
@@ -28,10 +29,20 @@ function commonSetUp(aRetVal)
 	XMigemoUI.autoStartRegExpFind = true;
 	XMigemoUI.autoStartQuickFind = false;
 	XMigemoUI.prefillWithSelection = false;
+	XMigemoUI.workForAnyXMLDocuments = true;
 
 	XMigemoHighlight = win.XMigemoHighlight;
 	XMigemoHighlight.strongHighlight = false;
 	XMigemoHighlight.animationEnabled = false;
+	XMigemoHighlight.combinations = [
+		{
+			button : 1
+		},
+		{
+			button : 0,
+			ctrlKey : true
+		}
+	];
 
 	findCommand = 'with (win) {'+
 		win.document.getElementById('cmd_find').getAttribute('oncommand')+

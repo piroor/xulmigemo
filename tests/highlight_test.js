@@ -2,6 +2,8 @@
 // UTF-8にしてください。
 
 utils.include(baseURL+'common.inc');
+var kSCREEN = '__moz_xmigemo-find-highlight-screen';
+var kHIGHLIGHTS = 'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search" or @class="__mozilla-findbar-animation"]';
 
 var highlightTest = new TestCase('ハイライト表示のテスト', {runStrategy: 'async'});
 
@@ -23,6 +25,7 @@ highlightTest.tests = {
 	'通常の検索で自動ハイライトが正常に動作するかどうか': function() {
 		XMigemoUI.highlightCheckedAlways = true;
 		XMigemoUI.highlightCheckedAlwaysMinLength = 5;
+		var xpathResult;
 
 		gFindBar.openFindBar();
 		yield wait;
@@ -42,6 +45,14 @@ highlightTest.tests = {
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
+		var xpathResult = content.document.evaluate(
+			kHIGHLIGHTS,
+			content.document,
+			null,
+			XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+			null
+		);
+		assert.equals(10, xpathResult.snapshotLength);
 
 		action.inputTextToField(findField, 'qute');
 		yield 1000;
@@ -78,6 +89,14 @@ highlightTest.tests = {
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
+		var xpathResult = content.document.evaluate(
+			kHIGHLIGHTS,
+			content.document,
+			null,
+			XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+			null
+		);
+		assert.equals(10, xpathResult.snapshotLength);
 
 		action.inputTextToField(findField, 'qute');
 		yield 1000;
@@ -114,6 +133,14 @@ highlightTest.tests = {
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
+		var xpathResult = content.document.evaluate(
+			kHIGHLIGHTS,
+			content.document,
+			null,
+			XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+			null
+		);
+		assert.equals(4, xpathResult.snapshotLength);
 
 		action.inputTextToField(findField, 'qute');
 		yield 1000;
@@ -126,5 +153,47 @@ highlightTest.tests = {
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
+	},
+
+	'Safari風自動ハイライト': function() {
+		XMigemoUI.highlightCheckedAlways = true;
+		XMigemoUI.highlightCheckedAlwaysMinLength = 5;
+		XMigemoHighlight.strongHighlight = true;
+
+		gFindBar.openFindBar();
+		yield wait;
+		findField.focus();
+
+		var xpathResult;
+
+
+		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NORMAL;
+
+		action.inputTextToField(findField, 'text field');
+		yield 1000;
+		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
+		var screen = content.document.getElementById(kSCREEN);
+		assert.isTrue(screen);
+		var box = content.document.getBoxObjectFor(screen);
+		assert.isTrue(box.width);
+		assert.isTrue(box.height);
+
+
+		action.inputTextToField(findField, '');
+		yield 1000;
+		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
+		box = content.document.getBoxObjectFor(screen);
+		assert.isFalse(box.width);
+		assert.isFalse(box.height);
+
+
+		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
+
+		action.inputTextToField(findField, 'nihongo');
+		yield 1000;
+		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
+		box = content.document.getBoxObjectFor(screen);
+		assert.isTrue(box.width);
+		assert.isTrue(box.height);
 	}
 };
