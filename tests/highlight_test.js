@@ -32,25 +32,25 @@ highlightTest.tests = {
 		findField.focus();
 
 		action.inputTextToField(findField, 'text');
-		yield 500 + wait;
+		yield 1000;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'text field');
-		yield 500 + wait;
+		yield 1000;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'qute');
-		yield 500 + wait;
+		yield 1000;
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'not found long term');
-		yield 500 + wait;
+		yield 1000;
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
@@ -68,25 +68,25 @@ highlightTest.tests = {
 		findField.focus();
 
 		action.inputTextToField(findField, 'tex');
-		yield 500 + wait;
+		yield 1000;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'text ?(field|area)');
-		yield 500 + wait;
+		yield 1000;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'qute');
-		yield 500 + wait;
+		yield 1000;
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'not found long term');
-		yield 500 + wait;
+		yield 1000;
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
@@ -104,25 +104,25 @@ highlightTest.tests = {
 		findField.focus();
 
 		action.inputTextToField(findField, 'niho');
-		yield 500 + wait;
+		yield 1000;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'nihongo');
-		yield 500 + wait;
+		yield 1000;
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'qute');
-		yield 500 + wait;
+		yield 1000;
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 
 		action.inputTextToField(findField, 'not found long term');
-		yield 500 + wait;
+		yield 1000;
 		assert.equals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
 		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
