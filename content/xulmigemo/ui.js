@@ -33,12 +33,15 @@ var XMigemoUI = {
 	ACTION_CLOSE    : 2,
 
 	shouldRebuildSelection : false,
-	prefillWithSelection : false,
+	prefillWithSelection   : false,
+	workForAnyXMLDocuments : true,
 
 	isModeChanged : false,
 
 	kLAST_HIGHLIGHT : '_moz-xmigemo-last-highlight',
 	kDISABLE_IME    : '_moz-xmigemo-disable-ime',
+
+	kXHTMLNS : 'http://www.w3.org/1999/xhtml',
  
 	nsITypeAheadFind : Components.interfaces.nsITypeAheadFind, 
 	nsIDOMNSEditableElement : Components.interfaces.nsIDOMNSEditableElement,
@@ -309,7 +312,7 @@ var XMigemoUI = {
 	
 	domain  : 'xulmigemo', 
  
-	preferences : <><![CDATA[
+	preferences : <><![CDATA[ 
 		xulmigemo.autostart
 		xulmigemo.autostart.regExpFind
 		xulmigemo.enableautoexit.inherit
@@ -338,6 +341,7 @@ var XMigemoUI = {
 		xulmigemo.find_delay
 		xulmigemo.ignore_find_links_only_behavior
 		xulmigemo.prefillwithselection
+		xulmigemo.work_for_any_xml_document
 	]]></>.toString(),
  
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -479,6 +483,10 @@ var XMigemoUI = {
 			case 'xulmigemo.prefillwithselection':
 				this.prefillWithSelection = value;
 				return;
+
+			case 'xulmigemo.prefillwithselection':
+				this.workForAnyXMLDocuments = value;
+				return;
 		}
 	},
   
@@ -534,6 +542,26 @@ var XMigemoUI = {
 		window.setTimeout(function(aSelf) {
 			aSelf.findField.inputField.removeAttribute(aSelf.kDISABLE_IME);
 		}, 100, this);
+	},
+ 
+	getDocumentBody : function(aDocument) 
+	{
+		if (aDocument instanceof HTMLDocument)
+			return aDocument.body;
+
+		try {
+			var xpathResult = aDocument.evaluate(
+					'descendant::*[contains(" BODY body ", concat(" ", local-name(), " "))]',
+					aDocument,
+					null,
+					XPathResult.FIRST_ORDERED_NODE_TYPE,
+					null
+				);
+			return xpathResult.singleNodeValue;
+		}
+		catch(e) {
+		}
+		return null;
 	},
  	 
 	handleEvent : function(aEvent) /* DOMEventListener */ 
@@ -1201,7 +1229,7 @@ var XMigemoUI = {
 	},
  
 /* Override FindBar */ 
-	
+	 
 	overrideFindBar : function() 
 	{
 		/*
@@ -1341,6 +1369,15 @@ var XMigemoUI = {
 			.replace(
 				'BackColor) {',
 				'BackColor) { XMigemoUI.clearHighlight(doc); return '+highlightDocRetVal+'; '
+			).replace(
+				/if \((!doc \|\| )(!\("body" in doc\)|!\(doc instanceof HTMLDocument\))\)/,
+				'if ($1($2 && (!XMigemoUI.workForAnyXMLDocuments || !(doc instanceof XMLDocument))))'
+			).replace(
+				'doc.body',
+				'XMigemoUI.getDocumentBody(doc)'
+			).replace(
+				'doc.createElement(',
+				'doc.createElementNS(XMigemoUI.kXHTMLNS, '
 			)
 		);
 
@@ -1595,7 +1632,7 @@ var XMigemoUI = {
 	},
  
 /* highlight */ 
-	
+	 
 	toggleHighlight : function(aHighlight) 
 	{
 		if (aHighlight && XMigemoUI.highlightCheckedAlways) {

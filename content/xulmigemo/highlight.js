@@ -180,7 +180,7 @@ var XMigemoHighlight = {
 				break;
 		}
 	},
-	 
+	
 	isEventFiredOnScrollBar : function(aEvent) 
 	{
 		var node = aEvent.originalTarget;
@@ -259,7 +259,7 @@ var XMigemoHighlight = {
 		aEvent.stopPropagation();
 		aEvent.preventDefault();
 	},
-	 
+	
 	get isGestureInProgress() 
 	{
 		return (
@@ -296,7 +296,7 @@ var XMigemoHighlight = {
 			return false;
 		return window.gestureInProgress;
 	},
- 	  
+   
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)
@@ -369,7 +369,7 @@ var XMigemoHighlight = {
 /* Safari style highlight, dark screen 
 	based on http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
 */
-	
+	 
 	initializeHighlightScreen : function(aFrame, aDontFollowSubFrames) 
 	{
 		if (!aFrame)
@@ -382,7 +382,7 @@ var XMigemoHighlight = {
 			});
 		}
 
-		if (aFrame.document instanceof HTMLDocument)
+		if (this.isDocumentHighlightable(aFrame.document))
 			this.addHighlightScreen(aFrame.document);
 
 		aFrame.__moz_xmigemoHighlightedScreenInitialized = true;
@@ -399,7 +399,7 @@ var XMigemoHighlight = {
 		var heads = doc.getElementsByTagName('head');
 		if (heads.length > 0) {
 			var objHead = heads[0];
-			var node = doc.createElement('style');
+			var node = doc.createElementNS(XMigemoUI.kXHTMLNS, 'style');
 			node.id = this.kSTYLE;
 			node.type = 'text/css';
 			node.innerHTML = '#'+this.kSCREEN+' {'+
@@ -418,7 +418,7 @@ var XMigemoHighlight = {
 
 		var objBody = bodies[0];
 
-		var screen = doc.createElement('div');
+		var screen = doc.createElementNS(XMigemoUI.kXHTMLNS, 'div');
 		screen.setAttribute('id', this.kSCREEN);
 
 		objBody.insertBefore(screen, objBody.firstChild);
@@ -459,7 +459,7 @@ var XMigemoHighlight = {
 				wHeight : windowHeight
 			};
 	},
-  
+  	
 	destroyHighlightScreen : function(aFrame) 
 	{
 		if (!aFrame)
@@ -493,7 +493,7 @@ var XMigemoHighlight = {
 			});
 		}
 
-		if (!(aFrame.document instanceof HTMLDocument)) return;
+		if (!this.isDocumentHighlightable(aFrame.document)) return;
 
 		if (!('__moz_xmigemoHighlightedScreenInitialized' in aFrame) && aHighlight)
 			this.initializeHighlightScreen(aFrame, true);
@@ -505,9 +505,17 @@ var XMigemoHighlight = {
 		else
 			aFrame.document.documentElement.removeAttribute(this.kSCREEN);
 	},
+ 
+	isDocumentHighlightable : function(aDocument) 
+	{
+		return (
+			(aDocument instanceof HTMLDocument) ||
+			(XMigemoUI.workForAnyXMLDocuments && (aDocument instanceof XMLDocument))
+			);
+	},
   
 /* Safari style highlight, animation */ 
-	
+	 
 	highlightFocusedFound : function(aFrame) 
 	{
 		if (!this.animationEnabled) return;
@@ -517,7 +525,7 @@ var XMigemoHighlight = {
 		}
 		this.highlightFocusedFoundTimer = window.setTimeout('XMigemoHighlight.highlightFocusedFoundCallback()', 0);
 	},
-	 
+	
 	highlightFocusedFoundCallback : function(aFrame) 
 	{
 		this.highlightFocusedFoundTimer = null;
@@ -653,7 +661,7 @@ var XMigemoHighlight = {
 		switch (this.animationStyle)
 		{
 			case this.STYLE_JUMP:
-				this.animationNode.style.top = 0;
+				this.setStylePropertyValue(this.animationNode, 'top', 0);
 				doc.documentElement.removeAttribute(this.kANIMATION);
 				break;
 
@@ -661,7 +669,7 @@ var XMigemoHighlight = {
 				if (this.animationNode.getAttribute('class') != this.kANIMATION_NODE)
 					return;
 				if (aEndOfAnimation) {
-					this.animationNode.style.fontSize = '1em';
+					this.setStylePropertyValue(this.animationNode, 'font-size', '1em');
 					return;
 				}
 				var parent = this.animationNode.parentNode;
@@ -686,7 +694,7 @@ var XMigemoHighlight = {
 		switch (this.animationStyle)
 		{
 			case this.STYLE_ZOOM:
-				var node = doc.createElement('span');
+				var node = doc.createElementNS(XMigemoUI.kXHTMLNS, 'span');
 				node.setAttribute('class', this.kANIMATION_NODE);
 
 				var range = doc.createRange();
@@ -708,11 +716,11 @@ var XMigemoHighlight = {
 				range.detach();
 
 				this.animationNode = node;
-				this.animationNode.style.top =
-					this.animationNode.style.bottom =
-					this.animationNode.style.left =
-					this.animationNode.style.right = 0;
-				this.animationNode.style.padding = 0;
+				this.setStylePropertyValue(node, 'top', 0);
+				this.setStylePropertyValue(node, 'bottom', 0);
+				this.setStylePropertyValue(node, 'left', 0);
+				this.setStylePropertyValue(node, 'right', 0);
+				this.setStylePropertyValue(node, 'padding', 0);
 				break;
 		}
 	},
@@ -724,7 +732,7 @@ var XMigemoHighlight = {
 		{
 			case this.STYLE_JUMP:
 				var y = parseInt(this.animationSize[this.STYLE_JUMP] * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
-				this.animationNode.style.top = '-'+(y * this.animationUnit)+'px';
+				this.setStylePropertyValue(this.animationNode, 'top', '-'+(y * this.animationUnit)+'px');
 				break;
 
 			case this.STYLE_ZOOM:
@@ -732,13 +740,33 @@ var XMigemoHighlight = {
 					return;
 				var unit = parseInt(this.animationSize[this.STYLE_ZOOM] * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
 				var padding = this.animationUnit / 6;
-				this.animationNode.style.top =
-					this.animationNode.style.bottom = (-(unit * 0.025 * this.animationUnit) - padding)+'px';
-				this.animationNode.style.left =
-					this.animationNode.style.right = (-(unit * 0.05 * this.animationUnit) - padding)+'px';
-				this.animationNode.style.fontSize = Math.min(1.1, 1 + (unit * 0.02))+'em';
+				var vPos = (-(unit * 0.025 * this.animationUnit) - padding)+'px';
+				this.setStylePropertyValue(this.animationNode, 'top', vPos);
+				this.setStylePropertyValue(this.animationNode, 'bottom', vPos);
+				var hPos = (-(unit * 0.05 * this.animationUnit) - padding)+'px';
+				this.setStylePropertyValue(this.animationNode, 'left', hPos);
+				this.setStylePropertyValue(this.animationNode, 'right', hPos);
+				this.setStylePropertyValue(this.animationNode, 'font-size', Math.min(1.1, 1 + (unit * 0.02))+'em');
 				break;
 		}
+	},
+ 
+	setStylePropertyValue : function(aNode, aPropertyName, aValue) 
+	{
+		if ('style' in aNode) {
+			var prop = aPropertyName
+					.replace(/-[a-z]/g, function(aFound) {
+						return aFound.charAt(1).toUpperCase();
+					})
+					.replace(/^Moz/, 'moz');
+			aNode.style[prop] = aValue;
+			return;
+		}
+		var style = aNode.getAttribute('style') || '';
+		var regexp = new RegExp(';?\s*'+aPropertyName+'\s*:\s*[^;]*');
+		style = style.replace(regexp, '')
+				+ ';' + aPropertyName +' : ' + aValue;
+		aNode.setAttribute('style', style);
 	},
   
 	updateHighlightNode : function(aNode) 
