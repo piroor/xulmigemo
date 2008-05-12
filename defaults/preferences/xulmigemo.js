@@ -13,6 +13,7 @@ pref("xulmigemo.splitTermsAutomatically",       false);
 pref("xulmigemo.scrollSelectionToCenter",       false);
 pref("xulmigemo.ignore_find_links_only_behavior", true);
 pref("xulmigemo.rebuild_selection",             true);
+pref("xulmigemo.work_for_any_xml_document",     true);
 
 pref("xulmigemo.checked_by_default.findbar",       false);
 
