@@ -1354,7 +1354,7 @@ DocShellIterator.prototype = {
 	{
 		var body = this.getDocumentBody(this.initialDocument);
 		return this.mFromBack ?
-			(Range.startContainer == body) :
+			(aRange.startContainer == body) :
 			(aRange.endContainer == body) ;
 	},
  
