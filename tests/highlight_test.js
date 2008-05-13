@@ -5,9 +5,7 @@ utils.include('common.inc');
 var kSCREEN = '__moz_xmigemo-find-highlight-screen';
 var kHIGHLIGHTS = 'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search" or @class="__mozilla-findbar-animation"]';
 
-var highlightTest = new TestCase('ハイライト表示のテスト', {runStrategy: 'async'});
-
-highlightTest.tests = {
+var htmlTests = {
 	setUp : function() {
 		yield utils.setUpTestWindow();
 
@@ -16,8 +14,22 @@ highlightTest.tests = {
 		commonSetUp(retVal);
 		yield wait;
 		assert.isTrue(XMigemoUI.findBarHidden);
-	},
+	}
+};
 
+var xmlTests = {
+	setUp : function() {
+		yield utils.setUpTestWindow();
+
+		var retVal = utils.addTab(keyEventTestXML);
+		yield retVal;
+		commonSetUp(retVal);
+		yield wait;
+		assert.isTrue(XMigemoUI.findBarHidden);
+	}
+};
+
+var baseTests = {
 	tearDown : function() {
 		commonTearDown();
 	},
@@ -264,3 +276,13 @@ highlightTest.tests = {
 		assert.equals(keyEventTest+'#link', content.location.href);
 	}
 };
+
+htmlTests.__proto__ = baseTests;
+xmlTests.__proto__ = baseTests;
+
+
+var highlightTest = new TestCase('ハイライト表示のテスト（HTML）', {runStrategy: 'async'});
+highlightTest.tests = htmlTests;
+
+var highlightTestXML = new TestCase('ハイライト表示のテスト（XML）', {runStrategy: 'async'});
+highlightTestXML.tests = xmlTests;
