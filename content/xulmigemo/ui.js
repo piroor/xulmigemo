@@ -1009,7 +1009,8 @@ var XMigemoUI = {
 		gFindBar.toggleHighlight(false);
 		var keyword = this.findTerm;
 		if (this.findMode != this.FIND_MODE_NATIVE) {
-			this.start(true);
+			if (!this.inCancelingProcess)
+				this.start(true);
 			this.isModeChanged = true;
 		}
 		else {
