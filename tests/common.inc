@@ -9,7 +9,7 @@ var XMigemoUI,
 	inputElem;
 var keyEventTest = baseURL+'keyEventTest.html';
 var keyEventTestXML = baseURL+'keyEventTest.xml';
-var wait = 300;
+var wait = 500;
 
 function commonSetUp(aRetVal)
 {
