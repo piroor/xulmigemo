@@ -76,6 +76,9 @@ var key_Ctrl_A = {
 var key_input_a = {
 		charCode : 'a'.charCodeAt(0)
 	};
+var key_RETURN = {
+		keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN
+	};
 var key_BS = {
 		keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE
 	};

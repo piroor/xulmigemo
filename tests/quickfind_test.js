@@ -33,6 +33,17 @@ quickFindTest.tests = {
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+		action.inputTextToField(findField, findTerm.substring(1), true);
+		yield wait;
+
+		var lastTime = (new Date()).getTime();
+		while (((new Date()).getTime() - lastTime) < XMigemoUI.timeout)
+		{
+			assert.isFalse(XMigemoUI.findBarHidden);
+			assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+			action.fireKeyEventOnElement(findField, key_RETURN);
+			yield wait;
+		}
 
 		yield XMigemoUI.timeout + wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
@@ -148,6 +159,17 @@ quickFindTest.tests = {
 		assert.notEquals('notfound', findField.getAttribute('status'));
 		assert.isFalse(XMigemoUI.findBarHidden);
 		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+		action.inputTextToField(findField, findTerm, true);
+		yield wait;
+
+		var lastTime = (new Date()).getTime();
+		while (((new Date()).getTime() - lastTime) < XMigemoUI.timeout)
+		{
+			assert.isFalse(XMigemoUI.findBarHidden);
+			assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+			action.fireKeyEventOnElement(findField, key_RETURN);
+			yield wait;
+		}
 
 		yield XMigemoUI.timeout + wait;
 		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
