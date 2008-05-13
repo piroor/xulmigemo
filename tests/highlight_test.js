@@ -251,7 +251,7 @@ var baseTests = {
 
 		XMigemoHighlight.toggleHighlightScreen(true);
 		yield wait;
-		var link = content.document.getElementsByTagName('A')[0];
+		var link = content.document.getElementsByTagName('a')[0];
 		var linkBox = content.document.getBoxObjectFor(link);
 		click.button = 1;
 		click.x = linkBox.x + 10;
@@ -273,7 +273,7 @@ var baseTests = {
 		action.fireMouseEventOnElement(screen, click);
 		yield 1500;
 		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
-		assert.equals(keyEventTest+'#link', content.location.href);
+		assert.matches(/\#link$/, content.location.href);
 	}
 };
 
