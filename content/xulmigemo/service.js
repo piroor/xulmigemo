@@ -138,7 +138,7 @@ var XMigemoService = {
 	},
   
 /* Shortcut Keys */ 
-	
+	 
 	parseShortcut : function(aShortcut) 
 	{
 		var keys = aShortcut.split('+');
@@ -146,7 +146,7 @@ var XMigemoService = {
 		var keyCode = keys[keys.length-1].replace(/ /g, '_').toUpperCase();
 		var key     = keyCode;
 
-		sotredKeyCode = (keyCode.length == 1 || keyCode == 'SPACE') ? '' : 'VK_'+keyCode ;
+		sotredKeyCode = (keyCode.length == 1 || keyCode == 'SPACE' || !keyCode) ? '' : 'VK_'+keyCode ;
 		key = sotredKeyCode ? '' : keyCode ;
 
 		return {
@@ -162,6 +162,40 @@ var XMigemoService = {
 		};
 	},
  
+	updateKey : function(aID, aInfo) 
+	{
+		var node = document.getElementById(aID);
+		if (node)
+			this.keyset.removeChild(node);
+
+		if (!aInfo.key && !aInfo.keyCode) return;
+
+		node = document.createElement('key');
+		node.setAttribute('id', aID);
+		node.setAttribute('command', aID.replace('shortcut', 'command'));
+
+		if (aInfo.key)
+			node.setAttribute('key', aInfo.key);
+
+		if (aInfo.keyCode)
+			node.setAttribute('keycode', aInfo.keyCode);
+
+		var modifiers = [];
+		if (aInfo.altKey) modifiers.push('alt');
+		if (aInfo.ctrlKey) modifiers.push('control');
+		if (aInfo.shiftKey) modifiers.push('shift');
+		if (aInfo.metaKey) modifiers.push('meta');
+		modifiers = modifiers.join(',');
+		if (modifiers)
+			node.setAttribute('modifiers', modifiers);
+
+		this.keyset.appendChild(node);
+	},
+	get keyset()
+	{
+		return document.getElementById('xmigemo-shortcuts');
+	},
+ 	
 	checkShortcutForKeyEvent : function(aShortcut, aEvent) 
 	{
 		return (
@@ -243,4 +277,4 @@ XMigemoStringBundle.prototype = {
 		return '';
 	}
 };
- 	
+ 
