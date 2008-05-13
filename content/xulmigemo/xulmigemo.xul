@@ -65,6 +65,25 @@
 		<progressmeter id="migemo-timeout-indicator"
 			type="determined"/>
 	</hbox>
+	<commandset id="xmigemo-commands">
+		<command id="xmigemo-command-manualStart"
+			oncommand="XMigemoUI.commandStart(event);"/>
+		<command id="xmigemo-command-manualStart2"
+			oncommand="XMigemoUI.commandStart(event);"/>
+		<command id="xmigemo-command-manualStartLinksOnly"
+			oncommand="XMigemoUI.commandStart(event, true);"/>
+		<command id="xmigemo-command-manualStartLinksOnly2"
+			oncommand="XMigemoUI.commandStart(event, true);"/>
+		<command id="xmigemo-command-manualExit"
+			oncommand="XMigemoUI.commandExit(event);"/>
+		<command id="xmigemo-command-findForward"
+			oncommand="XMigemoUI.commandForward(event);"/>
+		<command id="xmigemo-command-findBackward"
+			oncommand="XMigemoUI.commandBackward(event);"/>
+		<command id="xmigemo-command-goDicManager"
+			oncommand="XMigemoService.goDicManager()"/>
+	</commandset>
+	<keyset id="xmigemo-shortcuts"/>
 </hbox>
 
 
