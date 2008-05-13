@@ -3,9 +3,9 @@
 
 utils.include('common.inc');
 
-var basicTest = new TestCase('基本機能のテスト', {runStrategy: 'async'});
+var switchModeTest = new TestCase('モード切り替えのテスト', {runStrategy: 'async'});
 
-basicTest.tests = {
+switchModeTest.tests = {
 	setUp : function() {
 		yield utils.setUpTestWindow();
 
@@ -104,6 +104,70 @@ basicTest.tests = {
 		eval(findCommand);
 		yield wait;
 		assert.isTrue(XMigemoUI.findBarHidden);
+	},
+
+	'検索モードの自動切り替え': function() {
+		gFindBar.openFindBar();
+		yield wait;
+		findField.focus();
+		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
+		yield wait;
+
+		action.inputTextToField(findField, 'text field');
+		yield wait;
+		assert.notEquals('notfound', findField.getAttribute('status'));
+		assert.matches('text field', XMigemoUI.lastFoundRange.toString());
+
+		action.inputTextToField(findField, '');
+		yield wait;
+		action.inputTextToField(findField, '/(single-row|multirow) field/');
+		yield wait;
+		assert.equals(XMigemoUI.FIND_MODE_REGEXP, XMigemoUI.findMode);
+		assert.notEquals('notfound', findField.getAttribute('status'));
+		assert.matches('single-row field', XMigemoUI.lastFoundRange.toString());
+
+		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
+		action.fireKeyEventOnElement(findField, key);
+		yield wait;
+		assert.equals('multirow field', XMigemoUI.lastFoundRange.toString());
+
+		action.inputTextToField(findField, '');
+		yield wait;
+		action.inputTextToField(findField, '(single-row|multirow) field');
+		yield wait;
+		assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
+		assert.equals('notfound', findField.getAttribute('status'));
+	}
+};
+
+
+var htmlTests = {
+	setUp : function() {
+		yield utils.setUpTestWindow();
+
+		var retVal = utils.addTab(keyEventTest);
+		yield retVal;
+		commonSetUp(retVal);
+		yield wait;
+		assert.isTrue(XMigemoUI.findBarHidden);
+	}
+};
+
+var xmlTests = {
+	setUp : function() {
+		yield utils.setUpTestWindow();
+
+		var retVal = utils.addTab(keyEventTestXML);
+		yield retVal;
+		commonSetUp(retVal);
+		yield wait;
+		assert.isTrue(XMigemoUI.findBarHidden);
+	}
+};
+
+var baseTests = {
+	tearDown : function() {
+		commonTearDown();
 	},
 
 	'通常の検索': function() {
@@ -323,39 +387,6 @@ basicTest.tests = {
 		assert.equals('ニホンゴ', XMigemoUI.lastFoundRange.toString());
 	},
 
-	'検索モードの自動切り替え': function() {
-		gFindBar.openFindBar();
-		yield wait;
-		findField.focus();
-		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
-		yield wait;
-
-		action.inputTextToField(findField, 'text field');
-		yield wait;
-		assert.notEquals('notfound', findField.getAttribute('status'));
-		assert.matches('text field', XMigemoUI.lastFoundRange.toString());
-
-		action.inputTextToField(findField, '');
-		yield wait;
-		action.inputTextToField(findField, '/(single-row|multirow) field/');
-		yield wait;
-		assert.equals(XMigemoUI.FIND_MODE_REGEXP, XMigemoUI.findMode);
-		assert.notEquals('notfound', findField.getAttribute('status'));
-		assert.matches('single-row field', XMigemoUI.lastFoundRange.toString());
-
-		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
-		action.fireKeyEventOnElement(findField, key);
-		yield wait;
-		assert.equals('multirow field', XMigemoUI.lastFoundRange.toString());
-
-		action.inputTextToField(findField, '');
-		yield wait;
-		action.inputTextToField(findField, '(single-row|multirow) field');
-		yield wait;
-		assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
-		assert.equals('notfound', findField.getAttribute('status'));
-	},
-
 	'複数のモードを切り替えながらの検索': function() {
 		gFindBar.openFindBar();
 		yield wait;
@@ -404,7 +435,7 @@ basicTest.tests = {
 		function selectInContent()
 		{
 			var range = content.document.createRange();
-			range.selectNodeContents(content.document.getElementsByTagName('A')[0]);
+			range.selectNodeContents(content.document.getElementsByTagName('a')[0]);
 			var selectedTerm = range.toString();
 			var sel = content.getSelection();
 			sel.removeAllRanges();
@@ -469,3 +500,13 @@ basicTest.tests = {
 		assert.equals(selectedTerm, XMigemoUI.findTerm);
 	}
 };
+
+htmlTests.__proto__ = baseTests;
+xmlTests.__proto__ = baseTests;
+
+
+var basicTest = new TestCase('基本機能のテスト（HTML）', {runStrategy: 'async'});
+basicTest.tests = htmlTests;
+
+var basicTestXML = new TestCase('基本機能のテスト（XML）', {runStrategy: 'async'});
+basicTestXML.tests = xmlTests;
