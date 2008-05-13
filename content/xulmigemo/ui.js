@@ -804,7 +804,10 @@ var XMigemoUI = {
 				if (aFromFindField) {
 					aEvent.stopPropagation();
 					aEvent.preventDefault();
-					this.dispatchKeyEventForLink(aEvent, this.activeBrowser.contentWindow);
+					if (!this.dispatchKeyEventForLink(aEvent, this.activeBrowser.contentWindow)) {
+						this.restartTimer();
+						return true;
+					}
 				}
 				this.cancel();
 				this.clearTimer(); // ここでタイマーを殺さないといじられてしまう
