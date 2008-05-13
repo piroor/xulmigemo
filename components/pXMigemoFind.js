@@ -160,7 +160,7 @@ pXMigemoFind.prototype = {
 	_textUtils : null,
  
 /* Find */ 
-	 
+	
 	get mFind() 
 	{
 		if (!this._mFind)
@@ -544,7 +544,7 @@ mydump("getFindRangeSet");
 			doc.lastFoundEditable = null;
 		}
 
-		return this.getFindRangeSetIn(aFindFlag, doc, (doc.body || doc.documentElement), docSelCon);
+		return this.getFindRangeSetIn(aFindFlag, doc, aDocShellIterator.body, docSelCon);
 	},
 	 
 	getFindRangeSetIn : function(aFindFlag, aDocument, aRangeParent, aSelCon) 
@@ -746,7 +746,7 @@ mydump("count:"+count);
 		lastResult   : null,
 		found        : false
 	},
-  	 
+   
 	resetFindRangeSet : function(aRangeSet, aFoundRange, aFindFlag, aDocument) 
 	{
 mydump("resetFindRangeSet");
@@ -755,7 +755,7 @@ mydump("resetFindRangeSet");
 					Components.lookupMethod(win, 'document').call(win) :
 					aDocument ;
 
-		var root = theDoc.body || theDoc.documentElement;
+		var root = DocShellIterator.prototype.getDocumentBody(theDoc);
 		aRangeSet.range.selectNodeContents(root);
 		aRangeSet.start.selectNodeContents(root);
 
@@ -777,7 +777,7 @@ mydump("resetFindRangeSet");
 		}
 		return aRangeSet;
 	},
-  
+ 	 
 /* Update Appearance */ 
 	
 	getSelectionController : function(aTarget) 
@@ -1205,13 +1205,38 @@ DocShellIterator.prototype = {
 			.QueryInterface(this.nsIInterfaceRequestor)
 			.getInterface(Components.interfaces.nsIDOMWindow);
 	},
-	
+	 
 	getDocShellFromFrame : function(aFrame) 
 	{
 		return aFrame
 			.QueryInterface(this.nsIInterfaceRequestor)
 			.getInterface(this.nsIWebNavigation)
 			.QueryInterface(this.nsIDocShell);
+	},
+  
+	get body() 
+	{
+		return this.getDocumentBody(this.document);
+	},
+	 
+	getDocumentBody : function(aDocument) 
+	{
+		if (aDocument instanceof Components.interfaces.nsIDOMHTMLDocument)
+			return aDocument.body;
+
+		try {
+			var xpathResult = aDocument.evaluate(
+					'descendant::*[contains(" BODY body ", concat(" ", local-name(), " "))]',
+					aDocument,
+					null,
+					Components.interfaces.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
+					null
+				);
+			return xpathResult.singleNodeValue;
+		}
+		catch(e) {
+		}
+		return null;
 	},
   
 	get isInitital() 
@@ -1246,7 +1271,7 @@ DocShellIterator.prototype = {
 		this.mCurrentDocShell = nextItem;
 		return nextItem;
 	},
-	
+	 
 	getNextDocShell : function(aNode) 
 	{
 		// éqÇ™Ç†ÇÈèÍçáÅAç≈èâÇÃéqÇï‘Ç∑
@@ -1327,16 +1352,10 @@ DocShellIterator.prototype = {
  
 	isRangeTopLevel : function(aRange) 
 	{
-		var doc = this.initialDocument;
+		var body = this.getDocumentBody(this.initialDocument);
 		return this.mFromBack ?
-			(
-				aRange.startContainer == doc.body ||
-				aRange.startContainer == doc.documentElement
-			) :
-			(
-				aRange.endContainer == doc.body ||
-				aRange.endContainer == doc.documentElement
-			) ;
+			(Range.startContainer == body) :
+			(aRange.endContainer == body) ;
 	},
  
 	destroy : function() 

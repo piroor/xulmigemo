@@ -345,9 +345,9 @@ dump('STEP 2: '+array.toSource()+'\n');
 
 		return containsArray ? [final] : final ;
 	},
-   	
+   
 /* Find */ 
-	
+	 
 	get mFind() 
 	{
 		if (!this._mFind)
@@ -464,14 +464,14 @@ dump('STEP 2: '+array.toSource()+'\n');
 				foundRange.selectNodeContents(nodeSurround);
 				arrResults.push(foundRange);
 
-				aFindRange.selectNodeContents(doc.body);
+				aFindRange.selectNodeContents(this.getDocumentBody(doc));
 				aFindRange.setStartBefore(before);
 				try {
 					aFindRange.setEnd(aEndPoint.startContainer, aEndPoint.startOffset);
 				}
 				catch(e) {
 				}
-				aStartPoint.selectNodeContents(doc.body);
+				aStartPoint.selectNodeContents(this.getDocumentBody(doc));
 				aStartPoint.setStartBefore(before);
 				aStartPoint.collapse(true);
 			}
@@ -479,7 +479,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 				arrResults.push(foundRange);
 
 				aFindRange.setStart(foundRange.endContainer, foundRange.endOffset);
-				aStartPoint.selectNodeContents(doc.body);
+				aStartPoint.selectNodeContents(this.getDocumentBody(doc));
 				aStartPoint.setStart(foundRange.endContainer, foundRange.endOffset);
 				aStartPoint.collapse(true);
 			}
@@ -488,7 +488,27 @@ dump('STEP 2: '+array.toSource()+'\n');
 		aCount.value = arrResults.length;
 		return arrResults;
 	},
-  
+	 
+	getDocumentBody : function(aDocument) 
+	{
+		if (aDocument instanceof Components.interfaces.nsIDOMHTMLDocument)
+			return aDocument.body;
+
+		try {
+			var xpathResult = aDocument.evaluate(
+					'descendant::*[contains(" BODY body ", concat(" ", local-name(), " "))]',
+					aDocument,
+					null,
+					Components.interfaces.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
+					null
+				);
+			return xpathResult.singleNodeValue;
+		}
+		catch(e) {
+		}
+		return null;
+	},
+ 	  
 	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode, aCount) 
 	{
 		if (!aSurrountNode) {
