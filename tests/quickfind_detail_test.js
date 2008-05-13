@@ -3,9 +3,9 @@
 
 utils.include('common.inc');
 
-var quickFindTest = new TestCase('クイックMigemo検索のテスト', {runStrategy: 'async'});
+var quickFindDetailTest = new TestCase('クイックMigemo検索の詳細テスト', {runStrategy: 'async'});
 
-quickFindTest.tests = {
+quickFindDetailTest.tests = {
 	setUp : function() {
 		yield utils.setUpTestWindow();
 
