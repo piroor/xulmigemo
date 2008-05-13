@@ -107,7 +107,7 @@ var XMigemoUI = {
 		if (this._findLabel === void(0)) {
 			this._findLabel = document.getElementById('find-label');
 			if (!this._findLabel && this.findBar) {
-				this._findLabel = this.findBar.getElement('findbar-label');
+				this._findLabel = this.findBar.getElement('find-label');
 			}
 		}
 		return this._findLabel;
