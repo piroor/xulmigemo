@@ -71,3 +71,9 @@ function assert_find_start() {
 	assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 	assert.equals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 }
+
+function assert_isQuickMigemoFindActive() {
+	assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+	assert.isFalse(XMigemoUI.findBarHidden);
+	assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+}
