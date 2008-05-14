@@ -29,6 +29,47 @@ var xmlTests = {
 	}
 };
 
+
+function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongNum) {
+	var message = 'mode is '+aMode;
+
+	XMigemoUI.findMode = XMigemoUI[aMode];
+	XMigemoUI.findCaseSensitiveCheck.checked = false;
+	findField.focus();
+
+	action.inputTextToField(findField, aOKShort);
+	yield 1500;
+	assert.notEquals('notfound', findField.getAttribute('status'), message);
+	assert.isFalse(XMigemoUI.findHighlightCheck.disabled, message);
+	assert.isFalse(XMigemoUI.findHighlightCheck.checked, message);
+
+	action.inputTextToField(findField, aOKLong);
+	yield 1500;
+	assert.notEquals('notfound', findField.getAttribute('status'), message);
+	assert.isFalse(XMigemoUI.findHighlightCheck.disabled, message);
+	assert.isTrue(XMigemoUI.findHighlightCheck.checked, message);
+	var xpathResult = content.document.evaluate(
+		kHIGHLIGHTS,
+		content.document,
+		null,
+		XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+		null
+	);
+	assert.equals(aOKLongNum, xpathResult.snapshotLength, message);
+
+	action.inputTextToField(findField, aNGShort);
+	yield 1500;
+	assert.equals('notfound', findField.getAttribute('status'), message);
+	assert.isFalse(XMigemoUI.findHighlightCheck.disabled, message);
+	assert.isFalse(XMigemoUI.findHighlightCheck.checked, message);
+
+	action.inputTextToField(findField, aNGLong);
+	yield 1500;
+	assert.equals('notfound', findField.getAttribute('status'), message);
+	assert.isFalse(XMigemoUI.findHighlightCheck.disabled, message);
+	assert.isTrue(XMigemoUI.findHighlightCheck.checked, message);
+}
+
 var baseTests = {
 	tearDown : function() {
 		commonTearDown();
@@ -41,42 +82,14 @@ var baseTests = {
 
 		gFindBar.openFindBar();
 		yield wait;
-
-		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
-		XMigemoUI.findCaseSensitiveCheck.checked = false;
-		findField.focus();
-
-		action.inputTextToField(findField, 'text');
-		yield 1500;
-		assert.notEquals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
-		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
-
-		action.inputTextToField(findField, 'text field');
-		yield 1500;
-		assert.notEquals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
-		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
-		var xpathResult = content.document.evaluate(
-			kHIGHLIGHTS,
-			content.document,
-			null,
-			XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-			null
-		);
-		assert.equals(10, xpathResult.snapshotLength);
-
-		action.inputTextToField(findField, 'qute');
-		yield 1500;
-		assert.equals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
-		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
-
-		action.inputTextToField(findField, 'not found long term');
-		yield 1500;
-		assert.equals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
-		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
+		yield utils.doIteration(autoHighlightTest(
+			'FIND_MODE_NATIVE',
+			'text',
+			'text field',
+			'qute',
+			'not found long term',
+			10
+		));
 	},
 
 	'正規表現検索で自動ハイライトが正常に動作するかどうか': function() {
@@ -85,42 +98,14 @@ var baseTests = {
 
 		gFindBar.openFindBar();
 		yield wait;
-
-		XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
-		XMigemoUI.findCaseSensitiveCheck.checked = false;
-		findField.focus();
-
-		action.inputTextToField(findField, 'tex');
-		yield 1500;
-		assert.notEquals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
-		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
-
-		action.inputTextToField(findField, 'text ?(field|area)');
-		yield 1500;
-		assert.notEquals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
-		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
-		var xpathResult = content.document.evaluate(
-			kHIGHLIGHTS,
-			content.document,
-			null,
-			XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-			null
-		);
-		assert.equals(10, xpathResult.snapshotLength);
-
-		action.inputTextToField(findField, 'qute');
-		yield 1500;
-		assert.equals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
-		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
-
-		action.inputTextToField(findField, 'not found long term');
-		yield 1500;
-		assert.equals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
-		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
+		yield utils.doIteration(autoHighlightTest(
+			'FIND_MODE_REGEXP',
+			'tex',
+			'text ?(field|area)',
+			'qute',
+			'not found long term',
+			10
+		));
 	},
 
 	'Migemo検索で自動ハイライトが正常に動作するかどうか': function() {
@@ -129,42 +114,14 @@ var baseTests = {
 
 		gFindBar.openFindBar();
 		yield wait;
-
-		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-		XMigemoUI.findCaseSensitiveCheck.checked = false;
-		findField.focus();
-
-		action.inputTextToField(findField, 'niho');
-		yield 1500;
-		assert.notEquals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
-		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
-
-		action.inputTextToField(findField, 'nihongo');
-		yield 1500;
-		assert.notEquals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
-		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
-		var xpathResult = content.document.evaluate(
-			kHIGHLIGHTS,
-			content.document,
-			null,
-			XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-			null
-		);
-		assert.equals(4, xpathResult.snapshotLength);
-
-		action.inputTextToField(findField, 'qute');
-		yield 1500;
-		assert.equals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
-		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
-
-		action.inputTextToField(findField, 'not found long term');
-		yield 1500;
-		assert.equals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
-		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
+		yield utils.doIteration(autoHighlightTest(
+			'FIND_MODE_MIGEMO',
+			'niho',
+			'nihongo',
+			'qute',
+			'not found long term',
+			4
+		));
 	},
 
 	'Safari風自動ハイライト': function() {

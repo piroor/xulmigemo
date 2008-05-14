@@ -85,3 +85,12 @@ var key_BS = {
 var key_DEL = {
 		keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_DELETE
 	};
+
+function fireKeyEvents(aTarget, aKey, aTimes)
+{
+	for (var i = 0; i < aTimes; i++)
+	{
+		action.fireKeyEventOnElement(aTarget, aKey);
+	}
+	yield wait;
+}
