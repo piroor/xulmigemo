@@ -8,12 +8,7 @@ var quickFindBasicTest = new TestCase('クイックMigemo検索の基本テス�
 
 quickFindBasicTest.tests = {
 	setUp : function() {
-		yield utils.setUpTestWindow();
-
-		var retVal = utils.addTab(keyEventTest);
-		yield retVal;
-		commonSetUp(retVal);
-		yield wait;
+		yield utils.doIteration(commonSetUp(keyEventTest));
 		assert.isTrue(XMigemoUI.findBarHidden);
 	},
 

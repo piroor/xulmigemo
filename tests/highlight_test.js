@@ -76,12 +76,7 @@ function assert_screenStateForFind(aTerm, aShown) {
 
 var htmlTests = {
 	setUp : function() {
-		yield utils.setUpTestWindow();
-
-		var retVal = utils.addTab(keyEventTest);
-		yield retVal;
-		commonSetUp(retVal);
-		yield wait;
+		yield utils.doIteration(commonSetUp(keyEventTest));
 		assert.isTrue(XMigemoUI.findBarHidden);
 		XMigemoUI.highlightCheckedAlways = true;
 		XMigemoUI.highlightCheckedAlwaysMinLength = 5;
@@ -90,12 +85,7 @@ var htmlTests = {
 
 var xmlTests = {
 	setUp : function() {
-		yield utils.setUpTestWindow();
-
-		var retVal = utils.addTab(keyEventTestXML);
-		yield retVal;
-		commonSetUp(retVal);
-		yield wait;
+		yield utils.doIteration(commonSetUp(keyEventTestXML));
 		assert.isTrue(XMigemoUI.findBarHidden);
 		XMigemoUI.highlightCheckedAlways = true;
 		XMigemoUI.highlightCheckedAlwaysMinLength = 5;
@@ -192,12 +182,7 @@ var highlightAdvancedTest = new TestCase('ハイライト表示時の発展テ�
 
 highlightAdvancedTest.tests = {
 	setUp : function() {
-		yield utils.setUpTestWindow();
-
-		var retVal = utils.addTab(keyEventTest);
-		yield retVal;
-		commonSetUp(retVal);
-		yield wait;
+		yield utils.doIteration(commonSetUp(keyEventTest));
 		XMigemoUI.highlightCheckedAlways = true;
 		XMigemoHighlight.strongHighlight = true;
 	},

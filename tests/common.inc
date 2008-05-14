@@ -11,10 +11,15 @@ var keyEventTest = baseURL+'keyEventTest.html';
 var keyEventTestXML = baseURL+'keyEventTest.xml';
 var wait = 500;
 
-function commonSetUp(aRetVal)
+function commonSetUp(aURI)
 {
+	yield utils.setUpTestWindow();
+
+	var retVal = utils.addTab(aURI);
+	yield retVal;
+
 	browser = utils.getBrowser();
-	browser.removeAllTabsBut(aRetVal.tab);
+	browser.removeAllTabsBut(retVal.tab);
 
 	win = utils.getTestWindow();
 
@@ -62,6 +67,7 @@ function commonSetUp(aRetVal)
 	inputElem = findField.inputField;
 
 	win.gFindBar.closeFindBar();
+	yield wait;
 }
 
 function commonTearDown()
@@ -94,3 +100,15 @@ function fireKeyEvents(aTarget, aKey, aTimes)
 	}
 	yield wait;
 }
+
+// initialize prefs
+function pref(aKey, aValue) {
+	switch (aKey)
+	{
+		case 'xulmigemo.lang':
+		case 'xulmigemo.dicpath':
+			return;
+	}
+	utils.setPref(aKey, aValue);
+}
+utils.include('../defaults/preferences/xulmigemo.js');
