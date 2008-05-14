@@ -2,6 +2,7 @@
 // UTF-8にしてください。
 
 utils.include('common.inc');
+utils.include('quickfind.inc');
 
 var quickFindDetailTest = new TestCase('クイックMigemo検索の詳細テスト', {runStrategy: 'async'});
 
@@ -31,35 +32,20 @@ quickFindDetailTest.tests = {
 		yield wait;
 
 		var findTerm = 'nihongo';
-		var key = { charCode : findTerm.charCodeAt(0) };
-		action.fireKeyEventOnElement(content.document.documentElement, key);
-		yield wait;
-		assert.isFalse(XMigemoUI.findBarHidden);
-		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
-		action.inputTextToField(findField, findTerm.substring(1), true);
-
-		yield XMigemoUI.timeout + wait;
-
-		assert.isTrue(XMigemoUI.findBarHidden);
+		yield utils.doIteration(assert_quickFind_autoStart('nihongo'));
+		yield utils.doIteration(assert_quickFind_timeout());
 	},
 
 	'文字入力操作でタイマーが正しくリセットされるか': function() {
 		XMigemoUI.autoStartQuickFind = true;
 
 		var findTerm = 'nihongoNoTekisuto';
-
-		var key = { charCode : findTerm.charCodeAt(0) };
-		action.fireKeyEventOnElement(content.document.documentElement, key);
-		yield wait;
-		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
-		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
-		assert.notEquals('notfound', findField.getAttribute('status'));
-		assert.isFalse(XMigemoUI.findBarHidden);
-		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+		yield utils.doIteration(assert_quickFind_autoStart(findTerm.charAt(0)));
 
 		var startAt = (new Date()).getTime();
 
 		var lastInput = XMigemoUI.findTerm;
+		var key;
 		for (var i = 1, maxi = findTerm.length+1; i < maxi; i++)
 		{
 			key = { charCode : findTerm.charCodeAt(i) };
@@ -105,12 +91,7 @@ quickFindDetailTest.tests = {
 		XMigemoUI.autoStartQuickFind = true;
 
 		var findTerm = 'foobar';
-
-		var key = { charCode : findTerm.charCodeAt(0) };
-		action.fireKeyEventOnElement(content.document.documentElement, key);
-		yield wait;
-		action.inputTextToField(findField, findTerm.substring(1), true);
-		yield wait;
+		yield utils.doIteration(assert_quickFind_autoStart(findTerm));
 
 		var input = content.document.getElementsByTagName('input')[0];
 		input.focus();
@@ -133,17 +114,8 @@ quickFindDetailTest.tests = {
 		XMigemoUI.autoStartQuickFind = true;
 
 		var findTerm = 'multirow';
-
-		var key = { charCode : findTerm.charCodeAt(0) };
-		action.fireKeyEventOnElement(content.document.documentElement, key);
-		yield wait;
-		action.inputTextToField(findField, findTerm.substring(1), true);
-
-		yield XMigemoUI.timeout + wait;
-
-		action.fireKeyEventOnElement(content.document.documentElement, key);
-		yield wait;
-		assert.isFalse(XMigemoUI.findBarHidden);
-		assert.equals(findTerm.charAt(0), XMigemoUI.findTerm);
+		yield utils.doIteration(assert_quickFind_autoStart(findTerm));
+		yield utils.doIteration(assert_quickFind_timeout());
+		yield utils.doIteration(assert_quickFind_autoStart(findTerm.charAt(0)));
 	}
 };
