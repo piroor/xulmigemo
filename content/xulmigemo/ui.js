@@ -1691,6 +1691,7 @@ var XMigemoUI = {
 	
 	toggleHighlight : function(aHighlight) 
 	{
+		if (!XMigemoUI.findTerm) aHighlight = false;
 		if (aHighlight && XMigemoUI.highlightCheckedAlways) {
 			aHighlight = XMigemoUI.shouldHighlightAll;
 			window.setTimeout('XMigemoUI.findHighlightCheck.checked = '+aHighlight, 0);
@@ -1939,6 +1940,8 @@ var XMigemoUI = {
 		var highlightCheck = aSelf.findHighlightCheck;
 		var prevHighlightState = highlightCheck.checked;
 		highlightCheck.checked =
+			!aSelf.findTerm ?
+				false :
 			aSelf.highlightCheckedAlways ?
 				aSelf.shouldHighlightAll :
 			aSelf.highlightCheckFirst ?
