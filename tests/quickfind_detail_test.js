@@ -55,9 +55,7 @@ quickFindDetailTest.tests = {
 			lastInput = XMigemoUI.findTerm;
 			if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
 		}
-		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
-		assert.isFalse(XMigemoUI.findBarHidden);
-		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+		assert_isQuickMigemoFindActive();
 
 		action.inputTextToField(findField, findTerm);
 		yield wait;
@@ -65,8 +63,7 @@ quickFindDetailTest.tests = {
 		startAt = (new Date()).getTime();
 		while (((new Date()).getTime() - startAt) < XMigemoUI.timeout)
 		{
-			assert.isFalse(XMigemoUI.findBarHidden);
-			assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+			assert_isQuickMigemoFindActive();
 			action.fireKeyEventOnElement(findField, key_RETURN);
 			yield wait;
 		}
@@ -82,9 +79,7 @@ quickFindDetailTest.tests = {
 			lastInput = XMigemoUI.findTerm;
 			if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
 		}
-		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
-		assert.isFalse(XMigemoUI.findBarHidden);
-		assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
+		assert_isQuickMigemoFindActive();
 	},
 
 	'クイックMigemo検索実行中にテキストエリアにフォーカス': function() {
@@ -103,11 +98,7 @@ quickFindDetailTest.tests = {
 		var focused = win.document.commandDispatcher.focusedElement;
 		action.fireKeyEventOnElement(focused, key_input_a);
 		yield wait;
-		action.fireKeyEventOnElement(focused, key_input_a);
-		yield wait;
-		action.fireKeyEventOnElement(focused, key_input_a);
-		yield wait;
-		assert.equals(originalValue+'aaa', focused.value);
+		assert.equals(originalValue+'a', focused.value);
 	},
 
 	'クイックMigemo検索で通常の文字列にヒットした後に再びクイックMigemo検索': function() {
