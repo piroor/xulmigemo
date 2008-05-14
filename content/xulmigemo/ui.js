@@ -997,18 +997,21 @@ var XMigemoUI = {
  
 	onChangeFindToolbarMode : function() 
 	{
-		var isActive = !this.inCancelingProcess && !this.findBarHidden;
 		this.clearTimer();
 		gFindBar.toggleHighlight(false);
-		if (this.findMode != this.FIND_MODE_NATIVE && isActive) {
-			this.start(true);
-		}
-		else {
-			this.cancel(true);
+		if (!this.findBarHidden) {
+			if (this.findMode != this.FIND_MODE_NATIVE &&
+				!this.inCancelingProcess) {
+				this.start(true);
+			}
+			else {
+				this.cancel(true);
+			}
 		}
 		this.lastFindMode = this.findMode;
 		this.isModeChanged = true;
-		if (isActive)
+		if (!this.inCancelingProcess &&
+			!this.findBarHidden)
 			this.findField.focus();
 	},
  
@@ -2005,7 +2008,9 @@ var XMigemoUI = {
 
 		XMigemoService.addPrefListener(this);
 
-		window.setTimeout('XMigemoUI.delayedInit()', 0);
+		window.setTimeout(function(aSelf) {
+			aSelf.delayedInit();
+		}, 0, this);
 
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
