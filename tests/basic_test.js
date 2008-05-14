@@ -7,13 +7,7 @@ var switchModeTest = new TestCase('モード切り替えのテスト', {runStrat
 
 switchModeTest.tests = {
 	setUp : function() {
-		yield utils.setUpTestWindow();
-
-		var retVal = utils.addTab(keyEventTest);
-		yield retVal;
-		commonSetUp(retVal);
-		win.gFindBar.closeFindBar();
-		yield wait;
+		yield utils.doIteration(commonSetUp(keyEventTest));
 		assert.isTrue(XMigemoUI.findBarHidden);
 	},
 

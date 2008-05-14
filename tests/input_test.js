@@ -7,12 +7,7 @@ var inputTest = new TestCase('文字入力の一般的な操作のテスト', {r
 
 inputTest.tests = {
 	setUp : function() {
-		yield utils.setUpTestWindow();
-
-		var retVal = utils.addTab(keyEventTest);
-		yield retVal;
-		commonSetUp(retVal);
-		yield wait;
+		yield utils.doIteration(commonSetUp(keyEventTest));
 	},
 
 	tearDown : function() {
