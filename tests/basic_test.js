@@ -12,6 +12,7 @@ switchModeTest.tests = {
 		var retVal = utils.addTab(keyEventTest);
 		yield retVal;
 		commonSetUp(retVal);
+		win.gFindBar.closeFindBar();
 		yield wait;
 		assert.isTrue(XMigemoUI.findBarHidden);
 	},
