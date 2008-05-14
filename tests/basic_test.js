@@ -124,24 +124,14 @@ switchModeTest.tests = {
 
 var htmlTests = {
 	setUp : function() {
-		yield utils.setUpTestWindow();
-
-		var retVal = utils.addTab(keyEventTest);
-		yield retVal;
-		commonSetUp(retVal);
-		yield wait;
+		yield utils.doIteration(commonSetUp(keyEventTest));
 		assert.isTrue(XMigemoUI.findBarHidden);
 	}
 };
 
 var xmlTests = {
 	setUp : function() {
-		yield utils.setUpTestWindow();
-
-		var retVal = utils.addTab(keyEventTestXML);
-		yield retVal;
-		commonSetUp(retVal);
-		yield wait;
+		yield utils.doIteration(commonSetUp(keyEventTestXML));
 		assert.isTrue(XMigemoUI.findBarHidden);
 	}
 };

@@ -66,7 +66,8 @@ function commonSetUp(aURI)
 	findField = XMigemoUI.findField;
 	inputElem = findField.inputField;
 
-	win.gFindBar.closeFindBar();
+	gFindBar.closeFindBar();
+
 	yield wait;
 }
 
