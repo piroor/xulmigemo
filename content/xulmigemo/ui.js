@@ -997,10 +997,10 @@ var XMigemoUI = {
  
 	onChangeFindToolbarMode : function() 
 	{
+		var isActive = !this.inCancelingProcess && !this.findBarHidden;
 		this.clearTimer();
 		gFindBar.toggleHighlight(false);
-		if (this.findMode != this.FIND_MODE_NATIVE &&
-			!this.inCancelingProcess) {
+		if (this.findMode != this.FIND_MODE_NATIVE && isActive) {
 			this.start(true);
 		}
 		else {
@@ -1008,7 +1008,7 @@ var XMigemoUI = {
 		}
 		this.lastFindMode = this.findMode;
 		this.isModeChanged = true;
-		if (!this.inCancelingProcess)
+		if (isActive)
 			this.findField.focus();
 	},
  
