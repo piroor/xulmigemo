@@ -2,6 +2,8 @@
 // UTF-8にしてください。
 
 utils.include('common.inc');
+utils.include('quickfind.inc');
+
 var kSCREEN = '__moz_xmigemo-find-highlight-screen';
 var kHIGHLIGHTS = 'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search" or @class="__mozilla-findbar-animation"]';
 
@@ -28,7 +30,6 @@ var xmlTests = {
 		assert.isTrue(XMigemoUI.findBarHidden);
 	}
 };
-
 
 function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongNum) {
 	var message = 'mode is '+aMode;
@@ -172,6 +173,34 @@ var baseTests = {
 		box = content.document.getBoxObjectFor(screen);
 		assert.isFalse(box.width);
 		assert.isFalse(box.height);
+	}
+};
+
+htmlTests.__proto__ = baseTests;
+xmlTests.__proto__ = baseTests;
+
+
+var highlightTest = new TestCase('ハイライト表示の基本テスト（HTML）', {runStrategy: 'async'});
+highlightTest.tests = htmlTests;
+
+var highlightTestXML = new TestCase('ハイライト表示の基本テスト（XML）', {runStrategy: 'async'});
+highlightTestXML.tests = xmlTests;
+
+
+var highlightAdvancedTest = new TestCase('ハイライト表示時の発展テスト', {runStrategy: 'async'});
+
+highlightAdvancedTest.tests = {
+	setUp : function() {
+		yield utils.setUpTestWindow();
+
+		var retVal = utils.addTab(keyEventTest);
+		yield retVal;
+		commonSetUp(retVal);
+		yield wait;
+	},
+
+	tearDown : function() {
+		commonTearDown();
 	},
 
 	'スクリーン上でのクリック操作': function() {
@@ -231,15 +260,28 @@ var baseTests = {
 		yield 1500;
 		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 		assert.matches(/\#link$/, content.location.href);
+	},
+
+	'自動強調表示の最低文字数が0の時、入力文字列がない場合' : function() {
+		XMigemoUI.highlightCheckedAlways = true;
+		XMigemoUI.highlightCheckedAlwaysMinLength = 0;
+		XMigemoHighlight.strongHighlight = true;
+		XMigemoUI.autoStartQuickFind = true;
+
+		var findTerm = 'nihongo';
+		yield utils.doIteration(assert_quickFind_autoStart(findTerm));
+		assert.isTrue(XMigemoUI.findHighlightCheck.checked);
+
+		for (var i = 0, maxi = findTerm.length; i < maxi; i++)
+		{
+			assert.isFalse(XMigemoUI.findHighlightCheck.disabled);
+			assert.isTrue(XMigemoUI.findHighlightCheck.checked);
+			action.fireKeyEventOnElement(findField, key_BS);
+			yield wait;
+			assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+			assert.isFalse(XMigemoUI.findBarHidden);
+		}
+		yield wait;
+		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
 	}
 };
-
-htmlTests.__proto__ = baseTests;
-xmlTests.__proto__ = baseTests;
-
-
-var highlightTest = new TestCase('ハイライト表示のテスト（HTML）', {runStrategy: 'async'});
-highlightTest.tests = htmlTests;
-
-var highlightTestXML = new TestCase('ハイライト表示のテスト（XML）', {runStrategy: 'async'});
-highlightTestXML.tests = xmlTests;
