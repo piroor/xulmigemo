@@ -1691,10 +1691,10 @@ var XMigemoUI = {
 	
 	toggleHighlight : function(aHighlight) 
 	{
-		if (!XMigemoUI.findTerm) aHighlight = false;
-		if (aHighlight && XMigemoUI.highlightCheckedAlways) {
-			aHighlight = XMigemoUI.shouldHighlightAll;
-			window.setTimeout('XMigemoUI.findHighlightCheck.checked = '+aHighlight, 0);
+		if (XMigemoUI.highlightCheckedAlways) {
+			aHighlight = XMigemoUI.findTerm && XMigemoUI.shouldHighlightAll ? true : false ;
+			if (XMigemoUI.findHighlightCheck.checked != aHighlight)
+				window.setTimeout('XMigemoUI.findHighlightCheck.checked = '+aHighlight, 0);
 		}
 
 		var event = document.createEvent('Events');
