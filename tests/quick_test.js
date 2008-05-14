@@ -9,9 +9,9 @@ function getSourceViewer() {
 	return utils.getChromeWindows({ type : 'navigator:view-source' })
 }
 
-var sourceTest = new TestCase('ソース表示での検索テスト', {runStrategy: 'async'});
+var quickFindTest = new TestCase('クイックMigemo検索のテスト', {runStrategy: 'async'});
 
-sourceTest.tests = {
+quickFindTest.tests = {
 	setUp : function() {
 		yield utils.setUpTestWindow();
 
@@ -22,27 +22,27 @@ sourceTest.tests = {
 		browser.removeAllTabsBut(retVal.tab);
 
 		win = utils.getTestWindow();
-		win.BrowserViewSourceOfDocument(browser.contentDocument);
-
-		yield (function() {
-				return getSourceViewer().length
-			});
-
-		soruce = getSourceViewer()[0];
-		XMigemoUI = soruce.XMigemoUI;
+		XMigemoUI = win.XMigemoUI;
 		XMigemoUI.openAgainAction = XMigemoUI.ACTION_NONE;
 		XMigemoUI.highlightCheckedAlways = false;
 		XMigemoUI.caseSensitiveCheckedAlways = false;
 		XMigemoUI.autoStartRegExpFind = true;
+		XMigemoUI.autoStartQuickFind = false;
 
+		win.gFindBar.closeFindBar();
 		yield wait;
 	},
 
 	tearDown : function() {
-		getSourceViewer().forEach(function(aWindow) { aWindow.close(); });
 		utils.tearDownTestWindow();
+		getSourceViewer().forEach(function(aWindow) { aWindow.close(); });
 	},
 
-	'a': function() {
+	'自動起動': function() {
+		XMigemoUI.autoStartQuickFind = true;
+		var key = { charCode : 'n'.charCodeAt(0) };
+		action.fireKeyEventOnElement(browser, key);
+		yield wait;
+		assert.isFalse(XMigemoUI.findBarHidden);
 	}
 };
