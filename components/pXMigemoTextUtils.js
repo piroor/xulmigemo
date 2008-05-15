@@ -165,11 +165,10 @@ pXMigemoTextUtils.prototype = {
 			if (selCon.getDisplaySelection() == selCon.SELECTION_ATTENTION) {
 				var sel = aFrame.getSelection();
 				if (!sel.rangeCount && aFrame.document.foundEditable) {
-
 					selCon = aFrame.document.foundEditable
 							.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
 							.editor.selectionController;
-					sel = selCon.getSelection(selCon.SELECTION_ATTENTION);
+					sel = selCon.getSelection(selCon.SELECTION_NORMAL);
 				}
 				if (sel && sel.rangeCount)
 					return sel.getRangeAt(0);

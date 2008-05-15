@@ -231,6 +231,12 @@ mydump("find");
 		var win = this.document.commandDispatcher.focusedWindow;
 		if (win.top == this.window.top) win = this.target.contentWindow;
 
+		var sel = win.getSelection();
+		if (sel && !sel.rangeCount) {
+			var lastFrame = this.getLastFindTargetFrame(win.top);
+			if (lastFrame) win = lastFrame;
+		}
+
 		var iterator = new DocShellIterator(win, findFlag & this.FIND_BACK ? true : false );
 		var result = this.findInDocument(findFlag, myExp, iterator, aForceFocus);
 		iterator.destroy();
@@ -527,7 +533,7 @@ mydump("getFindRangeSet");
 				while (node != doc.lastFoundEditable &&
 						node.parentNode != doc.lastFoundEditable)
 					node = node.parentNode;
-				return this.getFindRangeSetIn(aFindFlag, doc, node, selCon);
+				return this.getFindRangeSetIn(aFindFlag, aDocShellIterator, node, selCon);
 			}
 
 			selection.removeAllRanges();
@@ -544,17 +550,19 @@ mydump("getFindRangeSet");
 			doc.lastFoundEditable = null;
 		}
 
-		return this.getFindRangeSetIn(aFindFlag, doc, aDocShellIterator.body, docSelCon);
+		return this.getFindRangeSetIn(aFindFlag, aDocShellIterator, aDocShellIterator.body, docSelCon);
 	},
 	 
-	getFindRangeSetIn : function(aFindFlag, aDocument, aRangeParent, aSelCon) 
+	getFindRangeSetIn : function(aFindFlag, aDocShellIterator, aRangeParent, aSelCon) 
 	{
 mydump("getFindRangeSetIn");
-		var findRange = aDocument.createRange();
+		var doc = aDocShellIterator.document;
+
+		var findRange = doc.createRange();
 		findRange.selectNodeContents(aRangeParent);
-		var startPt = aDocument.createRange();
+		var startPt = doc.createRange();
 		startPt.selectNodeContents(aRangeParent);
-		var endPt = aDocument.createRange();
+		var endPt = doc.createRange();
 		endPt.selectNodeContents(aRangeParent);
 
 		var selection;
@@ -591,7 +599,7 @@ mydump("count:"+count);
 			else {
 				if (aFindFlag & this.FIND_BACK) {
 					node = this.viewportStartPoint ||
-							this.findFirstVisibleNode(aFindFlag, aDocument.defaultView);
+							this.findFirstVisibleNode(aFindFlag, doc.defaultView);
 					this.viewportStartPoint = node;
 					findRange.setStartAfter(node);
 					startPt.setStartAfter(node);
@@ -600,7 +608,7 @@ mydump("count:"+count);
 				}
 				else {
 					node = this.viewportEndPoint ||
-							this.findFirstVisibleNode(aFindFlag, aDocument.defaultView);
+							this.findFirstVisibleNode(aFindFlag, doc.defaultView);
 					this.viewportEndPoint = node;
 					findRange.setStartBefore(node);
 					startPt.setStartBefore(node);
@@ -618,7 +626,7 @@ mydump("count:"+count);
 			startPt.setEnd(node, offset);
 			endPt.collapse(false);
 		}
-		else if (aFindFlag & this.FIND_BACK){
+		else if (aFindFlag & this.FIND_BACK) {
 			range = selection.getRangeAt(0);
 			node = range.startContainer;
 			offset = range.startOffset;
@@ -1074,14 +1082,42 @@ mydump("setSelectionAndScroll");
  
 	getFoundRange : function(aFrame) 
 	{
-		var sel = aFrame.getSelection();
-		if ((!sel || !sel.rangeCount) && aFrame.document.foundEditable) {
-			var selCon = this.getSelectionController(aFrame.document.foundEditable);
-			sel = selCon.getSelection(selCon.SELECTION_ATTENTION);
-			if (!sel.rangeCount) sel = selCon.getSelection(selCon.SELECTION_NORMAL);
-		}
-		if (sel && sel.rangeCount)
-			return sel.getRangeAt(0);
+		var self = this;
+		var range;
+		if ([aFrame.document.foundEditable, aFrame].some(function(aTarget) {
+				var selCon = self.getSelectionController(aTarget);
+				if (!selCon ||
+					selCon.getDisplaySelection() != selCon.SELECTION_ATTENTION)
+					return false;
+				var sel = selCon.getSelection(selCon.SELECTION_NORMAL);
+				if (sel && sel.rangeCount)
+					range = sel.getRangeAt(0);
+				return range;
+			}))
+			return range;
+
+		return null;
+	},
+ 
+	getLastFindTargetFrame : function(aFrame) 
+	{
+		var self = this;
+		if ([aFrame.document.foundEditable, aFrame].some(function(aTarget) {
+				var selCon = self.getSelectionController(aTarget);
+				if (!selCon ||
+					selCon.getDisplaySelection() != selCon.SELECTION_ATTENTION)
+					return false;
+				var sel = selCon.getSelection(selCon.SELECTION_NORMAL);
+				return (sel && sel.rangeCount);
+			}))
+			return aFrame;
+
+		var frame;
+		if (Array.prototype.slice.call(aFrame.frames).some(function(aFrame) {
+				frame = self.getLastFindTargetFrame(aFrame);
+				return frame;
+			}))
+			return frame;
 
 		return null;
 	},
