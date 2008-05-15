@@ -50,9 +50,9 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 		null
 	);
 	assert.equals(aOKLongNum, xpathResult.snapshotLength, message);
-	yield utils.doIteration(assert_find_found(aNGShort, message));
+	yield utils.doIteration(assert_find_notFound(aNGShort, message));
 	assert_highlightCheck(false, false, message);
-	yield utils.doIteration(assert_find_found(aNGLong, message));
+	yield utils.doIteration(assert_find_notFound(aNGLong, message));
 	assert_highlightCheck(false, true, message);
 }
 
