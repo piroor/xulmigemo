@@ -601,7 +601,7 @@ mydump("count:"+count);
 					node = this.viewportStartPoint ||
 							this.findFirstVisibleNode(aFindFlag, doc.defaultView);
 					this.viewportStartPoint = node;
-					findRange.setStartAfter(node);
+					findRange.setEndAfter(node);
 					startPt.setStartAfter(node);
 					startPt.setEndAfter(node);
 					endPt.collapse(true);
