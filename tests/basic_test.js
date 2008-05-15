@@ -25,43 +25,43 @@ switchModeTest.tests = {
 
 
 		// APIによる切り替え
-		function switchModeByAPI(aMode) {
+		function assert_modeAPI(aMode) {
 			XMigemoUI.findMode = XMigemoUI[aMode];
 			yield wait;
 			assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
 		}
-		yield utils.doIteration(switchModeByAPI('FIND_MODE_NATIVE'));
+		yield utils.doIteration(assert_modeAPI('FIND_MODE_NATIVE'));
 		assert.isFalse(XMigemoUI.findCaseSensitiveCheck.disabled);
-		yield utils.doIteration(switchModeByAPI('FIND_MODE_REGEXP'));
+		yield utils.doIteration(assert_modeAPI('FIND_MODE_REGEXP'));
 		assert.isTrue(XMigemoUI.findCaseSensitiveCheck.disabled);
-		yield utils.doIteration(switchModeByAPI('FIND_MODE_MIGEMO'));
+		yield utils.doIteration(assert_modeAPI('FIND_MODE_MIGEMO'));
 		assert.isTrue(XMigemoUI.findCaseSensitiveCheck.disabled);
 
 
 		// ボタンのクリックによる切り替え
-		function switchModeByButton(aMode, aIndex) {
+		function assert_buttonClick(aMode, aIndex) {
 			action.fireMouseEventOnElement(XMigemoUI.findModeSelector.childNodes[aIndex]);
 			yield wait;
 			assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
 		}
-		yield utils.doIteration(switchModeByButton('FIND_MODE_NATIVE', 0));
+		yield utils.doIteration(assert_buttonClick('FIND_MODE_NATIVE', 0));
 		assert.isFalse(XMigemoUI.findCaseSensitiveCheck.disabled);
-		yield utils.doIteration(switchModeByButton('FIND_MODE_REGEXP', 1));
+		yield utils.doIteration(assert_buttonClick('FIND_MODE_REGEXP', 1));
 		assert.isTrue(XMigemoUI.findCaseSensitiveCheck.disabled);
-		yield utils.doIteration(switchModeByButton('FIND_MODE_MIGEMO', 2));
+		yield utils.doIteration(assert_buttonClick('FIND_MODE_MIGEMO', 2));
 		assert.isTrue(XMigemoUI.findCaseSensitiveCheck.disabled);
 
 
 		// 二度目のクリックによるフリップバック
-		function switchModeByFlipBack(aMode, aIndex, aNext) {
+		function assert_flipBack(aMode, aIndex, aNext) {
 			action.fireMouseEventOnElement(XMigemoUI.findModeSelector.childNodes[aIndex]);
 			yield wait;
 			assert.equals(XMigemoUI[aNext], XMigemoUI.findMode, aMode);
 		}
-		yield utils.doIteration(switchModeByFlipBack('FIND_MODE_MIGEMO', 2, 'FIND_MODE_NATIVE'));
-		yield utils.doIteration(switchModeByFlipBack('FIND_MODE_NATIVE', 0, 'FIND_MODE_MIGEMO'));
+		yield utils.doIteration(assert_flipBack('FIND_MODE_MIGEMO', 2, 'FIND_MODE_NATIVE'));
+		yield utils.doIteration(assert_flipBack('FIND_MODE_NATIVE', 0, 'FIND_MODE_MIGEMO'));
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
-		yield utils.doIteration(switchModeByFlipBack('FIND_MODE_REGEXP', 1, 'FIND_MODE_NATIVE'));
+		yield utils.doIteration(assert_flipBack('FIND_MODE_REGEXP', 1, 'FIND_MODE_NATIVE'));
 
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
@@ -69,17 +69,20 @@ switchModeTest.tests = {
 
 
 		// 検索バーにフォーカスした状態でCtrl-F
-		function switchModeByFindCommand(aMode) {
+		function assert_findCommand(aMode) {
 			eval(findCommand);
 			yield wait;
 			assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
 		}
+
 		XMigemoUI.openAgainAction = XMigemoUI.ACTION_NONE;
-		yield utils.doIteration(switchModeByFindCommand('FIND_MODE_NATIVE'));
+		yield utils.doIteration(assert_findCommand('FIND_MODE_NATIVE'));
 		assert.isFalse(XMigemoUI.findBarHidden);
-		yield utils.doIteration(switchModeByFindCommand('FIND_MODE_REGEXP'));
-		yield utils.doIteration(switchModeByFindCommand('FIND_MODE_MIGEMO'));
-		yield utils.doIteration(switchModeByFindCommand('FIND_MODE_NATIVE'));
+
+		XMigemoUI.openAgainAction = XMigemoUI.ACTION_SWITCH;
+		yield utils.doIteration(assert_findCommand('FIND_MODE_REGEXP'));
+		yield utils.doIteration(assert_findCommand('FIND_MODE_MIGEMO'));
+		yield utils.doIteration(assert_findCommand('FIND_MODE_NATIVE'));
 
 		XMigemoUI.openAgainAction = XMigemoUI.ACTION_CLOSE;
 		eval(findCommand);
