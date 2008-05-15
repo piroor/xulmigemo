@@ -1166,7 +1166,7 @@ function DocShellIterator(aFrame, aFromBack)
 	this.mCurrentDocShell = this.mInitialDocShell;
 	this.mFromBack = aFromBack;
 	if (this.mFromBack)
-		this.mCurrentDocShell = this.getLastChildDocShell(this.mCurrentDocShell);
+		this.mCurrentDocShell = this.getLastChildDocShell(this.mCurrentDocShell) || this.mCurrentDocShell ;
 }
 
 DocShellIterator.prototype = {
@@ -1257,7 +1257,7 @@ DocShellIterator.prototype = {
 		if (this.mFromBack) {
 			nextItem = this.getPrevDocShell(this.mCurrentDocShell);
 			if (!nextItem) {
-				nextItem = this.getLastChildDocShell(this.root.QueryInterface(this.nsIDocShellTreeNode));
+				nextItem = this.getLastChildDocShell(this.root) || this.root ;
 				this.wrapped = true;
 			}
 		}
@@ -1322,7 +1322,7 @@ DocShellIterator.prototype = {
 		// 子が無ければ、previousSiblingに相当するノードそれ自体を返す。
 		parentNode = parentItem.QueryInterface(this.nsIDocShellTreeNode);
 		curItem = parentNode.getChildAt(childOffset-1);
-		return this.getLastChildDocShell(curItem);
+		return this.getLastChildDocShell(curItem) || curItem;
 	},
  
 	getChildOffsetFromDocShellNode : function(aNode) 
@@ -1355,7 +1355,8 @@ DocShellIterator.prototype = {
 		{
 			curNode = curItem.QueryInterface(this.nsIDocShellTreeNode);
 			childCount = curNode.childCount;
-			if (!childCount) return curItem;
+			if (!childCount)
+				return (curItem == aItem) ? null : curItem ;
 			curItem = curNode.getChildAt(childCount-1);
 		}
 	},
