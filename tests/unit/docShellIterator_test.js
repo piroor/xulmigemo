@@ -55,7 +55,7 @@ var DocShellIteratorTest = new TestCase('DocShellIteratorのユニットテス�
 DocShellIteratorTest.tests = {
 	setUp : function() {
 		yield utils.setUpTestWindow();
-		var retVal = utils.addTab('../frameTest.html');
+		var retVal = utils.addTab('../res/frameTest.html');
 		yield retVal;
 		browser = utils.getBrowser();
 		browser.removeAllTabsBut(retVal.tab);
