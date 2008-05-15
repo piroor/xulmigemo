@@ -250,12 +250,11 @@ var XMigemoUI = {
 		}
 		if (range) return range;
 
-		var self = this;
 		Array.prototype.slice.call(aFrame.frames)
 			.some(function(aFrame) {
-				range = self.getLastFoundRangeIn(aFrame);
+				range = this.getLastFoundRangeIn(aFrame);
 				return range;
-			});
+			}, this);
 		return range;
 	},
  
@@ -514,13 +513,14 @@ var XMigemoUI = {
 	
 	getEditableNodes : function(aDocument) 
 	{
-		return aDocument.evaluate(
-				[
+		var expression = [
 					'descendant::*[',
 						'local-name()="TEXTAREA" or local-name()="textarea" or ',
 						'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
 					']'
-				].join(''),
+				].join('');
+		return aDocument.evaluate(
+				expression,
 				aDocument,
 				null,
 				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
@@ -530,8 +530,8 @@ var XMigemoUI = {
  
 	clearSelectionInEditable : function(aFrame) 
 	{
-		var xpathResult = this.getEditableNodes(aFrame.document);
 		try {
+			var xpathResult = this.getEditableNodes(aFrame.document);
 			var selCon, selection;
 			for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
 			{
@@ -547,11 +547,10 @@ var XMigemoUI = {
 		}
 		catch(e) {
 		}
-		var self = this;
 		Array.prototype.slice.call(aFrame.frames)
 			.some(function(aFrame) {
-				self.clearSelectionInEditable(aFrame);
-			});
+				this.clearSelectionInEditable(aFrame);
+			}, this);
 	},
  
 	disableFindFieldIME : function() 
@@ -814,12 +813,11 @@ var XMigemoUI = {
 	},
 	dispatchKeyEventForLink : function(aEvent, aFrame)
 	{
-		var self = this;
 		if (
 			aFrame.frames &&
 			Array.prototype.slice.call(aFrame.frames).some(function(aFrame) {
-				return self.dispatchKeyEventForLink(aEvent, aFrame);
-			})
+				return this.dispatchKeyEventForLink(aEvent, aFrame);
+			}, this)
 			)
 			return true;
 
@@ -1678,6 +1676,8 @@ var XMigemoUI = {
 
 		this.toggleFindToolbarMode();
 
+		this.clearHighlight(this.activeBrowser.contentDocument, true);
+
 		var WindowWatcher = Components
 				.classes['@mozilla.org/embedcomp/window-watcher;1']
 				.getService(Components.interfaces.nsIWindowWatcher);
@@ -1712,10 +1712,13 @@ var XMigemoUI = {
 		scope.xmigemoOriginalToggleHighlight.apply(scope, arguments);
 	},
  
-	clearHighlight : function(aDocument) 
+	clearHighlight : function(aDocument, aRecursively) 
 	{
-		var xpathResult = this.getEditableNodes(aDocument);
+		if (aDocument instanceof Components.interfaces.nsIDOMWindow)
+			aDocument = aDocument.document;
+
 		try {
+			var xpathResult = this.getEditableNodes(aDocument);
 			var editable;
 			for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
 			{
@@ -1732,6 +1735,10 @@ var XMigemoUI = {
 		catch(e) {
 		}
 		this.clearHighlightInternal(aDocument, aDocument);
+
+		if (aRecursively)
+			Array.prototype.slice.call(aDocument.defaultView.frames)
+				.forEach(arguments.callee, this);
 	},
 	clearHighlightInternal : function(aDocument, aTarget)
 	{
@@ -1942,7 +1949,7 @@ var XMigemoUI = {
 	{
 		var highlightCheck = aSelf.findHighlightCheck;
 		var prevHighlightState = highlightCheck.checked;
-		highlightCheck.checked =
+		var checked =
 			!aSelf.findTerm ?
 				false :
 			aSelf.highlightCheckedAlways ?
@@ -1950,8 +1957,9 @@ var XMigemoUI = {
 			aSelf.highlightCheckFirst ?
 				XMigemoService.getPref('xulmigemo.checked_by_default.highlight') :
 				highlightCheck.xmigemoOriginalChecked ;
-		if (highlightCheck.checked != prevHighlightState) {
-			aSelf.toggleHighlight(highlightCheck.checked);
+		highlightCheck.checked = checked;
+		if (checked != prevHighlightState) {
+			aSelf.toggleHighlight(checked);
 		}
 		aSelf.highlightCheckFirst = false;
 	},
