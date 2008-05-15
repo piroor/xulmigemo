@@ -74,19 +74,23 @@ DocShellIteratorTest.tests = {
 		var frame2DocShell = getDocShellFromFrame(content.frames[1]);
 
 		iterator = new DocShellIterator(content, false);
+		assert.equals(-1, iterator.getChildOffsetFromDocShellNode(contentDocShell));
 		assert_docShellEquals(contentDocShell, iterator.getDocShellFromFrame(content));
 		assert_docShellEquals(frame1DocShell, iterator.getNextDocShell(contentDocShell));
 		assert.isNull(iterator.getPrevDocShell(contentDocShell));
+		assert_docShellEquals(frame2DocShell, iterator.getLastChildDocShell(contentDocShell));
+		assert.equals(content.frames[0].document.body, iterator.getDocumentBody(content.frames[0].document));
 		iterator.destroy();
 
 		iterator = new DocShellIterator(content.frames[0], false);
-		assert_docShellEquals(frame1DocShell, iterator.getDocShellFromFrame(content.frames[0]));
+		assert.equals(0, iterator.getChildOffsetFromDocShellNode(frame1DocShell));
 		assert_docShellEquals(frame2DocShell, iterator.getNextDocShell(frame1DocShell));
 		assert_docShellEquals(contentDocShell, iterator.getPrevDocShell(frame1DocShell));
+		assert.isNull(iterator.getLastChildDocShell(frame1DocShell));
 		iterator.destroy();
 
 		iterator = new DocShellIterator(content.frames[1], false);
-		assert_docShellEquals(frame2DocShell, iterator.getDocShellFromFrame(content.frames[1]));
+		assert.equals(1, iterator.getChildOffsetFromDocShellNode(frame2DocShell));
 		assert.isNull(iterator.getNextDocShell(frame2DocShell));
 		assert_docShellEquals(frame1DocShell, iterator.getPrevDocShell(frame2DocShell));
 		iterator.destroy();
