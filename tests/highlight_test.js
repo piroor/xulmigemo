@@ -147,7 +147,7 @@ var baseTests = {
 		yield utils.doIteration(assert_screenStateForFind('text field', true));
 		yield utils.doIteration(assert_screenStateForFind('', false));
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-		yield utils.doIteration(assert_screenStateForFind('nihongo', false));
+		yield utils.doIteration(assert_screenStateForFind('nihongo', true));
 		yield utils.doIteration(assert_screenStateForFind('', false));
 	}
 };
