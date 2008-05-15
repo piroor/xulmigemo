@@ -164,7 +164,7 @@ highlightTestXML.tests = xmlTests;
 
 
 function fireClickEventOn(aNode, aButton) {
-	var box = content.document.getBoxObjectFor(aNode);
+	var box = aNode.ownerDocument.getBoxObjectFor(aNode);
 	action.fireMouseEventOnElement(
 		content.document.getElementById(kSCREEN),
 		{
@@ -203,8 +203,8 @@ highlightAdvancedTest.tests = {
 		action.inputTextToField(findField, 'text field');
 		yield 1500;
 		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
-		yield utils.doIteration(fireClickEventOn(browser.selectedBrowser.boxObject, 0));
-		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
+		yield utils.doIteration(fireClickEventOn(browser.selectedBrowser, 0));
+		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 
 		XMigemoHighlight.toggleHighlightScreen(true);
 		yield wait;

@@ -58,10 +58,10 @@ switchModeTest.tests = {
 			yield wait;
 			assert.equals(XMigemoUI[aNext], XMigemoUI.findMode, aMode);
 		}
-		yield utils.doIteration(switchModeByButton('FIND_MODE_MIGEMO', 2, 'FIND_MODE_NATIVE'));
-		yield utils.doIteration(switchModeByButton('FIND_MODE_NATIVE', 0, 'FIND_MODE_MIGEMO'));
+		yield utils.doIteration(switchModeByFlipBack('FIND_MODE_MIGEMO', 2, 'FIND_MODE_NATIVE'));
+		yield utils.doIteration(switchModeByFlipBack('FIND_MODE_NATIVE', 0, 'FIND_MODE_MIGEMO'));
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
-		yield utils.doIteration(switchModeByButton('FIND_MODE_REGEXP', 1, 'FIND_MODE_NATIVE'));
+		yield utils.doIteration(switchModeByFlipBack('FIND_MODE_REGEXP', 1, 'FIND_MODE_NATIVE'));
 
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
@@ -75,11 +75,11 @@ switchModeTest.tests = {
 			assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
 		}
 		XMigemoUI.openAgainAction = XMigemoUI.ACTION_NONE;
-		yield utils.doIteration(switchModeByButton('FIND_MODE_NATIVE'));
+		yield utils.doIteration(switchModeByFindCommand('FIND_MODE_NATIVE'));
 		assert.isFalse(XMigemoUI.findBarHidden);
-		yield utils.doIteration(switchModeByButton('FIND_MODE_REGEXP'));
-		yield utils.doIteration(switchModeByButton('FIND_MODE_MIGEMO'));
-		yield utils.doIteration(switchModeByButton('FIND_MODE_NATIVE'));
+		yield utils.doIteration(switchModeByFindCommand('FIND_MODE_REGEXP'));
+		yield utils.doIteration(switchModeByFindCommand('FIND_MODE_MIGEMO'));
+		yield utils.doIteration(switchModeByFindCommand('FIND_MODE_NATIVE'));
 
 		XMigemoUI.openAgainAction = XMigemoUI.ACTION_CLOSE;
 		eval(findCommand);
