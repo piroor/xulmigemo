@@ -58,9 +58,12 @@ function assert_quickFind_exitByClick() {
 	assert.isTrue(XMigemoUI.findBarHidden);
 }
 
-function assert_quickFind_timeout() {
+function assert_quickFind_timeout(aBackToMode) {
 	yield XMigemoUI.timeout + wait;
-	assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
+	if (aBackToMode !== void(0))
+		assert.equals(aBackToMode, XMigemoUI.findMode);
+	else
+		assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 	assert.isTrue(XMigemoUI.findBarHidden);
 }
 
