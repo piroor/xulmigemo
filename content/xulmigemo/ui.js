@@ -1714,9 +1714,6 @@ var XMigemoUI = {
  
 	clearHighlight : function(aDocument, aRecursively) 
 	{
-		if (aDocument instanceof Components.interfaces.nsIDOMWindow)
-			aDocument = aDocument.document;
-
 		try {
 			var xpathResult = this.getEditableNodes(aDocument);
 			var editable;
@@ -1738,7 +1735,9 @@ var XMigemoUI = {
 
 		if (aRecursively)
 			Array.prototype.slice.call(aDocument.defaultView.frames)
-				.forEach(arguments.callee, this);
+				.forEach(function(aFrame) {
+					this.clearHighlight(aFrame.document, aRecursively);
+				}, this);
 	},
 	clearHighlightInternal : function(aDocument, aTarget)
 	{
