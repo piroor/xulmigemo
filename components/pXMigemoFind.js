@@ -1239,7 +1239,7 @@ DocShellIterator.prototype = {
 		return null;
 	},
   
-	get isInitital() 
+	get isInitial() 
 	{
 		return this.mCurrentDocShell == this.mInitialDocShell;
 	},
@@ -1274,6 +1274,7 @@ DocShellIterator.prototype = {
 	 
 	getNextDocShell : function(aNode) 
 	{
+		aNode = aNode.QueryInterface(this.nsIDocShellTreeNode);
 		// 子がある場合、最初の子を返す
 		if (aNode.childCount) return aNode.getChildAt(0);
 		var curNode = aNode;
@@ -1288,10 +1289,10 @@ DocShellIterator.prototype = {
 			var parentItem = curItem.sameTypeParent;
 			if (!parentItem) return null;
 
-			// nextSIblingに相当するノードを取得して返す
-			childOffset = curItem.childOffset;
+			// nextSiblingに相当するノードを取得して返す
+			childOffset = this.getChildOffsetFromDocShellNode(curNode);
 			parentNode = parentItem.QueryInterface(this.nsIDocShellTreeNode);
-			if (childOffset < parentNode.childCount-1)
+			if (childOffset > -1 && childOffset < parentNode.childCount-1)
 				return parentNode.getChildAt(childOffset+1);
 
 			// nextSiblingに相当するノードが無いので、
@@ -1302,6 +1303,7 @@ DocShellIterator.prototype = {
  
 	getPrevDocShell : function(aNode) 
 	{
+		aNode = aNode.QueryInterface(this.nsIDocShellTreeNode);
 		var curNode = aNode;
 		var curItem = curNode.QueryInterface(this.nsIDocShellTreeItem);
 		// このノードが最上位（一番最初）である場合、検索終了
@@ -1311,7 +1313,8 @@ DocShellIterator.prototype = {
 
 		// previousSiblingに相当するノードが無い場合、
 		// parentNodeに相当するノードを返す
-		var childOffset = curItem.childOffset;
+		var childOffset = this.getChildOffsetFromDocShellNode(curNode);
+		if (childOffset < 0) return null;
 		if (!childOffset) return parentItem;
 
 		// previousSiblingに相当するノードが子を持っている場合、
@@ -1320,6 +1323,27 @@ DocShellIterator.prototype = {
 		parentNode = parentItem.QueryInterface(this.nsIDocShellTreeNode);
 		curItem = parentNode.getChildAt(childOffset-1);
 		return this.getLastChildDocShell(curItem);
+	},
+ 
+	getChildOffsetFromDocShellNode : function(aNode) 
+	{
+		aNode = aNode.QueryInterface(this.nsIDocShellTreeItem);
+		var parent = aNode.sameTypeParent;
+		if (!parent) return -1;
+
+		// nextSiblingに相当するノードを取得して返す
+		parent = parent.QueryInterface(this.nsIDocShellTreeNode);
+		if ('childOffset' in aNode) { // Firefox 2
+			return aNode.childOffset;
+		}
+		else { // Firefox 3
+			var childOffset = 0;
+			while (parent.getChildAt(childOffset) != aNode)
+			{
+				childOffset++;
+			}
+			return childOffset;
+		}
 	},
  
 	getLastChildDocShell : function(aItem) 
