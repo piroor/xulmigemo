@@ -480,9 +480,9 @@ var XMigemoHighlight = {
 			this.clearAnimationStyleIn(aFrame, true);
 		this.clearAnimationStyle();
 
-		if (aFrame.frames && aFrame.frames.length) {
-			Array.prototype.slice.call(aFrame.frames).forEach(arguments.callee, this);
-		}
+		Array.prototype.slice.call(aFrame.frames).forEach(function(aFrame) {
+			this.toggleHighlightScreen(aHighlight, aFrame);
+		}, this);
 
 		if (!this.isDocumentHighlightable(aFrame.document)) return;
 
@@ -634,10 +634,11 @@ var XMigemoHighlight = {
 		}
 		doc.documentElement.removeAttribute(this.kANIMATION);
 
-		if (!aRecursively) return;
-
-		Array.prototype.slice.call(aFrame.frames)
-			.forEach(arguments.callee, this);
+		if (aRecursively)
+			Array.prototype.slice.call(aFrame.frames)
+				.forEach(function(aFrame) {
+					this.clearAnimationStyleIn(aFrame, aRecursively);
+				}, this);
 	},
  
 	clearAnimationStyle : function(aEndOfAnimation) 
