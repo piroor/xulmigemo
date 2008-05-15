@@ -28,7 +28,7 @@ quickFindDetailTest.tests = {
 
 		var findTerm = 'nihongo';
 		yield utils.doIteration(assert_quickFind_autoStart('nihongo'));
-		yield utils.doIteration(assert_quickFind_timeout());
+		yield utils.doIteration(assert_quickFind_timeout(XMigemoUI.FIND_MODE_MIGEMO));
 	},
 
 	'文字入力操作でタイマーが正しくリセットされるか': function() {
