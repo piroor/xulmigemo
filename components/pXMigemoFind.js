@@ -811,9 +811,8 @@ mydump("resetFindRangeSet");
  
 	setSelectionLook : function(aDocument, aChangeColor) 
 	{
-		var self = this;
 		[aDocument.foundEditable, aDocument.defaultView].forEach(function(aTarget) {
-			var selCon = self.getSelectionController(aTarget);
+			var selCon = this.getSelectionController(aTarget);
 			if (!selCon) return;
 			if (aChangeColor)
 				selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
@@ -824,7 +823,7 @@ mydump("resetFindRangeSet");
 			}
 			catch(e) {
 			}
-		});
+		}, this);
 	},
  
 	setSelectionAndScroll : function(aRange, aDocument) 
@@ -836,16 +835,15 @@ mydump("setSelectionAndScroll");
 			aDocument = aRange.startContainer.ownerDocument;
 
 		// clear old range
-		var self = this;
 		[
 			(aDocument.foundEditable || aDocument.lastFoundEditable),
 			aDocument.defaultView
 		].forEach(function(aTarget) {
-			var oldSelCon = self.getSelectionController(aTarget);
+			var oldSelCon = this.getSelectionController(aTarget);
 			if (!oldSelCon) return;
 			var selection = oldSelCon.getSelection(oldSelCon.SELECTION_NORMAL);
 			selection.removeAllRanges();
-		});
+		}, this);
 
 		// set new range
 		var newSelCon = this.getSelectionController(this.findEditableFromRange(aRange)) ||
@@ -1047,10 +1045,9 @@ mydump("setSelectionAndScroll");
 	
 	focusToFound : function(aFrame) 
 	{
-		var self = this;
 		if (Array.prototype.slice.call(aFrame.frames).some(function(aFrame) {
-				return self.focusToFound(aFrame);
-			}))
+				return this.focusToFound(aFrame);
+			}, this))
 			return true;
 
 		var range = this.getFoundRange(aFrame);
@@ -1082,10 +1079,9 @@ mydump("setSelectionAndScroll");
  
 	getFoundRange : function(aFrame) 
 	{
-		var self = this;
 		var range;
 		if ([aFrame.document.foundEditable, aFrame].some(function(aTarget) {
-				var selCon = self.getSelectionController(aTarget);
+				var selCon = this.getSelectionController(aTarget);
 				if (!selCon ||
 					selCon.getDisplaySelection() != selCon.SELECTION_ATTENTION)
 					return false;
@@ -1093,7 +1089,7 @@ mydump("setSelectionAndScroll");
 				if (sel && sel.rangeCount)
 					range = sel.getRangeAt(0);
 				return range;
-			}))
+			}, this))
 			return range;
 
 		return null;
@@ -1101,22 +1097,21 @@ mydump("setSelectionAndScroll");
  
 	getLastFindTargetFrame : function(aFrame) 
 	{
-		var self = this;
 		if ([aFrame.document.foundEditable, aFrame].some(function(aTarget) {
-				var selCon = self.getSelectionController(aTarget);
+				var selCon = this.getSelectionController(aTarget);
 				if (!selCon ||
 					selCon.getDisplaySelection() != selCon.SELECTION_ATTENTION)
 					return false;
 				var sel = selCon.getSelection(selCon.SELECTION_NORMAL);
 				return (sel && sel.rangeCount);
-			}))
+			}, this))
 			return aFrame;
 
 		var frame;
 		if (Array.prototype.slice.call(aFrame.frames).some(function(aFrame) {
-				frame = self.getLastFindTargetFrame(aFrame);
+				frame = this.getLastFindTargetFrame(aFrame);
 				return frame;
-			}))
+			}, this))
 			return frame;
 
 		return null;
