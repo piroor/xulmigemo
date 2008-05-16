@@ -11,7 +11,7 @@ function assert_found(aTerm, aDocument) {
 }
 
 function assert_find_again(aKey, aTimes, aTerm, aDocument) {
-	yield utils.doIteration(fireKeyEvents(findField, aKey, aTimes));
+	yield Do(fireKeyEvents(findField, aKey, aTimes));
 	assert_found(aTerm, aDocument);
 }
 
@@ -19,7 +19,7 @@ var frameTest = new TestCase('フレームを使用したページのテスト',
 
 frameTest.tests = {
 	setUp : function() {
-		yield utils.doIteration(commonSetUp(baseURL+'res/frameTest.html'));
+		yield Do(commonSetUp(baseURL+'res/frameTest.html'));
 	},
 
 	tearDown : function() {
@@ -38,28 +38,28 @@ frameTest.tests = {
 		yield wait;
 		assert_found('日本語', firstDoc);
 
-		yield utils.doIteration(assert_find_again(key_RETURN, 1, 'にほんご', firstDoc));
-		yield utils.doIteration(assert_find_again(key_RETURN, 1, 'ニホンゴ', firstDoc));
-		yield utils.doIteration(assert_find_again(key_RETURN, 1, 'nihongo', firstDoc));
-		yield utils.doIteration(assert_find_again(key_RETURN, 1, '日本語', secondDoc));
-		yield utils.doIteration(assert_find_again(key_RETURN, 1, 'にほんご', secondDoc));
-		yield utils.doIteration(assert_find_again(key_RETURN, 1, 'ニホンゴ', secondDoc));
-		yield utils.doIteration(assert_find_again(key_RETURN, 1, 'nihongo', secondDoc));
-		yield utils.doIteration(assert_find_again(key_RETURN, 1, '日本語', firstDoc));
+		yield Do(assert_find_again(key_RETURN, 1, 'にほんご', firstDoc));
+		yield Do(assert_find_again(key_RETURN, 1, 'ニホンゴ', firstDoc));
+		yield Do(assert_find_again(key_RETURN, 1, 'nihongo', firstDoc));
+		yield Do(assert_find_again(key_RETURN, 1, '日本語', secondDoc));
+		yield Do(assert_find_again(key_RETURN, 1, 'にほんご', secondDoc));
+		yield Do(assert_find_again(key_RETURN, 1, 'ニホンゴ', secondDoc));
+		yield Do(assert_find_again(key_RETURN, 1, 'nihongo', secondDoc));
+		yield Do(assert_find_again(key_RETURN, 1, '日本語', firstDoc));
 
 		var key = {
 			keyCode : key_RETURN.keyCode,
 			shiftKey : true
 		};
-		yield utils.doIteration(assert_find_again(key, 1, 'nihongo', secondDoc));
-		yield utils.doIteration(assert_find_again(key, 1, 'ニホンゴ', secondDoc));
-		yield utils.doIteration(assert_find_again(key, 1, 'にほんご', secondDoc));
-		yield utils.doIteration(assert_find_again(key, 1, '日本語', secondDoc));
-		yield utils.doIteration(assert_find_again(key, 1, 'nihongo', firstDoc));
-		yield utils.doIteration(assert_find_again(key, 1, 'ニホンゴ', firstDoc));
-		yield utils.doIteration(assert_find_again(key, 1, 'にほんご', firstDoc));
-		yield utils.doIteration(assert_find_again(key, 1, '日本語', firstDoc));
-		yield utils.doIteration(assert_find_again(key, 1, 'nihongo', secondDoc));
+		yield Do(assert_find_again(key, 1, 'nihongo', secondDoc));
+		yield Do(assert_find_again(key, 1, 'ニホンゴ', secondDoc));
+		yield Do(assert_find_again(key, 1, 'にほんご', secondDoc));
+		yield Do(assert_find_again(key, 1, '日本語', secondDoc));
+		yield Do(assert_find_again(key, 1, 'nihongo', firstDoc));
+		yield Do(assert_find_again(key, 1, 'ニホンゴ', firstDoc));
+		yield Do(assert_find_again(key, 1, 'にほんご', firstDoc));
+		yield Do(assert_find_again(key, 1, '日本語', firstDoc));
+		yield Do(assert_find_again(key, 1, 'nihongo', secondDoc));
 
 	}
 };

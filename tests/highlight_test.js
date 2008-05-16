@@ -38,9 +38,9 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 	XMigemoUI.findCaseSensitiveCheck.checked = false;
 	findField.focus();
 
-	yield utils.doIteration(assert_find_found(aOKShort, message));
+	yield Do(assert_find_found(aOKShort, message));
 	assert_highlightCheck(false, false, message);
-	yield utils.doIteration(assert_find_found(aOKLong, message));
+	yield Do(assert_find_found(aOKLong, message));
 	assert_highlightCheck(false, true, message);
 	var xpathResult = content.document.evaluate(
 		kHIGHLIGHTS,
@@ -50,9 +50,9 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 		null
 	);
 	assert.equals(aOKLongNum, xpathResult.snapshotLength, message);
-	yield utils.doIteration(assert_find_notFound(aNGShort, message));
+	yield Do(assert_find_notFound(aNGShort, message));
 	assert_highlightCheck(false, false, message);
-	yield utils.doIteration(assert_find_notFound(aNGLong, message));
+	yield Do(assert_find_notFound(aNGLong, message));
 	assert_highlightCheck(false, true, message);
 }
 
@@ -76,7 +76,7 @@ function assert_screenStateForFind(aTerm, aShown) {
 
 var htmlTests = {
 	setUp : function() {
-		yield utils.doIteration(commonSetUp(keyEventTest));
+		yield Do(commonSetUp(keyEventTest));
 		assert.isTrue(XMigemoUI.findBarHidden);
 		XMigemoUI.highlightCheckedAlways = true;
 		XMigemoUI.highlightCheckedAlwaysMinLength = 5;
@@ -85,7 +85,7 @@ var htmlTests = {
 
 var xmlTests = {
 	setUp : function() {
-		yield utils.doIteration(commonSetUp(keyEventTestXML));
+		yield Do(commonSetUp(keyEventTestXML));
 		assert.isTrue(XMigemoUI.findBarHidden);
 		XMigemoUI.highlightCheckedAlways = true;
 		XMigemoUI.highlightCheckedAlwaysMinLength = 5;
@@ -100,7 +100,7 @@ var baseTests = {
 	'通常の検索で自動ハイライトが正常に動作するかどうか': function() {
 		gFindBar.openFindBar();
 		yield wait;
-		yield utils.doIteration(autoHighlightTest(
+		yield Do(autoHighlightTest(
 			'FIND_MODE_NATIVE',
 			'text',
 			'text field',
@@ -113,7 +113,7 @@ var baseTests = {
 	'正規表現検索で自動ハイライトが正常に動作するかどうか': function() {
 		gFindBar.openFindBar();
 		yield wait;
-		yield utils.doIteration(autoHighlightTest(
+		yield Do(autoHighlightTest(
 			'FIND_MODE_REGEXP',
 			'tex',
 			'text ?(field|area)',
@@ -126,7 +126,7 @@ var baseTests = {
 	'Migemo検索で自動ハイライトが正常に動作するかどうか': function() {
 		gFindBar.openFindBar();
 		yield wait;
-		yield utils.doIteration(autoHighlightTest(
+		yield Do(autoHighlightTest(
 			'FIND_MODE_MIGEMO',
 			'niho',
 			'nihongo',
@@ -144,11 +144,11 @@ var baseTests = {
 		findField.focus();
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NORMAL;
-		yield utils.doIteration(assert_screenStateForFind('text field', true));
-		yield utils.doIteration(assert_screenStateForFind('', false));
+		yield Do(assert_screenStateForFind('text field', true));
+		yield Do(assert_screenStateForFind('', false));
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-		yield utils.doIteration(assert_screenStateForFind('nihongo', true));
-		yield utils.doIteration(assert_screenStateForFind('', false));
+		yield Do(assert_screenStateForFind('nihongo', true));
+		yield Do(assert_screenStateForFind('', false));
 	}
 };
 
@@ -182,7 +182,7 @@ var highlightAdvancedTest = new TestCase('ハイライト表示時の発展テ�
 
 highlightAdvancedTest.tests = {
 	setUp : function() {
-		yield utils.doIteration(commonSetUp(keyEventTest));
+		yield Do(commonSetUp(keyEventTest));
 		XMigemoUI.highlightCheckedAlways = true;
 		XMigemoHighlight.strongHighlight = true;
 	},
@@ -203,7 +203,7 @@ highlightAdvancedTest.tests = {
 		action.inputTextToField(findField, 'text field');
 		yield 1500;
 		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
-		yield utils.doIteration(fireClickEventOn(browser.selectedBrowser, 0));
+		yield Do(fireClickEventOn(browser.selectedBrowser, 0));
 		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 
 		XMigemoHighlight.toggleHighlightScreen(true);
@@ -211,11 +211,11 @@ highlightAdvancedTest.tests = {
 
 		var link = content.document.getElementsByTagName('a')[0];
 		var tabNum = browser.mTabContainer.childNodes.length;
-		yield utils.doIteration(fireClickEventOn(link, 1));
+		yield Do(fireClickEventOn(link, 1));
 		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
 		assert.equals(tabNum+1, browser.mTabContainer.childNodes.length);
 
-		yield utils.doIteration(fireClickEventOn(link, 0));
+		yield Do(fireClickEventOn(link, 0));
 		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 		assert.matches(/\#link$/, content.location.href);
 	},
@@ -225,7 +225,7 @@ highlightAdvancedTest.tests = {
 		XMigemoUI.autoStartQuickFind = true;
 
 		var findTerm = 'nihongo';
-		yield utils.doIteration(assert_quickFind_autoStart(findTerm));
+		yield Do(assert_quickFind_autoStart(findTerm));
 		for (var i = 0, maxi = findTerm.length; i < maxi; i++)
 		{
 			assert_highlightCheck(false, true);

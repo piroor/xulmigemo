@@ -7,7 +7,7 @@ var inputTest = new TestCase('文字入力の一般的な操作のテスト', {r
 
 inputTest.tests = {
 	setUp : function() {
-		yield utils.doIteration(commonSetUp(keyEventTest));
+		yield Do(commonSetUp(keyEventTest));
 	},
 
 	tearDown : function() {
@@ -31,15 +31,15 @@ inputTest.tests = {
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		mode = 'native';
-		yield utils.doIteration(doTest);
+		yield Do(doTest);
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 		mode = 'regexp';
-		yield utils.doIteration(doTest);
+		yield Do(doTest);
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 		mode = 'migemo';
-		yield utils.doIteration(doTest);
+		yield Do(doTest);
 	},
 
 	'Delキーで全削除': function() {
@@ -59,15 +59,15 @@ inputTest.tests = {
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		mode = 'native';
-		yield utils.doIteration(doTest);
+		yield Do(doTest);
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 		mode = 'regexp';
-		yield utils.doIteration(doTest);
+		yield Do(doTest);
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 		mode = 'migemo';
-		yield utils.doIteration(doTest);
+		yield Do(doTest);
 	},
 
 	'文字入力で全削除': function() {
@@ -87,14 +87,14 @@ inputTest.tests = {
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		mode = 'native';
-		yield utils.doIteration(doTest);
+		yield Do(doTest);
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 		mode = 'regexp';
-		yield utils.doIteration(doTest);
+		yield Do(doTest);
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 		mode = 'migemo';
-		yield utils.doIteration(doTest);
+		yield Do(doTest);
 	}
 };

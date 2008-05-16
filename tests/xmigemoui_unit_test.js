@@ -7,7 +7,7 @@ var XMigemoUIUnitTest = new TestCase('XMigemoUIのユニットテスト', {runSt
 
 XMigemoUIUnitTest.tests = {
 	setUp : function() {
-		yield utils.doIteration(commonSetUp(keyEventTest));
+		yield Do(commonSetUp(keyEventTest));
 		assert.isTrue(XMigemoUI.findBarHidden);
 	},
 

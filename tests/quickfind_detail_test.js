@@ -8,7 +8,7 @@ var quickFindDetailTest = new TestCase('クイックMigemo検索の詳細テス�
 
 quickFindDetailTest.tests = {
 	setUp : function() {
-		yield utils.doIteration(commonSetUp(keyEventTest));
+		yield Do(commonSetUp(keyEventTest));
 		assert.isTrue(XMigemoUI.findBarHidden);
 	},
 
@@ -27,15 +27,15 @@ quickFindDetailTest.tests = {
 		yield wait;
 
 		var findTerm = 'nihongo';
-		yield utils.doIteration(assert_quickFind_autoStart('nihongo'));
-		yield utils.doIteration(assert_quickFind_timeout(XMigemoUI.FIND_MODE_MIGEMO));
+		yield Do(assert_quickFind_autoStart('nihongo'));
+		yield Do(assert_quickFind_timeout(XMigemoUI.FIND_MODE_MIGEMO));
 	},
 
 	'文字入力操作でタイマーが正しくリセットされるか': function() {
 		XMigemoUI.autoStartQuickFind = true;
 
 		var findTerm = 'nihongoNoTekisuto';
-		yield utils.doIteration(assert_quickFind_autoStart(findTerm.charAt(0)));
+		yield Do(assert_quickFind_autoStart(findTerm.charAt(0)));
 
 		var startAt = (new Date()).getTime();
 
@@ -81,7 +81,7 @@ quickFindDetailTest.tests = {
 		XMigemoUI.autoStartQuickFind = true;
 
 		var findTerm = 'foobar';
-		yield utils.doIteration(assert_quickFind_autoStart(findTerm));
+		yield Do(assert_quickFind_autoStart(findTerm));
 
 		var input = content.document.getElementsByTagName('input')[0];
 		input.focus();
@@ -100,8 +100,8 @@ quickFindDetailTest.tests = {
 		XMigemoUI.autoStartQuickFind = true;
 
 		var findTerm = 'multirow';
-		yield utils.doIteration(assert_quickFind_autoStart(findTerm));
-		yield utils.doIteration(assert_quickFind_timeout());
-		yield utils.doIteration(assert_quickFind_autoStart(findTerm.charAt(0)));
+		yield Do(assert_quickFind_autoStart(findTerm));
+		yield Do(assert_quickFind_timeout());
+		yield Do(assert_quickFind_autoStart(findTerm.charAt(0)));
 	}
 };

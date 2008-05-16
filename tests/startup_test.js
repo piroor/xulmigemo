@@ -60,31 +60,31 @@ startupTest.tests = {
 
 	'起動時に検索ツールバーを表示：OFF': function() {
 		utils.setPref('xulmigemo.checked_by_default.findbar', false);
-		yield utils.doIteration(normalSetUp(keyEventTest));
+		yield Do(normalSetUp(keyEventTest));
 		assert_findbarState('FIND_MODE_NATIVE', false);
 	},
 
 	'起動時に検索ツールバーを表示：ON': function() {
 		utils.setPref('xulmigemo.checked_by_default.findbar', true);
-		yield utils.doIteration(normalSetUp(keyEventTest));
+		yield Do(normalSetUp(keyEventTest));
 		assert_findbarState('FIND_MODE_NATIVE', true);
 	},
 
 	'起動時のモード：通常検索': function() {
 		utils.setPref('xulmigemo.findMode.default', 0);
-		yield utils.doIteration(normalSetUp(keyEventTest));
+		yield Do(normalSetUp(keyEventTest));
 		assert_findbarState('FIND_MODE_NATIVE', false);
 	},
 
 	'起動時のモード：正規表現検索': function() {
 		utils.setPref('xulmigemo.findMode.default', 2);
-		yield utils.doIteration(normalSetUp(keyEventTest));
+		yield Do(normalSetUp(keyEventTest));
 		assert_findbarState('FIND_MODE_REGEXP', false);
 	},
 
 	'起動時のモード：Migemo検索': function() {
 		utils.setPref('xulmigemo.findMode.default', 1);
-		yield utils.doIteration(normalSetUp(keyEventTest));
+		yield Do(normalSetUp(keyEventTest));
 		assert_findbarState('FIND_MODE_MIGEMO', false);
 	}
 };
