@@ -1,7 +1,12 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="xulmigemo.css"?>
 <?xml-stylesheet href="chrome://xulmigemo/skin/xulmigemo.css"?>
-<!DOCTYPE overlay SYSTEM "chrome://xulmigemo/locale/xulmigemo.dtd">
+<!DOCTYPE overlay [
+<!ENTITY % mainDTD SYSTEM "chrome://xulmigemo/locale/xulmigemo.dtd">
+%mainDTD;
+<!ENTITY % platformDTD SYSTEM "chrome://xulmigemo-platform/locale/xulmigemo.dtd">
+%platformDTD;
+]>
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
 
@@ -16,6 +21,9 @@
 	pack="end"
 	main-label-migemo-normal="&ui.label.migemo.normal;"
 	main-label-migemo-link="&ui.label.migemo.link;"
+	findNext-short-label="&ui.findNext.shortLabel;"
+	findPrevious-short-label="&ui.findPrevious.shortLabel;"
+	highlight-short-label="&ui.highlight.shortLabel;"
 	caseSensitive-short-label="&ui.caseSensitive.shortLabel;">
 	<hbox id="find-migemo-mode-box"
 		align="center"
