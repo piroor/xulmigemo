@@ -141,6 +141,9 @@ var XMigemoService = {
 	 
 	parseShortcut : function(aShortcut) 
 	{
+		var accelKey = navigator.platform.toLowerCase().indexOf('mac') == 0 ? 'meta' : 'ctrl' ;
+		aShortcut = aShortcut.replace(/accel/gi, accelKey);
+
 		var keys = aShortcut.split('+');
 
 		var keyCode = keys[keys.length-1].replace(/ /g, '_').toUpperCase();

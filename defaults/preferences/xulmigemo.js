@@ -52,13 +52,13 @@ pref("xulmigemo.appearance.hideLabels",         false);
 pref("xulmigemo.appearance.indicator.height",   5);
 
 pref("xulmigemo.shortcut.manualStart",           "/");
-pref("xulmigemo.shortcut.manualStart2",          "Ctrl+Shift+F");
+pref("xulmigemo.shortcut.manualStart2",          "Accel+Shift+F");
 pref("xulmigemo.shortcut.manualStartLinksOnly",  "\\");
 pref("xulmigemo.shortcut.manualStartLinksOnly2", "");
 pref("xulmigemo.shortcut.manualExit",            "ESCAPE");
 pref("xulmigemo.shortcut.findForward",           "F4");
 pref("xulmigemo.shortcut.findBackward",          "Shift+F4");
-pref("xulmigemo.shortcut.goDicManager",          "Ctrl+Shift+F7");
+pref("xulmigemo.shortcut.goDicManager",          "Accel+Shift+F7");
 // 0 = do nothing, 1 = switch find mode, 2 = close find bar
 pref("xulmigemo.shortcut.openAgain", 1);
 
