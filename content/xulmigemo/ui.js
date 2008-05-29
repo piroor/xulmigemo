@@ -114,6 +114,30 @@ var XMigemoUI = {
 	},
 //	_findLabel : null,
  
+	get findNextButton() 
+	{
+		if (this._findNextButton === void(0)) {
+			this._findNextButton = document.getElementById('find-next');
+			if (!this._findNextButton && this.findBar) {
+				this._findNextButton = this.findBar.getElement('find-next');
+			}
+		}
+		return this._findNextButton;
+	},
+//	_findNextButton : null,
+ 
+	get findPreviousButton() 
+	{
+		if (this._findPreviousButton === void(0)) {
+			this._findPreviousButton = document.getElementById('find-previous');
+			if (!this._findPreviousButton && this.findBar) {
+				this._findPreviousButton = this.findBar.getElement('find-previous');
+			}
+		}
+		return this._findPreviousButton;
+	},
+//	_findPreviousButton : null,
+ 
 	get findCaseSensitiveCheck() 
 	{
 		if (this._findCaseSensitiveCheck === void(0)) {
@@ -453,21 +477,30 @@ var XMigemoUI = {
 				return;
 
 			case 'xulmigemo.appearance.hideLabels':
-				var caseSensitive = this.findCaseSensitiveCheck;
-				var nodes = this.findModeSelector.childNodes;
+				var buttons = [
+						this.findNextButton,
+						this.findPreviousButton,
+						this.findCaseSensitiveCheck,
+						this.findHighlightCheck
+					];
+				var switchers = Array.prototype.slice.call(this.findModeSelector.childNodes);
 				if (value) {
-					caseSensitive.setAttribute('tooltiptext', caseSensitive.getAttribute('long-label'));
-					caseSensitive.setAttribute('label', caseSensitive.getAttribute('short-label'));
-					for (var i = 0, maxi = nodes.length; i < maxi; i++)
-						nodes[i].setAttribute('label', nodes[i].getAttribute('short-label'));
-					this.findBar.setAttribute('labelhidden', true);
+					buttons.forEach(function(aNode) {
+						aNode.setAttribute('tooltiptext', aNode.getAttribute('long-label'));
+						aNode.setAttribute('label', aNode.getAttribute('short-label'));
+					});
+					switchers.forEach(function(aNode) {
+						aNode.setAttribute('label', aNode.getAttribute('short-label'));
+					});
 				}
 				else {
-					caseSensitive.removeAttribute('tooltiptext');
-					caseSensitive.setAttribute('label', caseSensitive.getAttribute('long-label'));
-					for (var i = 0, maxi = nodes.length; i < maxi; i++)
-						nodes[i].setAttribute('label', nodes[i].getAttribute('long-label'));
-					this.findBar.removeAttribute('labelhidden');
+					buttons.forEach(function(aNode) {
+						aNode.removeAttribute('tooltiptext');
+						aNode.setAttribute('label', aNode.getAttribute('long-label'));
+					});
+					switchers.forEach(function(aNode) {
+						aNode.setAttribute('label', aNode.getAttribute('long-label'));
+					});
 				}
 				return;
 
@@ -1542,9 +1575,21 @@ var XMigemoUI = {
 					.replace(/([^\.\s]+\.)+findString/, '((XMigemoUI.findMode != XMigemoUI.FIND_MODE_NATIVE) ? XMigemoFind.lastKeyword : $1findString)')
 			);
 
+		var findNext = this.findNextButton;
+		findNext.setAttribute('long-label', findNext.getAttribute('label'));
+		findNext.setAttribute('short-label', this.findMigemoBar.getAttribute('findNext-short-label'));
+
+		var findPrevious = this.findPreviousButton;
+		findPrevious.setAttribute('long-label', findPrevious.getAttribute('label'));
+		findPrevious.setAttribute('short-label', this.findMigemoBar.getAttribute('findPrevious-short-label'));
+
 		var caseSensitive = this.findCaseSensitiveCheck;
 		caseSensitive.setAttribute('long-label', caseSensitive.getAttribute('label'));
 		caseSensitive.setAttribute('short-label', this.findMigemoBar.getAttribute('caseSensitive-short-label'));
+
+		var highlight = this.findHighlightCheck;
+		highlight.setAttribute('long-label', highlight.getAttribute('label'));
+		highlight.setAttribute('short-label', this.findMigemoBar.getAttribute('highlight-short-label'));
 	},
  
 	getLastFindString : function(aString) 
