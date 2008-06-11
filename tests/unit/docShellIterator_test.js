@@ -1,11 +1,7 @@
 // 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
 // UTF-8にしてください。
 
-var extract;
-eval('extract = function() { '+
-		utils.readFrom('../../components/pXMigemoFind.js') +
-		'; return DocShellIterator }');
-var DocShellIterator = extract();
+utils.include('../../components/pXMigemoFind.js', null, 'Shift_JIS');
 
 var win, browser, content, iterator;
 
