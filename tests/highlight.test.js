@@ -1,13 +1,13 @@
 // 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
 // UTF-8にしてください。
 
-utils.include('common.inc');
-utils.include('quickfind.inc');
+utils.include('common.inc.js');
+utils.include('quickfind.inc.js');
 
 var kSCREEN = '__moz_xmigemo-find-highlight-screen';
 var kHIGHLIGHTS = 'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search" or @class="__mozilla-findbar-animation"]';
 
-function assert_highlightCheck(aDisabled, aChecked, aMessage) {
+assert.highlightCheck = function(aDisabled, aChecked, aMessage) {
 	var check = XMigemoUI.findHighlightCheck;
 	if (aDisabled)
 		assert.True(check.disabled, aMessage);
@@ -19,13 +19,13 @@ function assert_highlightCheck(aDisabled, aChecked, aMessage) {
 		assert.isFalse(check.checked, aMessage);
 }
 
-function assert_find_found(aTerm, aMessage) {
+assert.find_found = function(aTerm, aMessage) {
 	action.inputTextToField(findField, aTerm);
 	yield 1500;
 	assert.notEquals('notfound', findField.getAttribute('status'), aMessage);
 }
 
-function assert_find_notFound(aTerm, aMessage) {
+assert.find_notFound = function(aTerm, aMessage) {
 	action.inputTextToField(findField, aTerm);
 	yield 1500;
 	assert.equals('notfound', findField.getAttribute('status'), aMessage);
@@ -38,10 +38,10 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 	XMigemoUI.findCaseSensitiveCheck.checked = false;
 	findField.focus();
 
-	yield Do(assert_find_found(aOKShort, message));
-	assert_highlightCheck(false, false, message);
-	yield Do(assert_find_found(aOKLong, message));
-	assert_highlightCheck(false, true, message);
+	yield Do(assert.find_found(aOKShort, message));
+	assert.highlightCheck(false, false, message);
+	yield Do(assert.find_found(aOKLong, message));
+	assert.highlightCheck(false, true, message);
 	var xpathResult = content.document.evaluate(
 		kHIGHLIGHTS,
 		content.document,
@@ -50,13 +50,13 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 		null
 	);
 	assert.equals(aOKLongNum, xpathResult.snapshotLength, message);
-	yield Do(assert_find_notFound(aNGShort, message));
-	assert_highlightCheck(false, false, message);
-	yield Do(assert_find_notFound(aNGLong, message));
-	assert_highlightCheck(false, true, message);
+	yield Do(assert.find_notFound(aNGShort, message));
+	assert.highlightCheck(false, false, message);
+	yield Do(assert.find_notFound(aNGLong, message));
+	assert.highlightCheck(false, true, message);
 }
 
-function assert_screenStateForFind(aTerm, aShown) {
+assert.screenStateForFind = function(aTerm, aShown) {
 	action.inputTextToField(findField, aTerm);
 	yield 1500;
 	var screen = content.document.getElementById(kSCREEN);
@@ -144,11 +144,11 @@ var baseTests = {
 		findField.focus();
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NORMAL;
-		yield Do(assert_screenStateForFind('text field', true));
-		yield Do(assert_screenStateForFind('', false));
+		yield Do(assert.screenStateForFind('text field', true));
+		yield Do(assert.screenStateForFind('', false));
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-		yield Do(assert_screenStateForFind('nihongo', true));
-		yield Do(assert_screenStateForFind('', false));
+		yield Do(assert.screenStateForFind('nihongo', true));
+		yield Do(assert.screenStateForFind('', false));
 	}
 };
 
@@ -225,10 +225,10 @@ highlightAdvancedTest.tests = {
 		XMigemoUI.autoStartQuickFind = true;
 
 		var findTerm = 'nihongo';
-		yield Do(assert_quickFind_autoStart(findTerm));
+		yield Do(assert.autoStart(findTerm));
 		for (var i = 0, maxi = findTerm.length; i < maxi; i++)
 		{
-			assert_highlightCheck(false, true);
+			assert.highlightCheck(false, true);
 			action.fireKeyEventOnElement(findField, key_BS);
 			yield wait;
 			assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);

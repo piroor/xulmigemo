@@ -1,7 +1,7 @@
 // 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
 // UTF-8にしてください。
 
-utils.include('common.inc');
+utils.include('common.inc.js');
 
 var XMigemoUIUnitTest = new TestCase('XMigemoUIのユニットテスト', {runStrategy: 'async'});
 

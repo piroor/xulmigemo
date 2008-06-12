@@ -1,7 +1,7 @@
 // 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
 // UTF-8にしてください。
 
-utils.include('common.inc');
+utils.include('common.inc.js');
 
 function normalSetUp(aURI)
 {
@@ -33,7 +33,7 @@ function normalSetUp(aURI)
 }
 
 
-function assert_findbarState(aMode, aShown) {
+assert.findbarState = function(aMode, aShown) {
 	assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
 	if (aShown)
 		assert.isFalse(XMigemoUI.findBarHidden, aMode);
@@ -61,30 +61,30 @@ startupTest.tests = {
 	'起動時に検索ツールバーを表示：OFF': function() {
 		utils.setPref('xulmigemo.checked_by_default.findbar', false);
 		yield Do(normalSetUp(keyEventTest));
-		assert_findbarState('FIND_MODE_NATIVE', false);
+		assert.findbarState('FIND_MODE_NATIVE', false);
 	},
 
 	'起動時に検索ツールバーを表示：ON': function() {
 		utils.setPref('xulmigemo.checked_by_default.findbar', true);
 		yield Do(normalSetUp(keyEventTest));
-		assert_findbarState('FIND_MODE_NATIVE', true);
+		assert.findbarState('FIND_MODE_NATIVE', true);
 	},
 
 	'起動時のモード：通常検索': function() {
 		utils.setPref('xulmigemo.findMode.default', 0);
 		yield Do(normalSetUp(keyEventTest));
-		assert_findbarState('FIND_MODE_NATIVE', false);
+		assert.findbarState('FIND_MODE_NATIVE', false);
 	},
 
 	'起動時のモード：正規表現検索': function() {
 		utils.setPref('xulmigemo.findMode.default', 2);
 		yield Do(normalSetUp(keyEventTest));
-		assert_findbarState('FIND_MODE_REGEXP', false);
+		assert.findbarState('FIND_MODE_REGEXP', false);
 	},
 
 	'起動時のモード：Migemo検索': function() {
 		utils.setPref('xulmigemo.findMode.default', 1);
 		yield Do(normalSetUp(keyEventTest));
-		assert_findbarState('FIND_MODE_MIGEMO', false);
+		assert.findbarState('FIND_MODE_MIGEMO', false);
 	}
 };

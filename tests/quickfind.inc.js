@@ -1,4 +1,4 @@
-function assert_quickFind_autoStart(aTerm) {
+assert.autoStart = function(aTerm) {
 	var key = { charCode : aTerm.charCodeAt(0) };
 	action.fireKeyEventOnElement(content.document.documentElement, key);
 	yield wait;
@@ -13,7 +13,7 @@ function assert_quickFind_autoStart(aTerm) {
 	}
 }
 
-function assert_quickFind_manualStart(aTerm) {
+assert.manualStart = function(aTerm) {
 	var key = { charCode : '/'.charCodeAt(0) };
 	action.fireKeyEventOnElement(content.document.documentElement, key);
 	yield wait;
@@ -28,7 +28,7 @@ function assert_quickFind_manualStart(aTerm) {
 	}
 }
 
-function assert_quickFind_exitByBS(aTerm) {
+assert.exitByBS = function(aTerm) {
 	for (var i = 0, maxi = aTerm.length; i < maxi; i++)
 	{
 		action.fireKeyEventOnElement(findField, key_BS);
@@ -43,7 +43,7 @@ function assert_quickFind_exitByBS(aTerm) {
 	assert.isTrue(XMigemoUI.findBarHidden);
 }
 
-function assert_quickFind_exitByESC() {
+assert.exitByESC = function() {
 	var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_ESCAPE };
 	action.fireKeyEventOnElement(findField, key);
 	yield wait;
@@ -51,14 +51,14 @@ function assert_quickFind_exitByESC() {
 	assert.isTrue(XMigemoUI.findBarHidden);
 }
 
-function assert_quickFind_exitByClick() {
+assert.exitByClick = function() {
 	action.fireMouseEventOnElement(content.document.documentElement);
 	yield wait;
 	assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 	assert.isTrue(XMigemoUI.findBarHidden);
 }
 
-function assert_quickFind_timeout(aBackToMode) {
+assert.timeout = function(aBackToMode) {
 	yield XMigemoUI.timeout + wait;
 	if (aBackToMode !== void(0))
 		assert.equals(aBackToMode, XMigemoUI.findMode);
@@ -67,7 +67,7 @@ function assert_quickFind_timeout(aBackToMode) {
 	assert.isTrue(XMigemoUI.findBarHidden);
 }
 
-function assert_find_start() {
+assert.findStart = function() {
 	eval(findCommand);
 	yield wait;
 	assert.isFalse(XMigemoUI.findBarHidden);
@@ -75,7 +75,7 @@ function assert_find_start() {
 	assert.equals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
 }
 
-function assert_isQuickMigemoFindActive() {
+assert.isQuickMigemoFindActive = function() {
 	assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 	assert.isFalse(XMigemoUI.findBarHidden);
 	assert.notEquals('true', XMigemoUI.timeoutIndicatorBox.getAttribute('hidden'));
