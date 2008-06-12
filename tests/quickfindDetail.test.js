@@ -1,8 +1,8 @@
 // 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
 // UTF-8にしてください。
 
-utils.include('common.inc');
-utils.include('quickfind.inc');
+utils.include('common.inc.js');
+utils.include('quickfind.inc.js');
 
 var quickFindDetailTest = new TestCase('クイックMigemo検索の詳細テスト', {runStrategy: 'async'});
 
@@ -27,15 +27,15 @@ quickFindDetailTest.tests = {
 		yield wait;
 
 		var findTerm = 'nihongo';
-		yield Do(assert_quickFind_autoStart('nihongo'));
-		yield Do(assert_quickFind_timeout(XMigemoUI.FIND_MODE_MIGEMO));
+		yield Do(assert.autoStart('nihongo'));
+		yield Do(assert.timeout(XMigemoUI.FIND_MODE_MIGEMO));
 	},
 
 	'文字入力操作でタイマーが正しくリセットされるか': function() {
 		XMigemoUI.autoStartQuickFind = true;
 
 		var findTerm = 'nihongoNoTekisuto';
-		yield Do(assert_quickFind_autoStart(findTerm.charAt(0)));
+		yield Do(assert.autoStart(findTerm.charAt(0)));
 
 		var startAt = (new Date()).getTime();
 
@@ -50,7 +50,7 @@ quickFindDetailTest.tests = {
 			lastInput = XMigemoUI.findTerm;
 			if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
 		}
-		assert_isQuickMigemoFindActive();
+		assert.isQuickMigemoFindActive();
 
 		action.inputTextToField(findField, findTerm);
 		yield wait;
@@ -58,7 +58,7 @@ quickFindDetailTest.tests = {
 		startAt = (new Date()).getTime();
 		while (((new Date()).getTime() - startAt) < XMigemoUI.timeout)
 		{
-			assert_isQuickMigemoFindActive();
+			assert.isQuickMigemoFindActive();
 			action.fireKeyEventOnElement(findField, key_RETURN);
 			yield wait;
 		}
@@ -74,14 +74,14 @@ quickFindDetailTest.tests = {
 			lastInput = XMigemoUI.findTerm;
 			if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
 		}
-		assert_isQuickMigemoFindActive();
+		assert.isQuickMigemoFindActive();
 	},
 
 	'クイックMigemo検索実行中にテキストエリアにフォーカス': function() {
 		XMigemoUI.autoStartQuickFind = true;
 
 		var findTerm = 'foobar';
-		yield Do(assert_quickFind_autoStart(findTerm));
+		yield Do(assert.autoStart(findTerm));
 
 		var input = content.document.getElementsByTagName('input')[0];
 		input.focus();
@@ -100,8 +100,8 @@ quickFindDetailTest.tests = {
 		XMigemoUI.autoStartQuickFind = true;
 
 		var findTerm = 'multirow';
-		yield Do(assert_quickFind_autoStart(findTerm));
-		yield Do(assert_quickFind_timeout());
-		yield Do(assert_quickFind_autoStart(findTerm.charAt(0)));
+		yield Do(assert.autoStart(findTerm));
+		yield Do(assert.timeout());
+		yield Do(assert.autoStart(findTerm.charAt(0)));
 	}
 };
