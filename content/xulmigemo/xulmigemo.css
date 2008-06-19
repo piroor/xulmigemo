@@ -6,5 +6,5 @@
 }
 
 *|*[_moz-xmigemo-disable-ime="true"] {
-	ime-mode: inactive !important;
+	ime-mode: disabled !important;
 }
