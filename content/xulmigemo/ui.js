@@ -39,7 +39,14 @@ var XMigemoUI = {
 	isModeChanged : false,
 
 	kLAST_HIGHLIGHT : '_moz-xmigemo-last-highlight',
+
 	kDISABLE_IME    : '_moz-xmigemo-disable-ime',
+	kINACTIVATE_IME    : '_moz-xmigemo-inactivate-ime',
+	get IMEAttribute()
+	{
+		return this.isLinux ? this.kDISABLE_IME : this.kINACTIVATE_IME ;
+	},
+	isLinux : (navigator.platform.toLowerCase().indexOf('linux') > -1),
 
 	kXHTMLNS : 'http://www.w3.org/1999/xhtml',
  
@@ -590,9 +597,9 @@ var XMigemoUI = {
 	{
 		if (!('imeMode' in this.findField.style)) return;
 
-		this.findField.inputField.setAttribute(this.kDISABLE_IME, true);
+		this.findField.inputField.setAttribute(this.IMEAttribute, true);
 		window.setTimeout(function(aSelf) {
-			aSelf.findField.inputField.removeAttribute(aSelf.kDISABLE_IME);
+			aSelf.findField.inputField.removeAttribute(aSelf.IMEAttribute);
 		}, 100, this);
 	},
  

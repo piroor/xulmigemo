@@ -8,3 +8,6 @@
 *|*[_moz-xmigemo-disable-ime="true"] {
 	ime-mode: disabled !important;
 }
+*|*[_moz-xmigemo-inactivate-ime="true"] {
+	ime-mode: inactive !important;
+}
