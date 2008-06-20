@@ -1747,9 +1747,16 @@ var XMigemoUI = {
 	toggleHighlight : function(aHighlight) 
 	{
 		if (XMigemoUI.highlightCheckedAlways) {
-			aHighlight = XMigemoUI.findTerm && XMigemoUI.shouldHighlightAll ? true : false ;
-			if (XMigemoUI.findHighlightCheck.checked != aHighlight)
-				window.setTimeout('XMigemoUI.findHighlightCheck.checked = '+aHighlight, 0);
+			var newHighlight = XMigemoUI.findTerm && XMigemoUI.shouldHighlightAll ? true : false ;
+			if (XMigemoUI.findHighlightCheck.checked != newHighlight)
+				window.setTimeout(function(aNewState) {
+					XMigemoUI.findHighlightCheck.checked = aNewState;
+				}, 0, newHighlight);
+			if (aHighlight != newHighlight)
+				window.setTimeout(function(aSelf, aNewState) {
+					if (XMigemoUI.findHighlightCheck.checked != aNewState)
+						aSelf.toggleHighlight(aNewState);
+				}, 10, this, newHighlight);
 		}
 
 		var event = document.createEvent('Events');
