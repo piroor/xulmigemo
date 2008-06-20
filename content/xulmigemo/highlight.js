@@ -8,7 +8,7 @@ var XMigemoHighlight = {
 	animationStyle : 0,
 	STYLE_ZOOM     : 0,
 	STYLE_JUMP     : 1,
-	animationSize : [15, 10],
+	animationSize : [10, 2],
 	animationUnit : 10,
 
 	kSTYLE     : '__moz_xmigemo-find-highlight-style',
