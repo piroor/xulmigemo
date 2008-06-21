@@ -79,6 +79,7 @@
 				control="xulmigemo.highlight.animationStyle-radiogroup"/>
 			<radiogroup orient="horizontal"
 				id="xulmigemo.highlight.animationStyle-radiogroup"
+				preference="xulmigemo.highlight.animationStyle"
 				align="center">
 				<radio label="&config.highlight.animationStyle.0;" value="0"/>
 				<radio label="&config.highlight.animationStyle.1;" value="1"/>
