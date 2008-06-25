@@ -13,16 +13,21 @@
 }
 
 
-#FindToolbar[xmigemo-floating-findbar],
-#FindToolbar[xmigemo-floating-findbar] > [anonid="findbar-container"] {
+findbar#FindToolbar[xmigemo-floating-findbar],
+findbar#FindToolbar[xmigemo-floating-findbar] > [anonid="findbar-container"] {
 	overflow: hidden;
 }
 
-#FindToolbar [anonid="find-status"] {
+#FindToolbar [anonid="find-status"],
+toolbar#FindToolbar label#find-status {
 	-moz-box-flex: 1;
 }
 
 :root[splitbrowser-split="true"] #FindToolbar[xmigemo-floating-findbar] [anonid="find-status"] {
 	font-size: 1px;
 	visibility: hidden;
+}
+
+toolbar#FindToolbar[xmigemo-floating-findbar] {
+	-moz-binding: url("chrome://xulmigemo/content/xulmigemo.xml#find-toolbar");
 }
