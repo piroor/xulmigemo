@@ -11,3 +11,8 @@
 *|*[_moz-xmigemo-inactivate-ime="true"] {
 	ime-mode: inactive !important;
 }
+
+
+[anonid="find-status"] {
+	-moz-box-flex: 1;
+}

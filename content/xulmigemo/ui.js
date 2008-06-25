@@ -97,6 +97,18 @@ var XMigemoUI = {
 	},
 	_findBar : null,
  
+	get findCloseButton() 
+	{
+		if (this._findCloseButton === void(0)) {
+			this._findCloseButton = document.getElementById('find-closebutton');
+			if (!this._findCloseButton && this.findBar) {
+				this._findCloseButton = this.findBar.getElement('find-closebutton');
+			}
+		}
+		return this._findCloseButton;
+	},
+//	_findCloseButton : null,
+ 
 	get findField() 
 	{
 		if (this._findField === void(0)) {
@@ -351,7 +363,7 @@ var XMigemoUI = {
 	},
   
 /* nsIPrefListener(?) */ 
-	
+	 
 	domain  : 'xulmigemo', 
  
 	preferences : <><![CDATA[ 
@@ -378,6 +390,7 @@ var XMigemoUI = {
 		xulmigemo.shortcut.openAgain
 		xulmigemo.appearance.hideLabels
 		xulmigemo.appearance.indicator.height
+		xulmigemo.appearance.closeButtonPosition
 		xulmigemo.disableIME.quickFind
 		xulmigemo.rebuild_selection
 		xulmigemo.find_delay
@@ -484,43 +497,15 @@ var XMigemoUI = {
 				return;
 
 			case 'xulmigemo.appearance.hideLabels':
-				var buttons = [
-						this.findNextButton,
-						this.findPreviousButton,
-						this.findCaseSensitiveCheck,
-						this.findHighlightCheck
-					];
-				var switchers = Array.prototype.slice.call(this.findModeSelector.childNodes);
-				if (value) {
-					buttons.forEach(function(aNode) {
-						aNode.setAttribute('tooltiptext', aNode.getAttribute('long-label'));
-						aNode.setAttribute('label', aNode.getAttribute('short-label'));
-					});
-					switchers.forEach(function(aNode) {
-						aNode.setAttribute('label', aNode.getAttribute('short-label'));
-					});
-				}
-				else {
-					buttons.forEach(function(aNode) {
-						aNode.removeAttribute('tooltiptext');
-						aNode.setAttribute('label', aNode.getAttribute('long-label'));
-					});
-					switchers.forEach(function(aNode) {
-						aNode.setAttribute('label', aNode.getAttribute('long-label'));
-					});
-				}
+				this.showHideLabels(!value);
 				return;
 
 			case 'xulmigemo.appearance.indicator.height':
-				var node = this.timeoutIndicator;
-				if (value) {
-					node.style.minHeight = value+'px';
-					node.style.maxHeight = value+'px';
-				}
-				else {
-					node.style.minHeight = 'none';
-					node.style.maxHeight = 'auto';
-				}
+				this.updateIndicatorHeight(value);
+				return;
+
+			case 'xulmigemo.appearance.closeButtonPosition':
+				this.closeButtonPosition = value;
 				return;
 
 			case 'xulmigemo.disableIME.quickFind':
@@ -1312,9 +1297,110 @@ var XMigemoUI = {
 		if (this.cancelTimer)
 			this.startTimer();
 	},
+ 
+	showHideLabels : function(aShow) 
+	{
+		var buttons = [
+				this.findNextButton,
+				this.findPreviousButton,
+				this.findCaseSensitiveCheck,
+				this.findHighlightCheck
+			];
+		var switchers = Array.prototype.slice.call(this.findModeSelector.childNodes);
+		if (aShow) {
+			buttons.forEach(function(aNode) {
+				aNode.removeAttribute('tooltiptext');
+				aNode.setAttribute('label', aNode.getAttribute('long-label'));
+			});
+			switchers.forEach(function(aNode) {
+				aNode.setAttribute('label', aNode.getAttribute('long-label'));
+			});
+		}
+		else {
+			buttons.forEach(function(aNode) {
+				aNode.setAttribute('tooltiptext', aNode.getAttribute('long-label'));
+				aNode.setAttribute('label', aNode.getAttribute('short-label'));
+			});
+			switchers.forEach(function(aNode) {
+				aNode.setAttribute('label', aNode.getAttribute('short-label'));
+			});
+		}
+	},
+ 
+	updateIndicatorHeight : function(aHeight) 
+	{
+		var node = this.timeoutIndicator;
+		if (aHeight) {
+			node.style.minHeight = aHeight+'px';
+			node.style.maxHeight = aHeight+'px';
+		}
+		else {
+			node.style.minHeight = 'none';
+			node.style.maxHeight = 'auto';
+		}
+	},
+ 
+	updateCloseButtonPosition : function(aPosition) 
+	{
+		if (aPosition === void(0))
+			aPosition = this.closeButtonPosition;
+		if (aPosition == this.lastCloseButtonPosition) return;
+		this.lastCloseButtonPosition = aPosition;
+
+		var label = this.findLabel;
+		var items = [];
+
+		var node = label;
+		while (node.previousSibling)
+		{
+			node = node.previousSibling;
+			items.unshift(node);
+		}
+
+		node = label;
+		do {
+			items.push(node);
+			node = node.nextSibling;
+		}
+		while (node);
+
+		var closebox = items.shift();
+		closebox.ordinal = (aPosition == this.kPOSITION_RIGHTMOST) ?
+				(items.length + 2) * 100 :
+				1 ;
+		items.forEach(function(aItem, aIndex) {
+			aItem.ordinal = (aIndex + 1) * 100;
+		});
+	},
+	kPOSITION_LEFTMOST : 0,
+	kPOSITION_RIGHTMOST : 1,
+	closeButtonPosition : 0,
+	lastCloseButtonPosition : 0,
+ 
+	updateMigemoBoxPosition : function() 
+	{
+		var box = this.migemoModeBox;
+		box.removeAttribute('hidden');
+		box.style.height = this.findBar.boxObject.height+'px';
+		box.style.right = (
+				document.documentElement.boxObject.width
+				- this.findBar.boxObject.x
+				- this.findBar.boxObject.width
+				+ (
+					(this.closeButtonPosition == this.kPOSITION_RIGHTMOST) ?
+						this.findCloseButton.boxObject.width :
+						0
+				)
+			)+'px';
+		box.style.bottom = (
+			document.documentElement.boxObject.height
+			- this.findBar.boxObject.y
+			- this.findBar.boxObject.height
+		)+'px';
+	},
  	 
 /* Override FindBar */ 
-	
+	 
 	overrideFindBar : function() 
 	{
 		/*
@@ -1651,19 +1737,8 @@ var XMigemoUI = {
 		scope.xmigemoOriginalOpen.apply(scope, arguments);
 		ui.findMigemoBar.removeAttribute('collapsed');
 
-		var box = ui.migemoModeBox;
-		box.removeAttribute('hidden');
-		box.style.height = ui.findBar.boxObject.height+'px';
-		box.style.right = (
-			document.documentElement.boxObject.width
-			- ui.findBar.boxObject.x
-			- ui.findBar.boxObject.width
-		)+'px';
-		box.style.bottom = (
-			document.documentElement.boxObject.height
-			- ui.findBar.boxObject.y
-			- ui.findBar.boxObject.height
-		)+'px';
+		ui.updateCloseButtonPosition();
+		ui.updateMigemoBoxPosition();
 
 		ui.toggleFindToolbarMode();
 
@@ -2081,7 +2156,7 @@ var XMigemoUI = {
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 	},
-	
+	 
 	delayedInit : function() { 
 		window.setTimeout("XMigemoUI.findField.addEventListener('blur', this, false);", 0);
 
