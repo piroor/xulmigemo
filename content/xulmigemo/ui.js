@@ -40,6 +40,8 @@ var XMigemoUI = {
 
 	isModeChanged : false,
 
+	hideLabels : false,
+
 	kLAST_HIGHLIGHT : '_moz-xmigemo-last-highlight',
 
 	kDISABLE_IME    : '_moz-xmigemo-disable-ime',
@@ -365,7 +367,7 @@ var XMigemoUI = {
 	},
   
 /* nsIPrefListener(?) */ 
-	
+	 
 	domain  : 'xulmigemo', 
  
 	preferences : <><![CDATA[ 
@@ -499,6 +501,7 @@ var XMigemoUI = {
 				return;
 
 			case 'xulmigemo.appearance.hideLabels':
+				this.hideLabels = value;
 				this.showHideLabels(!value);
 				return;
 
@@ -645,8 +648,8 @@ var XMigemoUI = {
 				return;
 
 			case 'resize':
-				if (!this.findBarHidden)
-					this.updateFloatingFindBar();
+				if (this.findBarHidden) return;
+				this.onChangeFindBarSize();
 				return;
 
 			case 'load':
@@ -676,7 +679,7 @@ var XMigemoUI = {
 			default:
 		}
 	},
-	
+	 
 	keyEvent : function(aEvent, aFromFindField) 
 	{
 		if (
@@ -1494,6 +1497,7 @@ var XMigemoUI = {
 		bar.style.top = target.boxObject.y+'px';
 		bar.style.left = target.boxObject.x+'px';
 		this.setFloatingFindBarWidth(target.boxObject.width);
+		this.onChangeFindBarSize();
 
 		target.style.paddingTop = bar.boxObject.height+'px';
 
@@ -1516,19 +1520,31 @@ var XMigemoUI = {
 			this.lastFloatingTarget = null;
 		}
 	},
- 
-	updateFloatingFindBar : function() 
+  
+	onChangeFindBarSize : function() 
 	{
-		if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS) return;
-
-		if (this.lastFloatingTarget) {
+		var shouldUpdatePosition = false;
+		if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS &&
+			this.lastFloatingTarget) {
 			this.setFloatingFindBarWidth(this.lastFloatingTarget.boxObject.width);
-			this.updateMigemoBoxPosition();
+			shouldUpdatePosition = true;
 		}
+		if (!this.hideLabels) {
+			this.showHideLabels(true);
+		}
+		if (this.findCloseButton.boxObject.x > document.documentElement.boxObject.width) {
+			this.showHideLabels(false);
+			shouldUpdatePosition = true;
+		}
+		else {
+			this.showHideLabels(!this.hideLabels);
+		}
+		if (shouldUpdatePosition)
+			this.updateMigemoBoxPosition();
 	},
-   
+  
 /* Override FindBar */ 
-	
+	 
 	overrideFindBar : function() 
 	{
 		/*
@@ -1857,6 +1873,10 @@ var XMigemoUI = {
 		ui.updateFindBarContentsOrder();
 		ui.showFloatingFindBar();
 		ui.updateMigemoBoxPosition();
+		if (ui.lastWindowWidth != window.innerWidth) {
+			ui.onChangeFindBarSize();
+			ui.lastWindowWidth = window.innerWidth;
+		}
 
 		ui.toggleFindToolbarMode();
 
