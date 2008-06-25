@@ -665,15 +665,21 @@ var XMigemoUI = {
 			case 'SubBrowserAdded':
 			case 'SubBrowserRemoved':
 			case 'SubBrowserContentCollapsed':
-				if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS)
-					gFindBar.closeFindBar();
+				if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS ||
+					this.findBarHidden)
+					return;
+				gFindBar.closeFindBar();
+				window.setTimeout('gFindBar.openFindBar();', 100);
 				return;
 
 			case 'SubBrowserFocusMoved':
-				if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS)
-					gFindBar.closeFindBar();
 				XMigemoFind.target = this.activeBrowser;
 				this.findBar.setAttribute(this.kFLOATING, this.activeBrowser.id || 'subbrowser');
+				if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS ||
+					this.findBarHidden)
+					return;
+				gFindBar.closeFindBar();
+				window.setTimeout('gFindBar.openFindBar();', 100);
 				return;
 
 			default:
