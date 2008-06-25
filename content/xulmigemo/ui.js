@@ -69,7 +69,7 @@ var XMigemoUI = {
 	_textUtils : null,
  
 /* elements */ 
-	
+	 
 	get browser() 
 	{
 		return document.getElementById('content') || // Firefox
@@ -220,6 +220,14 @@ var XMigemoUI = {
 		return this._timeoutIndicatorBox;
 	},
 	_timeoutIndicatorBox : null,
+ 
+	get floatingFindBarTarget() 
+	{
+		var target = XMigemoFind.target;
+		if (target.localName == 'tabbrowser')
+			target = target.mPanelContainer;
+		return target;
+	},
   
 /* status */ 
 	
@@ -649,7 +657,8 @@ var XMigemoUI = {
 
 			case 'resize':
 				if (this.findBarHidden) return;
-				this.onChangeFindBarSize();
+				this.updateFloatingFindToolbar();
+				this.onChangeFindToolbarSize();
 				return;
 
 			case 'load':
@@ -1107,7 +1116,29 @@ var XMigemoUI = {
 				break;
 		}
 	},
-  	
+ 
+	onChangeFindToolbarSize : function() 
+	{
+		var shouldUpdatePosition = false;
+		if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS &&
+			this.lastFloatingTarget) {
+			this.setFloatingFindToolbarWidth(this.lastFloatingTarget.boxObject.width);
+			shouldUpdatePosition = true;
+		}
+		if (!this.hideLabels) {
+			this.showHideLabels(true);
+		}
+		if (this.findCloseButton.boxObject.x > document.documentElement.boxObject.width) {
+			this.showHideLabels(false);
+			shouldUpdatePosition = true;
+		}
+		else {
+			this.showHideLabels(!this.hideLabels);
+		}
+		if (shouldUpdatePosition)
+			this.updateMigemoBoxPosition();
+	},
+  
 /* Migemo Find */ 
 	
 /* timer */ 
@@ -1488,36 +1519,21 @@ var XMigemoUI = {
 	kFINDBAR_POSITION_BELOW_TABS    : 2,
 	findBarPosition : 0,
 	 
-	showFloatingFindBar : function() 
+	showFloatingFindToolbar : function() 
 	{
 		if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS) return;
 
-		this.hideFloatingFindBar();
+		this.hideFloatingFindToolbar();
 
-		var bar = this.findBar;
-		var target = XMigemoFind.target;
-		if (target.localName == 'tabbrowser')
-			target = target.mPanelContainer;
+		this.updateFloatingFindToolbar();
+		this.onChangeFindToolbarSize();
 
-		bar.style.position = 'fixed';
-		bar.style.top = target.boxObject.y+'px';
-		bar.style.left = target.boxObject.x+'px';
-		this.setFloatingFindBarWidth(target.boxObject.width);
-		this.onChangeFindBarSize();
-
-		target.style.paddingTop = bar.boxObject.height+'px';
-
+		var target = this.floatingFindBarTarget;
+		target.style.paddingTop = this.findBar.boxObject.height+'px';
 		this.lastFloatingTarget = target;
 	},
-	setFloatingFindBarWidth : function(aWidth)
-	{
-		var bar = this.findBar;
-		bar.style.width = aWidth+'px';
-		var box = document.getAnonymousElementByAttribute(bar, 'anonid', 'findbar-container');
-		if (box) box.style.width = bar.style.width;
-	},
  
-	hideFloatingFindBar : function() 
+	hideFloatingFindToolbar : function() 
 	{
 		if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS) return;
 
@@ -1526,29 +1542,26 @@ var XMigemoUI = {
 			this.lastFloatingTarget = null;
 		}
 	},
-  
-	onChangeFindBarSize : function() 
+ 
+	updateFloatingFindToolbar : function() 
 	{
-		var shouldUpdatePosition = false;
-		if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS &&
-			this.lastFloatingTarget) {
-			this.setFloatingFindBarWidth(this.lastFloatingTarget.boxObject.width);
-			shouldUpdatePosition = true;
-		}
-		if (!this.hideLabels) {
-			this.showHideLabels(true);
-		}
-		if (this.findCloseButton.boxObject.x > document.documentElement.boxObject.width) {
-			this.showHideLabels(false);
-			shouldUpdatePosition = true;
-		}
-		else {
-			this.showHideLabels(!this.hideLabels);
-		}
-		if (shouldUpdatePosition)
-			this.updateMigemoBoxPosition();
+		var bar = this.findBar;
+		var target = this.floatingFindBarTarget;
+
+		bar.style.position = 'fixed';
+		bar.style.top = target.boxObject.y+'px';
+		bar.style.left = target.boxObject.x+'px';
+		this.setFloatingFindToolbarWidth(target.boxObject.width);
 	},
-  
+	 
+	setFloatingFindToolbarWidth : function(aWidth) 
+	{
+		var bar = this.findBar;
+		bar.style.width = aWidth+'px';
+		var box = document.getAnonymousElementByAttribute(bar, 'anonid', 'findbar-container');
+		if (box) box.style.width = bar.style.width;
+	},
+ 	   
 /* Override FindBar */ 
 	 
 	overrideFindBar : function() 
@@ -1877,10 +1890,10 @@ var XMigemoUI = {
 		ui.findMigemoBar.removeAttribute('collapsed');
 
 		ui.updateFindBarContentsOrder();
-		ui.showFloatingFindBar();
+		ui.showFloatingFindToolbar();
 		ui.updateMigemoBoxPosition();
 		if (ui.lastWindowWidth != window.innerWidth) {
-			ui.onChangeFindBarSize();
+			ui.onChangeFindToolbarSize();
 			ui.lastWindowWidth = window.innerWidth;
 		}
 
@@ -1960,7 +1973,7 @@ var XMigemoUI = {
 			XMigemoUI.migemoModeBox.setAttribute('hidden', true);
 			XMigemoUI.findMigemoBar.setAttribute('collapsed', true);
 		}
-		XMigemoUI.hideFloatingFindBar();
+		XMigemoUI.hideFloatingFindToolbar();
 
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarClose', true, true);
