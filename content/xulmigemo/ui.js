@@ -15,7 +15,8 @@ var XMigemoUI = {
 	lastFindMode     : -1,
 	backupFindMode   : -1,
 
-	kFLOATING : 'xmigemo-floating-findbar',
+	kFINDBAR_POSITION : '_moz-xmigemo-position',
+	kTARGET : '_moz-xmigemo-target',
  
 	autoStartQuickFind       : false, 
 	autoExitQuickFindInherit : true,
@@ -243,9 +244,13 @@ var XMigemoUI = {
 	},
 	_timeoutIndicatorBox : null,
  
-	get floatingFindBarTarget() 
+	get target() 
 	{
-		var target = XMigemoFind.target;
+		return XMigemoFind.target;
+	},
+	get targetBox() 
+	{
+		var target = this.target;
 		if (target.localName == 'tabbrowser')
 			target = target.mPanelContainer;
 		return target;
@@ -680,7 +685,7 @@ var XMigemoUI = {
 			case 'resize':
 			case 'TreeStyleTabAutoHideStateChange':
 				if (this.findBarHidden) return;
-				this.updateFloatingFindToolbar(aEvent);
+				this.updateFloatingFindBarAppearance(aEvent);
 				this.onChangeFindToolbarSize(aEvent);
 				return;
 
@@ -706,7 +711,7 @@ var XMigemoUI = {
 
 			case 'SubBrowserFocusMoved':
 				XMigemoFind.target = this.activeBrowser;
-				this.findBar.setAttribute(this.kFLOATING, this.activeBrowser.id || 'subbrowser');
+				this.findBar.setAttribute(this.kTARGET, this.activeBrowser.id || 'subbrowser');
 				if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS ||
 					this.findBarHidden)
 					return;
@@ -1144,8 +1149,8 @@ var XMigemoUI = {
 	{
 		var shouldUpdatePosition = false;
 		if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS &&
-			this.lastFloatingTarget) {
-			this.setFloatingFindToolbarWidth(this.lastFloatingTarget.boxObject.width, aEvent);
+			this.lastTargetBox) {
+			this.setFloatingFindBarWidth(this.lastTargetBox.boxObject.width, aEvent);
 			shouldUpdatePosition = true;
 		}
 		if (!this.hideLabels) {
@@ -1452,7 +1457,7 @@ var XMigemoUI = {
 				- this.findBar.boxObject.width
 				+ (
 					(this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_RIGHTMOST) ?
-						this.findCloseButton.boxObject.width :
+						this.findCloseButton.boxObject.width + this.rightMostOffset :
 						0
 				)
 			)+'px';
@@ -1467,102 +1472,108 @@ var XMigemoUI = {
 			)+'px' :
 			'auto' ;
 	},
+	rightMostOffset : 5,
  
 	updateFindBarPosition : function() 
 	{
 		this.findBarPosition = XMigemoService.getPref('xulmigemo.appearance.findBarPosition');
+		if (this.findBarPosition < 0 || this.findBarPosition >= this.findBarPositionAttrValues.length)
+			this.findBarPosition = this.kFINDBAR_POSITION_BELOW_CONTENT;
 
 		var bar = this.findBar;
+		bar.setAttribute(this.kFINDBAR_POSITION, this.findBarPositionAttrValues[this.findBarPosition]);
+
+		if (this.findBarPosition != this.kFINDBAR_POSITION_ABOVE_CONTENT) return;
+
+		var browser = document.getElementById('browser');
+		try {
+			if ('gFindBar' in window &&
+				'uninitFindBar' in gFindBar)
+				gFindBar.uninitFindBar();
+		}
+		catch(e) {
+		}
+		bar = bar.parentNode.removeChild(bar);
+		browser.parentNode.insertBefore(bar, browser);
+		try {
+			if ('gFindBar' in window &&
+				'initFindBar' in gFindBar)
+				gFindBar.initFindBar();
+		}
+		catch(e) {
+		}
+	},
+	kFINDBAR_POSITION_BELOW_CONTENT : 0,
+	kFINDBAR_POSITION_ABOVE_CONTENT : 1,
+	kFINDBAR_POSITION_BELOW_TABS    : 2,
+	findBarPositionAttrValues : [
+		'belowcontent',
+		'abovecontent',
+		'belowtabbar'
+	],
+	findBarPosition : 0,
+	 
+	updateFindBarAppearanceForTarget : function() 
+	{
+		if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS &&
+			this.findBarPosition != this.kFINDBAR_POSITION_ABOVE_CONTENT)
+			return;
+
+		this.cleanUpOnFindBarHidden()
+
+		var floating = (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS);
+		if (floating) {
+			this.updateFloatingFindBarAppearance();
+			this.onChangeFindToolbarSize();
+		}
+
+		var height = this.findBar.boxObject.height;
+
+		var target = this.target;
+		var targetBox = this.targetBox;
+		if (floating) targetBox.style.paddingTop = height+'px';
+		target.contentWindow.scrollBy(0, height);
+
+		this.lastTarget = target;
+		this.lastTargetBox = targetBox;
+		this.contentAreaYOffset = height;
+	},
+ 
+	cleanUpOnFindBarHidden : function() 
+	{
+		if (!this.lastTarget) return;
 		switch (this.findBarPosition)
 		{
-			case this.kFINDBAR_POSITION_ABOVE_CONTENT:
-				var browser = document.getElementById('browser');
-				try {
-					if ('gFindBar' in window &&
-						'uninitFindBar' in gFindBar)
-						gFindBar.uninitFindBar();
-				}
-				catch(e) {
-				}
-				bar = bar.parentNode.removeChild(bar);
-				browser.parentNode.insertBefore(bar, browser);
-				try {
-					if ('gFindBar' in window &&
-						'initFindBar' in gFindBar)
-						gFindBar.initFindBar();
-				}
-				catch(e) {
-				}
-				return;
-
 			case this.kFINDBAR_POSITION_BELOW_TABS:
-				bar.setAttribute(this.kFLOATING, this.activeBrowser.id);
-/*
-				try {
-					if ('gFindBar' in window &&
-						'uninitFindBar' in gFindBar)
-						gFindBar.uninitFindBar();
-				}
-				catch(e) {
-				}
-				bar = bar.parentNode.removeChild(bar);
-				gBrowser.mPanelContainer.parentNode.insertBefore(bar, gBrowser.mPanelContainer);
-				try {
-					if ('gFindBar' in window &&
-						'initFindBar' in gFindBar)
-						gFindBar.initFindBar();
-				}
-				catch(e) {
-				}
-*/
+				this.lastTargetBox.style.paddingTop = 0;
+
+			case this.kFINDBAR_POSITION_ABOVE_CONTENT:
+				this.lastTarget.contentWindow.scrollBy(0, -this.contentAreaYOffset);
+				this.lastTarget = null;
+				this.lastTargetBox = null;
+				this.contentAreaYOffset = 0;
 				return;
 
 			default:
 				return;
 		}
 	},
-	kFINDBAR_POSITION_BELOW_CONTENT : 0,
-	kFINDBAR_POSITION_ABOVE_CONTENT : 1,
-	kFINDBAR_POSITION_BELOW_TABS    : 2,
-	findBarPosition : 0,
-	 
-	showFloatingFindToolbar : function() 
+ 
+	updateFloatingFindBarAppearance : function(aEvent) 
 	{
 		if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS) return;
 
-		this.hideFloatingFindToolbar();
-
-		this.updateFloatingFindToolbar();
-		this.onChangeFindToolbarSize();
-
-		var target = this.floatingFindBarTarget;
-		target.style.paddingTop = this.findBar.boxObject.height+'px';
-		this.lastFloatingTarget = target;
-	},
- 
-	hideFloatingFindToolbar : function() 
-	{
-		if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS) return;
-
-		if (this.lastFloatingTarget) {
-			this.lastFloatingTarget.style.paddingTop = 0;
-			this.lastFloatingTarget = null;
-		}
-	},
- 
-	updateFloatingFindToolbar : function(aEvent) 
-	{
 		var bar = this.findBar;
-		var target = this.floatingFindBarTarget;
+		var target = this.targetBox;
 
 		bar.style.position = 'fixed';
 		bar.style.top = target.boxObject.y+'px';
 		bar.style.left = target.boxObject.x+'px';
 
-		this.setFloatingFindToolbarWidth(target.boxObject.width, aEvent);
+		this.setFloatingFindBarWidth(target.boxObject.width, aEvent);
 	},
 	 
-	setFloatingFindToolbarWidth : function(aWidth, aEvent) 
+	setFloatingFindBarWidth : function(aWidth, aEvent) 
 	{
 		if (aEvent &&
 			aEvent.type == 'TreeStyleTabAutoHideStateChange' &&
@@ -1904,7 +1915,7 @@ var XMigemoUI = {
 		ui.findMigemoBar.removeAttribute('collapsed');
 
 		ui.updateFindBarContentsOrder();
-		ui.showFloatingFindToolbar();
+		ui.updateFindBarAppearanceForTarget();
 		ui.updateMigemoBoxPosition();
 		if (ui.lastWindowWidth != window.innerWidth) {
 			ui.onChangeFindToolbarSize();
@@ -1934,7 +1945,10 @@ var XMigemoUI = {
 			var wrongOrder = false;
 			for (var i = 1, maxi = items.length-1; i < maxi; i++)
 			{
-				if (items[i].boxObject.x < items[i+1].boxObject.x) continue;
+				if (!items[i].boxObject.x ||
+					!items[i+1].boxObject.x ||
+					items[i].boxObject.x < items[i+1].boxObject.x)
+					continue;
 				wrongOrder = true;
 				break;
 			}
@@ -1943,6 +1957,7 @@ var XMigemoUI = {
 			aSelf.findBar.hidden = true;
 			window.setTimeout(function(aSelf) {
 				aSelf.findBar.hidden = false;
+				aSelf.findField.focus();
 			}, 0, aSelf);
 		}, 0, this);
 	},
@@ -1995,12 +2010,11 @@ var XMigemoUI = {
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalClose.apply(scope, arguments);
 
-		if (XMigemoUI.findBar.getAttribute('collapsed') == 'true' ||
-			XMigemoUI.findBar.getAttribute('hidden') == 'true') {
+		if (XMigemoUI.findBarHidden) {
 			XMigemoUI.migemoModeBox.setAttribute('hidden', true);
 			XMigemoUI.findMigemoBar.setAttribute('collapsed', true);
 		}
-		XMigemoUI.hideFloatingFindToolbar();
+		XMigemoUI.cleanUpOnFindBarHidden();
 
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarClose', true, true);
@@ -2012,13 +2026,10 @@ var XMigemoUI = {
 	},
 	delayedCloseFindBar : function()
 	{
-/*
-		if (this.findBar.getAttribute('collapsed') == 'true' ||
-			this.findBar.getAttribute('hidden') == 'true') {
+		if (this.findBarHidden) {
 			this.migemoModeBox.setAttribute('hidden', true);
 			this.findMigemoBar.setAttribute('collapsed', true);
 		}
-*/
 
 		if (this.isActive) this.cancel(true);
 
@@ -2348,6 +2359,7 @@ var XMigemoUI = {
 
 
 		this.lastFindMode = this.FIND_MODE_NATIVE;
+		this.findBar.setAttribute(this.kTARGET, this.activeBrowser.id);
 
 		document.addEventListener('XMigemoFindProgress', this, false);
 		document.addEventListener('XMigemoFindAgain', this, false);
