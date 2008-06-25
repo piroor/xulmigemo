@@ -681,7 +681,7 @@ var XMigemoUI = {
 			case 'TreeStyleTabAutoHideStateChange':
 				if (this.findBarHidden) return;
 				this.updateFloatingFindToolbar(aEvent);
-				this.onChangeFindToolbarSize();
+				this.onChangeFindToolbarSize(aEvent);
 				return;
 
 			case 'load':
@@ -1140,12 +1140,12 @@ var XMigemoUI = {
 		}
 	},
  
-	onChangeFindToolbarSize : function() 
+	onChangeFindToolbarSize : function(aEvent) 
 	{
 		var shouldUpdatePosition = false;
 		if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS &&
 			this.lastFloatingTarget) {
-			this.setFloatingFindToolbarWidth(this.lastFloatingTarget.boxObject.width);
+			this.setFloatingFindToolbarWidth(this.lastFloatingTarget.boxObject.width, aEvent);
 			shouldUpdatePosition = true;
 		}
 		if (!this.hideLabels) {
@@ -1559,18 +1559,17 @@ var XMigemoUI = {
 		bar.style.top = target.boxObject.y+'px';
 		bar.style.left = target.boxObject.x+'px';
 
-		var width = target.boxObject.width;
+		this.setFloatingFindToolbarWidth(target.boxObject.width, aEvent);
+	},
+	 
+	setFloatingFindToolbarWidth : function(aWidth, aEvent) 
+	{
 		if (aEvent &&
 			aEvent.type == 'TreeStyleTabAutoHideStateChange' &&
 			aEvent.shown &&
 			aEvent.xOffset)
-			width -= aEvent.xOffset;
+			aWidth -= aEvent.xOffset;
 
-		this.setFloatingFindToolbarWidth(width);
-	},
-	 
-	setFloatingFindToolbarWidth : function(aWidth) 
-	{
 		var bar = this.findBar;
 		bar.style.width = aWidth+'px';
 		var box = document.getAnonymousElementByAttribute(bar, 'anonid', 'findbar-container');
