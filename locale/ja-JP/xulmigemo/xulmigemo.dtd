@@ -52,6 +52,14 @@
 <!ENTITY config.checked_by_default.findbar  "Firefox起動時に最初から検索ツールバーを表示しておく">
 <!ENTITY config.appearance.hideLabels  "検索ツールバー内のボタンの表示を小さくする">
 
+<!ENTITY config.appearance.findBarPosition "検索ツールバーの位置（再起動後から）：">
+<!ENTITY config.appearance.findBarPosition.0 "下">
+<!ENTITY config.appearance.findBarPosition.1 "上">
+<!ENTITY config.appearance.findBarPosition.2 "タブの下">
+<!ENTITY config.appearance.closeButtonPosition "「閉じる」ボタンの位置：">
+<!ENTITY config.appearance.closeButtonPosition.0 "左端">
+<!ENTITY config.appearance.closeButtonPosition.1 "右端">
+
 
 <!ENTITY config.tab.dictionary          "辞書">
 
