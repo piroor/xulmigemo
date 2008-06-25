@@ -131,6 +131,12 @@
 		<preference id="xulmigemo.appearance.hideLabels"
 			name="xulmigemo.appearance.hideLabels"
 			type="bool"/>
+		<preference id="xulmigemo.appearance.findBarPosition"
+			name="xulmigemo.appearance.findBarPosition"
+			type="int"/>
+		<preference id="xulmigemo.appearance.closeButtonPosition"
+			name="xulmigemo.appearance.closeButtonPosition"
+			type="int"/>
 	</preferences>
 
 	<groupbox orient="vertical">
@@ -184,6 +190,25 @@
 	<checkbox id="xulmigemo.appearance.hideLabels-check" flex="1"
 		label="&config.appearance.hideLabels;"
 		preference="xulmigemo.appearance.hideLabels"/>
+	<hbox align="center">
+		<label value="&config.appearance.findBarPosition;"/>
+		<radiogroup id="xulmigemo.appearance.findBarPosition-radiogroup"
+			preference="xulmigemo.appearance.findBarPosition"
+			orient="horizontal">
+			<radio value="0" label="&config.appearance.findBarPosition.0;"/>
+			<radio value="1" label="&config.appearance.findBarPosition.1;"/>
+			<radio value="2" label="&config.appearance.findBarPosition.2;"/>
+		</radiogroup>
+	</hbox>
+	<hbox align="center">
+		<label value="&config.appearance.closeButtonPosition;"/>
+		<radiogroup id="xulmigemo.appearance.closeButtonPosition-radiogroup"
+			preference="xulmigemo.appearance.closeButtonPosition"
+			orient="horizontal">
+			<radio value="0" label="&config.appearance.closeButtonPosition.0;"/>
+			<radio value="1" label="&config.appearance.closeButtonPosition.1;"/>
+		</radiogroup>
+	</hbox>
 	</vbox>
 
 	<hbox align="center">

@@ -51,6 +51,14 @@
 <!ENTITY config.checked_by_default.findbar       "Show Find Toolbar at startup">
 <!ENTITY config.appearance.hideLabels  "Show Find Toolbar with compact buttons">
 
+<!ENTITY config.appearance.findBarPosition "Find Toolbar Position (require restart):">
+<!ENTITY config.appearance.findBarPosition.0 "Bottom">
+<!ENTITY config.appearance.findBarPosition.1 "Top">
+<!ENTITY config.appearance.findBarPosition.2 "Below Tab Bar">
+<!ENTITY config.appearance.closeButtonPosition "&quot;Close&quot; Button Position:">
+<!ENTITY config.appearance.closeButtonPosition.0 "Leftmost">
+<!ENTITY config.appearance.closeButtonPosition.1 "Rightmost">
+
 
 <!ENTITY config.tab.dictionary          "Dictionary">
 
