@@ -644,6 +644,11 @@ var XMigemoUI = {
 				this.onBlur(aEvent);
 				return;
 
+			case 'resize':
+				if (!this.findBarHidden)
+					this.updateFloatingFindBar();
+				return;
+
 			case 'load':
 				this.init();
 				return;
@@ -1354,12 +1359,10 @@ var XMigemoUI = {
 		}
 	},
  
-	updateCloseButtonPosition : function(aPosition) 
+	updateFindBarContentsOrder : function(aPosition) 
 	{
-		if (aPosition === void(0))
-			aPosition = this.closeButtonPosition;
-		if (aPosition == this.lastCloseButtonPosition) return;
-		this.lastCloseButtonPosition = aPosition;
+		if (this.closeButtonPosition == this.lastCloseButtonPosition) return;
+		this.lastCloseButtonPosition = this.closeButtonPosition;
 
 		var label = this.findLabel;
 		var items = [];
@@ -1379,7 +1382,7 @@ var XMigemoUI = {
 		while (node);
 
 		var closebox = items.shift();
-		closebox.ordinal = (aPosition == this.kCLOSEBUTTON_POSITION_RIGHTMOST) ?
+		closebox.ordinal = (this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_RIGHTMOST) ?
 				(items.length + 2) * 100 :
 				1 ;
 		items.forEach(function(aItem, aIndex) {
@@ -1490,14 +1493,18 @@ var XMigemoUI = {
 		bar.style.position = 'fixed';
 		bar.style.top = target.boxObject.y+'px';
 		bar.style.left = target.boxObject.x+'px';
-		bar.style.width = target.boxObject.width+'px';
-
-		var box = document.getAnonymousElementByAttribute(bar, 'anonid', 'findbar-container');
-		if (box) box.style.width = bar.style.width;
+		this.setFloatingFindBarWidth(target.boxObject.width);
 
 		target.style.paddingTop = bar.boxObject.height+'px';
 
 		this.lastFloatingTarget = target;
+	},
+	setFloatingFindBarWidth : function(aWidth)
+	{
+		var bar = this.findBar;
+		bar.style.width = aWidth+'px';
+		var box = document.getAnonymousElementByAttribute(bar, 'anonid', 'findbar-container');
+		if (box) box.style.width = bar.style.width;
 	},
  
 	hideFloatingFindBar : function() 
@@ -1507,6 +1514,16 @@ var XMigemoUI = {
 		if (this.lastFloatingTarget) {
 			this.lastFloatingTarget.style.paddingTop = 0;
 			this.lastFloatingTarget = null;
+		}
+	},
+ 
+	updateFloatingFindBar : function() 
+	{
+		if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS) return;
+
+		if (this.lastFloatingTarget) {
+			this.setFloatingFindBarWidth(this.lastFloatingTarget.boxObject.width);
+			this.updateMigemoBoxPosition();
 		}
 	},
    
@@ -1831,60 +1848,79 @@ var XMigemoUI = {
 	openFindBar : function(aShowMinimalUI) 
 	{
 		var ui = XMigemoUI;
-
-		if (ui.forcedFindMode > -1 && ui.findMode != ui.forcedFindMode)
-			ui.findMode = ui.forcedFindMode;
-
-		if (ui.findMode != ui.FIND_MODE_NATIVE && !ui.isActive) {
-			ui.isActive = true;
-			ui.lastFindMode = ui.findMode;
-		}
-		else if (ui.findMode == ui.FIND_MODE_NATIVE) {
-			ui.isActive = false;
-			ui.lastFindMode = ui.findMode;
-		}
+		ui.updateFindModeOnOpen();
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalOpen.apply(scope, arguments);
 		ui.findMigemoBar.removeAttribute('collapsed');
 
-		ui.updateCloseButtonPosition();
+		ui.updateFindBarContentsOrder();
 		ui.showFloatingFindBar();
 		ui.updateMigemoBoxPosition();
 
 		ui.toggleFindToolbarMode();
 
+		ui.findBarInitialShow();
+
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarOpen', true, true);
 		ui.findBar.dispatchEvent(event);
 
-		if (ui.prefillWithSelection) {
-			var win = document.commandDispatcher.focusedWindow;
-			if (!win || win.top == window.top) win = window.content;
-			var sel = (win && win.getSelection() ? win.getSelection().toString() : '' )
-						.replace(/^\s+|\s+$/g, '')
-						.replace(/\n/g, '');
-			if (!sel) return;
+		if (ui.prefillWithSelection)
+			this.doPrefillWithSelection(aShowMinimalUI);
+	},
+	findBarInitialShow : function()
+	{
+		if (this.findBarInitialShown) return;
+		this.findBarInitialShown = true;
+		window.setTimeout(function(aSelf) {
+			aSelf.findBar.hidden = true;
+			window.setTimeout(function(aSelf) {
+				aSelf.findBar.hidden = false;
+			}, 0, aSelf);
+		}, 0, this);
+	},
+	updateFindModeOnOpen : function()
+	{
+		if (this.forcedFindMode > -1 && this.findMode != this.forcedFindMode)
+			this.findMode = this.forcedFindMode;
 
-			if (ui.isActive || ui.findMode != ui.FIND_MODE_NATIVE) {
-				if (ui.isQuickFind) return;
-				ui.findTerm = sel;
-				if (
-					XMigemoFind.lastKeyword == sel ||
-					XMigemoFind.lastFoundWord == sel
-					)
-					return;
-				ui.findAgain(sel, ui.findMode);
-			}
-			else {
-				if (
-					 aShowMinimalUI ||
-					 ui.findTerm == sel
-					 )
-					 return;
-				ui.findTerm = sel;
-				ui.findAgain(sel, ui.FIND_MODE_NATIVE);
-			}
+		if (this.findMode != this.FIND_MODE_NATIVE && !this.isActive) {
+			this.isActive = true;
+			this.lastFindMode = this.findMode;
+		}
+		else if (this.findMode == this.FIND_MODE_NATIVE) {
+			this.isActive = false;
+			this.lastFindMode = this.findMode;
+		}
+	},
+	doPrefillWithSelection : function(aShowMinimalUI)
+	{
+		var win = document.commandDispatcher.focusedWindow;
+		if (!win || win.top == window.top) win = window.content;
+		var sel = (win && win.getSelection() ? win.getSelection().toString() : '' )
+					.replace(/^\s+|\s+$/g, '')
+					.replace(/\n/g, '');
+		if (!sel) return;
+
+		if (this.isActive || this.findMode != this.FIND_MODE_NATIVE) {
+			if (this.isQuickFind) return;
+			this.findTerm = sel;
+			if (
+				XMigemoFind.lastKeyword == sel ||
+				XMigemoFind.lastFoundWord == sel
+				)
+				return;
+			this.findAgain(sel, this.findMode);
+		}
+		else {
+			if (
+				 aShowMinimalUI ||
+				 this.findTerm == sel
+				 )
+				 return;
+			this.findTerm = sel;
+			this.findAgain(sel, this.FIND_MODE_NATIVE);
 		}
 	},
  
@@ -2249,6 +2285,7 @@ var XMigemoUI = {
 
 		document.addEventListener('XMigemoFindProgress', this, false);
 		document.addEventListener('XMigemoFindAgain', this, false);
+		window.addEventListener('resize', this, false);
 
 		if ('SplitBrowser' in window) {
 			var root = document.documentElement;
@@ -2276,7 +2313,7 @@ var XMigemoUI = {
 		}
 
 		this.updateFindBarPosition();
-		this.updateCloseButtonPosition();
+		this.updateFindBarContentsOrder();
 		this.overrideFindBar();
 
 		XMigemoService.addPrefListener(this);
@@ -2311,6 +2348,7 @@ var XMigemoUI = {
 
 		document.removeEventListener('XMigemoFindProgress', this, false);
 		document.removeEventListener('XMigemoFindAgain', this, false);
+		window.removeEventListener('resize', this, false);
 
 		if ('SplitBrowser' in window) {
 			var root = document.documentElement;

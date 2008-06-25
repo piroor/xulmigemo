@@ -23,5 +23,6 @@
 }
 
 :root[splitbrowser-split="true"] #FindToolbar[xmigemo-floating-findbar] [anonid="find-status"] {
-	display: none;
+	font-size: 1px;
+	visibility: hidden;
 }
