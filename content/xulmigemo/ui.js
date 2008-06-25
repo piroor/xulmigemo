@@ -14,6 +14,8 @@ var XMigemoUI = {
 	forcedFindMode   : -1,
 	lastFindMode     : -1,
 	backupFindMode   : -1,
+
+	kFLOATING : 'xmigemo-floating-findbar',
  
 	autoStartQuickFind       : false, 
 	autoExitQuickFindInherit : true,
@@ -363,7 +365,7 @@ var XMigemoUI = {
 	},
   
 /* nsIPrefListener(?) */ 
-	 
+	
 	domain  : 'xulmigemo', 
  
 	preferences : <><![CDATA[ 
@@ -650,8 +652,20 @@ var XMigemoUI = {
 				this.destroy();
 				return;
 
+			case 'SubBrowserContentExpanded':
+				if (!this.findBarHidden) return;
+			case 'SubBrowserAdded':
+			case 'SubBrowserRemoved':
+			case 'SubBrowserContentCollapsed':
+				if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS)
+					gFindBar.closeFindBar();
+				return;
+
 			case 'SubBrowserFocusMoved':
+				if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS)
+					gFindBar.closeFindBar();
 				XMigemoFind.target = this.activeBrowser;
+				this.findBar.setAttribute(this.kFLOATING, this.activeBrowser.id || 'subbrowser');
 				return;
 
 			default:
@@ -667,7 +681,7 @@ var XMigemoUI = {
 			)
 			return;
 	},
-	 
+	
 	isEventFiredInInputField : function(aEvent) 
 	{
 		try { // in rich-textarea (ex. Gmail)
@@ -1079,7 +1093,7 @@ var XMigemoUI = {
 				break;
 		}
 	},
-  
+  	
 /* Migemo Find */ 
 	
 /* timer */ 
@@ -1365,15 +1379,15 @@ var XMigemoUI = {
 		while (node);
 
 		var closebox = items.shift();
-		closebox.ordinal = (aPosition == this.kPOSITION_RIGHTMOST) ?
+		closebox.ordinal = (aPosition == this.kCLOSEBUTTON_POSITION_RIGHTMOST) ?
 				(items.length + 2) * 100 :
 				1 ;
 		items.forEach(function(aItem, aIndex) {
 			aItem.ordinal = (aIndex + 1) * 100;
 		});
 	},
-	kPOSITION_LEFTMOST : 0,
-	kPOSITION_RIGHTMOST : 1,
+	kCLOSEBUTTON_POSITION_LEFTMOST : 0,
+	kCLOSEBUTTON_POSITION_RIGHTMOST : 1,
 	closeButtonPosition : 0,
 	lastCloseButtonPosition : 0,
  
@@ -1387,20 +1401,117 @@ var XMigemoUI = {
 				- this.findBar.boxObject.x
 				- this.findBar.boxObject.width
 				+ (
-					(this.closeButtonPosition == this.kPOSITION_RIGHTMOST) ?
+					(this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_RIGHTMOST) ?
 						this.findCloseButton.boxObject.width :
 						0
 				)
 			)+'px';
-		box.style.bottom = (
-			document.documentElement.boxObject.height
-			- this.findBar.boxObject.y
-			- this.findBar.boxObject.height
-		)+'px';
+		box.style.top = (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_CONTENT) ?
+			'auto' :
+			this.findBar.boxObject.y+'px' ;
+		box.style.bottom = (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_CONTENT) ?
+			(
+				document.documentElement.boxObject.height
+				- this.findBar.boxObject.y
+				- this.findBar.boxObject.height
+			)+'px' :
+			'auto' ;
 	},
- 	 
-/* Override FindBar */ 
+ 
+	updateFindBarPosition : function() 
+	{
+		this.findBarPosition = XMigemoService.getPref('xulmigemo.appearance.findBarPosition');
+
+		var bar = this.findBar;
+		switch (this.findBarPosition)
+		{
+			case this.kFINDBAR_POSITION_ABOVE_CONTENT:
+				var browser = document.getElementById('browser');
+				try {
+					if ('gFindBar' in window &&
+						'uninitFindBar' in gFindBar)
+						gFindBar.uninitFindBar();
+				}
+				catch(e) {
+				}
+				bar = bar.parentNode.removeChild(bar);
+				browser.parentNode.insertBefore(bar, browser);
+				try {
+					if ('gFindBar' in window &&
+						'initFindBar' in gFindBar)
+						gFindBar.initFindBar();
+				}
+				catch(e) {
+				}
+				return;
+
+			case this.kFINDBAR_POSITION_BELOW_TABS:
+				bar.setAttribute(this.kFLOATING, this.activeBrowser.id);
+/*
+				try {
+					if ('gFindBar' in window &&
+						'uninitFindBar' in gFindBar)
+						gFindBar.uninitFindBar();
+				}
+				catch(e) {
+				}
+				bar = bar.parentNode.removeChild(bar);
+				gBrowser.mPanelContainer.parentNode.insertBefore(bar, gBrowser.mPanelContainer);
+				try {
+					if ('gFindBar' in window &&
+						'initFindBar' in gFindBar)
+						gFindBar.initFindBar();
+				}
+				catch(e) {
+				}
+*/
+				return;
+
+			default:
+				return;
+		}
+	},
+	kFINDBAR_POSITION_BELOW_CONTENT : 0,
+	kFINDBAR_POSITION_ABOVE_CONTENT : 1,
+	kFINDBAR_POSITION_BELOW_TABS    : 2,
+	findBarPosition : 0,
 	 
+	showFloatingFindBar : function() 
+	{
+		if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS) return;
+
+		this.hideFloatingFindBar();
+
+		var bar = this.findBar;
+		var target = XMigemoFind.target;
+		if (target.localName == 'tabbrowser')
+			target = target.mPanelContainer;
+
+		bar.style.position = 'fixed';
+		bar.style.top = target.boxObject.y+'px';
+		bar.style.left = target.boxObject.x+'px';
+		bar.style.width = target.boxObject.width+'px';
+
+		var box = document.getAnonymousElementByAttribute(bar, 'anonid', 'findbar-container');
+		if (box) box.style.width = bar.style.width;
+
+		target.style.paddingTop = bar.boxObject.height+'px';
+
+		this.lastFloatingTarget = target;
+	},
+ 
+	hideFloatingFindBar : function() 
+	{
+		if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS) return;
+
+		if (this.lastFloatingTarget) {
+			this.lastFloatingTarget.style.paddingTop = 0;
+			this.lastFloatingTarget = null;
+		}
+	},
+   
+/* Override FindBar */ 
+	
 	overrideFindBar : function() 
 	{
 		/*
@@ -1738,6 +1849,7 @@ var XMigemoUI = {
 		ui.findMigemoBar.removeAttribute('collapsed');
 
 		ui.updateCloseButtonPosition();
+		ui.showFloatingFindBar();
 		ui.updateMigemoBoxPosition();
 
 		ui.toggleFindToolbarMode();
@@ -1781,6 +1893,13 @@ var XMigemoUI = {
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalClose.apply(scope, arguments);
 
+		if (XMigemoUI.findBar.getAttribute('collapsed') == 'true' ||
+			XMigemoUI.findBar.getAttribute('hidden') == 'true') {
+			XMigemoUI.migemoModeBox.setAttribute('hidden', true);
+			XMigemoUI.findMigemoBar.setAttribute('collapsed', true);
+		}
+		XMigemoUI.hideFloatingFindBar();
+
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarClose', true, true);
 		XMigemoUI.findBar.dispatchEvent(event);
@@ -1791,11 +1910,13 @@ var XMigemoUI = {
 	},
 	delayedCloseFindBar : function()
 	{
+/*
 		if (this.findBar.getAttribute('collapsed') == 'true' ||
 			this.findBar.getAttribute('hidden') == 'true') {
 			this.migemoModeBox.setAttribute('hidden', true);
 			this.findMigemoBar.setAttribute('collapsed', true);
 		}
+*/
 
 		if (this.isActive) this.cancel(true);
 
@@ -2129,6 +2250,15 @@ var XMigemoUI = {
 		document.addEventListener('XMigemoFindProgress', this, false);
 		document.addEventListener('XMigemoFindAgain', this, false);
 
+		if ('SplitBrowser' in window) {
+			var root = document.documentElement;
+			root.addEventListener('SubBrowserAdded', this, false);
+			root.addEventListener('SubBrowserRemoved', this, false);
+			root.addEventListener('SubBrowserContentCollapsed', this, false);
+			root.addEventListener('SubBrowserContentExpanded', this, false);
+			root.addEventListener('SubBrowserFocusMoved', this, false);
+		}
+
 		var browser = this.browser;
 		if (browser) {
 			XMigemoFind = Components
@@ -2145,6 +2275,8 @@ var XMigemoUI = {
 			target.addEventListener('mouseup', this, true);
 		}
 
+		this.updateFindBarPosition();
+		this.updateCloseButtonPosition();
 		this.overrideFindBar();
 
 		XMigemoService.addPrefListener(this);
@@ -2179,6 +2311,15 @@ var XMigemoUI = {
 
 		document.removeEventListener('XMigemoFindProgress', this, false);
 		document.removeEventListener('XMigemoFindAgain', this, false);
+
+		if ('SplitBrowser' in window) {
+			var root = document.documentElement;
+			root.removeEventListener('SubBrowserAdded', this, false);
+			root.removeEventListener('SubBrowserRemoved', this, false);
+			root.removeEventListener('SubBrowserContentCollapsed', this, false);
+			root.removeEventListener('SubBrowserContentExpanded', this, false);
+			root.removeEventListener('SubBrowserFocusMoved', this, false);
+		}
 
 		var browser = this.browser;
 		if (browser) {
