@@ -13,6 +13,15 @@
 }
 
 
-[anonid="find-status"] {
+#FindToolbar[xmigemo-floating-findbar],
+#FindToolbar[xmigemo-floating-findbar] > [anonid="findbar-container"] {
+	overflow: hidden;
+}
+
+#FindToolbar [anonid="find-status"] {
 	-moz-box-flex: 1;
+}
+
+:root[splitbrowser-split="true"] #FindToolbar[xmigemo-floating-findbar] [anonid="find-status"] {
+	display: none;
 }

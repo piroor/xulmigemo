@@ -52,6 +52,8 @@ pref("xulmigemo.appearance.hideLabels",         false);
 pref("xulmigemo.appearance.indicator.height",   5);
 // 0 = leftmost, 1 = rightmost
 pref("xulmigemo.appearance.closeButtonPosition", 0);
+// 0 = below content area, 1 = above content area, 2 = between tab bar and content area
+pref("xulmigemo.appearance.findBarPosition", 0);
 
 pref("xulmigemo.shortcut.manualStart",           "/");
 pref("xulmigemo.shortcut.manualStart2",          "Accel+Shift+F");
