@@ -50,6 +50,8 @@ pref("xulmigemo.enableautoexit.nokeyword",      true);
 pref("xulmigemo.enabletimeout.indicator",       true);
 pref("xulmigemo.appearance.hideLabels",         false);
 pref("xulmigemo.appearance.indicator.height",   5);
+// 0 = leftmost, 1 = rightmost
+pref("xulmigemo.appearance.closeButtonPosition", 0);
 
 pref("xulmigemo.shortcut.manualStart",           "/");
 pref("xulmigemo.shortcut.manualStart2",          "Accel+Shift+F");
