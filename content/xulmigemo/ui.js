@@ -101,6 +101,28 @@ var XMigemoUI = {
 	},
 	_findBar : null,
  
+	get findBarItems()
+	{
+		var label = this.findLabel;
+		var items = [];
+
+		var node = label;
+		while (node.previousSibling)
+		{
+			node = node.previousSibling;
+			items.unshift(node);
+		}
+
+		node = label;
+		do {
+			items.push(node);
+			node = node.nextSibling;
+		}
+		while (node);
+
+		return items;
+	},
+ 
 	get findCloseButton() 
 	{
 		if (this._findCloseButton === void(0)) {
@@ -656,8 +678,9 @@ var XMigemoUI = {
 				return;
 
 			case 'resize':
+			case 'TreeStyleTabAutoHideStateChange':
 				if (this.findBarHidden) return;
-				this.updateFloatingFindToolbar();
+				this.updateFloatingFindToolbar(aEvent);
 				this.onChangeFindToolbarSize();
 				return;
 
@@ -1404,23 +1427,7 @@ var XMigemoUI = {
 		if (this.closeButtonPosition == this.lastCloseButtonPosition) return;
 		this.lastCloseButtonPosition = this.closeButtonPosition;
 
-		var label = this.findLabel;
-		var items = [];
-
-		var node = label;
-		while (node.previousSibling)
-		{
-			node = node.previousSibling;
-			items.unshift(node);
-		}
-
-		node = label;
-		do {
-			items.push(node);
-			node = node.nextSibling;
-		}
-		while (node);
-
+		var items = this.findBarItems;
 		var closebox = items.shift();
 		closebox.ordinal = (this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_RIGHTMOST) ?
 				(items.length + 2) * 100 :
@@ -1543,7 +1550,7 @@ var XMigemoUI = {
 		}
 	},
  
-	updateFloatingFindToolbar : function() 
+	updateFloatingFindToolbar : function(aEvent) 
 	{
 		var bar = this.findBar;
 		var target = this.floatingFindBarTarget;
@@ -1551,7 +1558,15 @@ var XMigemoUI = {
 		bar.style.position = 'fixed';
 		bar.style.top = target.boxObject.y+'px';
 		bar.style.left = target.boxObject.x+'px';
-		this.setFloatingFindToolbarWidth(target.boxObject.width);
+
+		var width = target.boxObject.width;
+		if (aEvent &&
+			aEvent.type == 'TreeStyleTabAutoHideStateChange' &&
+			aEvent.shown &&
+			aEvent.xOffset)
+			width -= aEvent.xOffset;
+
+		this.setFloatingFindToolbarWidth(width);
 	},
 	 
 	setFloatingFindToolbarWidth : function(aWidth) 
@@ -1906,13 +1921,26 @@ var XMigemoUI = {
 		ui.findBar.dispatchEvent(event);
 
 		if (ui.prefillWithSelection)
-			this.doPrefillWithSelection(aShowMinimalUI);
+			ui.doPrefillWithSelection(aShowMinimalUI);
 	},
 	findBarInitialShow : function()
 	{
 		if (this.findBarInitialShown) return;
 		this.findBarInitialShown = true;
 		window.setTimeout(function(aSelf) {
+			var items = aSelf.findBarItems;
+			items.sort(function(aA, aB) {
+				return parseInt(aA.ordinal) - parseInt(aB.ordinal);
+			});
+			var wrongOrder = false;
+			for (var i = 1, maxi = items.length-1; i < maxi; i++)
+			{
+				if (items[i].boxObject.x < items[i+1].boxObject.x) continue;
+				wrongOrder = true;
+				break;
+			}
+			if (!wrongOrder) return;
+
 			aSelf.findBar.hidden = true;
 			window.setTimeout(function(aSelf) {
 				aSelf.findBar.hidden = false;
@@ -2334,6 +2362,8 @@ var XMigemoUI = {
 			root.addEventListener('SubBrowserContentExpanded', this, false);
 			root.addEventListener('SubBrowserFocusMoved', this, false);
 		}
+		if ('TreeStyleTabService' in window)
+			document.addEventListener('TreeStyleTabAutoHideStateChange', this, false);
 
 		var browser = this.browser;
 		if (browser) {
@@ -2397,6 +2427,8 @@ var XMigemoUI = {
 			root.removeEventListener('SubBrowserContentExpanded', this, false);
 			root.removeEventListener('SubBrowserFocusMoved', this, false);
 		}
+		if ('TreeStyleTabService' in window)
+			document.removeEventListener('TreeStyleTabAutoHideStateChange', this, false);
 
 		var browser = this.browser;
 		if (browser) {
