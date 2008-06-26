@@ -2058,16 +2058,11 @@ var XMigemoUI = {
 	toggleHighlight : function(aHighlight) 
 	{
 		if (XMigemoUI.highlightCheckedAlways) {
-			var newHighlight = XMigemoUI.findTerm && XMigemoUI.shouldHighlightAll ? true : false ;
-			if (XMigemoUI.findHighlightCheck.checked != newHighlight)
-				window.setTimeout(function(aNewState) {
-					XMigemoUI.findHighlightCheck.checked = aNewState;
-				}, 0, newHighlight);
-			if (aHighlight != newHighlight)
-				window.setTimeout(function(aSelf, aNewState) {
-					if (XMigemoUI.findHighlightCheck.checked != aNewState)
-						aSelf.toggleHighlight(aNewState);
-				}, 10, this, newHighlight);
+			var newHighlight = (XMigemoUI.findTerm && XMigemoUI.shouldHighlightAll) ? true : false ;
+			if (aHighlight != newHighlight) {
+				XMigemoUI.stopDelayedToggleHighlightTimer();
+				XMigemoUI.delayedToggleHighlightTimer = window.setTimeout(XMigemoUI.delayedToggleHighlight, 10, this, newHighlight);
+			}
 		}
 
 		var event = document.createEvent('Events');
@@ -2081,6 +2076,21 @@ var XMigemoUI = {
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalToggleHighlight.apply(scope, arguments);
 	},
+ 
+	stopDelayedToggleHighlightTimer : function(aNewState, aSelf)
+	{
+		if (aSelf.delayedToggleHighlightTimer) {
+			window.clearTimeout(aSelf.delayedToggleHighlightTimer);
+			aSelf.delayedToggleHighlightTimer = null;
+		}
+	},
+	delayedToggleHighlight : function(aNewState, aSelf)
+	{
+		aSelf.stopDelayedToggleHighlightTimer();
+		if (aSelf.findHighlightCheck.checked != aNewState)
+			aSelf.toggleHighlight(aNewState);
+	},
+	delayedToggleHighlightTimer : null,
  
 	clearHighlight : function(aDocument, aRecursively) 
 	{
