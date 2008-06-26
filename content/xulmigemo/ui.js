@@ -107,23 +107,13 @@ var XMigemoUI = {
  
 	get findBarItems()
 	{
-		var label = this.findLabel;
+		var node = this.findCloseButton;
 		var items = [];
-
-		var node = label;
-		while (node.previousSibling)
-		{
-			node = node.previousSibling;
-			items.unshift(node);
-		}
-
-		node = label;
 		do {
 			items.push(node);
 			node = node.nextSibling;
 		}
 		while (node);
-
 		return items;
 	},
  
@@ -552,6 +542,7 @@ var XMigemoUI = {
 
 			case 'xulmigemo.appearance.closeButtonPosition':
 				this.closeButtonPosition = value;
+				this.findBarInitialShown = false;
 				return;
 
 			case 'xulmigemo.disableIME.quickFind':
@@ -1162,7 +1153,7 @@ var XMigemoUI = {
 		if (this.buttonLabelsMode == this.kLABELS_AUTO) {
 			this.showHideLabels(true);
 			var box = this.findCaseSensitiveCheck.boxObject;
-			if (box.x + box.width > this.findModeSelector.boxObject.x) {
+			if (box.x + box.width > this.findModeSelector.boxObject.x - 25) {
 				this.showHideLabels(false);
 				shouldUpdatePosition = true;
 			}
