@@ -368,9 +368,10 @@ var XMigemoUI = {
 			return term.length ? true : false ;
 
 		var minLength = Math.min(1, this.highlightCheckedAlwaysMinLength);
+		var maxLength = term.length;
 
-		if (this.isActive) {
-			maxLength = Math.max.apply(
+		if (this.isActive && maxLength) {
+			tmpMaxLength = Math.max.apply(
 				null,
 				XMigemoCore.regExpFindArrRecursively(
 					new RegExp(
@@ -388,10 +389,10 @@ var XMigemoUI = {
 				})
 				.concat(0) // to prevent "-Infinity" error
 			);
-			if (!maxLength) maxLength = term.length;
+			if (tmpMaxLength) maxLength = tmpMaxLength;
 		}
 
-		return minLength <= term.length;
+		return minLength <= maxLength;
 	},
   
 /* nsIPrefListener(?) */ 
@@ -2055,14 +2056,18 @@ var XMigemoUI = {
  
 /* highlight */ 
 	
-	toggleHighlight : function(aHighlight) 
+	toggleHighlight : function(aHighlight, aDelayed) 
 	{
-		if (XMigemoUI.highlightCheckedAlways) {
-			var newHighlight = (XMigemoUI.findTerm && XMigemoUI.shouldHighlightAll) ? true : false ;
-			if (aHighlight != newHighlight) {
-				XMigemoUI.stopDelayedToggleHighlightTimer();
-				XMigemoUI.delayedToggleHighlightTimer = window.setTimeout(XMigemoUI.delayedToggleHighlight, 10, this, newHighlight);
-			}
+		if (XMigemoUI.highlightCheckedAlways && !aDelayed) {
+			XMigemoUI.stopDelayedToggleHighlightTimer();
+			XMigemoUI.delayedToggleHighlightTimer = window.setTimeout(function() {
+				var highlight = XMigemoUI.shouldHighlightAll;
+				var disabled = XMigemoUI.findHighlightCheck.disabled;
+				var checked = XMigemoUI.findHighlightCheck.checked;
+				if (highlight && (!XMigemoUI.findTerm || !checked)) highlight = false;
+				if (highlight != checked || disabled)
+					XMigemoUI.delayedToggleHighlight(highlight);
+			}, 10);
 		}
 
 		var event = document.createEvent('Events');
@@ -2077,18 +2082,18 @@ var XMigemoUI = {
 		scope.xmigemoOriginalToggleHighlight.apply(scope, arguments);
 	},
  
-	stopDelayedToggleHighlightTimer : function(aNewState, aSelf)
+	stopDelayedToggleHighlightTimer : function()
 	{
-		if (aSelf.delayedToggleHighlightTimer) {
-			window.clearTimeout(aSelf.delayedToggleHighlightTimer);
-			aSelf.delayedToggleHighlightTimer = null;
+		if (this.delayedToggleHighlightTimer) {
+			window.clearTimeout(this.delayedToggleHighlightTimer);
+			this.delayedToggleHighlightTimer = null;
 		}
 	},
-	delayedToggleHighlight : function(aNewState, aSelf)
+	delayedToggleHighlight : function(aNewState)
 	{
-		aSelf.stopDelayedToggleHighlightTimer();
-		if (aSelf.findHighlightCheck.checked != aNewState)
-			aSelf.toggleHighlight(aNewState);
+		this.stopDelayedToggleHighlightTimer();
+		if (this.findHighlightCheck.checked != aNewState)
+			this.toggleHighlight(aNewState, true);
 	},
 	delayedToggleHighlightTimer : null,
  
