@@ -367,7 +367,7 @@ var XMigemoUI = {
 		if (!this.highlightCheckedAlways)
 			return term.length ? true : false ;
 
-		var minLength = this.highlightCheckedAlwaysMinLength;
+		var minLength = Math.min(1, this.highlightCheckedAlwaysMinLength);
 
 		if (this.isActive) {
 			maxLength = Math.max.apply(
