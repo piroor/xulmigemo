@@ -51,6 +51,10 @@
 <!ENTITY config.checked_by_default.findbar       "Show Find Toolbar at startup">
 <!ENTITY config.appearance.hideLabels  "Show Find Toolbar with compact buttons">
 
+<!ENTITY config.appearance.buttonLabelsMode "Appearance of Find Toolbar Buttons:">
+<!ENTITY config.appearance.buttonLabelsMode.0 "Full Size">
+<!ENTITY config.appearance.buttonLabelsMode.1 "Auto">
+<!ENTITY config.appearance.buttonLabelsMode.2 "Compact">
 <!ENTITY config.appearance.findBarPosition "Find Toolbar Position (require restart):">
 <!ENTITY config.appearance.findBarPosition.0 "Bottom">
 <!ENTITY config.appearance.findBarPosition.1 "Top">
