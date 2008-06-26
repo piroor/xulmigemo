@@ -1946,15 +1946,15 @@ var XMigemoUI = {
 		this.findBarInitialShown = true;
 		window.setTimeout(function(aSelf) {
 			var items = aSelf.findBarItems;
-			items.sort(function(aA, aB) {
-				return parseInt(aA.ordinal) - parseInt(aB.ordinal);
-			});
+			items = items.sort(function(aA, aB) {
+					return parseInt(aA.ordinal) - parseInt(aB.ordinal);
+				}).filter(function(aItem) {
+					return aItem.boxObject.x;
+				});
 			var wrongOrder = false;
-			for (var i = 1, maxi = items.length-1; i < maxi; i++)
+			for (var i = 0, maxi = items.length-1; i < maxi; i++)
 			{
-				if (!items[i].boxObject.x ||
-					!items[i+1].boxObject.x ||
-					items[i].boxObject.x < items[i+1].boxObject.x)
+				if (items[i].boxObject.x < items[i+1].boxObject.x)
 					continue;
 				wrongOrder = true;
 				break;
