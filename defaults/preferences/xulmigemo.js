@@ -48,7 +48,8 @@ pref("xulmigemo.enableautoexit.inherit",        true);
 pref("xulmigemo.enableautoexit.nokeyword",      true);
 
 pref("xulmigemo.enabletimeout.indicator",       true);
-pref("xulmigemo.appearance.hideLabels",         false);
+// 0 = always show labels, 1 = auto, 2 = always hide labels
+pref("xulmigemo.appearance.buttonLabelsMode",   1);
 pref("xulmigemo.appearance.indicator.height",   5);
 // 0 = leftmost, 1 = rightmost
 pref("xulmigemo.appearance.closeButtonPosition", 0);

@@ -128,9 +128,9 @@
 			name="xulmigemo.checked_by_default.findbar"
 			type="bool"/>
 
-		<preference id="xulmigemo.appearance.hideLabels"
-			name="xulmigemo.appearance.hideLabels"
-			type="bool"/>
+		<preference id="xulmigemo.appearance.buttonLabelsMode"
+			name="xulmigemo.appearance.buttonLabelsMode"
+			type="int"/>
 		<preference id="xulmigemo.appearance.findBarPosition"
 			name="xulmigemo.appearance.findBarPosition"
 			type="int"/>
@@ -187,9 +187,16 @@
 	<checkbox id="xulmigemo.checked_by_default.findbar-check" flex="1"
 		label="&config.checked_by_default.findbar;"
 		preference="xulmigemo.checked_by_default.findbar"/>
-	<checkbox id="xulmigemo.appearance.hideLabels-check" flex="1"
-		label="&config.appearance.hideLabels;"
-		preference="xulmigemo.appearance.hideLabels"/>
+	<hbox align="center">
+		<label value="&config.appearance.buttonLabelsMode;"/>
+		<radiogroup id="xulmigemo.appearance.buttonLabelsMode-radiogroup"
+			preference="xulmigemo.appearance.buttonLabelsMode"
+			orient="horizontal">
+			<radio value="1" label="&config.appearance.buttonLabelsMode.1;"/>
+			<radio value="0" label="&config.appearance.buttonLabelsMode.0;"/>
+			<radio value="2" label="&config.appearance.buttonLabelsMode.2;"/>
+		</radiogroup>
+	</hbox>
 	<hbox align="center">
 		<label value="&config.appearance.findBarPosition;"/>
 		<radiogroup id="xulmigemo.appearance.findBarPosition-radiogroup"

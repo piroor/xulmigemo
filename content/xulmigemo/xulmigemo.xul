@@ -4,7 +4,7 @@
 <!DOCTYPE overlay [
 <!ENTITY % mainDTD SYSTEM "chrome://xulmigemo/locale/xulmigemo.dtd">
 %mainDTD;
-<!ENTITY % platformDTD SYSTEM "chrome://xulmigemo-platform/locale/xulmigemo.dtd">
+<!ENTITY % platformDTD SYSTEM "chrome://xulmigemo-platform/locale/buttonLabels.dtd">
 %platformDTD;
 ]>
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -33,7 +33,7 @@
 		<radiogroup id="find-mode-selector"
 			value="0"
 			orient="horizontal"
-			onselect="XMigemoUI.onChangeFindToolbarMode();"
+			onselect="XMigemoUI.onChangeFindBarMode();"
 			style="width: 100%; -moz-box-pack: end;">
 			<radio value="0"
 				label="&ui.mode.normal.label;"

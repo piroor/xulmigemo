@@ -41,7 +41,10 @@ var XMigemoUI = {
 
 	isModeChanged : false,
 
-	hideLabels : false,
+	buttonLabelsMode : 1,
+	kLABELS_SHOW : 0,
+	kLABELS_AUTO : 1,
+	kLABELS_HIDE : 2,
 
 	kLAST_HIGHLIGHT : '_moz-xmigemo-last-highlight',
 
@@ -287,7 +290,7 @@ var XMigemoUI = {
 				this.findModeSelector.value = mode = this.FIND_MODE_NATIVE;
 				break;
 		}
-		this.onChangeFindToolbarMode();
+		this.onChangeFindBarMode();
 		return mode;
 	},
  
@@ -427,7 +430,7 @@ var XMigemoUI = {
 		xulmigemo.shortcut.goDicManager
 		xulmigemo.shortcut.manualExit
 		xulmigemo.shortcut.openAgain
-		xulmigemo.appearance.hideLabels
+		xulmigemo.appearance.buttonLabelsMode
 		xulmigemo.appearance.indicator.height
 		xulmigemo.appearance.closeButtonPosition
 		xulmigemo.disableIME.quickFind
@@ -535,9 +538,12 @@ var XMigemoUI = {
 				this.openAgainAction = value;
 				return;
 
-			case 'xulmigemo.appearance.hideLabels':
-				this.hideLabels = value;
-				this.showHideLabels(!value);
+			case 'xulmigemo.appearance.buttonLabelsMode':
+				this.buttonLabelsMode = value;
+				if (value == this.kLABELS_AUTO)
+					this.onChangeFindBarSize();
+				else
+					this.showHideLabels(value != this.kLABELS_HIDE);
 				return;
 
 			case 'xulmigemo.appearance.indicator.height':
@@ -686,7 +692,7 @@ var XMigemoUI = {
 			case 'TreeStyleTabAutoHideStateChange':
 				if (this.findBarHidden) return;
 				this.updateFloatingFindBarAppearance(aEvent);
-				this.onChangeFindToolbarSize(aEvent);
+				this.onChangeFindBarSize(aEvent);
 				return;
 
 			case 'load':
@@ -1083,7 +1089,7 @@ var XMigemoUI = {
 			this.cancel();
 	},
  
-	onChangeFindToolbarMode : function() 
+	onChangeFindBarMode : function() 
 	{
 		this.clearTimer();
 		gFindBar.toggleHighlight(false);
@@ -1136,7 +1142,7 @@ var XMigemoUI = {
 				var selector = this.findModeSelector;
 				var items = selector.childNodes;
 				this.findMode = items[(selector.selectedIndex + 1) % (items.length)].value;
-				this.onChangeFindToolbarMode();
+				this.onChangeFindBarMode();
 				break;
 
 			case this.ACTION_CLOSE:
@@ -1145,7 +1151,7 @@ var XMigemoUI = {
 		}
 	},
  
-	onChangeFindToolbarSize : function(aEvent) 
+	onChangeFindBarSize : function(aEvent) 
 	{
 		var shouldUpdatePosition = false;
 		if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS &&
@@ -1153,15 +1159,16 @@ var XMigemoUI = {
 			this.setFloatingFindBarWidth(this.lastTargetBox.boxObject.width, aEvent);
 			shouldUpdatePosition = true;
 		}
-		if (!this.hideLabels) {
+		if (this.buttonLabelsMode == this.kLABELS_AUTO) {
 			this.showHideLabels(true);
-		}
-		if (this.findCloseButton.boxObject.x > document.documentElement.boxObject.width) {
-			this.showHideLabels(false);
-			shouldUpdatePosition = true;
-		}
-		else {
-			this.showHideLabels(!this.hideLabels);
+			var box = this.findCaseSensitiveCheck.boxObject;
+			if (box.x + box.width > this.findModeSelector.boxObject.x) {
+				this.showHideLabels(false);
+				shouldUpdatePosition = true;
+			}
+			else {
+				this.showHideLabels(true);
+			}
 		}
 		if (shouldUpdatePosition)
 			this.updateMigemoBoxPosition();
@@ -1524,7 +1531,7 @@ var XMigemoUI = {
 		var floating = (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS);
 		if (floating) {
 			this.updateFloatingFindBarAppearance();
-			this.onChangeFindToolbarSize();
+			this.onChangeFindBarSize();
 		}
 
 		var height = this.findBar.boxObject.height;
@@ -1918,7 +1925,7 @@ var XMigemoUI = {
 		ui.updateFindBarAppearanceForTarget();
 		ui.updateMigemoBoxPosition();
 		if (ui.lastWindowWidth != window.innerWidth) {
-			ui.onChangeFindToolbarSize();
+			ui.onChangeFindBarSize();
 			ui.lastWindowWidth = window.innerWidth;
 		}
 
