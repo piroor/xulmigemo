@@ -1478,12 +1478,16 @@ var XMigemoUI = {
 		if (this.findBarPosition < 0 || this.findBarPosition >= this.findBarPositionAttrValues.length)
 			this.findBarPosition = this.kFINDBAR_POSITION_BELOW_CONTENT;
 
+		if ('XMigemoMail' in window && this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS)
+			this.findBarPosition = this.kFINDBAR_POSITION_ABOVE_CONTENT;
+
 		var bar = this.findBar;
 		bar.setAttribute(this.kFINDBAR_POSITION, this.findBarPositionAttrValues[this.findBarPosition]);
 
 		if (this.findBarPosition != this.kFINDBAR_POSITION_ABOVE_CONTENT) return;
 
-		var browser = document.getElementById('browser');
+		var contentArea = document.getElementById('browser') || // Firefox
+					document.getElementById('messagepane'); // Thunderbird
 		try {
 			if ('gFindBar' in window &&
 				'uninitFindBar' in gFindBar)
@@ -1492,7 +1496,7 @@ var XMigemoUI = {
 		catch(e) {
 		}
 		bar = bar.parentNode.removeChild(bar);
-		browser.parentNode.insertBefore(bar, browser);
+		contentArea.parentNode.insertBefore(bar, contentArea);
 		try {
 			if ('gFindBar' in window &&
 				'initFindBar' in gFindBar)
