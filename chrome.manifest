@@ -7,6 +7,7 @@ overlay	chrome://global/content/viewPartialSource.xul	chrome://xulmigemo/content
 overlay	chrome://help/content/help.xul	chrome://xulmigemo/content/helpOverlay.xul
 
 overlay	chrome://browser/content/bookmarks/bookmarksPanel.xul	chrome://xulmigemo/content/places/bookmarksPanelOverlay.xul
+overlay	chrome://browser/content/history/history-panel.xul	chrome://xulmigemo/content/places/historyPanelOverlay.xul
 overlay	chrome://browser/content/places/places.xul	chrome://xulmigemo/content/places/organizerOverlay.xul
 
 overlay	chrome://messenger/content/messenger.xul	chrome://xulmigemo/content/mailWindowOverlay.xul
