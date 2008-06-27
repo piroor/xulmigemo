@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script src="chrome://xulmigemo/content/core.js" type="application/x-javascript; e4x=1"/>
+<script src="chrome://xulmigemo/content/places/organizerOverlay.js" type="application/x-javascript; e4x=1"/>
+
+</overlay>
