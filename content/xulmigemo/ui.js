@@ -405,7 +405,7 @@ var XMigemoUI = {
 		var minLength = Math.max(1, this.highlightCheckedAlwaysMinLength);
 		var termLength = term.length;
 
-		if (this.isActive && termLength) {
+		if (this.findMode != this.FIND_MODE_NATIVE && termLength) {
 			var maxLength = Math.max.apply(
 				null,
 				XMigemoCore.regExpFindArrRecursively(

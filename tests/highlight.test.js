@@ -56,7 +56,7 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
 	yield Do(assert.find_notFound(aNGLong, message));
-	assert.isTrue(XMigemoUI.shouldHighlightAll);
+	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, true, message);
 }
 
