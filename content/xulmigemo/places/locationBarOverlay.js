@@ -70,6 +70,12 @@ XMigemoLocationBarSearchResolver.prototype = {
 		return document.getAnonymousNodes(this.panel)[0];
 	},
  
+	get items() 
+	{
+		return this._items;
+	},
+	_items : [],
+ 
 	doSearch : function(aTerm) 
 	{
 		this.textbox.open = true;
@@ -78,7 +84,11 @@ XMigemoLocationBarSearchResolver.prototype = {
  
 	onSearchComplete : function() 
 	{
-		alert(this.listbox.itemCount);
+		this._items = this.listbox.children;
+		this._items.forEach(function(aItem) {
+			aItem.frecency = XMigemoPlaces.getFrecencyFromURI(aItem.getAttribute('url'));
+			aItem.setAttribute('frecency', aItem.frecency);
+		});
 		this.destroy();
 	}
  

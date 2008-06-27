@@ -14,9 +14,9 @@ var XMigemoBookmarksPanelOverlay = {
 					this.load(
 						(!XMigemoService.getPref('xulmigemo.places.bookmarksPanel') ?
 							[query] :
-							XMigemoCore.expandNavHistoryQuery(
+							XMigemoPlaces.expandNavHistoryQuery(
 								query,
-								XMigemoCore.bookmarksSource
+								XMigemoPlaces.bookmarksSource
 							)
 						),
 						options

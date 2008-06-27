@@ -11,9 +11,9 @@ var XMigemoOrganizerOverlay = {
 					content.load(
 						(!XMigemoService.getPref('xulmigemo.places.organizer') ?
 							[query] :
-							XMigemoCore.expandNavHistoryQuery(
+							XMigemoPlaces.expandNavHistoryQuery(
 								query,
-								XMigemoCore.historySource
+								XMigemoPlaces.historySource
 							)
 						),
 						options
@@ -30,9 +30,9 @@ var XMigemoOrganizerOverlay = {
 					this.load(
 						(!XMigemoService.getPref('xulmigemo.places.organizer') ?
 							[query] :
-							XMigemoCore.expandNavHistoryQuery(
+							XMigemoPlaces.expandNavHistoryQuery(
 								query,
-								XMigemoCore.bookmarksSource
+								XMigemoPlaces.bookmarksSource
 							)
 						),
 						options
