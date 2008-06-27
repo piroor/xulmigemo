@@ -84,7 +84,6 @@ var XMigemoHighlight = {
 		bar.addEventListener('XMigemoFindBarOpen', this, false);
 		bar.addEventListener('XMigemoFindBarClose', this, false);
 		bar.addEventListener('XMigemoFindBarToggleHighlight', this, false);
-		bar.addEventListener('XMigemoFindBarUpdate', this, false);
 		document.addEventListener('XMigemoFindAgain', this, false);
 
 		window.removeEventListener('load', this, false);
@@ -111,7 +110,6 @@ var XMigemoHighlight = {
 		bar.removeEventListener('XMigemoFindBarOpen', this, false);
 		bar.removeEventListener('XMigemoFindBarClose', this, false);
 		bar.removeEventListener('XMigemoFindBarToggleHighlight', this, false);
-		bar.removeEventListener('XMigemoFindBarUpdate', this, false);
 		document.removeEventListener('XMigemoFindAgain', this, false);
 
 		window.removeEventListener('unload', this, false);
@@ -139,10 +137,10 @@ var XMigemoHighlight = {
 
 			case 'XMigemoFindBarOpen':
 				window.setTimeout(function(aSelf) {
-					if (!XMigemoUI.findBarHidden &&
+					if (!XMigemoUI.hidden &&
 						aSelf.strongHighlight &&
-						!XMigemoUI.findHighlightCheck.disabled &&
-						XMigemoUI.findHighlightCheck.checked)
+						!XMigemoUI.highlightCheck.disabled &&
+						XMigemoUI.highlightCheck.checked)
 						aSelf.toggleHighlightScreen(true);
 				}, 0, this);
 				break;
@@ -160,17 +158,15 @@ var XMigemoHighlight = {
 				if (window.content)
 					window.content.__moz_xmigemoHighlighted = aEvent.targetHighlight;
 
-				if (this.strongHighlight)
-					this.toggleHighlightScreen(aEvent.targetHighlight);
-				break;
-
-			case 'XMigemoFindBarUpdate':
-				if (XMigemoUI.findBarHidden) return;
-				var highlightCheck = XMigemoUI.findHighlightCheck;
-				if (highlightCheck.checked &&
-					!window.content.__moz_xmigemoHighlighted) {
-					gFindBar.toggleHighlight(true);
+				if (this.updateScreenStateTimer) {
+					window.clearTimeout(this.updateScreenStateTimer);
+					this.updateScreenStateTimer = null;
 				}
+				this.updateScreenStateTimer = window.setTimeout(function(aSelf, aHighlight) {
+					aSelf.updateScreenStateTimer = null;
+					if (aSelf.strongHighlight)
+						aSelf.toggleHighlightScreen(aHighlight);
+				}, 10, this, aEvent.targetHighlight);
 				break;
 
 			case 'XMigemoFindAgain':

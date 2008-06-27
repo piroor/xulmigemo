@@ -404,18 +404,23 @@ var XMigemoUI = {
 
 		var minLength = Math.max(1, this.highlightCheckedAlwaysMinLength);
 		var termLength = term.length;
-
-		if (this.findMode != this.FIND_MODE_NATIVE && termLength) {
-			var maxLength = Math.max.apply(
+		if (termLength) {
+			var flags = 'gm';
+			if (this.findMode != this.FIND_MODE_NATIVE ||
+				!this.caseSensitiveCheck.checked)
+				flags += 'i';
+			termLength = Math.max.apply(
 				null,
 				XMigemoCore.regExpFindArrRecursively(
 					new RegExp(
 						(
 							this.findMode == this.FIND_MODE_REGEXP ?
 								this.textUtils.extractRegExpSource(term) :
-								XMigemoCore.getRegExp(term)
+							this.findMode == this.FIND_MODE_MIGEMO ?
+								XMigemoCore.getRegExp(term) :
+								this.textUtils.sanitize(term)
 						),
-						'im'
+						flags
 					),
 					this.activeBrowser.contentWindow,
 					true
@@ -424,7 +429,6 @@ var XMigemoUI = {
 				})
 				.concat(0) // to prevent "-Infinity" error
 			);
-			if (maxLength) termLength = maxLength;
 		}
 
 		return minLength <= termLength;
@@ -1618,137 +1622,100 @@ var XMigemoUI = {
 	 
 	overrideFindBar : function() 
 	{
+		this.replaceFindBarMethods();
+		this.updateFindBarMethods();
+	},
+	replaceFindBarMethods : function()
+	{
 		/*
 			基本ポリシー：
-			Firefox 1.x～2.0～3.0の間でメソッド名などが異なる場合は、
+			Firefox 2.0～3.0の間でメソッド名などが異なる場合は、
 			すべてFirefox 2.0に合わせる。
 		*/
-		var updateGlobalFunc = false;
+		if (this.findBar.localName == 'findbar') window.gFindBar = this.findBar;
 
-		var bar = document.getElementById('FindToolbar');
-		if (bar &&
-			bar.localName == 'findbar' &&
-			!('gFindBar' in window))
-			window.gFindBar = bar;
+		gFindBar.xmigemoOriginalFindNext = ('onFindAgainCommand' in gFindBar) ?
+			function() { // Firefox 3.0-
+				gFindBar.xmigemoOriginalOnFindAgainCommand(false);
+			} :
+			gFindBar.findNext; // Firefox 2.0
+		gFindBar.xmigemoOriginalFindPrevious = ('onFindAgainCommand' in gFindBar) ?
+			function() { // Firefox 3.0-
+				gFindBar.xmigemoOriginalOnFindAgainCommand(true);
+			} :
+			gFindBar.findPrevious; // Firefox 2.0
 
-		if ('gFindBar' in window) {
-			gFindBar.xmigemoOriginalFindNext = ('onFindAgainCommand' in gFindBar) ?
-				function() { // Firefox 3.0-
-					gFindBar.xmigemoOriginalOnFindAgainCommand(false);
-				} :
-				gFindBar.findNext; // Firefox 1.x-2.0
-			gFindBar.xmigemoOriginalFindPrevious = ('onFindAgainCommand' in gFindBar) ?
-				function() { // Firefox 3.0-
-					gFindBar.xmigemoOriginalOnFindAgainCommand(true);
-				} :
-				gFindBar.findPrevious; // Firefox 1.x-2.0
+		gFindBar.findNext     = this.findNext;
+		gFindBar.findPrevious = this.findPrevious;
 
-			gFindBar.findNext     = this.findNext;
-			gFindBar.findPrevious = this.findPrevious;
+		if (!('openFindBar' in gFindBar)) { // Firefox 3.0
+			gFindBar.xmigemoOriginalEnableFindButtons = gFindBar._enableFindButtons;
+			gFindBar._enableFindButtons = this.enableFindButtons;
+			gFindBar.find               = gFindBar._find;
 
-			if (!('openFindBar' in gFindBar)) { // Firefox 3.0
-				gFindBar.xmigemoOriginalEnableFindButtons = gFindBar._enableFindButtons;
-				gFindBar._enableFindButtons = this.enableFindButtons;
-				gFindBar.find               = gFindBar._find;
+			// disable Firefox's focus
+			eval('gFindBar.close = '+gFindBar.close.toSource().replace(
+				'if (focusedElement) {',
+				'if (focusedElement && false) {'
+			));
 
-				// disable Firefox's focus
-				eval('gFindBar.close = '+gFindBar.close.toSource().replace(
-					'if (focusedElement) {',
-					'if (focusedElement && false) {'
-				));
-
-				if ('_updateFindUI' in gFindBar)
-					eval('gFindBar._updateFindUI = '+gFindBar._updateFindUI.toSource()
-						.replace(
-							/(var showMinimalUI = )([^;]+)/,
-							'$1(XMigemoUI.findMode == XMigemoUI.FIND_MODE_NATIVE && $2)'
-						).replace(
-							/if \((this._findMode == this.(FIND_TYPEAHEAD|FIND_LINKS))\)/g,
-							'if ($1 && XMigemoUI.findMode == XMigemoUI.FIND_MODE_NATIVE)'
-						).replace(
-							/(\}\)?)$/,
-							'XMigemoUI.updateFindUI();$1'
-						)
-					);
-
-				gFindBar.xmigemoOriginalOpen  = gFindBar.open;
-				gFindBar.xmigemoOriginalClose = gFindBar.close;
-				gFindBar.open                 = this.openFindBar;
-				gFindBar.close                = this.closeFindBar;
-			}
-			else {
-				// disable Firefox's focus
-				eval('gFindBar.delayedCloseFindBar = '+gFindBar.delayedCloseFindBar.toSource().replace(
-					'if (focusedElement &&',
-					'if (focusedElement && false &&'
-				));
-
-				gFindBar.xmigemoOriginalEnableFindButtons = gFindBar.enableFindButtons;
-				gFindBar.xmigemoOriginalOpen  = gFindBar.openFindBar;
-				gFindBar.xmigemoOriginalClose = gFindBar.closeFindBar;
-			}
-			gFindBar.enableFindButtons = this.enableFindButtons;
-			gFindBar.openFindBar  = this.openFindBar;
-			gFindBar.closeFindBar = this.closeFindBar;
-
-			if ('updateFindUI' in gFindBar) // Firefox 2
-				eval('gFindBar.updateFindUI = '+gFindBar.updateFindUI.toSource()
+			if ('_updateFindUI' in gFindBar)
+				eval('gFindBar._updateFindUI = '+gFindBar._updateFindUI.toSource()
 					.replace(
+						/(var showMinimalUI = )([^;]+)/,
+						'$1(XMigemoUI.findMode == XMigemoUI.FIND_MODE_NATIVE && $2)'
+					).replace(
+						/if \((this._findMode == this.(FIND_TYPEAHEAD|FIND_LINKS))\)/g,
+						'if ($1 && XMigemoUI.findMode == XMigemoUI.FIND_MODE_NATIVE)'
+					).replace(
 						/(\}\)?)$/,
 						'XMigemoUI.updateFindUI();$1'
 					)
 				);
 
-			if (!('updateStatus' in gFindBar)) {
-				if ('updateStatusBar' in gFindBar) // old
-					gFindBar.updateStatus = gFindBar.updateStatusBar;
-				else if ('_updateStatusUI' in gFindBar) // Firefox 3.0
-					gFindBar.updateStatus = gFindBar._updateStatusUI;
-			}
-			if ('_setHighlightTimeout' in gFindBar) // Firefox 3.0
-				gFindBar.setHighlightTimeout = gFindBar._setHighlightTimeout;
-
-			gFindBar.xmigemoOriginalToggleHighlight = gFindBar.toggleHighlight;
-			gFindBar.toggleHighlight = this.toggleHighlight;
-
-			gFindBar.prefillWithSelection = false; // disable Firefox 3's native feature
+			gFindBar.xmigemoOriginalOpen  = gFindBar.open;
+			gFindBar.xmigemoOriginalClose = gFindBar.close;
+			gFindBar.open                 = this.openFindBar;
+			gFindBar.close                = this.closeFindBar;
 		}
 		else {
-			updateGlobalFunc = true;
-			eval('window.setHighlightTimeout = '+
-				window.setHighlightTimeout.toSource()
+			// disable Firefox's focus
+			eval('gFindBar.delayedCloseFindBar = '+gFindBar.delayedCloseFindBar.toSource().replace(
+				'if (focusedElement &&',
+				'if (focusedElement && false &&'
+			));
+
+			gFindBar.xmigemoOriginalEnableFindButtons = gFindBar.enableFindButtons;
+			gFindBar.xmigemoOriginalOpen  = gFindBar.openFindBar;
+			gFindBar.xmigemoOriginalClose = gFindBar.closeFindBar;
+		}
+		gFindBar.enableFindButtons = this.enableFindButtons;
+		gFindBar.openFindBar  = this.openFindBar;
+		gFindBar.closeFindBar = this.closeFindBar;
+
+		if ('updateFindUI' in gFindBar) // Firefox 2
+			eval('gFindBar.updateFindUI = '+gFindBar.updateFindUI.toSource()
 				.replace(
-					/toggleHighlight/g,
-					'gFindBar.toggleHighlight'
+					/(\}\)?)$/,
+					'XMigemoUI.updateFindUI();$1'
 				)
 			);
-			window.gFindBar = {
-				onFindCmd                   : window.onFindCmd,
-				openFindBar                 : this.openFindBar,
-				closeFindBar                : this.closeFindBar,
-				xmigemoOriginalOpen         : window.openFindBar,
-				xmigemoOriginalClose        : window.closeFindBar,
-				xmigemoOriginalEnableFindButtons : window.enableFindButtons,
-				enableFindButtons           : this.enableFindButtons,
-				updateStatus                : window.updateStatus,
-				find                        : window.find,
-				toggleHighlight             : this.toggleHighlight,
-				xmigemoOriginalToggleHighlight : window.toggleHighlight,
-				setHighlightTimeout         : window.setHighlightTimeout,
-				onFindAgainCmd              : window.onFindAgainCmd,
-				onFindPreviousCmd           : window.onFindPreviousCmd,
-				xmigemoOriginalFindNext     : window.findNext,
-				xmigemoOriginalFindPrevious : window.findPrevious,
-				toggleCaseSensitiveCheckbox : window.toggleCaseSensitivity,
-				highlightDoc                : highlightDoc,
-				highlightText               : highlightText,
-				highlight                   : highlight,
-				setHighlightTimeout         : setHighlightTimeout
-			};
-			window.toggleHighlight = this.toggleHighlight;
+
+		if (!('updateStatus' in gFindBar)) {
+			if ('updateStatusBar' in gFindBar) // old
+				gFindBar.updateStatus = gFindBar.updateStatusBar;
+			else if ('_updateStatusUI' in gFindBar) // Firefox 3.0
+				gFindBar.updateStatus = gFindBar._updateStatusUI;
 		}
 
-		eval('gFindBar.find = '+gFindBar.find.toSource()
+		gFindBar.xmigemoOriginalToggleHighlight = gFindBar.toggleHighlight;
+		gFindBar.toggleHighlight = this.toggleHighlight;
+
+		gFindBar.prefillWithSelection = false; // disable Firefox 3's native feature
+	},
+	updateFindBarMethods : function()
+	{
+		eval('gFindBar.find = gFindBar._find = '+gFindBar.find.toSource()
 			.replace(/(this._?updateStatus(UI)?\([^\)]*\))/, '$1; XMigemoFind.scrollSelectionToCenter(window._content);')
 			.replace(/\{/, '{ XMigemoUI.presetSearchString(arguments.length ? arguments[0] : null); ')
 		);
@@ -1760,12 +1727,11 @@ var XMigemoUI = {
 		);
 
 		var highlightDocFunc = ('_highlightDoc' in gFindBar) ? '_highlightDoc' : // Fx 3
-				'highlightDoc'; // Fx 2, 1.5
-		var highlightDocRetVal = updateGlobalFunc ? '' : 'textFound' ;
+				'highlightDoc'; // Fx 2
 		eval('gFindBar.'+highlightDocFunc+' = '+gFindBar[highlightDocFunc].toSource()
 			.replace(
 				'BackColor) {',
-				'BackColor) { XMigemoUI.clearHighlight(doc); return '+highlightDocRetVal+'; '
+				'BackColor) { XMigemoUI.clearHighlight(doc); return; '
 			).replace(
 				/if \((!doc \|\| )(!\("body" in doc\)|!\(doc instanceof HTMLDocument\))\)/,
 				'if ($1($2 && (!XMigemoUI.workForAnyXMLDocuments || !(doc instanceof XMLDocument))))'
@@ -1779,7 +1745,7 @@ var XMigemoUI = {
 		);
 
 		var highlightTextFunc = ('_highlightText' in gFindBar) ? '_highlightText' : // Fx 3
-				'highlightText'; // Fx 2, 1.5
+				'highlightText'; // Fx 2
 		eval('gFindBar.'+highlightTextFunc+' = '+gFindBar[highlightTextFunc].toSource()
 			.replace(
 				'{',
@@ -1790,8 +1756,7 @@ var XMigemoUI = {
 					if (XMigemoUI.isActive) {
 						return XMigemoUI.highlightText(arguments[0], arguments[1],
 								('_searchRange' in this) ? this._searchRange : // Fx 3
-								('mSearchRange' in this) ? this.mSearchRange : // Fx 2
-									searchRange // Fx 1.5
+								this.mSearchRange // Fx 2
 							);
 					}
 				]]>
@@ -1799,7 +1764,7 @@ var XMigemoUI = {
 		);
 
 		var highlightFunc = ('_highlight' in gFindBar) ? '_highlight' : // Fx 3
-				'highlight'; // Fx 2, 1.5
+				'highlight'; // Fx 2
 		eval('gFindBar.'+highlightFunc+' = '+gFindBar[highlightFunc].toSource()
 			.replace(
 				'{',
@@ -1814,22 +1779,28 @@ var XMigemoUI = {
 			)
 		);
 
-		var highlightTimoutFunc = ('_setHighlightTimeout' in gFindBar) ? '_setHighlightTimeout' : // Fx 3
-				'setHighlightTimeout'; // Fx 2, 1.5
-		eval('gFindBar.'+highlightTimoutFunc+' = '+gFindBar[highlightTimoutFunc].toSource()
+		eval('gFindBar.setHighlightTimeout = gFindBar._setHighlightTimeout ='+
+			(gFindBar.setHighlightTimeout || gFindBar._setHighlightTimeout).toSource()
 			.replace(
-				'{',
-				<![CDATA[
-				{
-					if (XMigemoUI.findTerm == XMigemoUI.activeBrowser.contentDocument.documentElement.getAttribute(XMigemoUI.kLAST_HIGHLIGHT)) return;
+				/^(\(?function)([^\(]*)\(\) \{/,
+				<![CDATA[$1$2(aAutoChecked) {
+					if (XMigemoUI.findTerm == XMigemoUI.activeBrowser.contentDocument.documentElement.getAttribute(XMigemoUI.kLAST_HIGHLIGHT))
+						return;
 				]]>
+			).replace(
+				/(\w+\.toggleHighlight\(false\);)/,
+				<![CDATA[
+					var checked = !XMigemoUI.highlightCheck.disabled && XMigemoUI.highlightCheck.checked;
+					$1
+				]]>
+			).replace(
+				/(\b[^\.]+\.toggleHighlight\(true)(\);)/,
+				'$1, !checked$2'
 			)
 		);
-		if ('setHighlightTimeout' != highlightTimoutFunc)
-			gFindBar.setHighlightTimeout = gFindBar[highlightTimoutFunc];
 
-		// Firefox 3.0-    : onFindAgainCommand / searcgString / onFindCommand
-		// Firefox 1.x-2.0 : onFindAgainCmd / onFindPreviousCmd / findString / onFindCmd
+		// Firefox 3.0- : onFindAgainCommand / searcgString / onFindCommand
+		// Firefox 2.0  : onFindAgainCmd / onFindPreviousCmd / findString / onFindCmd
 		if ('onFindAgainCommand' in gFindBar) {
 			eval('gFindBar.onFindAgainCommand = '+gFindBar.onFindAgainCommand.toSource()
 				.replace(/([^=\s]+\.(find|search)String)/g, 'XMigemoUI.getLastFindString($1)')
@@ -1856,22 +1827,6 @@ var XMigemoUI = {
 				eval('gFindBar.onFindCmd = '+gFindBar.onFindCmd.toSource()
 					.replace('{', '$& XMigemoUI.onFindStartCommand();')
 				);
-		}
-
-		if (updateGlobalFunc) {
-			window.onFindCmd     = this.onFindCmd;
-			window.findNext      = this.findNext;
-			window.findPrevious  = this.findPrevious;
-			window.openFindBar   = this.openFindBar;
-			window.closeFindBar  = this.closeFindBar;
-			window.highlightDoc  = gFindBar.highlightDoc;
-			window.highlightText = gFindBar.highlightText;
-			window.highlight     = gFindBar.highlight;
-			window.setHighlightTimeout = gFindBar.setHighlightTimeout;
-			if ('onFindAgainCmd' in gFindBar) { // Firefox 1.x-2.0
-				window.onFindAgainCmd    = gFindBar.onFindAgainCmd;
-				window.onFindPreviousCmd = gFindBar.onFindPreviousCmd;
-			}
 		}
 
 		this.field.addEventListener('input', this, true);
@@ -2080,18 +2035,19 @@ var XMigemoUI = {
  
 /* highlight */ 
 	
-	toggleHighlight : function(aHighlight, aDelayed) 
+	toggleHighlight : function(aHighlight, aAutoChecked) 
 	{
-		if (XMigemoUI.highlightCheckedAlways && !aDelayed) {
+		if (XMigemoUI.highlightCheckedAlways && aAutoChecked) {
 			XMigemoUI.stopDelayedToggleHighlightTimer();
 			XMigemoUI.delayedToggleHighlightTimer = window.setTimeout(function() {
+				XMigemoUI.stopDelayedToggleHighlightTimer();
 				var highlight = XMigemoUI.shouldHighlightAll;
 				var disabled = XMigemoUI.highlightCheck.disabled;
 				var checked = XMigemoUI.highlightCheck.checked;
-				if (highlight && (!XMigemoUI.findTerm || !checked)) highlight = false;
-				if (highlight != checked || disabled)
-					XMigemoUI.delayedToggleHighlight(highlight);
+				if (!XMigemoUI.findTerm || !checked) highlight = false;
+				XMigemoUI.toggleHighlight(highlight);
 			}, 10);
+			return;
 		}
 
 		var event = document.createEvent('Events');
@@ -2108,16 +2064,9 @@ var XMigemoUI = {
  
 	stopDelayedToggleHighlightTimer : function() 
 	{
-		if (this.delayedToggleHighlightTimer) {
-			window.clearTimeout(this.delayedToggleHighlightTimer);
-			this.delayedToggleHighlightTimer = null;
-		}
-	},
-	delayedToggleHighlight : function(aNewState)
-	{
-		this.stopDelayedToggleHighlightTimer();
-		if (this.highlightCheck.checked != aNewState)
-			this.toggleHighlight(aNewState, true);
+		if (!this.delayedToggleHighlightTimer) return;
+		window.clearTimeout(this.delayedToggleHighlightTimer);
+		this.delayedToggleHighlightTimer = null;
 	},
 	delayedToggleHighlightTimer : null,
  
@@ -2337,7 +2286,7 @@ var XMigemoUI = {
 		}
 		else {
 			if (XMigemoUI.highlightCheckedAlways)
-				XMigemoUI.toggleHighlight(false);
+				XMigemoUI.toggleHighlight(false, true);
 		}
 
 		var event = document.createEvent('Events');
@@ -2367,7 +2316,7 @@ var XMigemoUI = {
 				highlightCheck.xmigemoOriginalChecked ;
 		highlightCheck.checked = checked;
 		if (checked != prevHighlightState) {
-			aSelf.toggleHighlight(checked);
+			aSelf.toggleHighlight(checked, true);
 		}
 		aSelf.highlightCheckFirst = false;
 	},
