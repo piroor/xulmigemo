@@ -134,16 +134,18 @@
 		<caption label="&config.appearance.buttonLabelsMode;"/>
 		<radiogroup id="xulmigemo.appearance.buttonLabelsMode-radiogroup"
 			preference="xulmigemo.appearance.buttonLabelsMode"
-			orient="horizontal">
+			orient="vertical">
 			<radio value="1" label="&config.appearance.buttonLabelsMode.1;"
 				class="image" align="center"
 				src="chrome://xulmigemo/content/res/label-auto.png"/>
+			<hbox align="center">
 			<radio value="0" label="&config.appearance.buttonLabelsMode.0;"
 				class="image" align="center"
 				src="chrome://xulmigemo/content/res/label-long.png"/>
 			<radio value="2" label="&config.appearance.buttonLabelsMode.2;"
 				class="image" align="center"
 				src="chrome://xulmigemo/content/res/label-short.png"/>
+			</hbox>
 		</radiogroup>
 	</groupbox>
 	<groupbox orient="vertical">
