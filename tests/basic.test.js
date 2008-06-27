@@ -8,7 +8,7 @@ var switchModeTest = new TestCase('モード切り替えのテスト', {runStrat
 switchModeTest.tests = {
 	setUp : function() {
 		yield Do(commonSetUp(keyEventTest));
-		assert.isTrue(XMigemoUI.findBarHidden);
+		assert.isTrue(XMigemoUI.hidden);
 	},
 
 	tearDown : function() {
@@ -16,12 +16,12 @@ switchModeTest.tests = {
 	},
 
 	'モード切り替え': function() {
-		assert.isTrue(XMigemoUI.findBarHidden);
+		assert.isTrue(XMigemoUI.hidden);
 		yield wait;
 
 		eval(findCommand);
 		yield wait;
-		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.isFalse(XMigemoUI.hidden);
 
 
 		// APIによる切り替え
@@ -31,11 +31,11 @@ switchModeTest.tests = {
 			assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
 		}
 		yield Do(assert.modeAPI('FIND_MODE_NATIVE'));
-		assert.isFalse(XMigemoUI.findCaseSensitiveCheck.disabled);
+		assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
 		yield Do(assert.modeAPI('FIND_MODE_REGEXP'));
-		assert.isTrue(XMigemoUI.findCaseSensitiveCheck.disabled);
+		assert.isTrue(XMigemoUI.caseSensitiveCheck.disabled);
 		yield Do(assert.modeAPI('FIND_MODE_MIGEMO'));
-		assert.isTrue(XMigemoUI.findCaseSensitiveCheck.disabled);
+		assert.isTrue(XMigemoUI.caseSensitiveCheck.disabled);
 
 
 		// ボタンのクリックによる切り替え
@@ -45,11 +45,11 @@ switchModeTest.tests = {
 			assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
 		}
 		yield Do(assert.buttonClick('FIND_MODE_NATIVE', 0));
-		assert.isFalse(XMigemoUI.findCaseSensitiveCheck.disabled);
+		assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
 		yield Do(assert.buttonClick('FIND_MODE_REGEXP', 1));
-		assert.isTrue(XMigemoUI.findCaseSensitiveCheck.disabled);
+		assert.isTrue(XMigemoUI.caseSensitiveCheck.disabled);
 		yield Do(assert.buttonClick('FIND_MODE_MIGEMO', 2));
-		assert.isTrue(XMigemoUI.findCaseSensitiveCheck.disabled);
+		assert.isTrue(XMigemoUI.caseSensitiveCheck.disabled);
 
 
 		// 二度目のクリックによるフリップバック
@@ -77,7 +77,7 @@ switchModeTest.tests = {
 
 		XMigemoUI.openAgainAction = XMigemoUI.ACTION_NONE;
 		yield Do(assert.findCommand('FIND_MODE_NATIVE'));
-		assert.isFalse(XMigemoUI.findBarHidden);
+		assert.isFalse(XMigemoUI.hidden);
 
 		XMigemoUI.openAgainAction = XMigemoUI.ACTION_SWITCH;
 		yield Do(assert.findCommand('FIND_MODE_REGEXP'));
@@ -87,40 +87,40 @@ switchModeTest.tests = {
 		XMigemoUI.openAgainAction = XMigemoUI.ACTION_CLOSE;
 		eval(findCommand);
 		yield wait;
-		assert.isTrue(XMigemoUI.findBarHidden);
+		assert.isTrue(XMigemoUI.hidden);
 	},
 
 	'検索モードの自動切り替え': function() {
 		gFindBar.openFindBar();
 		yield wait;
-		findField.focus();
+		field.focus();
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 		yield wait;
 
-		action.inputTextToField(findField, 'text field');
+		action.inputTextToField(field, 'text field');
 		yield wait;
-		assert.notEquals('notfound', findField.getAttribute('status'));
+		assert.notEquals('notfound', field.getAttribute('status'));
 		assert.matches('text field', XMigemoUI.lastFoundRange.toString());
 
-		action.inputTextToField(findField, '');
+		action.inputTextToField(field, '');
 		yield wait;
-		action.inputTextToField(findField, '/(single-row|multirow) field/');
+		action.inputTextToField(field, '/(single-row|multirow) field/');
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_REGEXP, XMigemoUI.findMode);
-		assert.notEquals('notfound', findField.getAttribute('status'));
+		assert.notEquals('notfound', field.getAttribute('status'));
 		assert.matches('single-row field', XMigemoUI.lastFoundRange.toString());
 
 		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
-		action.fireKeyEventOnElement(findField, key);
+		action.fireKeyEventOnElement(field, key);
 		yield wait;
 		assert.equals('multirow field', XMigemoUI.lastFoundRange.toString());
 
-		action.inputTextToField(findField, '');
+		action.inputTextToField(field, '');
 		yield wait;
-		action.inputTextToField(findField, '(single-row|multirow) field');
+		action.inputTextToField(field, '(single-row|multirow) field');
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
-		assert.equals('notfound', findField.getAttribute('status'));
+		assert.equals('notfound', field.getAttribute('status'));
 	}
 };
 
@@ -128,22 +128,22 @@ switchModeTest.tests = {
 var htmlTests = {
 	setUp : function() {
 		yield Do(commonSetUp(keyEventTest));
-		assert.isTrue(XMigemoUI.findBarHidden);
+		assert.isTrue(XMigemoUI.hidden);
 	}
 };
 
 var xmlTests = {
 	setUp : function() {
 		yield Do(commonSetUp(keyEventTestXML));
-		assert.isTrue(XMigemoUI.findBarHidden);
+		assert.isTrue(XMigemoUI.hidden);
 	}
 };
 
 
 assert.find_found = function(aMode, aTerm, aFound) {
-	action.inputTextToField(findField, aTerm);
+	action.inputTextToField(field, aTerm);
 	yield wait;
-	assert.notEquals('notfound', findField.getAttribute('status'), aMode);
+	assert.notEquals('notfound', field.getAttribute('status'), aMode);
 	if (typeof aFound == 'string')
 		assert.equals(aFound, XMigemoUI.lastFoundRange.toString(), aMode);
 	else
@@ -151,13 +151,13 @@ assert.find_found = function(aMode, aTerm, aFound) {
 }
 
 assert.find_notFound = function(aMode, aTerm) {
-	action.inputTextToField(findField, aTerm);
+	action.inputTextToField(field, aTerm);
 	yield wait;
-	assert.equals('notfound', findField.getAttribute('status'), aMode);
+	assert.equals('notfound', field.getAttribute('status'), aMode);
 }
 
 assert.find_again = function(aMode, aKey, aTimes, aFound) {
-	yield Do(fireKeyEvents(findField, aKey, aTimes));
+	yield Do(fireKeyEvents(field, aKey, aTimes));
 	if (aFound)
 		assert.equals(aFound, XMigemoUI.lastFoundRange.toString(), aMode);
 	else
@@ -175,8 +175,8 @@ var baseTests = {
 
 		var mode = 'FIND_MODE_REGEXP';
 		XMigemoUI.findMode = XMigemoUI[mode];
-		XMigemoUI.findCaseSensitiveCheck.checked = false;
-		findField.focus();
+		XMigemoUI.caseSensitiveCheck.checked = false;
+		field.focus();
 
 
 		// 検索に成功するケース
@@ -224,7 +224,7 @@ var baseTests = {
 
 		var mode = 'FIND_MODE_REGEXP';
 		XMigemoUI.findMode = XMigemoUI[mode];
-		findField.focus();
+		field.focus();
 
 
 		// 検索に成功するケース
@@ -262,7 +262,7 @@ var baseTests = {
 
 		var mode = 'FIND_MODE_MIGEMO';
 		XMigemoUI.findMode = XMigemoUI[mode];
-		findField.focus();
+		field.focus();
 
 
 		// 検索に成功するケース
@@ -298,7 +298,7 @@ var baseTests = {
 
 		yield Do(assert.find_found('FIND_MODE_NATIVE', 'text field', 'text field'));
 
-		action.inputTextToField(findField, '');
+		action.inputTextToField(field, '');
 		yield wait;
 
 		action.fireMouseEventOnElement(XMigemoUI.findModeSelector.childNodes[2]);
@@ -308,7 +308,7 @@ var baseTests = {
 		var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
 		yield Do(assert.find_again('FIND_MODE_MIGEMO', key, 1, 'にほんご'));
 
-		action.inputTextToField(findField, '');
+		action.inputTextToField(field, '');
 		yield wait;
 
 
@@ -339,7 +339,7 @@ var baseTests = {
 			yield wait;
 			if (aPreFill) {
 				assert.equals(selectedTerm, XMigemoUI.findTerm, aMode);
-				action.inputTextToField(findField, '');
+				action.inputTextToField(field, '');
 			}
 			else {
 				assert.equals('', XMigemoUI.findTerm, aMode);

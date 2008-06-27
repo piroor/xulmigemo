@@ -9,7 +9,7 @@ var quickFindBasicTest = new TestCase('クイックMigemo検索の基本テス�
 quickFindBasicTest.tests = {
 	setUp : function() {
 		yield Do(commonSetUp(keyEventTest));
-		assert.isTrue(XMigemoUI.findBarHidden);
+		assert.isTrue(XMigemoUI.hidden);
 	},
 
 	tearDown : function() {
@@ -84,6 +84,6 @@ quickFindBasicTest.tests = {
 		var key = { charCode : 'n'.charCodeAt(0) };
 		action.fireKeyEventOnElement(content.document.documentElement, key);
 		yield wait;
-		assert.isTrue(XMigemoUI.findBarHidden);
+		assert.isTrue(XMigemoUI.hidden);
 	}
 };

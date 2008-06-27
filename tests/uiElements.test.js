@@ -8,7 +8,7 @@ var XMigemoUIUnitTest = new TestCase('XMigemoUIのユニットテスト', {runSt
 XMigemoUIUnitTest.tests = {
 	setUp : function() {
 		yield Do(commonSetUp(keyEventTest));
-		assert.isTrue(XMigemoUI.findBarHidden);
+		assert.isTrue(XMigemoUI.hidden);
 	},
 
 	tearDown : function() {
@@ -18,16 +18,16 @@ XMigemoUIUnitTest.tests = {
 	'プロパティのチェック': function() {
 		assert.isTrue(XMigemoUI.browser);
 		assert.isTrue(XMigemoUI.activeBrowser);
-		assert.isTrue(XMigemoUI.findMigemoBar);
-		assert.isTrue(XMigemoUI.migemoModeBox);
 		assert.isTrue(XMigemoUI.findBar);
-		assert.isTrue(XMigemoUI.findField);
-		assert.isTrue(XMigemoUI.findLabel);
-		assert.isTrue(XMigemoUI.findCaseSensitiveCheck);
-		assert.isTrue(XMigemoUI.findHighlightCheck);
+		assert.isTrue(XMigemoUI.field);
+		assert.isTrue(XMigemoUI.label);
+		assert.isTrue(XMigemoUI.caseSensitiveCheck);
+		assert.isTrue(XMigemoUI.highlightCheck);
+		assert.isTrue(XMigemoUI.findMigemoBar);
+		assert.isTrue(XMigemoUI.findModeSelectorBox);
 		assert.isTrue(XMigemoUI.findModeSelector);
-		assert.isTrue(XMigemoUI.timeoutIndicator);
 		assert.isTrue(XMigemoUI.timeoutIndicatorBox);
+		assert.isTrue(XMigemoUI.timeoutIndicator);
 		assert.isTrue(win.XMigemoFind);
 		assert.isTrue(win.XMigemoCore);
 	}
