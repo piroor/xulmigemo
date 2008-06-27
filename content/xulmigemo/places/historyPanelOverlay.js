@@ -14,9 +14,9 @@ var XMigemoHistoryPanelOverlay = {
 					gHistoryTree.load(
 						(!XMigemoService.getPref('xulmigemo.places.historyPanel') ?
 							[query] :
-							XMigemoCore.expandNavHistoryQuery(
+							XMigemoPlaces.expandNavHistoryQuery(
 								query,
-								XMigemoCore.historySource
+								XMigemoPlaces.historySource
 							)
 						),
 						options
@@ -32,9 +32,9 @@ var XMigemoHistoryPanelOverlay = {
 					this.load(
 						(!XMigemoService.getPref('xulmigemo.places.historyPanel') ?
 							[query] :
-							XMigemoCore.expandNavHistoryQuery(
+							XMigemoPlaces.expandNavHistoryQuery(
 								query,
-								XMigemoCore.historySource
+								XMigemoPlaces.historySource
 							)
 						),
 						options
