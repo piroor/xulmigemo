@@ -402,11 +402,11 @@ var XMigemoUI = {
 		if (!this.highlightCheckedAlways)
 			return term.length ? true : false ;
 
-		var minLength = Math.min(1, this.highlightCheckedAlwaysMinLength);
-		var maxLength = term.length;
+		var minLength = Math.max(1, this.highlightCheckedAlwaysMinLength);
+		var termLength = term.length;
 
-		if (this.isActive && maxLength) {
-			tmpMaxLength = Math.max.apply(
+		if (this.isActive && termLength) {
+			var maxLength = Math.max.apply(
 				null,
 				XMigemoCore.regExpFindArrRecursively(
 					new RegExp(
@@ -424,10 +424,10 @@ var XMigemoUI = {
 				})
 				.concat(0) // to prevent "-Infinity" error
 			);
-			if (tmpMaxLength) maxLength = tmpMaxLength;
+			if (maxLength) termLength = maxLength;
 		}
 
-		return minLength <= maxLength;
+		return minLength <= termLength;
 	},
   
 /* utilities */ 
