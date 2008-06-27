@@ -41,33 +41,7 @@ var XMigemoCore = {
 	{
 		return this.getTermsFromSource(this.getRegExp(aInput), aSource);
 	},
-	 
-	get smartLocationBarFindSource() 
-	{
-		if (!this.places) return '';
-
-		var statement = this.places.createStatement(<![CDATA[
-		    SELECT GROUP_CONCAT(p.title, ?1),
-		           GROUP_CONCAT(p.url, ?1),
-		           GROUP_CONCAT(b.title, ?1)
-		      FROM moz_places p
-		           LEFT JOIN moz_bookmarks b ON b.fk = p.id
-		     WHERE hidden <> 1
-		  ]]>.toString());
-		statement.bindStringParameter(0, '\n');
-
-		var sources = [];
-		while(statement.executeStep()) {
-			sources.push(statement.getString(0));
-			sources.push(statement.getString(1));
-			sources.push(statement.getString(2));
-		};
-		statement.reset();
-
-		sources.push(PlacesUtils.tagging.allTags.join('\n'));
-		return sources.join('\n');
-	},
-	 
+ 	
 	get places() 
 	{
 		if (this._places !== void(0))
@@ -90,7 +64,97 @@ var XMigemoCore = {
 		return this._places;
 	},
 //	_places : null,
-   
+	 
+	get placesSource() 
+	{
+		if (!this.places) return '';
+
+		var statement = this.places.createStatement(<![CDATA[
+		    SELECT GROUP_CONCAT(p.title, ?1),
+		           GROUP_CONCAT(p.url, ?1),
+		           GROUP_CONCAT(b.title, ?1)
+		      FROM moz_places p
+		           LEFT JOIN moz_bookmarks b ON b.fk = p.id
+		     WHERE p.hidden <> 1
+		  ]]>.toString());
+		statement.bindStringParameter(0, '\n');
+
+		var sources = [];
+		while(statement.executeStep()) {
+			sources.push(statement.getString(0));
+			sources.push(statement.getString(1));
+			sources.push(statement.getString(2));
+		};
+		statement.reset();
+
+		sources.push(PlacesUtils.tagging.allTags.join('\n'));
+		return sources.join('\n');
+	},
+ 
+	get historySource() 
+	{
+		if (!this.places) return '';
+
+		var statement = this.places.createStatement(<![CDATA[
+		    SELECT GROUP_CONCAT(title, ?1),
+		           GROUP_CONCAT(url, ?1)
+		      FROM moz_places
+		     WHERE hidden <> 1
+		  ]]>.toString());
+		statement.bindStringParameter(0, '\n');
+
+		var sources = [];
+		while(statement.executeStep()) {
+			sources.push(statement.getString(0));
+			sources.push(statement.getString(1));
+		};
+		statement.reset();
+
+		sources.push(PlacesUtils.tagging.allTags.join('\n'));
+		return sources.join('\n');
+	},
+ 
+	get bookmarksSource() 
+	{
+		if (!this.places) return '';
+
+		var statement = this.places.createStatement(<![CDATA[
+		    SELECT GROUP_CONCAT(b.title, ?1),
+		           GROUP_CONCAT(p.url, ?1)
+		      FROM moz_bookmarks b
+		           LEFT JOIN moz_places p ON b.fk = p.id
+		  ]]>.toString());
+		statement.bindStringParameter(0, '\n');
+
+		var sources = [];
+		while(statement.executeStep()) {
+			sources.push(statement.getString(0));
+			sources.push(statement.getString(1));
+		};
+		statement.reset();
+
+		sources.push(PlacesUtils.tagging.allTags.join('\n'));
+		return sources.join('\n');
+	},
+  
+	expandNavHistoryQuery : function(aQuery, aSource) 
+	{
+		var queries = [aQuery];
+		var terms = this.getTermsForInputFromSource(
+				aQuery.searchTerms,
+				aSource
+			);
+		if (terms.length) {
+			queries = queries
+				.concat(terms.map(function(aTerm) {
+					var newQuery = aQuery.clone();
+					newQuery.searchTerms = aTerm;
+					return newQuery;
+				}));
+		}
+		return queries;
+	},
+ 
 /* Find */ 
 	
 	regExpFind : function(aRegExp, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
