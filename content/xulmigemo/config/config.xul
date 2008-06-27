@@ -109,6 +109,76 @@
 </prefpane>
 
 
+<prefpane id="prefpane-appearance" label="&config.tab.appearance;" flex="1">
+	<preferences>
+		<preference id="xulmigemo.checked_by_default.findbar"
+			name="xulmigemo.checked_by_default.findbar"
+			type="bool"/>
+
+		<preference id="xulmigemo.appearance.buttonLabelsMode"
+			name="xulmigemo.appearance.buttonLabelsMode"
+			type="int"/>
+		<preference id="xulmigemo.appearance.findBarPosition"
+			name="xulmigemo.appearance.findBarPosition"
+			type="int"/>
+		<preference id="xulmigemo.appearance.closeButtonPosition"
+			name="xulmigemo.appearance.closeButtonPosition"
+			type="int"/>
+	</preferences>
+
+	<vbox>
+	<checkbox id="xulmigemo.checked_by_default.findbar-check" flex="1"
+		label="&config.checked_by_default.findbar;"
+		preference="xulmigemo.checked_by_default.findbar"/>
+	<groupbox orient="vertical">
+		<caption label="&config.appearance.buttonLabelsMode;"/>
+		<radiogroup id="xulmigemo.appearance.buttonLabelsMode-radiogroup"
+			preference="xulmigemo.appearance.buttonLabelsMode"
+			orient="horizontal">
+			<radio value="1" label="&config.appearance.buttonLabelsMode.1;"
+				class="image" align="center"
+				src="chrome://xulmigemo/content/res/label-auto.png"/>
+			<radio value="0" label="&config.appearance.buttonLabelsMode.0;"
+				class="image" align="center"
+				src="chrome://xulmigemo/content/res/label-long.png"/>
+			<radio value="2" label="&config.appearance.buttonLabelsMode.2;"
+				class="image" align="center"
+				src="chrome://xulmigemo/content/res/label-short.png"/>
+		</radiogroup>
+	</groupbox>
+	<groupbox orient="vertical">
+		<caption label="&config.appearance.findBarPosition;"/>
+		<radiogroup id="xulmigemo.appearance.findBarPosition-radiogroup"
+			preference="xulmigemo.appearance.findBarPosition"
+			orient="horizontal">
+			<radio value="0" label="&config.appearance.findBarPosition.0;"
+				class="image" align="center"
+				src="chrome://xulmigemo/content/res/findbar-belowcontent.png"/>
+			<radio value="1" label="&config.appearance.findBarPosition.1;"
+				class="image" align="center"
+				src="chrome://xulmigemo/content/res/findbar-abovecontent.png"/>
+			<radio value="2" label="&config.appearance.findBarPosition.2;"
+				class="image" align="center"
+				src="chrome://xulmigemo/content/res/findbar-belowtab.png"/>
+		</radiogroup>
+	</groupbox>
+	<groupbox orient="vertical">
+		<caption label="&config.appearance.closeButtonPosition;"/>
+		<radiogroup id="xulmigemo.appearance.closeButtonPosition-radiogroup"
+			preference="xulmigemo.appearance.closeButtonPosition"
+			orient="horizontal">
+			<radio value="0" label="&config.appearance.closeButtonPosition.0;"
+				class="image" align="center"
+				src="chrome://xulmigemo/content/res/close-leftmost.png"/>
+			<radio value="1" label="&config.appearance.closeButtonPosition.1;"
+				class="image" align="center"
+				src="chrome://xulmigemo/content/res/close-rightmost.png"/>
+		</radiogroup>
+	</groupbox>
+	</vbox>
+</prefpane>
+
+
 <prefpane id="prefpane-findbar" label="&config.tab.findbar;" flex="1">
 	<preferences>
 		<preference id="xulmigemo.prefillwithselection"
@@ -125,20 +195,6 @@
 			type="bool"/>
 		<preference id="xulmigemo.findMode.always"
 			name="xulmigemo.findMode.always"
-			type="int"/>
-
-		<preference id="xulmigemo.checked_by_default.findbar"
-			name="xulmigemo.checked_by_default.findbar"
-			type="bool"/>
-
-		<preference id="xulmigemo.appearance.buttonLabelsMode"
-			name="xulmigemo.appearance.buttonLabelsMode"
-			type="int"/>
-		<preference id="xulmigemo.appearance.findBarPosition"
-			name="xulmigemo.appearance.findBarPosition"
-			type="int"/>
-		<preference id="xulmigemo.appearance.closeButtonPosition"
-			name="xulmigemo.appearance.closeButtonPosition"
 			type="int"/>
 	</preferences>
 
@@ -185,41 +241,6 @@
 			label="&config.checked_by_default.caseSensitive.always;"
 			preference="xulmigemo.checked_by_default.caseSensitive.always"/>
 	</groupbox>
-
-	<vbox>
-	<checkbox id="xulmigemo.checked_by_default.findbar-check" flex="1"
-		label="&config.checked_by_default.findbar;"
-		preference="xulmigemo.checked_by_default.findbar"/>
-	<hbox align="center">
-		<label value="&config.appearance.buttonLabelsMode;"/>
-		<radiogroup id="xulmigemo.appearance.buttonLabelsMode-radiogroup"
-			preference="xulmigemo.appearance.buttonLabelsMode"
-			orient="horizontal">
-			<radio value="1" label="&config.appearance.buttonLabelsMode.1;"/>
-			<radio value="0" label="&config.appearance.buttonLabelsMode.0;"/>
-			<radio value="2" label="&config.appearance.buttonLabelsMode.2;"/>
-		</radiogroup>
-	</hbox>
-	<hbox align="center">
-		<label value="&config.appearance.findBarPosition;"/>
-		<radiogroup id="xulmigemo.appearance.findBarPosition-radiogroup"
-			preference="xulmigemo.appearance.findBarPosition"
-			orient="horizontal">
-			<radio value="0" label="&config.appearance.findBarPosition.0;"/>
-			<radio value="1" label="&config.appearance.findBarPosition.1;"/>
-			<radio value="2" label="&config.appearance.findBarPosition.2;"/>
-		</radiogroup>
-	</hbox>
-	<hbox align="center">
-		<label value="&config.appearance.closeButtonPosition;"/>
-		<radiogroup id="xulmigemo.appearance.closeButtonPosition-radiogroup"
-			preference="xulmigemo.appearance.closeButtonPosition"
-			orient="horizontal">
-			<radio value="0" label="&config.appearance.closeButtonPosition.0;"/>
-			<radio value="1" label="&config.appearance.closeButtonPosition.1;"/>
-		</radiogroup>
-	</hbox>
-	</vbox>
 
 	<hbox align="center">
 		<spacer flex="1"/>

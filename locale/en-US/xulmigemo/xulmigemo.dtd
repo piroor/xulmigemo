@@ -35,6 +35,25 @@
 <!ENTITY config.timeout.after           "msec">
 
 
+
+<!ENTITY config.tab.appearance  "Appearance">
+
+<!ENTITY config.checked_by_default.findbar       "Show Find Toolbar at startup">
+
+<!ENTITY config.appearance.buttonLabelsMode "Appearance of Find Toolbar Buttons">
+<!ENTITY config.appearance.buttonLabelsMode.0 "Full size">
+<!ENTITY config.appearance.buttonLabelsMode.1 "Auto fit to width">
+<!ENTITY config.appearance.buttonLabelsMode.2 "Compact size">
+<!ENTITY config.appearance.findBarPosition "Find Toolbar Position (require restart)">
+<!ENTITY config.appearance.findBarPosition.0 "Bottom">
+<!ENTITY config.appearance.findBarPosition.1 "Top">
+<!ENTITY config.appearance.findBarPosition.2 "Below Tab Bar">
+<!ENTITY config.appearance.closeButtonPosition "&quot;Close&quot; Button Position">
+<!ENTITY config.appearance.closeButtonPosition.0 "Leftmost">
+<!ENTITY config.appearance.closeButtonPosition.1 "Rightmost">
+
+
+
 <!ENTITY config.tab.findbar             "Find Toolbar">
 
 <!ENTITY config.findbar.permanentState           "Always apply these settings when the Find Toolbar is shown:">
@@ -47,21 +66,6 @@
 <!ENTITY config.checked_by_default.caseSensitive.always "Match cases">
 <!ENTITY config.findMode.always.caption         "Find mode:">
 <!ENTITY config.findMode.always.undefined.label "Keep last mode">
-
-<!ENTITY config.checked_by_default.findbar       "Show Find Toolbar at startup">
-<!ENTITY config.appearance.hideLabels  "Show Find Toolbar with compact buttons">
-
-<!ENTITY config.appearance.buttonLabelsMode "Appearance of Find Toolbar Buttons:">
-<!ENTITY config.appearance.buttonLabelsMode.0 "Full Size">
-<!ENTITY config.appearance.buttonLabelsMode.1 "Auto">
-<!ENTITY config.appearance.buttonLabelsMode.2 "Compact">
-<!ENTITY config.appearance.findBarPosition "Find Toolbar Position (require restart):">
-<!ENTITY config.appearance.findBarPosition.0 "Bottom">
-<!ENTITY config.appearance.findBarPosition.1 "Top">
-<!ENTITY config.appearance.findBarPosition.2 "Below Tab Bar">
-<!ENTITY config.appearance.closeButtonPosition "&quot;Close&quot; Button Position:">
-<!ENTITY config.appearance.closeButtonPosition.0 "Leftmost">
-<!ENTITY config.appearance.closeButtonPosition.1 "Rightmost">
 
 
 <!ENTITY config.dictionary.button         "Dictionary Configuration...">
