@@ -23,7 +23,74 @@ var XMigemoCore = {
 	{
 		return this.XMigemo.flattenRegExp(aRegExp, {});
 	},
- 	
+ 
+	getTermsFromSource : function(aRegExp, aSource) 
+	{
+		var regexp = new RegExp(
+				((typeof aRegExp == 'string') ? aRegExp : aRegExp.source ),
+				'gim'
+			);
+		var result = (aSource || '').match(regexp);
+		result.sort();
+		return result.join('\n')
+				.toLowerCase()
+				.replace(/^(.+)(\n\1$)+/gim, '$1')
+				.split('\n');
+	},
+	getTermsForInputFromSource : function(aInput, aSource)
+	{
+		return this.getTermsFromSource(this.getRegExp(aInput), aSource);
+	},
+	 
+	get smartLocationBarFindSource() 
+	{
+		if (!this.places) return '';
+
+		var statement = this.places.createStatement(<![CDATA[
+		    SELECT GROUP_CONCAT(p.title, ?1),
+		           GROUP_CONCAT(p.url, ?1),
+		           GROUP_CONCAT(b.title, ?1)
+		      FROM moz_places p
+		           LEFT JOIN moz_bookmarks b ON b.fk = p.id
+		     WHERE hidden <> 1
+		  ]]>.toString());
+		statement.bindStringParameter(0, '\n');
+
+		var sources = [];
+		while(statement.executeStep()) {
+			sources.push(statement.getString(0));
+			sources.push(statement.getString(1));
+			sources.push(statement.getString(2));
+		};
+		statement.reset();
+
+		sources.push(PlacesUtils.tagging.allTags.join('\n'));
+		return sources.join('\n');
+	},
+	 
+	get places() 
+	{
+		if (this._places !== void(0))
+			return this._places;
+
+		this._places = null;
+
+		const DirectoryService = Components
+			.classes['@mozilla.org/file/directory_service;1']
+			.getService(Components.interfaces.nsIProperties);
+		var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
+		file.append('places.sqlite');
+		if (file.exists()) {
+			const StorageService = Components
+				.classes['@mozilla.org/storage/service;1']
+				.getService(Components.interfaces.mozIStorageService);
+			this._places = StorageService.openDatabase(file);
+		}
+
+		return this._places;
+	},
+//	_places : null,
+   
 /* Find */ 
 	
 	regExpFind : function(aRegExp, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
