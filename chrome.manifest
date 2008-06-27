@@ -6,9 +6,10 @@ overlay	chrome://global/content/viewSource.xul	chrome://xulmigemo/content/viewSo
 overlay	chrome://global/content/viewPartialSource.xul	chrome://xulmigemo/content/viewSourceOverlay.xul
 overlay	chrome://help/content/help.xul	chrome://xulmigemo/content/helpOverlay.xul
 
-overlay	chrome://browser/content/bookmarks/bookmarksPanel.xul	chrome://xulmigemo/content/places/bookmarksPanelOverlay.xul
-overlay	chrome://browser/content/history/history-panel.xul	chrome://xulmigemo/content/places/historyPanelOverlay.xul
-overlay	chrome://browser/content/places/places.xul	chrome://xulmigemo/content/places/organizerOverlay.xul
+overlay	chrome://browser/content/browser.xul	chrome://xulmigemo/content/places/locationBarOverlay.xul	appversion>=3.0pre
+overlay	chrome://browser/content/bookmarks/bookmarksPanel.xul	chrome://xulmigemo/content/places/bookmarksPanelOverlay.xul	appversion>=3.0pre
+overlay	chrome://browser/content/history/history-panel.xul	chrome://xulmigemo/content/places/historyPanelOverlay.xul	appversion>=3.0pre
+overlay	chrome://browser/content/places/places.xul	chrome://xulmigemo/content/places/organizerOverlay.xul	appversion>=3.0pre
 
 overlay	chrome://messenger/content/messenger.xul	chrome://xulmigemo/content/mailWindowOverlay.xul
 overlay	chrome://messenger/content/messageWindow.xul	chrome://xulmigemo/content/mailWindowOverlay.xul

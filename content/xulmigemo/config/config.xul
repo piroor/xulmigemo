@@ -511,6 +511,16 @@
 
 <prefpane id="prefpane-combination" label="&config.tab.combination;" flex="1">
 	<preferences>
+		<preference id="xulmigemo.places.bookmarksPanel"
+			name="xulmigemo.places.bookmarksPanel"
+			type="bool"/>
+		<preference id="xulmigemo.places.historyPanel"
+			name="xulmigemo.places.historyPanel"
+			type="bool"/>
+		<preference id="xulmigemo.places.organizer"
+			name="xulmigemo.places.organizer"
+			type="bool"/>
+
 		<preference id="xulmigemo.mailnews.threadsearch.enabled"
 			name="xulmigemo.mailnews.threadsearch.enabled"
 			type="bool"/>
@@ -526,6 +536,19 @@
 	<description flex="1" style="max-width: &config.combination.description.maxwidth;">&config.combination.description;</description>
 
 	<vbox flex="100">
+	<groupbox>
+		<caption label="&config.caption.places;"/>
+		<checkbox id="xulmigemo.places.bookmarksPanel-check" flex="1"
+			label="&config.places.bookmarksPanel;"
+			preference="xulmigemo.places.bookmarksPanel"/>
+		<checkbox id="xulmigemo.places.historyPanel-check" flex="1"
+			label="&config.places.historyPanel;"
+			preference="xulmigemo.places.historyPanel"/>
+		<checkbox id="xulmigemo.places.organizer-check" flex="1"
+			label="&config.places.organizer;"
+			preference="xulmigemo.places.organizer"/>
+	</groupbox>
+
 	<groupbox>
 		<caption label="&config.caption.mailnews;"/>
 		<checkbox id="xulmigemo.mailnews.threadsearch.enabled-check" flex="1"
