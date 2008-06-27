@@ -64,7 +64,8 @@
 <!ENTITY config.appearance.closeButtonPosition.1 "Rightmost">
 
 
-<!ENTITY config.tab.dictionary          "Dictionary">
+<!ENTITY config.dictionary.button         "Dictionary Configuration...">
+<!ENTITY config.dictionary.title          "Dictionary Configuration">
 
 <!ENTITY config.caption.dic             "Dictionaries Folder">
 <!ENTITY config.dic.useInitializeWizard "Show initialization wizard at the startup if the dictionary is lost">

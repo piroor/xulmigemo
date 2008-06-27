@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="config.css"?>
+
+<!DOCTYPE prefwindow [
+<!ENTITY % mainDTD SYSTEM "chrome://xulmigemo/locale/xulmigemo.dtd">
+%mainDTD;
+]>
+
+<prefwindow id="xulmigemo-config"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	title="&config.dictionary.title;"
+	type="child"
+	onload="initDicPane();">
+
+<prefpane id="prefpane-dictionary" flex="1">
+	<preferences>
+		<preference id="xulmigemo.dictionary.useInitializeWizard"
+			name="xulmigemo.dictionary.useInitializeWizard"
+			type="bool"/>
+		<preference id="xulmigemo.dicpath"
+			name="xulmigemo.dicpath"
+			type="string"/>
+		<preference id="xulmigemo.cache.update.time"
+			name="xulmigemo.cache.update.time"
+			type="int"/>
+	</preferences>
+
+	<groupbox>
+		<caption label="&config.caption.dic;"/>
+		<hbox align="center">
+			<textbox id="xulmigemo.dicpath-textbox"
+				preference="xulmigemo.dicpath"
+				flex="1"/>
+			<button label="&config.dic.find;"
+				oncommand="getDP()"/>
+		</hbox>
+		<description flex="1" style="max-width: &config.dic.description.maxwidth;">&config.dic.description;</description>
+		<checkbox id="xulmigemo.dic.useInitializeWizard-check" flex="1"
+			label="&config.dic.useInitializeWizard;"
+			preference="xulmigemo.dictionary.useInitializeWizard"/>
+	</groupbox>
+
+	<hbox>
+		<spacer flex="1"/>
+		<button label="&config.dic.showManager;"
+			oncommand="XMigemoService.goDicManager();"/>
+	</hbox>
+
+	<groupbox>
+		<caption label="&config.caption.cache;"/>
+		<label value="&config.cache.update.time;"/>
+		<hbox align="center">
+			<label value="&config.cache.update.time.max;"/>
+			<scale id="xulmigemo.cache.update.time-slider"
+				flex="1"
+				onchange="syncCacheUpdateTime(this);"
+				max="1000"/>
+			<scrollbar id="xulmigemo.cache.update.time-scrollbar"
+				flex="1"
+				onmouseup="syncCacheUpdateTime(this);"
+				maxpos="1000"/>
+			<label value="&config.cache.update.time.min;"/>
+		</hbox>
+		<vbox class="status-box">
+			<label value="&config.cache.update.time.indicator.above;"/>
+			<hbox align="center">
+				<label value="&config.cache.update.time.indicator.before;"/>
+				<textbox id="xulmigemo.cache.update.time-textbox"
+					preference="xulmigemo.cache.update.time"
+					style="width: 5em;"
+					type="number" min="0" max="1000" increment="1"
+					oninput="syncCacheUpdateTime(this);"/>
+				<label value="&config.cache.update.time.indicator.after;"/>
+			</hbox>
+			<label value="&config.cache.update.time.indicator.below;"/>
+		</vbox>
+		<hbox>
+			<spacer flex="1"/>
+			<button label="&config.cache.update.time.now;"
+				oncommand="updateCacheNow();"/>
+		</hbox>
+	</groupbox>
+
+</prefpane>
+
+<script src="chrome://xulmigemo/content/service.js" />
+<script src="chrome://xulmigemo/content/config/config-dictionary.js" />
+
+</prefwindow>

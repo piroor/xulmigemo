@@ -1919,6 +1919,9 @@ var XMigemoUI = {
 	{
 		if (this.findBarInitialShown) return;
 		this.findBarInitialShown = true;
+		if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_CONTENT &&
+			this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_LEFTMOST)
+			return;
 		window.setTimeout(function(aSelf) {
 			var items = aSelf.findBarItems;
 			items = items.sort(function(aA, aB) {
@@ -1939,7 +1942,9 @@ var XMigemoUI = {
 			aSelf.findBar.hidden = true;
 			window.setTimeout(function(aSelf) {
 				aSelf.findBar.hidden = false;
-				aSelf.field.focus();
+				window.setTimeout(function(aSelf) {
+					aSelf.field.focus();
+				}, 0, aSelf);
 			}, 0, aSelf);
 		}, 0, this);
 	},
