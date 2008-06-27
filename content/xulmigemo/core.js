@@ -63,15 +63,9 @@ var XMigemoCore = {
 		range.selectNodeContents(doc.documentElement);
 
 		if (aOnlyFindStr) {
-			var startPoint = doc.createRange();
-			startPoint.setStart(range.startContainer, range.startOffset);
-			var endPoint = doc.createRange();
-			endPoint.setStart(range.endContainer, range.endOffset);
-
 			var XMigemoTextUtils = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
 					.getService(Components.interfaces.pIXMigemoTextUtils);
-
 			var arrTerms = XMigemoTextUtils.range2Text(range).match(aRegExp);
 			if (arrTerms)
 				results = results.concat(arrTerms);

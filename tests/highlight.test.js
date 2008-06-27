@@ -57,7 +57,7 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 	assert.highlightCheck(false, false, message);
 	yield Do(assert.find_notFound(aNGLong, message));
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
-	assert.highlightCheck(false, true, message);
+	assert.highlightCheck(false, false, message);
 }
 
 assert.screenStateForFind = function(aTerm, aShown) {
@@ -67,11 +67,14 @@ assert.screenStateForFind = function(aTerm, aShown) {
 	assert.isTrue(screen);
 	var box = content.document.getBoxObjectFor(screen);
 	if (aShown) {
+		assert.isTrue(XMigemoUI.highlightCheck.checked);
 		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
 		assert.isTrue(box.width);
 		assert.isTrue(box.height);
 	}
 	else {
+		if (!XMigemoUI.highlightCheck.disabled)
+			assert.isFalse(XMigemoUI.highlightCheck.checked);
 		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 		assert.isFalse(box.width);
 		assert.isFalse(box.height);
@@ -150,9 +153,11 @@ var baseTests = {
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NORMAL;
 		yield Do(assert.screenStateForFind('text field', true));
 		yield Do(assert.screenStateForFind('', false));
+		yield Do(assert.screenStateForFind('t', false));
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 		yield Do(assert.screenStateForFind('nihongo', true));
 		yield Do(assert.screenStateForFind('', false));
+		yield Do(assert.screenStateForFind('n', false));
 	}
 };
 
