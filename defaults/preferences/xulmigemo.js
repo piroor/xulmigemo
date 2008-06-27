@@ -74,8 +74,9 @@ pref("xulmigemo.cache.override.ja",             "migemocache.txt");
 pref("xulmigemo.find_delay",                    50);
 
 
-pref("xulmigemo.places.organizer",      true);
 pref("xulmigemo.places.bookmarksPanel", true);
+pref("xulmigemo.places.historyPanel",   true);
+pref("xulmigemo.places.organizer",      true);
 
 pref("xulmigemo.mailnews.threadsearch.enabled", true);
 pref("xulmigemo.mailnews.threadsearch.body",    false);
