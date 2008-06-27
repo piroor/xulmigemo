@@ -33,7 +33,7 @@
 		<radiogroup id="find-mode-selector"
 			value="0"
 			orient="horizontal"
-			onselect="XMigemoUI.onChangeFindBarMode();"
+			onselect="XMigemoUI.onChangeMode();"
 			style="width: 100%; -moz-box-pack: end;">
 			<radio value="0"
 				label="&ui.mode.normal.label;"
@@ -41,19 +41,19 @@
 				short-label="&ui.mode.normal.shortLabel;"
 				tooltiptext="&ui.mode.normal.tooltiptext;"
 				selected="true"
-				onclick="XMigemoUI.onClickFindToolbarMode(event);"/>
+				onclick="XMigemoUI.onClickMode(event);"/>
 			<radio value="2"
 				label="&ui.mode.regexp.label;"
 				long-label="&ui.mode.regexp.label;"
 				short-label="&ui.mode.regexp.shortLabel;"
 				tooltiptext="&ui.mode.regexp.tooltiptext;"
-				onclick="XMigemoUI.onClickFindToolbarMode(event);"/>
+				onclick="XMigemoUI.onClickMode(event);"/>
 			<radio value="1"
 				label="&ui.mode.migemo.label;"
 				long-label="&ui.mode.migemo.label;"
 				short-label="&ui.mode.migemo.shortLabel;"
 				tooltiptext="&ui.mode.migemo.tooltiptext;"
-				onclick="XMigemoUI.onClickFindToolbarMode(event);"/>
+				onclick="XMigemoUI.onClickMode(event);"/>
 		</radiogroup>
 		<!--
 			Firefox 3では、下の方法で置いたProgressmeterのメーター部分が

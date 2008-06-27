@@ -11,7 +11,7 @@ assert.found = function(aTerm, aDocument) {
 }
 
 assert.find_again = function(aKey, aTimes, aTerm, aDocument) {
-	yield Do(fireKeyEvents(findField, aKey, aTimes));
+	yield Do(fireKeyEvents(field, aKey, aTimes));
 	assert.found(aTerm, aDocument);
 }
 
@@ -34,7 +34,7 @@ frameTest.tests = {
 		var firstDoc = content.frames[0].document;
 		var secondDoc = content.frames[1].document;
 
-		action.inputTextToField(findField, 'nihongo');
+		action.inputTextToField(field, 'nihongo');
 		yield wait;
 		assert.found('日本語', firstDoc);
 

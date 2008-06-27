@@ -8,7 +8,7 @@ var kSCREEN = '__moz_xmigemo-find-highlight-screen';
 var kHIGHLIGHTS = 'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search" or @class="__mozilla-findbar-animation"]';
 
 assert.highlightCheck = function(aDisabled, aChecked, aMessage) {
-	var check = XMigemoUI.findHighlightCheck;
+	var check = XMigemoUI.highlightCheck;
 	if (aDisabled)
 		assert.True(check.disabled, aMessage);
 	else
@@ -20,27 +20,29 @@ assert.highlightCheck = function(aDisabled, aChecked, aMessage) {
 }
 
 assert.find_found = function(aTerm, aMessage) {
-	action.inputTextToField(findField, aTerm);
+	action.inputTextToField(field, aTerm);
 	yield 1500;
-	assert.notEquals('notfound', findField.getAttribute('status'), aMessage);
+	assert.notEquals('notfound', field.getAttribute('status'), aMessage);
 }
 
 assert.find_notFound = function(aTerm, aMessage) {
-	action.inputTextToField(findField, aTerm);
+	action.inputTextToField(field, aTerm);
 	yield 1500;
-	assert.equals('notfound', findField.getAttribute('status'), aMessage);
+	assert.equals('notfound', field.getAttribute('status'), aMessage);
 }
 
 function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongNum) {
 	var message = 'mode is '+aMode;
 
 	XMigemoUI.findMode = XMigemoUI[aMode];
-	XMigemoUI.findCaseSensitiveCheck.checked = false;
-	findField.focus();
+	XMigemoUI.caseSensitiveCheck.checked = false;
+	field.focus();
 
 	yield Do(assert.find_found(aOKShort, message));
+	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
 	yield Do(assert.find_found(aOKLong, message));
+	assert.isTrue(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, true, message);
 	var xpathResult = content.document.evaluate(
 		kHIGHLIGHTS,
@@ -51,13 +53,15 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 	);
 	assert.equals(aOKLongNum, xpathResult.snapshotLength, message);
 	yield Do(assert.find_notFound(aNGShort, message));
+	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
 	yield Do(assert.find_notFound(aNGLong, message));
+	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, true, message);
 }
 
 assert.screenStateForFind = function(aTerm, aShown) {
-	action.inputTextToField(findField, aTerm);
+	action.inputTextToField(field, aTerm);
 	yield 1500;
 	var screen = content.document.getElementById(kSCREEN);
 	assert.isTrue(screen);
@@ -77,7 +81,7 @@ assert.screenStateForFind = function(aTerm, aShown) {
 var htmlTests = {
 	setUp : function() {
 		yield Do(commonSetUp(keyEventTest));
-		assert.isTrue(XMigemoUI.findBarHidden);
+		assert.isTrue(XMigemoUI.hidden);
 		XMigemoUI.highlightCheckedAlways = true;
 		XMigemoUI.highlightCheckedAlwaysMinLength = 5;
 	}
@@ -86,7 +90,7 @@ var htmlTests = {
 var xmlTests = {
 	setUp : function() {
 		yield Do(commonSetUp(keyEventTestXML));
-		assert.isTrue(XMigemoUI.findBarHidden);
+		assert.isTrue(XMigemoUI.hidden);
 		XMigemoUI.highlightCheckedAlways = true;
 		XMigemoUI.highlightCheckedAlwaysMinLength = 5;
 	}
@@ -141,7 +145,7 @@ var baseTests = {
 
 		gFindBar.openFindBar();
 		yield wait;
-		findField.focus();
+		field.focus();
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NORMAL;
 		yield Do(assert.screenStateForFind('text field', true));
@@ -196,11 +200,11 @@ highlightAdvancedTest.tests = {
 
 		gFindBar.openFindBar();
 		yield wait;
-		findField.focus();
+		field.focus();
 
 		XMigemoUI.findMode = XMigemoUI.FIND_MODE_NORMAL;
 
-		action.inputTextToField(findField, 'text field');
+		action.inputTextToField(field, 'text field');
 		yield 1500;
 		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
 		yield Do(fireClickEventOn(browser.selectedBrowser, 0));
@@ -229,12 +233,12 @@ highlightAdvancedTest.tests = {
 		for (var i = 0, maxi = findTerm.length; i < maxi; i++)
 		{
 			assert.highlightCheck(false, true);
-			action.fireKeyEventOnElement(findField, key_BS);
+			action.fireKeyEventOnElement(field, key_BS);
 			yield wait;
 			assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
-			assert.isFalse(XMigemoUI.findBarHidden);
+			assert.isFalse(XMigemoUI.hidden);
 		}
 		yield wait;
-		assert.isFalse(XMigemoUI.findHighlightCheck.checked);
+		assert.isFalse(XMigemoUI.highlightCheck.checked);
 	}
 };

@@ -5,7 +5,7 @@ var XMigemoUI,
 	content,
 	findCommand,
 	gFindBar,
-	findField,
+	field,
 	inputElem;
 var keyEventTest = baseURL+'res/keyEventTest.html';
 var keyEventTestXML = baseURL+'res/keyEventTest.xml';
@@ -63,8 +63,8 @@ function commonSetUp(aURI)
 		win.document.getElementById('cmd_find').getAttribute('oncommand')+
 	'}';
 
-	findField = XMigemoUI.findField;
-	inputElem = findField.inputField;
+	field = XMigemoUI.field;
+	inputElem = field.inputField;
 
 	gFindBar.closeFindBar();
 

@@ -26,8 +26,8 @@ function normalSetUp(aURI)
 		win.document.getElementById('cmd_find').getAttribute('oncommand')+
 	'}';
 
-	findField = XMigemoUI.findField;
-	inputElem = findField.inputField;
+	field = XMigemoUI.field;
+	inputElem = field.inputField;
 
 	yield wait;
 }
@@ -36,9 +36,9 @@ function normalSetUp(aURI)
 assert.findbarState = function(aMode, aShown) {
 	assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
 	if (aShown)
-		assert.isFalse(XMigemoUI.findBarHidden, aMode);
+		assert.isFalse(XMigemoUI.hidden, aMode);
 	else
-		assert.isTrue(XMigemoUI.findBarHidden, aMode);
+		assert.isTrue(XMigemoUI.hidden, aMode);
 }
 
 var startupTest = new TestCase('起動時の設定のテスト', {runStrategy: 'async'});

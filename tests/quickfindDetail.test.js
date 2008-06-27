@@ -9,7 +9,7 @@ var quickFindDetailTest = new TestCase('クイックMigemo検索の詳細テス�
 quickFindDetailTest.tests = {
 	setUp : function() {
 		yield Do(commonSetUp(keyEventTest));
-		assert.isTrue(XMigemoUI.findBarHidden);
+		assert.isTrue(XMigemoUI.hidden);
 	},
 
 	tearDown : function() {
@@ -44,7 +44,7 @@ quickFindDetailTest.tests = {
 		for (var i = 1, maxi = findTerm.length+1; i < maxi; i++)
 		{
 			key = { charCode : findTerm.charCodeAt(i) };
-			action.fireKeyEventOnElement(findField, key);
+			action.fireKeyEventOnElement(field, key);
 			yield wait;
 			assert.equals(lastInput+findTerm.charAt(i), XMigemoUI.findTerm);
 			lastInput = XMigemoUI.findTerm;
@@ -52,14 +52,14 @@ quickFindDetailTest.tests = {
 		}
 		assert.isQuickMigemoFindActive();
 
-		action.inputTextToField(findField, findTerm);
+		action.inputTextToField(field, findTerm);
 		yield wait;
 
 		startAt = (new Date()).getTime();
 		while (((new Date()).getTime() - startAt) < XMigemoUI.timeout)
 		{
 			assert.isQuickMigemoFindActive();
-			action.fireKeyEventOnElement(findField, key_RETURN);
+			action.fireKeyEventOnElement(field, key_RETURN);
 			yield wait;
 		}
 
@@ -68,7 +68,7 @@ quickFindDetailTest.tests = {
 		key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE };
 		for (var i = findTerm.length; i > 0; i--)
 		{
-			action.fireKeyEventOnElement(findField, key_BS);
+			action.fireKeyEventOnElement(field, key_BS);
 			yield wait;
 			assert.equals(lastInput.substring(0, lastInput.length-1), XMigemoUI.findTerm);
 			lastInput = XMigemoUI.findTerm;
@@ -87,7 +87,7 @@ quickFindDetailTest.tests = {
 		input.focus();
 		action.fireMouseEventOnElement(input);
 		yield wait;
-		assert.isTrue(XMigemoUI.findBarHidden);
+		assert.isTrue(XMigemoUI.hidden);
 
 		var originalValue = input.value;
 		var focused = win.document.commandDispatcher.focusedElement;
