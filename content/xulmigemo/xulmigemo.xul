@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<?xml-stylesheet href="xulmigemo.css"?>
+<?xml-stylesheet href="chrome://xulmigemo/content/xulmigemo.css"?>
 <?xml-stylesheet href="chrome://xulmigemo/skin/xulmigemo.css"?>
 <!DOCTYPE overlay [
 <!ENTITY % mainDTD SYSTEM "chrome://xulmigemo/locale/xulmigemo.dtd">
@@ -10,11 +10,11 @@
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
 
-<script src="core.js" type="application/x-javascript; e4x=1" /><!-- for backward compatibility -->
-<script src="service.js" type="application/x-javascript; e4x=1" />
-	<script src="ui.js" type="application/x-javascript; e4x=1" />
-		<script src="highlight.js" type="application/x-javascript; e4x=1" />
-		<script src="combination.js" type="application/x-javascript; e4x=1" />
+<script src="chrome://xulmigemo/content/core.js" type="application/x-javascript; e4x=1"/>
+<script src="chrome://xulmigemo/content/service.js" type="application/x-javascript; e4x=1"/>
+	<script src="chrome://xulmigemo/content/ui.js" type="application/x-javascript; e4x=1"/>
+		<script src="chrome://xulmigemo/content/highlight.js" type="application/x-javascript; e4x=1"/>
+		<script src="chrome://xulmigemo/content/combination.js" type="application/x-javascript; e4x=1"/>
 
 <hbox id="XMigemoFindToolbar"
 	collapsed="true"

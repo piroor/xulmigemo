@@ -1,23 +1,5 @@
 var XMigemoOrganizerOverlay = { 
 	 
-	expandQuery : function(aQuery) 
-	{
-		var queries = [aQuery];
-		var terms = XMigemoCore.getTermsForInputFromSource(
-				aQuery.searchTerms,
-				XMigemoCore.smartLocationBarFindSource
-			);
-		if (terms.length) {
-			queries = queries
-				.concat(terms.map(function(aTerm) {
-					var newQuery = aQuery.clone();
-					newQuery.searchTerms = aTerm;
-					return newQuery;
-				}));
-		}
-		return queries;
-	},
- 
 	handleEvent : function(aEvent) 
 	{
 		window.removeEventListener('load', this, false);
@@ -25,7 +7,18 @@ var XMigemoOrganizerOverlay = {
 		eval('PlacesSearchBox.search = '+
 			PlacesSearchBox.search.toSource().replace(
 				'content.load([query], options)',
-				'content.load(XMigemoOrganizerOverlay.expandQuery(query), options);'
+				<![CDATA[
+					content.load(
+						(!XMigemoService.getPref('xulmigemo.places.organizer') ?
+							[query] :
+							XMigemoCore.expandNavHistoryQuery(
+								query,
+								XMigemoCore.historySource
+							)
+						),
+						options
+					);
+				]]>
 			)
 		);
 
@@ -33,7 +26,18 @@ var XMigemoOrganizerOverlay = {
 		eval('tree.applyFilter = '+
 			tree.applyFilter.toSource().replace(
 				'this.load([query], options);',
-				'this.load(XMigemoOrganizerOverlay.expandQuery(query), options);'
+				<![CDATA[
+					this.load(
+						(!XMigemoService.getPref('xulmigemo.places.organizer') ?
+							[query] :
+							XMigemoCore.expandNavHistoryQuery(
+								query,
+								XMigemoCore.bookmarksSource
+							)
+						),
+						options
+					);
+				]]>
 			)
 		);
 	}
