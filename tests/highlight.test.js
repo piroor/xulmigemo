@@ -73,8 +73,10 @@ assert.screenStateForFind = function(aTerm, aShown) {
 		assert.isTrue(box.height);
 	}
 	else {
-		if (!XMigemoUI.highlightCheck.disabled)
+		if (aTerm)
 			assert.isFalse(XMigemoUI.highlightCheck.checked);
+		else
+			assert.isTrue(XMigemoUI.highlightCheck.disabled)
 		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 		assert.isFalse(box.width);
 		assert.isFalse(box.height);
@@ -244,6 +246,6 @@ highlightAdvancedTest.tests = {
 			assert.isFalse(XMigemoUI.hidden);
 		}
 		yield wait;
-		assert.isFalse(XMigemoUI.highlightCheck.checked);
+		assert.isTrue(XMigemoUI.highlightCheck.disabled);
 	}
 };
