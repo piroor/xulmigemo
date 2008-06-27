@@ -64,7 +64,8 @@
 <!ENTITY config.appearance.closeButtonPosition.1 "右端">
 
 
-<!ENTITY config.tab.dictionary          "辞書">
+<!ENTITY config.dictionary.button       "辞書の設定...">
+<!ENTITY config.dictionary.title        "辞書の設定">
 
 <!ENTITY config.caption.dic             "辞書フォルダ">
 <!ENTITY config.dic.useInitializeWizard "起動時に辞書が見つからないときはウィザードを表示する">

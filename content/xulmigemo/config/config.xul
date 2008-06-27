@@ -57,6 +57,9 @@
 					value="&config.lang.item2.value;"/>
 			</menupopup>
 		</menulist>
+		<spacer flex="1"/>
+		<button label="&config.dictionary.button;"
+			oncommand="document.documentElement.openSubDialog('config-dictionary.xul', 'modal');"/>
 	</hbox>
 	<hbox>
 		<spacer style="width:1em;"/>
@@ -272,79 +275,6 @@
 		<button label="&config.quickfind.advanced.button;"
 			oncommand="document.documentElement.openSubDialog('config-quickfind-advanced.xul', 'modal');"/>
 	</hbox>
-
-</prefpane>
-
-
-<prefpane id="prefpane-dictionary" label="&config.tab.dictionary;" flex="1"
-	onpaneload="initDicPane();">
-	<preferences>
-		<preference id="xulmigemo.dictionary.useInitializeWizard"
-			name="xulmigemo.dictionary.useInitializeWizard"
-			type="bool"/>
-		<preference id="xulmigemo.dicpath"
-			name="xulmigemo.dicpath"
-			type="string"/>
-		<preference id="xulmigemo.cache.update.time"
-			name="xulmigemo.cache.update.time"
-			type="int"/>
-	</preferences>
-
-	<groupbox>
-		<caption label="&config.caption.dic;"/>
-		<hbox align="center">
-			<textbox id="xulmigemo.dicpath-textbox"
-				preference="xulmigemo.dicpath"
-				flex="1"/>
-			<button label="&config.dic.find;"
-				oncommand="getDP()"/>
-		</hbox>
-		<description flex="1" style="max-width: &config.dic.description.maxwidth;">&config.dic.description;</description>
-		<checkbox id="xulmigemo.dic.useInitializeWizard-check" flex="1"
-			label="&config.dic.useInitializeWizard;"
-			preference="xulmigemo.dictionary.useInitializeWizard"/>
-	</groupbox>
-
-	<hbox>
-		<spacer flex="1"/>
-		<button label="&config.dic.showManager;"
-			oncommand="XMigemoService.goDicManager();"/>
-	</hbox>
-
-	<groupbox>
-		<caption label="&config.caption.cache;"/>
-		<label value="&config.cache.update.time;"/>
-		<hbox align="center">
-			<label value="&config.cache.update.time.max;"/>
-			<scale id="xulmigemo.cache.update.time-slider"
-				flex="1"
-				onchange="syncCacheUpdateTime(this);"
-				max="1000"/>
-			<scrollbar id="xulmigemo.cache.update.time-scrollbar"
-				flex="1"
-				onmouseup="syncCacheUpdateTime(this);"
-				maxpos="1000"/>
-			<label value="&config.cache.update.time.min;"/>
-		</hbox>
-		<vbox class="status-box">
-			<label value="&config.cache.update.time.indicator.above;"/>
-			<hbox align="center">
-				<label value="&config.cache.update.time.indicator.before;"/>
-				<textbox id="xulmigemo.cache.update.time-textbox"
-					preference="xulmigemo.cache.update.time"
-					style="width: 5em;"
-					type="number" min="0" max="1000" increment="1"
-					oninput="syncCacheUpdateTime(this);"/>
-				<label value="&config.cache.update.time.indicator.after;"/>
-			</hbox>
-			<label value="&config.cache.update.time.indicator.below;"/>
-		</vbox>
-		<hbox>
-			<spacer flex="1"/>
-			<button label="&config.cache.update.time.now;"
-				oncommand="updateCacheNow();"/>
-		</hbox>
-	</groupbox>
 
 </prefpane>
 
