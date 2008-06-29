@@ -30,16 +30,24 @@ var XMigemoCore = {
 				((typeof aRegExp == 'string') ? aRegExp : aRegExp.source ),
 				'gim'
 			);
-		var result = (aSource || '').match(regexp);
+		var result = (aSource || '').match(regexp) || [];
 		result.sort();
 		return result.join('\n')
 				.toLowerCase()
 				.replace(/^(.+)(\n\1$)+/gim, '$1')
 				.split('\n');
 	},
-	getTermsForInputFromSource : function(aInput, aSource)
+	getTermsForInputFromSource : function(aInput, aSource, aAndFind)
 	{
-		return this.getTermsFromSource(this.getRegExp(aInput), aSource);
+		if (!aAndFind) return this.getTermsFromSource(this.getRegExp(aInput), aSource);
+		var self = this;
+		aInput = aInput
+			.replace(/^\s*|\s*$/g, '')
+			.split(/\s+/)
+			.map(function(aInput) {
+				return self.getRegExp(aInput);
+			});
+		return this.getTermsFromSource('(?:'+aInput.join(').*(?:')+')', aSource);
 	},
  
 /* Find */ 

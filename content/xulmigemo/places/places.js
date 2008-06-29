@@ -38,7 +38,8 @@ var XMigemoPlaces = {
 		statement.bindStringParameter(0, '\n');
 
 		var sources = [];
-		while(statement.executeStep()) {
+		while(statement.executeStep())
+		{
 			sources.push(statement.getString(0));
 			sources.push(statement.getString(1));
 			sources.push(statement.getString(2));
@@ -62,7 +63,8 @@ var XMigemoPlaces = {
 		statement.bindStringParameter(0, '\n');
 
 		var sources = [];
-		while(statement.executeStep()) {
+		while(statement.executeStep())
+		{
 			sources.push(statement.getString(0));
 			sources.push(statement.getString(1));
 		};
@@ -85,7 +87,8 @@ var XMigemoPlaces = {
 		statement.bindStringParameter(0, '\n');
 
 		var sources = [];
-		while(statement.executeStep()) {
+		while(statement.executeStep())
+		{
 			sources.push(statement.getString(0));
 			sources.push(statement.getString(1));
 		};
@@ -106,7 +109,8 @@ var XMigemoPlaces = {
 		  ]]>.toString());
 		statement.bindStringParameter(0, aURI);
 		var frecency = 0;
-		while(statement.executeStep()) {
+		while(statement.executeStep())
+		{
 			frecency = statement.getDouble(0);
 		};
 		statement.reset();
@@ -118,7 +122,8 @@ var XMigemoPlaces = {
 		var queries = [aQuery];
 		var terms = XMigemoCore.getTermsForInputFromSource(
 				aQuery.searchTerms,
-				aSource
+				aSource,
+				true
 			);
 		if (terms.length) {
 			queries = queries
