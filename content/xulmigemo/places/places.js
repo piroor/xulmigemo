@@ -119,12 +119,12 @@ var XMigemoPlaces = {
  
 	expandNavHistoryQuery : function(aQuery, aSource) 
 	{
-		var queries = [aQuery];
 		var terms = XMigemoCore.getTermsForInputFromSource(
 				aQuery.searchTerms,
 				aSource,
-				true
+				XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces')
 			);
+		var queries = [];
 		if (terms.length) {
 			queries = queries
 				.concat(terms.map(function(aTerm) {
@@ -132,6 +132,9 @@ var XMigemoPlaces = {
 					newQuery.searchTerms = aTerm;
 					return newQuery;
 				}));
+		}
+		else {
+			queries.push(aQuery);
 		}
 		return queries;
 	}
