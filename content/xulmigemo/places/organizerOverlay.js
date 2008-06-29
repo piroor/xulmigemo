@@ -32,7 +32,9 @@ var XMigemoOrganizerOverlay = {
 							[query] :
 							XMigemoPlaces.expandNavHistoryQuery(
 								query,
-								XMigemoPlaces.bookmarksSource
+								options.queryType == Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY ?
+									XMigemoPlaces.historySource :
+									XMigemoPlaces.bookmarksSource
 							)
 						),
 						options
