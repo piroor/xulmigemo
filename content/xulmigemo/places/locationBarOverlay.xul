@@ -14,8 +14,7 @@
 		<textbox id="XMigemoLocationBarSearchTextbox"
 			type="autocomplete"
 			autocompletesearch="history"
-			autocompletepopup="XMigemoLocationBarSearchPanel"
-			onsearchcomplete="XMigemoLocationBarOverlay.onSearchComplete();"/>
+			autocompletepopup="XMigemoLocationBarSearchPanel"/>
 	</box>
 </window>
 

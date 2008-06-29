@@ -2,6 +2,11 @@ var XMigemoLocationBarOverlay = {
 	 
 	results : [], 
  
+	get locationBar() 
+	{
+		return document.getElementById('urlbar');
+	},
+ 
 	get locationBarPanel() 
 	{
 		if (!this._locationBarPanel)
@@ -28,18 +33,32 @@ var XMigemoLocationBarOverlay = {
 		switch (aEvent.type)
 		{
 			case 'load':
-				window.removeEventListener('load', this, false);
-
-				eval('LocationBarHelpers._searchComplete = '+
-					LocationBarHelpers._searchComplete.toSource().replace(
-						/(\}\))?$/,
-						'XMigemoLocationBarOverlay.doSearch(document.getElementById("urlbar").value); $1'
-					)
-				);
+				this.init();
 				break;
 		}
 	},
-	compareFrecency : function(aA, aB)
+ 
+	init : function() 
+	{
+		window.removeEventListener('load', this, false);
+
+		eval('LocationBarHelpers._searchComplete = '+
+			LocationBarHelpers._searchComplete.toSource().replace(
+				/(\}\))?$/,
+				'XMigemoLocationBarOverlay.doSearch(document.getElementById("urlbar").value); $1'
+			)
+		);
+
+		var panel = this.resolverPanel;
+		eval('panel._appendCurrentResult = '+
+			panel._appendCurrentResult.toSource().replace(
+				'return;',
+				'XMigemoLocationBarOverlay.onSearchComplete(); return;'
+			)
+		);
+	},
+ 
+	compareFrecency : function(aA, aB) 
 	{
 		return aB.frecency - aA.frecency;
 	},
@@ -57,24 +76,28 @@ dump('  FOUND TERMS ('+terms.length+')\n');
 
 		function DoSearchEachTerm(aTerms, aSelf) {
 			var textbox = aSelf.resolverTextbox;
+			var newResults;
 			for (var i = 0, maxi = aTerms.length; i < maxi; i++)
 			{
 				textbox.openPopup();
+dump('TERM '+aTerms[i]+'\n');
 				textbox.mController.startSearch(aTerms[i]);
-				yield;
-				aSelf.results = aSelf.results.concat(
-					aSelf.resultList.children.map(function(aItem) {
+				yield true;
+				newResults = aSelf.resultList.children.map(function(aItem) {
 						aItem = aItem.cloneNode(true);
 						aItem.frecency = XMigemoPlaces.getFrecencyFromURI(aItem.getAttribute('url'));
 						aItem.setAttribute('frecency', aItem.frecency);
 						return aItem;
 					})
-				);
-				dump(aSelf.results.length+'\n');
-				textbox.closePopup();
-				aSelf.updateResults();
+				if (newResults.length) {
+					aSelf.results = aSelf.results.concat(newResults);
+dump(aSelf.results.length+'\n');
+					textbox.closePopup();
+					aSelf.updateResults();
+				}
 			}
 			aSelf.resolver = null;
+			yield false;
 		}
 		this.resolver = DoSearchEachTerm(terms, this);
 		this.resolver.next();
@@ -83,8 +106,22 @@ dump('  FOUND TERMS ('+terms.length+')\n');
 	onSearchComplete : function() 
 	{
 dump('onSearchComplete\n');
-		if (this.resolver) this.resolver.next();
+		if (!this.resolver) return;
+
+		try {
+			if (this.onSearchCompleteTimer) {
+				window.clearTimeout(this.onSearchCompleteTimer);
+			}
+			this.onSearchCompleteTimer = window.setTimeout(function(aSelf) {
+				aSelf.resolver.next();
+				aSelf.onSearchCompleteTimer = null;
+			}, 100, this);
+		}
+		catch(e) {
+			dump(e+'\n');
+		}
 	},
+	onSearchCompleteTimer : null,
  
 	clear : function() 
 	{
@@ -102,7 +139,7 @@ dump('CLEAR\n');
 			done[uri] = true;
 			return true;
 		}).sort(this.compareFrecency);
-//		alert('DONE '+this.results.length);
+dump('DONE '+this.results.length+'\n');
 
 		var listbox = document.getAnonymousNodes(this.locationBarPanel)[0];
 
@@ -118,7 +155,7 @@ dump('CLEAR\n');
 
 		range.detach();
 
-		this.locationBarPanel.open = true;
+		this.locationBar.openPopup();
 	}
  
 }; 
