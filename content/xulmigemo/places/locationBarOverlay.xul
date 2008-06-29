@@ -2,11 +2,21 @@
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 <script src="chrome://xulmigemo/content/places/places.js" type="application/x-javascript; e4x=1"/>
+<!--
 <script src="chrome://xulmigemo/content/places/locationBarOverlay.js" type="application/x-javascript; e4x=1"/>
+-->
 
 <window id="main-window">
-	<box id="XMigemoLocationBarSearchResolvers"
-		collapsed="true"/>
+	<box id="XMigemoLocationBarSearchResolver"
+		collapsed="true">
+		<panel id="XMigemoLocationBarSearchPanel"
+			type="autocomplete-richlistbox"/>
+		<textbox id="XMigemoLocationBarSearchTextbox"
+			type="autocomplete"
+			autocompletesearch="history"
+			autocompletepopup="XMigemoLocationBarSearchPanel"
+			onsearchcomplete="XMigemoLocationBarOverlay.onSearchComplete();"/>
+	</box>
 </window>
 
 </overlay>
