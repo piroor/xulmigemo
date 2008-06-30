@@ -33,7 +33,7 @@ var XMigemoPlaces = {
 		           GROUP_CONCAT(b.title, ?1)
 		      FROM moz_places p
 		           LEFT JOIN moz_bookmarks b ON b.fk = p.id
-		     WHERE p.hidden <> 1
+		     WHERE p.hidden <> 1 AND p.frecency <> 0
 		  ]]>.toString());
 		statement.bindStringParameter(0, '\n');
 

@@ -212,7 +212,7 @@ var XMigemoLocationBarOverlay = {
 			window.__xulmigemo__BrowserCustomizeToolbar.call(window);
 		};
 
-		var toolbox = document.getElementById('browser-toolbox');
+		var toolbox = document.getElementById('navigator-toolbox');
 		if (toolbox.customizeDone) {
 			toolbox.__xulmigemo__customizeDone = toolbox.customizeDone;
 			toolbox.customizeDone = function(aChanged) {
@@ -232,7 +232,7 @@ var XMigemoLocationBarOverlay = {
 	initLocationBar : function() 
 	{
 		var bar = this.bar;
-		if (bar.__xmigemo__mController) return;
+		if (!bar || bar.__xmigemo__mController) return;
 
 		const nsIAutoCompleteController = Components.interfaces.nsIAutoCompleteController;
 		bar.__xmigemo__mController = bar.mController;
@@ -366,7 +366,7 @@ var XMigemoLocationBarOverlay = {
 	destroyLocationBar : function() 
 	{
 		var bar = this.bar;
-		if (!bar.__xmigemo__mController) return;
+		if (!bar || !bar.__xmigemo__mController) return;
 
 		bar.mController.stopSearch();
 		bar.mController.service = null;
