@@ -137,6 +137,101 @@ var XMigemoPlaces = {
 			queries.push(aQuery);
 		}
 		return queries;
+	},
+ 
+	findItemsForLocationBarInput : function(aInput) 
+	{
+		var items = [];
+		if (!aInput) return items;
+
+		var terms = XMigemoCore.getTermsForInputFromSource(
+				aInput,
+				this.placesSource,
+				XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces')
+			);
+		// from nsNavHistoryAytoComplete.cpp
+		var sql = <![CDATA[
+			SELECT title, url, favicon, bookmark, tags
+			  FROM (SELECT p.title title,
+			               p.url url,
+			               f.url favicon,
+			               p.frecency frecency,
+			               p.typed typed,
+			               (SELECT b.parent
+			                  FROM moz_bookmarks b
+			                       JOIN moz_bookmarks t
+			                       ON t.id = b.parent
+			                       AND t.parent != (SELECT folder_id
+			                                          FROM moz_bookmarks_roots
+			                                         WHERE root_name = 'tags')
+			                 WHERE b.type = 1 AND b.fk = p.id
+			                 ORDER BY b.lastModified DESC LIMIT 1) parent,
+			               (SELECT b.title
+			                  FROM moz_bookmarks b
+			                       JOIN moz_bookmarks t
+			                       ON t.id = b.parent
+			                       AND t.parent != (SELECT folder_id
+			                                          FROM moz_bookmarks_roots
+			                                         WHERE root_name = 'tags')
+			                 WHERE b.type = 1 AND b.fk = p.id
+			                 ORDER BY b.lastModified DESC LIMIT 1) bookmark,
+			               (SELECT GROUP_CONCAT(t.title, ',')
+			                  FROM moz_bookmarks b
+			                       JOIN moz_bookmarks t
+			                       ON t.id = b.parent
+			                       AND t.parent = (SELECT folder_id
+			                                         FROM moz_bookmarks_roots
+			                                        WHERE root_name = 'tags')
+			                 WHERE b.type = 1 AND b.fk = p.id) tags
+			          FROM moz_places p
+			               LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
+			         WHERE p.frecency <> 0 AND p.hidden <> 1)
+			 WHERE (%TERMS_RULES%)
+			       AND %EXCLUDE_JAVASCRIPT%
+			       AND %ONLY_TYPED%
+			 ORDER BY frecency DESC
+		]]>.toString()
+			.replace(
+				'%TERMS_RULES%',
+				terms.map(function(aTerm, aIndex) {
+					return ('title LIKE ?%d% OR bookmark LIKE ?%d% OR '+
+							'url LIKE ?%d% OR tags LIKE ?%d%')
+							.replace(/%d%/g, aIndex+1);
+				}).join('OR')
+			)
+			.replace(
+				'%EXCLUDE_JAVASCRIPT%',
+				XMigemoService.getPref('browser.urlbar.filter.javascript') ?
+					'url NOT LIKE "javascript:%"' :
+					'1'
+			)
+			.replace(
+				'%ONLY_TYPED%',
+				XMigemoService.getPref('browser.urlbar.matchOnlyTyped') ?
+					'typed = 1' :
+					'1'
+			);
+
+		var statement = this.db.createStatement(sql);
+		try {
+			terms.forEach(function(aTerm, aIndex) {
+				statement.bindStringParameter(aIndex, '%'+aTerm+'%');
+			});
+			while(statement.executeStep())
+			{
+				items.push({
+					title    : statement.getString(0),
+					url      : statement.getString(1),
+					favicon  : statement.getString(2),
+					bookmark : statement.getString(3),
+					tags     : statement.getString(4)
+				});
+			};
+		}
+		finally {
+			statement.reset();
+		}
+		return items;
 	}
  	
 }; 
