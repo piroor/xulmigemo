@@ -151,48 +151,7 @@ var XMigemoPlaces = {
 			);
 		terms = terms.slice(0, Math.min(100, terms.length));
 		// see nsNavHistoryAytoComplete.cpp
-		var sql = <![CDATA[
-			SELECT title, url, favicon, bookmark, tags
-			  FROM (SELECT p.title title,
-			               p.url url,
-			               f.url favicon,
-			               p.frecency frecency,
-			               p.typed typed,
-			               (SELECT b.parent
-			                  FROM moz_bookmarks b
-			                       JOIN moz_bookmarks t
-			                       ON t.id = b.parent
-			                       AND t.parent != (SELECT folder_id
-			                                          FROM moz_bookmarks_roots
-			                                         WHERE root_name = 'tags')
-			                 WHERE b.type = 1 AND b.fk = p.id
-			                 ORDER BY b.lastModified DESC LIMIT 1) parent,
-			               (SELECT b.title
-			                  FROM moz_bookmarks b
-			                       JOIN moz_bookmarks t
-			                       ON t.id = b.parent
-			                       AND t.parent != (SELECT folder_id
-			                                          FROM moz_bookmarks_roots
-			                                         WHERE root_name = 'tags')
-			                 WHERE b.type = 1 AND b.fk = p.id
-			                 ORDER BY b.lastModified DESC LIMIT 1) bookmark,
-			               (SELECT GROUP_CONCAT(t.title, ',')
-			                  FROM moz_bookmarks b
-			                       JOIN moz_bookmarks t
-			                       ON t.id = b.parent
-			                       AND t.parent = (SELECT folder_id
-			                                         FROM moz_bookmarks_roots
-			                                        WHERE root_name = 'tags')
-			                 WHERE b.type = 1 AND b.fk = p.id) tags
-			          FROM moz_places p
-			               LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
-			         WHERE p.frecency <> 0 AND p.hidden <> 1)
-			 WHERE (%TERMS_RULES%)
-			       AND %EXCLUDE_JAVASCRIPT%
-			       AND %ONLY_TYPED%
-			 ORDER BY frecency DESC
-			 LIMIT 0,?1
-		]]>.toString()
+		var sql = this.findItemsForLocationBarInputBaseSQL
 			.replace(
 				'%TERMS_RULES%',
 				terms.map(function(aTerm, aIndex) {
@@ -255,7 +214,49 @@ var XMigemoPlaces = {
 			statement.reset();
 		}
 		return items;
-	}
+	},
+	findItemsForLocationBarInputBaseSQL : <![CDATA[
+		SELECT title, url, favicon, bookmark, tags
+		  FROM (SELECT p.title title,
+		               p.url url,
+		               f.url favicon,
+		               p.frecency frecency,
+		               p.typed typed,
+		               (SELECT b.parent
+		                  FROM moz_bookmarks b
+		                       JOIN moz_bookmarks t
+		                       ON t.id = b.parent
+		                       AND t.parent != (SELECT folder_id
+		                                          FROM moz_bookmarks_roots
+		                                         WHERE root_name = 'tags')
+		                 WHERE b.type = 1 AND b.fk = p.id
+		                 ORDER BY b.lastModified DESC LIMIT 1) parent,
+		               (SELECT b.title
+		                  FROM moz_bookmarks b
+		                       JOIN moz_bookmarks t
+		                       ON t.id = b.parent
+		                       AND t.parent != (SELECT folder_id
+		                                          FROM moz_bookmarks_roots
+		                                         WHERE root_name = 'tags')
+		                 WHERE b.type = 1 AND b.fk = p.id
+		                 ORDER BY b.lastModified DESC LIMIT 1) bookmark,
+		               (SELECT GROUP_CONCAT(t.title, ',')
+		                  FROM moz_bookmarks b
+		                       JOIN moz_bookmarks t
+		                       ON t.id = b.parent
+		                       AND t.parent = (SELECT folder_id
+		                                         FROM moz_bookmarks_roots
+		                                        WHERE root_name = 'tags')
+		                 WHERE b.type = 1 AND b.fk = p.id) tags
+		          FROM moz_places p
+		               LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
+		         WHERE p.frecency <> 0 AND p.hidden <> 1)
+		 WHERE (%TERMS_RULES%)
+		       AND %EXCLUDE_JAVASCRIPT%
+		       AND %ONLY_TYPED%
+		 ORDER BY frecency DESC
+		 LIMIT 0,?1
+	]]>.toString()
  	
 }; 
   
