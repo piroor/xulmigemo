@@ -440,7 +440,7 @@ var XMigemoLocationBarOverlay = {
 				}
 				node.setAttribute('image', 'moz-anno:favicon:'+item.icon);
 				node.setAttribute('url', item.uri);
-				node.setAttribute('title', item.title + (item.tags ? ' - ' + item.tags : '' ));
+				node.setAttribute('title', item.title + (item.tags ? ' \u2013 ' + item.tags : '' ));
 				node.setAttribute('type', item.style);
 				node.setAttribute('text', item.terms);
 				if (i < existingCount) {
