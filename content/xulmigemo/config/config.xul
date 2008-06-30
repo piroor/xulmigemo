@@ -511,6 +511,9 @@
 
 <prefpane id="prefpane-combination" label="&config.tab.combination;" flex="1">
 	<preferences>
+		<preference id="xulmigemo.places.locationBar"
+			name="xulmigemo.places.locationBar"
+			type="bool"/>
 		<preference id="xulmigemo.places.bookmarksPanel"
 			name="xulmigemo.places.bookmarksPanel"
 			type="bool"/>
@@ -538,15 +541,24 @@
 	<vbox flex="100">
 	<groupbox>
 		<caption label="&config.caption.places;"/>
-		<checkbox id="xulmigemo.places.bookmarksPanel-check" flex="1"
-			label="&config.places.bookmarksPanel;"
-			preference="xulmigemo.places.bookmarksPanel"/>
-		<checkbox id="xulmigemo.places.historyPanel-check" flex="1"
-			label="&config.places.historyPanel;"
-			preference="xulmigemo.places.historyPanel"/>
-		<checkbox id="xulmigemo.places.organizer-check" flex="1"
-			label="&config.places.organizer;"
-			preference="xulmigemo.places.organizer"/>
+		<hbox>
+		<vbox>
+			<checkbox id="xulmigemo.places.locationBar-check" flex="1"
+				label="&config.places.locationBar;"
+				preference="xulmigemo.places.locationBar"/>
+			<checkbox id="xulmigemo.places.bookmarksPanel-check" flex="1"
+				label="&config.places.bookmarksPanel;"
+				preference="xulmigemo.places.bookmarksPanel"/>
+		</vbox>
+		<vbox>
+			<checkbox id="xulmigemo.places.historyPanel-check" flex="1"
+				label="&config.places.historyPanel;"
+				preference="xulmigemo.places.historyPanel"/>
+			<checkbox id="xulmigemo.places.organizer-check" flex="1"
+				label="&config.places.organizer;"
+				preference="xulmigemo.places.organizer"/>
+		</vbox>
+		</hbox>
 	</groupbox>
 
 	<groupbox>

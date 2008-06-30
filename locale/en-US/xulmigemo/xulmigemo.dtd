@@ -114,10 +114,11 @@
 <!ENTITY config.combination.description "You can use find features assisted by XUL/Migemo engine (e.g. finding Japanese terms from roman inputs), in application or add-ons.">
 <!ENTITY config.combination.description.maxwidth "40em">
 
-<!ENTITY config.caption.places        "History and Bookmarks (only Firefox 3 or later)">
-<!ENTITY config.places.bookmarksPanel "Activate for Bookmarks Sidebar">
-<!ENTITY config.places.historyPanel   "Activate for History Sidebar">
-<!ENTITY config.places.organizer      "Activate for Library">
+<!ENTITY config.caption.places        "Activate for searching History and Bookmarks (only Firefox 3 or later)">
+<!ENTITY config.places.locationBar    "Location Bar">
+<!ENTITY config.places.bookmarksPanel "Bookmarks Sidebar">
+<!ENTITY config.places.historyPanel   "History Sidebar">
+<!ENTITY config.places.organizer      "Library">
 
 <!ENTITY config.caption.mailnews        "Thunderbird">
 <!ENTITY config.mailnews.threadsearch.enabled "Activate for quick mail search">

@@ -1,6 +1,9 @@
 var XMigemoLocationBarOverlay = { 
 	 
 	results : [], 
+
+	enabled : true,
+	ignoreURIInput : true,
  
 /* elements */ 
 	
@@ -52,12 +55,41 @@ var XMigemoLocationBarOverlay = {
   
 /* event handling */ 
 	 
+	observe : function(aSubject, aTopic, aPrefName) 
+	{
+		if (aTopic != 'nsPref:changed') return;
+
+		var value = XMigemoService.getPref(aPrefName);
+		switch (aPrefName)
+		{
+			case 'xulmigemo.places.locationBar':
+				this.enabled = value;
+				return;
+
+			case 'xulmigemo.places.ignoreURIInput':
+				this.ignoreURIInput = value;
+				return;
+
+			default:
+				return;
+		}
+	},
+	domain : 'xulmigemo.places',
+	preferences : <![CDATA[ 
+		xulmigemo.places.locationBar
+		xulmigemo.places.ignoreURIInput
+	]]>.toString(),
+ 
 	handleEvent : function(aEvent) 
 	{
 		switch (aEvent.type)
 		{
 			case 'load':
 				this.init();
+				break;
+
+			case 'unload':
+				this.destroy();
 				break;
 		}
 	},
@@ -68,7 +100,11 @@ var XMigemoLocationBarOverlay = {
 		this.bar.controller.searchStringOverride = '';
 		this.bar.controller.matchCountOverride = 0;
 		if (
-			!XMigemoService.getPref('xulmigemo.places.locationBar') ||
+			!this.enabled ||
+			(
+				this.ignoreURIInput &&
+				/^\w+:\/\//.test(input)
+			) ||
 			this.lastInput == input ||
 			this.readyToUpdate
 			)
@@ -77,14 +113,14 @@ var XMigemoLocationBarOverlay = {
 		this.lastInput = input;
 		if (!input) return;
 
-dump('\n\n\n-----------------------------------------------------------------\nSTART SEARCH '+input+'\n');
+//dump('\n\n\n-----------------------------------------------------------------\nSTART SEARCH '+input+'\n');
 		this.clear();
 
 		var terms = XMigemoCore.getTermsForInputFromSource(
 				input,
 				XMigemoPlaces.placesSource
 			);
-dump(terms.length+' / '+encodeURIComponent(terms)+'\n');
+//dump(terms.length+' / '+encodeURIComponent(terms)+'\n');
 
 		function DoSearchEachTerm(aTerms, aSelf) {
 			var bar = aSelf.bar;
@@ -113,7 +149,7 @@ dump(terms.length+' / '+encodeURIComponent(terms)+'\n');
 				if (newResults.length)
 					aSelf.results = aSelf.results.concat(newResults);
 			}
-dump(aSelf.results.length+'\n');
+//dump(aSelf.results.length+'\n');
 			aSelf.resolver = null;
 			aSelf.readyToUpdate = true;
 			aSelf.panel.collapsed = false;
@@ -132,13 +168,13 @@ dump(aSelf.results.length+'\n');
  
 	onSearchComplete : function() 
 	{
-dump('onSearchComplete\n');
+//dump('onSearchComplete\n');
 		if (this.resolver) {
-dump('next\n');
+//dump('next\n');
 			this.resolver.next();
 		}
 		else if (this.readyToUpdate) {
-dump('readyToUpdate\n');
+//dump('readyToUpdate\n');
 			this.readyToUpdate = false;
 			this.updatePopup();
 		}
@@ -148,6 +184,13 @@ dump('readyToUpdate\n');
 	{
 		window.removeEventListener('load', this, false);
 
+		this.overrideFunctions();
+
+		XMigemoService.addPrefListener(this);
+		window.addEventListener('unload', this, false);
+	},
+	overrideFunctions : function()
+	{
 		eval('LocationBarHelpers._searchBegin = '+
 			LocationBarHelpers._searchComplete.toSource().replace(
 				/(\}\))?$/,
@@ -161,11 +204,9 @@ dump('readyToUpdate\n');
 			)
 		);
 		this.bar.__xmigemo__mController = this.bar.mController;
-		var controller = this.bar.mController;
 		this.bar.mController = {
 			service    : this,
-			bar        : this.bar,
-			controller : controller,
+			controller : this.bar.__xmigemo__mController,
 			STATUS_NONE : controller.STATUS_NONE,
 			STATUS_SEARCHING : controller.STATUS_SEARCHING,
 			STATUS_COMPLETE_NO_MATCH : controller.STATUS_COMPLETE_NO_MATCH,
@@ -199,7 +240,13 @@ dump('readyToUpdate\n');
 				return this.controller.handleEnter(aIsPopupSelection);
 			},
 			handleEscape : function() {
-				return this.controller.handleEscape();
+				var retval = this.controller.handleEscape();
+				if (retval &&
+					this.input.textValue == this.searchString &&
+					this.searchStringOverride) {
+					this.input.textValue = this.searchStringOverride;
+				}
+				return retval;
 			},
 			handleStartComposition : function() {
 				return this.controller.handleStartComposition();
@@ -211,7 +258,7 @@ dump('readyToUpdate\n');
 				return this.controller.handleTab();
 			},
 			handleKeyNavigation : function(aKey) {
-dump('handleKeyNavigation\n');
+//dump('handleKeyNavigation\n');
 				const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
 				var input = this.input;
 				var popup = input.popup;
@@ -223,7 +270,7 @@ dump('handleKeyNavigation\n');
 						aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN
 					) && popup.mPopupOpen
 					) {
-dump('overridden\n');
+//dump('overridden\n');
 					var reverse = (aKey == nsIDOMKeyEvent.DOM_VK_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP);
 					var page = (aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN);
 					var completeSelection = input.completeSelectedIndex;
@@ -274,6 +321,12 @@ dump('overridden\n');
 		};
 	},
  
+	destroy : function() 
+	{
+		window.removeEventListener('unload', this, false);
+		XMigemoService.removePrefListener(this);
+	},
+ 
 	clear : function() 
 	{
 		this.results = [];
@@ -281,7 +334,7 @@ dump('overridden\n');
  
 	updatePopup : function() 
 	{
-dump('updatePopup\n');
+//dump('updatePopup\n');
 		var done = {};
 		this.results = this.results
 			.filter(function(aResult) {
