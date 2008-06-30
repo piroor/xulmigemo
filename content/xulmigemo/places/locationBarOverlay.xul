@@ -10,7 +10,9 @@
 	<box id="XMigemoLocationBarSearchResolver"
 		collapsed="true">
 		<panel id="XMigemoLocationBarSearchPanel"
-			type="autocomplete-richlistbox"/>
+			type="autocomplete-richlistbox"
+			noautofocus="true"
+			ignorekeys="true"/>
 		<textbox id="XMigemoLocationBarSearchTextbox"
 			type="autocomplete"
 			autocompletesearch="history"
