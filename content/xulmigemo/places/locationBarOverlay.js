@@ -54,7 +54,7 @@ var XMigemoLocationBarOverlay = {
 	},
   
 /* event handling */ 
-	 
+	
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
 		if (aTopic != 'nsPref:changed') return;
@@ -75,7 +75,7 @@ var XMigemoLocationBarOverlay = {
 		}
 	},
 	domain : 'xulmigemo.places',
-	preferences : <![CDATA[ 
+	preferences : <![CDATA[
 		xulmigemo.places.locationBar
 		xulmigemo.places.ignoreURIInput
 	]]>.toString(),
@@ -179,17 +179,19 @@ var XMigemoLocationBarOverlay = {
 			this.updatePopup();
 		}
 	},
- 	 
+  
 	init : function() 
 	{
 		window.removeEventListener('load', this, false);
 
 		this.overrideFunctions();
+		this.initLocationBar();
 
 		XMigemoService.addPrefListener(this);
 		window.addEventListener('unload', this, false);
 	},
-	overrideFunctions : function()
+	 
+	overrideFunctions : function() 
 	{
 		eval('LocationBarHelpers._searchBegin = '+
 			LocationBarHelpers._searchComplete.toSource().replace(
@@ -203,17 +205,50 @@ var XMigemoLocationBarOverlay = {
 				'XMigemoLocationBarOverlay.onSearchComplete(); $1'
 			)
 		);
-		this.bar.__xmigemo__mController = this.bar.mController;
-		this.bar.mController = {
+
+		window.__xulmigemo__BrowserCustomizeToolbar = window.BrowserCustomizeToolbar;
+		window.BrowserCustomizeToolbar = function() {
+			XMigemoLocationBarOverlay.destroyLocationBar();
+			window.__xulmigemo__BrowserCustomizeToolbar.call(window);
+		};
+
+		var toolbox = document.getElementById('browser-toolbox');
+		if (toolbox.customizeDone) {
+			toolbox.__xulmigemo__customizeDone = toolbox.customizeDone;
+			toolbox.customizeDone = function(aChanged) {
+				this.__xulmigemo__customizeDone(aChanged);
+				XMigemoLocationBarOverlay.initLocationBar();
+			};
+		}
+		if ('BrowserToolboxCustomizeDone' in window) {
+			window.__xulmigemo__BrowserToolboxCustomizeDone = window.BrowserToolboxCustomizeDone;
+			window.BrowserToolboxCustomizeDone = function(aChanged) {
+				window.__xulmigemo__BrowserToolboxCustomizeDone.apply(window, arguments);
+				XMigemoLocationBarOverlay.initLocationBar();
+			};
+		}
+	},
+ 	
+	initLocationBar : function() 
+	{
+		var bar = this.bar;
+		if (bar.__xmigemo__mController) return;
+
+		const nsIAutoCompleteController = Components.interfaces.nsIAutoCompleteController;
+		bar.__xmigemo__mController = bar.mController;
+		bar.mController = {
 			service    : this,
-			controller : this.bar.__xmigemo__mController,
-			STATUS_NONE : controller.STATUS_NONE,
-			STATUS_SEARCHING : controller.STATUS_SEARCHING,
-			STATUS_COMPLETE_NO_MATCH : controller.STATUS_COMPLETE_NO_MATCH,
-			STATUS_COMPLETE_MATCH : controller.STATUS_COMPLETE_MATCH,
+			get controller()
+			{
+				return this.service.bar.__xmigemo__mController;
+			},
+			STATUS_NONE              : nsIAutoCompleteController.STATUS_NONE,
+			STATUS_SEARCHING         : nsIAutoCompleteController.STATUS_SEARCHING,
+			STATUS_COMPLETE_NO_MATCH : nsIAutoCompleteController.STATUS_COMPLETE_NO_MATCH,
+			STATUS_COMPLETE_MATCH    : nsIAutoCompleteController.STATUS_COMPLETE_MATCH,
 
 			searchStringOverride : '',
-			matchCountOverride : 0,
+			matchCountOverride   : 0,
 
 			get input() {
 				return this.controller.input;
@@ -313,20 +348,31 @@ var XMigemoLocationBarOverlay = {
 				return this.controller.searchString = aValue;
 			},
 			QueryInterface : function(aIID) {
-				if(!aIID.equals(Components.interfaces.nsIAutoCompleteController) &&
-					!aIID.equals(Components.interfaces.nsISupports))
-					throw Components.results.NS_ERROR_NO_INTERFACE;
-				return this;
+				if (aIID.equals(Components.interfaces.nsIAutoCompleteController) ||
+					aIID.equals(Components.interfaces.nsISupports))
+					return this;
+				throw Components.results.NS_ERROR_NO_INTERFACE;
 			}
 		};
 	},
- 
+  
 	destroy : function() 
 	{
 		window.removeEventListener('unload', this, false);
+		this.destroyLocationBar();
 		XMigemoService.removePrefListener(this);
 	},
- 
+	
+	destroyLocationBar : function() 
+	{
+		var bar = this.bar;
+		if (!bar.__xmigemo__mController) return;
+
+		bar.mController.stopSearch();
+		bar.mController.service = null;
+		bar.mController = bar.__xmigemo__mController;
+	},
+  
 	clear : function() 
 	{
 		this.results = [];
