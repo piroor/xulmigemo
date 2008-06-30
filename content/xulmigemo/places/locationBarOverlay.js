@@ -37,7 +37,7 @@ var XMigemoLocationBarOverlay = {
 		eval('LocationBarHelpers._searchBegin = '+
 			LocationBarHelpers._searchComplete.toSource().replace(
 				/(\}\))?$/,
-				'XMigemoLocationBarOverlay.doSearch(XMigemoLocationBarOverlay.locationBar.value); $1'
+				'XMigemoLocationBarOverlay.onSearchBegin(); $1'
 			)
 		);
 		eval('LocationBarHelpers._searchComplete = '+
@@ -51,28 +51,25 @@ var XMigemoLocationBarOverlay = {
 		});
 	},
  
-	compareFrecency : function(aA, aB) 
+	onSearchBegin : function() 
 	{
-		return aB.frecency - aA.frecency;
-	},
- 
-	doSearch : function(aInput) 
-	{
+		var input = this.locationBar.value;
 		this.locationBarPanel._matchCountXMigemoOverride = 0;
 		if (
 			!XMigemoService.getPref('xulmigemo.places.locationBar') ||
-			this.lastInput == aInput
+			this.lastInput == input ||
+			this.readyToUpdate
 			)
 			return;
 
-		this.lastInput = aInput;
-		if (!aInput) return;
+		this.lastInput = input;
+		if (!input) return;
 
-//dump('\n\n\n-----------------------------------------------------------------\nSTART SEARCH '+aInput+'\n');
+//dump('\n\n\n-----------------------------------------------------------------\nSTART SEARCH '+input+'\n');
 		this.clear();
 
 		var terms = XMigemoCore.getTermsForInputFromSource(
-				aInput,
+				input,
 				XMigemoPlaces.placesSource
 			);
 //dump(terms.length+' / '+encodeURIComponent(terms)+'\n');
@@ -92,7 +89,7 @@ var XMigemoLocationBarOverlay = {
 					.map(function(aItem) {
 						aItem = aItem.cloneNode(true);
 						aItem.frecency = XMigemoPlaces.getFrecencyFromURI(aItem.getAttribute('url'));
-						aItem.setAttribute('input', aInput);
+						aItem.setAttribute('input', input);
 						aItem.setAttribute('frecency', aItem.frecency);
 						return aItem;
 					});
@@ -101,19 +98,12 @@ var XMigemoLocationBarOverlay = {
 			}
 //dump(aSelf.results.length+'\n');
 			aSelf.resolver = null;
-//			bar.mController.searchString = aInput;
+			aSelf.readyToUpdate = true;
 			aSelf.locationBarPanel.collapsed = false;
+//			bar.mController.searchString = input;
+//			bar.mController.startSearch(input);
 			window.setTimeout(function() {
-				aSelf.updateResults();
-				var count = 0;
-				aSelf.resultList.children
-					.forEach(function(aItem) {
-						if (aItem.getAttribute('input') != aInput) return;
-						count++;
-						aItem.removeAttribute('collapsed');
-					});
-				aSelf.locationBarPanel._matchCountXMigemoOverride = count;
-				aSelf.locationBarPanel.adjustHeight();
+				aSelf.onSearchComplete();
 			}, 0);
 			yield false;
 		}
@@ -123,24 +113,24 @@ var XMigemoLocationBarOverlay = {
  
 	onSearchComplete : function() 
 	{
-		if (!this.resolver) {
-			return;
-		}
-		try {
+//dump('onSearchComplete\n');
+		if (this.resolver) {
+//dump('next\n');
 			this.resolver.next();
 		}
-		catch(e) {
-			dump(e+'\n');
+		else if (this.readyToUpdate) {
+//dump('readyToUpdate\n');
+			this.readyToUpdate = false;
+			this.updatePopup();
 		}
 	},
-	onSearchCompleteTimer : null,
  
 	clear : function() 
 	{
 		this.results = [];
 	},
  
-	updateResults : function() 
+	updatePopup : function() 
 	{
 		var done = {};
 		this.results = this.results
@@ -149,7 +139,6 @@ var XMigemoLocationBarOverlay = {
 				var uri = aResult.getAttribute('url');
 				if (uri in done) return false;
 				done[uri] = true;
-				aResult.removeAttribute('collapsed');
 				return true;
 			})
 			.sort(this.compareFrecency);
@@ -167,6 +156,22 @@ var XMigemoLocationBarOverlay = {
 		range.insertNode(fragment);
 
 		range.detach();
+
+		var count = 0;
+		var input = this.lastInput;
+		this.resultList.children
+			.forEach(function(aItem) {
+				if (aItem.getAttribute('input') != input) return;
+				count++;
+				aItem.removeAttribute('collapsed');
+			});
+		this.locationBarPanel._matchCountXMigemoOverride = count;
+		this.locationBarPanel.adjustHeight();
+		this.locationBar.openPopup();
+	},
+	compareFrecency : function(aA, aB) 
+	{
+		return aB.frecency - aA.frecency;
 	}
  
 }; 
