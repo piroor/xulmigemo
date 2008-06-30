@@ -5,6 +5,7 @@ var XMigemoLocationBarOverlay = {
 	enabled   : true,
 	ignoreURI : true,
 	delay     : 250,
+	minLength : 3,
  
 	Converter : Components 
 			.classes['@mozilla.org/intl/texttosuburi;1']
@@ -83,6 +84,10 @@ var XMigemoLocationBarOverlay = {
 				this.delay = value;
 				return;
 
+			case 'xulmigemo.places.locationBar.minLength':
+				this.minLength = value;
+				return;
+
 			default:
 				return;
 		}
@@ -92,6 +97,7 @@ var XMigemoLocationBarOverlay = {
 		xulmigemo.places.locationBar
 		xulmigemo.places.locationBar.ignoreURI
 		xulmigemo.places.locationBar.delay
+		xulmigemo.places.locationBar.minLength
 	]]>.toString(),
  
 	handleEvent : function(aEvent) 
@@ -123,7 +129,8 @@ var XMigemoLocationBarOverlay = {
 				this.ignoreURI &&
 				/^\w+:\/\//.test(input)
 			) ||
-			this.lastInput == input
+			this.lastInput == input ||
+			this.minLength > input.length
 			)
 			return;
 
@@ -179,11 +186,11 @@ var XMigemoLocationBarOverlay = {
 //dump('onSearchComplete\n');
 		if (this.readyToBuild || this.searchCompleted) {
 //dump('readyToBuild\n');
-			this.readyToBuild = false;
-			this.searchCompleted = false;
 			window.setTimeout(function(aSelf) {
 				aSelf.startBuild();
 			}, 0, this);
+			this.readyToBuild = false;
+			this.searchCompleted = false;
 		}
 		else {
 			this.searchCompleted = true;
@@ -220,7 +227,7 @@ var XMigemoLocationBarOverlay = {
 		eval('panel._appendCurrentResult = '+
 			panel._appendCurrentResult.toSource().replace(
 				'{',
-				'{ if (XMigemoLocationBarOverlay.enabled) return;'
+				'{ if (XMigemoLocationBarOverlay.enabled && XMigemoLocationBarOverlay.readyToBuild) return;'
 			)
 		);
 
