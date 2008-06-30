@@ -2,12 +2,16 @@ var XMigemoLocationBarOverlay = {
 	 
 	results : [], 
 
-	enabled : true,
-	ignoreURIInput : true,
+	enabled   : true,
+	ignoreURI : true,
+	delay     : 250,
  
 	Converter : Components 
 			.classes['@mozilla.org/intl/texttosuburi;1']
 			.getService(Components.interfaces.nsITextToSubURI),
+	ThreadManager : Components
+			.classes['@mozilla.org/thread-manager;1']
+			.getService(Components.interfaces.nsIThreadManager),
 	kXULNS : 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
  
 /* elements */ 
@@ -71,8 +75,12 @@ var XMigemoLocationBarOverlay = {
 				this.enabled = value;
 				return;
 
-			case 'xulmigemo.places.ignoreURIInput':
-				this.ignoreURIInput = value;
+			case 'xulmigemo.places.locationBar.ignoreURI':
+				this.ignoreURI = value;
+				return;
+
+			case 'xulmigemo.places.locationBar.delay':
+				this.delay = value;
 				return;
 
 			default:
@@ -82,7 +90,8 @@ var XMigemoLocationBarOverlay = {
 	domain : 'xulmigemo.places',
 	preferences : <![CDATA[
 		xulmigemo.places.locationBar
-		xulmigemo.places.ignoreURIInput
+		xulmigemo.places.locationBar.ignoreURI
+		xulmigemo.places.locationBar.delay
 	]]>.toString(),
  
 	handleEvent : function(aEvent) 
@@ -111,7 +120,7 @@ var XMigemoLocationBarOverlay = {
 		if (
 			!this.enabled ||
 			(
-				this.ignoreURIInput &&
+				this.ignoreURI &&
 				/^\w+:\/\//.test(input)
 			) ||
 			this.lastInput == input
@@ -124,19 +133,60 @@ var XMigemoLocationBarOverlay = {
 		this.lastInput = input;
 		if (!input) return;
 
-		this.results = XMigemoPlaces.findItemsForLocationBarInput(input);
-		this.readyToUpdate = true;
+//		// solution 1: thread
+//		if (this.thread)
+//			this.thread.shutdown();
+//		this.thread = this.ThreadManager.newThread(0);
+//		this.thread.dispatch(this, this.thread.DISPATCH_NORMAL);
+
+		// solution 2: timer
+		if (this.delayedStartTimer)
+			window.clearTimeout(this.delayedStartTimer);
+		this.delayedStartTimer = window.setTimeout(function(aSelf) {
+			aSelf.delayedStartTimer = null;
+			aSelf.delayedStart();
+		}, this.delay, this);
+
+//		this.results = XMigemoPlaces.findItemsForLocationBarInput(this.lastInput);
+//		this.readyToBuild = true;
+	},
+ 
+	// solution 1: thread 
+	thread : null,
+	run : function()
+	{
+		this.results = XMigemoPlaces.findItemsForLocationBarInput(this.lastInput);
+		this.readyToBuild = true;
+		this.onSearchComplete();
+	},
+	QueryInterface : function(aIID) {
+		if (aIID.equals(Components.interfaces.nsIRunnable) ||
+			aIID.equals(Components.interfaces.nsISupports))
+			return this;
+		throw Components.results.NS_ERROR_NO_INTERFACE;
+	},
+ 
+	// solution 2: timer 
+	delayedStart : function()
+	{
+		this.results = XMigemoPlaces.findItemsForLocationBarInput(this.lastInput);
+		this.readyToBuild = true;
+		this.onSearchComplete();
 	},
  
 	onSearchComplete : function() 
 	{
 //dump('onSearchComplete\n');
-		if (this.readyToUpdate) {
-//dump('readyToUpdate\n');
-			this.readyToUpdate = false;
+		if (this.readyToBuild || this.searchCompleted) {
+//dump('readyToBuild\n');
+			this.readyToBuild = false;
+			this.searchCompleted = false;
 			window.setTimeout(function(aSelf) {
 				aSelf.startBuild();
 			}, 0, this);
+		}
+		else {
+			this.searchCompleted = true;
 		}
 	},
   

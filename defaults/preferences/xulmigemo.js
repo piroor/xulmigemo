@@ -75,8 +75,9 @@ pref("xulmigemo.find_delay",                    50);
 
 
 pref("xulmigemo.places.splitByWhiteSpaces", true);
-pref("xulmigemo.places.ignoreURIInput", true);
 pref("xulmigemo.places.locationBar",    true);
+pref("xulmigemo.places.locationBar.ignoreURI", true);
+pref("xulmigemo.places.locationBar.delay", 250);
 pref("xulmigemo.places.bookmarksPanel", true);
 pref("xulmigemo.places.historyPanel",   true);
 pref("xulmigemo.places.organizer",      true);
