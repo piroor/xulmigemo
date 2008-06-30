@@ -149,7 +149,7 @@ var XMigemoPlaces = {
 				this.placesSource,
 				XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces')
 			);
-		// from nsNavHistoryAytoComplete.cpp
+		// see nsNavHistoryAytoComplete.cpp
 		var sql = <![CDATA[
 			SELECT title, url, favicon, bookmark, tags
 			  FROM (SELECT p.title title,
@@ -190,14 +190,15 @@ var XMigemoPlaces = {
 			       AND %EXCLUDE_JAVASCRIPT%
 			       AND %ONLY_TYPED%
 			 ORDER BY frecency DESC
+			 LIMIT 0,?1
 		]]>.toString()
 			.replace(
 				'%TERMS_RULES%',
 				terms.map(function(aTerm, aIndex) {
 					return ('title LIKE ?%d% OR bookmark LIKE ?%d% OR '+
 							'url LIKE ?%d% OR tags LIKE ?%d%')
-							.replace(/%d%/g, aIndex+1);
-				}).join('OR')
+							.replace(/%d%/g, aIndex+2);
+				}).join(' OR ')
 			)
 			.replace(
 				'%EXCLUDE_JAVASCRIPT%',
@@ -214,17 +215,22 @@ var XMigemoPlaces = {
 
 		var statement = this.db.createStatement(sql);
 		try {
+			statement.bindDoubleParameter(0, XMigemoService.getPref('browser.urlbar.maxRichResults'));
+
 			terms.forEach(function(aTerm, aIndex) {
-				statement.bindStringParameter(aIndex, '%'+aTerm+'%');
+				statement.bindStringParameter(aIndex+1, '%'+aTerm+'%');
 			});
+
+			terms = terms.join(' ');
 			while(statement.executeStep())
 			{
 				items.push({
-					title    : statement.getString(0),
-					url      : statement.getString(1),
-					favicon  : statement.getString(2),
-					bookmark : statement.getString(3),
-					tags     : statement.getString(4)
+					title : (statement.getString(0) || statement.getString(3)),
+					uri   : statement.getString(1),
+					icon  : statement.getString(2),
+					tags  : statement.getString(4),
+					style : (statement.getString(3) ? 'bookmark' : 'favicon' ),
+					terms : terms
 				});
 			};
 		}

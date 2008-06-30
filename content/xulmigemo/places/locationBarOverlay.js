@@ -5,6 +5,11 @@ var XMigemoLocationBarOverlay = {
 	enabled : true,
 	ignoreURIInput : true,
  
+	Converter : Components 
+			.classes['@mozilla.org/intl/texttosuburi;1']
+			.getService(Components.interfaces.nsITextToSubURI),
+	kXULNS : 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
+ 
 /* elements */ 
 	
 	get bar() 
@@ -54,7 +59,7 @@ var XMigemoLocationBarOverlay = {
 	},
   
 /* event handling */ 
-	
+	 
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
 		if (aTopic != 'nsPref:changed') return;
@@ -96,87 +101,42 @@ var XMigemoLocationBarOverlay = {
  
 	onSearchBegin : function() 
 	{
+//dump('onSearchBegin\n');
 		var input = this.bar.value;
-		this.bar.controller.searchStringOverride = '';
-		this.bar.controller.matchCountOverride = 0;
+		this.results = [];
+		var controller = this.bar.controller;
+		controller.resultsOverride      = [];
+		controller.searchStringOverride = '';
+		controller.matchCountOverride   = 0;
 		if (
 			!this.enabled ||
 			(
 				this.ignoreURIInput &&
 				/^\w+:\/\//.test(input)
 			) ||
-			this.lastInput == input ||
-			this.readyToUpdate
+			this.lastInput == input
 			)
 			return;
+
+		this.stopBuild();
+		this.clear();
 
 		this.lastInput = input;
 		if (!input) return;
 
-//dump('\n\n\n-----------------------------------------------------------------\nSTART SEARCH '+input+'\n');
-		this.clear();
-
-		var terms = XMigemoCore.getTermsForInputFromSource(
-				input,
-				XMigemoPlaces.placesSource
-			);
-//dump(terms.length+' / '+encodeURIComponent(terms)+'\n');
-
-		function DoSearchEachTerm(aTerms, aSelf) {
-			var bar = aSelf.bar;
-			aSelf.panel.collapsed = true;
-			var newResults;
-			for (var i = 0, maxi = aTerms.length; i < maxi; i++)
-			{
-				bar.mController.startSearch(aTerms[i]);
-				aSelf.busy = true;
-				yield true;
-				aSelf.busy = true;
-				newResults = aSelf.items
-					.filter(function(aItem) {
-						return aItem.getAttribute('collapsed') != 'true';
-					})
-					.map(function(aItem) {
-						aItem = aItem.cloneNode(true);
-						aItem.frecency = XMigemoPlaces.getFrecencyFromURI(aItem.getAttribute('url'));
-						if (aItem.frecency == 0) {
-							aItem.setAttribute('collapsed', true);
-						}
-						aItem.setAttribute('input', input);
-						aItem.setAttribute('frecency', aItem.frecency);
-						return aItem;
-					});
-				if (newResults.length)
-					aSelf.results = aSelf.results.concat(newResults);
-			}
-//dump(aSelf.results.length+'\n');
-			aSelf.resolver = null;
-			aSelf.readyToUpdate = true;
-			aSelf.panel.collapsed = false;
-//			bar.mController.searchString = input;
-//			bar.mController.startSearch(input);
-			window.setTimeout(function() {
-				aSelf.busy = false;
-				aSelf.onSearchComplete();
-			}, 0);
-			yield false;
-		}
-		this.busy = true;
-		this.resolver = DoSearchEachTerm(terms, this);
-		this.resolver.next();
+		this.results = XMigemoPlaces.findItemsForLocationBarInput(input);
+		this.readyToUpdate = true;
 	},
  
 	onSearchComplete : function() 
 	{
 //dump('onSearchComplete\n');
-		if (this.resolver) {
-//dump('next\n');
-			this.resolver.next();
-		}
-		else if (this.readyToUpdate) {
+		if (this.readyToUpdate) {
 //dump('readyToUpdate\n');
 			this.readyToUpdate = false;
-			this.updatePopup();
+			window.setTimeout(function(aSelf) {
+				aSelf.startBuild();
+			}, 0, this);
 		}
 	},
   
@@ -190,7 +150,7 @@ var XMigemoLocationBarOverlay = {
 		XMigemoService.addPrefListener(this);
 		window.addEventListener('unload', this, false);
 	},
-	 
+	
 	overrideFunctions : function() 
 	{
 		eval('LocationBarHelpers._searchBegin = '+
@@ -203,6 +163,14 @@ var XMigemoLocationBarOverlay = {
 			LocationBarHelpers._searchComplete.toSource().replace(
 				/(\}\))?$/,
 				'XMigemoLocationBarOverlay.onSearchComplete(); $1'
+			)
+		);
+
+		var panel = this.panel;
+		eval('panel._appendCurrentResult = '+
+			panel._appendCurrentResult.toSource().replace(
+				'{',
+				'{ if (XMigemoLocationBarOverlay.enabled) return;'
 			)
 		);
 
@@ -228,7 +196,7 @@ var XMigemoLocationBarOverlay = {
 			};
 		}
 	},
- 	
+ 
 	initLocationBar : function() 
 	{
 		var bar = this.bar;
@@ -249,6 +217,7 @@ var XMigemoLocationBarOverlay = {
 
 			searchStringOverride : '',
 			matchCountOverride   : 0,
+			resultsOverride   : 0,
 
 			get input() {
 				return this.controller.input;
@@ -330,15 +299,23 @@ var XMigemoLocationBarOverlay = {
 				return this.controller.handleDelete();
 			},
 			getValueAt : function(aIndex) {
+				if (this.resultsOverride.length)
+					return this.resultsOverride[aIndex].uri;
 				return this.controller.getValueAt(aIndex);
 			},
 			getCommentAt : function(aIndex) {
+				if (this.resultsOverride.length)
+					return this.resultsOverride[aIndex].title;
 				return this.controller.getCommentAt(aIndex);
 			},
 			getStyleAt : function(aIndex) {
+				if (this.resultsOverride.length)
+					return this.resultsOverride[aIndex].style;
 				return this.controller.getStyleAt(aIndex);
 			},
 			getImageAt : function(aIndex) {
+				if (this.resultsOverride.length)
+					return this.resultsOverride[aIndex].icon;
 				return this.controller.getImageAt(aIndex);
 			},
 			get searchString() {
@@ -378,57 +355,84 @@ var XMigemoLocationBarOverlay = {
 		this.results = [];
 	},
  
-	updatePopup : function() 
+/* build popup */ 
+	 
+	startBuild : function() 
 	{
-//dump('updatePopup\n');
-		var done = {};
-		this.results = this.results
-			.filter(function(aResult) {
-				if (!aResult) return false;
-				var uri = aResult.getAttribute('url');
-				if (uri in done) return false;
-				done[uri] = true;
-				return true;
-			})
-			.sort(this.compareFrecency);
+//dump('startBuild\n');
+		function BuildResultList(aSelf)
+		{
+			const listbox = aSelf.listbox;
+			const items = aSelf.results;
+			const chunk = aSelf.panel.maxRows;
+			var count = 0;
+			var item, node, existingCount;
+			for (let i = 0, maxi = items.length; i < maxi; i++)
+			{
+				if (count++ > chunk) {
+					yield;
+					count = 0;
+				}
 
-		var listbox = this.listbox;
-
-		var range = document.createRange();
-		range.selectNodeContents(listbox);
-		range.deleteContents();
-
-		var fragment = document.createDocumentFragment();
-		this.results.forEach(function(aResult) {
-			fragment.appendChild(aResult.cloneNode(true));
-		});
-		range.insertNode(fragment);
-
-		range.detach();
-
-		var count = 0;
-		var input = this.lastInput;
-		this.items
-			.forEach(function(aItem) {
-				if (aItem.getAttribute('input') == input &&
-					aItem.getAttribute('frecency') != '0') {
-					count++;
-					aItem.removeAttribute('collapsed');
+				existingCount = listbox.children.length;
+				item = items[i];
+				item.uri = aSelf.Converter.unEscapeURIForUI('UTF-8', item.uri);
+				if (i < existingCount) {
+					node = listbox.childNodes[i];
+					if (node.getAttribute('text') == item.terms &&
+						node.getAttribute('url') == item.uri) {
+						node.collapsed = false;
+						continue;
+					}
 				}
 				else {
-					aItem.setAttribute('collapsed', true);
+					node = document.createElementNS(aSelf.kXULNS, 'richlistitem');
 				}
-			});
-		this.bar.controller.searchStringOverride = input;
-		this.bar.controller.matchCountOverride = count;
-		this.panel.adjustHeight();
-		this.bar.openPopup();
+				node.setAttribute('image', 'moz-anno:favicon:'+item.icon);
+				node.setAttribute('url', item.uri);
+				node.setAttribute('title', item.title + ' - ' + item.tags);
+				node.setAttribute('type', item.style);
+				node.setAttribute('text', item.terms);
+				if (i < existingCount) {
+					node._adjustAcItem();
+					node.collapsed = false;
+				}
+				else {
+					node.className = 'autocomplete-richlistitem';
+					listbox.appendChild(node);
+				}
+			}
+
+			var controller = aSelf.bar.controller;
+			controller.resultsOverride = aSelf.results;
+			controller.searchStringOverride = aSelf.lastInput;
+			controller.matchCountOverride = items.length;
+			aSelf.panel.adjustHeight();
+			aSelf.bar.openPopup();
+		}
+
+		this.builder = BuildResultList(this);
+		this.buildingTimer = window.setInterval(function(aSelf) {
+			try {
+				aSelf.builder.next();
+			}
+			catch(e) {
+				aSelf.stopBuild();
+			}
+		}, 1, this);
 	},
-	compareFrecency : function(aA, aB)
-	{
-		return aB.frecency - aA.frecency;
-	}
  
+	stopBuild : function() 
+	{
+		if (!this.buildingTimer) return;
+		window.clearInterval(this.buildingTimer);
+		this.buildingTimer = null;
+		this.builder = null;
+	},
+ 
+	builder : null, 
+	buildingimer : null
+ 	 
 }; 
  
 window.addEventListener('load', XMigemoLocationBarOverlay, false); 
