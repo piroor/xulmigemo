@@ -149,6 +149,7 @@ var XMigemoPlaces = {
 				this.placesSource,
 				XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces')
 			);
+		terms = terms.slice(0, Math.min(100, terms.length));
 		// see nsNavHistoryAytoComplete.cpp
 		var sql = <![CDATA[
 			SELECT title, url, favicon, bookmark, tags
@@ -213,7 +214,14 @@ var XMigemoPlaces = {
 					'1'
 			);
 
-		var statement = this.db.createStatement(sql);
+		var statement;
+		try {
+			statement = this.db.createStatement(sql);
+		}
+		catch(e) {
+			dump(e+'\n'+sql+'\n');
+			return items;
+		}
 		try {
 			statement.bindDoubleParameter(0, XMigemoService.getPref('browser.urlbar.maxRichResults'));
 
@@ -222,16 +230,25 @@ var XMigemoPlaces = {
 			});
 
 			terms = terms.join(' ');
+			var item, title;
 			while(statement.executeStep())
 			{
-				items.push({
-					title : (statement.getString(0) || statement.getString(3)),
+				item = {
+					title : (statement.getIsNull(0) ? '' : statement.getString(0) ),
 					uri   : statement.getString(1),
-					icon  : statement.getString(2),
-					tags  : statement.getString(4),
-					style : (statement.getString(3) ? 'bookmark' : 'favicon' ),
+					icon  : (statement.getIsNull(2) ? '' : statement.getString(2) ),
+					tags  : (statement.getIsNull(4) ? '' : statement.getString(4) ),
+					style : 'favicon',
 					terms : terms
-				});
+				};
+				if (title = (statement.getIsNull(3) ? '' : statement.getString(3) )) {
+					item.title = title;
+					item.style = 'bookmark';
+				}
+				if (item.tags) {
+					item.style = 'tag';
+				}
+				items.push(item);
 			};
 		}
 		finally {
