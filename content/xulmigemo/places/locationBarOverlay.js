@@ -117,21 +117,13 @@ var XMigemoLocationBarOverlay = {
 	onSearchBegin : function() 
 	{
 //dump('onSearchBegin\n');
-		var input = this.bar.value;
-		this.results = [];
 		var controller = this.bar.controller;
 		controller.resultsOverride      = [];
 		controller.searchStringOverride = '';
 		controller.matchCountOverride   = 0;
-		if (
-			!this.enabled ||
-			(
-				this.ignoreURI &&
-				/^\w+:\/\//.test(input)
-			) ||
-			this.lastInput == input ||
-			this.minLength > input.length
-			)
+
+		var input = this.bar.value;
+		if (!this.shouldStart || this.lastInput == input)
 			return;
 
 		this.stopBuild();
@@ -156,6 +148,18 @@ var XMigemoLocationBarOverlay = {
 
 //		this.results = XMigemoPlaces.findItemsForLocationBarInput(this.lastInput);
 //		this.readyToBuild = true;
+	},
+	get shouldStart()
+	{
+		var input = this.bar.value;
+		return !(
+			!this.enabled ||
+			(
+				this.ignoreURI &&
+				/^\w+:\/\//.test(input)
+			) ||
+			this.minLength > input.length
+			);
 	},
  
 	// solution 1: thread 
@@ -227,7 +231,7 @@ var XMigemoLocationBarOverlay = {
 		eval('panel._appendCurrentResult = '+
 			panel._appendCurrentResult.toSource().replace(
 				'{',
-				'{ if (XMigemoLocationBarOverlay.enabled && XMigemoLocationBarOverlay.readyToBuild) return;'
+				'{ if (XMigemoLocationBarOverlay.shouldStart) return;'
 			)
 		);
 
