@@ -80,7 +80,7 @@ pref("xulmigemo.places.locationBar.ignoreURI", true);
 pref("xulmigemo.places.locationBar.delay", 250);
 pref("xulmigemo.places.locationBar.minLength", 0);
 pref("xulmigemo.places.locationBar.thread.findTerms", false);
-pref("xulmigemo.places.locationBar.thread.queryRecords", true);
+pref("xulmigemo.places.locationBar.thread.queryRecords", false);
 pref("xulmigemo.places.bookmarksPanel", true);
 pref("xulmigemo.places.historyPanel",   true);
 pref("xulmigemo.places.organizer",      true);
