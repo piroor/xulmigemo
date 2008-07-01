@@ -50,6 +50,52 @@ var XMigemoPlaces = {
 		return sources.join('\n');
 	},
  
+	get placesSources() 
+	{
+		if (!this.db) return null;
+
+		var sql = <![CDATA[
+			    SELECT GROUP_CONCAT(p.title, ?1),
+			           GROUP_CONCAT(p.url, ?1),
+			           GROUP_CONCAT(b.title, ?1)
+			      FROM moz_places p
+			           LEFT JOIN moz_bookmarks b ON b.fk = p.id
+			     WHERE p.hidden <> 1 AND p.frecency <> 0
+			     LIMIT ?2,?3
+			  ]]>.toString();
+
+		function PlacesSources(aSelf)
+		{
+			var step = 500;
+			var current = 0;
+			var collected = [PlacesUtils.tagging.allTags.join('\n')];
+			var sources;
+			while (true)
+			{
+				var statement = aSelf.db.createStatement(sql);
+				statement.bindStringParameter(0, '\n');
+				statement.bindDoubleParameter(1, current);
+				statement.bindDoubleParameter(2, current+step);
+				current += step;
+				collected = [];
+				while(statement.executeStep())
+				{
+					collected.push(statement.getString(0));
+					collected.push(statement.getString(1));
+					collected.push(statement.getString(2));
+				};
+				statement.reset();
+				sources = collected.join('\n');
+				if (sources)
+					yield sources;
+				else
+					break;
+			}
+		}
+
+		return PlacesSources(this);
+	},
+ 
 	get historySource() 
 	{
 		if (!this.db) return '';
