@@ -160,12 +160,14 @@ var XMigemoLocationBarOverlay = {
 		if (this.threadFinishTimer) {
 			window.clearInterval(this.threadFinishTimer);
 		}
+		this.busy = true;
 		this.threadFinishTimer = window.setInterval(function(aSelf) {
-			if (aSelf.readyToBuild) {
-				window.clearInterval(aSelf.threadFinishTimer);
-				aSelf.threadFinishTimer = null;
-				aSelf.onSearchComplete();
-			}
+			if (!aSelf.readyToBuild) return;
+			aSelf.busy = false;
+			window.clearInterval(aSelf.threadFinishTimer);
+			aSelf.threadFinishTimer = null;
+			aSelf.onSearchComplete();
+			return;
 		}, 10, this);
 
 		this.thread.dispatch(this, this.thread.DISPATCH_NORMAL);
