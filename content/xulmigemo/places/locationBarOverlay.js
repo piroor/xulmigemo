@@ -162,6 +162,16 @@ var XMigemoLocationBarOverlay = {
 		this.lastInput = input;
 		if (!input) return;
 
+		if (this.delayedStartTimer)
+			window.clearTimeout(this.delayedStartTimer);
+
+		this.delayedStartTimer = window.setTimeout(function(aSelf) {
+			aSelf.delayedStartTimer = null;
+			aSelf.delayedStart();
+		}, this.delay, this);
+	},
+	delayedStart : function()
+	{
 		if (this.useThreadToFindTerms || this.useThreadToQueryRecords) { // thread mode
 			if (this.thread)
 				this.thread.shutdown();
@@ -180,6 +190,7 @@ var XMigemoLocationBarOverlay = {
 //				aSelf.busy = false;
 				window.clearInterval(aSelf.threadFinishTimer);
 				aSelf.threadFinishTimer = null;
+				if (!aSelf.useThreadToQueryRecords) aSelf.updateResults();
 				aSelf.onSearchComplete();
 				return;
 			}, 10, this);
@@ -188,12 +199,33 @@ var XMigemoLocationBarOverlay = {
 			return;
 		}
 		else { // timer mode
-			if (this.delayedStartTimer)
-				window.clearTimeout(this.delayedStartTimer);
-			this.delayedStartTimer = window.setTimeout(function(aSelf) {
-				aSelf.delayedStartTimer = null;
-				aSelf.delayedStart();
-			}, this.delay, this);
+			this.busy = true;
+			function DelayedRunner(aSelf)
+			{
+				aSelf.updateRegExp();
+				yield;
+				aSelf.updateTerms();
+				yield;
+				aSelf.updateResults();
+				yield;
+				aSelf.readyToBuild = true;
+				aSelf.onSearchComplete();
+			}
+			var runner = DelayedRunner(this);
+
+			if (this.delayedRunningTimer)
+				window.clearInterval(this.delayedRunningTimer);
+
+			this.delayedRunningTimer = window.setInterval(function(aSelf) {
+				try {
+					runner.next();
+				}
+				catch(e) {
+					window.clearInterval(aSelf.delayedRunningTimer);
+					aSelf.delayedRunningTimer = null;
+					aSelf.busy = false;
+				}
+			}, 1, this);
 		}
 	},
  
@@ -221,7 +253,7 @@ var XMigemoLocationBarOverlay = {
 	run : function()
 	{
 		if (this.useThreadToFindTerms) this.updateTerms();
-		this.updateResults();
+		if (this.useThreadToQueryRecords) this.updateResults();
 		this.readyToBuild = true;
 	},
 	QueryInterface : function(aIID) {
@@ -229,16 +261,6 @@ var XMigemoLocationBarOverlay = {
 			aIID.equals(Components.interfaces.nsISupports))
 			return this;
 		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
- 
-	// for timer mode 
-	delayedStart : function()
-	{
-		this.updateRegExp();
-		this.updateTerms();
-		this.updateResults();
-		this.readyToBuild = true;
-		this.onSearchComplete();
 	},
  
 	onSearchComplete : function() 
