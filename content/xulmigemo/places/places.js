@@ -139,22 +139,17 @@ var XMigemoPlaces = {
 		return queries;
 	},
  
-	findItemsForLocationBarInput : function(aInput) 
+	findLocationBarItemsFromTerms : function(aTerms) 
 	{
 		var items = [];
-		if (!aInput) return items;
+		if (!aTerms.length) return items;
 
-		var terms = XMigemoCore.getTermsForInputFromSource(
-				aInput,
-				this.placesSource,
-				XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces')
-			);
-		terms = terms.slice(0, Math.min(100, terms.length));
+		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
 		// see nsNavHistoryAytoComplete.cpp
-		var sql = this.findItemsForLocationBarInputBaseSQL
+		var sql = this.locationBarItemsSQL
 			.replace(
 				'%TERMS_RULES%',
-				terms.map(function(aTerm, aIndex) {
+				aTerms.map(function(aTerm, aIndex) {
 					return ('title LIKE ?%d% OR bookmark LIKE ?%d% OR '+
 							'url LIKE ?%d% OR tags LIKE ?%d%')
 							.replace(/%d%/g, aIndex+2);
@@ -184,11 +179,11 @@ var XMigemoPlaces = {
 		try {
 			statement.bindDoubleParameter(0, XMigemoService.getPref('browser.urlbar.maxRichResults'));
 
-			terms.forEach(function(aTerm, aIndex) {
+			aTerms.forEach(function(aTerm, aIndex) {
 				statement.bindStringParameter(aIndex+1, '%'+aTerm+'%');
 			});
 
-			terms = terms.join(' ');
+			aTerms = aTerms.join(' ');
 			var item, title;
 			while(statement.executeStep())
 			{
@@ -198,7 +193,7 @@ var XMigemoPlaces = {
 					icon  : (statement.getIsNull(2) ? '' : statement.getString(2) ),
 					tags  : (statement.getIsNull(4) ? '' : statement.getString(4) ),
 					style : 'favicon',
-					terms : terms
+					terms : aTerms
 				};
 				if (title = (statement.getIsNull(3) ? '' : statement.getString(3) )) {
 					item.title = title;
@@ -215,7 +210,8 @@ var XMigemoPlaces = {
 		}
 		return items;
 	},
-	findItemsForLocationBarInputBaseSQL : <![CDATA[
+	 
+	locationBarItemsSQL : <![CDATA[ 
 		SELECT title, url, favicon, bookmark, tags
 		  FROM (SELECT p.title title,
 		               p.url url,
@@ -257,6 +253,6 @@ var XMigemoPlaces = {
 		 ORDER BY frecency DESC
 		 LIMIT 0,?1
 	]]>.toString()
- 	
+ 	 
 }; 
   
