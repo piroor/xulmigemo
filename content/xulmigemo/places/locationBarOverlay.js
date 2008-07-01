@@ -1,6 +1,11 @@
 var XMigemoLocationBarOverlay = { 
 	 
 	results : [], 
+	lastInput : '',
+	lastTerms : [],
+	lastRegExp : '',
+	readyToBuild : false,
+	searchCompleted : false,
 
 	enabled   : true,
 	ignoreURI : true,
@@ -148,11 +153,9 @@ var XMigemoLocationBarOverlay = {
 		if (this.thread)
 			this.thread.shutdown();
 		this.thread = this.ThreadManager.newThread(0);
-		this.lastTerms = XMigemoCore.getTermsForInputFromSource(
-				this.lastInput,
-				XMigemoPlaces.placesSource,
-				XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces')
-			);
+		this.lastRegExp = XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
+				XMigemoCore.getRegExpForANDFind(this.lastInput) :
+				XMigemoCore.getRegExp(this.lastInput);
 
 		if (this.threadFinishTimer) {
 			window.clearInterval(this.threadFinishTimer);
@@ -168,10 +171,16 @@ var XMigemoLocationBarOverlay = {
 		this.thread.dispatch(this, this.thread.DISPATCH_NORMAL);
 	},
  
+	threadFinishTimer : null, 
+ 
 	thread : null, 
  
 	run : function()
 	{
+		this.lastTerms = XMigemoCore.getTermsFromSource(
+				this.lastRegExp,
+				XMigemoPlaces.placesSource
+			);
 		this.results = XMigemoPlaces.findLocationBarItemsFromTerms(this.lastTerms);
 		this.readyToBuild = true;
 	},
@@ -414,6 +423,7 @@ var XMigemoLocationBarOverlay = {
 		this.results = [];
 		this.lastInput = '';
 		this.lastTerms = [];
+		this.lastRegExp = '';
 		this.readyToBuild = false;
 	},
  	

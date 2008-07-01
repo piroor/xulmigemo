@@ -5,6 +5,18 @@ var XMigemoCore = {
 		return this.XMigemo.getRegExp(aRoman);
 	},
  
+	getRegExpForANDFind : function(aRoman)
+	{
+		var self = this;
+		aRoman = aRoman
+			.replace(/^\s*|\s*$/g, '')
+			.split(/\s+/)
+			.map(function(aRoman) {
+				return self.getRegExp(aRoman);
+			});
+		return '(?:'+aRoman.join(').*(?:')+')';
+	},
+ 
 	gatherEntriesFor : function(aRoman, aTargetDic) 
 	{
 		return this.XMigemo.gatherEntriesFor(aRoman, aTargetDic, {});
@@ -37,17 +49,14 @@ var XMigemoCore = {
 				.replace(/^(.+)(\n\1$)+/gim, '$1')
 				.split('\n');
 	},
-	getTermsForInputFromSource : function(aInput, aSource, aAndFind)
+	getTermsForInputFromSource : function(aInput, aSource, aIsANDFind)
 	{
-		if (!aAndFind) return this.getTermsFromSource(this.getRegExp(aInput), aSource);
-		var self = this;
-		aInput = aInput
-			.replace(/^\s*|\s*$/g, '')
-			.split(/\s+/)
-			.map(function(aInput) {
-				return self.getRegExp(aInput);
-			});
-		return this.getTermsFromSource('(?:'+aInput.join(').*(?:')+')', aSource);
+		return this.getTermsFromSource(
+			(aIsANDFind ?
+				this.getRegExpForANDFind(aInput) :
+				this.getRegExp(aInput)
+			),
+			aSource);
 	},
  
 /* Find */ 
