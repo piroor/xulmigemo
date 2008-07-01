@@ -205,7 +205,26 @@ var XMigemoLocationBarOverlay = {
 				aSelf.updateRegExp();
 				yield;
 				aSelf.updateTerms();
-				yield;
+				var sources = XMigemoPlaces.placesSources;
+				var regexp = new RegExp(aSelf.lastRegExp, 'gim');
+				while (true)
+				{
+					try {
+						aSelf.lastTerms = aSelf.lastTerms.concat(
+							sources.next().match(regexp) || []
+						);
+						yield;
+					}
+					catch(e) {
+						break;
+					}
+				}
+				aSelf.lastTerms =
+					aSelf.lastTerms
+						.join('\n')
+						.toLowerCase()
+						.replace(/^(.+)(\n\1$)+/gim, '$1')
+						.split('\n');
 				aSelf.updateResults();
 				yield;
 				aSelf.readyToBuild = true;
