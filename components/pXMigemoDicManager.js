@@ -174,8 +174,6 @@ pXMigemoDicManager.prototype = {
 		catch(e) {
 		}
 
-		this.strbundle = new XMigemoStringBundle('chrome://xulmigemo/locale/xulmigemo.properties');
-
 		ObserverService.addObserver(this, 'quit-application', false);
 		ObserverService.addObserver(this, 'XMigemo:dictionaryModified', false);
 
@@ -216,6 +214,14 @@ pXMigemoDicManager.prototype = {
 		ObserverService.removeObserver(this, 'XMigemo:dictionaryModified');
 	},
  
+	get strbundle()
+	{
+		if (!this._strbundle)
+			this._strbundle = new XMigemoStringBundle('chrome://xulmigemo/locale/xulmigemo.properties');
+		return this._strbundle;
+	},
+	_strbundle : null,
+ 
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemoDicManager) &&
@@ -233,7 +239,9 @@ XMigemoStringBundle.prototype = {
 	get stringBundleService()
 	{
 		if (!this._stringBundleService) {
-			this._stringBundleService = Components.classes['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService);
+			this._stringBundleService = Components
+				.classes['@mozilla.org/intl/stringbundle;1']
+				.getService(Components.interfaces.nsIStringBundleService);
 		}
 		return this._stringBundleService;
 	},
