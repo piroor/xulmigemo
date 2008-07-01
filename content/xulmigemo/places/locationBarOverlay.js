@@ -62,6 +62,19 @@ var XMigemoLocationBarOverlay = {
 		}
 		return aValue;
 	},
+ 
+	get shouldStart() 
+	{
+		var input = this.bar.value;
+		return !(
+			!this.enabled ||
+			(
+				this.ignoreURI &&
+				/^\w+:\/\//.test(input)
+			) ||
+			this.minLength > input.length
+			);
+	},
   
 /* event handling */ 
 	 
@@ -132,57 +145,42 @@ var XMigemoLocationBarOverlay = {
 		this.lastInput = input;
 		if (!input) return;
 
-//		// solution 1: thread
-//		if (this.thread)
-//			this.thread.shutdown();
-//		this.thread = this.ThreadManager.newThread(0);
-//		this.thread.dispatch(this, this.thread.DISPATCH_NORMAL);
-
-		// solution 2: timer
-		if (this.delayedStartTimer)
-			window.clearTimeout(this.delayedStartTimer);
-		this.delayedStartTimer = window.setTimeout(function(aSelf) {
-			aSelf.delayedStartTimer = null;
-			aSelf.delayedStart();
-		}, this.delay, this);
-
-//		this.results = XMigemoPlaces.findItemsForLocationBarInput(this.lastInput);
-//		this.readyToBuild = true;
-	},
-	get shouldStart()
-	{
-		var input = this.bar.value;
-		return !(
-			!this.enabled ||
-			(
-				this.ignoreURI &&
-				/^\w+:\/\//.test(input)
-			) ||
-			this.minLength > input.length
+		if (this.thread)
+			this.thread.shutdown();
+		this.thread = this.ThreadManager.newThread(0);
+		this.lastTerms = XMigemoCore.getTermsForInputFromSource(
+				this.lastInput,
+				XMigemoPlaces.placesSource,
+				XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces')
 			);
+
+		if (this.threadFinishTimer) {
+			window.clearInterval(this.threadFinishTimer);
+		}
+		this.threadFinishTimer = window.setInterval(function(aSelf) {
+			if (aSelf.readyToBuild) {
+				window.clearInterval(aSelf.threadFinishTimer);
+				aSelf.threadFinishTimer = null;
+				aSelf.onSearchComplete();
+			}
+		}, 10, this);
+
+		this.thread.dispatch(this, this.thread.DISPATCH_NORMAL);
 	},
  
-	// solution 1: thread 
-	thread : null,
+	thread : null, 
+ 
 	run : function()
 	{
-		this.results = XMigemoPlaces.findItemsForLocationBarInput(this.lastInput);
+		this.results = XMigemoPlaces.findLocationBarItemsFromTerms(this.lastTerms);
 		this.readyToBuild = true;
-		this.onSearchComplete();
 	},
+ 
 	QueryInterface : function(aIID) {
 		if (aIID.equals(Components.interfaces.nsIRunnable) ||
 			aIID.equals(Components.interfaces.nsISupports))
 			return this;
 		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
- 
-	// solution 2: timer 
-	delayedStart : function()
-	{
-		this.results = XMigemoPlaces.findItemsForLocationBarInput(this.lastInput);
-		this.readyToBuild = true;
-		this.onSearchComplete();
 	},
  
 	onSearchComplete : function() 
@@ -414,8 +412,11 @@ var XMigemoLocationBarOverlay = {
 	clear : function() 
 	{
 		this.results = [];
+		this.lastInput = '';
+		this.lastTerms = [];
+		this.readyToBuild = false;
 	},
- 
+ 	
 /* build popup */ 
 	 
 	startBuild : function() 
@@ -493,7 +494,7 @@ var XMigemoLocationBarOverlay = {
  
 	builder : null, 
 	buildingimer : null
- 	 
+  
 }; 
  
 window.addEventListener('load', XMigemoLocationBarOverlay, false); 
