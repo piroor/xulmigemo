@@ -11,6 +11,8 @@ var XMigemoLocationBarOverlay = {
 	ignoreURI : true,
 	delay     : 250,
 	minLength : 3,
+	useThreadToFindTerms    : false,
+	useThreadToQueryRecords : true,
  
 	Converter : Components 
 			.classes['@mozilla.org/intl/texttosuburi;1']
@@ -106,6 +108,14 @@ var XMigemoLocationBarOverlay = {
 				this.minLength = value;
 				return;
 
+			case 'xulmigemo.places.locationBar.thread.findTerms':
+				this.useThreadToFindTerms = value;
+				return;
+
+			case 'xulmigemo.places.locationBar.thread.queryRecords':
+				this.useThreadToQueryRecords = value;
+				return;
+
 			default:
 				return;
 		}
@@ -116,6 +126,8 @@ var XMigemoLocationBarOverlay = {
 		xulmigemo.places.locationBar.ignoreURI
 		xulmigemo.places.locationBar.delay
 		xulmigemo.places.locationBar.minLength
+		xulmigemo.places.locationBar.thread.findTerms
+		xulmigemo.places.locationBar.thread.queryRecords
 	]]>.toString(),
  
 	handleEvent : function(aEvent) 
@@ -150,48 +162,83 @@ var XMigemoLocationBarOverlay = {
 		this.lastInput = input;
 		if (!input) return;
 
-		if (this.thread)
-			this.thread.shutdown();
-		this.thread = this.ThreadManager.newThread(0);
+		if (this.useThreadToFindTerms || this.useThreadToQueryRecords) { // thread mode
+			if (this.thread)
+				this.thread.shutdown();
+			this.thread = this.ThreadManager.newThread(0);
+
+			this.updateRegExp();
+
+			if (!this.useThreadToFindTerms) this.updateTerms();
+
+			if (this.threadFinishTimer) {
+				window.clearInterval(this.threadFinishTimer);
+			}
+//			this.busy = true;
+			this.threadFinishTimer = window.setInterval(function(aSelf) {
+				if (!aSelf.readyToBuild) return;
+//				aSelf.busy = false;
+				window.clearInterval(aSelf.threadFinishTimer);
+				aSelf.threadFinishTimer = null;
+				aSelf.onSearchComplete();
+				return;
+			}, 10, this);
+
+			this.thread.dispatch(this, this.thread.DISPATCH_NORMAL);
+			return;
+		}
+		else { // timer mode
+			if (this.delayedStartTimer)
+				window.clearTimeout(this.delayedStartTimer);
+			this.delayedStartTimer = window.setTimeout(function(aSelf) {
+				aSelf.delayedStartTimer = null;
+				aSelf.delayedStart();
+			}, this.delay, this);
+		}
+	},
+ 
+	updateRegExp : function() 
+	{
 		this.lastRegExp = XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
 				XMigemoCore.getRegExpForANDFind(this.lastInput) :
 				XMigemoCore.getRegExp(this.lastInput);
-
-		if (this.threadFinishTimer) {
-			window.clearInterval(this.threadFinishTimer);
-		}
-		this.busy = true;
-		this.threadFinishTimer = window.setInterval(function(aSelf) {
-			if (!aSelf.readyToBuild) return;
-			aSelf.busy = false;
-			window.clearInterval(aSelf.threadFinishTimer);
-			aSelf.threadFinishTimer = null;
-			aSelf.onSearchComplete();
-			return;
-		}, 10, this);
-
-		this.thread.dispatch(this, this.thread.DISPATCH_NORMAL);
 	},
- 
-	threadFinishTimer : null, 
- 
-	thread : null, 
- 
-	run : function()
+	updateTerms : function() 
 	{
 		this.lastTerms = XMigemoCore.getTermsFromSource(
 				this.lastRegExp,
 				XMigemoPlaces.placesSource
 			);
+	},
+	updateResults : function() 
+	{
 		this.results = XMigemoPlaces.findLocationBarItemsFromTerms(this.lastTerms);
-		this.readyToBuild = true;
 	},
  
+	// for thread mode
+	thread : null,
+	threadFinishTimer : null,
+	run : function()
+	{
+		if (this.useThreadToFindTerms) this.updateTerms();
+		this.updateResults();
+		this.readyToBuild = true;
+	},
 	QueryInterface : function(aIID) {
 		if (aIID.equals(Components.interfaces.nsIRunnable) ||
 			aIID.equals(Components.interfaces.nsISupports))
 			return this;
 		throw Components.results.NS_ERROR_NO_INTERFACE;
+	},
+ 
+	// for timer mode 
+	delayedStart : function()
+	{
+		this.updateRegExp();
+		this.updateTerms();
+		this.updateResults();
+		this.readyToBuild = true;
+		this.onSearchComplete();
 	},
  
 	onSearchComplete : function() 
