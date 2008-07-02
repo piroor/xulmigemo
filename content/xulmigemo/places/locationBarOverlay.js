@@ -399,7 +399,7 @@ var XMigemoLocationBarOverlay = {
 	overrideFunctions : function() 
 	{
 		eval('LocationBarHelpers._searchBegin = '+
-			LocationBarHelpers._searchComplete.toSource().replace(
+			LocationBarHelpers._searchBegin.toSource().replace(
 				/(\}\))?$/,
 				'XMigemoLocationBarOverlay.onSearchBegin(); $1'
 			)
