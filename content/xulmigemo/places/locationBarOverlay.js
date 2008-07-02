@@ -3,7 +3,8 @@ var XMigemoLocationBarOverlay = {
 	results : [], 
 	lastInput : '',
 	lastTerms : [],
-	lastRegExp : '',
+	lastFindRegExp : null,
+	lastTermsRegExp : null,
 	thread : null,
 
 	enabled   : true,
@@ -182,11 +183,10 @@ var XMigemoLocationBarOverlay = {
 		else { // timer mode
 			function DelayedRunner(aSelf)
 			{
-				var regexp = new RegExp(aSelf.lastRegExp, 'gim');
 				var maxResults = aSelf.panel.maxResults;
 				var current = 0;
 				var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
-				while (aSelf.updateResultsForRange(regexp, current, range))
+				while (aSelf.updateResultsForRange(aSelf.lastFindRegExp, aSelf.lastTermsRegExp, current, range))
 				{
 					aSelf.progressiveBuild();
 					if (aSelf.results.length >= maxResults) break;
@@ -217,11 +217,10 @@ var XMigemoLocationBarOverlay = {
 	// nsIRunnable 
 	run : function()
 	{
-		var regexp = new RegExp(this.lastRegExp, 'gim');
 		var maxResults = this.panel.maxResults;
 		var current = 0;
 		var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
-		while (this.updateResultsForRange(regexp, current, range) &&
+		while (this.updateResultsForRange(this.lastFindRegExp, this.lastTermsRegExp, current, range) &&
 			this.results.length < maxResults)
 		{
 			current += range;
@@ -237,24 +236,29 @@ var XMigemoLocationBarOverlay = {
   
 	updateRegExp : function() 
 	{
-		this.lastRegExp = XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
-				XMigemoCore.getRegExpForANDFind(this.lastInput) :
-				XMigemoCore.getRegExp(this.lastInput);
+		var terms = XMigemoCore.getRegExps(this.lastInput);
+		this.lastFindRegExp = new RegExp(
+			(XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
+				XMigemoCore.expandTermsForANDFind(terms) :
+				XMigemoCore.getRegExp(this.lastInput)
+			),
+			'gim'
+		);
+		this.lastTermsRegExp = new RegExp(
+			XMigemoCore.expandTermsForORFind(terms),
+			'gim'
+		);
 	},
  
-	updateResultsForRange : function(aRegExp, aStart, aRange) 
+	updateResultsForRange : function(aFindRegExp, aTermsRegExp, aStart, aRange) 
 	{
 		var sources = XMigemoPlaces.getPlacesSourceInRange(aStart, aRange);
 		if (!sources) return false;
-		var terms = sources.match(aRegExp);
+		var terms = sources.match(aFindRegExp);
 		if (!terms) return true;
-		terms =terms
-				.join('\n')
-				.toLowerCase()
-				.replace(/^(.+)(\n\1$)+/gim, '$1')
-				.split('\n');
-		results = XMigemoPlaces.findLocationBarItemsFromTerms(terms, aStart, aRange);
-		this.lastTerms = this.lastTerms.concat(terms);
+		terms = XMigemoCore.brushUpTerms(terms);
+		results = XMigemoPlaces.findLocationBarItemsFromTerms(terms, aTermsRegExp, aStart, aRange);
+		this.lastTerms = XMigemoCore.brushUpTerms(this.lastTerms.concat(terms));
 		this.results = this.results.concat(results);
 		return true;
 	},
@@ -267,7 +271,8 @@ var XMigemoLocationBarOverlay = {
 		this.results = [];
 		this.lastInput = '';
 		this.lastTerms = [];
-		this.lastRegExp = '';
+		this.lastFindRegExp = null;
+		this.lastTermsRegExp = null;
 		this.threadDone = true;
 
 //		this.bar.closePopup();

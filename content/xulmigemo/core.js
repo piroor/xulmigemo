@@ -5,40 +5,23 @@ var XMigemoCore = {
 		return this.XMigemo.getRegExp(aRoman);
 	},
  
-	getRegExpForANDFind : function(aRoman) 
+	getRegExps : function(aRoman) 
 	{
 		var self = this;
-		aRoman = aRoman
+		return aRoman
 			.replace(/^\s*|\s*$/g, '')
 			.split(/\s+/)
 			.map(function(aRoman) {
 				return self.getRegExp(aRoman);
 			});
-		return this.expandTerms(aRoman);
-//		return '(?:'+aRoman.join(').*(?:')+')';
 	},
 	 
-	get db() 
+	expandTermsForORFind : function(aTerms) 
 	{
-		if (this._db)
-			return this._db;
-
-		const DirectoryService = Components
-			.classes['@mozilla.org/file/directory_service;1']
-			.getService(Components.interfaces.nsIProperties);
-		var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
-		file.append('xulmigemo.sqlite');
-
-		const StorageService = Components
-			.classes['@mozilla.org/storage/service;1']
-			.getService(Components.interfaces.mozIStorageService);
-		this._db = StorageService.openDatabase(file);
-
-		return this._db;
+		return '(?:'+aTerms.join(')|(?:')+')';
 	},
-//	_db : null,
  
-	expandTerms : function(aTerms) 
+	expandTermsForANDFind : function(aTerms) 
 	{
 		if (!this.db) return '';
 
@@ -124,7 +107,17 @@ var XMigemoCore = {
 
 		return results.join('|');
 	},
- 	 
+  
+	brushUpTerms : function(aTerms) 
+	{
+		return aTerms
+				.sort()
+				.join('\n')
+				.toLowerCase()
+				.replace(/^(.+)(\n\1$)+/gim, '$1')
+				.split('\n');
+	},
+ 	
 	gatherEntriesFor : function(aRoman, aTargetDic) 
 	{
 		return this.XMigemo.gatherEntriesFor(aRoman, aTargetDic, {});
@@ -157,11 +150,12 @@ var XMigemoCore = {
 				.replace(/^(.+)(\n\1$)+/gim, '$1')
 				.split('\n');
 	},
-	getTermsForInputFromSource : function(aInput, aSource, aIsANDFind)
+ 
+	getTermsForInputFromSource : function(aInput, aSource, aIsANDFind) 
 	{
 		return this.getTermsFromSource(
 			(aIsANDFind ?
-				this.getRegExpForANDFind(aInput) :
+				this.expandTermsForANDFind(this.getRegExps(aInput)) :
 				this.getRegExp(aInput)
 			),
 			aSource);
@@ -219,6 +213,26 @@ var XMigemoCore = {
 		return results;
 	},
   
+	get db() 
+	{
+		if (this._db)
+			return this._db;
+
+		const DirectoryService = Components
+			.classes['@mozilla.org/file/directory_service;1']
+			.getService(Components.interfaces.nsIProperties);
+		var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
+		file.append('xulmigemo.sqlite');
+
+		const StorageService = Components
+			.classes['@mozilla.org/storage/service;1']
+			.getService(Components.interfaces.mozIStorageService);
+		this._db = StorageService.openDatabase(file);
+
+		return this._db;
+	},
+//	_db : null,
+ 
 	get XMigemo() { 
 		if (!this._XMigemo) {
 			try {

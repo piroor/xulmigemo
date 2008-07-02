@@ -166,7 +166,7 @@ var XMigemoPlaces = {
 		return queries;
 	},
  
-	findLocationBarItemsFromTerms : function(aTerms, aStart, aRange) 
+	findLocationBarItemsFromTerms : function(aTerms, aTermsRegExp, aStart, aRange) 
 	{
 		var items = [];
 		if (!aTerms.length) return items;
@@ -224,17 +224,17 @@ var XMigemoPlaces = {
 				statement.bindDoubleParameter(aTerms.length+1, Math.max(0, aStart));
 				statement.bindDoubleParameter(aTerms.length+2, Math.max(0, aRange));
 			}
-			aTerms = aTerms.join(' ');
-			var item, title;
+			var item, title, terms;
 			while(statement.executeStep())
 			{
+				terms = XMigemoCore.brushUpTerms(statement.getString(5).match(aTermsRegExp) || []);
 				item = {
 					title : (statement.getIsNull(0) ? '' : statement.getString(0) ),
 					uri   : statement.getString(1),
 					icon  : (statement.getIsNull(2) ? '' : statement.getString(2) ),
 					tags  : (statement.getIsNull(4) ? '' : statement.getString(4) ),
 					style : 'favicon',
-					terms : aTerms
+					terms : terms.join(' ')
 				};
 				if (title = (statement.getIsNull(3) ? '' : statement.getString(3) )) {
 					item.title = title;
@@ -253,7 +253,7 @@ var XMigemoPlaces = {
 	},
 	 
 	locationBarItemsSQL : <![CDATA[ 
-		SELECT title, uri, favicon, bookmark, tags
+		SELECT title, uri, favicon, bookmark, tags, findkey
 		  FROM (SELECT *,
 		        GROUP_CONCAT(
 		          title                  || ' ' ||
