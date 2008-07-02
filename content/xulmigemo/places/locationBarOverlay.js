@@ -72,13 +72,13 @@ var XMigemoLocationBarOverlay = {
 	get shouldStart() 
 	{
 		var input = this.bar.value;
-		return !(
-			!this.enabled ||
+		return (
+			this.enabled &&
 			(
-				this.ignoreURI &&
-				/^\w+:\/\//.test(input)
-			) ||
-			this.minLength > input.length
+				!this.ignoreURI ||
+				!/^\w+:\/\//.test(input)
+			) &&
+			this.minLength <= input.length
 			);
 	},
   
@@ -145,17 +145,15 @@ var XMigemoLocationBarOverlay = {
 		controller.searchStringOverride = '';
 		controller.matchCountOverride   = 0;
 
-		var input = this.bar.value;
-		if (!this.shouldStart || this.lastInput == input)
+		if (!this.shouldStart ||
+			this.lastInput.replace(/^\s+|\s+$/g, '') == this.bar.value.replace(/^\s+|\s+$/g, ''))
 			return;
 
-		this.clear();
-
-		this.lastInput = input;
-		if (!input) return;
-
-dump('START SEARCH '+input+'\n'); // DEBUG
+		this.stopDelayedStart();
 		this.delayedStartTimer = window.setTimeout(function(aSelf) {
+			aSelf.clear();
+			aSelf.lastInput = aSelf.bar.value;
+			if (!aSelf.lastInput) return;
 			aSelf.stopDelayedStart();
 			aSelf.delayedStart();
 		}, this.delay, this);
@@ -213,14 +211,29 @@ dump('START SEARCH '+input+'\n'); // DEBUG
 				var maxResults = aSelf.panel.maxResults;
 				var current = 0;
 				var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
+				var controller = aSelf.bar.controller;
+				var builtCount = 0;
 				while (aSelf.updateResultsForRange(regexp, current, range) &&
 					aSelf.results.length < maxResults)
 				{
 					yield;
+					if (aSelf.results.length) {
+						if (!builtCount)
+							controller.searchStringOverride = aSelf.lastInput;
+						aSelf.busy = false;
+						for (let i = builtCount, maxi = aSelf.results.length; i < maxi; i++)
+						{
+							aSelf.buildItemAt(i);
+						}
+						controller.resultsOverride = aSelf.results;
+						controller.matchCountOverride = aSelf.results.length;
+						aSelf.panel.adjustHeight();
+						if (!builtCount)
+							aSelf.bar.openPopup();
+						builtCount = aSelf.results.length;
+					}
 					current += range;
 				}
-				aSelf.readyToBuild = true;
-				aSelf.onSearchComplete();
 			}
 			var runner = DelayedRunner(this);
 
@@ -231,7 +244,6 @@ dump('START SEARCH '+input+'\n'); // DEBUG
 				}
 				catch(e) {
 					aSelf.stopDelayedRunning();
-					aSelf.busy = false;
 				}
 			}, 1, this);
 		}
@@ -239,31 +251,21 @@ dump('START SEARCH '+input+'\n'); // DEBUG
  	 
 	updateRegExp : function() 
 	{
-var start = new Date(); // DEBUG
 		this.lastRegExp = XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
 				XMigemoCore.getRegExpForANDFind(this.lastInput) :
 				XMigemoCore.getRegExp(this.lastInput);
-var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.updateRegExp ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 	},
 	updateResultsForRange : function(aRegExp, aStart, aRange) 
 	{
 		var sources = XMigemoPlaces.getPlacesSourceInRange(aStart, aRange);
 		if (!sources) return false;
-var start = new Date(); // DEBUG
 		var terms = sources.match(aRegExp) || [];
-var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, matching ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
-dump('source : '+sources.length+'\nterms : '+terms.length+'\n'); // DEBUG
 		terms =terms
 				.join('\n')
 				.toLowerCase()
 				.replace(/^(.+)(\n\1$)+/gim, '$1')
 				.split('\n');
-var start = new Date(); // DEBUG
 		results = XMigemoPlaces.findLocationBarItemsFromTerms(terms, aStart, aRange);
-var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, finding ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		this.lastTerms = this.lastTerms.concat(terms);
 		this.results = this.results.concat(results);
 		return true;
@@ -274,7 +276,6 @@ dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, finding ('+this.las
 	threadFinishTimer : null,
 	run : function()
 	{
-var start = new Date(); // DEBUG
 		var regexp = new RegExp(this.lastRegExp, 'gim');
 		var maxResults = this.panel.maxResults;
 		var current = 0;
@@ -285,8 +286,6 @@ var start = new Date(); // DEBUG
 			current += range;
 		}
 		this.readyToBuild = true;
-var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.run ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 	},
 	QueryInterface : function(aIID) {
 		if (aIID.equals(Components.interfaces.nsIRunnable) ||
@@ -297,16 +296,11 @@ dump('XMigemoLocationBarOverlay.run ('+this.lastInput+') : '+(end.getTime() - st
  
 	onSearchComplete : function() 
 	{
-		if (this.readyToBuild || this.searchCompleted) {
-			window.setTimeout(function(aSelf) {
-				aSelf.startBuild();
-			}, 0, this);
-			this.readyToBuild = false;
-			this.searchCompleted = false;
-		}
-		else {
-			this.searchCompleted = true;
-		}
+		if (!this.readyToBuild) return;
+		window.setTimeout(function(aSelf) {
+			aSelf.startBuild();
+		}, 0, this);
+		this.readyToBuild = false;
 	},
   
 	clear : function() 
@@ -329,46 +323,16 @@ dump('XMigemoLocationBarOverlay.run ('+this.lastInput+') : '+(end.getTime() - st
 	{
 		function BuildResultList(aSelf)
 		{
-var start = new Date(); // DEBUG
-			const listbox = aSelf.listbox;
-			const items = aSelf.results;
 			const chunk = aSelf.panel.maxRows;
 			var count = 0;
 			var item, node, existingCount;
-			for (let i = 0, maxi = items.length; i < maxi; i++)
+			for (let i = 0, maxi = aSelf.results.length; i < maxi; i++)
 			{
 				if (count++ > chunk) {
 					yield;
 					count = 0;
 				}
-
-				existingCount = listbox.children.length;
-				item = items[i];
-				item.uri = aSelf.Converter.unEscapeURIForUI('UTF-8', item.uri);
-				if (i < existingCount) {
-					node = listbox.childNodes[i];
-					if (node.getAttribute('text') == item.terms &&
-						node.getAttribute('url') == item.uri) {
-						node.collapsed = false;
-						continue;
-					}
-				}
-				else {
-					node = document.createElementNS(aSelf.kXULNS, 'richlistitem');
-				}
-				node.setAttribute('image', 'moz-anno:favicon:'+item.icon);
-				node.setAttribute('url', item.uri);
-				node.setAttribute('title', item.title + (item.tags ? ' \u2013 ' + item.tags : '' ));
-				node.setAttribute('type', item.style);
-				node.setAttribute('text', item.terms);
-				if (i < existingCount) {
-					node._adjustAcItem();
-					node.collapsed = false;
-				}
-				else {
-					node.className = 'autocomplete-richlistitem';
-					listbox.appendChild(node);
-				}
+				aSelf.buildItemAt(i);
 			}
 
 			var controller = aSelf.bar.controller;
@@ -377,8 +341,6 @@ var start = new Date(); // DEBUG
 			controller.matchCountOverride = items.length;
 			aSelf.panel.adjustHeight();
 			aSelf.bar.openPopup();
-var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.startBuild, BuildResultList ('+aSelf.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		}
 
 		this.builder = BuildResultList(this);
@@ -402,6 +364,47 @@ dump('XMigemoLocationBarOverlay.startBuild, BuildResultList ('+aSelf.lastInput+'
  
 	builder : null, 
 	buildingimer : null,
+ 
+	buildItemAt : function(aIndex) 
+	{
+		const listbox = this.listbox;
+		var existingCount = listbox.children.length;
+
+		const item = this.results[aIndex];
+		item.uri = this.Converter.unEscapeURIForUI('UTF-8', item.uri);
+
+		var node;
+		if (aIndex < existingCount) {
+			node = listbox.childNodes[aIndex];
+			var currentTerms = node.getAttribute('text').split(' ');
+			var newTerms = item.terms.split(' ');
+			if (
+				currentTerms.every(function(aTerm) {
+					return (newTerms.indexOf(aTerm) > -1)
+				}) &&
+				node.getAttribute('url') == item.uri
+				) {
+				node.collapsed = false;
+				return;
+			}
+		}
+		else {
+			node = document.createElementNS(this.kXULNS, 'richlistitem');
+		}
+		node.setAttribute('image', 'moz-anno:favicon:'+item.icon);
+		node.setAttribute('url', item.uri);
+		node.setAttribute('title', item.title + (item.tags ? ' \u2013 ' + item.tags : '' ));
+		node.setAttribute('type', item.style);
+		node.setAttribute('text', item.terms);
+		if (aIndex < existingCount) {
+			node._adjustAcItem();
+			node.collapsed = false;
+		}
+		else {
+			node.className = 'autocomplete-richlistitem';
+			listbox.appendChild(node);
+		}
+	},
   
 	init : function() 
 	{
