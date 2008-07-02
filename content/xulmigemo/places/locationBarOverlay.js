@@ -19,6 +19,10 @@ var XMigemoLocationBarOverlay = {
 	ThreadManager : Components
 			.classes['@mozilla.org/thread-manager;1']
 			.getService(Components.interfaces.nsIThreadManager),
+	TextUtils : Components
+			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+			.getService(Components.interfaces.pIXMigemoTextUtils),
+
 	kXULNS : 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
  
 /* elements */ 
@@ -52,7 +56,7 @@ var XMigemoLocationBarOverlay = {
 	},
   
 /* status */ 
-	
+	 
 	get busy() 
 	{
 		return this.throbber.getAttribute('busy') == 'true';
@@ -111,19 +115,27 @@ var XMigemoLocationBarOverlay = {
 				this.useThread = value;
 				return;
 
+			case 'xulmigemo.autostart.regExpFind':
+				this.autoStartRegExpFind = value;
+				return;
+
 			default:
 				return;
 		}
 	},
-	domain : 'xulmigemo.places',
+	domains : [
+		'xulmigemo.places',
+		'xulmigemo.autostart.regExpFind'
+	],
 	preferences : <![CDATA[
 		xulmigemo.places.locationBar
 		xulmigemo.places.locationBar.ignoreURI
 		xulmigemo.places.locationBar.delay
 		xulmigemo.places.locationBar.minLength
 		xulmigemo.places.locationBar.useThread
+		xulmigemo.autostart.regExpFind
 	]]>.toString(),
- 
+ 	
 	handleEvent : function(aEvent) 
 	{
 		switch (aEvent.type)
@@ -236,18 +248,26 @@ var XMigemoLocationBarOverlay = {
   
 	updateRegExp : function() 
 	{
-		var terms = XMigemoCore.getRegExps(this.lastInput);
-		this.lastFindRegExp = new RegExp(
-			(XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
-				XMigemoCore.expandTermsForANDFind(terms) :
-				XMigemoCore.getRegExp(this.lastInput)
-			),
-			'gim'
-		);
-		this.lastTermsRegExp = new RegExp(
-			XMigemoCore.expandTermsForORFind(terms),
-			'gim'
-		);
+		if (this.autoStartRegExpFind &&
+			this.TextUtils.isRegExp(this.lastInput)) {
+			var source = this.TextUtils.extractRegExpSource(this.lastInput);
+			this.lastFindRegExp =
+				this.lastTermsRegExp = new RegExp(source, 'gim');
+		}
+		else {
+			var terms = XMigemoCore.getRegExps(this.lastInput);
+			this.lastFindRegExp = new RegExp(
+				(XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
+					XMigemoCore.expandTermsForANDFind(terms) :
+					XMigemoCore.getRegExp(this.lastInput)
+				),
+				'gim'
+			);
+			this.lastTermsRegExp = new RegExp(
+				XMigemoCore.expandTermsForORFind(terms),
+				'gim'
+			);
+		}
 	},
  
 	updateResultsForRange : function(aFindRegExp, aTermsRegExp, aStart, aRange) 
@@ -415,7 +435,7 @@ var XMigemoLocationBarOverlay = {
 			};
 		}
 	},
- 	
+ 
 	initLocationBar : function() 
 	{
 		var bar = this.bar;
@@ -559,7 +579,7 @@ var XMigemoLocationBarOverlay = {
 		this.destroyLocationBar();
 		XMigemoService.removePrefListener(this);
 	},
-	
+	 
 	destroyLocationBar : function() 
 	{
 		var bar = this.bar;
