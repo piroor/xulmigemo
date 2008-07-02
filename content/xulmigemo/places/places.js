@@ -58,54 +58,64 @@ dump('XMigemoPlaces.placeSource : '+(end.getTime() - start.getTime())+'\n'); // 
 	{
 		if (!this.db) return null;
 
-		var sql = <![CDATA[
-				SELECT GROUP_CONCAT(title, ?1),
-				       GROUP_CONCAT(uri, ?1),
-				       GROUP_CONCAT(bookmark, ?1)
-				  FROM (SELECT p.title title,
-				               p.url uri,
-				               b.title bookmark
-				          FROM moz_places p
-				          LEFT JOIN moz_bookmarks b ON b.fk = p.id
-				         WHERE p.hidden <> 1 AND p.frecency <> 0
-				         LIMIT ?2,?3)
-			]]>.toString();
-
-		var step = XMigemoService.getPref('xulmigemo.places.collectingStep');
+		var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
 		function PlacesSources(aSelf)
 		{
 			var current = 0;
-			var collected = [PlacesUtils.tagging.allTags.join('\n')];
 			var sources;
 			while (true)
 			{
-dump('from '+current+' to '+step+'\n');
-var start = new Date(); // DEBUG
-				var statement = aSelf.db.createStatement(sql);
-				statement.bindStringParameter(0, '\n');
-				statement.bindDoubleParameter(1, current);
-				statement.bindDoubleParameter(2, step);
-				current += step;
-				collected = [];
-				while(statement.executeStep())
-				{
-					collected.push(statement.getString(0));
-					collected.push(statement.getString(1));
-					collected.push(statement.getString(2));
-				};
-				statement.reset();
-				sources = collected.join('\n').replace(/^\s+|\s+$/g, '');
-var end = new Date(); // DEBUG
-dump('XMigemoPlaces.placesSources, PlacesSources : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
+				sources = aSelf.getPlacesSourceInRange(current, range);
 				if (sources)
 					yield sources;
 				else
 					break;
+				current += range;
 			}
 		}
 
 		return PlacesSources(this);
 	},
+ 
+	getPlacesSourceInRange : function(aStart, aRange) 
+	{
+		if (!this.db) return '';
+
+		aStart = Math.max(0, aStart);
+		aRange = Math.max(0, aRange);
+		if (!aRange) return '';
+
+var start = new Date(); // DEBUG
+		var statement = this.db.createStatement(this.placesSourceInRangeSQL);
+		statement.bindStringParameter(0, '\n');
+		statement.bindDoubleParameter(1, aStart);
+		statement.bindDoubleParameter(2, aRange);
+
+		var sources = [];
+		if (aStart == 0) sources.push(PlacesUtils.tagging.allTags.join('\n'));
+		while(statement.executeStep())
+		{
+			sources.push(statement.getString(0));
+			sources.push(statement.getString(1));
+			sources.push(statement.getString(2));
+		};
+		statement.reset();
+var end = new Date(); // DEBUG
+dump('XMigemoPlaces.placesSources, getPlacesSourceInRange : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
+		return sources.join('\n').replace(/^\s+|\s+$/g, '');
+	},
+	placesSourceInRangeSQL : <![CDATA[
+		SELECT GROUP_CONCAT(title, ?1),
+		       GROUP_CONCAT(uri, ?1),
+		       GROUP_CONCAT(bookmark, ?1)
+		  FROM (SELECT p.title title,
+		               p.url uri,
+		               b.title bookmark
+		          FROM moz_places p
+		          LEFT JOIN moz_bookmarks b ON b.fk = p.id
+		         WHERE p.hidden <> 1 AND p.frecency <> 0
+		         LIMIT ?2,?3)
+	]]>.toString(),
  
 	get historySource() 
 	{
@@ -205,7 +215,7 @@ dump('XMigemoPlaces.expandNavHistoryQuery : '+(end.getTime() - start.getTime())+
 		return queries;
 	},
  
-	findLocationBarItemsFromTerms : function(aTerms) 
+	findLocationBarItemsFromTerms : function(aTerms, aStart, aRange) 
 	{
 		var items = [];
 		if (!aTerms.length) return items;
@@ -235,6 +245,19 @@ var start = new Date(); // DEBUG
 					'1'
 			);
 
+		if (aStart !== void(0)) {
+			aRange = Math.max(0, aRange);
+			if (!aRange) return items;
+			sql = sql.replace(
+				'%SOURCES_LIMIT_PART%',
+				'LIMIT ?'+(aTerms.length+2)+',?'+(aTerms.length+3)
+			);
+		}
+		else {
+			sql = sql.replace('%SOURCES_LIMIT_PART%', '');
+		}
+
+
 		var statement;
 		try {
 			statement = this.db.createStatement(sql);
@@ -245,11 +268,13 @@ var start = new Date(); // DEBUG
 		}
 		try {
 			statement.bindDoubleParameter(0, XMigemoService.getPref('browser.urlbar.maxRichResults'));
-
 			aTerms.forEach(function(aTerm, aIndex) {
 				statement.bindStringParameter(aIndex+1, '%'+aTerm+'%');
 			});
-
+			if (aStart !== void(0)) {
+				statement.bindDoubleParameter(aTerms.length+1, Math.max(0, aStart));
+				statement.bindDoubleParameter(aTerms.length+2, Math.max(0, aRange));
+			}
 			aTerms = aTerms.join(' ');
 			var item, title;
 			while(statement.executeStep())
@@ -315,7 +340,8 @@ dump('XMigemoPlaces.findLocationBarItemsFromTerms : '+(end.getTime() - start.get
 		                 WHERE b.type = 1 AND b.fk = p.id) tags
 		          FROM moz_places p
 		               LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
-		         WHERE p.frecency <> 0 AND p.hidden <> 1)
+		         WHERE p.frecency <> 0 AND p.hidden <> 1
+		         %SOURCES_LIMIT_PART%)
 		 WHERE (%TERMS_RULES%)
 		       AND %EXCLUDE_JAVASCRIPT%
 		       AND %ONLY_TYPED%
