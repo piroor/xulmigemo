@@ -241,7 +241,7 @@ var start = new Date(); // DEBUG
 						.replace(/^(.+)(\n\1$)+/gim, '$1')
 						.split('\n');
 var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, get terms ('+aSelf.lastInput+') : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, get terms ('+aSelf.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 				aSelf.updateResults();
 				yield;
 				aSelf.readyToBuild = true;
@@ -269,7 +269,7 @@ var start = new Date(); // DEBUG
 				XMigemoCore.getRegExpForANDFind(this.lastInput) :
 				XMigemoCore.getRegExp(this.lastInput);
 var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.updateRegExp ('+this.lastInput+') : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+dump('XMigemoLocationBarOverlay.updateRegExp ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 	},
 	updateTerms : function()
 	{
@@ -279,14 +279,14 @@ var start = new Date(); // DEBUG
 				XMigemoPlaces.placesSource
 			);
 var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.updateTerms ('+this.lastInput+') : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+dump('XMigemoLocationBarOverlay.updateTerms ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 	},
 	updateResults : function()
 	{
 var start = new Date(); // DEBUG
 		this.results = XMigemoPlaces.findLocationBarItemsFromTerms(this.lastTerms);
 var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.updateResults ('+this.lastInput+') : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+dump('XMigemoLocationBarOverlay.updateResults ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 	},
  
 	// for thread mode 
@@ -299,7 +299,7 @@ var start = new Date(); // DEBUG
 		if (this.useThreadToQueryRecords) this.updateResults();
 		this.readyToBuild = true;
 var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.run ('+this.lastInput+') : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+dump('XMigemoLocationBarOverlay.run ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 	},
 	QueryInterface : function(aIID) {
 		if (aIID.equals(Components.interfaces.nsIRunnable) ||
@@ -391,7 +391,7 @@ var start = new Date(); // DEBUG
 			aSelf.panel.adjustHeight();
 			aSelf.bar.openPopup();
 var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.startBuild, BuildResultList ('+this.lastInput+') : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+dump('XMigemoLocationBarOverlay.startBuild, BuildResultList ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		}
 
 		this.builder = BuildResultList(this);

@@ -49,7 +49,7 @@ var start = new Date(); // DEBUG
 
 		sources.push(PlacesUtils.tagging.allTags.join('\n'));
 var end = new Date(); // DEBUG
-dump('XMigemoPlaces.placeSource : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+dump('XMigemoPlaces.placeSource : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 
 		return sources.join('\n');
 	},
@@ -123,7 +123,7 @@ var start = new Date(); // DEBUG
 
 		sources.push(PlacesUtils.tagging.allTags.join('\n'));
 var end = new Date(); // DEBUG
-dump('XMigemoPlaces.historySource : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+dump('XMigemoPlaces.historySource : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		return sources.join('\n');
 	},
  
@@ -150,7 +150,7 @@ var start = new Date(); // DEBUG
 
 		sources.push(PlacesUtils.tagging.allTags.join('\n'));
 var end = new Date(); // DEBUG
-dump('XMigemoPlaces.bookmarksSource : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+dump('XMigemoPlaces.bookmarksSource : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		return sources.join('\n');
 	},
   
@@ -194,7 +194,7 @@ var start = new Date(); // DEBUG
 			queries.push(aQuery);
 		}
 var end = new Date(); // DEBUG
-dump('XMigemoPlaces.expandNavHistoryQuery : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+dump('XMigemoPlaces.expandNavHistoryQuery : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		return queries;
 	},
  
@@ -269,7 +269,7 @@ var start = new Date(); // DEBUG
 			statement.reset();
 		}
 var end = new Date(); // DEBUG
-dump('XMigemoPlaces.findLocationBarItemsFromTerms : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+dump('XMigemoPlaces.findLocationBarItemsFromTerms : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		return items;
 	},
 	 
