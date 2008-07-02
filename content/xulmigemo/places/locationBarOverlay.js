@@ -226,11 +226,11 @@ dump('START SEARCH '+input+'\n'); // DEBUG
 				while (true)
 				{
 					try {
-var start = new Date(); // DEBUG
 						source = sources.next();
+var start = new Date(); // DEBUG
 						terms = source.match(regexp) || [];
 var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, get terms ('+aSelf.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
+dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, matching ('+aSelf.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 dump('source : '+source.length+'\nterms : '+terms.length+'\n'); // DEBUG
 						aSelf.lastTerms = aSelf.lastTerms.concat(terms);
 						yield;
