@@ -42,61 +42,85 @@ var XMigemoCore = {
 	{
 		if (!this.db) return '';
 
+		switch (aTerms.length)
+		{
+			case 0:
+				retrun '';
+			case 1:
+				return aTerms[0];
+			case 2:
+				return '(?:'+aTerms[0]+').*(?:'+aTerms[1]+')|'+
+					'(?:'+aTerms[1]+').*(?:'+aTerms[0]+')';
+			default:
+				break;
+		}
+
 		var tableName = 'temp'+parseInt(Math.random() * 65000);
 		this.db.executeSimpleSQL('CREATE TEMP TABLE '+tableName+' (term TEXT)');
 
-		var self = this;
-		aTerms.forEach(function(aTerm, aIndex) {
-			var statement = self.db.createStatement('INSERT INTO '+tableName+' (term) VALUES (?1)');
-			statement.bindStringParameter(0, aTerm);
-			while (statement.executeStep()) {};
-			statement.reset();
-		});
-/*
-	SELECT v1.term term1,
-	       v2.term term2,
-	       v3.term term3,
-	       v4.term term4
-	  FROM temp v1, temp v2, temp v3, temp v4
-	 WHERE term1 NOT IN (term2, term3, term4)
-	       AND term2 NOT IN (term1, term3, term4)
-	       AND term3 NOT IN (term1, term2, term4)
-	       AND term4 NOT IN (term1, term2, term3)
-*/
-		var statement = this.db.createStatement(
-				'SELECT '+
-				aTerms.map(function(aTerm, aIndex) {
-					return 'v'+aIndex+'.term term'+aIndex;
-				}).join(', ')+
-				' FROM '+
-				aTerms.map(function(aTerm, aIndex) {
-					return tableName+' v'+aIndex;
-				}).join(', ')+
-				' WHERE '+
-				aTerms.map(function(aTerm, aIndex) {
-					return 'term'+aIndex+' NOT IN ('+
-						aTerms.map(function(aTerm, aRejectIndex) {
-							return 'term'+aRejectIndex;
-						}).filter(function(aTerm, aRejectIndex) {
-							return aRejectIndex != aIndex;
-						}).join(', ')+
-						')';
-				}).join(' AND ')
-			);
-		var results = [];
-		while (statement.executeStep())
-		{
-			results.push(
-				'('+
-				aTerms.map(function(aTerm, aIndex) {
-					return statement.getString(aIndex)
-				}).join(').*(?:')+
-				')'
-			);
+		try {
+			var self = this;
+			aTerms.forEach(function(aTerm, aIndex) {
+				var statement = self.db.createStatement('INSERT INTO '+tableName+' (term) VALUES (?1)');
+				try {
+					statement.bindStringParameter(0, aTerm);
+					while (statement.executeStep()) {};
+				}
+				finally {
+					statement.reset();
+				}
+			});
+	/*
+		SELECT v1.term term1,
+		       v2.term term2,
+		       v3.term term3,
+		       v4.term term4
+		  FROM temp v1, temp v2, temp v3, temp v4
+		 WHERE term1 NOT IN (term2, term3, term4)
+		       AND term2 NOT IN (term1, term3, term4)
+		       AND term3 NOT IN (term1, term2, term4)
+		       AND term4 NOT IN (term1, term2, term3)
+	*/
+			var statement = this.db.createStatement(
+					'SELECT '+
+					aTerms.map(function(aTerm, aIndex) {
+						return 'v'+aIndex+'.term term'+aIndex;
+					}).join(', ')+
+					' FROM '+
+					aTerms.map(function(aTerm, aIndex) {
+						return tableName+' v'+aIndex;
+					}).join(', ')+
+					' WHERE '+
+					aTerms.map(function(aTerm, aIndex) {
+						return 'term'+aIndex+' NOT IN ('+
+							aTerms.map(function(aTerm, aRejectIndex) {
+								return 'term'+aRejectIndex;
+							}).filter(function(aTerm, aRejectIndex) {
+								return aRejectIndex != aIndex;
+							}).join(', ')+
+							')';
+					}).join(' AND ')
+				);
+			var results = [];
+			try {
+				while (statement.executeStep())
+				{
+					results.push(
+						'('+
+						aTerms.map(function(aTerm, aIndex) {
+							return statement.getString(aIndex)
+						}).join(').*(?:')+
+						')'
+					);
+				}
+			}
+			finally {
+				statement.reset();
+			}
 		}
-		statement.reset();
-
-		this.db.executeSimpleSQL('DROP TABLE '+tableName);
+		finally {
+			this.db.executeSimpleSQL('DROP TABLE '+tableName);
+		}
 
 		return results.join('|');
 	},
