@@ -269,6 +269,10 @@ var XMigemoLocationBarOverlay = {
 		this.lastTerms = [];
 		this.lastRegExp = '';
 		this.threadDone = true;
+
+//		this.bar.closePopup();
+
+		this.busy = false;
 	},
  
 /* build popup */ 

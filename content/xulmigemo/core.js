@@ -45,7 +45,7 @@ var XMigemoCore = {
 		switch (aTerms.length)
 		{
 			case 0:
-				retrun '';
+				return '';
 			case 1:
 				return aTerms[0];
 			case 2:

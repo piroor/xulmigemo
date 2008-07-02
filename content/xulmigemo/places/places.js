@@ -36,28 +36,44 @@ var XMigemoPlaces = {
 		statement.bindDoubleParameter(1, aStart);
 		statement.bindDoubleParameter(2, aRange);
 
-		var sources = [];
-		if (aStart == 0) sources.push(PlacesUtils.tagging.allTags.join('\n'));
+		var sources;
 		while(statement.executeStep())
 		{
-			sources.push(statement.getString(0));
-			sources.push(statement.getString(1));
-			sources.push(statement.getString(2));
+			sources = statement.getString(0);
 		};
 		statement.reset();
-		return sources.join('\n').replace(/^\s+|\s+$/g, '');
+		return sources.replace(/^\s+|\s+$/g, '');
 	},
 	 
 	placesSourceInRangeSQL : <![CDATA[ 
-		SELECT GROUP_CONCAT(title, ?1),
-		       GROUP_CONCAT(uri, ?1),
-		       GROUP_CONCAT(bookmark, ?1)
+		SELECT GROUP_CONCAT(
+		         title                  || ' ' ||
+		         COALESCE(bookmark, '') || ' ' ||
+		         COALESCE(tags,     '') || ' ' ||
+		         uri,
+		         ?1
+		       )
 		  FROM (SELECT p.title title,
 		               p.url uri,
-		               b.title bookmark
+		               (SELECT b.title
+		                  FROM moz_bookmarks b
+		                       JOIN moz_bookmarks t
+		                       ON t.id = b.parent
+		                       AND t.parent != (SELECT folder_id
+		                                          FROM moz_bookmarks_roots
+		                                         WHERE root_name = 'tags')
+		                 WHERE b.type = 1 AND b.fk = p.id
+		                 ORDER BY b.lastModified DESC LIMIT 1) bookmark,
+		               (SELECT GROUP_CONCAT(t.title, ',')
+		                  FROM moz_bookmarks b
+		                       JOIN moz_bookmarks t
+		                       ON t.id = b.parent
+		                       AND t.parent = (SELECT folder_id
+		                                         FROM moz_bookmarks_roots
+		                                        WHERE root_name = 'tags')
+		                 WHERE b.type = 1 AND b.fk = p.id) tags
 		          FROM moz_places p
-		          LEFT JOIN moz_bookmarks b ON b.fk = p.id
-		         WHERE p.hidden <> 1 AND p.frecency <> 0
+		         WHERE p.frecency <> 0 AND p.hidden <> 1
 		         LIMIT ?2,?3)
 	]]>.toString(),
  	 
@@ -161,15 +177,14 @@ var XMigemoPlaces = {
 			.replace(
 				'%TERMS_RULES%',
 				aTerms.map(function(aTerm, aIndex) {
-					return ('title LIKE ?%d% OR bookmark LIKE ?%d% OR '+
-							'url LIKE ?%d% OR tags LIKE ?%d%')
+					return ('findkey LIKE ?%d%')
 							.replace(/%d%/g, aIndex+2);
 				}).join(' OR ')
 			)
 			.replace(
 				'%EXCLUDE_JAVASCRIPT%',
 				XMigemoService.getPref('browser.urlbar.filter.javascript') ?
-					'url NOT LIKE "javascript:%"' :
+					'uri NOT LIKE "javascript:%"' :
 					'1'
 			)
 			.replace(
@@ -238,42 +253,51 @@ var XMigemoPlaces = {
 	},
 	 
 	locationBarItemsSQL : <![CDATA[ 
-		SELECT title, url, favicon, bookmark, tags
-		  FROM (SELECT p.title title,
-		               p.url url,
-		               f.url favicon,
-		               p.frecency frecency,
-		               p.typed typed,
-		               (SELECT b.parent
-		                  FROM moz_bookmarks b
-		                       JOIN moz_bookmarks t
-		                       ON t.id = b.parent
-		                       AND t.parent != (SELECT folder_id
-		                                          FROM moz_bookmarks_roots
-		                                         WHERE root_name = 'tags')
-		                 WHERE b.type = 1 AND b.fk = p.id
-		                 ORDER BY b.lastModified DESC LIMIT 1) parent,
-		               (SELECT b.title
-		                  FROM moz_bookmarks b
-		                       JOIN moz_bookmarks t
-		                       ON t.id = b.parent
-		                       AND t.parent != (SELECT folder_id
-		                                          FROM moz_bookmarks_roots
-		                                         WHERE root_name = 'tags')
-		                 WHERE b.type = 1 AND b.fk = p.id
-		                 ORDER BY b.lastModified DESC LIMIT 1) bookmark,
-		               (SELECT GROUP_CONCAT(t.title, ',')
-		                  FROM moz_bookmarks b
-		                       JOIN moz_bookmarks t
-		                       ON t.id = b.parent
-		                       AND t.parent = (SELECT folder_id
-		                                         FROM moz_bookmarks_roots
-		                                        WHERE root_name = 'tags')
-		                 WHERE b.type = 1 AND b.fk = p.id) tags
-		          FROM moz_places p
-		               LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
-		         WHERE p.frecency <> 0 AND p.hidden <> 1
-		         %SOURCES_LIMIT_PART%)
+		SELECT title, uri, favicon, bookmark, tags
+		  FROM (SELECT *,
+		        GROUP_CONCAT(
+		          title                  || ' ' ||
+		          COALESCE(bookmark, '') || ' ' ||
+		          COALESCE(tags,     '') || ' ' ||
+		          uri,
+		          ' '
+		        ) findkey
+		    FROM (SELECT p.title title,
+		                 p.url uri,
+		                 f.url favicon,
+		                 p.frecency frecency,
+		                 p.typed typed,
+		                 (SELECT b.parent
+		                    FROM moz_bookmarks b
+		                         JOIN moz_bookmarks t
+		                         ON t.id = b.parent
+		                         AND t.parent != (SELECT folder_id
+		                                            FROM moz_bookmarks_roots
+		                                           WHERE root_name = 'tags')
+		                   WHERE b.type = 1 AND b.fk = p.id
+		                   ORDER BY b.lastModified DESC LIMIT 1) parent,
+		                 (SELECT b.title
+		                    FROM moz_bookmarks b
+		                         JOIN moz_bookmarks t
+		                         ON t.id = b.parent
+		                         AND t.parent != (SELECT folder_id
+		                                            FROM moz_bookmarks_roots
+		                                           WHERE root_name = 'tags')
+		                   WHERE b.type = 1 AND b.fk = p.id
+		                   ORDER BY b.lastModified DESC LIMIT 1) bookmark,
+		                 (SELECT GROUP_CONCAT(t.title, ',')
+		                    FROM moz_bookmarks b
+		                         JOIN moz_bookmarks t
+		                         ON t.id = b.parent
+		                         AND t.parent = (SELECT folder_id
+		                                           FROM moz_bookmarks_roots
+		                                          WHERE root_name = 'tags')
+		                   WHERE b.type = 1 AND b.fk = p.id) tags
+		            FROM moz_places p
+		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
+		           WHERE p.frecency <> 0 AND p.hidden <> 1
+		           %SOURCES_LIMIT_PART%)
+		   GROUP BY uri)
 		 WHERE (%TERMS_RULES%)
 		       AND %EXCLUDE_JAVASCRIPT%
 		       AND %ONLY_TYPED%
