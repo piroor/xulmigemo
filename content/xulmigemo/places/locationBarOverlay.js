@@ -218,16 +218,21 @@ dump('START SEARCH '+input+'\n'); // DEBUG
 			{
 				aSelf.updateRegExp();
 				yield;
-				aSelf.updateTerms();
-var start = new Date(); // DEBUG
+//				aSelf.updateTerms();
 				var sources = XMigemoPlaces.placesSources;
 				var regexp = new RegExp(aSelf.lastRegExp, 'gim');
+				var source;
+				var terms;
 				while (true)
 				{
 					try {
-						aSelf.lastTerms = aSelf.lastTerms.concat(
-							sources.next().match(regexp) || []
-						);
+var start = new Date(); // DEBUG
+						source = sources.next();
+						terms = source.match(regexp) || [];
+var end = new Date(); // DEBUG
+dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, get terms ('+aSelf.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
+dump('source : '+source.length+'\nterms : '+terms.length+'\n'); // DEBUG
+						aSelf.lastTerms = aSelf.lastTerms.concat(terms);
 						yield;
 					}
 					catch(e) {
@@ -240,8 +245,7 @@ var start = new Date(); // DEBUG
 						.toLowerCase()
 						.replace(/^(.+)(\n\1$)+/gim, '$1')
 						.split('\n');
-var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, get terms ('+aSelf.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
+dump('final terms : '+aSelf.lastTerms.length+'\n'); // DEBUG
 				aSelf.updateResults();
 				yield;
 				aSelf.readyToBuild = true;
@@ -274,12 +278,15 @@ dump('XMigemoLocationBarOverlay.updateRegExp ('+this.lastInput+') : '+(end.getTi
 	updateTerms : function()
 	{
 var start = new Date(); // DEBUG
+		var source = XMigemoPlaces.placesSource;
 		this.lastTerms = XMigemoCore.getTermsFromSource(
 				this.lastRegExp,
-				XMigemoPlaces.placesSource
+				source
 			);
 var end = new Date(); // DEBUG
 dump('XMigemoLocationBarOverlay.updateTerms ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
+dump('source : '+source.length+'\n'); // DEBUG
+dump('final terms : '+this.lastTerms.length+'\n'); // DEBUG
 	},
 	updateResults : function()
 	{
@@ -391,7 +398,7 @@ var start = new Date(); // DEBUG
 			aSelf.panel.adjustHeight();
 			aSelf.bar.openPopup();
 var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.startBuild, BuildResultList ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
+dump('XMigemoLocationBarOverlay.startBuild, BuildResultList ('+aSelf.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		}
 
 		this.builder = BuildResultList(this);
