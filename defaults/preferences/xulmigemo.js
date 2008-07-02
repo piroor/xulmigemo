@@ -79,7 +79,7 @@ pref("xulmigemo.places.collectingStep",        2000);
 pref("xulmigemo.places.locationBar",           true);
 pref("xulmigemo.places.locationBar.ignoreURI", true);
 pref("xulmigemo.places.locationBar.delay",     250);
-pref("xulmigemo.places.locationBar.minLength", 0);
+pref("xulmigemo.places.locationBar.minLength", 2);
 pref("xulmigemo.places.locationBar.useThread", false);
 pref("xulmigemo.places.bookmarksPanel",        true);
 pref("xulmigemo.places.historyPanel",          true);
