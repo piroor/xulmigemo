@@ -214,10 +214,8 @@ var XMigemoLocationBarOverlay = {
 				var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
 				var controller = aSelf.bar.controller;
 				var builtCount = 0;
-				while (aSelf.updateResultsForRange(regexp, current, range) &&
-					aSelf.results.length < maxResults)
+				while (aSelf.updateResultsForRange(regexp, current, range))
 				{
-					yield;
 					if (aSelf.results.length) {
 						if (!builtCount) {
 							controller.searchStringOverride = aSelf.lastInput;
@@ -234,6 +232,8 @@ var XMigemoLocationBarOverlay = {
 						aSelf.bar.openPopup();
 						builtCount = aSelf.results.length;
 					}
+					if (aSelf.results.length >= maxResults) break;
+					yield;
 					current += range;
 				}
 			}
@@ -261,7 +261,8 @@ var XMigemoLocationBarOverlay = {
 	{
 		var sources = XMigemoPlaces.getPlacesSourceInRange(aStart, aRange);
 		if (!sources) return false;
-		var terms = sources.match(aRegExp) || [];
+		var terms = sources.match(aRegExp);
+		if (!terms) return true;
 		terms =terms
 				.join('\n')
 				.toLowerCase()
