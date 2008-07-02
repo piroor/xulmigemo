@@ -145,11 +145,13 @@ var XMigemoLocationBarOverlay = {
 		controller.searchStringOverride = '';
 		controller.matchCountOverride   = 0;
 
-		if (!this.isMigemoActive ||
-			this.lastInput.replace(/^\s+|\s+$/g, '') == this.bar.value.replace(/^\s+|\s+$/g, ''))
+		if (this.lastInput.replace(/^\s+|\s+$/g, '') == this.bar.value.replace(/^\s+|\s+$/g, ''))
 			return;
 
-		this.stopDelayedStart();
+		this.clear();
+
+		if (!this.isMigemoActive) return;
+
 		this.delayedStartTimer = window.setTimeout(function(aSelf) {
 			aSelf.clear();
 			aSelf.lastInput = aSelf.bar.value;
