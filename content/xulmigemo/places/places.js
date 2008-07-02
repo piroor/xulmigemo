@@ -1,5 +1,9 @@
 var XMigemoPlaces = { 
 	 
+	TextUtils : Components 
+			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+			.getService(Components.interfaces.pIXMigemoTextUtils),
+ 	
 	get db() 
 	{
 		if (this._db !== void(0))
@@ -76,7 +80,7 @@ var XMigemoPlaces = {
 		         WHERE p.frecency <> 0 AND p.hidden <> 1
 		         LIMIT ?2,?3)
 	]]>.toString(),
- 	 
+  
 	get historySource() 
 	{
 		if (!this.db) return '';
@@ -146,11 +150,19 @@ var XMigemoPlaces = {
  
 	expandNavHistoryQuery : function(aQuery, aSource) 
 	{
-		var terms = XMigemoCore.getTermsForInputFromSource(
-				aQuery.searchTerms,
-				aSource,
-				XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces')
-			);
+		var terms = (
+				XMigemoService.getPref('xulmigemo.autostart.regExpFind') &&
+				this.TextUtils.isRegExp(aQuery.searchTerms)
+			) ?
+				XMigemoCore.getTermsFromSource(
+					this.TextUtils.extractRegExpSource(aQuery.searchTerms),
+					aSource
+				) :
+				XMigemoCore.getTermsForInputFromSource(
+					aQuery.searchTerms,
+					aSource,
+					XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces')
+				);
 		var queries = [];
 		if (terms.length) {
 			queries = queries
