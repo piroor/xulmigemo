@@ -75,7 +75,7 @@ pref("xulmigemo.find_delay",                    50);
 
 
 pref("xulmigemo.places.splitByWhiteSpaces",    true);
-pref("xulmigemo.places.collectingStep",        300);
+pref("xulmigemo.places.collectingStep",        100);
 pref("xulmigemo.places.locationBar",           true);
 pref("xulmigemo.places.locationBar.ignoreURI", true);
 pref("xulmigemo.places.locationBar.delay",     250);
