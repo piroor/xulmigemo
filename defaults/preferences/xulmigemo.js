@@ -74,17 +74,16 @@ pref("xulmigemo.cache.override.ja",             "migemocache.txt");
 pref("xulmigemo.find_delay",                    50);
 
 
-pref("xulmigemo.places.splitByWhiteSpaces",              true);
-pref("xulmigemo.places.collectingStep",                  2000);
-pref("xulmigemo.places.locationBar",                     true);
-pref("xulmigemo.places.locationBar.ignoreURI",           true);
-pref("xulmigemo.places.locationBar.delay",               250);
-pref("xulmigemo.places.locationBar.minLength",           3);
-pref("xulmigemo.places.locationBar.thread.findTerms",    false);
-pref("xulmigemo.places.locationBar.thread.queryRecords", false);
-pref("xulmigemo.places.bookmarksPanel",                  true);
-pref("xulmigemo.places.historyPanel",                    true);
-pref("xulmigemo.places.organizer",                       true);
+pref("xulmigemo.places.splitByWhiteSpaces",    true);
+pref("xulmigemo.places.collectingStep",        2000);
+pref("xulmigemo.places.locationBar",           true);
+pref("xulmigemo.places.locationBar.ignoreURI", true);
+pref("xulmigemo.places.locationBar.delay",     250);
+pref("xulmigemo.places.locationBar.minLength", 0);
+pref("xulmigemo.places.locationBar.useThread", false);
+pref("xulmigemo.places.bookmarksPanel",        true);
+pref("xulmigemo.places.historyPanel",          true);
+pref("xulmigemo.places.organizer",             true);
 
 pref("xulmigemo.mailnews.threadsearch.enabled", true);
 pref("xulmigemo.mailnews.threadsearch.body",    false);

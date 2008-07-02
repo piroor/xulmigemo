@@ -11,8 +11,7 @@ var XMigemoLocationBarOverlay = {
 	ignoreURI : true,
 	delay     : 250,
 	minLength : 3,
-	useThreadToFindTerms    : false,
-	useThreadToQueryRecords : true,
+	useThread : false,
  
 	Converter : Components 
 			.classes['@mozilla.org/intl/texttosuburi;1']
@@ -108,12 +107,8 @@ var XMigemoLocationBarOverlay = {
 				this.minLength = value;
 				return;
 
-			case 'xulmigemo.places.locationBar.thread.findTerms':
-				this.useThreadToFindTerms = value;
-				return;
-
-			case 'xulmigemo.places.locationBar.thread.queryRecords':
-				this.useThreadToQueryRecords = value;
+			case 'xulmigemo.places.locationBar.useThread':
+				this.useThread = value;
 				return;
 
 			default:
@@ -126,8 +121,7 @@ var XMigemoLocationBarOverlay = {
 		xulmigemo.places.locationBar.ignoreURI
 		xulmigemo.places.locationBar.delay
 		xulmigemo.places.locationBar.minLength
-		xulmigemo.places.locationBar.thread.findTerms
-		xulmigemo.places.locationBar.thread.queryRecords
+		xulmigemo.places.locationBar.useThread
 	]]>.toString(),
  
 	handleEvent : function(aEvent) 
@@ -190,14 +184,12 @@ dump('START SEARCH '+input+'\n'); // DEBUG
  
 	delayedStart : function() 
 	{
-		if (this.useThreadToFindTerms || this.useThreadToQueryRecords) { // thread mode
+		if (this.useThread) { // thread mode
 			if (this.thread)
 				this.thread.shutdown();
 			this.thread = this.ThreadManager.newThread(0);
 
 			this.updateRegExp();
-
-			if (!this.useThreadToFindTerms) this.updateTerms();
 
 			this.stopThreadFinish();
 			this.busy = true;
@@ -205,7 +197,6 @@ dump('START SEARCH '+input+'\n'); // DEBUG
 				if (!aSelf.readyToBuild) return;
 				aSelf.busy = false;
 				aSelf.stopThreadFinish();
-				if (!aSelf.useThreadToQueryRecords) aSelf.updateResults();
 				aSelf.onSearchComplete();
 			}, 10, this);
 
@@ -218,36 +209,16 @@ dump('START SEARCH '+input+'\n'); // DEBUG
 			{
 				aSelf.updateRegExp();
 				yield;
-//				aSelf.updateTerms();
-				var sources = XMigemoPlaces.placesSources;
 				var regexp = new RegExp(aSelf.lastRegExp, 'gim');
-				var source;
-				var terms;
-				while (true)
+				var maxResults = aSelf.panel.maxResults;
+				var current = 0;
+				var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
+				while (aSelf.updateResultsForRange(regexp, current, range) &&
+					aSelf.results.length < maxResults)
 				{
-					try {
-						source = sources.next();
-var start = new Date(); // DEBUG
-						terms = source.match(regexp) || [];
-var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, matching ('+aSelf.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
-dump('source : '+source.length+'\nterms : '+terms.length+'\n'); // DEBUG
-						aSelf.lastTerms = aSelf.lastTerms.concat(terms);
-						yield;
-					}
-					catch(e) {
-						break;
-					}
+					yield;
+					current += range;
 				}
-				aSelf.lastTerms =
-					aSelf.lastTerms
-						.join('\n')
-						.toLowerCase()
-						.replace(/^(.+)(\n\1$)+/gim, '$1')
-						.split('\n');
-dump('final terms : '+aSelf.lastTerms.length+'\n'); // DEBUG
-				aSelf.updateResults();
-				yield;
 				aSelf.readyToBuild = true;
 				aSelf.onSearchComplete();
 			}
@@ -275,25 +246,27 @@ var start = new Date(); // DEBUG
 var end = new Date(); // DEBUG
 dump('XMigemoLocationBarOverlay.updateRegExp ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 	},
-	updateTerms : function()
+	updateResultsForRange : function(aRegExp, aStart, aRange) 
 	{
+		var sources = XMigemoPlaces.getPlacesSourceInRange(aStart, aRange);
+		if (!sources) return false;
 var start = new Date(); // DEBUG
-		var source = XMigemoPlaces.placesSource;
-		this.lastTerms = XMigemoCore.getTermsFromSource(
-				this.lastRegExp,
-				source
-			);
+		var terms = sources.match(aRegExp) || [];
 var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.updateTerms ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
-dump('source : '+source.length+'\n'); // DEBUG
-dump('final terms : '+this.lastTerms.length+'\n'); // DEBUG
-	},
-	updateResults : function()
-	{
+dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, matching ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
+dump('source : '+sources.length+'\nterms : '+terms.length+'\n'); // DEBUG
+		terms =terms
+				.join('\n')
+				.toLowerCase()
+				.replace(/^(.+)(\n\1$)+/gim, '$1')
+				.split('\n');
 var start = new Date(); // DEBUG
-		this.results = XMigemoPlaces.findLocationBarItemsFromTerms(this.lastTerms);
+		results = XMigemoPlaces.findLocationBarItemsFromTerms(terms, aStart, aRange);
 var end = new Date(); // DEBUG
-dump('XMigemoLocationBarOverlay.updateResults ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
+dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, finding ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
+		this.lastTerms = this.lastTerms.concat(terms);
+		this.results = this.results.concat(results);
+		return true;
 	},
  
 	// for thread mode 
@@ -302,8 +275,15 @@ dump('XMigemoLocationBarOverlay.updateResults ('+this.lastInput+') : '+(end.getT
 	run : function()
 	{
 var start = new Date(); // DEBUG
-		if (this.useThreadToFindTerms) this.updateTerms();
-		if (this.useThreadToQueryRecords) this.updateResults();
+		var regexp = new RegExp(this.lastRegExp, 'gim');
+		var maxResults = this.panel.maxResults;
+		var current = 0;
+		var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
+		while (this.updateResultsForRange(regexp, current, range) &&
+			this.results.length < maxResults)
+		{
+			current += range;
+		}
 		this.readyToBuild = true;
 var end = new Date(); // DEBUG
 dump('XMigemoLocationBarOverlay.run ('+this.lastInput+') : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
