@@ -346,15 +346,8 @@ var XMigemoLocationBarOverlay = {
 		var node;
 		if (aIndex < existingCount) {
 			node = listbox.childNodes[aIndex];
-			var currentTerms = node.getAttribute('text').split(' ');
-			var newTerms = item.terms.split(' ');
-			if (
-				currentTerms.every(function(aTerm) {
-					return (newTerms.indexOf(aTerm) > -1)
-				}) &&
-				node.getAttribute('url') == item.uri
-				) {
-				node.setAttribute('text', item.terms);
+			if (node.getAttribute('text') == item.terms &&
+				node.getAttribute('url') == item.uri) {
 				node.collapsed = false;
 				return;
 			}
