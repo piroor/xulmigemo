@@ -59,27 +59,31 @@ dump('XMigemoPlaces.placeSource : '+(end.getTime() - start.getTime())+'\n'); // 
 		if (!this.db) return null;
 
 		var sql = <![CDATA[
-			    SELECT GROUP_CONCAT(p.title, ?1),
-			           GROUP_CONCAT(p.url, ?1),
-			           GROUP_CONCAT(b.title, ?1)
-			      FROM moz_places p
-			           LEFT JOIN moz_bookmarks b ON b.fk = p.id
-			     WHERE p.hidden <> 1 AND p.frecency <> 0
-			     LIMIT ?2,?3
-			  ]]>.toString();
+				SELECT GROUP_CONCAT(title, ?1),
+				       GROUP_CONCAT(uri, ?1),
+				       GROUP_CONCAT(bookmark, ?1)
+				  FROM (SELECT p.title title,
+				               p.url uri,
+				               b.title bookmark
+				          FROM moz_places p
+				          LEFT JOIN moz_bookmarks b ON b.fk = p.id
+				         WHERE p.hidden <> 1 AND p.frecency <> 0
+				         LIMIT ?2,?3)
+			]]>.toString();
 
+		var step = XMigemoService.getPref('xulmigemo.places.collectingStep');
 		function PlacesSources(aSelf)
 		{
-			var step = 500;
 			var current = 0;
 			var collected = [PlacesUtils.tagging.allTags.join('\n')];
 			var sources;
 			while (true)
 			{
+var start = new Date(); // DEBUG
 				var statement = aSelf.db.createStatement(sql);
 				statement.bindStringParameter(0, '\n');
 				statement.bindDoubleParameter(1, current);
-				statement.bindDoubleParameter(2, current+step);
+				statement.bindDoubleParameter(2, step);
 				current += step;
 				collected = [];
 				while(statement.executeStep())
@@ -90,6 +94,8 @@ dump('XMigemoPlaces.placeSource : '+(end.getTime() - start.getTime())+'\n'); // 
 				};
 				statement.reset();
 				sources = collected.join('\n');
+var end = new Date(); // DEBUG
+dump('XMigemoPlaces.placesSources, PlacesSources : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 				if (sources)
 					yield sources;
 				else
