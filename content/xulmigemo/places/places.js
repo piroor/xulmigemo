@@ -79,6 +79,7 @@ dump('XMigemoPlaces.placeSource : '+(end.getTime() - start.getTime())+'\n'); // 
 			var sources;
 			while (true)
 			{
+dump('from '+current+' to '+step+'\n');
 var start = new Date(); // DEBUG
 				var statement = aSelf.db.createStatement(sql);
 				statement.bindStringParameter(0, '\n');
@@ -93,7 +94,7 @@ var start = new Date(); // DEBUG
 					collected.push(statement.getString(2));
 				};
 				statement.reset();
-				sources = collected.join('\n');
+				sources = collected.join('\n').replace(/^\s+|\s+$/g, '');
 var end = new Date(); // DEBUG
 dump('XMigemoPlaces.placesSources, PlacesSources : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 				if (sources)
