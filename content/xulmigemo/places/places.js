@@ -26,7 +26,6 @@ var XMigemoPlaces = {
 	get placesSource() 
 	{
 		if (!this.db) return '';
-var start = new Date(); // DEBUG
 
 		var statement = this.db.createStatement(<![CDATA[
 		    SELECT GROUP_CONCAT(p.title, ?1),
@@ -48,8 +47,6 @@ var start = new Date(); // DEBUG
 		statement.reset();
 
 		sources.push(PlacesUtils.tagging.allTags.join('\n'));
-var end = new Date(); // DEBUG
-dump('XMigemoPlaces.placeSource : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 
 		return sources.join('\n');
 	},
@@ -85,7 +82,6 @@ dump('XMigemoPlaces.placeSource : '+(end.getTime() - start.getTime())+'\n'); // 
 		aRange = Math.max(0, aRange);
 		if (!aRange) return '';
 
-var start = new Date(); // DEBUG
 		var statement = this.db.createStatement(this.placesSourceInRangeSQL);
 		statement.bindStringParameter(0, '\n');
 		statement.bindDoubleParameter(1, aStart);
@@ -100,8 +96,6 @@ var start = new Date(); // DEBUG
 			sources.push(statement.getString(2));
 		};
 		statement.reset();
-var end = new Date(); // DEBUG
-dump('XMigemoPlaces.placesSources, getPlacesSourceInRange : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		return sources.join('\n').replace(/^\s+|\s+$/g, '');
 	},
 	placesSourceInRangeSQL : <![CDATA[
@@ -120,7 +114,6 @@ dump('XMigemoPlaces.placesSources, getPlacesSourceInRange : '+(end.getTime() - s
 	get historySource() 
 	{
 		if (!this.db) return '';
-var start = new Date(); // DEBUG
 
 		var statement = this.db.createStatement(<![CDATA[
 		    SELECT GROUP_CONCAT(title, ?1),
@@ -139,15 +132,12 @@ var start = new Date(); // DEBUG
 		statement.reset();
 
 		sources.push(PlacesUtils.tagging.allTags.join('\n'));
-var end = new Date(); // DEBUG
-dump('XMigemoPlaces.historySource : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		return sources.join('\n');
 	},
  
 	get bookmarksSource() 
 	{
 		if (!this.db) return '';
-var start = new Date(); // DEBUG
 
 		var statement = this.db.createStatement(<![CDATA[
 		    SELECT GROUP_CONCAT(b.title, ?1),
@@ -166,8 +156,6 @@ var start = new Date(); // DEBUG
 		statement.reset();
 
 		sources.push(PlacesUtils.tagging.allTags.join('\n'));
-var end = new Date(); // DEBUG
-dump('XMigemoPlaces.bookmarksSource : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		return sources.join('\n');
 	},
   
@@ -192,7 +180,6 @@ dump('XMigemoPlaces.bookmarksSource : '+(end.getTime() - start.getTime())+'\n');
  
 	expandNavHistoryQuery : function(aQuery, aSource) 
 	{
-var start = new Date(); // DEBUG
 		var terms = XMigemoCore.getTermsForInputFromSource(
 				aQuery.searchTerms,
 				aSource,
@@ -210,8 +197,6 @@ var start = new Date(); // DEBUG
 		else {
 			queries.push(aQuery);
 		}
-var end = new Date(); // DEBUG
-dump('XMigemoPlaces.expandNavHistoryQuery : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		return queries;
 	},
  
@@ -219,7 +204,6 @@ dump('XMigemoPlaces.expandNavHistoryQuery : '+(end.getTime() - start.getTime())+
 	{
 		var items = [];
 		if (!aTerms.length) return items;
-var start = new Date(); // DEBUG
 
 		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
 		// see nsNavHistoryAytoComplete.cpp
@@ -300,8 +284,6 @@ var start = new Date(); // DEBUG
 		finally {
 			statement.reset();
 		}
-var end = new Date(); // DEBUG
-dump('XMigemoPlaces.findLocationBarItemsFromTerms : '+(end.getTime() - start.getTime())+'\n'); // DEBUG
 		return items;
 	},
 	 
