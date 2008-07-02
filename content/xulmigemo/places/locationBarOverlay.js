@@ -4,8 +4,7 @@ var XMigemoLocationBarOverlay = {
 	lastInput : '',
 	lastTerms : [],
 	lastRegExp : '',
-	readyToBuild : false,
-	searchCompleted : false,
+	thread : null,
 
 	enabled   : true,
 	ignoreURI : true,
@@ -160,80 +159,36 @@ var XMigemoLocationBarOverlay = {
 		}, this.delay, this);
 	},
 	 
-	stopDelayedStart : function() 
-	{
-		if (!this.delayedStartTimer) return;
-		window.clearTimeout(this.delayedStartTimer);
-		this.delayedStartTimer = null;
-	},
- 
-	stopDelayedRunning : function() 
-	{
-		if (!this.delayedRunningTimer) return;
-		window.clearInterval(this.delayedRunningTimer);
-		this.delayedRunningTimer = null;
-	},
- 
-	stopThreadFinish : function() 
-	{
-		if (!this.threadFinishTimer) return;
-		window.clearInterval(this.threadFinishTimer);
-		this.threadFinishTimer = null;
-	},
- 
 	delayedStart : function() 
 	{
 		this.bar.controller.stopSearch();
+		this.updateRegExp();
+		this.builtCount = 0;
+		this.busy = true;
 
 		if (this.useThread) { // thread mode
-			if (this.thread)
-				this.thread.shutdown();
 			this.thread = this.ThreadManager.newThread(0);
-
-			this.updateRegExp();
-
-			this.stopThreadFinish();
-			this.busy = true;
-			this.threadFinishTimer = window.setInterval(function(aSelf) {
-				if (!aSelf.readyToBuild) return;
-				aSelf.busy = false;
-				aSelf.stopThreadFinish();
-				aSelf.onSearchComplete();
-			}, 10, this);
+			this.threadDone = false;
+			var maxResults = this.panel.maxResults;
+			this.progressiveBuildTimer = window.setInterval(function(aSelf) {
+				aSelf.progressiveBuild();
+				if (aSelf.threadDone ||
+					aSelf.results.length >= maxResults)
+					aSelf.stopProgressiveBuild();
+			}, 1, this);
 
 			this.thread.dispatch(this, this.thread.DISPATCH_NORMAL);
-			return;
 		}
 		else { // timer mode
-			this.busy = true;
 			function DelayedRunner(aSelf)
 			{
-				aSelf.updateRegExp();
-				yield;
 				var regexp = new RegExp(aSelf.lastRegExp, 'gim');
 				var maxResults = aSelf.panel.maxResults;
 				var current = 0;
 				var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
-				var controller = aSelf.bar.controller;
-				var builtCount = 0;
 				while (aSelf.updateResultsForRange(regexp, current, range))
 				{
-					if (aSelf.results.length) {
-						if (!builtCount) {
-							controller.searchStringOverride = aSelf.lastInput;
-							aSelf.clearListbox();
-						}
-						aSelf.busy = false;
-						for (let i = builtCount, maxi = aSelf.results.length; i < maxi; i++)
-						{
-							aSelf.buildItemAt(i);
-						}
-						controller.resultsOverride = aSelf.results;
-						controller.matchCountOverride = aSelf.results.length;
-						aSelf.panel.adjustHeight();
-						aSelf.bar.openPopup();
-						builtCount = aSelf.results.length;
-					}
+					aSelf.progressiveBuild();
 					if (aSelf.results.length >= maxResults) break;
 					yield;
 					current += range;
@@ -241,24 +196,52 @@ var XMigemoLocationBarOverlay = {
 			}
 			var runner = DelayedRunner(this);
 
-			this.stopDelayedRunning();
-			this.delayedRunningTimer = window.setInterval(function(aSelf) {
+			this.progressiveBuildTimer = window.setInterval(function(aSelf) {
 				try {
 					runner.next();
 				}
 				catch(e) {
-					aSelf.stopDelayedRunning();
+					aSelf.stopProgressiveBuild();
 				}
 			}, 1, this);
 		}
 	},
- 	 
+ 
+	stopDelayedStart : function() 
+	{
+		if (!this.delayedStartTimer) return;
+		window.clearTimeout(this.delayedStartTimer);
+		this.delayedStartTimer = null;
+	},
+  
+	// nsIRunnable 
+	run : function()
+	{
+		var regexp = new RegExp(this.lastRegExp, 'gim');
+		var maxResults = this.panel.maxResults;
+		var current = 0;
+		var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
+		while (this.updateResultsForRange(regexp, current, range) &&
+			this.results.length < maxResults)
+		{
+			current += range;
+		}
+		this.threadDone = true;
+	},
+	QueryInterface : function(aIID) {
+		if (aIID.equals(Components.interfaces.nsIRunnable) ||
+			aIID.equals(Components.interfaces.nsISupports))
+			return this;
+		throw Components.results.NS_ERROR_NO_INTERFACE;
+	},
+  
 	updateRegExp : function() 
 	{
 		this.lastRegExp = XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
 				XMigemoCore.getRegExpForANDFind(this.lastInput) :
 				XMigemoCore.getRegExp(this.lastInput);
 	},
+ 
 	updateResultsForRange : function(aRegExp, aStart, aRange) 
 	{
 		var sources = XMigemoPlaces.getPlacesSourceInRange(aStart, aRange);
@@ -276,99 +259,52 @@ var XMigemoLocationBarOverlay = {
 		return true;
 	},
  
-	// for thread mode 
-	thread : null,
-	threadFinishTimer : null,
-	run : function()
-	{
-		var regexp = new RegExp(this.lastRegExp, 'gim');
-		var maxResults = this.panel.maxResults;
-		var current = 0;
-		var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
-		while (this.updateResultsForRange(regexp, current, range) &&
-			this.results.length < maxResults)
-		{
-			current += range;
-		}
-		this.readyToBuild = true;
-	},
-	QueryInterface : function(aIID) {
-		if (aIID.equals(Components.interfaces.nsIRunnable) ||
-			aIID.equals(Components.interfaces.nsISupports))
-			return this;
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
- 
-	onSearchComplete : function() 
-	{
-		if (!this.readyToBuild) return;
-		window.setTimeout(function(aSelf) {
-			aSelf.startBuild();
-		}, 0, this);
-		this.readyToBuild = false;
-	},
-  
 	clear : function() 
 	{
 		this.stopDelayedStart();
-		this.stopDelayedRunning();
-		this.stopThreadFinish();
-		this.stopBuild();
+		this.stopProgressiveBuild();
 
 		this.results = [];
 		this.lastInput = '';
 		this.lastTerms = [];
 		this.lastRegExp = '';
-		this.readyToBuild = false;
+		this.threadDone = true;
 	},
  
 /* build popup */ 
+	builtCount : 0,
 	 
-	startBuild : function() 
+	progressiveBuild : function() 
 	{
-		function BuildResultList(aSelf)
-		{
-			const chunk = aSelf.panel.maxRows;
-			var count = 0;
-			var item, node, existingCount;
-			for (let i = 0, maxi = aSelf.results.length; i < maxi; i++)
-			{
-				if (count++ > chunk) {
-					yield;
-					count = 0;
-				}
-				aSelf.buildItemAt(i);
-			}
+		if (!this.results.length ||
+			this.results.length == this.builtCount)
+			return;
 
-			var controller = aSelf.bar.controller;
-			controller.resultsOverride = aSelf.results;
-			controller.searchStringOverride = aSelf.lastInput;
-			controller.matchCountOverride = items.length;
-			aSelf.panel.adjustHeight();
-			aSelf.bar.openPopup();
+		var controller = this.bar.controller;
+		if (!this.builtCount) {
+			controller.searchStringOverride = this.lastInput;
+			this.clearListbox();
 		}
-
-		this.builder = BuildResultList(this);
-		this.buildingTimer = window.setInterval(function(aSelf) {
-			try {
-				aSelf.builder.next();
-			}
-			catch(e) {
-				aSelf.stopBuild();
-			}
-		}, 1, this);
+		this.busy = false;
+		for (let i = this.builtCount, maxi = this.results.length; i < maxi; i++)
+		{
+			this.buildItemAt(i);
+		}
+		controller.resultsOverride = this.results;
+		controller.matchCountOverride = this.results.length;
+		this.panel.adjustHeight();
+		this.bar.openPopup();
+		this.builtCount = this.results.length;
 	},
  
-	stopBuild : function() 
+	stopProgressiveBuild : function() 
 	{
-		if (!this.buildingTimer) return;
-		window.clearInterval(this.buildingTimer);
-		this.buildingTimer = null;
-		this.builder = null;
+		if (!this.progressiveBuildTimer) return;
+		window.clearInterval(this.progressiveBuildTimer);
+		this.progressiveBuildTimer = null;
+		if (this.thread)
+			this.thread.shutdown();
 	},
- 
-	builder : null, 
-	buildingimer : null,
  
 	buildItemAt : function(aIndex) 
 	{
@@ -412,7 +348,7 @@ var XMigemoLocationBarOverlay = {
 		}
 	},
  
-	clearListbox : function()
+	clearListbox : function() 
 	{
 		const items = this.listbox.children;
 		Array.prototype.slice.call(items).forEach(function(aItem) {
@@ -430,19 +366,13 @@ var XMigemoLocationBarOverlay = {
 		XMigemoService.addPrefListener(this);
 		window.addEventListener('unload', this, false);
 	},
-	
+	 
 	overrideFunctions : function() 
 	{
 		eval('LocationBarHelpers._searchBegin = '+
 			LocationBarHelpers._searchComplete.toSource().replace(
 				/(\}\))?$/,
 				'XMigemoLocationBarOverlay.onSearchBegin(); $1'
-			)
-		);
-		eval('LocationBarHelpers._searchComplete = '+
-			LocationBarHelpers._searchComplete.toSource().replace(
-				/(\}\))?$/,
-				'XMigemoLocationBarOverlay.onSearchComplete(); $1'
 			)
 		);
 
@@ -476,7 +406,7 @@ var XMigemoLocationBarOverlay = {
 			};
 		}
 	},
- 
+ 	
 	initLocationBar : function() 
 	{
 		var bar = this.bar;

@@ -22,58 +22,7 @@ var XMigemoPlaces = {
 		return this._db;
 	},
 //	_db : null,
-	
-	get placesSource() 
-	{
-		if (!this.db) return '';
-
-		var statement = this.db.createStatement(<![CDATA[
-		    SELECT GROUP_CONCAT(p.title, ?1),
-		           GROUP_CONCAT(p.url, ?1),
-		           GROUP_CONCAT(b.title, ?1)
-		      FROM moz_places p
-		           LEFT JOIN moz_bookmarks b ON b.fk = p.id
-		     WHERE p.hidden <> 1 AND p.frecency <> 0
-		  ]]>.toString());
-		statement.bindStringParameter(0, '\n');
-
-		var sources = [];
-		while(statement.executeStep())
-		{
-			sources.push(statement.getString(0));
-			sources.push(statement.getString(1));
-			sources.push(statement.getString(2));
-		};
-		statement.reset();
-
-		sources.push(PlacesUtils.tagging.allTags.join('\n'));
-
-		return sources.join('\n');
-	},
- 
-	get placesSources() 
-	{
-		if (!this.db) return null;
-
-		var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
-		function PlacesSources(aSelf)
-		{
-			var current = 0;
-			var sources;
-			while (true)
-			{
-				sources = aSelf.getPlacesSourceInRange(current, range);
-				if (sources)
-					yield sources;
-				else
-					break;
-				current += range;
-			}
-		}
-
-		return PlacesSources(this);
-	},
- 
+	 
 	getPlacesSourceInRange : function(aStart, aRange) 
 	{
 		if (!this.db) return '';
@@ -98,7 +47,8 @@ var XMigemoPlaces = {
 		statement.reset();
 		return sources.join('\n').replace(/^\s+|\s+$/g, '');
 	},
-	placesSourceInRangeSQL : <![CDATA[
+	 
+	placesSourceInRangeSQL : <![CDATA[ 
 		SELECT GROUP_CONCAT(title, ?1),
 		       GROUP_CONCAT(uri, ?1),
 		       GROUP_CONCAT(bookmark, ?1)
@@ -110,7 +60,7 @@ var XMigemoPlaces = {
 		         WHERE p.hidden <> 1 AND p.frecency <> 0
 		         LIMIT ?2,?3)
 	]]>.toString(),
- 
+ 	 
 	get historySource() 
 	{
 		if (!this.db) return '';
@@ -330,6 +280,6 @@ var XMigemoPlaces = {
 		 ORDER BY frecency DESC
 		 LIMIT 0,?1
 	]]>.toString()
- 	 
+  
 }; 
   
