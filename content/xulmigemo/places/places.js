@@ -26,6 +26,7 @@ var XMigemoPlaces = {
 	get placesSource() 
 	{
 		if (!this.db) return '';
+var start = new Date(); // DEBUG
 
 		var statement = this.db.createStatement(<![CDATA[
 		    SELECT GROUP_CONCAT(p.title, ?1),
@@ -47,6 +48,9 @@ var XMigemoPlaces = {
 		statement.reset();
 
 		sources.push(PlacesUtils.tagging.allTags.join('\n'));
+var end = new Date(); // DEBUG
+dump('XMigemoPlaces.placeSource : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+
 		return sources.join('\n');
 	},
  
@@ -99,6 +103,7 @@ var XMigemoPlaces = {
 	get historySource() 
 	{
 		if (!this.db) return '';
+var start = new Date(); // DEBUG
 
 		var statement = this.db.createStatement(<![CDATA[
 		    SELECT GROUP_CONCAT(title, ?1),
@@ -117,12 +122,15 @@ var XMigemoPlaces = {
 		statement.reset();
 
 		sources.push(PlacesUtils.tagging.allTags.join('\n'));
+var end = new Date(); // DEBUG
+dump('XMigemoPlaces.historySource : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
 		return sources.join('\n');
 	},
  
 	get bookmarksSource() 
 	{
 		if (!this.db) return '';
+var start = new Date(); // DEBUG
 
 		var statement = this.db.createStatement(<![CDATA[
 		    SELECT GROUP_CONCAT(b.title, ?1),
@@ -141,6 +149,8 @@ var XMigemoPlaces = {
 		statement.reset();
 
 		sources.push(PlacesUtils.tagging.allTags.join('\n'));
+var end = new Date(); // DEBUG
+dump('XMigemoPlaces.bookmarksSource : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
 		return sources.join('\n');
 	},
   
@@ -165,6 +175,7 @@ var XMigemoPlaces = {
  
 	expandNavHistoryQuery : function(aQuery, aSource) 
 	{
+var start = new Date(); // DEBUG
 		var terms = XMigemoCore.getTermsForInputFromSource(
 				aQuery.searchTerms,
 				aSource,
@@ -182,6 +193,8 @@ var XMigemoPlaces = {
 		else {
 			queries.push(aQuery);
 		}
+var end = new Date(); // DEBUG
+dump('XMigemoPlaces.expandNavHistoryQuery : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
 		return queries;
 	},
  
@@ -189,6 +202,7 @@ var XMigemoPlaces = {
 	{
 		var items = [];
 		if (!aTerms.length) return items;
+var start = new Date(); // DEBUG
 
 		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
 		// see nsNavHistoryAytoComplete.cpp
@@ -254,6 +268,8 @@ var XMigemoPlaces = {
 		finally {
 			statement.reset();
 		}
+var end = new Date(); // DEBUG
+dump('XMigemoPlaces.findLocationBarItemsFromTerms : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
 		return items;
 	},
 	 

@@ -146,7 +146,6 @@ var XMigemoLocationBarOverlay = {
  
 	onSearchBegin : function() 
 	{
-//dump('onSearchBegin\n');
 		var controller = this.bar.controller;
 		controller.resultsOverride      = [];
 		controller.searchStringOverride = '';
@@ -156,21 +155,40 @@ var XMigemoLocationBarOverlay = {
 		if (!this.shouldStart || this.lastInput == input)
 			return;
 
-		this.stopBuild();
 		this.clear();
 
 		this.lastInput = input;
 		if (!input) return;
 
-		if (this.delayedStartTimer)
-			window.clearTimeout(this.delayedStartTimer);
-
+dump('START SEARCH '+input+'\n'); // DEBUG
 		this.delayedStartTimer = window.setTimeout(function(aSelf) {
-			aSelf.delayedStartTimer = null;
+			aSelf.stopDelayedStart();
 			aSelf.delayedStart();
 		}, this.delay, this);
 	},
-	delayedStart : function()
+	 
+	stopDelayedStart : function() 
+	{
+		if (!this.delayedStartTimer) return;
+		window.clearTimeout(this.delayedStartTimer);
+		this.delayedStartTimer = null;
+	},
+ 
+	stopDelayedRunning : function() 
+	{
+		if (!this.delayedRunningTimer) return;
+		window.clearInterval(this.delayedRunningTimer);
+		this.delayedRunningTimer = null;
+	},
+ 
+	stopThreadFinish : function() 
+	{
+		if (!this.threadFinishTimer) return;
+		window.clearInterval(this.threadFinishTimer);
+		this.threadFinishTimer = null;
+	},
+ 
+	delayedStart : function() 
 	{
 		if (this.useThreadToFindTerms || this.useThreadToQueryRecords) { // thread mode
 			if (this.thread)
@@ -181,18 +199,14 @@ var XMigemoLocationBarOverlay = {
 
 			if (!this.useThreadToFindTerms) this.updateTerms();
 
-			if (this.threadFinishTimer) {
-				window.clearInterval(this.threadFinishTimer);
-			}
-//			this.busy = true;
+			this.stopThreadFinish();
+			this.busy = true;
 			this.threadFinishTimer = window.setInterval(function(aSelf) {
 				if (!aSelf.readyToBuild) return;
-//				aSelf.busy = false;
-				window.clearInterval(aSelf.threadFinishTimer);
-				aSelf.threadFinishTimer = null;
+				aSelf.busy = false;
+				aSelf.stopThreadFinish();
 				if (!aSelf.useThreadToQueryRecords) aSelf.updateResults();
 				aSelf.onSearchComplete();
-				return;
 			}, 10, this);
 
 			this.thread.dispatch(this, this.thread.DISPATCH_NORMAL);
@@ -205,6 +219,7 @@ var XMigemoLocationBarOverlay = {
 				aSelf.updateRegExp();
 				yield;
 				aSelf.updateTerms();
+var start = new Date(); // DEBUG
 				var sources = XMigemoPlaces.placesSources;
 				var regexp = new RegExp(aSelf.lastRegExp, 'gim');
 				while (true)
@@ -225,6 +240,8 @@ var XMigemoLocationBarOverlay = {
 						.toLowerCase()
 						.replace(/^(.+)(\n\1$)+/gim, '$1')
 						.split('\n');
+var end = new Date(); // DEBUG
+dump('XMigemoLocationBarOverlay.delayedStart, DelayedRunner, get terms ('+aSelf.lastInput+') : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
 				aSelf.updateResults();
 				yield;
 				aSelf.readyToBuild = true;
@@ -232,48 +249,57 @@ var XMigemoLocationBarOverlay = {
 			}
 			var runner = DelayedRunner(this);
 
-			if (this.delayedRunningTimer)
-				window.clearInterval(this.delayedRunningTimer);
-
+			this.stopDelayedRunning();
 			this.delayedRunningTimer = window.setInterval(function(aSelf) {
 				try {
 					runner.next();
 				}
 				catch(e) {
-					window.clearInterval(aSelf.delayedRunningTimer);
-					aSelf.delayedRunningTimer = null;
+					aSelf.stopDelayedRunning();
 					aSelf.busy = false;
 				}
 			}, 1, this);
 		}
 	},
- 
+ 	 
 	updateRegExp : function() 
 	{
+var start = new Date(); // DEBUG
 		this.lastRegExp = XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
 				XMigemoCore.getRegExpForANDFind(this.lastInput) :
 				XMigemoCore.getRegExp(this.lastInput);
+var end = new Date(); // DEBUG
+dump('XMigemoLocationBarOverlay.updateRegExp ('+this.lastInput+') : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
 	},
-	updateTerms : function() 
+	updateTerms : function()
 	{
+var start = new Date(); // DEBUG
 		this.lastTerms = XMigemoCore.getTermsFromSource(
 				this.lastRegExp,
 				XMigemoPlaces.placesSource
 			);
+var end = new Date(); // DEBUG
+dump('XMigemoLocationBarOverlay.updateTerms ('+this.lastInput+') : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
 	},
-	updateResults : function() 
+	updateResults : function()
 	{
+var start = new Date(); // DEBUG
 		this.results = XMigemoPlaces.findLocationBarItemsFromTerms(this.lastTerms);
+var end = new Date(); // DEBUG
+dump('XMigemoLocationBarOverlay.updateResults ('+this.lastInput+') : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
 	},
  
-	// for thread mode
+	// for thread mode 
 	thread : null,
 	threadFinishTimer : null,
 	run : function()
 	{
+var start = new Date(); // DEBUG
 		if (this.useThreadToFindTerms) this.updateTerms();
 		if (this.useThreadToQueryRecords) this.updateResults();
 		this.readyToBuild = true;
+var end = new Date(); // DEBUG
+dump('XMigemoLocationBarOverlay.run ('+this.lastInput+') : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
 	},
 	QueryInterface : function(aIID) {
 		if (aIID.equals(Components.interfaces.nsIRunnable) ||
@@ -284,9 +310,7 @@ var XMigemoLocationBarOverlay = {
  
 	onSearchComplete : function() 
 	{
-//dump('onSearchComplete\n');
 		if (this.readyToBuild || this.searchCompleted) {
-//dump('readyToBuild\n');
 			window.setTimeout(function(aSelf) {
 				aSelf.startBuild();
 			}, 0, this);
@@ -297,6 +321,100 @@ var XMigemoLocationBarOverlay = {
 			this.searchCompleted = true;
 		}
 	},
+  
+	clear : function() 
+	{
+		this.stopDelayedStart();
+		this.stopDelayedRunning();
+		this.stopThreadFinish();
+		this.stopBuild();
+
+		this.results = [];
+		this.lastInput = '';
+		this.lastTerms = [];
+		this.lastRegExp = '';
+		this.readyToBuild = false;
+	},
+ 
+/* build popup */ 
+	 
+	startBuild : function() 
+	{
+		function BuildResultList(aSelf)
+		{
+var start = new Date(); // DEBUG
+			const listbox = aSelf.listbox;
+			const items = aSelf.results;
+			const chunk = aSelf.panel.maxRows;
+			var count = 0;
+			var item, node, existingCount;
+			for (let i = 0, maxi = items.length; i < maxi; i++)
+			{
+				if (count++ > chunk) {
+					yield;
+					count = 0;
+				}
+
+				existingCount = listbox.children.length;
+				item = items[i];
+				item.uri = aSelf.Converter.unEscapeURIForUI('UTF-8', item.uri);
+				if (i < existingCount) {
+					node = listbox.childNodes[i];
+					if (node.getAttribute('text') == item.terms &&
+						node.getAttribute('url') == item.uri) {
+						node.collapsed = false;
+						continue;
+					}
+				}
+				else {
+					node = document.createElementNS(aSelf.kXULNS, 'richlistitem');
+				}
+				node.setAttribute('image', 'moz-anno:favicon:'+item.icon);
+				node.setAttribute('url', item.uri);
+				node.setAttribute('title', item.title + (item.tags ? ' \u2013 ' + item.tags : '' ));
+				node.setAttribute('type', item.style);
+				node.setAttribute('text', item.terms);
+				if (i < existingCount) {
+					node._adjustAcItem();
+					node.collapsed = false;
+				}
+				else {
+					node.className = 'autocomplete-richlistitem';
+					listbox.appendChild(node);
+				}
+			}
+
+			var controller = aSelf.bar.controller;
+			controller.resultsOverride = aSelf.results;
+			controller.searchStringOverride = aSelf.lastInput;
+			controller.matchCountOverride = items.length;
+			aSelf.panel.adjustHeight();
+			aSelf.bar.openPopup();
+var end = new Date(); // DEBUG
+dump('XMigemoLocationBarOverlay.startBuild, BuildResultList ('+this.lastInput+') : '+(end.getTime() - starg.getTime())+'\n'); // DEBUG
+		}
+
+		this.builder = BuildResultList(this);
+		this.buildingTimer = window.setInterval(function(aSelf) {
+			try {
+				aSelf.builder.next();
+			}
+			catch(e) {
+				aSelf.stopBuild();
+			}
+		}, 1, this);
+	},
+ 
+	stopBuild : function() 
+	{
+		if (!this.buildingTimer) return;
+		window.clearInterval(this.buildingTimer);
+		this.buildingTimer = null;
+		this.builder = null;
+	},
+ 
+	builder : null, 
+	buildingimer : null,
   
 	init : function() 
 	{
@@ -399,9 +517,11 @@ var XMigemoLocationBarOverlay = {
 				return this.controller.handleText(aIgnoreSelection);
 			},
 			handleEnter : function(aIsPopupSelection) {
+				this.service.clear();
 				return this.controller.handleEnter(aIsPopupSelection);
 			},
 			handleEscape : function() {
+				this.service.clear();
 				var retval = this.controller.handleEscape();
 				if (retval &&
 					this.input.textValue == this.searchString &&
@@ -420,7 +540,6 @@ var XMigemoLocationBarOverlay = {
 				return this.controller.handleTab();
 			},
 			handleKeyNavigation : function(aKey) {
-//dump('handleKeyNavigation\n');
 				const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
 				var input = this.input;
 				var popup = input.popup;
@@ -432,7 +551,6 @@ var XMigemoLocationBarOverlay = {
 						aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN
 					) && popup.mPopupOpen
 					) {
-//dump('overridden\n');
 					var reverse = (aKey == nsIDOMKeyEvent.DOM_VK_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP);
 					var page = (aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN);
 					var completeSelection = input.completeSelectedIndex;
@@ -506,94 +624,7 @@ var XMigemoLocationBarOverlay = {
 		bar.mController.stopSearch();
 		bar.mController.service = null;
 		bar.mController = bar.__xmigemo__mController;
-	},
-  
-	clear : function() 
-	{
-		this.results = [];
-		this.lastInput = '';
-		this.lastTerms = [];
-		this.lastRegExp = '';
-		this.readyToBuild = false;
-	},
- 	
-/* build popup */ 
-	 
-	startBuild : function() 
-	{
-//dump('startBuild\n');
-		function BuildResultList(aSelf)
-		{
-			const listbox = aSelf.listbox;
-			const items = aSelf.results;
-			const chunk = aSelf.panel.maxRows;
-			var count = 0;
-			var item, node, existingCount;
-			for (let i = 0, maxi = items.length; i < maxi; i++)
-			{
-				if (count++ > chunk) {
-					yield;
-					count = 0;
-				}
-
-				existingCount = listbox.children.length;
-				item = items[i];
-				item.uri = aSelf.Converter.unEscapeURIForUI('UTF-8', item.uri);
-				if (i < existingCount) {
-					node = listbox.childNodes[i];
-					if (node.getAttribute('text') == item.terms &&
-						node.getAttribute('url') == item.uri) {
-						node.collapsed = false;
-						continue;
-					}
-				}
-				else {
-					node = document.createElementNS(aSelf.kXULNS, 'richlistitem');
-				}
-				node.setAttribute('image', 'moz-anno:favicon:'+item.icon);
-				node.setAttribute('url', item.uri);
-				node.setAttribute('title', item.title + (item.tags ? ' \u2013 ' + item.tags : '' ));
-				node.setAttribute('type', item.style);
-				node.setAttribute('text', item.terms);
-				if (i < existingCount) {
-					node._adjustAcItem();
-					node.collapsed = false;
-				}
-				else {
-					node.className = 'autocomplete-richlistitem';
-					listbox.appendChild(node);
-				}
-			}
-
-			var controller = aSelf.bar.controller;
-			controller.resultsOverride = aSelf.results;
-			controller.searchStringOverride = aSelf.lastInput;
-			controller.matchCountOverride = items.length;
-			aSelf.panel.adjustHeight();
-			aSelf.bar.openPopup();
-		}
-
-		this.builder = BuildResultList(this);
-		this.buildingTimer = window.setInterval(function(aSelf) {
-			try {
-				aSelf.builder.next();
-			}
-			catch(e) {
-				aSelf.stopBuild();
-			}
-		}, 1, this);
-	},
- 
-	stopBuild : function() 
-	{
-		if (!this.buildingTimer) return;
-		window.clearInterval(this.buildingTimer);
-		this.buildingTimer = null;
-		this.builder = null;
-	},
- 
-	builder : null, 
-	buildingimer : null
+	}
   
 }; 
  
