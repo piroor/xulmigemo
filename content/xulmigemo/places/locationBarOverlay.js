@@ -69,7 +69,7 @@ var XMigemoLocationBarOverlay = {
 		return aValue;
 	},
  
-	get shouldStart() 
+	get isMigemoActive() 
 	{
 		var input = this.bar.value;
 		return (
@@ -145,7 +145,7 @@ var XMigemoLocationBarOverlay = {
 		controller.searchStringOverride = '';
 		controller.matchCountOverride   = 0;
 
-		if (!this.shouldStart ||
+		if (!this.isMigemoActive ||
 			this.lastInput.replace(/^\s+|\s+$/g, '') == this.bar.value.replace(/^\s+|\s+$/g, ''))
 			return;
 
@@ -153,9 +153,8 @@ var XMigemoLocationBarOverlay = {
 		this.delayedStartTimer = window.setTimeout(function(aSelf) {
 			aSelf.clear();
 			aSelf.lastInput = aSelf.bar.value;
-			if (!aSelf.lastInput) return;
-			aSelf.stopDelayedStart();
-			aSelf.delayedStart();
+			if (aSelf.lastInput)
+				aSelf.delayedStart();
 		}, this.delay, this);
 	},
 	 
@@ -182,6 +181,8 @@ var XMigemoLocationBarOverlay = {
  
 	delayedStart : function() 
 	{
+		this.bar.controller.stopSearch();
+
 		if (this.useThread) { // thread mode
 			if (this.thread)
 				this.thread.shutdown();
@@ -218,8 +219,10 @@ var XMigemoLocationBarOverlay = {
 				{
 					yield;
 					if (aSelf.results.length) {
-						if (!builtCount)
+						if (!builtCount) {
 							controller.searchStringOverride = aSelf.lastInput;
+							aSelf.clearListbox();
+						}
 						aSelf.busy = false;
 						for (let i = builtCount, maxi = aSelf.results.length; i < maxi; i++)
 						{
@@ -228,8 +231,7 @@ var XMigemoLocationBarOverlay = {
 						controller.resultsOverride = aSelf.results;
 						controller.matchCountOverride = aSelf.results.length;
 						aSelf.panel.adjustHeight();
-						if (!builtCount)
-							aSelf.bar.openPopup();
+						aSelf.bar.openPopup();
 						builtCount = aSelf.results.length;
 					}
 					current += range;
@@ -384,6 +386,7 @@ var XMigemoLocationBarOverlay = {
 				}) &&
 				node.getAttribute('url') == item.uri
 				) {
+				node.setAttribute('text', item.terms);
 				node.collapsed = false;
 				return;
 			}
@@ -404,6 +407,14 @@ var XMigemoLocationBarOverlay = {
 			node.className = 'autocomplete-richlistitem';
 			listbox.appendChild(node);
 		}
+	},
+ 
+	clearListbox : function()
+	{
+		const items = this.listbox.children;
+		Array.prototype.slice.call(items).forEach(function(aItem) {
+			aItem.collapsed = true;
+		});
 	},
   
 	init : function() 
@@ -436,7 +447,7 @@ var XMigemoLocationBarOverlay = {
 		eval('panel._appendCurrentResult = '+
 			panel._appendCurrentResult.toSource().replace(
 				'{',
-				'{ if (XMigemoLocationBarOverlay.shouldStart) return;'
+				'{ if (XMigemoLocationBarOverlay.isMigemoActive) return;'
 			)
 		);
 
@@ -498,6 +509,7 @@ var XMigemoLocationBarOverlay = {
 				return this.matchCountOverride || this.controller.matchCount;
 			},
 			startSearch : function(aString) {
+				if (this.service.isMigemoActive) return;
 				return this.controller.startSearch(aString);
 			},
 			stopSearch : function() {
@@ -585,7 +597,7 @@ var XMigemoLocationBarOverlay = {
 				return this.controller.getImageAt(aIndex);
 			},
 			get searchString() {
-				return this.controller.searchString;
+				return this.searchStringOverride || this.controller.searchString;
 			},
 			set searchString(aValue) {
 				return this.controller.searchString = aValue;
