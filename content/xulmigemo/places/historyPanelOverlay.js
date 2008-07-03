@@ -11,16 +11,11 @@ var XMigemoHistoryPanelOverlay = {
 			window.searchHistory.toSource().replace(
 				'gHistoryTree.load([query], options);',
 				<![CDATA[
-					gHistoryTree.load(
-						(!XMigemoService.getPref('xulmigemo.places.historyPanel') ?
-							[query] :
-							XMigemoPlaces.expandNavHistoryQuery(
-								query,
-								XMigemoPlaces.historySource
-							)
-						),
-						options
-					);
+					if (XMigemoService.getPref('xulmigemo.places.historyPanel'))
+						XMigemoPlaces.startProgressiveLoad(query, options, gHistoryTree,
+							XMigemoPlaces.historyInRangeSQL);
+					else
+						$&
 				]]>
 			)
 		);
@@ -29,16 +24,11 @@ var XMigemoHistoryPanelOverlay = {
 			tree.applyFilter.toSource().replace(
 				'this.load([query], options);',
 				<![CDATA[
-					this.load(
-						(!XMigemoService.getPref('xulmigemo.places.historyPanel') ?
-							[query] :
-							XMigemoPlaces.expandNavHistoryQuery(
-								query,
-								XMigemoPlaces.historySource
-							)
-						),
-						options
-					);
+					if (XMigemoService.getPref('xulmigemo.places.historyPanel'))
+						XMigemoPlaces.startProgressiveLoad(query, options, this,
+							XMigemoPlaces.historyInRangeSQL);
+					else
+						$&
 				]]>
 			)
 		);

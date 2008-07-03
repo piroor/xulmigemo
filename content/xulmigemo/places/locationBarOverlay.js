@@ -275,7 +275,10 @@ var XMigemoLocationBarOverlay = {
  
 	updateResultsForRange : function(aFindRegExp, aTermsRegExp, aStart, aRange) 
 	{
-		var sources = XMigemoPlaces.getPlacesSourceInRange(aStart, aRange);
+		var sources = XMigemoPlaces.getSourceInRange(
+				XMigemoPlaces.placesSourceInRangeSQL,
+				aStart, aRange
+			);
 		if (!sources) return false;
 		var terms = sources.match(aFindRegExp);
 		if (!terms) return true;
