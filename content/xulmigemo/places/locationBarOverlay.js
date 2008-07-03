@@ -447,7 +447,7 @@ var XMigemoLocationBarOverlay = {
 
 			searchStringOverride : '',
 			matchCountOverride   : 0,
-			resultsOverride   : 0,
+			resultsOverride      : [],
 
 			get input() {
 				return this.controller.input;
