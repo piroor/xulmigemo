@@ -32,6 +32,11 @@ var XMigemoLocationBarOverlay = {
 		return document.getElementById('urlbar');
 	},
  
+	get input() 
+	{
+		return this.TextUtils.trim(this.bar.value);
+	},
+ 
 	get panel() 
 	{
 		if (!this._panel)
@@ -73,9 +78,14 @@ var XMigemoLocationBarOverlay = {
 		return aValue;
 	},
  
+	get isBlank() 
+	{
+		return !this.input;
+	},
+ 
 	get isMigemoActive() 
 	{
-		var input = this.bar.value;
+		var input = this.input;
 		return (
 			this.enabled &&
 			(
@@ -157,7 +167,7 @@ var XMigemoLocationBarOverlay = {
 		controller.searchStringOverride = '';
 		controller.matchCountOverride   = 0;
 
-		if (this.TextUtils.trim(this.lastInput) == this.TextUtils.trim(this.bar.value))
+		if (this.lastInput == this.input)
 			return;
 
 		this.clear();
@@ -166,7 +176,7 @@ var XMigemoLocationBarOverlay = {
 
 		this.delayedStartTimer = window.setTimeout(function(aSelf) {
 			aSelf.clear();
-			aSelf.lastInput = aSelf.bar.value;
+			aSelf.lastInput = aSelf.input;
 			if (aSelf.lastInput)
 				aSelf.delayedStart();
 		}, this.delay, this);
@@ -184,8 +194,10 @@ var XMigemoLocationBarOverlay = {
 			this.threadDone = false;
 			var maxResults = this.panel.maxResults;
 			this.progressiveBuildTimer = window.setInterval(function(aSelf) {
-				aSelf.progressiveBuild();
-				if (aSelf.threadDone ||
+				if (aSelf.isMigemoActive)
+					aSelf.progressiveBuild();
+				if (!aSelf.isMigemoActive ||
+					aSelf.threadDone ||
 					aSelf.results.length >= maxResults) {
 					aSelf.busy = false;
 					aSelf.stopProgressiveBuild();
@@ -212,12 +224,15 @@ var XMigemoLocationBarOverlay = {
 
 			this.progressiveBuildTimer = window.setInterval(function(aSelf) {
 				try {
-					runner.next();
+					if (aSelf.isMigemoActive) {
+						runner.next();
+						return;
+					}
 				}
 				catch(e) {
-					aSelf.busy = false;
-					aSelf.stopProgressiveBuild();
 				}
+				aSelf.busy = false;
+				aSelf.stopProgressiveBuild();
 			}, 1, this);
 		}
 	},
@@ -338,6 +353,8 @@ var XMigemoLocationBarOverlay = {
 		this.progressiveBuildTimer = null;
 		if (this.thread)
 			this.thread.shutdown();
+		if (this.isBlank)
+			this.bar.closePopup();
 	},
  
 	buildItemAt : function(aIndex) 
