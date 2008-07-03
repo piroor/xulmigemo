@@ -3,7 +3,162 @@ var XMigemoPlaces = {
 	TextUtils : Components 
 			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
 			.getService(Components.interfaces.pIXMigemoTextUtils),
- 	
+ 
+/* SQL */ 
+	 
+	get placesSourceInRangeSQL() 
+	{
+		if (!this._placesSourceInRangeSQL) {
+			this._placesSourceInRangeSQL = this.placesSourceInRangeSQLBase
+				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
+				.replace('%TAGS%', this.tagsSQLFragment);
+		}
+		return this._placesSourceInRangeSQL;
+	},
+	 
+	placesSourceInRangeSQLBase : <![CDATA[ 
+		SELECT GROUP_CONCAT(
+		         title                  || ' ' ||
+		         COALESCE(bookmark, '') || ' ' ||
+		         COALESCE(tags,     '') || ' ' ||
+		         uri,
+		         ?1
+		       )
+		  FROM (SELECT p.title title,
+		               p.url uri,
+		               (%BOOKMARK_TITLE%) bookmark,
+		               (%TAGS%) tags
+		          FROM moz_places p
+		         WHERE p.frecency <> 0 AND p.hidden <> 1
+		         LIMIT ?2,?3)
+	]]>.toString(),
+  
+	get locationBarItemsSQL() 
+	{
+		if (!this._locationBarItemsSQL) {
+			this._locationBarItemsSQL = this.locationBarItemsSQLBase
+				.replace('%PARENT_FOLDER%', this.parentFolderSQLFragment)
+				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
+				.replace('%TAGS%', this.tagsSQLFragment);
+		}
+		return this._locationBarItemsSQL;
+	},
+	 
+	locationBarItemsSQLBase : <![CDATA[ 
+		SELECT title, uri, favicon, bookmark, tags, findkey
+		  FROM (SELECT *,
+		        GROUP_CONCAT(
+		          title                  || ' ' ||
+		          COALESCE(bookmark, '') || ' ' ||
+		          COALESCE(tags, '')     || ' ' ||
+		          uri,
+		          ' '
+		        ) findkey
+		    FROM (SELECT p.title title,
+		                 p.url uri,
+		                 f.url favicon,
+		                 p.frecency frecency,
+		                 p.typed typed,
+		                 (%PARENT_FOLDER%) parent,
+		                 (%BOOKMARK_TITLE%) bookmark,
+		                 (%TAGS%) tags
+		            FROM moz_places p
+		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
+		           WHERE p.frecency <> 0 AND p.hidden <> 1
+		           %SOURCES_LIMIT_PART%)
+		   GROUP BY uri)
+		 WHERE (%TERMS_RULES%)
+		       AND %EXCLUDE_JAVASCRIPT%
+		       AND %ONLY_TYPED%
+		 ORDER BY frecency DESC
+		 LIMIT 0,?1
+	]]>.toString(),
+  
+	get allHistorySQL() 
+	{
+		if (!this._allHistorySQL) {
+			this._allHistorySQL = this.allHistorySQLBase
+				.replace('%TAGS%', this.tagsSQLFragment);
+		}
+		return this._allHistorySQL;
+	},
+	 
+	allHistorySQLBase : <![CDATA[ 
+		SELECT GROUP_CONCAT(
+		         title              || ' ' ||
+		         COALESCE(tags, '') || ' ' ||
+		         uri,
+		         ?1
+		       )
+		  FROM (SELECT p.id id,
+		               p.title title,
+		               p.url uri,
+		               (%TAGS%) tags
+		          FROM moz_places p
+		         WHERE p.hidden <> 1)
+		 GROUP BY id
+	]]>.toString(),
+  
+	get allBookmarksSQL() 
+	{
+		if (!this._allBookmarksSQL) {
+			this._allBookmarksSQL = this.allBookmarksSQLBase
+				.replace('%TAGS%', this.tagsSQLFragment);
+		}
+		return this._allBookmarksSQL;
+	},
+	 
+	allBookmarksSQLBase : <![CDATA[ 
+		SELECT GROUP_CONCAT(
+		         title || ' ' ||
+		         COALESCE(tags, '') || ' ' ||
+		         uri,
+		         ?1
+		       )
+		  FROM (SELECT b.id id,
+		               b.title title,
+		               p.url uri,
+		               (%TAGS%) tags
+		          FROM moz_bookmarks b
+		               LEFT OUTER JOIN moz_places p ON b.fk = p.id)
+		 GROUP BY id
+	]]>.toString(),
+  
+	parentFolderSQLFragment : <![CDATA[ 
+		SELECT b.parent
+		  FROM moz_bookmarks b
+		       JOIN moz_bookmarks t
+		       ON t.id = b.parent
+		       AND t.parent != (SELECT folder_id
+		                          FROM moz_bookmarks_roots
+		                         WHERE root_name = 'tags')
+		 WHERE b.type = 1 AND b.fk = p.id
+		 ORDER BY b.lastModified DESC LIMIT 1
+	]]>.toString(),
+ 
+	bookmarkTitleSQLFragment : <![CDATA[ 
+		SELECT b.title
+		  FROM moz_bookmarks b
+		       JOIN moz_bookmarks t
+		       ON t.id = b.parent
+		       AND t.parent != (SELECT folder_id
+		                          FROM moz_bookmarks_roots
+		                         WHERE root_name = 'tags')
+		 WHERE b.type = 1 AND b.fk = p.id
+		 ORDER BY b.lastModified DESC LIMIT 1
+	]]>.toString(),
+ 
+	tagsSQLFragment : <![CDATA[ 
+		SELECT GROUP_CONCAT(t.title, ',')
+		  FROM moz_bookmarks b
+		       JOIN moz_bookmarks t
+		       ON t.id = b.parent
+		       AND t.parent = (SELECT folder_id
+		                         FROM moz_bookmarks_roots
+		                        WHERE root_name = 'tags')
+		 WHERE b.type = 1 AND b.fk = p.id
+	]]>.toString(),
+  
 	get db() 
 	{
 		if (this._db !== void(0))
@@ -48,108 +203,54 @@ var XMigemoPlaces = {
 		statement.reset();
 		return this.TextUtils.trim(sources || '');
 	},
-	 
-	placesSourceInRangeSQL : <![CDATA[ 
-		SELECT GROUP_CONCAT(
-		         title                  || ' ' ||
-		         COALESCE(bookmark, '') || ' ' ||
-		         COALESCE(tags,     '') || ' ' ||
-		         uri,
-		         ?1
-		       )
-		  FROM (SELECT p.title title,
-		               p.url uri,
-		               (SELECT b.title
-		                  FROM moz_bookmarks b
-		                       JOIN moz_bookmarks t
-		                       ON t.id = b.parent
-		                       AND t.parent != (SELECT folder_id
-		                                          FROM moz_bookmarks_roots
-		                                         WHERE root_name = 'tags')
-		                 WHERE b.type = 1 AND b.fk = p.id
-		                 ORDER BY b.lastModified DESC LIMIT 1) bookmark,
-		               (SELECT GROUP_CONCAT(t.title, ',')
-		                  FROM moz_bookmarks b
-		                       JOIN moz_bookmarks t
-		                       ON t.id = b.parent
-		                       AND t.parent = (SELECT folder_id
-		                                         FROM moz_bookmarks_roots
-		                                        WHERE root_name = 'tags')
-		                 WHERE b.type = 1 AND b.fk = p.id) tags
-		          FROM moz_places p
-		         WHERE p.frecency <> 0 AND p.hidden <> 1
-		         LIMIT ?2,?3)
-	]]>.toString(),
-  
+ 
 	get historySource() 
 	{
 		if (!this.db) return '';
 
-		var statement = this.db.createStatement(<![CDATA[
-		    SELECT GROUP_CONCAT(title, ?1),
-		           GROUP_CONCAT(url, ?1)
-		      FROM moz_places
-		     WHERE hidden <> 1
-		  ]]>.toString());
+		var statement = this.db.createStatement(this.allHistorySQL);
 		statement.bindStringParameter(0, '\n');
 
 		var sources = [];
 		while(statement.executeStep())
 		{
 			sources.push(statement.getString(0));
-			sources.push(statement.getString(1));
 		};
 		statement.reset();
 
-		sources.push(PlacesUtils.tagging.allTags.join('\n'));
 		return sources.join('\n');
 	},
  
-	get bookmarksSource() 
+	get allBookmarksSource() 
 	{
 		if (!this.db) return '';
 
-		var statement = this.db.createStatement(<![CDATA[
-		    SELECT GROUP_CONCAT(b.title, ?1),
-		           GROUP_CONCAT(p.url, ?1)
-		      FROM moz_bookmarks b
-		           LEFT JOIN moz_places p ON b.fk = p.id
-		  ]]>.toString());
+		var statement = this.db.createStatement(this.allBookmarksSQL);
 		statement.bindStringParameter(0, '\n');
 
 		var sources = [];
 		while(statement.executeStep())
 		{
 			sources.push(statement.getString(0));
-			sources.push(statement.getString(1));
 		};
 		statement.reset();
 
-		sources.push(PlacesUtils.tagging.allTags.join('\n'));
 		return sources.join('\n');
 	},
   
-	getFrecencyFromURI : function(aURI) 
-	{
-		if (!this.db) return 0;
-
-		var statement = this.db.createStatement(<![CDATA[
-		    SELECT frecency
-		      FROM moz_places
-		     WHERE url = ?1
-		  ]]>.toString());
-		statement.bindStringParameter(0, aURI);
-		var frecency = 0;
-		while(statement.executeStep())
-		{
-			frecency = statement.getDouble(0);
-		};
-		statement.reset();
-		return frecency;
-	},
- 
 	expandNavHistoryQuery : function(aQuery, aSource) 
 	{
+		if (!aSource) {
+			var folders = aQuery.getFolders({});
+			var self = this;
+			aSource = folders.map(function(aFolder) {
+				return self.getBookmarksSourceIn(aFolder);
+			}).join('\n');
+		}
+
+		var regexps = XMigemoCore.getRegExps(aQuery.searchTerms);
+		var termsRegExp = new RegExp(this.TextUtils.getORFindRegExpFromTerms(regexps), 'gim');
+
 		var terms = (
 				XMigemoService.getPref('xulmigemo.autostart.regExpFind') &&
 				this.TextUtils.isRegExp(aQuery.searchTerms)
@@ -158,16 +259,21 @@ var XMigemoPlaces = {
 					this.TextUtils.extractRegExpSource(aQuery.searchTerms),
 					aSource
 				) :
-				this.getMatchedTermsForInputFromSource(
-					aQuery.searchTerms,
+				this.TextUtils.getMatchedTermsFromSource(
+					(XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
+						this.TextUtils.getANDFindRegExpFromTerms(regexps) :
+						XMigemoCore.getRegExp(aQuery.searchTerms)
+					),
 					aSource
-				);
+				).map(function(aTermSet) {
+					return aTermSet.match(termsRegExp).join(' ');
+				});
 		var queries = [];
 		if (terms.length) {
 			queries = queries
-				.concat(terms.map(function(aTerm) {
+				.concat(terms.map(function(aTermSet) {
 					var newQuery = aQuery.clone();
-					newQuery.searchTerms = aTerm;
+					newQuery.searchTerms = aTermSet;
 					return newQuery;
 				}));
 		}
@@ -176,16 +282,7 @@ var XMigemoPlaces = {
 		}
 		return queries;
 	},
-	getMatchedTermsForInputFromSource : function(aInput, aSource, aIsANDFind)
-	{
-		return this.TextUtils.getMatchedTermsFromSource(
-			(XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
-				this.TextUtils.getANDFindRegExpFromTerms(XMigemoCore.getRegExps(aInput)) :
-				XMigemoCore.getRegExp(aInput)
-			),
-			aSource);
-	},
- 
+ 	
 	findLocationBarItemsFromTerms : function(aTerms, aTermsRegExp, aStart, aRange) 
 	{
 		var items = [];
@@ -270,60 +367,7 @@ var XMigemoPlaces = {
 			statement.reset();
 		}
 		return items;
-	},
-	 
-	locationBarItemsSQL : <![CDATA[ 
-		SELECT title, uri, favicon, bookmark, tags, findkey
-		  FROM (SELECT *,
-		        GROUP_CONCAT(
-		          title                  || ' ' ||
-		          COALESCE(bookmark, '') || ' ' ||
-		          COALESCE(tags,     '') || ' ' ||
-		          uri,
-		          ' '
-		        ) findkey
-		    FROM (SELECT p.title title,
-		                 p.url uri,
-		                 f.url favicon,
-		                 p.frecency frecency,
-		                 p.typed typed,
-		                 (SELECT b.parent
-		                    FROM moz_bookmarks b
-		                         JOIN moz_bookmarks t
-		                         ON t.id = b.parent
-		                         AND t.parent != (SELECT folder_id
-		                                            FROM moz_bookmarks_roots
-		                                           WHERE root_name = 'tags')
-		                   WHERE b.type = 1 AND b.fk = p.id
-		                   ORDER BY b.lastModified DESC LIMIT 1) parent,
-		                 (SELECT b.title
-		                    FROM moz_bookmarks b
-		                         JOIN moz_bookmarks t
-		                         ON t.id = b.parent
-		                         AND t.parent != (SELECT folder_id
-		                                            FROM moz_bookmarks_roots
-		                                           WHERE root_name = 'tags')
-		                   WHERE b.type = 1 AND b.fk = p.id
-		                   ORDER BY b.lastModified DESC LIMIT 1) bookmark,
-		                 (SELECT GROUP_CONCAT(t.title, ',')
-		                    FROM moz_bookmarks b
-		                         JOIN moz_bookmarks t
-		                         ON t.id = b.parent
-		                         AND t.parent = (SELECT folder_id
-		                                           FROM moz_bookmarks_roots
-		                                          WHERE root_name = 'tags')
-		                   WHERE b.type = 1 AND b.fk = p.id) tags
-		            FROM moz_places p
-		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
-		           WHERE p.frecency <> 0 AND p.hidden <> 1
-		           %SOURCES_LIMIT_PART%)
-		   GROUP BY uri)
-		 WHERE (%TERMS_RULES%)
-		       AND %EXCLUDE_JAVASCRIPT%
-		       AND %ONLY_TYPED%
-		 ORDER BY frecency DESC
-		 LIMIT 0,?1
-	]]>.toString()
-  
+	}
+ 
 }; 
   
