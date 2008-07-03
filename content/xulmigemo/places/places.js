@@ -33,9 +33,8 @@ var XMigemoPlaces = {
 	
 	placesSourceInRangeSQLBase : <![CDATA[ 
 		SELECT GROUP_CONCAT(
-		         title                  || ' ' ||
-		         COALESCE(bookmark, '') || ' ' ||
-		         COALESCE(tags,     '') || ' ' ||
+		         COALESCE(bookmark, title) || ' ' ||
+		         COALESCE(tags, '')        || ' ' ||
 		         uri,
 		         ?1
 		       )
@@ -114,9 +113,8 @@ var XMigemoPlaces = {
 		SELECT title, uri, favicon, bookmark, tags, findkey
 		  FROM (SELECT *,
 		        GROUP_CONCAT(
-		          title                  || ' ' ||
-		          COALESCE(bookmark, '') || ' ' ||
-		          COALESCE(tags, '')     || ' ' ||
+		          COALESCE(bookmark, title) || ' ' ||
+		          COALESCE(tags, '')        || ' ' ||
 		          uri,
 		          ' '
 		        ) findkey
