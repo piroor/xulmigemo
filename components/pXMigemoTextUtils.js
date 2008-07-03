@@ -191,47 +191,54 @@ pXMigemoTextUtils.prototype = {
 				}
 			});
 	/*
-		SELECT v1.term term1,
-		       v2.term term2,
-		       v3.term term3,
-		       v4.term term4
-		  FROM temp v1, temp v2, temp v3, temp v4
-		 WHERE term1 NOT IN (term2, term3, term4)
-		       AND term2 NOT IN (term1, term3, term4)
-		       AND term3 NOT IN (term1, term2, term4)
-		       AND term4 NOT IN (term1, term2, term3)
+		SELECT GROUP_CONCAT(
+		         '(?:' || term0 || ').*(?:' ||
+		                  term1 || ').*(?:' ||
+		                  term2 || ').*(?:' ||
+		                  term3 || ')',
+		         '|'
+		       )
+		  FROM (SELECT v0.term term0,
+		               v1.term term1,
+		               v2.term term2,
+		               v3.term term3
+		          FROM temp v0, temp v1, temp v2, temp v3
+		         WHERE term0 NOT IN (term1, term2, term3)
+		               AND term1 NOT IN (term0, term2, term3)
+		               AND term2 NOT IN (term0, term1, term3)
+		               AND term3 NOT IN (term0, term1, term2))
 	*/
+			var fieldNames = aTerms.map(function(aTerm, aIndex) {
+					return 'term'+aIndex;
+				});
+
 			var statement = this.db.createStatement(
-					'SELECT '+
-					aTerms.map(function(aTerm, aIndex) {
-						return 'v'+aIndex+'.term term'+aIndex;
-					}).join(', ')+
-					' FROM '+
-					aTerms.map(function(aTerm, aIndex) {
-						return tableName+' v'+aIndex;
-					}).join(', ')+
-					' WHERE '+
-					aTerms.map(function(aTerm, aIndex) {
-						return 'term'+aIndex+' NOT IN ('+
-							aTerms.map(function(aTerm, aRejectIndex) {
-								return 'term'+aRejectIndex;
-							}).filter(function(aTerm, aRejectIndex) {
-								return aRejectIndex != aIndex;
-							}).join(', ')+
-							')';
-					}).join(' AND ')
+					'SELECT GROUP_CONCAT("(?:" || '+
+						fieldNames.join(' || ").*(?:" || ')+
+						' || ")", "|") '+
+					'FROM (SELECT '+
+						aTerms.map(function(aTerm, aIndex) {
+							return 'v'+aIndex+'.term term'+aIndex;
+						}).join(', ')+
+						' FROM '+
+						aTerms.map(function(aTerm, aIndex) {
+							return tableName+' v'+aIndex;
+						}).join(', ')+
+						' WHERE '+
+						aTerms.map(function(aTerm, aIndex) {
+							return 'term'+aIndex+' NOT IN ('+
+								fieldNames.filter(function(aTerm, aRejectIndex) {
+									return aRejectIndex != aIndex;
+								}).join(', ')+
+								')';
+						}).join(' AND ')+
+						')'
 				);
-			var results = [];
+			var result = ''
 			try {
 				while (statement.executeStep())
 				{
-					results.push(
-						'('+
-						aTerms.map(function(aTerm, aIndex) {
-							return statement.getString(aIndex)
-						}).join(').*(?:')+
-						')'
-					);
+					result = statement.getString(0);
 				}
 			}
 			finally {
@@ -242,7 +249,7 @@ pXMigemoTextUtils.prototype = {
 			this.db.executeSimpleSQL('DROP TABLE '+tableName);
 		}
 
-		return results.join('|');
+		return result;
 	},
 	
 	get db() 
