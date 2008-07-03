@@ -25,6 +25,17 @@ pXMigemoTextTransformJa.prototype = {
 		return this;
 	},
 	 
+	get textUtils() 
+	{
+		if (!this._textUtils) {
+			this._textUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
+		}
+		return this._textUtils;
+	},
+	_textUtils : null,
+ 
 	// pIXMigemoTextTransform 
 	isValidInput : function(aInput)
 	{
@@ -94,7 +105,7 @@ pXMigemoTextTransformJa.prototype = {
 		this.KANROM_Hash = {};
 		this.KANPAT     = [];
 
-		var pairs = (this.CUSTOMTAB +'\t'+ this.KUNREITAB +'\t'+ this.HEPBURNTAB).replace(/^\s+|\s+$/g, '').split(/\s+/);
+		var pairs = this.textUtils.trim(this.CUSTOMTAB +'\t'+ this.KUNREITAB +'\t'+ this.HEPBURNTAB).split(/\s+/);
 		var ROMKAN_Hash_multiple = {};
 		for (var i = 0, maxi = pairs.length; i < maxi; i += 2)
 		{

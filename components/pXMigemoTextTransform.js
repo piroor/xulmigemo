@@ -19,6 +19,17 @@ pXMigemoTextTransform.prototype = {
 		return this;
 	},
 	 
+	get textUtils() 
+	{
+		if (!this._textUtils) {
+			this._textUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
+		}
+		return this._textUtils;
+	},
+	_textUtils : null,
+ 
 	nonAsciiRegExp : /[^a-zA-Z0-9\!\_\-\?\/\\\~\|\{\}\(\)\'\"\&\%\$\<\>\[\]\@\`\+\*\;\:]/gi, 
  
 	LATIN_LETTES_WITH_MODIFIERS : [ 
@@ -60,7 +71,7 @@ pXMigemoTextTransform.prototype = {
 		this.LATPAT      = [];
 		this.MODPAT      = [];
 
-		var pairs = (this.LATIN_LETTES_WITH_MODIFIERS).replace(/^\s+|\s+$/g, '').split(/\s+/);
+		var pairs = this.textUtils.trim(this.LATIN_LETTES_WITH_MODIFIERS).split(/\s+/);
 		for (var i = 0, maxi = pairs.length; i < maxi; i += 2)
 		{
 			this.LATMOD.push({ key : pairs[i], char : pairs[i+1] });

@@ -308,7 +308,7 @@ var XMigemoUI = {
 	get findTerm() 
 	{
 		try {
-			return this.field.value.replace(/^\s+|\s+$/g, '');
+			return this.textUtils.trim(this.field.value);
 		}
 		catch(e) {
 		}
@@ -1966,8 +1966,7 @@ var XMigemoUI = {
 	{
 		var win = document.commandDispatcher.focusedWindow;
 		if (!win || win.top == window.top) win = window.content;
-		var sel = (win && win.getSelection() ? win.getSelection().toString() : '' )
-					.replace(/^\s+|\s+$/g, '')
+		var sel = this.textUtils.trim(win && win.getSelection() ? win.getSelection().toString() : '' )
 					.replace(/\n/g, '');
 		if (!sel) return;
 
@@ -2151,7 +2150,7 @@ var XMigemoUI = {
 		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
 				this.textUtils.extractRegExpSource(aWord) :
 				XMigemoFind.core.getRegExp(aWord) ;
-		var ranges = XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode, {});
+		var ranges = XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode);
 		return ranges.length ? true : false ;
 	},
 	 

@@ -208,7 +208,7 @@ function updateKeysList()
 			type = XMigemo.ALL_DIC;
 			break;
 	}
-	var list = XMigemo.gatherEntriesFor(roman, type, {});
+	var list = XMigemo.gatherEntriesFor(roman, type);
 	list.sort();
 
 	if (gListKeys.addItemTimer) {
