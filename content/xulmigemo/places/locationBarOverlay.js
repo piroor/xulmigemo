@@ -521,10 +521,9 @@ var XMigemoLocationBarOverlay = {
 						}
 						input.selectTextRange(input.textValue.length, input.textValue.length);
 					}
+					return true;
 				}
-				else {
-					this.controller.handleKeyNavigation(aKey);
-				}
+				return this.controller.handleKeyNavigation(aKey);
 			},
 			handleDelete : function() {
 				return this.controller.handleDelete();
