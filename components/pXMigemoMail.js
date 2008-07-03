@@ -197,7 +197,7 @@ pXMigemoMail.prototype = {
 	},
 	_textUtils : null,
  
-	getTermsList : function(aInput, aSearchMode, aFolder, aCount) 
+	getTermsList : function(aInput, aSearchMode, aFolder) 
 	{
 		var terms = [];
 		try {
@@ -240,7 +240,6 @@ pXMigemoMail.prototype = {
 		catch(e) {
 		}
 		terms = terms || [];
-		aCount.value = terms.length;
 		return terms;
 	},
   

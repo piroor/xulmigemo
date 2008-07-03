@@ -5,6 +5,7 @@
 #include "nsIDOMDocument.idl"
 #include "nsIDOMRange.idl"
 #include "nsIDOMNode.idl"
+#include "nsIVariant.idl"
 
 
 /* Utilities: You can use them for your language without additional implementation. */
@@ -21,13 +22,22 @@ interface pIXMigemoFileAccess : nsISupports
 [scriptable, uuid(79ccb624-1dd4-11dc-8314-0800200c9a66)]
 interface pIXMigemoTextUtils : nsISupports
 {
+	AString trim(in AString input);
+	nsIVariant brushUpTerms(in nsIVariant termsArray);
+
 	AString range2Text(in nsIDOMRange range);
 
 	AString sanitize(in AString regexpPattern);
 	AString sanitize2(in AString regexpPattern);
+
 	boolean isRegExp(in AString regexpPattern);
 	AString extractRegExpSource(in AString regexpPattern);
-	AString reverseRegExp(in AString regexpPattern);
+
+	nsIVariant getMatchedTermsFromSource(in AString regexpPattern, in AString source);
+	AString getORFindRegExpFromTerms(in nsIVariant termsArray);
+	AString getANDFindRegExpFromTerms(in nsIVariant termsArray);
+
+	AString reverseRegExp(in AString regexpPattern); /* obsolete */
 
 	nsIDOMRange getFoundRange(in nsIDOMWindow frame);
 	boolean isRangeOverlap(in nsIDOMRange baseRange, in nsIDOMRange targetRange);
@@ -113,16 +123,12 @@ interface pIXMigemoEngine : nsIObserver
 	/* create regular expressions from roman letters. */
 	AString getRegExpFor(in AString input);
 
-	void splitInput(
-		in AString input,
-		out unsigned long count, [array, size_is(count), retval] out wstring array
-	);
+	nsIVariant splitInput(in AString input);
 
 	/* get entries of words in the dictionary. */
-	void gatherEntriesFor(
+	nsIVariant gatherEntriesFor(
 		in AString input,
-		in unsigned short targetDictionaryType,
-		out unsigned long count, [array, size_is(count), retval] out wstring array
+		in unsigned short targetDictionaryType
 	);
 	const unsigned short SYSTEM_DIC = 1;
 	const unsigned short USER_DIC   = 2;
@@ -161,6 +167,7 @@ interface pIXMigemo : pIXMigemoEngine
 
 	/* create regular expressions from roman letters. */
 	AString getRegExp(in AString input);
+	nsIVariant getRegExps(in AString input); /* for input split by whitespace characters */
 
 	/* find by regular expression, and return the first item of found terms as DOM2 Range. */
 	nsIDOMRange regExpFind(
@@ -172,26 +179,23 @@ interface pIXMigemo : pIXMigemoEngine
 		in boolean findBackwards
 	);
 	/* this returns all of found terms as an array. */
-	void regExpFindArr(
+	nsIVariant regExpFindArr(
 		in AString regExpSource,
 		in AString regExpFlags,
 		in nsIDOMRange findRange,
 		in nsIDOMRange startPoint,
-		in nsIDOMRange endPoint,
-		out unsigned long count, [array, size_is(count), retval] out nsIDOMRange array
+		in nsIDOMRange endPoint
 	);
 
-	void regExpHighlightText(
+	nsIVariant regExpHighlightText(
 		in AString regExpSource,
 		in AString regExpFlags,
 		in nsIDOMRange findRange,
-		in nsIDOMNode surroundNode,
-		out unsigned long count, [array, size_is(count), retval] out nsIDOMRange array
+		in nsIDOMNode surroundNode
 	);
 
-	void flattenRegExp(
-		in AString regExpSource,
-		out unsigned long count, [array, size_is(count), retval] out wstring array
+	nsIVariant flattenRegExp(
+		in AString regExpSource
 	);
 
 	attribute double createCacheTimeOverride;

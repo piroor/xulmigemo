@@ -1,15 +1,15 @@
 #include "nsISupports.idl"
 #include "nsIMsgFolder.idl"
+#include "nsIVariant.idl"
 
 
 [scriptable, uuid(0cc43330-d388-11dc-95ff-0800200c9a66)]
 interface pIXMigemoMail : nsISupports
 {
-	void getTermsList(
+	nsIVariant getTermsList(
 		in AString input,
 		in unsigned long searchMode,
-		in nsIMsgFolder folder,
-		out unsigned long count, [array, size_is(count), retval] out wstring array
+		in nsIMsgFolder folder
 	);
 
 	void loadSummaryCache(

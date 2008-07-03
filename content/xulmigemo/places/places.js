@@ -46,7 +46,7 @@ var XMigemoPlaces = {
 			sources = statement.getString(0);
 		};
 		statement.reset();
-		return sources.replace(/^\s+|\s+$/g, '');
+		return this.TextUtils.trim(sources || '');
 	},
 	 
 	placesSourceInRangeSQL : <![CDATA[ 
@@ -154,14 +154,13 @@ var XMigemoPlaces = {
 				XMigemoService.getPref('xulmigemo.autostart.regExpFind') &&
 				this.TextUtils.isRegExp(aQuery.searchTerms)
 			) ?
-				XMigemoCore.getTermsFromSource(
+				this.TextUtils.getMatchedTermsFromSource(
 					this.TextUtils.extractRegExpSource(aQuery.searchTerms),
 					aSource
 				) :
-				XMigemoCore.getTermsForInputFromSource(
+				this.getMatchedTermsForInputFromSource(
 					aQuery.searchTerms,
-					aSource,
-					XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces')
+					aSource
 				);
 		var queries = [];
 		if (terms.length) {
@@ -176,6 +175,15 @@ var XMigemoPlaces = {
 			queries.push(aQuery);
 		}
 		return queries;
+	},
+	getMatchedTermsForInputFromSource : function(aInput, aSource, aIsANDFind)
+	{
+		return this.TextUtils.getMatchedTermsFromSource(
+			(XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
+				this.TextUtils.getANDFindRegExpFromTerms(XMigemoCore.getRegExps(aInput)) :
+				XMigemoCore.getRegExp(aInput)
+			),
+			aSource);
 	},
  
 	findLocationBarItemsFromTerms : function(aTerms, aTermsRegExp, aStart, aRange) 
@@ -239,7 +247,7 @@ var XMigemoPlaces = {
 			var item, title, terms;
 			while(statement.executeStep())
 			{
-				terms = XMigemoCore.brushUpTerms(statement.getString(5).match(aTermsRegExp) || []);
+				terms = this.TextUtils.brushUpTerms(statement.getString(5).match(aTermsRegExp) || []);
 				item = {
 					title : (statement.getIsNull(0) ? '' : statement.getString(0) ),
 					uri   : statement.getString(1),

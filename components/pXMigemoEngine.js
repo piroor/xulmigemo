@@ -84,7 +84,7 @@ pXMigemoEngine.prototype = {
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
 			str = XMigemoTextService.addLatinModifiers(str);
 
-		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, {});
+		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC);
 
 		var pattern = '';
 		if (lines.length) {
@@ -114,7 +114,7 @@ pXMigemoEngine.prototype = {
 				.replace(/\|\)/g, ')');
 	},
  
-	splitInput : function(aInput, aCount) 
+	splitInput : function(aInput) 
 	{
 		var terms = aInput
 				.replace(/([\uff66-\uff9fa-z])([0-9])/i, '$1\t$2')
@@ -127,14 +127,12 @@ pXMigemoEngine.prototype = {
 				.replace(/^[\s\t]+|[\s\t]+$/g, '')
 				.split('\t');
 
-		aCount.value = terms.length;
 		return terms;
 	},
  
-	gatherEntriesFor : function(aInput, aTargetDic, aCount) 
+	gatherEntriesFor : function(aInput, aTargetDic) 
 	{
 		if (!aInput || !this.lang) {
-			aCount.value = 0;
 			return [];
 		}
 
@@ -172,7 +170,6 @@ pXMigemoEngine.prototype = {
 			}
 		}
 
-		aCount.value = lines.length;
 		return lines;
 	},
  

@@ -18,6 +18,21 @@ var XMigemoService = {
 	},
 	_WindowManager : null,
  
+	get TextUtils() { 
+		if (!this._TextUtils) {
+			try {
+				this._TextUtils = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+					.getService(Components.interfaces.pIXMigemoTextUtils);
+			}
+			catch(e) {
+				throw e;
+			}
+		}
+		return this._TextUtils;
+	},
+	_TextUtils : null,
+ 
 /* Prefs */ 
 	
 	get Prefs() 
@@ -106,8 +121,7 @@ var XMigemoService = {
 		}
 		if ('preferences' in aObserver &&
 			typeof aObserver.preferences == 'string') {
-			aObserver.preferences
-				.replace(/^\s+|\s+$/g, '')
+			this.TextUtils.trim(aObserver.preferences)
 				.split(/\s+/)
 				.forEach(function(aPref) {
 					aObserver.observe(null, 'nsPref:changed', aPref);

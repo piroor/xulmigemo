@@ -22,8 +22,7 @@ var XMigemoMail = {
 						termList = XMigemoMail.service.getTermsList(
 							gSearchInput.value,
 							gSearchInput.searchMode,
-							gDBView.msgFolder,
-							{}
+							gDBView.msgFolder
 						);
 					if (!termList || !termList.length)
 						termList = gSearchInput.value.split('|');

@@ -48,6 +48,17 @@ pXMigemoCore.prototype = {
 	},
 	_dictionaryManager : null,
  
+	get textUtils() 
+	{
+		if (!this._textUtils) {
+			this._textUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
+		}
+		return this._textUtils;
+	},
+	_textUtils : null,
+ 
 	get cache() 
 	{
 		if (!this._cache) {
@@ -99,7 +110,7 @@ pXMigemoCore.prototype = {
 	{
 		return !this.engine ? '' : this.getRegExpInternal(aInput, void(0)) ;
 	},
-	
+	 
 	getRegExpInternal : function(aInput, aEnableAutoSplit) 
 	{
 		var myExp = [];
@@ -108,7 +119,7 @@ pXMigemoCore.prototype = {
 
 		// 入力を切って、文節として個別に正規表現を生成する
 		var romanTerm;
-		var romanTerms = this.engine.splitInput(aInput, {});
+		var romanTerms = this.engine.splitInput(aInput);
 		mydump('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n');
 
 		var pattern, romanTermPart, nextPart;
@@ -158,6 +169,16 @@ pXMigemoCore.prototype = {
  
 	simplePartOnlyPattern : /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([^\|]+)$/i, 
   
+	getRegExps : function(aInput) 
+	{
+		var self = this;
+		return this.textUtils.trim(aInput)
+			.split(/\s+/)
+			.map(function(aInput) {
+				return self.getRegExp(aInput);
+			});
+	},
+ 	
 	getRegExpFor : function(aInput) 
 	{
 		if (!aInput) return null;
@@ -194,24 +215,22 @@ pXMigemoCore.prototype = {
 		return regexpPattern;
 	},
  
-	splitInput : function(aInput, aCount) 
+	splitInput : function(aInput) 
 	{
 		if (!this.engine) return [aInput];
 
 		var terms = this.engine.splitInput(aInput);
-		aCount.value = terms.length;
 		return terms;
 	},
  
-	gatherEntriesFor : function(aInput, aTargetDic, aCount) 
+	gatherEntriesFor : function(aInput, aTargetDic) 
 	{
-		return !this.engine ? [] : this.engine.gatherEntriesFor(aInput, aTargetDic, aCount) ;
+		return !this.engine ? [] : this.engine.gatherEntriesFor(aInput, aTargetDic) ;
 	},
  
-	flattenRegExp : function(aRegExp, aCount) 
+	flattenRegExp : function(aRegExp) 
 	{
 		if (!aRegExp) {
-			aCount.value = 0;
 			return [];
 		}
 
@@ -229,7 +248,6 @@ dump('STEP 2: '+array.toSource()+'\n');
 
 		array = (typeof array == 'string' ? array : array[0])
 				.replace(/\n\n+/g, '\n').split('\n');
-		aCount.value = array.length;
 		return array;
 	},
 	
@@ -367,14 +385,10 @@ dump('STEP 2: '+array.toSource()+'\n');
 			aEndPoint.setEndAfter(aFindRange.endContainer);
 		}
 
-		var XMigemoTextUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
-
 		//patTextはgetRegExp()で得られた正規表現オブジェクト
 		var doc = Components.lookupMethod(aFindRange.startContainer, 'ownerDocument').call(aFindRange.startContainer);
 		var term;
-		var txt = XMigemoTextUtils.range2Text(aFindRange);
+		var txt = this.textUtils.range2Text(aFindRange);
 
 		if (aRegExpFlags == 'null' ||
 			aRegExpFlags == 'undefined' ||
@@ -394,12 +408,12 @@ dump('STEP 2: '+array.toSource()+'\n');
 		return foundRange;
 	},
  
-	regExpFindArr : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aCount) 
+	regExpFindArr : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint) 
 	{
-		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, null, aCount);
+		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, null);
 	},
 	 
-	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aCount) 
+	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode) 
 	{
 		if (!aStartPoint) {
 			aStartPoint = aFindRange.startContainer.ownerDocument.createRange();
@@ -410,12 +424,8 @@ dump('STEP 2: '+array.toSource()+'\n');
 			aEndPoint.setStart(aFindRange.endContainer, aFindRange.endOffset);
 		}
 
-		var XMigemoTextUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
-
 		var doc = aFindRange.startContainer.ownerDocument;
-		var selRange = (Prefs.getBoolPref('xulmigemo.rebuild_selection')) ? XMigemoTextUtils.getFoundRange(doc.defaultView) : null ;
+		var selRange = (Prefs.getBoolPref('xulmigemo.rebuild_selection')) ? this.textUtils.getFoundRange(doc.defaultView) : null ;
 		var arrTerms;
 		var arrResults = [];
 		var rightContext;
@@ -426,11 +436,10 @@ dump('STEP 2: '+array.toSource()+'\n');
 			aRegExpFlags = '';
 		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
 
-		var txt = XMigemoTextUtils.range2Text(aFindRange);
+		var txt = this.textUtils.range2Text(aFindRange);
 		arrTerms = txt.match(new RegExp(regExp.source, 'img'));
 
 		if (!arrTerms) {
-			aCount.value = arrResults.length;
 			return arrResults;
 		}
 
@@ -443,7 +452,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 			if (!foundRange) continue;
 			foundLength = foundRange.toString().length;
 			if (aSurroundNode) {
-				var selectAfter = selRange ? XMigemoTextUtils.isRangeOverlap(foundRange, selRange) : false ;
+				var selectAfter = selRange ? this.textUtils.isRangeOverlap(foundRange, selRange) : false ;
 
 				var nodeSurround   = aSurroundNode.cloneNode(true);
 				var startContainer = foundRange.startContainer;
@@ -457,7 +466,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 				parent.insertBefore(nodeSurround, before);
 
 				if (selectAfter) {
-					XMigemoTextUtils.delayedSelect(firstChild, foundLength, true);
+					this.textUtils.delayedSelect(firstChild, foundLength, true);
 				}
 
 				foundRange = doc.createRange();
@@ -485,7 +494,6 @@ dump('STEP 2: '+array.toSource()+'\n');
 			}
 		}
 
-		aCount.value = arrResults.length;
 		return arrResults;
 	},
 	 
@@ -508,14 +516,13 @@ dump('STEP 2: '+array.toSource()+'\n');
 		}
 		return null;
 	},
- 	  
-	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode, aCount) 
+   
+	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
 	{
 		if (!aSurrountNode) {
-			aCount.value = 0;
 			return [];
 		}
-		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, aCount);
+		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode);
 	},
  
 	getDocShellForFrame : function(aFrame) 

@@ -157,7 +157,7 @@ var XMigemoLocationBarOverlay = {
 		controller.searchStringOverride = '';
 		controller.matchCountOverride   = 0;
 
-		if (this.lastInput.replace(/^\s+|\s+$/g, '') == this.bar.value.replace(/^\s+|\s+$/g, ''))
+		if (this.TextUtils.trim(this.lastInput) == this.TextUtils.trim(this.bar.value))
 			return;
 
 		this.clear();
@@ -186,8 +186,10 @@ var XMigemoLocationBarOverlay = {
 			this.progressiveBuildTimer = window.setInterval(function(aSelf) {
 				aSelf.progressiveBuild();
 				if (aSelf.threadDone ||
-					aSelf.results.length >= maxResults)
+					aSelf.results.length >= maxResults) {
+					aSelf.busy = false;
 					aSelf.stopProgressiveBuild();
+				}
 			}, 1, this);
 
 			this.thread.dispatch(this, this.thread.DISPATCH_NORMAL);
@@ -213,6 +215,7 @@ var XMigemoLocationBarOverlay = {
 					runner.next();
 				}
 				catch(e) {
+					aSelf.busy = false;
 					aSelf.stopProgressiveBuild();
 				}
 			}, 1, this);
@@ -258,13 +261,13 @@ var XMigemoLocationBarOverlay = {
 			var terms = XMigemoCore.getRegExps(this.lastInput);
 			this.lastFindRegExp = new RegExp(
 				(XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
-					XMigemoCore.expandTermsForANDFind(terms) :
+					this.TextUtils.getANDFindRegExpFromTerms(terms) :
 					XMigemoCore.getRegExp(this.lastInput)
 				),
 				'gim'
 			);
 			this.lastTermsRegExp = new RegExp(
-				XMigemoCore.expandTermsForORFind(terms),
+				this.TextUtils.getORFindRegExpFromTerms(terms),
 				'gim'
 			);
 		}
@@ -276,9 +279,9 @@ var XMigemoLocationBarOverlay = {
 		if (!sources) return false;
 		var terms = sources.match(aFindRegExp);
 		if (!terms) return true;
-		terms = XMigemoCore.brushUpTerms(terms);
+		terms = this.TextUtils.brushUpTerms(terms);
 		results = XMigemoPlaces.findLocationBarItemsFromTerms(terms, aTermsRegExp, aStart, aRange);
-		this.lastTerms = XMigemoCore.brushUpTerms(this.lastTerms.concat(terms));
+		this.lastTerms = this.TextUtils.brushUpTerms(this.lastTerms.concat(terms));
 		this.results = this.results.concat(results);
 		return true;
 	},
@@ -314,7 +317,6 @@ var XMigemoLocationBarOverlay = {
 			controller.searchStringOverride = this.lastInput;
 			this.clearListbox();
 		}
-		this.busy = false;
 		for (let i = this.builtCount, maxi = this.results.length; i < maxi; i++)
 		{
 			this.buildItemAt(i);

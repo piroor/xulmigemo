@@ -107,7 +107,7 @@ pXMigemoEngineJa.prototype = {
 		var zen = XMigemoTextService.roman2zen(aInput); // aInput ?
 		mydump('zen: '+encodeURIComponent(zen));
 
-		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, {});
+		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC);
 
 		var original = XMigemoTextUtils.sanitize(aInput);
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
@@ -162,7 +162,7 @@ pXMigemoEngineJa.prototype = {
 				.replace(/\|\)/g, ')');
 	},
  
-	splitInput : function(aInput, aCount) 
+	splitInput : function(aInput) 
 	{
 		var terms = (
 					(/^[A-Z]{2,}/.test(aInput)) ?
@@ -179,14 +179,12 @@ pXMigemoEngineJa.prototype = {
 				.replace(/^[\s\t]+|[\s\t]+$/g, '')
 				.split('\t');
 
-		aCount.value = terms.length;
 		return terms;
 	},
  
-	gatherEntriesFor : function(aInput, aTargetDic, aCount) 
+	gatherEntriesFor : function(aInput, aTargetDic) 
 	{
 		if (!aInput) {
-			aCount.value = 0;
 			return [];
 		}
 
@@ -258,7 +256,6 @@ pXMigemoEngineJa.prototype = {
 			}
 		}
 
-		aCount.value = lines.length;
 		return lines;
 	},
  

@@ -19,8 +19,28 @@ pXMigemoTextUtils.prototype = {
 		return this;
 	},
 	 
-/* convert HTML to text */ 
+/* string operations */ 
 	 
+	trim : function(aInput) 
+	{
+		return aInput
+				.replace(this.kTRIM_PATTERN, '');
+	},
+	kTRIM_PATTERN : /^\s+|\s+$/g,
+ 	
+	brushUpTerms : function(aTerms) 
+	{
+		return aTerms
+				.sort()
+				.join('\n')
+				.toLowerCase()
+				.replace(this.kBRUSH_UP_PATTERN, '$1')
+				.split('\n');
+	},
+	kBRUSH_UP_PATTERN : /^(.+)(\n\1$)+/gim,
+  
+/* convert HTML to text */ 
+	
 	range2Text : function(aRange) 
 	{
 		var doc = aRange.startContainer;
@@ -122,9 +142,128 @@ pXMigemoTextUtils.prototype = {
 		return this.kREGEXP_PATTERN.test(aInput);
 	},
  
-	kREGEXP_PATTERN : /^\/((?:\\.|\[(?:\\.|[^\]])*\]|[^\/])+)\/([gimy]*)/,
+	kREGEXP_PATTERN : /^\/((?:\\.|\[(?:\\.|[^\]])*\]|[^\/])+)\/([gimy]*)/, 
 	// old version: /^\/((?:\\.|[^\/])+)\/[gimy]*$/
 	// see http://nanto.asablo.jp/blog/2008/05/22/3535735
+  
+	getMatchedTermsFromSource : function(aRegExp, aSource) 
+	{
+		var regexp = new RegExp(aRegExp , 'gim');
+		var result = (aSource || '').match(regexp) || [];
+		return this.brushUpTerms(result);
+	},
+ 
+	getORFindRegExpFromTerms : function(aTerms) 
+	{
+		return '(?:'+aTerms.join(')|(?:')+')';
+	},
+ 
+	getANDFindRegExpFromTerms : function(aTerms) 
+	{
+		if (!this.db) return '';
+
+		switch (aTerms.length)
+		{
+			case 0:
+				return '';
+			case 1:
+				return aTerms[0];
+			case 2:
+				return '(?:'+aTerms[0]+').*(?:'+aTerms[1]+')|'+
+					'(?:'+aTerms[1]+').*(?:'+aTerms[0]+')';
+			default:
+				break;
+		}
+
+		var tableName = 'temp'+parseInt(Math.random() * 65000);
+		this.db.executeSimpleSQL('CREATE TEMP TABLE '+tableName+' (term TEXT)');
+
+		try {
+			var self = this;
+			aTerms.forEach(function(aTerm, aIndex) {
+				var statement = self.db.createStatement('INSERT INTO '+tableName+' (term) VALUES (?1)');
+				try {
+					statement.bindStringParameter(0, aTerm);
+					while (statement.executeStep()) {};
+				}
+				finally {
+					statement.reset();
+				}
+			});
+	/*
+		SELECT v1.term term1,
+		       v2.term term2,
+		       v3.term term3,
+		       v4.term term4
+		  FROM temp v1, temp v2, temp v3, temp v4
+		 WHERE term1 NOT IN (term2, term3, term4)
+		       AND term2 NOT IN (term1, term3, term4)
+		       AND term3 NOT IN (term1, term2, term4)
+		       AND term4 NOT IN (term1, term2, term3)
+	*/
+			var statement = this.db.createStatement(
+					'SELECT '+
+					aTerms.map(function(aTerm, aIndex) {
+						return 'v'+aIndex+'.term term'+aIndex;
+					}).join(', ')+
+					' FROM '+
+					aTerms.map(function(aTerm, aIndex) {
+						return tableName+' v'+aIndex;
+					}).join(', ')+
+					' WHERE '+
+					aTerms.map(function(aTerm, aIndex) {
+						return 'term'+aIndex+' NOT IN ('+
+							aTerms.map(function(aTerm, aRejectIndex) {
+								return 'term'+aRejectIndex;
+							}).filter(function(aTerm, aRejectIndex) {
+								return aRejectIndex != aIndex;
+							}).join(', ')+
+							')';
+					}).join(' AND ')
+				);
+			var results = [];
+			try {
+				while (statement.executeStep())
+				{
+					results.push(
+						'('+
+						aTerms.map(function(aTerm, aIndex) {
+							return statement.getString(aIndex)
+						}).join(').*(?:')+
+						')'
+					);
+				}
+			}
+			finally {
+				statement.reset();
+			}
+		}
+		finally {
+			this.db.executeSimpleSQL('DROP TABLE '+tableName);
+		}
+
+		return results.join('|');
+	},
+	
+	get db() 
+	{
+		if (this._db)
+			return this._db;
+
+		const DirectoryService = Components
+			.classes['@mozilla.org/file/directory_service;1']
+			.getService(Components.interfaces.nsIProperties);
+		var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
+		file.append('xulmigemo.sqlite');
+
+		const StorageService = Components
+			.classes['@mozilla.org/storage/service;1']
+			.getService(Components.interfaces.mozIStorageService);
+		this._db = StorageService.openDatabase(file);
+
+		return this._db;
+	},
+//	_db : null,
   
 	// obsolete (from 0.8.0)
 	reverseRegExp : function(aExp) 
@@ -152,7 +291,7 @@ pXMigemoTextUtils.prototype = {
 	},
   
 /* Restore selection after "highlight all" */ 
-	 
+	
 	getFoundRange : function(aFrame) 
 	{
 		try {
@@ -180,7 +319,7 @@ pXMigemoTextUtils.prototype = {
 		}
 		return null;
 	},
- 	
+ 
 	isRangeOverlap : function(aBaseRange, aTargetRange) 
 	{
 		if (
