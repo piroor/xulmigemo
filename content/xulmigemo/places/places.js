@@ -1,11 +1,26 @@
 var XMigemoPlaces = { 
 	 
+	chunk     : 100, 
+	ignoreURI : true,
+	minLength : 3,
+ 
 	TextUtils : Components 
 			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
 			.getService(Components.interfaces.pIXMigemoTextUtils),
+ 	
+	isValidInput : function(aInput) 
+	{
+		return (
+			(
+				!this.ignoreURI ||
+				!/^\w+:\/\//.test(aInput)
+			) &&
+			this.minLength <= aInput.length
+			);
+	},
  
 /* SQL */ 
-	 
+	
 	get placesSourceInRangeSQL() 
 	{
 		if (!this._placesSourceInRangeSQL) {
@@ -211,7 +226,7 @@ var XMigemoPlaces = {
 		if (!aBaseQuery || !aOptions || !aTree || !aSourceSQL) return;
 
 		if (
-			XMigemoService.getPref('xulmigemo.autostart.regExpFind') &&
+			this.autoStartRegExpFind &&
 			this.TextUtils.isRegExp(aBaseQuery.searchTerms)
 			) {
 			this.lastFindRegExp =
@@ -220,7 +235,7 @@ var XMigemoPlaces = {
 		else {
 			var regexps = XMigemoCore.getRegExps(aBaseQuery.searchTerms);
 			this.lastFindRegExp = new RegExp(
-				(XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
+				(XMigemoService.getPref('xulmigemo.places.enableANDFind') ?
 					this.TextUtils.getANDFindRegExpFromTerms(regexps) :
 					XMigemoCore.getRegExp(aBaseQuery.searchTerms)
 				), 'gim');
@@ -230,15 +245,14 @@ var XMigemoPlaces = {
 		this.lastQueries = [];
 
 		var current = 0;
-		var step = XMigemoService.getPref('xulmigemo.places.collectingStep');
 		var lastQueriesCount = 0;
 		this.progressiveLoadTimer = window.setInterval(function(aSelf) {
-			if (aSelf.updateQuery(aBaseQuery, aSourceSQL, current, step)) {
+			if (aSelf.updateQuery(aBaseQuery, aSourceSQL, current, aSelf.chunk)) {
 				if (aSelf.lastQueries.length != lastQueriesCount) {
 					aTree.load(aSelf.lastQueries, aOptions);
 					lastQueriesCount = aSelf.lastQueries.length;
 				}
-				current += step;
+				current += aSelf.chunk;
 			}
 			else {
 				aSelf.stopProgressiveLoad();
@@ -276,7 +290,7 @@ var XMigemoPlaces = {
 		});
 		return true;
 	},
- 	 
+  
 	findLocationBarItemsFromTerms : function(aTerms, aTermsRegExp, aStart, aRange) 
 	{
 		var items = [];
@@ -361,7 +375,75 @@ var XMigemoPlaces = {
 			statement.reset();
 		}
 		return items;
-	}
+	},
  
+/* event handling */ 
+	 
+	observe : function(aSubject, aTopic, aPrefName) 
+	{
+		if (aTopic != 'nsPref:changed') return;
+
+		var value = XMigemoService.getPref(aPrefName);
+		switch (aPrefName)
+		{
+			case 'xulmigemo.places.chunk':
+				this.chunk = value;
+				return;
+
+			case 'xulmigemo.places.ignoreURI':
+				this.ignoreURI = value;
+				return;
+
+			case 'xulmigemo.places.minLength':
+				this.minLength = value;
+				return;
+
+			case 'xulmigemo.autostart.regExpFind':
+				this.autoStartRegExpFind = value;
+				return;
+
+			default:
+				return;
+		}
+	},
+	domains : [
+		'xulmigemo.places',
+		'xulmigemo.autostart.regExpFind'
+	],
+	preferences : <![CDATA[
+		xulmigemo.places.ignoreURI
+		xulmigemo.places.chunk
+		xulmigemo.places.minLength
+		xulmigemo.autostart.regExpFind
+	]]>.toString(),
+ 
+	handleEvent : function(aEvent) 
+	{
+		switch (aEvent.type)
+		{
+			case 'load':
+				this.init();
+				break;
+
+			case 'unload':
+				this.destroy();
+				break;
+		}
+	},
+	 
+	init : function() 
+	{
+		window.removeEventListener('load', this, false);
+
+		XMigemoService.addPrefListener(this);
+		window.addEventListener('unload', this, false);
+	},
+ 
+	destroy : function() 
+	{
+		window.removeEventListener('unload', this, false);
+		XMigemoService.removePrefListener(this);
+	}
+   
 }; 
   

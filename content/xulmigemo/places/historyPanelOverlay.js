@@ -11,7 +11,8 @@ var XMigemoHistoryPanelOverlay = {
 			window.searchHistory.toSource().replace(
 				'gHistoryTree.load([query], options);',
 				<![CDATA[
-					if (XMigemoService.getPref('xulmigemo.places.historyPanel'))
+					if (XMigemoService.getPref('xulmigemo.places.historyPanel') &&
+						XMigemoPlaces.isValidInput(query.searchTerms))
 						XMigemoPlaces.startProgressiveLoad(query, options, gHistoryTree,
 							XMigemoPlaces.historyInRangeSQL);
 					else
@@ -24,7 +25,8 @@ var XMigemoHistoryPanelOverlay = {
 			tree.applyFilter.toSource().replace(
 				'this.load([query], options);',
 				<![CDATA[
-					if (XMigemoService.getPref('xulmigemo.places.historyPanel'))
+					if (XMigemoService.getPref('xulmigemo.places.historyPanel') &&
+						XMigemoPlaces.isValidInput(query.searchTerms))
 						XMigemoPlaces.startProgressiveLoad(query, options, this,
 							XMigemoPlaces.historyInRangeSQL);
 					else

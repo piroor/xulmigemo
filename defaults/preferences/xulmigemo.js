@@ -74,12 +74,12 @@ pref("xulmigemo.cache.override.ja",             "migemocache.txt");
 pref("xulmigemo.find_delay",                    50);
 
 
-pref("xulmigemo.places.splitByWhiteSpaces",    true);
-pref("xulmigemo.places.collectingStep",        100);
+pref("xulmigemo.places.enableANDFind",         true);
+pref("xulmigemo.places.chunk",                 100);
+pref("xulmigemo.places.minLength",             2);
+pref("xulmigemo.places.ignoreURI",             true);
 pref("xulmigemo.places.locationBar",           true);
-pref("xulmigemo.places.locationBar.ignoreURI", true);
 pref("xulmigemo.places.locationBar.delay",     250);
-pref("xulmigemo.places.locationBar.minLength", 2);
 pref("xulmigemo.places.locationBar.useThread", false);
 pref("xulmigemo.places.bookmarksPanel",        true);
 pref("xulmigemo.places.historyPanel",          true);

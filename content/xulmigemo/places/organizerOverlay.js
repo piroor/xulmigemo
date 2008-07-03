@@ -8,7 +8,8 @@ var XMigemoOrganizerOverlay = {
 			PlacesSearchBox.search.toSource().replace(
 				'content.load([query], options)',
 				<![CDATA[
-					if (XMigemoService.getPref('xulmigemo.places.organizer'))
+					if (XMigemoService.getPref('xulmigemo.places.organizer') &&
+						XMigemoPlaces.isValidInput(query.searchTerms))
 						XMigemoPlaces.startProgressiveLoad(query, options, content,
 							XMigemoPlaces.historyInRangeSQL);
 					else
@@ -22,7 +23,8 @@ var XMigemoOrganizerOverlay = {
 			tree.applyFilter.toSource().replace(
 				'this.load([query], options);',
 				<![CDATA[
-					if (XMigemoService.getPref('xulmigemo.places.organizer'))
+					if (XMigemoService.getPref('xulmigemo.places.organizer') &&
+						XMigemoPlaces.isValidInput(query.searchTerms))
 						XMigemoPlaces.startProgressiveLoad(query, options, this,
 							options.queryType == Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY ?
 								XMigemoPlaces.historyInRangeSQL :
