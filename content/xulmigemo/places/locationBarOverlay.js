@@ -8,9 +8,7 @@ var XMigemoLocationBarOverlay = {
 	thread : null,
 
 	enabled   : true,
-	ignoreURI : true,
 	delay     : 250,
-	minLength : 3,
 	useThread : false,
  
 	Converter : Components 
@@ -88,11 +86,7 @@ var XMigemoLocationBarOverlay = {
 		var input = this.input;
 		return (
 			this.enabled &&
-			(
-				!this.ignoreURI ||
-				!/^\w+:\/\//.test(input)
-			) &&
-			this.minLength <= input.length
+			XMigemoPlaces.isValidInput(input)
 			);
 	},
   
@@ -109,24 +103,12 @@ var XMigemoLocationBarOverlay = {
 				this.enabled = value;
 				return;
 
-			case 'xulmigemo.places.locationBar.ignoreURI':
-				this.ignoreURI = value;
-				return;
-
 			case 'xulmigemo.places.locationBar.delay':
 				this.delay = value;
 				return;
 
-			case 'xulmigemo.places.locationBar.minLength':
-				this.minLength = value;
-				return;
-
 			case 'xulmigemo.places.locationBar.useThread':
 				this.useThread = value;
-				return;
-
-			case 'xulmigemo.autostart.regExpFind':
-				this.autoStartRegExpFind = value;
 				return;
 
 			default:
@@ -134,18 +116,14 @@ var XMigemoLocationBarOverlay = {
 		}
 	},
 	domains : [
-		'xulmigemo.places',
-		'xulmigemo.autostart.regExpFind'
+		'xulmigemo.places.locationBar'
 	],
 	preferences : <![CDATA[
 		xulmigemo.places.locationBar
-		xulmigemo.places.locationBar.ignoreURI
 		xulmigemo.places.locationBar.delay
-		xulmigemo.places.locationBar.minLength
 		xulmigemo.places.locationBar.useThread
-		xulmigemo.autostart.regExpFind
 	]]>.toString(),
- 	
+ 
 	handleEvent : function(aEvent) 
 	{
 		switch (aEvent.type)
@@ -211,13 +189,12 @@ var XMigemoLocationBarOverlay = {
 			{
 				var maxResults = aSelf.panel.maxResults;
 				var current = 0;
-				var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
-				while (aSelf.updateResultsForRange(aSelf.lastFindRegExp, aSelf.lastTermsRegExp, current, range))
+				while (aSelf.updateResultsForRange(aSelf.lastFindRegExp, aSelf.lastTermsRegExp, current, XMigemoPlaces.chunk))
 				{
 					aSelf.progressiveBuild();
-					if (aSelf.results.length >= maxResults) break;
+					if (aSelf.results.length >= maxResults) break;	
 					yield;
-					current += range;
+					current += XMigemoPlaces.chunk;
 				}
 			}
 			var runner = DelayedRunner(this);
@@ -249,11 +226,10 @@ var XMigemoLocationBarOverlay = {
 	{
 		var maxResults = this.panel.maxResults;
 		var current = 0;
-		var range = XMigemoService.getPref('xulmigemo.places.collectingStep');
-		while (this.updateResultsForRange(this.lastFindRegExp, this.lastTermsRegExp, current, range) &&
+		while (this.updateResultsForRange(this.lastFindRegExp, this.lastTermsRegExp, current, XMigemoPlaces.chunk) &&
 			this.results.length < maxResults)
 		{
-			current += range;
+			current += XMigemoPlaces.chunk;
 		}
 		this.threadDone = true;
 	},
@@ -266,7 +242,7 @@ var XMigemoLocationBarOverlay = {
   
 	updateRegExp : function() 
 	{
-		if (this.autoStartRegExpFind &&
+		if (XMigemoPlaces.autoStartRegExpFind &&
 			this.TextUtils.isRegExp(this.lastInput)) {
 			var source = this.TextUtils.extractRegExpSource(this.lastInput);
 			this.lastFindRegExp =
@@ -275,7 +251,7 @@ var XMigemoLocationBarOverlay = {
 		else {
 			var terms = XMigemoCore.getRegExps(this.lastInput);
 			this.lastFindRegExp = new RegExp(
-				(XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
+				(XMigemoService.getPref('xulmigemo.places.enableANDFind') ?
 					this.TextUtils.getANDFindRegExpFromTerms(terms) :
 					XMigemoCore.getRegExp(this.lastInput)
 				),
@@ -287,7 +263,7 @@ var XMigemoLocationBarOverlay = {
 			);
 		}
 	},
- 
+ 	
 	updateResultsForRange : function(aFindRegExp, aTermsRegExp, aStart, aRange) 
 	{
 		var sources = XMigemoPlaces.getSourceInRange(
