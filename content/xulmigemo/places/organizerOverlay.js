@@ -8,16 +8,11 @@ var XMigemoOrganizerOverlay = {
 			PlacesSearchBox.search.toSource().replace(
 				'content.load([query], options)',
 				<![CDATA[
-					content.load(
-						(!XMigemoService.getPref('xulmigemo.places.organizer') ?
-							[query] :
-							XMigemoPlaces.expandNavHistoryQuery(
-								query,
-								XMigemoPlaces.historySource
-							)
-						),
-						options
-					);
+					if (XMigemoService.getPref('xulmigemo.places.organizer'))
+						XMigemoPlaces.startProgressiveLoad(query, options, content,
+							XMigemoPlaces.historyInRangeSQL);
+					else
+						$&
 				]]>
 			)
 		);
@@ -27,18 +22,14 @@ var XMigemoOrganizerOverlay = {
 			tree.applyFilter.toSource().replace(
 				'this.load([query], options);',
 				<![CDATA[
-					this.load(
-						(!XMigemoService.getPref('xulmigemo.places.organizer') ?
-							[query] :
-							XMigemoPlaces.expandNavHistoryQuery(
-								query,
-								options.queryType == Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY ?
-									XMigemoPlaces.historySource :
-									XMigemoPlaces.allBookmarksSource
-							)
-						),
-						options
-					);
+					if (XMigemoService.getPref('xulmigemo.places.organizer'))
+						XMigemoPlaces.startProgressiveLoad(query, options, this,
+							options.queryType == Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY ?
+								XMigemoPlaces.historyInRangeSQL :
+								XMigemoPlaces.bookmarksInRangeSQL
+						);
+					else
+						$&
 				]]>
 			)
 		);

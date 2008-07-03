@@ -11,16 +11,11 @@ var XMigemoBookmarksPanelOverlay = {
 			tree.applyFilter.toSource().replace(
 				'this.load([query], options);',
 				<![CDATA[
-					this.load(
-						(!XMigemoService.getPref('xulmigemo.places.bookmarksPanel') ?
-							[query] :
-							XMigemoPlaces.expandNavHistoryQuery(
-								query,
-								XMigemoPlaces.allBookmarksSource
-							)
-						),
-						options
-					);
+					if (XMigemoService.getPref('xulmigemo.places.bookmarksPanel'))
+						XMigemoPlaces.startProgressiveLoad(query, options, this,
+							XMigemoPlaces.bookmarksInRangeSQL);
+					else
+						$&
 				]]>
 			)
 		);

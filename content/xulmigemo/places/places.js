@@ -15,7 +15,7 @@ var XMigemoPlaces = {
 		}
 		return this._placesSourceInRangeSQL;
 	},
-	 
+	
 	placesSourceInRangeSQLBase : <![CDATA[ 
 		SELECT GROUP_CONCAT(
 		         title                  || ' ' ||
@@ -33,6 +33,57 @@ var XMigemoPlaces = {
 		         LIMIT ?2,?3)
 	]]>.toString(),
   
+	get historyInRangeSQL() 
+	{
+		if (!this._historyInRangeSQL) {
+			this._historyInRangeSQL = this.historyInRangeSQLBase
+				.replace('%TAGS%', this.tagsSQLFragment);
+		}
+		return this._historyInRangeSQL;
+	},
+	
+	historyInRangeSQLBase : <![CDATA[ 
+		SELECT GROUP_CONCAT(
+		         title              || ' ' ||
+		         COALESCE(tags, '') || ' ' ||
+		         uri,
+		         ?1
+		       )
+		  FROM (SELECT p.id id,
+		               p.title title,
+		               p.url uri,
+		               (%TAGS%) tags
+		          FROM moz_places p
+		         WHERE p.hidden <> 1
+		         LIMIT ?2,?3)
+	]]>.toString(),
+  
+	get bookmarksInRangeSQL() 
+	{
+		if (!this._bookmarksInRangeSQL) {
+			this._bookmarksInRangeSQL = this.bookmarksInRangeSQLBase
+				.replace('%TAGS%', this.tagsSQLFragment);
+		}
+		return this._bookmarksInRangeSQL;
+	},
+	
+	bookmarksInRangeSQLBase : <![CDATA[ 
+		SELECT GROUP_CONCAT(
+		         title || ' ' ||
+		         COALESCE(tags, '') || ' ' ||
+		         uri,
+		         ?1
+		       )
+		  FROM (SELECT b.id id,
+		               b.title title,
+		               p.url uri,
+		               (%TAGS%) tags
+		          FROM moz_bookmarks b
+		               LEFT OUTER JOIN moz_places p ON b.fk = p.id
+		         WHERE b.type = 1 AND b.title IS NOT NULL
+		         LIMIT ?2,?3)
+	]]>.toString(),
+  
 	get locationBarItemsSQL() 
 	{
 		if (!this._locationBarItemsSQL) {
@@ -43,7 +94,7 @@ var XMigemoPlaces = {
 		}
 		return this._locationBarItemsSQL;
 	},
-	 
+	
 	locationBarItemsSQLBase : <![CDATA[ 
 		SELECT title, uri, favicon, bookmark, tags, findkey
 		  FROM (SELECT *,
@@ -72,56 +123,6 @@ var XMigemoPlaces = {
 		       AND %ONLY_TYPED%
 		 ORDER BY frecency DESC
 		 LIMIT 0,?1
-	]]>.toString(),
-  
-	get allHistorySQL() 
-	{
-		if (!this._allHistorySQL) {
-			this._allHistorySQL = this.allHistorySQLBase
-				.replace('%TAGS%', this.tagsSQLFragment);
-		}
-		return this._allHistorySQL;
-	},
-	 
-	allHistorySQLBase : <![CDATA[ 
-		SELECT GROUP_CONCAT(
-		         title              || ' ' ||
-		         COALESCE(tags, '') || ' ' ||
-		         uri,
-		         ?1
-		       )
-		  FROM (SELECT p.id id,
-		               p.title title,
-		               p.url uri,
-		               (%TAGS%) tags
-		          FROM moz_places p
-		         WHERE p.hidden <> 1)
-		 GROUP BY id
-	]]>.toString(),
-  
-	get allBookmarksSQL() 
-	{
-		if (!this._allBookmarksSQL) {
-			this._allBookmarksSQL = this.allBookmarksSQLBase
-				.replace('%TAGS%', this.tagsSQLFragment);
-		}
-		return this._allBookmarksSQL;
-	},
-	 
-	allBookmarksSQLBase : <![CDATA[ 
-		SELECT GROUP_CONCAT(
-		         title || ' ' ||
-		         COALESCE(tags, '') || ' ' ||
-		         uri,
-		         ?1
-		       )
-		  FROM (SELECT b.id id,
-		               b.title title,
-		               p.url uri,
-		               (%TAGS%) tags
-		          FROM moz_bookmarks b
-		               LEFT OUTER JOIN moz_places p ON b.fk = p.id)
-		 GROUP BY id
 	]]>.toString(),
   
 	parentFolderSQLFragment : <![CDATA[ 
@@ -159,6 +160,28 @@ var XMigemoPlaces = {
 		 WHERE b.type = 1 AND b.fk = p.id
 	]]>.toString(),
   
+	getSourceInRange : function(aSQL, aStart, aRange) 
+	{
+		if (!this.db) return '';
+
+		aStart = Math.max(0, aStart);
+		aRange = Math.max(0, aRange);
+		if (!aRange) return '';
+
+		var statement = this.db.createStatement(aSQL);
+		statement.bindStringParameter(0, '\n');
+		statement.bindDoubleParameter(1, aStart);
+		statement.bindDoubleParameter(2, aRange);
+
+		var sources;
+		while(statement.executeStep())
+		{
+			sources = statement.getString(0);
+		};
+		statement.reset();
+		return this.TextUtils.trim(sources || '');
+	},
+	
 	get db() 
 	{
 		if (this._db !== void(0))
@@ -181,108 +204,79 @@ var XMigemoPlaces = {
 		return this._db;
 	},
 //	_db : null,
-	 
-	getPlacesSourceInRange : function(aStart, aRange) 
-	{
-		if (!this.db) return '';
-
-		aStart = Math.max(0, aStart);
-		aRange = Math.max(0, aRange);
-		if (!aRange) return '';
-
-		var statement = this.db.createStatement(this.placesSourceInRangeSQL);
-		statement.bindStringParameter(0, '\n');
-		statement.bindDoubleParameter(1, aStart);
-		statement.bindDoubleParameter(2, aRange);
-
-		var sources;
-		while(statement.executeStep())
-		{
-			sources = statement.getString(0);
-		};
-		statement.reset();
-		return this.TextUtils.trim(sources || '');
-	},
- 
-	get historySource() 
-	{
-		if (!this.db) return '';
-
-		var statement = this.db.createStatement(this.allHistorySQL);
-		statement.bindStringParameter(0, '\n');
-
-		var sources = [];
-		while(statement.executeStep())
-		{
-			sources.push(statement.getString(0));
-		};
-		statement.reset();
-
-		return sources.join('\n');
-	},
- 
-	get allBookmarksSource() 
-	{
-		if (!this.db) return '';
-
-		var statement = this.db.createStatement(this.allBookmarksSQL);
-		statement.bindStringParameter(0, '\n');
-
-		var sources = [];
-		while(statement.executeStep())
-		{
-			sources.push(statement.getString(0));
-		};
-		statement.reset();
-
-		return sources.join('\n');
-	},
   
-	expandNavHistoryQuery : function(aQuery, aSource) 
+	startProgressiveLoad : function(aBaseQuery, aOptions, aTree, aSourceSQL) 
 	{
-		if (!aSource) {
-			var folders = aQuery.getFolders({});
-			var self = this;
-			aSource = folders.map(function(aFolder) {
-				return self.getBookmarksSourceIn(aFolder);
-			}).join('\n');
-		}
+		this.stopProgressiveLoad();
+		if (!aBaseQuery || !aOptions || !aTree || !aSourceSQL) return;
 
-		var regexps = XMigemoCore.getRegExps(aQuery.searchTerms);
-		var termsRegExp = new RegExp(this.TextUtils.getORFindRegExpFromTerms(regexps), 'gim');
-
-		var terms = (
-				XMigemoService.getPref('xulmigemo.autostart.regExpFind') &&
-				this.TextUtils.isRegExp(aQuery.searchTerms)
-			) ?
-				this.TextUtils.getMatchedTermsFromSource(
-					this.TextUtils.extractRegExpSource(aQuery.searchTerms),
-					aSource
-				) :
-				this.TextUtils.getMatchedTermsFromSource(
-					(XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
-						this.TextUtils.getANDFindRegExpFromTerms(regexps) :
-						XMigemoCore.getRegExp(aQuery.searchTerms)
-					),
-					aSource
-				).map(function(aTermSet) {
-					return aTermSet.match(termsRegExp).join(' ');
-				});
-		var queries = [];
-		if (terms.length) {
-			queries = queries
-				.concat(terms.map(function(aTermSet) {
-					var newQuery = aQuery.clone();
-					newQuery.searchTerms = aTermSet;
-					return newQuery;
-				}));
+		if (
+			XMigemoService.getPref('xulmigemo.autostart.regExpFind') &&
+			this.TextUtils.isRegExp(aBaseQuery.searchTerms)
+			) {
+			this.lastFindRegExp =
+				this.lastTermsRegExp = new RegExp(this.TextUtils.extractRegExpSource(aQuery.searchTerms), 'gim');
 		}
 		else {
-			queries.push(aQuery);
+			var regexps = XMigemoCore.getRegExps(aBaseQuery.searchTerms);
+			this.lastFindRegExp = new RegExp(
+				(XMigemoService.getPref('xulmigemo.places.splitByWhiteSpaces') ?
+					this.TextUtils.getANDFindRegExpFromTerms(regexps) :
+					XMigemoCore.getRegExp(aBaseQuery.searchTerms)
+				), 'gim');
+			this.lastTermsRegExp = new RegExp(this.TextUtils.getORFindRegExpFromTerms(regexps), 'gim');
 		}
-		return queries;
+		this.lastTermSets = [];
+		this.lastQueries = [];
+
+		var current = 0;
+		var step = XMigemoService.getPref('xulmigemo.places.collectingStep');
+		var lastQueriesCount = 0;
+		this.progressiveLoadTimer = window.setInterval(function(aSelf) {
+			if (aSelf.updateQuery(aBaseQuery, aSourceSQL, current, step)) {
+				if (aSelf.lastQueries.length != lastQueriesCount) {
+					aTree.load(aSelf.lastQueries, aOptions);
+					lastQueriesCount = aSelf.lastQueries.length;
+				}
+				current += step;
+			}
+			else {
+				aSelf.stopProgressiveLoad();
+			}
+		}, 1, this);
 	},
- 	
+	 
+	stopProgressiveLoad : function() 
+	{
+		if (!this.progressiveLoadTimer) return;
+		window.clearInterval(this.progressiveLoadTimer);
+		this.progressiveLoadTimer = null;
+	},
+	progressiveLoadTimer : null,
+ 
+	updateQuery : function(aBaseQuery, aSourceSQL, aStart, aRange) 
+	{
+		var source = this.getSourceInRange(aSourceSQL, aStart, aRange);
+		if (!source) return false;
+
+		var termSets = source.match(this.lastFindRegExp);
+		if (!termSets) return true;
+
+		var regexp = this.lastTermsRegExp;
+		termSets = this.TextUtils.brushUpTerms(termSets)
+			.map(function(aTermSet) {
+				return aTermSet.match(regexp).join(' ');
+			});
+
+		this.lastTermSets = this.TextUtils.brushUpTerms(this.lastTermSets.concat(termSets));
+		this.lastQueries = this.lastTermSets.map(function(aTermSet) {
+			var newQuery = aBaseQuery.clone();
+			newQuery.searchTerms = aTermSet;
+			return newQuery;
+		});
+		return true;
+	},
+ 	 
 	findLocationBarItemsFromTerms : function(aTerms, aTermsRegExp, aStart, aRange) 
 	{
 		var items = [];
