@@ -273,7 +273,11 @@ var XMigemoLocationBarOverlay = {
 		if (!sources) return false;
 		var terms = sources.match(aFindRegExp);
 		if (!terms) return true;
-		terms = this.TextUtils.brushUpTerms(terms);
+		var utils = this.TextUtils;
+		terms = this.TextUtils.brushUpTerms(terms)
+			.filter(function(aTerm) {
+				return utils.trim(aTerm);
+			});
 		results = XMigemoPlaces.findLocationBarItemsFromTerms(terms, aTermsRegExp, aStart, aRange);
 		this.lastTerms = this.TextUtils.brushUpTerms(this.lastTerms.concat(terms));
 		this.results = this.results.concat(results);
