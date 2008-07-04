@@ -275,9 +275,13 @@ var XMigemoPlaces = {
 		if (!termSets) return true;
 
 		var regexp = this.lastTermsRegExp;
+		var utils = this.TextUtils;
 		termSets = this.TextUtils.brushUpTerms(termSets)
 			.map(function(aTermSet) {
 				return aTermSet.match(regexp).join(' ');
+			})
+			.filter(function(aTerm) {
+				return utils.trim(aTerm);
 			});
 
 		this.lastTermSets = this.TextUtils.brushUpTerms(this.lastTermSets.concat(termSets));
@@ -348,9 +352,15 @@ var XMigemoPlaces = {
 				statement.bindDoubleParameter(aTerms.length+2, Math.max(0, aRange));
 			}
 			var item, title, terms;
+			var utils = this.TextUtils;
 			while(statement.executeStep())
 			{
-				terms = this.TextUtils.brushUpTerms(statement.getString(5).match(aTermsRegExp) || []);
+				terms = this.TextUtils.brushUpTerms(
+						statement.getString(5).match(aTermsRegExp) ||
+						[]
+					).filter(function(aTerm) {
+						return utils.trim(aTerm);
+					});
 				item = {
 					title : (statement.getIsNull(0) ? '' : statement.getString(0) ),
 					uri   : statement.getString(1),
