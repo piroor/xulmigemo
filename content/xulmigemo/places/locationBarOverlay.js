@@ -296,6 +296,8 @@ var XMigemoLocationBarOverlay = {
 		this.lastTermsRegExp = null;
 		this.threadDone = true;
 
+		this.panel.overrideValue = null;
+
 //		this.bar.closePopup();
 
 		this.busy = false;
@@ -407,6 +409,13 @@ var XMigemoLocationBarOverlay = {
 				'{ if (XMigemoLocationBarOverlay.isMigemoActive) return;'
 			)
 		);
+		panel.__defineGetter__('overrideValue', function() {
+			return this.mXMigemoOverrideValue;
+		});
+		panel.__defineSetter__('overrideValue', function(aValue) {
+			this.mXMigemoOverrideValue = aValue;
+			return aValue;
+		});
 
 		window.__xulmigemo__BrowserCustomizeToolbar = window.BrowserCustomizeToolbar;
 		window.BrowserCustomizeToolbar = function() {
@@ -476,7 +485,16 @@ var XMigemoLocationBarOverlay = {
 				return this.controller.handleText(aIgnoreSelection);
 			},
 			handleEnter : function(aIsPopupSelection) {
-				this.service.clear();
+				var popup = this.input.popup;
+				var index = popup.selectedIndex;
+				if (this.resultsOverride.length &&
+					index > -1 &&
+					popup.mPopupOpen) {
+					popup.overrideValue = this.resultsOverride[index].uri;
+					window.setTimeout(function(aSelf) {
+						aSelf.service.clear();
+					}, 0, this);
+				}
 				return this.controller.handleEnter(aIsPopupSelection);
 			},
 			handleEscape : function() {
