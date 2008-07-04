@@ -278,7 +278,11 @@ var XMigemoPlaces = {
 		var utils = this.TextUtils;
 		termSets = this.TextUtils.brushUpTerms(termSets)
 			.map(function(aTermSet) {
-				return aTermSet.match(regexp).join(' ');
+				return aTermSet.match(regexp)
+					.filter(function(aTerm) {
+						return utils.trim(aTerm);
+					})
+					.join(' ');
 			})
 			.filter(function(aTerm) {
 				return utils.trim(aTerm);
