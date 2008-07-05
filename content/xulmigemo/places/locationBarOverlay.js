@@ -140,11 +140,7 @@ var XMigemoLocationBarOverlay = {
  
 	onSearchBegin : function() 
 	{
-		var controller = this.bar.controller;
-		controller.resultsOverride      = [];
-		controller.searchStringOverride = '';
-		controller.matchCountOverride   = 0;
-
+		this.bar.controller.clearOverride();
 		if (this.lastInput == this.input)
 			return;
 
@@ -503,6 +499,13 @@ XMIgemoAutoCompletePopupController.prototype = {
 		delete this.mController;
 	},
  
+	clearOverride : function() 
+	{
+		this.resultsOverride      = [];
+		this.searchStringOverride = '';
+		this.matchCountOverride   = 0;
+	},
+ 
 	STATUS_NONE              : Components.interfaces.nsIAutoCompleteController.STATUS_NONE, 
 	STATUS_SEARCHING         : Components.interfaces.nsIAutoCompleteController.STATUS_SEARCHING,
 	STATUS_COMPLETE_NO_MATCH : Components.interfaces.nsIAutoCompleteController.STATUS_COMPLETE_NO_MATCH,
@@ -626,10 +629,9 @@ XMIgemoAutoCompletePopupController.prototype = {
 			index > -1) {
 			var retval = false;
 			popup.selectedIndex = -1;
-/*
-	this.resultsOverride[i]に該当する項目を
-	データベースから削除する処理をここに書く
-*/
+			PlacesUtils.history
+				.QueryInterface(Components.interfaces.nsIBrowserHistory)
+				.removePage(makeURI(this.resultsOverride[index].uri));
 			this.resultsOverride.splice(index, 1);
 			this.matchCountOverride--;
 			if (index >= this.matchCountOverride)
