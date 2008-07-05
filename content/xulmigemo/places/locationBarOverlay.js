@@ -263,7 +263,7 @@ var XMigemoLocationBarOverlay = {
 			);
 		}
 	},
- 	
+ 
 	updateResultsForRange : function(aFindRegExp, aTermsRegExp, aStart, aRange) 
 	{
 		var sources = XMigemoPlaces.getSourceInRange(
@@ -392,7 +392,7 @@ var XMigemoLocationBarOverlay = {
 		XMigemoService.addPrefListener(this);
 		window.addEventListener('unload', this, false);
 	},
-	 
+	
 	overrideFunctions : function() 
 	{
 		eval('LocationBarHelpers._searchBegin = '+
@@ -445,144 +445,8 @@ var XMigemoLocationBarOverlay = {
 		var bar = this.bar;
 		if (!bar || bar.__xmigemo__mController) return;
 
-		const nsIAutoCompleteController = Components.interfaces.nsIAutoCompleteController;
 		bar.__xmigemo__mController = bar.mController;
-		bar.mController = {
-			service    : this,
-			get controller()
-			{
-				return this.service.bar.__xmigemo__mController;
-			},
-			STATUS_NONE              : nsIAutoCompleteController.STATUS_NONE,
-			STATUS_SEARCHING         : nsIAutoCompleteController.STATUS_SEARCHING,
-			STATUS_COMPLETE_NO_MATCH : nsIAutoCompleteController.STATUS_COMPLETE_NO_MATCH,
-			STATUS_COMPLETE_MATCH    : nsIAutoCompleteController.STATUS_COMPLETE_MATCH,
-
-			searchStringOverride : '',
-			matchCountOverride   : 0,
-			resultsOverride      : [],
-
-			get input() {
-				return this.controller.input;
-			},
-			set input(aValue) {
-				return this.controller.input = aValue;
-			},
-			get searchStatus(aValue) {
-				return this.controller.searchStatus;
-			},
-			get matchCount() {
-				return this.matchCountOverride || this.controller.matchCount;
-			},
-			startSearch : function(aString) {
-				if (this.service.isMigemoActive) return;
-				return this.controller.startSearch(aString);
-			},
-			stopSearch : function() {
-				return this.controller.stopSearch();
-			},
-			handleText : function(aIgnoreSelection) {
-				return this.controller.handleText(aIgnoreSelection);
-			},
-			handleEnter : function(aIsPopupSelection) {
-				var popup = this.input.popup;
-				var index = popup.selectedIndex;
-				if (this.resultsOverride.length &&
-					index > -1 &&
-					popup.mPopupOpen) {
-					popup.overrideValue = this.resultsOverride[index].uri;
-					window.setTimeout(function(aSelf) {
-						aSelf.service.clear();
-					}, 0, this);
-				}
-				return this.controller.handleEnter(aIsPopupSelection);
-			},
-			handleEscape : function() {
-				this.service.clear();
-				var retval = this.controller.handleEscape();
-				if (retval &&
-					this.input.textValue == this.searchString &&
-					this.searchStringOverride) {
-					this.input.textValue = this.searchStringOverride;
-				}
-				return retval;
-			},
-			handleStartComposition : function() {
-				return this.controller.handleStartComposition();
-			},
-			handleEndComposition : function() {
-				return this.controller.handleEndComposition();
-			},
-			handleTab : function() {
-				return this.controller.handleTab();
-			},
-			handleKeyNavigation : function(aKey) {
-				const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
-				var input = this.input;
-				var popup = input.popup;
-				if (
-					(
-						aKey == nsIDOMKeyEvent.DOM_VK_UP ||
-						aKey == nsIDOMKeyEvent.DOM_VK_DOWN ||
-						aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP ||
-						aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN
-					) && popup.mPopupOpen
-					) {
-					var reverse = (aKey == nsIDOMKeyEvent.DOM_VK_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP);
-					var page = (aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN);
-					var completeSelection = input.completeSelectedIndex;
-					popup.selectBy(reverse, page);
-					if (completeSelection) {
-						var selectedIndex = popup.selectedIndex;
-						if (selectedIndex >= 0) {
-							var items = this.service.items;
-							input.textValue = items[selectedIndex].getAttribute('url');
-						}
-						else {
-							input.textValue = this.searchStringOverride || this.searchString;
-						}
-						input.selectTextRange(input.textValue.length, input.textValue.length);
-					}
-					return true;
-				}
-				return this.controller.handleKeyNavigation(aKey);
-			},
-			handleDelete : function() {
-				return this.controller.handleDelete();
-			},
-			getValueAt : function(aIndex) {
-				if (this.resultsOverride.length)
-					return this.resultsOverride[aIndex].uri;
-				return this.controller.getValueAt(aIndex);
-			},
-			getCommentAt : function(aIndex) {
-				if (this.resultsOverride.length)
-					return this.resultsOverride[aIndex].title;
-				return this.controller.getCommentAt(aIndex);
-			},
-			getStyleAt : function(aIndex) {
-				if (this.resultsOverride.length)
-					return this.resultsOverride[aIndex].style;
-				return this.controller.getStyleAt(aIndex);
-			},
-			getImageAt : function(aIndex) {
-				if (this.resultsOverride.length)
-					return this.resultsOverride[aIndex].icon;
-				return this.controller.getImageAt(aIndex);
-			},
-			get searchString() {
-				return this.searchStringOverride || this.controller.searchString;
-			},
-			set searchString(aValue) {
-				return this.controller.searchString = aValue;
-			},
-			QueryInterface : function(aIID) {
-				if (aIID.equals(Components.interfaces.nsIAutoCompleteController) ||
-					aIID.equals(Components.interfaces.nsISupports))
-					return this;
-				throw Components.results.NS_ERROR_NO_INTERFACE;
-			}
-		};
+		bar.mController = new XMIgemoAutoCompletePopupController(bar.__xmigemo__mController);
 	},
   
 	destroy : function() 
@@ -591,14 +455,13 @@ var XMigemoLocationBarOverlay = {
 		this.destroyLocationBar();
 		XMigemoService.removePrefListener(this);
 	},
-	 
+	
 	destroyLocationBar : function() 
 	{
 		var bar = this.bar;
 		if (!bar || !bar.__xmigemo__mController) return;
 
-		bar.mController.stopSearch();
-		bar.mController.service = null;
+		bar.mController.destroy();
 		bar.mController = bar.__xmigemo__mController;
 	}
   
@@ -606,3 +469,235 @@ var XMigemoLocationBarOverlay = {
  
 window.addEventListener('load', XMigemoLocationBarOverlay, false); 
   
+function XMIgemoAutoCompletePopupController(aBaseController) 
+{
+	this.init(aBaseController);
+}
+
+XMIgemoAutoCompletePopupController.prototype = {
+	 
+	searchStringOverride : '', 
+	matchCountOverride   : 0,
+	resultsOverride      : [],
+ 
+	get service() 
+	{
+		return XMigemoLocationBarOverlay;
+	},
+	get controller()
+	{
+		return this.mController;
+	},
+ 
+	init : function(aBaseController) 
+	{
+		this.mController = aBaseController;
+	},
+ 
+	destroy : function() 
+	{
+		this.stopSearch();
+		delete this.searchStringOverride;
+		delete this.matchCountOverride;
+		delete this.resultsOverride;
+		delete this.mController;
+	},
+ 
+	STATUS_NONE              : Components.interfaces.nsIAutoCompleteController.STATUS_NONE, 
+	STATUS_SEARCHING         : Components.interfaces.nsIAutoCompleteController.STATUS_SEARCHING,
+	STATUS_COMPLETE_NO_MATCH : Components.interfaces.nsIAutoCompleteController.STATUS_COMPLETE_NO_MATCH,
+	STATUS_COMPLETE_MATCH    : Components.interfaces.nsIAutoCompleteController.STATUS_COMPLETE_MATCH,
+ 
+	get input() 
+	{
+		return this.controller.input;
+	},
+	set input(aValue)
+	{
+		return this.controller.input = aValue;
+	},
+ 
+	get searchStatus(aValue) 
+	{
+		return this.controller.searchStatus;
+	},
+ 
+	get matchCount() 
+	{
+		return this.matchCountOverride || this.controller.matchCount;
+	},
+ 
+	startSearch : function(aString) 
+	{
+		if (this.service.isMigemoActive) return;
+		return this.controller.startSearch(aString);
+	},
+ 
+	stopSearch : function() 
+	{
+		return this.controller.stopSearch();
+	},
+ 
+	handleText : function(aIgnoreSelection) 
+	{
+		return this.controller.handleText(aIgnoreSelection);
+	},
+ 
+	handleEnter : function(aIsPopupSelection) 
+	{
+		var popup = this.input.popup;
+		var index = popup.selectedIndex;
+		if (this.resultsOverride.length &&
+			index > -1 &&
+			popup.popupOpen) {
+			popup.overrideValue = this.resultsOverride[index].uri;
+			window.setTimeout(function(aSelf) {
+				aSelf.service.clear();
+			}, 0, this);
+		}
+		return this.controller.handleEnter(aIsPopupSelection);
+	},
+ 
+	handleEscape : function() 
+	{
+		this.service.clear();
+		var retval = this.controller.handleEscape();
+		if (retval &&
+			this.input.textValue == this.searchString &&
+			this.searchStringOverride) {
+			this.input.textValue = this.searchStringOverride;
+		}
+		return retval;
+	},
+ 
+	handleStartComposition : function() 
+	{
+		return this.controller.handleStartComposition();
+	},
+ 
+	handleEndComposition : function() 
+	{
+		return this.controller.handleEndComposition();
+	},
+ 
+	handleTab : function() 
+	{
+		return this.controller.handleTab();
+	},
+ 
+	handleKeyNavigation : function(aKey) 
+	{
+		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
+		var input = this.input;
+		var popup = input.popup;
+		if (
+			(
+				aKey == nsIDOMKeyEvent.DOM_VK_UP ||
+				aKey == nsIDOMKeyEvent.DOM_VK_DOWN ||
+				aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP ||
+				aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN
+			) && popup.popupOpen
+			) {
+			var reverse = (aKey == nsIDOMKeyEvent.DOM_VK_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP);
+			var page = (aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN);
+			var completeSelection = input.completeSelectedIndex;
+			popup.selectBy(reverse, page);
+			if (completeSelection) {
+				var selectedIndex = popup.selectedIndex;
+				if (selectedIndex >= 0) {
+					var items = this.service.items;
+					input.textValue = items[selectedIndex].getAttribute('url');
+				}
+				else {
+					input.textValue = this.searchStringOverride || this.searchString;
+				}
+				input.selectTextRange(input.textValue.length, input.textValue.length);
+			}
+			return true;
+		}
+		return this.controller.handleKeyNavigation(aKey);
+	},
+ 
+	handleDelete : function() 
+	{
+		var popup = this.input.popup;
+		var index = popup.selectedIndex;
+		if (this.resultsOverride.length &&
+			index > -1) {
+			var retval = false;
+			popup.selectedIndex = -1;
+/*
+	this.resultsOverride[i]に該当する項目を
+	データベースから削除する処理をここに書く
+*/
+			this.resultsOverride.splice(index, 1);
+			this.matchCountOverride--;
+			if (index >= this.matchCountOverride)
+				index = this.matchCountOverride-1;
+
+			if (this.resultsOverride.length) {
+				for (var i = index, maxi = this.resultsOverride.length; i < maxi; i++)
+				{
+					this.service.buildItemAt(i);
+				}
+				popup.adjustHeight();
+				popup.selectedIndex = index;
+				this.input.textValue = this.service.items[index].getAttribute('url');
+				retval = true;
+			}
+			else {
+				this.service.clear();
+			}
+			return retval;
+		}
+		return this.controller.handleDelete();
+	},
+ 
+	getValueAt : function(aIndex) 
+	{
+		if (this.resultsOverride.length)
+			return this.resultsOverride[aIndex].uri;
+		return this.controller.getValueAt(aIndex);
+	},
+ 
+	getCommentAt : function(aIndex) 
+	{
+		if (this.resultsOverride.length)
+			return this.resultsOverride[aIndex].title;
+		return this.controller.getCommentAt(aIndex);
+	},
+ 
+	getStyleAt : function(aIndex) 
+	{
+		if (this.resultsOverride.length)
+			return this.resultsOverride[aIndex].style;
+		return this.controller.getStyleAt(aIndex);
+	},
+ 
+	getImageAt : function(aIndex) 
+	{
+		if (this.resultsOverride.length)
+			return this.resultsOverride[aIndex].icon;
+		return this.controller.getImageAt(aIndex);
+	},
+ 
+	get searchString() 
+	{
+		return this.searchStringOverride || this.controller.searchString;
+	},
+ 
+	set searchString(aValue) 
+	{
+		return this.controller.searchString = aValue;
+	},
+ 
+	QueryInterface : function(aIID) 
+	{
+		if (aIID.equals(Components.interfaces.nsIAutoCompleteController) ||
+			aIID.equals(Components.interfaces.nsISupports))
+			return this;
+		throw Components.results.NS_ERROR_NO_INTERFACE;
+	}
+ 
+}; 
+  	
