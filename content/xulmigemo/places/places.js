@@ -15,9 +15,11 @@ var XMigemoPlaces = {
 				!this.ignoreURI ||
 				!/^\w+:\/\//.test(aInput)
 			) &&
-			this.minLength <= aInput.length
+			this.minLength <= aInput.length &&
+			this.kTARGET_PATTERN.test(aInput.replace(/\s+/g, '\n'))
 			);
 	},
+	kTARGET_PATTERN : /^[\w\-\:\}\{\$\?\*\+\.\^\/\;\\]+$/im,
  
 /* SQL */ 
 	
