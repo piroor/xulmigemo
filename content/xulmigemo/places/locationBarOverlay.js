@@ -467,6 +467,7 @@ var XMigemoLocationBarOverlay = {
 
 		bar.mController.destroy();
 		bar.mController = bar.__xmigemo__mController;
+		delete bar.__xmigemo__mController;
 	}
   
 }; 
