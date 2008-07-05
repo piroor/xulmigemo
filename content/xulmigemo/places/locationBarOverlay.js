@@ -340,12 +340,20 @@ var XMigemoLocationBarOverlay = {
 		const listbox = this.listbox;
 		var existingCount = listbox.children.length;
 
-		const item = this.results[aIndex];
-		item.uri = this.Converter.unEscapeURIForUI('UTF-8', item.uri);
+		var item = null;
+		if (aIndex <= this.results.length) {
+			item = this.results[aIndex];
+			item.uri = this.Converter.unEscapeURIForUI('UTF-8', item.uri);
+		}
 
 		var node;
 		if (aIndex < existingCount) {
 			node = listbox.childNodes[aIndex];
+			if (!item) {
+				node = listbox.childNodes[aIndex];
+				node.collapsed = true;
+				return;
+			}
 			if (node.getAttribute('text') == item.terms &&
 				node.getAttribute('url') == item.uri) {
 				node.collapsed = false;
@@ -501,9 +509,9 @@ XMIgemoAutoCompletePopupController.prototype = {
  
 	clearOverride : function() 
 	{
-		this.resultsOverride      = [];
 		this.searchStringOverride = '';
 		this.matchCountOverride   = 0;
+		this.resultsOverride      = [];
 	},
  
 	STATUS_NONE              : Components.interfaces.nsIAutoCompleteController.STATUS_NONE, 
@@ -608,8 +616,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 			if (completeSelection) {
 				var selectedIndex = popup.selectedIndex;
 				if (selectedIndex >= 0) {
-					var items = this.service.items;
-					input.textValue = items[selectedIndex].getAttribute('url');
+					input.textValue = this.resultsOverride[selectedIndex].uri;
 				}
 				else {
 					input.textValue = this.searchStringOverride || this.searchString;
@@ -644,7 +651,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 				}
 				popup.adjustHeight();
 				popup.selectedIndex = index;
-				this.input.textValue = this.service.items[index].getAttribute('url');
+				this.input.textValue = this.resultsOverride[index].uri;
 				retval = true;
 			}
 			else {
@@ -687,7 +694,6 @@ XMIgemoAutoCompletePopupController.prototype = {
 	{
 		return this.searchStringOverride || this.controller.searchString;
 	},
- 
 	set searchString(aValue) 
 	{
 		return this.controller.searchString = aValue;
