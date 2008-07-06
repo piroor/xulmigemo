@@ -63,3 +63,41 @@ frameTest.tests = {
 
 	}
 };
+
+
+var frameTestNotFound = new TestCase('検索語句を含まないフレームがあるページのテスト', {runStrategy: 'async'});
+
+frameTestNotFound.tests = {
+	setUp : function() {
+		yield Do(commonSetUp(baseURL+'res/frameTest2.html'));
+	},
+
+	tearDown : function() {
+		commonTearDown();
+	},
+
+	'検索': function() {
+		gFindBar.openFindBar();
+		XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
+		yield wait;
+
+		var rootDoc = content.document;
+		var frameDoc = content.frames[0].document;
+
+		action.inputTextToField(field, 'nihongo');
+		yield wait;
+		assert.found('日本語', rootDoc);
+
+		yield Do(assert.find_again(key_RETURN, 1, 'にほんご', rootDoc));
+		yield Do(assert.find_again(key_RETURN, 1, 'ニホンゴ', rootDoc));
+		yield Do(assert.find_again(key_RETURN, 1, 'nihongo', rootDoc));
+
+		var key = {
+			keyCode : key_RETURN.keyCode,
+			shiftKey : true
+		};
+		yield Do(assert.find_again(key, 1, 'ニホンゴ', rootDoc));
+		yield Do(assert.find_again(key, 1, 'にほんご', rootDoc));
+
+	}
+};
