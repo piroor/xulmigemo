@@ -165,6 +165,15 @@ pXMigemoTextUtils.prototype = {
  
 	getORFindRegExpFromTerms : function(aTerms) 
 	{
+		switch (aTerms.length)
+		{
+			case 0:
+				return '';
+			case 1:
+				return aTerms[0];
+			default:
+				break;
+		}
 		return '(?:'+aTerms.join(')|(?:')+')';
 	},
  
