@@ -5,6 +5,8 @@ var XMigemoPlaces = {
 	minLength : 3,
 	andFindAvailable : true,
 	notFindAvailable : true,
+	filterJavaScript : true,
+	filterTyped : false,
  
 	TextUtils : Components 
 			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
@@ -141,9 +143,9 @@ var XMigemoPlaces = {
 		           WHERE p.frecency <> 0 AND p.hidden <> 1
 		           %SOURCES_LIMIT_PART%)
 		   GROUP BY uri)
-		 WHERE (%TERMS_RULES%)
-		       AND %EXCLUDE_JAVASCRIPT%
-		       AND %ONLY_TYPED%
+		 WHERE %TERMS_RULES%
+		       %EXCLUDE_JAVASCRIPT%
+		       %ONLY_TYPED%
 		 ORDER BY frecency DESC
 		 LIMIT 0,?1
 	]]>.toString(),
@@ -315,11 +317,12 @@ var XMigemoPlaces = {
   	
 	findLocationBarItemsFromTerms : function(aTerms, aExceptions, aTermsRegExp, aStart, aRange) 
 	{
+		if (!aExceptions) aExceptions = [];
+
 		var items = [];
-		if (!aTerms.length) return items;
+		if (!aTerms.length && !aExceptions.length) return items;
 
 		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
-		if (!aExceptions) aExceptions = [];
 
 		var termsCount = aTerms.length;
 		var exceptionsCount = aExceptions.length;
@@ -335,10 +338,10 @@ var XMigemoPlaces = {
 								.replace(/%d%/g, aIndex+2);
 					}).join(' OR ')+
 					')' :
-					'1'
+					''
 				)+
 				(aExceptions.length ?
-					' AND '+
+					(aTerms.length ? ' AND ' : '' )+
 					aExceptions.map(function(aTerm, aIndex) {
 						return 'findkey NOT LIKE ?%d%'
 							.replace(/%d%/g, aIndex+termsCount+2);
@@ -348,15 +351,15 @@ var XMigemoPlaces = {
 			)
 			.replace(
 				'%EXCLUDE_JAVASCRIPT%',
-				XMigemoService.getPref('browser.urlbar.filter.javascript') ?
-					'uri NOT LIKE "javascript:%"' :
-					'1'
+				this.filterJavaScript ?
+					'AND uri NOT LIKE "javascript:%"' :
+					''
 			)
 			.replace(
 				'%ONLY_TYPED%',
-				XMigemoService.getPref('browser.urlbar.matchOnlyTyped') ?
-					'typed = 1' :
-					'1'
+				this.filterTyped ?
+					'AND typed = 1' :
+					''
 			);
 
 		if (aStart !== void(0)) {
@@ -473,6 +476,14 @@ var XMigemoPlaces = {
 				this.autoStartRegExpFind = value;
 				return;
 
+			case 'browser.urlbar.filter.javascript':
+				this.filterJavaScript = value;
+				return;
+
+			case 'browser.urlbar.matchOnlyTyped':
+				this.filterTyped = value;
+				return;
+
 			default:
 				return;
 		}
@@ -488,6 +499,7 @@ var XMigemoPlaces = {
 		xulmigemo.places.chunk
 		xulmigemo.places.minLength
 		xulmigemo.autostart.regExpFind
+		browser.urlbar
 	]]>.toString(),
  
 	handleEvent : function(aEvent) 
