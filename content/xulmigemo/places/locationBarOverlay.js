@@ -33,7 +33,12 @@ var XMigemoLocationBarOverlay = {
  
 	get input() 
 	{
-		return this.TextUtils.trim(this.bar.value);
+		var input = this.TextUtils.trim(this.bar.value);
+		if (XMigemoPlaces.notFindAvailable) {
+			// “ü—Í’†‚ÌNOTŒŸõ—p‰‰Zq‚ğœŠO
+			input = input.replace(/\s+-$/, '');
+		}
+		return input;
 	},
  
 	get panel() 
@@ -141,10 +146,10 @@ var XMigemoLocationBarOverlay = {
  
 	onSearchBegin : function() 
 	{
-		this.bar.controller.clearOverride();
 		if (this.lastInput == this.input)
 			return;
 
+		this.bar.controller.clearOverride();
 		this.clear();
 
 		if (!this.isMigemoActive) return;
@@ -560,6 +565,10 @@ XMIgemoAutoCompletePopupController.prototype = {
  
 	handleText : function(aIgnoreSelection) 
 	{
+		if (this.service.isMigemoActive) {
+			this.service.onSearchBegin();
+			return;
+		}
 		return this.controller.handleText(aIgnoreSelection);
 	},
  
