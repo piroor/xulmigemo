@@ -2,16 +2,17 @@ var description = 'XMigemoTextUtilsのテスト';
 
 utils.include('../../components/pXMigemoTextUtils.js', null, 'Shift_JIS');
 
-var utils = new pXMigemoTextUtils();
+var utils;
 
 function setUp()
 {
+	utils = new pXMigemoTextUtils();
 }
 
 function tearDown()
 {
+	utils = null;
 }
-
 
 test_trim.description = 'trim（前後の空白の除去）';
 function test_trim()
@@ -82,5 +83,16 @@ function test_extractRegExpSource()
 {
 	assert.equals('foobar', utils.extractRegExpSource('/foobar/'), '単純な例');
 	assert.equals('foo|bar', utils.extractRegExpSource('/foo|bar/gim'), 'フラグ');
+	assert.equals('foo|bar', utils.extractRegExpSource('foo|bar'), '正規表現リテラルでない');
+}
+
+test_getMatchedTermsFromSource.description = 'getMatchedTermsFromSource（正規表現リテラルからのソース文字列抽出）';
+function test_getMatchedTermsFromSource()
+{
+	var source = <![CDATA[
+		英語,日本語,フランス語,ドイツ語,中国語,english,japanese,french,german,chinese
+		タガログ語,ポーランド語,ハンガリー語,バルタン星語
+	]]>.toString();
+//	assert.arrayEquals(, utils.getMatchedTermsFromSource('/foobar/', source));
 }
 
