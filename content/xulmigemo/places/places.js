@@ -328,12 +328,15 @@ var XMigemoPlaces = {
 		var sql = this.locationBarItemsSQL
 			.replace(
 				'%TERMS_RULES%',
-				'('+
-				aTerms.map(function(aTerm, aIndex) {
-					return 'findkey LIKE ?%d%'
-							.replace(/%d%/g, aIndex+2);
-				}).join(' OR ')+
-				')'+
+				(aTerms.length ?
+					'('+
+					aTerms.map(function(aTerm, aIndex) {
+						return 'findkey LIKE ?%d%'
+								.replace(/%d%/g, aIndex+2);
+					}).join(' OR ')+
+					')' :
+					'1'
+				)+
 				(aExceptions.length ?
 					' AND '+
 					aExceptions.map(function(aTerm, aIndex) {
