@@ -1197,7 +1197,9 @@ function DocShellIterator(aFrame, aFromBack)
 	this.mCurrentDocShell = this.mInitialDocShell;
 	this.mFromBack = aFromBack;
 	if (this.mFromBack)
-		this.mCurrentDocShell = this.getLastChildDocShell(this.mCurrentDocShell) || this.mCurrentDocShell ;
+		this.mInitialDocShell =
+			this.mCurrentDocShell =
+				this.getLastChildDocShell(this.mCurrentDocShell) || this.mCurrentDocShell ;
 }
 
 DocShellIterator.prototype = {
