@@ -142,7 +142,7 @@ pXMigemoTextUtils.prototype = {
 		return this.kREGEXP_PATTERN.test(aInput);
 	},
  
-	kREGEXP_PATTERN : /^\/((?:\\.|\[(?:\\.|[^\]])*\]|[^\/])+)\/([gimy]*)/, 
+	kREGEXP_PATTERN : /^\/((?:\\.|\[(?:\\.|[^\]])*\]|[^\/])+)\/([gimy]*)$/, 
 	// old version: /^\/((?:\\.|[^\/])+)\/[gimy]*$/
 	// see http://nanto.asablo.jp/blog/2008/05/22/3535735
   
