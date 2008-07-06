@@ -75,6 +75,7 @@ pref("xulmigemo.find_delay",                    50);
 
 
 pref("xulmigemo.places.enableANDFind",         true);
+pref("xulmigemo.places.enableNOTFind",         true);
 pref("xulmigemo.places.chunk",                 100);
 pref("xulmigemo.places.minLength",             2);
 pref("xulmigemo.places.ignoreURI",             true);

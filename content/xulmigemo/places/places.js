@@ -3,13 +3,16 @@ var XMigemoPlaces = {
 	chunk     : 100, 
 	ignoreURI : true,
 	minLength : 3,
+	andFindAvailable : true,
+	notFindAvailable : true,
  
 	TextUtils : Components 
 			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
 			.getService(Components.interfaces.pIXMigemoTextUtils),
- 	
+ 
 	isValidInput : function(aInput) 
 	{
+		var converted = aInput.replace(/\s+/g, '\n');
 		return (
 			(
 				!this.ignoreURI ||
@@ -18,11 +21,13 @@ var XMigemoPlaces = {
 			this.minLength <= aInput.length &&
 			(
 				this.TextUtils.isRegExp(aInput) ||
-				this.kMIGEMO_PATTERN.test(aInput.replace(/\s+/g, '\n'))
+				this.kMIGEMO_PATTERN.test(converted) ||
+				(this.notFindAvailable && this.kNOT_PATTERN.test(converted))
 			)
 			);
 	},
 	kMIGEMO_PATTERN : /^[\w\-\:\}\{\$\?\*\+\.\^\/\;\\]+$/im,
+	kNOT_PATTERN : /^-/im,
  
 /* SQL */ 
 	
@@ -199,7 +204,7 @@ var XMigemoPlaces = {
 		statement.reset();
 		return this.TextUtils.trim(sources || '');
 	},
-	
+	 
 	get db() 
 	{
 		if (this._db !== void(0))
@@ -228,6 +233,7 @@ var XMigemoPlaces = {
 		this.stopProgressiveLoad();
 		if (!aBaseQuery || !aOptions || !aTree || !aSourceSQL) return;
 
+		this.lastExceptions = [];
 		if (
 			this.autoStartRegExpFind &&
 			this.TextUtils.isRegExp(aBaseQuery.searchTerms)
@@ -236,9 +242,14 @@ var XMigemoPlaces = {
 				this.lastTermsRegExp = new RegExp(this.TextUtils.extractRegExpSource(aQuery.searchTerms), 'gim');
 		}
 		else {
+//			if (this.notFindAvailable) {
+//				var exceptions = {};
+//				findInput = this.siftExceptions(findInput, exceptions);
+//				this.lastExceptions = exceptions.value;
+//			}
 			var regexps = XMigemoCore.getRegExps(aBaseQuery.searchTerms);
 			this.lastFindRegExp = new RegExp(
-				(XMigemoService.getPref('xulmigemo.places.enableANDFind') ?
+				(this.andFindAvailable ?
 					this.TextUtils.getANDFindRegExpFromTerms(regexps) :
 					XMigemoCore.getRegExp(aBaseQuery.searchTerms)
 				), 'gim');
@@ -301,21 +312,36 @@ var XMigemoPlaces = {
 		});
 		return true;
 	},
-  
-	findLocationBarItemsFromTerms : function(aTerms, aTermsRegExp, aStart, aRange) 
+  	
+	findLocationBarItemsFromTerms : function(aTerms, aExceptions, aTermsRegExp, aStart, aRange) 
 	{
 		var items = [];
 		if (!aTerms.length) return items;
 
 		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
+		if (!aExceptions) aExceptions = [];
+
+		var termsCount = aTerms.length;
+		var exceptionsCount = aExceptions.length;
+
 		// see nsNavHistoryAytoComplete.cpp
 		var sql = this.locationBarItemsSQL
 			.replace(
 				'%TERMS_RULES%',
+				'('+
 				aTerms.map(function(aTerm, aIndex) {
-					return ('findkey LIKE ?%d%')
+					return 'findkey LIKE ?%d%'
 							.replace(/%d%/g, aIndex+2);
-				}).join(' OR ')
+				}).join(' OR ')+
+				')'+
+				(aExceptions.length ?
+					' AND '+
+					aExceptions.map(function(aTerm, aIndex) {
+						return 'findkey NOT LIKE ?%d%'
+							.replace(/%d%/g, aIndex+termsCount+2);
+					}).join(' AND ') :
+					''
+				)
 			)
 			.replace(
 				'%EXCLUDE_JAVASCRIPT%',
@@ -335,7 +361,7 @@ var XMigemoPlaces = {
 			if (!aRange) return items;
 			sql = sql.replace(
 				'%SOURCES_LIMIT_PART%',
-				'LIMIT ?'+(aTerms.length+2)+',?'+(aTerms.length+3)
+				'LIMIT ?'+(termsCount+exceptionsCount+2)+',?'+(termsCount+exceptionsCount+3)
 			);
 		}
 		else {
@@ -356,9 +382,12 @@ var XMigemoPlaces = {
 			aTerms.forEach(function(aTerm, aIndex) {
 				statement.bindStringParameter(aIndex+1, '%'+aTerm+'%');
 			});
+			aExceptions.forEach(function(aTerm, aIndex) {
+				statement.bindStringParameter(aIndex+termsCount+1, '%'+aTerm+'%');
+			});
 			if (aStart !== void(0)) {
-				statement.bindDoubleParameter(aTerms.length+1, Math.max(0, aStart));
-				statement.bindDoubleParameter(aTerms.length+2, Math.max(0, aRange));
+				statement.bindDoubleParameter(termsCount+exceptionsCount+1, Math.max(0, aStart));
+				statement.bindDoubleParameter(termsCount+exceptionsCount+2, Math.max(0, aRange));
 			}
 			var item, title, terms;
 			var utils = this.TextUtils;
@@ -394,6 +423,20 @@ var XMigemoPlaces = {
 		return items;
 	},
  
+	siftExceptions : function(aInput, aExceptions) 
+	{
+		if (!aExceptions) aExceptions = {};
+		aExceptions.value = [];
+		var findInput = aInput.split(/\s+/).filter(function(aTerm) {
+			if (aTerm.indexOf('-') == 0) {
+				aExceptions.value.push(aTerm.substring(1));
+				return false;
+			}
+			return true;
+		}).join(' ');
+		return findInput;
+	},
+ 
 /* event handling */ 
 	 
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -403,6 +446,14 @@ var XMigemoPlaces = {
 		var value = XMigemoService.getPref(aPrefName);
 		switch (aPrefName)
 		{
+			case 'xulmigemo.places.enableANDFind':
+				this.andFindAvailable = value;
+				return;
+
+			case 'xulmigemo.places.enableNOTFind':
+				this.notFindAvailable = value;
+				return;
+
 			case 'xulmigemo.places.chunk':
 				this.chunk = value;
 				return;
@@ -428,6 +479,8 @@ var XMigemoPlaces = {
 		'xulmigemo.autostart.regExpFind'
 	],
 	preferences : <![CDATA[
+		xulmigemo.places.enableANDFind
+		xulmigemo.places.enableNOTFind
 		xulmigemo.places.ignoreURI
 		xulmigemo.places.chunk
 		xulmigemo.places.minLength
