@@ -148,7 +148,17 @@ pXMigemoTextUtils.prototype = {
   
 	getMatchedTermsFromSource : function(aRegExp, aSource) 
 	{
-		var regexp = new RegExp(aRegExp , 'gim');
+		var regexp;
+		if (this.isRegExp(aRegExp)) {
+			var source = this.extractRegExpSource(aRegExp);
+			var flags = aRegExp.match(/[^\/]+$/);
+			if (flags && flags.indexOf('g') < 0)
+				flags += 'g';
+			regexp = new RegExp(source, flags || 'gim');
+		}
+		else {
+			regexp = new RegExp(aRegExp, 'gim');
+		}
 		var result = (aSource || '').match(regexp) || [];
 		return this.brushUpTerms(result);
 	},
