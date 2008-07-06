@@ -603,6 +603,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 		var input = this.input;
 		var popup = input.popup;
 		if (
+			this.resultsOverride.length &&
 			(
 				aKey == nsIDOMKeyEvent.DOM_VK_UP ||
 				aKey == nsIDOMKeyEvent.DOM_VK_DOWN ||
