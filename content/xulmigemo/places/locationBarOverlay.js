@@ -590,7 +590,7 @@ var XMigemoLocationBarOverlay = {
 		eval('LocationBarHelpers._searchBegin = '+
 			LocationBarHelpers._searchBegin.toSource().replace(
 				/(\}\))?$/,
-				'XMigemoLocationBarOverlay.onSearchBegin(); $1'
+				'if (XMigemoLocationBarOverlay.isMigemoActive) XMigemoLocationBarOverlay.onSearchBegin(); $1'
 			)
 		);
 
