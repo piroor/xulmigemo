@@ -130,24 +130,36 @@ var XMigemoPlaces = {
 		          uri,
 		          ' '
 		        ) findkey
-		    FROM (SELECT p.title title,
-		                 p.url uri,
-		                 f.url favicon,
-		                 p.frecency frecency,
-		                 p.typed typed,
-		                 (%PARENT_FOLDER%) parent,
+		    FROM (SELECT *,
 		                 (%BOOKMARK_TITLE%) bookmark,
-		                 (%TAGS%) tags
-		            FROM moz_places p
-		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
-		           WHERE p.frecency <> 0 AND p.hidden <> 1
+		                 (%TAGS%) tags,
+		                 ROUND(
+		                   MAX(0,
+		                     (
+		                       (input = ?1) +
+		                       (SUBSTR(input, 1, LENGTH(?1)) = ?1)
+		                      ) * use_count
+		                   ),
+		                   1
+		                 ) rank
+		            FROM (SELECT p.id id,
+		                         p.title title,
+		                         p.url uri,
+		                         f.url favicon,
+		                         p.frecency frecency,
+		                         p.typed typed,
+		                         COALESCE(i.input, '') input,
+		                         COALESCE(i.use_count, 0) use_count
+		                    FROM moz_places p
+		                         LEFT OUTER JOIN moz_inputhistory i ON i.place_id = p.id
+		                         LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
+		                   WHERE p.frecency <> 0 AND p.hidden <> 1) p
+		           ORDER BY rank DESC, frecency DESC
 		           %SOURCES_LIMIT_PART%)
 		   GROUP BY uri)
-		 WHERE %TERMS_RULES%
-		       %EXCLUDE_JAVASCRIPT%
-		       %ONLY_TYPED%
-		 ORDER BY frecency DESC
-		 LIMIT 0,?1
+		   WHERE %TERMS_RULES%
+		         %EXCLUDE_JAVASCRIPT%
+		         %ONLY_TYPED%
 	]]>.toString(),
   
 	parentFolderSQLFragment : <![CDATA[ 
@@ -315,7 +327,7 @@ var XMigemoPlaces = {
 		return true;
 	},
   	
-	findLocationBarItemsFromTerms : function(aTerms, aExceptions, aTermsRegExp, aStart, aRange) 
+	findLocationBarItemsFromTerms : function(aInput, aTerms, aExceptions, aTermsRegExp, aStart, aRange) 
 	{
 		if (!aExceptions) aExceptions = [];
 
@@ -327,6 +339,8 @@ var XMigemoPlaces = {
 		var termsCount = aTerms.length;
 		var exceptionsCount = aExceptions.length;
 
+		var offset = 1; // 0 = input
+
 		// see nsNavHistoryAytoComplete.cpp
 		var sql = this.locationBarItemsSQL
 			.replace(
@@ -335,7 +349,7 @@ var XMigemoPlaces = {
 					'('+
 					aTerms.map(function(aTerm, aIndex) {
 						return 'findkey LIKE ?%d%'
-								.replace(/%d%/g, aIndex+2);
+								.replace(/%d%/g, aIndex+offset+1);
 					}).join(' OR ')+
 					')' :
 					''
@@ -344,7 +358,7 @@ var XMigemoPlaces = {
 					(aTerms.length ? ' AND ' : '' )+
 					aExceptions.map(function(aTerm, aIndex) {
 						return 'findkey NOT LIKE ?%d%'
-							.replace(/%d%/g, aIndex+termsCount+2);
+							.replace(/%d%/g, aIndex+termsCount+offset+1);
 					}).join(' AND ') :
 					''
 				)
@@ -367,13 +381,12 @@ var XMigemoPlaces = {
 			if (!aRange) return items;
 			sql = sql.replace(
 				'%SOURCES_LIMIT_PART%',
-				'LIMIT ?'+(termsCount+exceptionsCount+2)+',?'+(termsCount+exceptionsCount+3)
+				'LIMIT ?'+(termsCount+exceptionsCount+offset+1)+',?'+(termsCount+exceptionsCount+offset+2)
 			);
 		}
 		else {
 			sql = sql.replace('%SOURCES_LIMIT_PART%', '');
 		}
-
 
 		var statement;
 		try {
@@ -384,19 +397,20 @@ var XMigemoPlaces = {
 			return items;
 		}
 		try {
-			statement.bindDoubleParameter(0, XMigemoService.getPref('browser.urlbar.maxRichResults'));
+			statement.bindStringParameter(0, aInput);
 			aTerms.forEach(function(aTerm, aIndex) {
-				statement.bindStringParameter(aIndex+1, '%'+aTerm+'%');
+				statement.bindStringParameter(aIndex+offset, '%'+aTerm+'%');
 			});
 			aExceptions.forEach(function(aTerm, aIndex) {
-				statement.bindStringParameter(aIndex+termsCount+1, '%'+aTerm+'%');
+				statement.bindStringParameter(aIndex+termsCount+offset, '%'+aTerm+'%');
 			});
 			if (aStart !== void(0)) {
-				statement.bindDoubleParameter(termsCount+exceptionsCount+1, Math.max(0, aStart));
-				statement.bindDoubleParameter(termsCount+exceptionsCount+2, Math.max(0, aRange));
+				statement.bindDoubleParameter(termsCount+exceptionsCount+offset, Math.max(0, aStart));
+				statement.bindDoubleParameter(termsCount+exceptionsCount+offset+1, Math.max(0, aRange));
 			}
 			var item, title, terms;
 			var utils = this.TextUtils;
+			var maxNum = XMigemoService.getPref('browser.urlbar.maxRichResults');
 			while(statement.executeStep())
 			{
 				terms = this.TextUtils.brushUpTerms(
@@ -421,6 +435,8 @@ var XMigemoPlaces = {
 					item.style = 'tag';
 				}
 				items.push(item);
+
+				if (items.length >= maxNum) break;
 			};
 		}
 		finally {
