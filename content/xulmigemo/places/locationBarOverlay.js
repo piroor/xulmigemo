@@ -304,6 +304,7 @@ var XMigemoLocationBarOverlay = {
 		}
 
 		results = XMigemoPlaces.findLocationBarItemsFromTerms(
+			this.lastInput,
 			terms,
 			exceptions,
 			this.lastTermsRegExp,
@@ -643,6 +644,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
 		var input = this.input;
 		var popup = input.popup;
+		var isMac = navigator.platform.toLowerCase().indexOf('mac') == 0;
 		if (
 			this.resultsOverride.length &&
 			(
@@ -650,23 +652,67 @@ XMIgemoAutoCompletePopupController.prototype = {
 				aKey == nsIDOMKeyEvent.DOM_VK_DOWN ||
 				aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP ||
 				aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN
-			) && popup.popupOpen
+			)
 			) {
-			var reverse = (aKey == nsIDOMKeyEvent.DOM_VK_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP);
-			var page = (aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN);
-			var completeSelection = input.completeSelectedIndex;
-			popup.selectBy(reverse, page);
-			if (completeSelection) {
+			if (popup.popupOpen) {
+				var reverse = (aKey == nsIDOMKeyEvent.DOM_VK_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP);
+				var page = (aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN);
+				var completeSelection = input.completeSelectedIndex;
+				popup.selectBy(reverse, page);
+				if (completeSelection) {
+					var selectedIndex = popup.selectedIndex;
+					if (selectedIndex >= 0) {
+						input.textValue = this.resultsOverride[selectedIndex].uri;
+					}
+					else {
+						input.textValue = this.searchStringOverride || this.searchString;
+					}
+					input.selectTextRange(input.textValue.length, input.textValue.length);
+				}
+				return true;
+			}
+			else if (
+				!isMac ||
+				(
+					aKey == nsIDOMKeyEvent.DOM_VK_UP ?
+					(
+						input.selectionStart == 0 &&
+						input.selectionStart == input.selectionEnd
+					) :
+					aKey == nsIDOMKeyEvent.DOM_VK_DOWN ?
+					(
+						input.selectionStart == input.selectionEnd &&
+						input.selectionEnd == input.textValue.length
+					) :
+					false
+				)
+				) {
+				if (this.matchCountOverride) {
+					popup.adjustHeight();
+					input.openPopup();
+					return true;
+				}
+			}
+		}
+		else if (
+			this.resultsOverride.length &&
+			(
+				aKey == nsIDOMKeyEvent.DOM_VK_LEFT ||
+				aKey == nsIDOMKeyEvent.DOM_VK_RIGHT ||
+				(isMac && aKey == nsIDOMKeyEvent.DOM_VK_HOME)
+			)
+			) {
+			if (popup.popupOpen) {
 				var selectedIndex = popup.selectedIndex;
 				if (selectedIndex >= 0) {
 					input.textValue = this.resultsOverride[selectedIndex].uri;
+					input.selectTextRange(input.textValue.length, input.textValue.length);
 				}
-				else {
-					input.textValue = this.searchStringOverride || this.searchString;
-				}
-				input.selectTextRange(input.textValue.length, input.textValue.length);
+				input.closePopup();
 			}
-			return true;
+			this.clearOverride();
+			this.searchString = input.textValue;
+			return false;
 		}
 		return this.controller.handleKeyNavigation(aKey);
 	},
