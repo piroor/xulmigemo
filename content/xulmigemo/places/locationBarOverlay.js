@@ -154,6 +154,8 @@ var XMigemoLocationBarOverlay = {
 
 		this.bar.controller.clearOverride();
 		this.clear();
+		this.stopDelayedClose();
+		this.delayedClose();
 
 		if (!this.isMigemoActive) return;
 
@@ -347,10 +349,24 @@ var XMigemoLocationBarOverlay = {
 
 		this.panel.overrideValue = null;
 
-//		this.bar.closePopup();
-
 		this.busy = false;
 	},
+ 
+	delayedClose : function() 
+	{
+		this.stopDelayedClose();
+		this.delayedCloseTimer = window.setTimeout(function(aSelf) {
+			aSelf.stopDelayedClose();
+			aSelf.bar.closePopup();
+		}, this.delay, this);
+	},
+	stopDelayedClose : function()
+	{
+		if (!this.delayedCloseTimer) return;
+		window.clearTimeout(this.delayedCloseTimer);
+		this.delayedCloseTimer = null;
+	},
+	delayedCloseTimer : null,
  
 /* build popup */ 
 	builtCount : 0,
@@ -488,6 +504,7 @@ var XMigemoLocationBarOverlay = {
 		{
 			this.buildItemAt(i);
 		}
+		this.stopDelayedClose();
 		controller.resultsOverride = this.results;
 		controller.matchCountOverride = this.results.length;
 		this.panel.adjustHeight();
@@ -740,6 +757,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 			popup.overrideValue = this.resultsOverride[index].uri;
 			window.setTimeout(function(aSelf) {
 				aSelf.service.clear();
+				aSelf.service.bar.closePopup();
 			}, 0, this);
 		}
 		return this.controller.handleEnter(aIsPopupSelection);
