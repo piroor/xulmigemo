@@ -32,13 +32,27 @@ var XMigemoPlaces = {
 	kNOT_PATTERN : /^-/im,
  
 /* SQL */ 
-	
+	 
+	clearPlacesSQLCache : function() 
+	{
+		this._placesSourceInRangeSQL = null;
+		this._inputHistorySourceInRangeSQL = null;
+		this._placesItemsSQL = null;
+		this._inputHistoryItemsSQL = null;
+	},
+ 
 	get placesSourceInRangeSQL() 
 	{
 		if (!this._placesSourceInRangeSQL) {
 			this._placesSourceInRangeSQL = this.placesSourceInRangeSQLBase
 				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
 				.replace('%TAGS%', this.tagsSQLFragment);
+			this._placesSourceInRangeSQL =
+				this.insertJavaScriptCondition(
+					this.insertTypedCondition(
+						this._placesSourceInRangeSQL
+					)
+				);
 		}
 		return this._placesSourceInRangeSQL;
 	},
@@ -50,12 +64,65 @@ var XMigemoPlaces = {
 		         uri,
 		         ?1
 		       )
-		  FROM (SELECT p.title title,
+		  FROM (SELECT p.id id,
+		               p.title title,
 		               p.url uri,
+		               p.frecency frecency,
+		               p.typed typed,
 		               (%BOOKMARK_TITLE%) bookmark,
 		               (%TAGS%) tags
 		          FROM moz_places p
+		               LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
 		         WHERE p.frecency <> 0 AND p.hidden <> 1
+		               %EXCLUDE_JAVASCRIPT%
+		               %ONLY_TYPED%
+		         ORDER BY frecency DESC
+		         LIMIT ?2,?3)
+	]]>.toString(),
+  
+	get inputHistorySourceInRangeSQL() 
+	{
+		if (!this._inputHistorySourceInRangeSQL) {
+			this._inputHistorySourceInRangeSQL = this.inputHistorySourceInRangeSQLBase
+				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
+				.replace('%TAGS%', this.tagsSQLFragment);
+			this._inputHistorySourceInRangeSQL =
+				this.insertJavaScriptCondition(
+					this.insertTypedCondition(
+						this._inputHistorySourceInRangeSQL
+					)
+				);
+		}
+		return this._inputHistorySourceInRangeSQL;
+	},
+	
+	inputHistorySourceInRangeSQLBase : <![CDATA[ 
+		SELECT GROUP_CONCAT(
+		         COALESCE(bookmark, title) || ' ' ||
+		         COALESCE(tags, '')        || ' ' ||
+		         uri,
+		         ?1
+		       )
+		  FROM (SELECT p.title title,
+		               p.url uri,
+		               p.frecency frecency,
+		               (%BOOKMARK_TITLE%) bookmark,
+		               (%TAGS%) tags,
+		               ROUND(
+		                 MAX(0,
+		                   (
+		                     (i.input = ?4) +
+		                     (SUBSTR(i.input, 1, LENGTH(?4)) = ?4)
+		                    ) * i.use_count
+		                 ),
+		                 1
+		               ) rank
+		          FROM moz_inputhistory i
+		               JOIN moz_places p ON i.place_id = p.id
+		         WHERE 1 %EXCLUDE_JAVASCRIPT%
+		                 %ONLY_TYPED%
+		         GROUP BY i.place_id HAVING rank > 0
+		         ORDER BY rank DESC, frecency DESC
 		         LIMIT ?2,?3)
 	]]>.toString(),
   
@@ -110,18 +177,24 @@ var XMigemoPlaces = {
 		         LIMIT ?2,?3)
 	]]>.toString(),
   
-	get locationBarItemsSQL() 
+	get placesItemsSQL() 
 	{
-		if (!this._locationBarItemsSQL) {
-			this._locationBarItemsSQL = this.locationBarItemsSQLBase
+		if (!this._placesItemsSQL) {
+			this._placesItemsSQL = this.placesItemsSQLBase
 				.replace('%PARENT_FOLDER%', this.parentFolderSQLFragment)
 				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
 				.replace('%TAGS%', this.tagsSQLFragment);
+			this._placesItemsSQL =
+				this.insertJavaScriptCondition(
+					this.insertTypedCondition(
+						this._placesItemsSQL
+					)
+				);
 		}
-		return this._locationBarItemsSQL;
+		return this._placesItemsSQL;
 	},
-	
-	locationBarItemsSQLBase : <![CDATA[ 
+	 
+	placesItemsSQLBase : <![CDATA[ 
 		SELECT title, uri, favicon, bookmark, tags, findkey
 		  FROM (SELECT *,
 		        GROUP_CONCAT(
@@ -130,38 +203,97 @@ var XMigemoPlaces = {
 		          uri,
 		          ' '
 		        ) findkey
-		    FROM (SELECT *,
+		    FROM (SELECT p.title title,
+		                 p.url uri,
+		                 f.url favicon,
+		                 p.frecency frecency,
+		                 p.typed typed,
+		                 (%BOOKMARK_TITLE%) bookmark,
+		                 (%TAGS%) tags
+		            FROM moz_places p
+		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
+		           WHERE p.frecency <> 0 AND p.hidden <> 1
+		                 %EXCLUDE_JAVASCRIPT%
+		                 %ONLY_TYPED%
+		           ORDER BY frecency DESC
+		           %SOURCES_LIMIT_PART%)
+		   GROUP BY uri)
+		   WHERE %TERMS_RULES%
+	]]>.toString(),
+  
+	get inputHistoryItemsSQL() 
+	{
+		if (!this._inputHistoryItemsSQL) {
+			this._inputHistoryItemsSQL = this.inputHistoryItemsSQLBase
+				.replace('%PARENT_FOLDER%', this.parentFolderSQLFragment)
+				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
+				.replace('%TAGS%', this.tagsSQLFragment);
+			this._inputHistoryItemsSQL =
+				this.insertJavaScriptCondition(
+					this.insertTypedCondition(
+						this._inputHistoryItemsSQL
+					)
+				);
+		}
+		return this._inputHistoryItemsSQL;
+	},
+	 
+	inputHistoryItemsSQLBase : <![CDATA[ 
+		SELECT title, uri, favicon, bookmark, tags, findkey
+		  FROM (SELECT *,
+		        GROUP_CONCAT(
+		          COALESCE(bookmark, title) || ' ' ||
+		          COALESCE(tags, '')        || ' ' ||
+		          uri,
+		          ' '
+		        ) findkey
+		    FROM (SELECT p.title title,
+		                 p.url uri,
+		                 f.url favicon,
+		                 p.frecency frecency,
 		                 (%BOOKMARK_TITLE%) bookmark,
 		                 (%TAGS%) tags,
 		                 ROUND(
 		                   MAX(0,
 		                     (
-		                       (input = ?1) +
-		                       (SUBSTR(input, 1, LENGTH(?1)) = ?1)
-		                      ) * use_count
+		                       (i.input = ?1) +
+		                       (SUBSTR(i.input, 1, LENGTH(?1)) = ?1)
+		                      ) * i.use_count
 		                   ),
 		                   1
 		                 ) rank
-		            FROM (SELECT p.id id,
-		                         p.title title,
-		                         p.url uri,
-		                         f.url favicon,
-		                         p.frecency frecency,
-		                         p.typed typed,
-		                         COALESCE(i.input, '') input,
-		                         COALESCE(i.use_count, 0) use_count
-		                    FROM moz_places p
-		                         LEFT OUTER JOIN moz_inputhistory i ON i.place_id = p.id
-		                         LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
-		                   WHERE p.frecency <> 0 AND p.hidden <> 1) p
+		            FROM moz_inputhistory i
+		                 JOIN moz_places p ON i.place_id = p.id
+		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
+		           WHERE 1 %EXCLUDE_JAVASCRIPT%
+		                   %ONLY_TYPED%) p
+		           GROUP BY i.place_id HAVING rank > 0
 		           ORDER BY rank DESC, frecency DESC
 		           %SOURCES_LIMIT_PART%)
 		   GROUP BY uri)
 		   WHERE %TERMS_RULES%
-		         %EXCLUDE_JAVASCRIPT%
-		         %ONLY_TYPED%
 	]]>.toString(),
-  
+ 	 
+	insertJavaScriptCondition : function(aSQL) 
+	{
+		return aSQL.replace(
+				'%EXCLUDE_JAVASCRIPT%',
+				this.filterJavaScript ?
+					'AND p.url NOT LIKE "javascript:%"' :
+					''
+			);
+	},
+ 
+	insertTypedCondition : function(aSQL) 
+	{
+		return aSQL.replace(
+				'%ONLY_TYPED%',
+				this.filterTyped ?
+					'AND p.typed = 1' :
+					''
+			);
+	},
+ 
 	parentFolderSQLFragment : <![CDATA[ 
 		SELECT b.parent
 		  FROM moz_bookmarks b
@@ -197,7 +329,7 @@ var XMigemoPlaces = {
 		 WHERE b.type = 1 AND b.fk = p.id
 	]]>.toString(),
   
-	getSourceInRange : function(aSQL, aStart, aRange) 
+	getSourceInRange : function(aSQL, aStart, aRange, aAdditionalBinding) 
 	{
 		if (!this.db) return '';
 
@@ -209,6 +341,15 @@ var XMigemoPlaces = {
 		statement.bindStringParameter(0, '\n');
 		statement.bindDoubleParameter(1, aStart);
 		statement.bindDoubleParameter(2, aRange);
+		if (aAdditionalBinding) {
+			for (var i in aAdditionalBinding)
+			{
+				if (typeof aAdditionalBinding[i] == 'number')
+					statement.bindDoubleParameter(i, aAdditionalBinding[i]);
+				else
+					statement.bindStringParameter(i, aAdditionalBinding[i]);
+			}
+		}
 
 		var sources;
 		while(statement.executeStep())
@@ -326,125 +467,7 @@ var XMigemoPlaces = {
 		});
 		return true;
 	},
-  	
-	findLocationBarItemsFromTerms : function(aInput, aTerms, aExceptions, aTermsRegExp, aStart, aRange) 
-	{
-		if (!aExceptions) aExceptions = [];
-
-		var items = [];
-		if (!aTerms.length && !aExceptions.length) return items;
-
-		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
-
-		var termsCount = aTerms.length;
-		var exceptionsCount = aExceptions.length;
-
-		var offset = 1; // 0 = input
-
-		// see nsNavHistoryAytoComplete.cpp
-		var sql = this.locationBarItemsSQL
-			.replace(
-				'%TERMS_RULES%',
-				(aTerms.length ?
-					'('+
-					aTerms.map(function(aTerm, aIndex) {
-						return 'findkey LIKE ?%d%'
-								.replace(/%d%/g, aIndex+offset+1);
-					}).join(' OR ')+
-					')' :
-					''
-				)+
-				(aExceptions.length ?
-					(aTerms.length ? ' AND ' : '' )+
-					aExceptions.map(function(aTerm, aIndex) {
-						return 'findkey NOT LIKE ?%d%'
-							.replace(/%d%/g, aIndex+termsCount+offset+1);
-					}).join(' AND ') :
-					''
-				)
-			)
-			.replace(
-				'%EXCLUDE_JAVASCRIPT%',
-				this.filterJavaScript ?
-					'AND uri NOT LIKE "javascript:%"' :
-					''
-			)
-			.replace(
-				'%ONLY_TYPED%',
-				this.filterTyped ?
-					'AND typed = 1' :
-					''
-			);
-
-		if (aStart !== void(0)) {
-			aRange = Math.max(0, aRange);
-			if (!aRange) return items;
-			sql = sql.replace(
-				'%SOURCES_LIMIT_PART%',
-				'LIMIT ?'+(termsCount+exceptionsCount+offset+1)+',?'+(termsCount+exceptionsCount+offset+2)
-			);
-		}
-		else {
-			sql = sql.replace('%SOURCES_LIMIT_PART%', '');
-		}
-
-		var statement;
-		try {
-			statement = this.db.createStatement(sql);
-		}
-		catch(e) {
-			dump(e+'\n'+sql+'\n');
-			return items;
-		}
-		try {
-			statement.bindStringParameter(0, aInput);
-			aTerms.forEach(function(aTerm, aIndex) {
-				statement.bindStringParameter(aIndex+offset, '%'+aTerm+'%');
-			});
-			aExceptions.forEach(function(aTerm, aIndex) {
-				statement.bindStringParameter(aIndex+termsCount+offset, '%'+aTerm+'%');
-			});
-			if (aStart !== void(0)) {
-				statement.bindDoubleParameter(termsCount+exceptionsCount+offset, Math.max(0, aStart));
-				statement.bindDoubleParameter(termsCount+exceptionsCount+offset+1, Math.max(0, aRange));
-			}
-			var item, title, terms;
-			var utils = this.TextUtils;
-			var maxNum = XMigemoService.getPref('browser.urlbar.maxRichResults');
-			while(statement.executeStep())
-			{
-				terms = this.TextUtils.brushUpTerms(
-						statement.getString(5).match(aTermsRegExp) ||
-						[]
-					).filter(function(aTerm) {
-						return utils.trim(aTerm);
-					});
-				item = {
-					title : (statement.getIsNull(0) ? '' : statement.getString(0) ),
-					uri   : statement.getString(1),
-					icon  : (statement.getIsNull(2) ? '' : statement.getString(2) ),
-					tags  : (statement.getIsNull(4) ? '' : statement.getString(4) ),
-					style : 'favicon',
-					terms : terms.join(' ')
-				};
-				if (title = (statement.getIsNull(3) ? '' : statement.getString(3) )) {
-					item.title = title;
-					item.style = 'bookmark';
-				}
-				if (item.tags) {
-					item.style = 'tag';
-				}
-				items.push(item);
-
-				if (items.length >= maxNum) break;
-			};
-		}
-		finally {
-			statement.reset();
-		}
-		return items;
-	},
- 
+  
 	siftExceptions : function(aInput, aExceptions) 
 	{
 		if (!aExceptions) aExceptions = {};
@@ -494,10 +517,12 @@ var XMigemoPlaces = {
 
 			case 'browser.urlbar.filter.javascript':
 				this.filterJavaScript = value;
+				this.clearPlacesSQLCache();
 				return;
 
 			case 'browser.urlbar.matchOnlyTyped':
 				this.filterTyped = value;
+				this.clearPlacesSQLCache();
 				return;
 
 			default:
