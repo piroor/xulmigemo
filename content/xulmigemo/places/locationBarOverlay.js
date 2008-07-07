@@ -1,12 +1,14 @@
 var XMigemoLocationBarOverlay = { 
 	 
 	results : [], 
+	lastFoundPlaces : {},
 	lastInput : '',
 	lastTerms : [],
 	lastExceptions : [],
 	lastFindRegExp : null,
 	lastTermsRegExp : null,
 	lastExceptionsRegExp : null,
+	historyDone : false,
 	thread : null,
 
 	enabled   : true,
@@ -66,7 +68,7 @@ var XMigemoLocationBarOverlay = {
 	},
   
 /* status */ 
-	 
+	
 	get busy() 
 	{
 		return this.throbber.getAttribute('busy') == 'true';
@@ -98,7 +100,7 @@ var XMigemoLocationBarOverlay = {
 	},
   
 /* event handling */ 
-	 
+	
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
 		if (aTopic != 'nsPref:changed') return;
@@ -278,11 +280,24 @@ var XMigemoLocationBarOverlay = {
  
 	updateResultsForRange : function(aStart, aRange) 
 	{
+		var sql = this.historyDone ?
+					XMigemoPlaces.placesSourceInRangeSQL :
+					XMigemoPlaces.inputHistorySourceInRangeSQL
+		var binding = this.historyDone ?
+					null :
+					{ '3' : this.lastInput }
 		var sources = XMigemoPlaces.getSourceInRange(
-				XMigemoPlaces.placesSourceInRangeSQL,
-				aStart, aRange
+				sql,
+				aStart, aRange,
+				binding
 			);
-		if (!sources) return false;
+		if (!sources) {
+			if (!this.historyDone) {
+				this.historyDone = true;
+				return true;
+			}
+			return false;
+		}
 		var terms = sources.match(this.lastFindRegExp);
 		if (!terms) return true;
 
@@ -303,11 +318,9 @@ var XMigemoLocationBarOverlay = {
 				});
 		}
 
-		results = XMigemoPlaces.findLocationBarItemsFromTerms(
-			this.lastInput,
+		results = this.findItemsFromTerms(
 			terms,
 			exceptions,
-			this.lastTermsRegExp,
 			aStart,
 			aRange
 		);
@@ -322,12 +335,14 @@ var XMigemoLocationBarOverlay = {
 		this.stopProgressiveBuild();
 
 		this.results = [];
+		this.lastFoundPlaces = {};
 		this.lastInput = '';
 		this.lastTerms = [];
 		this.lastExceptions = [];
 		this.lastFindRegExp = null;
 		this.lastTermsRegExp = null;
 		this.lastExceptionsRegExp = null;
+		this.historyDone = false;
 		this.threadDone = true;
 
 		this.panel.overrideValue = null;
@@ -340,6 +355,124 @@ var XMigemoLocationBarOverlay = {
 /* build popup */ 
 	builtCount : 0,
 	 
+	findItemsFromTerms : function(aTerms, aExceptions, aStart, aRange) 
+	{
+		if (!aExceptions) aExceptions = [];
+
+		var items = [];
+		if (!aTerms.length && !aExceptions.length) return items;
+
+		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
+
+		var termsCount = aTerms.length;
+		var exceptionsCount = aExceptions.length;
+
+		var sql, offset;
+		if (this.historyDone) {
+			sql = XMigemoPlaces.placesItemsSQL;
+			offset = 0;
+		}
+		else {
+			sql = XMigemoPlaces.inputHistoryItemsSQL;
+			offset = 1;
+		}
+
+		sql = sql.replace(
+				'%TERMS_RULES%',
+				(aTerms.length ?
+					'('+
+					aTerms.map(function(aTerm, aIndex) {
+						return 'findkey LIKE ?%d%'
+								.replace(/%d%/g, aIndex+offset+1);
+					}).join(' OR ')+
+					')' :
+					''
+				)+
+				(aExceptions.length ?
+					(aTerms.length ? ' AND ' : '' )+
+					aExceptions.map(function(aTerm, aIndex) {
+						return 'findkey NOT LIKE ?%d%'
+							.replace(/%d%/g, aIndex+termsCount+offset+1);
+					}).join(' AND ') :
+					''
+				)
+			);
+		if (aStart !== void(0)) {
+			aRange = Math.max(0, aRange);
+			if (!aRange) return items;
+			sql = sql.replace(
+				'%SOURCES_LIMIT_PART%',
+				'LIMIT ?'+(termsCount+exceptionsCount+offset+1)+',?'+(termsCount+exceptionsCount+offset+2)
+			);
+		}
+		else {
+			sql = sql.replace('%SOURCES_LIMIT_PART%', '');
+		}
+
+		var statement;
+		try {
+			statement = XMigemoPlaces.db.createStatement(sql);
+		}
+		catch(e) {
+			dump(e+'\n'+sql+'\n');
+			return items;
+		}
+		try {
+			if (!this.historyDone) {
+				statement.bindStringParameter(0, this.lastInput);
+			}
+			aTerms.forEach(function(aTerm, aIndex) {
+				statement.bindStringParameter(aIndex+offset, '%'+aTerm+'%');
+			});
+			aExceptions.forEach(function(aTerm, aIndex) {
+				statement.bindStringParameter(aIndex+termsCount+offset, '%'+aTerm+'%');
+			});
+			if (aStart !== void(0)) {
+				statement.bindDoubleParameter(termsCount+exceptionsCount+offset, Math.max(0, aStart));
+				statement.bindDoubleParameter(termsCount+exceptionsCount+offset+1, Math.max(0, aRange));
+			}
+			var item, title, terms;
+			var utils = this.TextUtils;
+			var maxNum = XMigemoService.getPref('browser.urlbar.maxRichResults');
+			var uri;
+			while(statement.executeStep())
+			{
+				uri = statement.getString(1);
+				if (uri in this.lastFoundPlaces) continue;
+				this.lastFoundPlaces[uri] = true;
+
+				terms = this.TextUtils.brushUpTerms(
+						statement.getString(5).match(this.lastTermsRegExp) ||
+						[]
+					).filter(function(aTerm) {
+						return utils.trim(aTerm);
+					});
+				item = {
+					title : (statement.getIsNull(0) ? '' : statement.getString(0) ),
+					uri   : uri,
+					icon  : (statement.getIsNull(2) ? '' : statement.getString(2) ),
+					tags  : (statement.getIsNull(4) ? '' : statement.getString(4) ),
+					style : 'favicon',
+					terms : terms.join(' ')
+				};
+				if (title = (statement.getIsNull(3) ? '' : statement.getString(3) )) {
+					item.title = title;
+					item.style = 'bookmark';
+				}
+				if (item.tags) {
+					item.style = 'tag';
+				}
+				items.push(item);
+
+				if (items.length >= maxNum) break;
+			};
+		}
+		finally {
+			statement.reset();
+		}
+		return items;
+	},
+ 	
 	progressiveBuild : function() 
 	{
 		if (!this.results.length ||
@@ -518,7 +651,7 @@ function XMIgemoAutoCompletePopupController(aBaseController)
 }
 
 XMIgemoAutoCompletePopupController.prototype = {
-	 
+	
 	searchStringOverride : '', 
 	matchCountOverride   : 0,
 	resultsOverride      : [],
@@ -783,7 +916,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 	{
 		return this.searchStringOverride || this.controller.searchString;
 	},
-	set searchString(aValue) 
+	set searchString(aValue)
 	{
 		return this.controller.searchString = aValue;
 	},
@@ -797,4 +930,4 @@ XMIgemoAutoCompletePopupController.prototype = {
 	}
  
 }; 
-  	
+  
