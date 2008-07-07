@@ -744,6 +744,10 @@ XMIgemoAutoCompletePopupController.prototype = {
 			this.service.onSearchBegin();
 			return;
 		}
+		else {
+			this.clearOverride();
+			this.service.clear();
+		}
 		return this.controller.handleText(aIgnoreSelection);
 	},
  
