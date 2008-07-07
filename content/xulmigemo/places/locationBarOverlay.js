@@ -760,6 +760,9 @@ XMIgemoAutoCompletePopupController.prototype = {
 				aSelf.service.bar.closePopup();
 			}, 0, this);
 		}
+		else {
+			this.service.clear();
+		}
 		return this.controller.handleEnter(aIsPopupSelection);
 	},
  
