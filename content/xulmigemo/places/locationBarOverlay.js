@@ -8,8 +8,25 @@ var XMigemoLocationBarOverlay = {
 	lastFindRegExp : null,
 	lastTermsRegExp : null,
 	lastExceptionsRegExp : null,
-	historyDone : false,
 	thread : null,
+
+	currentSource : 0,
+	sourcesInfo : [
+		{
+			get sourceSQL() { return XMigemoPlaces.inputHistorySourceInRangeSQL; },
+			get sourceBinding() { return { '3' : XMigemoLocationBarOverlay.lastInput }; },
+			get itemsSQL() { return XMigemoPlaces.inputHistoryItemsSQL; },
+			get itemsBinding() { return { '0' : XMigemoLocationBarOverlay.lastInput }; },
+			itemsOffset : 1
+		},
+		{
+			get sourceSQL() { return XMigemoPlaces.placesSourceInRangeSQL; },
+			sourceBinding : null,
+			get itemsSQL() { return XMigemoPlaces.placesItemsSQL; },
+			itemsBinding : null,
+			itemsOffset : 0
+		}
+	],
 
 	enabled   : true,
 	delay     : 250,
@@ -195,13 +212,19 @@ var XMigemoLocationBarOverlay = {
 			function DelayedRunner(aSelf)
 			{
 				var maxResults = aSelf.panel.maxResults;
-				var current = 0;
-				while (aSelf.updateResultsForRange(current, XMigemoPlaces.chunk))
+				var current;
+				build:
+				for (var i = 0, maxi = aSelf.sourcesInfo.length; i < maxi; i++)
 				{
-					aSelf.progressiveBuild();
-					if (aSelf.results.length >= maxResults) break;	
-					yield;
-					current += XMigemoPlaces.chunk;
+					current = 0;
+					aSelf.currentSource = i;
+					while (aSelf.updateResultsForRange(current, XMigemoPlaces.chunk))
+					{
+						aSelf.progressiveBuild();
+						if (aSelf.results.length >= maxResults) break build;
+						yield;
+						current += XMigemoPlaces.chunk;
+					}
 				}
 			}
 			var runner = DelayedRunner(this);
@@ -232,13 +255,17 @@ var XMigemoLocationBarOverlay = {
 	run : function()
 	{
 		var maxResults = this.panel.maxResults;
-		var current = 0;
-		while (
-			this.updateResultsForRange(current, XMigemoPlaces.chunk) &&
-			this.results.length < maxResults
-			)
+		var current;
+		build:
+		for (var i = 0, maxi = this.sourcesInfo.length; i < maxi; i++)
 		{
-			current += XMigemoPlaces.chunk;
+			current = 0;
+			this.currentSource = i;
+			while (this.updateResultsForRange(current, XMigemoPlaces.chunk))
+			{
+				if (this.results.length >= maxResults) break build;
+				current += XMigemoPlaces.chunk;
+			}
 		}
 		this.threadDone = true;
 	},
@@ -282,24 +309,14 @@ var XMigemoLocationBarOverlay = {
  
 	updateResultsForRange : function(aStart, aRange) 
 	{
-		var sql = this.historyDone ?
-					XMigemoPlaces.placesSourceInRangeSQL :
-					XMigemoPlaces.inputHistorySourceInRangeSQL
-		var binding = this.historyDone ?
-					null :
-					{ '3' : this.lastInput }
+		var info = this.sourcesInfo[this.currentSource];
 		var sources = XMigemoPlaces.getSourceInRange(
-				sql,
+				info.sourceSQL,
 				aStart, aRange,
-				binding
+				info.sourceBinding
 			);
-		if (!sources) {
-			if (!this.historyDone) {
-				this.historyDone = true;
-				return true;
-			}
-			return false;
-		}
+		if (!sources) return false;
+
 		var terms = sources.match(this.lastFindRegExp);
 		if (!terms) return true;
 
@@ -344,7 +361,6 @@ var XMigemoLocationBarOverlay = {
 		this.lastFindRegExp = null;
 		this.lastTermsRegExp = null;
 		this.lastExceptionsRegExp = null;
-		this.historyDone = false;
 		this.threadDone = true;
 
 		this.panel.overrideValue = null;
@@ -383,15 +399,10 @@ var XMigemoLocationBarOverlay = {
 		var termsCount = aTerms.length;
 		var exceptionsCount = aExceptions.length;
 
-		var sql, offset;
-		if (this.historyDone) {
-			sql = XMigemoPlaces.placesItemsSQL;
-			offset = 0;
-		}
-		else {
-			sql = XMigemoPlaces.inputHistoryItemsSQL;
-			offset = 1;
-		}
+		var info = this.sourcesInfo[this.currentSource];
+
+		var sql    = info.itemsSQL;
+		var offset = info.itemsOffset;
 
 		sql = sql.replace(
 				'%TERMS_RULES%',
@@ -434,8 +445,14 @@ var XMigemoLocationBarOverlay = {
 			return items;
 		}
 		try {
-			if (!this.historyDone) {
-				statement.bindStringParameter(0, this.lastInput);
+			if (info.itemsBinding) {
+				for (var i in info.itemsBinding)
+				{
+					if (typeof info.itemsBinding[i] == 'number')
+						statement.bindDoubleParameter(i, info.itemsBinding[i]);
+					else
+						statement.bindStringParameter(i, info.itemsBinding[i]);
+				}
 			}
 			aTerms.forEach(function(aTerm, aIndex) {
 				statement.bindStringParameter(aIndex+offset, '%'+aTerm+'%');
