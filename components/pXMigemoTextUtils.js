@@ -65,7 +65,6 @@ pXMigemoTextUtils.prototype = {
 		try {
 			var specialNodes = doc.evaluate(
 					[
-						'descendant-or-self::*[local-name()="BODY" or local-name()="body"]/',
 						'descendant::*[',
 							'contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " ")) or ',
 							'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
@@ -81,8 +80,8 @@ pXMigemoTextUtils.prototype = {
 			while (node = specialNodes.iterateNext())
 			{
 				nodeRange.selectNode(node);
-				if (aRange.compareBoundaryPoints(aRange.START_TO_START, nodeRange) != -1 ||
-					nodeRange.compareBoundaryPoints(aRange.END_TO_END, aRange) != -1)
+				if (aRange.compareBoundaryPoints(aRange.START_TO_START, nodeRange) == 1 ||
+					nodeRange.compareBoundaryPoints(aRange.END_TO_END, aRange) == 1)
 					continue;
 
 				textRange.setEndBefore(node);
