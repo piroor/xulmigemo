@@ -1,5 +1,4 @@
-var description = 'XMigemoTextUtilsのテスト';
-var isAsync = true;
+var description = 'XMigemoTextUtilsのテスト（基本）';
 
 utils.include('../../components/pXMigemoTextUtils.js', null, 'Shift_JIS');
 
@@ -8,13 +7,11 @@ var textUtils;
 function setUp()
 {
 	textUtils = new pXMigemoTextUtils();
-	yield Do(utils.setUpTestFrame('../res/keyEventTest.html'));
 }
 
 function tearDown()
 {
 	textUtils = null;
-	yield Do(utils.tearDownTestFrame());
 }
 
 test_trim.description = 'trim（前後の空白の除去）';
@@ -50,67 +47,6 @@ function test_brushUpTerms()
 		textUtils.brushUpTerms('ドイツ語,日本語,Japanese,フランス語,ドイツ語,中国語,英語,English,Japanese,French,German,Chinese,英語'.split(',')),
 		'重複あり'
 	);
-}
-
-test_range2Text.description = 'range2Text（DOM Rangeの文字列化）'
-function test_range2Text()
-{
-	var range = utils.testDocument.createRange();
-
-	range.selectNode(utils.testDocument.getElementById('single-row'));
-	assert.equals('single-row field\ntext in input field\n', textUtils.range2Text(range));
-
-	range.selectNodeContents(utils.testDocument.getElementById('single-row'));
-	assert.equals('single-row field\ntext in input field\n', textUtils.range2Text(range));
-
-	range.selectNodeContents(utils.testDocument.body);
-	assert.equals(<![CDATA[
-
-
-
-This is a sample text and a sample link.
-single-row field
-text in input field
-
-multirow field
-
-text in textarea
-
-
-word1, out of text field
-word1, out of text field
-word1, in text field
-word1, in text field
-word1, out of text field
-word1, out of text field
-word1, in text field
-word1, in text field
-word1, out of text field
-word1, out of text field
-
-word2, out of text field
-word2, out of text field
-word2, in text field
-word2, in text field
-
-word3, in text field
-word3, in text field
-word3, out of text field
-word3, out of text field
-
-日本語のテキスト　にほんごのテキスト　ニホンゴのテキスト　nihongoのテキスト
-
-another link
-
-
-Pressed:
-
-
-
-
-]]>.toString(), textUtils.range2Text(range));
-
-	range.detach();
 }
 
 test_sanitize.description = 'sanitize（正規表現のメタキャラクタのエスケープ）';
@@ -197,22 +133,3 @@ function test_getANDFindRegExpFromTerms()
 	assert.pattern('フランス語,英語,日本語', regexp);
 	assert.notPattern('日本語,フランス語', regexp);
 }
-
-test_getFoundRange.description = 'getFoundRange（フレーム内のヒット箇所の取得）'
-test_getFoundRange.priority = 'never';
-function test_getFoundRange()
-{
-}
-
-test_isRangeOverlap.description = 'isRangeOverlap（DOM Rangeの重なり合いのチェック）'
-test_isRangeOverlap.priority = 'never';
-function test_isRangeOverlap()
-{
-}
-
-test_delayedSelect.description = 'delayedSelect（DOM Rangeの選択）'
-test_delayedSelect.priority = 'never';
-function test_delayedSelect()
-{
-}
-
