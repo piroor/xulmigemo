@@ -14,7 +14,7 @@ function setUp()
 function tearDown()
 {
 	textUtils = null;
-	yield Do(utils.loadURI('about:blank'));
+	yield Do(utils.loadURI());
 }
 
 test_isRangeOverlap.description = 'isRangeOverlap（DOM Rangeの重なり合いのチェック）'
@@ -149,7 +149,7 @@ function test_getFoundRange()
 	var foundRange = Find.Find('sample', findRange, startPoint, endPoint);
 	assert.equals('sample', foundRange);
 
-	var selCon = utils.testFrame.docShell
+	var selCon = utils.gBrowser.docShell
 			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 			.getInterface(Components.interfaces.nsISelectionDisplay)
 			.QueryInterface(Components.interfaces.nsISelectionController);
