@@ -20,9 +20,9 @@ function tearDown()
 test_isRangeOverlap.description = 'isRangeOverlap（DOM Rangeの重なり合いのチェック）'
 function test_isRangeOverlap()
 {
-	var range1 = utils.testDocument.createRange();
-	var range2 = utils.testDocument.createRange();
-	var node = utils.testDocument.getElementById('single-row');
+	var range1 = content.document.createRange();
+	var range2 = content.document.createRange();
+	var node = content.document.getElementById('single-row');
 
 	// range1 == range2
 	range1.selectNode(node);
@@ -68,15 +68,15 @@ function test_isRangeOverlap()
 test_range2Text.description = 'range2Text（DOM Rangeの文字列化）'
 function test_range2Text()
 {
-	var range = utils.testDocument.createRange();
+	var range = content.document.createRange();
 
-	range.selectNode(utils.testDocument.getElementById('single-row'));
+	range.selectNode(content.document.getElementById('single-row'));
 	assert.equals('single-row field\ntext in input field\n', textUtils.range2Text(range));
 
-	range.selectNodeContents(utils.testDocument.getElementById('single-row'));
+	range.selectNodeContents(content.document.getElementById('single-row'));
 	assert.equals('single-row field\ntext in input field\n', textUtils.range2Text(range));
 
-	range.selectNodeContents(utils.testDocument.body);
+	range.selectNodeContents(content.document.body);
 	assert.equals(<![CDATA[
 
 
@@ -127,20 +127,51 @@ Pressed:
 }
 
 test_getFoundRange.description = 'getFoundRange（フレーム内のヒット箇所の取得）'
-test_getFoundRange.priority = 'never';
 function test_getFoundRange()
 {
+	var Find = Components
+			.classes['@mozilla.org/embedcomp/rangefind;1']
+			.createInstance(Components.interfaces.nsIFind);
+
+	var target = content.document.getElementById('first');
+
+	var findRange = content.document.createRange();
+	findRange.selectNodeContents(target);
+
+	var startPoint = content.document.createRange();
+	startPoint.selectNodeContents(target);
+	startPoint.collapse(true);
+
+	var endPoint = content.document.createRange();
+	endPoint.selectNodeContents(target);
+	endPoint.collapse(false);
+
+	var foundRange = Find.Find('sample', findRange, startPoint, endPoint);
+	assert.equals('sample', foundRange);
+
+	var selCon = utils.testFrame.docShell
+			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+			.getInterface(Components.interfaces.nsISelectionDisplay)
+			.QueryInterface(Components.interfaces.nsISelectionController);
+	var selection = selCon.getSelection(selCon.SELECTION_NORMAL);
+	selection.addRange(foundRange);
+	selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
+
+	var range = textUtils.getFoundRange(content);
+	assert.equals('sample', range.toString());
+	assert.equals(0, range.compareBoundaryPoints(range.START_TO_START, foundRange));
+	assert.equals(0, range.compareBoundaryPoints(range.END_TO_END, foundRange));
 }
 
 test_delayedSelect.description = 'delayedSelect（DOM Rangeの選択）'
 function test_delayedSelect()
 {
-	var range = utils.testDocument.createRange();
-	var link = utils.testDocument.getElementsByTagName('a')[0];
+	var range = content.document.createRange();
+	var link = content.document.getElementsByTagName('a')[0];
 	var container = link.parentNode;
 	range.selectNodeContents(link);
 	range.setEnd(link.firstChild, 3);
-	var selection = utils.testContent.getSelection();
+	var selection = content.getSelection();
 	selection.addRange(range);
 	assert.equals('sam', selection.toString());
 	assert.equals(3, container.childNodes.length);
@@ -154,7 +185,7 @@ function test_delayedSelect()
 	assert.equals(1, container.childNodes.length);
 	yield 100;
 
-	selection = utils.testContent.getSelection();
+	selection = content.getSelection();
 	assert.equals('sam', selection.toString());
 
 	range.detach();
