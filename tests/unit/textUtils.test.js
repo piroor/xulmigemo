@@ -29,6 +29,9 @@ function test_trim()
 	assert.equals('tab, multiple', textUtils.trim('tab, multiple\t\t'));
 	assert.equals('tab, multiple', textUtils.trim('\t\ttab, multiple'));
 	assert.equals('tab, multiple', textUtils.trim('\t\ttab, multiple\t\t'));
+	assert.equals('mixed', textUtils.trim('mixed\t\n \r'));
+	assert.equals('mixed', textUtils.trim('\t\n \rmixed'));
+	assert.equals('mixed', textUtils.trim('\t\n \rmixed\t\n\r '));
 }
 
 test_brushUpTerms.description = 'brushUpTerms（整列と重複項目の削除）';
