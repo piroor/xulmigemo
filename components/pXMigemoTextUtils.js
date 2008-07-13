@@ -80,8 +80,7 @@ pXMigemoTextUtils.prototype = {
 			while (node = specialNodes.iterateNext())
 			{
 				nodeRange.selectNode(node);
-				if (aRange.compareBoundaryPoints(aRange.START_TO_START, nodeRange) == 1 ||
-					nodeRange.compareBoundaryPoints(aRange.END_TO_END, aRange) == 1)
+				if (!this.isRangeOverlap(nodeRange, aRange))
 					continue;
 
 				textRange.setEndBefore(node);
