@@ -129,9 +129,8 @@ Pressed:
 test_getFoundRange.description = 'getFoundRange（フレーム内のヒット箇所の取得）'
 function test_getFoundRange()
 {
-	var Find = Components
-			.classes['@mozilla.org/embedcomp/rangefind;1']
-			.createInstance(Components.interfaces.nsIFind);
+	var Find = Cc['@mozilla.org/embedcomp/rangefind;1']
+			.createInstance(Ci.nsIFind);
 
 	var target = content.document.getElementById('first');
 
@@ -150,9 +149,9 @@ function test_getFoundRange()
 	assert.equals('sample', foundRange);
 
 	var selCon = utils.gBrowser.docShell
-			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-			.getInterface(Components.interfaces.nsISelectionDisplay)
-			.QueryInterface(Components.interfaces.nsISelectionController);
+			.QueryInterface(Ci.nsIInterfaceRequestor)
+			.getInterface(Ci.nsISelectionDisplay)
+			.QueryInterface(Ci.nsISelectionController);
 	var selection = selCon.getSelection(selCon.SELECTION_NORMAL);
 	selection.addRange(foundRange);
 	selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);

@@ -3,24 +3,24 @@
 
 utils.include('../../components/pXMigemoFind.js', null, 'Shift_JIS');
 
-var win, browser, content, iterator;
+var win, browser, iterator;
 
 function getDocShellFromFrame(aFrame) {
 	return aFrame
-		.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-		.getInterface(Components.interfaces.nsIWebNavigation)
-		.QueryInterface(Components.interfaces.nsIDocShell);
+		.QueryInterface(Ci.nsIInterfaceRequestor)
+		.getInterface(Ci.nsIWebNavigation)
+		.QueryInterface(Ci.nsIDocShell);
 }
 
 assert.docShellEquals = function(aExpected, aActual) {
 	assert.isTrue(aActual);
 	assert.equals(
 		aExpected
-			.QueryInterface(Components.interfaces.nsIWebNavigation)
+			.QueryInterface(Ci.nsIWebNavigation)
 			.document.defaultView
 			.location.href,
 		aActual
-			.QueryInterface(Components.interfaces.nsIWebNavigation)
+			.QueryInterface(Ci.nsIWebNavigation)
 			.document.defaultView
 			.location.href
 	);
@@ -29,7 +29,7 @@ assert.docShellEquals = function(aExpected, aActual) {
 assert.initialized = function(aIterator, aInitialFrame) {
 	assert.equals(aInitialFrame.top,
 		aIterator.root
-			.QueryInterface(Components.interfaces.nsIWebNavigation)
+			.QueryInterface(Ci.nsIWebNavigation)
 			.document.defaultView);
 	assert.focus(aIterator, aInitialFrame);
 	assert.equals(aInitialFrame.document, aIterator.initialDocument);
