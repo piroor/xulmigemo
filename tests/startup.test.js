@@ -41,7 +41,7 @@ assert.findbarState = function(aMode, aShown) {
 		assert.isTrue(XMigemoUI.hidden, aMode);
 }
 
-var startupTest = new TestCase('起動時の設定のテスト', {runStrategy: 'async'});
+var startupTest = new TestCase('起動時の設定のテスト');
 
 startupTest.tests = {
 	setUp : function() {

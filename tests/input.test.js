@@ -3,7 +3,7 @@
 
 utils.include('common.inc.js');
 
-var inputTest = new TestCase('文字入力の一般的な操作のテスト', {runStrategy: 'async'});
+var inputTest = new TestCase('文字入力の一般的な操作のテスト');
 
 inputTest.tests = {
 	setUp : function() {

@@ -3,7 +3,7 @@
 
 utils.include('common.inc.js');
 
-var switchModeTest = new TestCase('モード切り替えのテスト', {runStrategy: 'async'});
+var switchModeTest = new TestCase('モード切り替えのテスト');
 
 switchModeTest.tests = {
 	setUp : function() {
@@ -366,8 +366,8 @@ htmlTests.__proto__ = baseTests;
 xmlTests.__proto__ = baseTests;
 
 
-var basicTest = new TestCase('基本機能のテスト（HTML）', {runStrategy: 'async'});
+var basicTest = new TestCase('基本機能のテスト（HTML）');
 basicTest.tests = htmlTests;
 
-var basicTestXML = new TestCase('基本機能のテスト（XML）', {runStrategy: 'async'});
+var basicTestXML = new TestCase('基本機能のテスト（XML）');
 basicTestXML.tests = xmlTests;

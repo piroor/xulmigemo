@@ -3,7 +3,7 @@
 
 utils.include('common.inc.js');
 
-var XMigemoUIUnitTest = new TestCase('XMigemoUIのユニットテスト', {runStrategy: 'async'});
+var XMigemoUIUnitTest = new TestCase('XMigemoUIのユニットテスト');
 
 XMigemoUIUnitTest.tests = {
 	setUp : function() {

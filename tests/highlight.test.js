@@ -167,10 +167,10 @@ htmlTests.__proto__ = baseTests;
 xmlTests.__proto__ = baseTests;
 
 
-var highlightTest = new TestCase('ハイライト表示の基本テスト（HTML）', {runStrategy: 'async'});
+var highlightTest = new TestCase('ハイライト表示の基本テスト（HTML）');
 highlightTest.tests = htmlTests;
 
-var highlightTestXML = new TestCase('ハイライト表示の基本テスト（XML）', {runStrategy: 'async'});
+var highlightTestXML = new TestCase('ハイライト表示の基本テスト（XML）');
 highlightTestXML.tests = xmlTests;
 
 
@@ -189,7 +189,7 @@ function fireClickEventOn(aNode, aButton) {
 	yield 1500;
 }
 
-var highlightAdvancedTest = new TestCase('ハイライト表示時の発展テスト', {runStrategy: 'async'});
+var highlightAdvancedTest = new TestCase('ハイライト表示時の発展テスト');
 
 highlightAdvancedTest.tests = {
 	setUp : function() {
