@@ -46,7 +46,7 @@ assert.focus = function(aIterator, aFrame) {
 	assert.isTrue(aIterator.isFindable);
 }
 
-var DocShellIteratorTest = new TestCase('DocShellIteratorのユニットテスト', {runStrategy: 'async'});
+var DocShellIteratorTest = new TestCase('DocShellIteratorのユニットテスト');
 
 DocShellIteratorTest.tests = {
 	setUp : function() {

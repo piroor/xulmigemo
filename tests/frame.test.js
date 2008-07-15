@@ -15,7 +15,7 @@ assert.find_again = function(aKey, aTimes, aTerm, aDocument) {
 	assert.found(aTerm, aDocument);
 }
 
-var frameTest = new TestCase('フレームを使用したページのテスト', {runStrategy: 'async'});
+var frameTest = new TestCase('フレームを使用したページのテスト');
 
 frameTest.tests = {
 	setUp : function() {
@@ -65,7 +65,7 @@ frameTest.tests = {
 };
 
 
-var frameTestNotFound = new TestCase('検索語句を含まないフレームがあるページのテスト', {runStrategy: 'async'});
+var frameTestNotFound = new TestCase('検索語句を含まないフレームがあるページのテスト');
 
 frameTestNotFound.tests = {
 	setUp : function() {

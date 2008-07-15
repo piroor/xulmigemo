@@ -4,7 +4,7 @@
 utils.include('common.inc.js');
 utils.include('quickfind.inc.js');
 
-var quickFindBasicTest = new TestCase('クイックMigemo検索の基本テスト', {runStrategy: 'async'});
+var quickFindBasicTest = new TestCase('クイックMigemo検索の基本テスト');
 
 quickFindBasicTest.tests = {
 	setUp : function() {
