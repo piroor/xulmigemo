@@ -935,6 +935,7 @@ var XMigemoUI = {
 					this.restartTimer();
 					return true;
 				}
+				this.enableFindButtons(XMigemoFind.lastKeyword);
 				return false;
 		}
 	},
@@ -1047,6 +1048,7 @@ var XMigemoUI = {
 	delayedFindCallback : function()
 	{
 		XMigemoUI.find();
+		XMigemoUI.enableFindButtons(XMigemoFind.lastKeyword);
 		XMigemoUI.delayedFindTimer = null;
 	},
 	delayedFindTimer : null,
@@ -2289,8 +2291,10 @@ var XMigemoUI = {
 				caseSensitive.checked = true;
 		}
 		else {
-			if (XMigemoUI.highlightCheckedAlways)
+			if (XMigemoUI.highlightCheckedAlways) {
 				XMigemoUI.toggleHighlight(false, true);
+				XMigemoUI.highlightCheck.checked = false;
+			}
 		}
 
 		var event = document.createEvent('Events');
