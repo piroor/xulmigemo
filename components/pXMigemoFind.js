@@ -1045,7 +1045,7 @@ mydump("setSelectionAndScroll");
 	
 	focusToFound : function(aFrame) 
 	{
-		if (Array.prototype.slice.call(aFrame.frames).some(function(aFrame) {
+		if (Array.slice(aFrame.frames).some(function(aFrame) {
 				return this.focusToFound(aFrame);
 			}, this))
 			return true;
@@ -1108,7 +1108,7 @@ mydump("setSelectionAndScroll");
 			return aFrame;
 
 		var frame;
-		if (Array.prototype.slice.call(aFrame.frames).some(function(aFrame) {
+		if (Array.slice(aFrame.frames).some(function(aFrame) {
 				frame = this.getLastFindTargetFrame(aFrame);
 				return frame;
 			}, this))

@@ -346,7 +346,7 @@ var XMigemoUI = {
 		}
 		if (range) return range;
 
-		Array.prototype.slice.call(aFrame.frames)
+		Array.slice(aFrame.frames)
 			.some(function(aFrame) {
 				range = this.getLastFoundRangeIn(aFrame);
 				return range;
@@ -472,7 +472,7 @@ var XMigemoUI = {
 		}
 		catch(e) {
 		}
-		Array.prototype.slice.call(aFrame.frames)
+		Array.slice(aFrame.frames)
 			.some(function(aFrame) {
 				this.clearSelectionInEditable(aFrame);
 			}, this);
@@ -943,7 +943,7 @@ var XMigemoUI = {
 	{
 		if (
 			aFrame.frames &&
-			Array.prototype.slice.call(aFrame.frames).some(function(aFrame) {
+			Array.slice(aFrame.frames).some(function(aFrame) {
 				return this.dispatchKeyEventForLink(aEvent, aFrame);
 			}, this)
 			)
@@ -1435,7 +1435,7 @@ var XMigemoUI = {
 				this.caseSensitiveCheck,
 				this.highlightCheck
 			];
-		var switchers = Array.prototype.slice.call(this.findModeSelector.childNodes);
+		var switchers = Array.slice(this.findModeSelector.childNodes);
 		if (aShow) {
 			buttons.forEach(function(aNode) {
 				aNode.removeAttribute('tooltiptext');
@@ -2098,7 +2098,7 @@ var XMigemoUI = {
 		this.clearHighlightInternal(aDocument, aDocument);
 
 		if (aRecursively)
-			Array.prototype.slice.call(aDocument.defaultView.frames)
+			Array.slice(aDocument.defaultView.frames)
 				.forEach(function(aFrame) {
 					this.clearHighlight(aFrame.document, aRecursively);
 				}, this);

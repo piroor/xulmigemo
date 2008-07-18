@@ -586,7 +586,7 @@ var XMigemoLocationBarOverlay = {
 	clearListbox : function() 
 	{
 		const items = this.listbox.children;
-		Array.prototype.slice.call(items).forEach(function(aItem) {
+		Array.slice(items).forEach(function(aItem) {
 			aItem.collapsed = true;
 		});
 	},

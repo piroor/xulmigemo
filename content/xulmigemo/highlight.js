@@ -372,7 +372,7 @@ var XMigemoHighlight = {
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
 
 		if (!aDontFollowSubFrames && aFrame.frames && aFrame.frames.length) {
-			Array.prototype.slice.call(aFrame.frames).forEach(arguments.callee, this);
+			Array.slice(aFrame.frames).forEach(arguments.callee, this);
 		}
 
 		if (this.isDocumentHighlightable(aFrame.document))
@@ -459,7 +459,7 @@ var XMigemoHighlight = {
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
 
 		if (aFrame.frames && aFrame.frames.length) {
-			Array.prototype.slice.call(aFrame.frames).forEach(arguments.callee, this);
+			Array.slice(aFrame.frames).forEach(arguments.callee, this);
 		}
 
 		if (!(aFrame.document instanceof HTMLDocument)) return;
@@ -476,7 +476,7 @@ var XMigemoHighlight = {
 			this.clearAnimationStyleIn(aFrame, true);
 		this.clearAnimationStyle();
 
-		Array.prototype.slice.call(aFrame.frames).forEach(function(aFrame) {
+		Array.slice(aFrame.frames).forEach(function(aFrame) {
 			this.toggleHighlightScreen(aHighlight, aFrame);
 		}, this);
 
@@ -631,7 +631,7 @@ var XMigemoHighlight = {
 		doc.documentElement.removeAttribute(this.kANIMATION);
 
 		if (aRecursively)
-			Array.prototype.slice.call(aFrame.frames)
+			Array.slice(aFrame.frames)
 				.forEach(function(aFrame) {
 					this.clearAnimationStyleIn(aFrame, aRecursively);
 				}, this);
