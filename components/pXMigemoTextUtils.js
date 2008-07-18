@@ -49,7 +49,7 @@ pXMigemoTextUtils.prototype = {
 		if (Prefs.getBoolPref('javascript.enabled')) {
 			var noscript = doc.getElementsByTagName('noscript');
 			var trash = doc.createRange();
-			Array.prototype.slice.call(noscript).forEach(function(aNode) {
+			Array.slice(noscript).forEach(function(aNode) {
 				trash.selectNode(aNode);
 				trash.deleteContents();
 			});
