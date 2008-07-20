@@ -8,19 +8,6 @@ var XMigemoPlaces = {
 	filterJavaScript : true,
 	filterTyped : false,
  
-	kFIND_HISTORY   : 1, 
-	kFIND_BOOKMARKS : 2,
-	kFIND_TAG       : 4,
-	kFIND_TITLE     : 8,
-	kFIND_URI       : 16,
-
-	findHistoryKey   : null,
-	findBookmarksKey : null,
-	findTagKey       : null,
-	findTitleKey     : null,
-	findURIKey       : null,
-	findKeyRegExp    : null,
- 
 	TextUtils : Components 
 			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
 			.getService(Components.interfaces.pIXMigemoTextUtils),
@@ -46,11 +33,104 @@ var XMigemoPlaces = {
  
 /* SQL */ 
 	 
+	kFIND_HISTORY   : 1, 
+	kFIND_BOOKMARKS : 2,
+	kFIND_TAG       : 4,
+	kFIND_TITLE     : 8,
+	kFIND_URI       : 16,
+
+	findHistoryKey   : null,
+	findBookmarksKey : null,
+	findTagKey       : null,
+	findTitleKey     : null,
+	findURIKey       : null,
+	findKeyRegExp    : null,
+	 
+	getFindFlagFromInput : function(aInput, aNewInput) 
+	{
+		if (!aNewInput) aNewInput = {};
+		aNewInput.value = aInput;
+		var flag = 0;
+		if (
+			!this.findKeyRegExp ||
+			!this.findKeyRegExp.test(aInput)
+			) {
+			return (
+				this.kFIND_HISTORY |
+				this.kFIND_BOOKMARKS |
+				this.kFIND_TAG |
+				this.kFIND_TITLE |
+				this.kFIND_URI
+			);
+		}
+
+		aNewInput.value = RegExp.$2;
+
+		var keys = RegExp.$1;
+
+		if (this.findHistoryKey && keys.indexOf(this.findHistoryKey) > -1)
+			flag |= this.kFIND_HISTORY;
+		if (this.findBookmarksKey && keys.indexOf(this.findBookmarksKey) > -1)
+			flag |= this.kFIND_BOOKMARKS;
+		if (!(flag & this.kFIND_HISTORY) && !(flag & this.kFIND_BOOKMARKS))
+			flag |= this.kFIND_HISTORY | this.kFIND_BOOKMARKS;
+
+		if (this.findTagKey && keys.indexOf(this.findTagKey) > -1)
+			flag |= this.kFIND_TAG;
+		if (this.findTitleKey && keys.indexOf(this.findTitleKey) > -1)
+			flag |= this.kFIND_TITLE;
+		if (this.findURIKey && keys.indexOf(this.findURIKey) > -1)
+			flag |= this.kFIND_URI;
+		return flag;
+	},
+ 
+	updateFindKeyRegExp : function() 
+	{
+		var keys = [];
+		if (this.findHistoryKey) keys.push(this.findHistoryKey);
+		if (this.findBookmarksKey) keys.push(this.findBookmarksKey);
+		if (this.findTagKey) keys.push(this.findTagKey);
+		if (this.findTitleKey) keys.push(this.findTitleKey);
+		if (this.findURIKey) keys.push(this.findURIKey);
+
+		if (keys.length) {
+			keys = keys.map(function(aKey) {
+					return this.TextUtils.sanitize(aKey);
+				}, this).join('|');
+			this.findKeyRegExp = new RegExp('^((?:'+keys+')*)\\s+(.*)', 'i');
+		}
+		else {
+			this.findKeyRegExp = null;
+		}
+	},
+ 
+	getFindKeyContentsFromFlag : function(aFindFlag) 
+	{
+		var contents = [];
+		if (aFindFlag & this.kFIND_TITLE) contents.push('COALESCE(bookmark, title) || " "');
+		if (aFindFlag & this.kFIND_TAG) contents.push('COALESCE(tags, "") || " "');
+		if (aFindFlag & this.kFIND_URI) contents.push('uri');
+		return contents.join(' || ');
+	},
+ 
+	getFindSourceFilterFromFlag : function(aFindFlag) 
+	{
+		return (
+			aFindFlag & this.kFIND_HISTORY && aFindFlag & this.kFIND_BOOKMARKS ?
+				'' :
+			aFindFlag & this.kFIND_HISTORY ?
+				' JOIN moz_historyvisits filter ON p.id = filter.place_id ' :
+				' JOIN moz_bookmarks filter ON p.id = filter.fk '
+		);
+	},
+ 	 
 	getPlacesSourceInRangeSQL : function(aFindFlag) 
 	{
 		var sql = this.placesSourceInRangeSQLBase
 				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
-				.replace('%TAGS%', this.tagsSQLFragment);
+				.replace('%TAGS%', this.tagsSQLFragment)
+				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag))
+				.replace('%SOURCE_FILTER%', this.getFindSourceFilterFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						sql
@@ -58,14 +138,9 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	
+	 
 	placesSourceInRangeSQLBase : <![CDATA[ 
-		SELECT GROUP_CONCAT(
-		         COALESCE(bookmark, title) || ' ' ||
-		         COALESCE(tags, '')        || ' ' ||
-		         uri,
-		         ?1
-		       )
+		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
 		  FROM (SELECT p.id id,
 		               p.title title,
 		               p.url uri,
@@ -75,6 +150,7 @@ var XMigemoPlaces = {
 		               %TAGS%
 		          FROM moz_places p
 		               LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
+		               %SOURCE_FILTER%
 		         WHERE p.frecency <> 0 AND p.hidden <> 1
 		               %EXCLUDE_JAVASCRIPT%
 		               %ONLY_TYPED%
@@ -87,24 +163,21 @@ var XMigemoPlaces = {
 		var sql = this.placesItemsSQLBase
 				.replace('%PARENT_FOLDER%', this.parentFolderSQLFragment)
 				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
-				.replace('%TAGS%', this.tagsSQLFragment);
+				.replace('%TAGS%', this.tagsSQLFragment)
+				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag))
+				.replace('%SOURCE_FILTER%', this.getFindSourceFilterFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
-						this._placesItemsSQL
+						sql
 					)
 				);
 		return sql;
 	},
-	
+	 
 	placesItemsSQLBase : <![CDATA[ 
 		SELECT title, uri, favicon, bookmark, tags, findkey
 		  FROM (SELECT *,
-		        GROUP_CONCAT(
-		          COALESCE(bookmark, title) || ' ' ||
-		          COALESCE(tags, '')        || ' ' ||
-		          uri,
-		          ' '
-		        ) findkey
+		        GROUP_CONCAT(%FINDKEY_CONTENTS%, ' ') findkey
 		    FROM (SELECT p.title title,
 		                 p.url uri,
 		                 f.url favicon,
@@ -114,6 +187,7 @@ var XMigemoPlaces = {
 		                 %TAGS%
 		            FROM moz_places p
 		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
+		                 %SOURCE_FILTER%
 		           WHERE p.frecency <> 0 AND p.hidden <> 1
 		                 %EXCLUDE_JAVASCRIPT%
 		                 %ONLY_TYPED%
@@ -127,7 +201,9 @@ var XMigemoPlaces = {
 	{
 		var sql = this.inputHistorySourceInRangeSQLBase
 				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
-				.replace('%TAGS%', this.tagsSQLFragment);
+				.replace('%TAGS%', this.tagsSQLFragment)
+				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag))
+				.replace('%SOURCE_FILTER%', this.getFindSourceFilterFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						sql
@@ -135,14 +211,9 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	
+	 
 	inputHistorySourceInRangeSQLBase : <![CDATA[ 
-		SELECT GROUP_CONCAT(
-		         COALESCE(bookmark, title) || ' ' ||
-		         COALESCE(tags, '')        || ' ' ||
-		         uri,
-		         ?1
-		       )
+		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
 		  FROM (SELECT p.title title,
 		               p.url uri,
 		               p.frecency frecency,
@@ -159,6 +230,7 @@ var XMigemoPlaces = {
 		               ) rank
 		          FROM moz_inputhistory i
 		               JOIN moz_places p ON i.place_id = p.id
+		               %SOURCE_FILTER%
 		         WHERE 1 %EXCLUDE_JAVASCRIPT%
 		                 %ONLY_TYPED%
 		         GROUP BY i.place_id HAVING rank > 0
@@ -171,7 +243,9 @@ var XMigemoPlaces = {
 		var sql = this.inputHistoryItemsSQLBase
 				.replace('%PARENT_FOLDER%', this.parentFolderSQLFragment)
 				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
-				.replace('%TAGS%', this.tagsSQLFragment);
+				.replace('%TAGS%', this.tagsSQLFragment)
+				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag))
+				.replace('%SOURCE_FILTER%', this.getFindSourceFilterFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						sql
@@ -179,16 +253,11 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	
+	 
 	inputHistoryItemsSQLBase : <![CDATA[ 
 		SELECT title, uri, favicon, bookmark, tags, findkey
 		  FROM (SELECT *,
-		        GROUP_CONCAT(
-		          COALESCE(bookmark, title) || ' ' ||
-		          COALESCE(tags, '')        || ' ' ||
-		          uri,
-		          ' '
-		        ) findkey
+		        GROUP_CONCAT(%FINDKEY_CONTENTS%, ' ') findkey
 		    FROM (SELECT p.title title,
 		                 p.url uri,
 		                 f.url favicon,
@@ -206,9 +275,10 @@ var XMigemoPlaces = {
 		                 ) rank
 		            FROM moz_inputhistory i
 		                 JOIN moz_places p ON i.place_id = p.id
+		                 %SOURCE_FILTER%
 		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
 		           WHERE 1 %EXCLUDE_JAVASCRIPT%
-		                   %ONLY_TYPED%) p
+		                   %ONLY_TYPED%
 		           GROUP BY i.place_id HAVING rank > 0
 		           ORDER BY rank DESC, frecency DESC
 		           %SOURCES_LIMIT_PART%)
@@ -219,22 +289,20 @@ var XMigemoPlaces = {
 	get historyInRangeSQL() 
 	{
 		if (!this._historyInRangeSQL) {
+			var flag = this.kFIND_TITLE | this.kFIND_TAG | this.kFIND_URI;
 			this._historyInRangeSQL = this.historyInRangeSQLBase
-				.replace('%TAGS%', this.tagsSQLFragment);
+				.replace('%TAGS%', this.tagsSQLFragment)
+				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(flag));
 		}
 		return this._historyInRangeSQL;
 	},
-	
+	 
 	historyInRangeSQLBase : <![CDATA[ 
-		SELECT GROUP_CONCAT(
-		         title              || ' ' ||
-		         COALESCE(tags, '') || ' ' ||
-		         uri,
-		         ?1
-		       )
+		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
 		  FROM (SELECT p.id id,
 		               p.title title,
 		               p.url uri,
+		               p.title bookmark,
 		               %TAGS%
 		          FROM moz_places p
 		         WHERE p.hidden <> 1
@@ -244,23 +312,21 @@ var XMigemoPlaces = {
 	get bookmarksInRangeSQL() 
 	{
 		if (!this._bookmarksInRangeSQL) {
+			var flag = this.kFIND_TITLE | this.kFIND_TAG | this.kFIND_URI;
 			this._bookmarksInRangeSQL = this.bookmarksInRangeSQLBase
-				.replace('%TAGS%', this.tagsSQLFragment);
+				.replace('%TAGS%', this.tagsSQLFragment)
+				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(flag));
 		}
 		return this._bookmarksInRangeSQL;
 	},
 	
 	bookmarksInRangeSQLBase : <![CDATA[ 
-		SELECT GROUP_CONCAT(
-		         title || ' ' ||
-		         COALESCE(tags, '') || ' ' ||
-		         uri,
-		         ?1
-		       )
+		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
 		  FROM (SELECT b.id id,
 		               b.title title,
 		               p.url uri,
-		               (%TAGS%) tags
+		               b.title bookmark,
+		               %TAGS%
 		          FROM moz_bookmarks b
 		               LEFT OUTER JOIN moz_places p ON b.fk = p.id
 		         WHERE b.type = 1 AND b.title IS NOT NULL
@@ -475,54 +541,8 @@ var XMigemoPlaces = {
 		return findInput;
 	},
  
-	getFindFlagFromInput : function(aInput, aNewInput) 
-	{
-		aNewInput.value = aInput;
-		var flag = 0;
-		if (
-			!this.findKeyRegExp ||
-			!this.findKeyRegExp.test(aInpt)
-			) {
-			return (
-				this.kFIND_HISTORY |
-				this.kFIND_BOOKMARKS |
-				this.kFIND_TAG |
-				this.kFIND_TITLE |
-				this.kFIND_URI;
-			);
-		}
-
-		aNewInput.value = RegExp.$2;
-
-		var keys = RegExp.$1;
-		if (keys.indexOf(this.findHistoryKey)) flag |= this.kFIND_HISTORY;
-		if (keys.indexOf(this.findBookmarksKey)) flag |= this.kFIND_BOOKMARKS;
-		if (keys.indexOf(this.findTagKey)) flag |= this.kFIND_TAG;
-		if (keys.indexOf(this.findTitleKey)) flag |= this.kFIND_TITLE;
-		if (keys.indexOf(this.findURIKey)) flag |= this.kFIND_URI;
-		return flag;
-	},
-	 
-	updateFindKeyRegExp : function() 
-	{
-		var keys = [];
-		if (this.findHistoryKey) keys.push(this.findHistoryKey);
-		if (this.findBookmarksKey) keys.push(this.findBookmarksKey);
-		if (this.findTagKey) keys.push(this.findTagKey);
-		if (this.findTitleKey) keys.push(this.findTitleKey);
-		if (this.findURIKey) keys.push(this.findURIKey);
-
-		if (keys.length) {
-			keys = keys.join('|\\');
-			this.findKeyRegExp = new RegExp('^((?:\\'+keys+')*)\s+(.*)', 'i');
-		}
-		else {
-			this.findKeyRegExp = null;
-		}
-	},
-  	
 /* event handling */ 
-	 
+	
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
 		if (aTopic != 'nsPref:changed') return;
@@ -571,7 +591,7 @@ var XMigemoPlaces = {
 				this.updateFindKeyRegExp();
 				return;
 			case 'browser.urlbar.match.title':
-				this.findTitleKey = 'value;
+				this.findTitleKey = value;
 				this.updateFindKeyRegExp();
 				return;
 			case 'browser.urlbar.match.url':
@@ -637,4 +657,6 @@ var XMigemoPlaces = {
 	}
    
 }; 
+ 
+window.addEventListener('load', XMigemoPlaces, false); 
   
