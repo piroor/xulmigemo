@@ -81,6 +81,9 @@ var XMigemoPlaces = {
 			flag |= this.kFIND_TITLE;
 		if (this.findURIKey && keys.indexOf(this.findURIKey) > -1)
 			flag |= this.kFIND_URI;
+		if (!(flag & this.kFIND_TAG) && !(flag & this.kFIND_TITLE) && !(flag & this.kFIND_URI))
+			flag |= this.kFIND_TAG | this.kFIND_TITLE | this.kFIND_URI;
+
 		return flag;
 	},
  
