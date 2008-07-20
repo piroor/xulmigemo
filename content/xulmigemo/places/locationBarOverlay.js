@@ -4,6 +4,7 @@ var XMigemoLocationBarOverlay = {
 	lastFoundPlaces : {},
 	lastInput : '',
 	lastTerms : [],
+	lastFindFlag : 0,
 	lastExceptions : [],
 	lastFindRegExp : null,
 	lastTermsRegExp : null,
@@ -13,16 +14,28 @@ var XMigemoLocationBarOverlay = {
 	currentSource : 0,
 	sourcesInfo : [
 		{
-			get sourceSQL() { return XMigemoPlaces.inputHistorySourceInRangeSQL; },
-			get sourceBinding() { return { '3' : XMigemoLocationBarOverlay.lastInput }; },
-			get itemsSQL() { return XMigemoPlaces.inputHistoryItemsSQL; },
-			get itemsBinding() { return { '0' : XMigemoLocationBarOverlay.lastInput }; },
+			getSourceSQL : function(aFindFlag) {
+				return XMigemoPlaces.getInputHistorySourceInRangeSQL(aFindFlag);
+			},
+			get sourceBinding() {
+				return { '3' : XMigemoLocationBarOverlay.lastInput };
+			},
+			getItemsSQL : function(aFindFlag) {
+				return XMigemoPlaces.getInputHistoryItemsSQL(aFindFlag);
+			},
+			get itemsBinding() {
+				return { '0' : XMigemoLocationBarOverlay.lastInput };
+			},
 			itemsOffset : 1
 		},
 		{
-			get sourceSQL() { return XMigemoPlaces.placesSourceInRangeSQL; },
+			getSourceSQL : function(aFindFlag) {
+				return XMigemoPlaces.getPlacesSourceInRangeSQL(aFindFlag);
+			},
 			sourceBinding : null,
-			get itemsSQL() { return XMigemoPlaces.placesItemsSQL; },
+			getItemsSQL : function(aFindFlag) {
+				return XMigemoPlaces.getPlacesItemsSQL(aFindFlag);
+			},
 			itemsBinding : null,
 			itemsOffset : 0
 		}
@@ -278,6 +291,10 @@ var XMigemoLocationBarOverlay = {
   
 	updateRegExp : function() 
 	{
+		var updatedInput = {};
+		this.lastFindFlag = XMigemoPlaces.getFindFlagFromInput(this.lastInput, updatedInput);
+		this.lastInput = updatedInput.value;
+
 		var findInput = this.lastInput;
 		if (XMigemoPlaces.autoStartRegExpFind &&
 			this.TextUtils.isRegExp(findInput)) {
@@ -311,7 +328,7 @@ var XMigemoLocationBarOverlay = {
 	{
 		var info = this.sourcesInfo[this.currentSource];
 		var sources = XMigemoPlaces.getSourceInRange(
-				info.sourceSQL,
+				info.getSourceSQL(this.lastFindFlag),
 				aStart, aRange,
 				info.sourceBinding
 			);
@@ -357,6 +374,7 @@ var XMigemoLocationBarOverlay = {
 		this.lastFoundPlaces = {};
 		this.lastInput = '';
 		this.lastTerms = [];
+		this.lastFindFlag = 0;
 		this.lastExceptions = [];
 		this.lastFindRegExp = null;
 		this.lastTermsRegExp = null;
@@ -401,7 +419,7 @@ var XMigemoLocationBarOverlay = {
 
 		var info = this.sourcesInfo[this.currentSource];
 
-		var sql    = info.itemsSQL;
+		var sql    = info.getItemsSQL(this.lastFindFlag);
 		var offset = info.itemsOffset;
 
 		sql = sql.replace(
