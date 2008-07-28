@@ -41,7 +41,7 @@ var XMigemoPlaces = {
 
 	findHistoryKey   : null,
 	findBookmarksKey : null,
-	findTagKey       : null,
+	findTaggedKey    : null,
 	findTitleKey     : null,
 	findURIKey       : null,
 	findKeyRegExp    : null,
@@ -62,7 +62,7 @@ var XMigemoPlaces = {
 			flag |= this.kFIND_HISTORY;
 		if (this.findBookmarksKey && keys.indexOf(this.findBookmarksKey) > -1)
 			flag |= this.kFIND_BOOKMARKS;
-		if (this.findTagKey && keys.indexOf(this.findTagKey) > -1)
+		if (this.findTaggedKey && keys.indexOf(this.findTaggedKey) > -1)
 			flag |= this.kFIND_TAGGED;
 
 		if (this.findTitleKey && keys.indexOf(this.findTitleKey) > -1)
@@ -76,11 +76,11 @@ var XMigemoPlaces = {
 	updateFindKeyRegExp : function() 
 	{
 		var keys = [];
-		if (this.findHistoryKey) keys.push(this.findHistoryKey);
-		if (this.findBookmarksKey) keys.push(this.findBookmarksKey);
-		if (this.findTagKey) keys.push(this.findTagKey);
-		if (this.findTitleKey) keys.push(this.findTitleKey);
-		if (this.findURIKey) keys.push(this.findURIKey);
+		if (this.findHistoryKey !== null) keys.push(this.findHistoryKey);
+		if (this.findBookmarksKey !== null) keys.push(this.findBookmarksKey);
+		if (this.findTaggedKey !== null) keys.push(this.findTaggedKey);
+		if (this.findTitleKey !== null) keys.push(this.findTitleKey);
+		if (this.findURIKey !== null) keys.push(this.findURIKey);
 
 		if (keys.length) {
 			keys = keys.map(function(aKey) {
@@ -618,9 +618,10 @@ var XMigemoPlaces = {
 				this.updateFindKeyRegExp();
 				return;
 			case 'browser.urlbar.restrict.tag':
-				this.findTagKey = value;
+				this.findTaggedKey = value;
 				this.updateFindKeyRegExp();
 				return;
+
 			case 'browser.urlbar.match.title':
 				this.findTitleKey = value;
 				this.updateFindKeyRegExp();
