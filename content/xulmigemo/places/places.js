@@ -35,7 +35,7 @@ var XMigemoPlaces = {
 	 
 	kFIND_HISTORY   : 1, 
 	kFIND_BOOKMARKS : 2,
-	kFIND_TAG       : 4,
+	kFIND_TAGGED    : 4,
 	kFIND_TITLE     : 8,
 	kFIND_URI       : 16,
 
@@ -51,38 +51,24 @@ var XMigemoPlaces = {
 		if (!aNewInput) aNewInput = {};
 		aNewInput.value = aInput;
 		var flag = 0;
-		if (
-			!this.findKeyRegExp ||
-			!this.findKeyRegExp.test(aInput)
-			) {
-			return (
-				this.kFIND_HISTORY |
-				this.kFIND_BOOKMARKS |
-				this.kFIND_TAG |
-				this.kFIND_TITLE |
-				this.kFIND_URI
-			);
-		}
+		var keys = !this.findKeyRegExp ?
+				null :
+				aInput.match(this.findKeyRegExp);
+		if (!keys) return flag;
 
-		aNewInput.value = RegExp.$2;
-
-		var keys = RegExp.$1;
+		aNewInput.value = aInput.replace(this.findKeyRegExp, ' ');
 
 		if (this.findHistoryKey && keys.indexOf(this.findHistoryKey) > -1)
 			flag |= this.kFIND_HISTORY;
 		if (this.findBookmarksKey && keys.indexOf(this.findBookmarksKey) > -1)
 			flag |= this.kFIND_BOOKMARKS;
-		if (!(flag & this.kFIND_HISTORY) && !(flag & this.kFIND_BOOKMARKS))
-			flag |= this.kFIND_HISTORY | this.kFIND_BOOKMARKS;
-
 		if (this.findTagKey && keys.indexOf(this.findTagKey) > -1)
-			flag |= this.kFIND_TAG;
+			flag |= this.kFIND_TAGGED;
+
 		if (this.findTitleKey && keys.indexOf(this.findTitleKey) > -1)
 			flag |= this.kFIND_TITLE;
 		if (this.findURIKey && keys.indexOf(this.findURIKey) > -1)
 			flag |= this.kFIND_URI;
-		if (!(flag & this.kFIND_TAG) && !(flag & this.kFIND_TITLE) && !(flag & this.kFIND_URI))
-			flag |= this.kFIND_TAG | this.kFIND_TITLE | this.kFIND_URI;
 
 		return flag;
 	},
@@ -100,7 +86,7 @@ var XMigemoPlaces = {
 			keys = keys.map(function(aKey) {
 					return this.TextUtils.sanitize(aKey);
 				}, this).join('|');
-			this.findKeyRegExp = new RegExp('^((?:'+keys+')*)\\s+(.*)', 'i');
+			this.findKeyRegExp = new RegExp('(?:^|\\s+)('+keys+')(?:$|\\s+)', 'gi');
 		}
 		else {
 			this.findKeyRegExp = null;
@@ -110,21 +96,39 @@ var XMigemoPlaces = {
 	getFindKeyContentsFromFlag : function(aFindFlag) 
 	{
 		var contents = [];
-		if (aFindFlag & this.kFIND_TITLE) contents.push('COALESCE(bookmark, title) || " "');
-		if (aFindFlag & this.kFIND_TAG) contents.push('COALESCE(tags, "") || " "');
-		if (aFindFlag & this.kFIND_URI) contents.push('uri');
+		if (aFindFlag & this.kFIND_TITLE) {
+			contents.push('COALESCE(bookmark, title) || " "');
+		}
+		if (aFindFlag & this.kFIND_URI) {
+			contents.push('uri');
+		}
+		if (!contents.length) {
+			contents.push('COALESCE(bookmark, title) || " "');
+			contents.push('COALESCE(tags, "") || " "');
+			contents.push('uri');
+		}
 		return contents.join(' || ');
 	},
  
 	getFindSourceFilterFromFlag : function(aFindFlag) 
 	{
-		return (
-			aFindFlag & this.kFIND_HISTORY && aFindFlag & this.kFIND_BOOKMARKS ?
-				'' :
-			aFindFlag & this.kFIND_HISTORY ?
-				' JOIN moz_historyvisits filter ON p.id = filter.place_id ' :
-				' JOIN moz_bookmarks filter ON p.id = filter.fk '
-		);
+		if (
+			aFindFlag & this.kFIND_HISTORY &&
+			!(aFindFlag & this.kFIND_BOOKMARKS) &&
+			!(aFindFlag & this.kFIND_TAGGED)
+			) {
+			return ' JOIN moz_historyvisits filter ON p.id = filter.place_id ';
+		}
+		else if (
+			!(aFindFlag & this.kFIND_HISTORY) &&
+			(
+				aFindFlag & this.kFIND_BOOKMARKS ||
+				aFindFlag & this.kFIND_TAGGED
+			)
+			) {
+			return ' JOIN moz_bookmarks filter ON p.id = filter.fk ';
+		}
+		return '';
 	},
  	 
 	getPlacesSourceInRangeSQL : function(aFindFlag) 
@@ -136,7 +140,10 @@ var XMigemoPlaces = {
 				.replace('%SOURCE_FILTER%', this.getFindSourceFilterFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
-						sql
+						this.insertTaggedCondition(
+							sql,
+							aFindFlag
+						)
 					)
 				);
 		return sql;
@@ -157,6 +164,7 @@ var XMigemoPlaces = {
 		         WHERE p.frecency <> 0 AND p.hidden <> 1
 		               %EXCLUDE_JAVASCRIPT%
 		               %ONLY_TYPED%
+		               %ONLY_TAGGED%
 		         ORDER BY frecency DESC
 		         LIMIT ?2,?3)
 	]]>.toString(),
@@ -171,7 +179,10 @@ var XMigemoPlaces = {
 				.replace('%SOURCE_FILTER%', this.getFindSourceFilterFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
-						sql
+						this.insertTaggedCondition(
+							sql,
+							aFindFlag
+						)
 					)
 				);
 		return sql;
@@ -194,6 +205,7 @@ var XMigemoPlaces = {
 		           WHERE p.frecency <> 0 AND p.hidden <> 1
 		                 %EXCLUDE_JAVASCRIPT%
 		                 %ONLY_TYPED%
+		                 %ONLY_TAGGED%
 		           ORDER BY frecency DESC
 		           %SOURCES_LIMIT_PART%)
 		   GROUP BY uri)
@@ -209,7 +221,10 @@ var XMigemoPlaces = {
 				.replace('%SOURCE_FILTER%', this.getFindSourceFilterFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
-						sql
+						this.insertTaggedCondition(
+							sql,
+							aFindFlag
+						)
 					)
 				);
 		return sql;
@@ -236,6 +251,7 @@ var XMigemoPlaces = {
 		               %SOURCE_FILTER%
 		         WHERE 1 %EXCLUDE_JAVASCRIPT%
 		                 %ONLY_TYPED%
+		                 %ONLY_TAGGED%
 		         GROUP BY i.place_id HAVING rank > 0
 		         ORDER BY rank DESC, frecency DESC
 		         LIMIT ?2,?3)
@@ -251,7 +267,10 @@ var XMigemoPlaces = {
 				.replace('%SOURCE_FILTER%', this.getFindSourceFilterFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
-						sql
+						this.insertTaggedCondition(
+							sql,
+							aFindFlag
+						)
 					)
 				);
 		return sql;
@@ -282,6 +301,7 @@ var XMigemoPlaces = {
 		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
 		           WHERE 1 %EXCLUDE_JAVASCRIPT%
 		                   %ONLY_TYPED%
+		                   %ONLY_TAGGED%
 		           GROUP BY i.place_id HAVING rank > 0
 		           ORDER BY rank DESC, frecency DESC
 		           %SOURCES_LIMIT_PART%)
@@ -292,10 +312,9 @@ var XMigemoPlaces = {
 	get historyInRangeSQL() 
 	{
 		if (!this._historyInRangeSQL) {
-			var flag = this.kFIND_TITLE | this.kFIND_TAG | this.kFIND_URI;
 			this._historyInRangeSQL = this.historyInRangeSQLBase
 				.replace('%TAGS%', this.tagsSQLFragment)
-				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(flag));
+				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(0));
 		}
 		return this._historyInRangeSQL;
 	},
@@ -315,10 +334,9 @@ var XMigemoPlaces = {
 	get bookmarksInRangeSQL() 
 	{
 		if (!this._bookmarksInRangeSQL) {
-			var flag = this.kFIND_TITLE | this.kFIND_TAG | this.kFIND_URI;
 			this._bookmarksInRangeSQL = this.bookmarksInRangeSQLBase
 				.replace('%TAGS%', this.tagsSQLFragment)
-				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(flag));
+				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(0));
 		}
 		return this._bookmarksInRangeSQL;
 	},
@@ -352,6 +370,16 @@ var XMigemoPlaces = {
 				'%ONLY_TYPED%',
 				this.filterTyped ?
 					'AND p.typed = 1' :
+					''
+			);
+	},
+ 
+	insertTaggedCondition : function(aSQL, aFindFlag) 
+	{
+		return aSQL.replace(
+				'%ONLY_TAGGED%',
+				aFindFlag & this.kFIND_TAGGED ?
+					'AND tags NOT NULL' :
 					''
 			);
 	},
