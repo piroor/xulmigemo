@@ -125,6 +125,7 @@ var XMigemoLocationBarOverlay = {
 		var input = this.input;
 		return (
 			this.enabled &&
+			!this.bar.disableAutoComplete &&
 			XMigemoPlaces.isValidInput(input)
 			);
 	},
