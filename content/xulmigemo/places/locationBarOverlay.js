@@ -7,9 +7,14 @@ var XMigemoLocationBarOverlay = {
 	lastFindFlag : 0,
 	lastExceptions : [],
 	lastFindRegExp : null,
+	lastFindMode : 0,
 	lastTermsRegExp : null,
 	lastExceptionsRegExp : null,
 	thread : null,
+
+	FIND_MODE_NATIVE : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
+	FIND_MODE_MIGEMO : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
+	FIND_MODE_REGEXP : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP,
 
 	currentSource : 0,
 	sourcesInfo : [
@@ -28,7 +33,7 @@ var XMigemoLocationBarOverlay = {
 				var result = XMigemoPlaces.parseInputForKeywordSearch(aInput);
 				return [result.keyword, result.terms];
 			},
-			termsGetter : function(aInput) {
+			termsGetter : function(aInput, aSource) {
 				var result = XMigemoPlaces.parseInputForKeywordSearch(aInput);
 				return [result.keyword, result.terms];
 			},
@@ -51,12 +56,48 @@ var XMigemoLocationBarOverlay = {
 				return [aInput];
 			}
 		},
-		{
+		{ // match boundary
+			get enabled() {
+				return false; // not implemented!
+				return (XMigemoLocationBarOverlay.lastFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
+					(XMigemoPlaces.matchBehavior == 1 || XMigemoPlaces.matchBehavior == 2);
+			},
 			getSourceSQL : function(aFindFlag) {
 				return XMigemoPlaces.getPlacesSourceInRangeSQL(aFindFlag);
 			},
 			getItemsSQL : function(aFindFlag) {
 				return XMigemoPlaces.getPlacesItemsSQL(aFindFlag);
+			},
+			termsGetter : function(aInput, aSource) {
+				return null;
+			}
+		},
+		{ // match anywhere
+			get enabled() {
+				return true; // not implemented!
+				return XMigemoPlaces.matchBehavior == 0 || XMigemoPlaces.matchBehavior == 1;
+			},
+			getSourceSQL : function(aFindFlag) {
+				return XMigemoPlaces.getPlacesSourceInRangeSQL(aFindFlag);
+			},
+			getItemsSQL : function(aFindFlag) {
+				return XMigemoPlaces.getPlacesItemsSQL(aFindFlag);
+			}
+		},
+		{ // match start
+			get enabled() {
+				return false; // not implemented!
+				return (XMigemoLocationBarOverlay.lastFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
+					XMigemoPlaces.matchBehavior == 3;
+			},
+			getSourceSQL : function(aFindFlag) {
+				return XMigemoPlaces.getPlacesSourceInRangeSQL(aFindFlag);
+			},
+			getItemsSQL : function(aFindFlag) {
+				return XMigemoPlaces.getPlacesItemsSQL(aFindFlag);
+			},
+			termsGetter : function(aInput, aSource) {
+				return null;
 			}
 		}
 	],
@@ -252,6 +293,7 @@ var XMigemoLocationBarOverlay = {
 				{
 					current = 0;
 					aSelf.currentSource = i;
+					if (!aSelf.sourcesInfo[aSelf.currentSource].enabled) continue;
 					while (aSelf.updateResultsForRange(current, XMigemoPlaces.chunk))
 					{
 						aSelf.progressiveBuild();
@@ -295,6 +337,7 @@ var XMigemoLocationBarOverlay = {
 		{
 			current = 0;
 			this.currentSource = i;
+			if (!this.sourcesInfo[this.currentSource].enabled) continue;
 			while (this.updateResultsForRange(current, XMigemoPlaces.chunk))
 			{
 				if (this.results.length >= maxResults) break build;
@@ -322,6 +365,7 @@ var XMigemoLocationBarOverlay = {
 			var source = this.TextUtils.extractRegExpSource(findInput);
 			this.lastFindRegExp =
 				this.lastTermsRegExp = new RegExp(source, 'gim');
+			this.lastFindMode = Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP;
 		}
 		else {
 			if (XMigemoPlaces.notFindAvailable) {
@@ -342,6 +386,7 @@ var XMigemoLocationBarOverlay = {
 				this.TextUtils.getORFindRegExpFromTerms(terms),
 				'gim'
 			);
+			this.lastFindMode = Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO;
 		}
 	},
  
@@ -356,7 +401,7 @@ var XMigemoLocationBarOverlay = {
 		if (!sources) return false;
 
 		var terms = info.termsGetter ?
-				info.termsGetter(this.lastInput) :
+				info.termsGetter(this.lastInput, sources) :
 				sources.match(this.lastFindRegExp) ;
 		if (!terms) return true;
 
