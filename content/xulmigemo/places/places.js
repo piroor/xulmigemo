@@ -7,6 +7,7 @@ var XMigemoPlaces = {
 	notFindAvailable : true,
 	filterJavaScript : true,
 	filterTyped : false,
+	matchBehavior : 1,
  
 	TextUtils : Components 
 			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
@@ -724,6 +725,10 @@ var XMigemoPlaces = {
 				this.filterTyped = value;
 				return;
 
+			case 'browser.urlbar.matchBehavior':
+				this.matchBehavior = value;
+				return;
+
 			default:
 				return;
 		}
@@ -747,6 +752,7 @@ var XMigemoPlaces = {
 		browser.urlbar.match.title
 		browser.urlbar.match.url
 		browser.urlbar.matchOnlyTyped
+		browser.urlbar.matchBehavior
 	]]>.toString(),
  
 	handleEvent : function(aEvent) 
