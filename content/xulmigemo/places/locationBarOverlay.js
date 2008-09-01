@@ -13,38 +13,58 @@ var XMigemoLocationBarOverlay = {
 
 	currentSource : 0,
 	sourcesInfo : [
+		{ // keyword search ( https://bugzilla.mozilla.org/show_bug.cgi?id=392143 )
+			getSourceSQL : function(aFindFlag) {
+				return XMigemoPlaces.keywordSearchSourceInRangeSQL;
+			},
+			getSourceBindingFor : function(aInput) {
+				var result = XMigemoPlaces.parseInputForKeywordSearch(aInput);
+				return [result.keyword, result.terms];
+			},
+			getItemsSQL : function(aFindFlag) {
+				return XMigemoPlaces.keywordSearchItemInRangeSQL;
+			},
+			getItemsBindingFor : function(aInput) {
+				var result = XMigemoPlaces.parseInputForKeywordSearch(aInput);
+				return [result.keyword, result.terms];
+			},
+			termsGetter : function(aInput) {
+				var result = XMigemoPlaces.parseInputForKeywordSearch(aInput);
+				return [result.keyword, result.terms];
+			},
+			exceptionsGetter : function(aInput) {
+				return [];
+			},
+			style : 'keyword'
+		},
 		{
 			getSourceSQL : function(aFindFlag) {
 				return XMigemoPlaces.getInputHistorySourceInRangeSQL(aFindFlag);
 			},
-			get sourceBinding() {
-				return { '3' : XMigemoLocationBarOverlay.lastInput };
+			getSourceBindingFor : function(aInput) {
+				return [aInput];
 			},
 			getItemsSQL : function(aFindFlag) {
 				return XMigemoPlaces.getInputHistoryItemsSQL(aFindFlag);
 			},
-			get itemsBinding() {
-				return { '0' : XMigemoLocationBarOverlay.lastInput };
-			},
-			itemsOffset : 1
+			getItemsBindingFor : function(aInput) {
+				return [aInput];
+			}
 		},
 		{
 			getSourceSQL : function(aFindFlag) {
 				return XMigemoPlaces.getPlacesSourceInRangeSQL(aFindFlag);
 			},
-			sourceBinding : null,
 			getItemsSQL : function(aFindFlag) {
 				return XMigemoPlaces.getPlacesItemsSQL(aFindFlag);
-			},
-			itemsBinding : null,
-			itemsOffset : 0
+			}
 		}
 	],
 
 	enabled   : true,
 	delay     : 250,
 	useThread : false,
- 
+ 	
 	Converter : Components 
 			.classes['@mozilla.org/intl/texttosuburi;1']
 			.getService(Components.interfaces.nsITextToSubURI),
@@ -58,7 +78,7 @@ var XMigemoLocationBarOverlay = {
 	kXULNS : 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
  
 /* elements */ 
-	
+	 
 	get bar() 
 	{
 		return document.getElementById('urlbar');
@@ -98,7 +118,7 @@ var XMigemoLocationBarOverlay = {
 	},
   
 /* status */ 
-	
+	 
 	get busy() 
 	{
 		return this.throbber.getAttribute('busy') == 'true';
@@ -131,7 +151,7 @@ var XMigemoLocationBarOverlay = {
 	},
   
 /* event handling */ 
-	
+	 
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
 		if (aTopic != 'nsPref:changed') return;
@@ -331,11 +351,13 @@ var XMigemoLocationBarOverlay = {
 		var sources = XMigemoPlaces.getSourceInRange(
 				info.getSourceSQL(this.lastFindFlag),
 				aStart, aRange,
-				info.sourceBinding
+				(info.getSourceBindingFor ? info.getSourceBindingFor(this.lastInput) : null )
 			);
 		if (!sources) return false;
 
-		var terms = sources.match(this.lastFindRegExp);
+		var terms = info.termsGetter ?
+				info.termsGetter(this.lastInput) :
+				sources.match(this.lastFindRegExp) ;
 		if (!terms) return true;
 
 		var utils = this.TextUtils;
@@ -347,7 +369,10 @@ var XMigemoLocationBarOverlay = {
 		this.lastTerms = this.TextUtils.brushUpTerms(this.lastTerms.concat(terms));
 
 		var exceptions = [];
-		if (this.lastExceptionsRegExp) {
+		if (info.exceptionsGetter) {
+			exceptions = info.exceptionsGetter();
+		}
+		else if (this.lastExceptionsRegExp) {
 			exceptions = sources.match(this.lastExceptionsRegExp) || [];
 			exceptions = this.TextUtils.brushUpTerms(exceptions)
 				.filter(function(aTerm) {
@@ -415,34 +440,40 @@ var XMigemoLocationBarOverlay = {
 
 		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
 
-		var termsCount = aTerms.length;
-		var exceptionsCount = aExceptions.length;
-
 		var info = this.sourcesInfo[this.currentSource];
 
-		var sql    = info.getItemsSQL(this.lastFindFlag);
-		var offset = info.itemsOffset;
+		var sql      = info.getItemsSQL(this.lastFindFlag);
+		var bindings = info.getItemsBindingFor ? info.getItemsBindingFor(this.lastInput) : [] ;
+		var offset   = bindings.length;
 
-		sql = sql.replace(
-				'%TERMS_RULES%',
-				(aTerms.length ?
-					'('+
-					aTerms.map(function(aTerm, aIndex) {
-						return 'findkey LIKE ?%d%'
-								.replace(/%d%/g, aIndex+offset+1);
-					}).join(' OR ')+
-					')' :
-					''
-				)+
-				(aExceptions.length ?
-					(aTerms.length ? ' AND ' : '' )+
-					aExceptions.map(function(aTerm, aIndex) {
-						return 'findkey NOT LIKE ?%d%'
-							.replace(/%d%/g, aIndex+termsCount+offset+1);
-					}).join(' AND ') :
-					''
-				)
-			);
+		var termsCount      = aTerms.length;
+		var exceptionsCount = aExceptions.length;
+		if (/\%TERMS_RULES\%/i.test(sql)) {
+			sql = sql.replace(
+					'%TERMS_RULES%',
+					(aTerms.length ?
+						'('+
+						aTerms.map(function(aTerm, aIndex) {
+							return 'findkey LIKE ?%d%'
+									.replace(/%d%/g, aIndex+offset+1);
+						}).join(' OR ')+
+						')' :
+						''
+					)+
+					(aExceptions.length ?
+						(aTerms.length ? ' AND ' : '' )+
+						aExceptions.map(function(aTerm, aIndex) {
+							return 'findkey NOT LIKE ?%d%'
+								.replace(/%d%/g, aIndex+termsCount+offset+1);
+						}).join(' AND ') :
+						''
+					)
+				);
+		}
+		else {
+			termsCount      = 0;
+			exceptionsCount = 0;
+		}
 		if (aStart !== void(0)) {
 			aRange = Math.max(0, aRange);
 			if (!aRange) return items;
@@ -464,21 +495,22 @@ var XMigemoLocationBarOverlay = {
 			return items;
 		}
 		try {
-			if (info.itemsBinding) {
-				for (var i in info.itemsBinding)
-				{
-					if (typeof info.itemsBinding[i] == 'number')
-						statement.bindDoubleParameter(i, info.itemsBinding[i]);
-					else
-						statement.bindStringParameter(i, info.itemsBinding[i]);
-				}
+			bindings.forEach(function(aValue, aIndex) {
+				if (typeof aValue == 'number')
+					statement.bindDoubleParameter(aIndex, aValue);
+				else
+					statement.bindStringParameter(aIndex, aValue);
+			});
+			if (termsCount) {
+				aTerms.forEach(function(aTerm, aIndex) {
+					statement.bindStringParameter(aIndex+offset, '%'+aTerm+'%');
+				});
 			}
-			aTerms.forEach(function(aTerm, aIndex) {
-				statement.bindStringParameter(aIndex+offset, '%'+aTerm+'%');
-			});
-			aExceptions.forEach(function(aTerm, aIndex) {
-				statement.bindStringParameter(aIndex+termsCount+offset, '%'+aTerm+'%');
-			});
+			if (exceptionsCount) {
+				aExceptions.forEach(function(aTerm, aIndex) {
+					statement.bindStringParameter(aIndex+termsCount+offset, '%'+aTerm+'%');
+				});
+			}
 			if (aStart !== void(0)) {
 				statement.bindDoubleParameter(termsCount+exceptionsCount+offset, Math.max(0, aStart));
 				statement.bindDoubleParameter(termsCount+exceptionsCount+offset+1, Math.max(0, aRange));
@@ -514,6 +546,9 @@ var XMigemoLocationBarOverlay = {
 				if (item.tags) {
 					item.style = 'tag';
 				}
+				if (info.style) {
+					item.style = info.style;
+				}
 				items.push(item);
 
 				if (items.length >= maxNum) break;
@@ -524,7 +559,7 @@ var XMigemoLocationBarOverlay = {
 		}
 		return items;
 	},
- 	
+ 
 	progressiveBuild : function() 
 	{
 		if (!this.results.length ||

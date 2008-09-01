@@ -46,7 +46,7 @@ var XMigemoPlaces = {
 	findURIKey       : null,
 	findKeyRegExp    : null,
 	findKeyExtractRegExp : null,
-	 
+	
 	getFindFlagFromInput : function(aInput, aNewInput) 
 	{
 		if (!aNewInput) aNewInput = {};
@@ -132,7 +132,7 @@ var XMigemoPlaces = {
 		}
 		return contents.join(' || ');
 	},
- 	
+ 
 	getFindSourceFilterFromFlag : function(aFindFlag) 
 	{
 		if (
@@ -154,6 +154,8 @@ var XMigemoPlaces = {
 		return '';
 	},
   
+/* Placesデータベース全体の検索 */ 
+	
 	getPlacesSourceInRangeSQL : function(aFindFlag) 
 	{
 		var sql = this.placesSourceInRangeSQLBase
@@ -171,7 +173,7 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	 
+	
 	placesSourceInRangeSQLBase : <![CDATA[ 
 		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
 		  FROM (SELECT p.id id,
@@ -210,7 +212,7 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	 
+	
 	placesItemsSQLBase : <![CDATA[ 
 		SELECT title, uri, favicon, bookmark, tags, findkey
 		  FROM (SELECT *,
@@ -234,7 +236,9 @@ var XMigemoPlaces = {
 		   GROUP BY uri)
 		   WHERE %TERMS_RULES%
 	]]>.toString(),
-  
+   
+/* 入力履歴の検索 */ 
+	 
 	getInputHistorySourceInRangeSQL : function(aFindFlag) 
 	{
 		var sql = this.inputHistorySourceInRangeSQLBase
@@ -252,7 +256,7 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	 
+	
 	inputHistorySourceInRangeSQLBase : <![CDATA[ 
 		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
 		  FROM (SELECT p.title title,
@@ -298,7 +302,7 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	 
+	
 	inputHistoryItemsSQLBase : <![CDATA[ 
 		SELECT title, uri, favicon, bookmark, tags, findkey
 		  FROM (SELECT *,
@@ -331,7 +335,57 @@ var XMigemoPlaces = {
 		   GROUP BY uri)
 		   WHERE %TERMS_RULES%
 	]]>.toString(),
-  
+   
+/* スマートキーワードの検索 */ 
+	 
+	get keywordSearchSourceInRangeSQL() 
+	{
+		if (!this._keywordSearchSourceInRangeSQL) {
+			this._keywordSearchSourceInRangeSQL = <![CDATA[
+				SELECT GROUP_CONCAT(search_url, ?1)
+				  FROM (SELECT REPLACE(s.url, '%s', ?5) search_url
+				          FROM moz_keywords k
+				               JOIN moz_bookmarks b ON b.keyword_id = k.id
+				               JOIN moz_places s ON s.id = b.fk
+				               LEFT OUTER JOIN moz_places h ON h.url = search_url
+				          WHERE LOWER(k.keyword) = LOWER(?4)
+				          ORDER BY h.frecency DESC
+		                  LIMIT ?2,?3)
+			]]>.toString();
+		}
+		return this._keywordSearchSourceInRangeSQL;
+	},
+ 
+	get keywordSearchItemInRangeSQL() 
+	{
+		if (!this._keywordSearchItemInRangeSQL) {
+			this._keywordSearchItemInRangeSQL = <![CDATA[
+				SELECT h.title,
+				       REPLACE(s.url, '%s', ?2) search_url,
+				       IFNULL(f.url,
+				              (SELECT f.url
+				                 FROM moz_places r
+				                      JOIN moz_favicons f ON f.id = r.favicon_id
+				                WHERE r.rev_host = s.rev_host
+				                ORDER BY r.frecency DESC LIMIT 1)),
+				       b.title,
+				       NULL,
+				       REPLACE(s.url, '%s', ?2) search_source
+				  FROM moz_keywords k
+				       JOIN moz_bookmarks b ON b.keyword_id = k.id
+				       JOIN moz_places s ON s.id = b.fk
+				       LEFT OUTER JOIN moz_places h ON h.url = search_url
+				       LEFT OUTER JOIN moz_favicons f ON f.id = h.favicon_id
+				 WHERE LOWER(k.keyword) = LOWER(?1)
+				 ORDER BY h.frecency DESC
+		         %SOURCES_LIMIT_PART%
+			]]>.toString();
+		}
+		return this._keywordSearchItemInRangeSQL;
+	},
+ 	 
+/* Places Organizerとサイドバーの検索 */ 
+	 
 	get historyInRangeSQL() 
 	{
 		if (!this._historyInRangeSQL) {
@@ -341,7 +395,7 @@ var XMigemoPlaces = {
 		}
 		return this._historyInRangeSQL;
 	},
-	 
+	
 	historyInRangeSQLBase : <![CDATA[ 
 		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
 		  FROM (SELECT p.id id,
@@ -376,7 +430,7 @@ var XMigemoPlaces = {
 		         WHERE b.type = 1 AND b.title IS NOT NULL
 		         LIMIT ?2,?3)
 	]]>.toString(),
-  
+   
 	insertJavaScriptCondition : function(aSQL) 
 	{
 		return aSQL.replace(
@@ -454,14 +508,14 @@ var XMigemoPlaces = {
 		statement.bindStringParameter(0, '\n');
 		statement.bindDoubleParameter(1, aStart);
 		statement.bindDoubleParameter(2, aRange);
-		if (aAdditionalBinding) {
-			for (var i in aAdditionalBinding)
-			{
-				if (typeof aAdditionalBinding[i] == 'number')
-					statement.bindDoubleParameter(i, aAdditionalBinding[i]);
+		if (aAdditionalBinding && aAdditionalBinding.length) {
+			var offset = 3;
+			aAdditionalBinding.forEach(function(aValue, aIndex) {
+				if (typeof aValue == 'number')
+					statement.bindDoubleParameter(aIndex + offset, aValue);
 				else
-					statement.bindStringParameter(i, aAdditionalBinding[i]);
-			}
+					statement.bindStringParameter(aIndex + offset, aValue);
+			});
 		}
 
 		var sources;
@@ -496,6 +550,18 @@ var XMigemoPlaces = {
 	},
 //	_db : null,
   
+	parseInputForKeywordSearch : function(aInput) { 
+		var input = aInput;
+		var index = input.search(/\s/);
+		if (index < 0) index = input.length;
+		return {
+			keyword : this.TextUtils.trim(input.substring(0, index)),
+			terms   : this.TextUtils.trim(input.substring(index+1))
+				.replace(/\+/g, '%2B')
+				.replace(/\s+/g, '+')
+		};
+	},
+ 
 	startProgressiveLoad : function(aBaseQuery, aOptions, aTree, aSourceSQL) 
 	{
 		this.stopProgressiveLoad();
@@ -541,7 +607,7 @@ var XMigemoPlaces = {
 			}
 		}, 1, this);
 	},
-	
+	 
 	stopProgressiveLoad : function() 
 	{
 		if (!this.progressiveLoadTimer) return;
