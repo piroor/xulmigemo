@@ -45,51 +45,74 @@ var XMigemoPlaces = {
 	findTitleKey     : null,
 	findURIKey       : null,
 	findKeyRegExp    : null,
+	findKeyExtractRegExp : null,
 	 
 	getFindFlagFromInput : function(aInput, aNewInput) 
 	{
 		if (!aNewInput) aNewInput = {};
-		aNewInput.value = aInput;
+		var keys = this.extractFindKeysFromInput(aInput, aNewInput);
 		var flag = 0;
-		var keys = !this.findKeyRegExp ?
-				null :
-				aInput.match(this.findKeyRegExp);
-		if (!keys) return flag;
 
-		aNewInput.value = aInput.replace(this.findKeyRegExp, ' ');
+		if (!keys.length) return flag;
 
-		if (this.findHistoryKey && keys.indexOf(this.findHistoryKey) > -1)
+		if (this.findHistoryKey === '' ||
+			(this.findHistoryKey && keys.indexOf(this.findHistoryKey) > -1))
 			flag |= this.kFIND_HISTORY;
-		if (this.findBookmarksKey && keys.indexOf(this.findBookmarksKey) > -1)
+		if (this.findBookmarksKey === '' ||
+			(this.findBookmarksKey && keys.indexOf(this.findBookmarksKey) > -1))
 			flag |= this.kFIND_BOOKMARKS;
-		if (this.findTaggedKey && keys.indexOf(this.findTaggedKey) > -1)
+		if (this.findTaggedKey === '' ||
+			(this.findTaggedKey && keys.indexOf(this.findTaggedKey) > -1))
 			flag |= this.kFIND_TAGGED;
 
-		if (this.findTitleKey && keys.indexOf(this.findTitleKey) > -1)
+		if (this.findTitleKey === '' ||
+			(this.findTitleKey && keys.indexOf(this.findTitleKey) > -1))
 			flag |= this.kFIND_TITLE;
-		if (this.findURIKey && keys.indexOf(this.findURIKey) > -1)
+		if (this.findURIKey === '' ||
+			(this.findURIKey && keys.indexOf(this.findURIKey) > -1))
 			flag |= this.kFIND_URI;
 
 		return flag;
 	},
- 
+	 
+	extractFindKeysFromInput : function(aInput, aNewInput) 
+	{
+		if (!aNewInput) aNewInput = {};
+		aNewInput.value = aInput;
+		var extracted = [];
+		var keys = !this.findKeyRegExp ?
+				null :
+				aInput.match(this.findKeyRegExp);
+		if (!keys) return extracted;
+
+		aNewInput.value = aInput.replace(this.findKeyRegExp, ' ');
+
+		keys.forEach(function(aKey) {
+			var matched = aKey.match(this.findKeyExtractRegExp);
+			if (matched) extracted = extracted.concat(matched);
+		}, this);
+		return extracted;
+	},
+  
 	updateFindKeyRegExp : function() 
 	{
 		var keys = [];
-		if (this.findHistoryKey !== null) keys.push(this.findHistoryKey);
-		if (this.findBookmarksKey !== null) keys.push(this.findBookmarksKey);
-		if (this.findTaggedKey !== null) keys.push(this.findTaggedKey);
-		if (this.findTitleKey !== null) keys.push(this.findTitleKey);
-		if (this.findURIKey !== null) keys.push(this.findURIKey);
+		if (this.findHistoryKey) keys.push(this.findHistoryKey);
+		if (this.findBookmarksKey) keys.push(this.findBookmarksKey);
+		if (this.findTaggedKey) keys.push(this.findTaggedKey);
+		if (this.findTitleKey) keys.push(this.findTitleKey);
+		if (this.findURIKey) keys.push(this.findURIKey);
 
 		if (keys.length) {
 			keys = keys.map(function(aKey) {
 					return this.TextUtils.sanitize(aKey);
 				}, this).join('|');
 			this.findKeyRegExp = new RegExp('(?:^|\\s+)('+keys+')(?:$|\\s+)', 'gi');
+			this.findKeyExtractRegExp = new RegExp('('+keys+')', 'gi');
 		}
 		else {
 			this.findKeyRegExp = null;
+			this.findKeyExtractRegExp = null;
 		}
 	},
  
@@ -109,7 +132,7 @@ var XMigemoPlaces = {
 		}
 		return contents.join(' || ');
 	},
- 
+ 	
 	getFindSourceFilterFromFlag : function(aFindFlag) 
 	{
 		if (
@@ -130,7 +153,7 @@ var XMigemoPlaces = {
 		}
 		return '';
 	},
- 	 
+  
 	getPlacesSourceInRangeSQL : function(aFindFlag) 
 	{
 		var sql = this.placesSourceInRangeSQLBase
