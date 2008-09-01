@@ -13,6 +13,8 @@ Some parts of this program are based on:
    the screen
    http://space.geocities.jp/alice0775/STORE/ucjs_findbar.uc.js
    shows the found term in the center of the screen
+ * Some SQL statements are based on Awsomebar's implementation
+   (Smart Location Bar on Firefox 3.1)
 
 ------------------------------------------------------------
 This program is copyrighted free software by the author.
