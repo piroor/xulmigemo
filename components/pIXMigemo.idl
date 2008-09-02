@@ -6,7 +6,6 @@
 #include "nsIDOMRange.idl"
 #include "nsIDOMNode.idl"
 #include "nsIVariant.idl"
-#include "nsISelectionController.idl"
 
 
 /* Utilities: You can use them for your language without additional implementation. */
@@ -200,7 +199,7 @@ interface pIXMigemo : pIXMigemoEngine
 		in AString regExpSource,
 		in AString regExpFlags,
 		in nsIDOMRange findRange,
-		in nsISelectionController selectionController
+		in nsISupports selectionController
 	);
 
 	nsIVariant flattenRegExp(
