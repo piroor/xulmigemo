@@ -558,19 +558,26 @@ var XMigemoPlaces = {
 			return this._db;
 
 		this._db = null;
-
-		const DirectoryService = Components
-			.classes['@mozilla.org/file/directory_service;1']
-			.getService(Components.interfaces.nsIProperties);
-		var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
-		file.append('places.sqlite');
-		if (file.exists()) {
-			const StorageService = Components
-				.classes['@mozilla.org/storage/service;1']
-				.getService(Components.interfaces.mozIStorageService);
-			this._db = StorageService.openDatabase(file);
+		if ('nsPIPlacesDatabase' in Components.interfaces) { // Firefox 3.1 or later
+			this._db = Components
+					.classes['@mozilla.org/browser/nav-history-service;1']
+					.getService(Components.interfaces.nsINavHistoryService)
+					.QueryInterface(Components.interfaces.nsPIPlacesDatabase)
+					.DBConnection;
 		}
-
+		else { // Firefox 3.0.x
+			const DirectoryService = Components
+				.classes['@mozilla.org/file/directory_service;1']
+				.getService(Components.interfaces.nsIProperties);
+			var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
+			file.append('places.sqlite');
+			if (file.exists()) {
+				const StorageService = Components
+					.classes['@mozilla.org/storage/service;1']
+					.getService(Components.interfaces.mozIStorageService);
+				this._db = StorageService.openDatabase(file);
+			}
+		}
 		return this._db;
 	},
 //	_db : null,
