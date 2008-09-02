@@ -2,6 +2,10 @@ var XMigemoHighlight = {
 	useGlobalStyleSheets : false,
 
 	strongHighlight  : false,
+	get requireDOMHighlight()
+	{
+		return this.strongHighlight;
+	},
 	animationEnabled : false,
 	combinations : [],
 
@@ -92,10 +96,13 @@ var XMigemoHighlight = {
 		if (this.SSS) {
 			this.useGlobalStyleSheets = true;
 		}
+
+		XMigemoUI.registerHighlightUtility(this);
 	},
  
 	destroy : function() 
 	{
+		XMigemoUI.unregisterHighlightUtility(this);
 		XMigemoService.removePrefListener(this);
 
 		XMigemoService.ObserverService.removeObserver(this, 'XMigemo:highlightNodeReaday');
@@ -303,9 +310,6 @@ var XMigemoHighlight = {
 				{
 					case 'xulmigemo.highlight.showScreen':
 						this.strongHighlight = value;
-						// for Firefox 3.1, disable this feature because it is not implemented yet...
-						if (XMigemoUI.highlightModeSelection)
-							this.strongHighlight = false;
 						break;
 
 					case 'xulmigemo.highlight.hideScreen.restoreButtons':
