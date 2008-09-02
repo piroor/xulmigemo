@@ -20,8 +20,8 @@ var XMigemoLocationBarOverlay = {
 	FIND_MODE_MIGEMO : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
 	FIND_MODE_REGEXP : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP,
 
-	kITEM_ACCEPT   : 1,
-	kITEM_SKIP     : 2,
+	kITEM_ACCEPT  : 1,
+	kITEM_SKIP    : 2,
 	kITEM_DEFERED : 3,
 
 	currentSource : 0,
@@ -70,6 +70,7 @@ var XMigemoLocationBarOverlay = {
  
 		{ // match boundary 
 			get enabled() {
+				if (!XMigemoPlaces.boundaryFindAvailable) return false;
 				return (XMigemoLocationBarOverlay.lastFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
 					(XMigemoPlaces.matchBehavior == 1 || XMigemoPlaces.matchBehavior == 2);
 			},
@@ -79,6 +80,10 @@ var XMigemoLocationBarOverlay = {
 			getItemsSQL : function(aFindFlag) {
 				return XMigemoPlaces.getPlacesItemsSQL(aFindFlag);
 			},
+//			regExpConverter : function(aRegExp) {
+//				this.regexp.compile(aRegExp.source.replace(/\(\?:/g, '\\b(?:'));
+//				return this.regexp;
+//			},
 			itemFilter : function(aItem, aTerms, aFindFlag) {
 				var target = XMigemoPlaces.getFindTargetsFromFlag(aItem, aFindFlag);
 				this.regexp.compile(
@@ -100,6 +105,7 @@ var XMigemoLocationBarOverlay = {
  	
 		{ // match anywhere 
 			get enabled() {
+				if (!XMigemoPlaces.boundaryFindAvailable) return XMigemoPlaces.matchBehavior != 3;
 				return (XMigemoLocationBarOverlay.lastFindMode == XMigemoLocationBarOverlay.FIND_MODE_REGEXP) ||
 					XMigemoPlaces.matchBehavior == 0;
 			},
@@ -455,9 +461,11 @@ var XMigemoLocationBarOverlay = {
 			);
 		if (!sources) return false;
 
+		var regexp = this.lastFindRegExp
+		if (info.regExpConverter) regexp = info.regExpConverter(regexp);
 		var terms = info.termsGetter ?
 				info.termsGetter(this.lastInput, sources) :
-				sources.match(this.lastFindRegExp) ;
+				sources.match(regexp) ;
 		if (!terms) return true;
 
 		var utils = this.TextUtils;

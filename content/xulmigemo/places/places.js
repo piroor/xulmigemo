@@ -5,6 +5,7 @@ var XMigemoPlaces = {
 	minLength : 3,
 	andFindAvailable : true,
 	notFindAvailable : true,
+	boundaryFindAvailable : false,
 	filterJavaScript : true,
 	filterTyped : false,
 	matchBehavior : 1,
@@ -702,6 +703,10 @@ var XMigemoPlaces = {
 				this.notFindAvailable = value;
 				return;
 
+			case 'xulmigemo.places.enableBoundaryFind':
+				this.boundaryFindAvailable = value;
+				return;
+
 			case 'xulmigemo.places.chunk':
 				this.chunk = value;
 				return;
@@ -764,6 +769,7 @@ var XMigemoPlaces = {
 	preferences : <![CDATA[
 		xulmigemo.places.enableANDFind
 		xulmigemo.places.enableNOTFind
+		xulmigemo.places.enableBoundaryFind
 		xulmigemo.places.ignoreURI
 		xulmigemo.places.chunk
 		xulmigemo.places.minLength
