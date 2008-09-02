@@ -303,6 +303,9 @@ var XMigemoHighlight = {
 				{
 					case 'xulmigemo.highlight.showScreen':
 						this.strongHighlight = value;
+						// for Firefox 3.1, disable this feature because it is not implemented yet...
+						if (XMigemoUI.highlightModeSelection)
+							this.strongHighlight = false;
 						break;
 
 					case 'xulmigemo.highlight.hideScreen.restoreButtons':

@@ -92,6 +92,8 @@ var XMigemoUI = {
 		'belowtabbar'
 	],
 	findBarPosition : 0,
+
+	highlightModeSelection : ('SELECTION_FIND' in Components.interfaces.nsISelectionController),
   
 /* elements */ 
 	
@@ -1728,58 +1730,93 @@ var XMigemoUI = {
 			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(window._content); $1')
 		);
 
-		var highlightDocFunc = ('_highlightDoc' in gFindBar) ? '_highlightDoc' : // Fx 3
-				'highlightDoc'; // Fx 2
-		eval('gFindBar.'+highlightDocFunc+' = '+gFindBar[highlightDocFunc].toSource()
-			.replace(
-				'BackColor) {',
-				'BackColor) { XMigemoUI.clearHighlight(doc); return; '
-			).replace(
-				/if \((!doc \|\| )(!\("body" in doc\)|!\(doc instanceof HTMLDocument\))\)/,
-				'if ($1($2 && (!XMigemoUI.workForAnyXMLDocuments || !(doc instanceof XMLDocument))))'
-			).replace(
-				'doc.body',
-				'XMigemoUI.getDocumentBody(doc)'
-			).replace(
-				'doc.createElement(',
-				'doc.createElementNS(XMigemoUI.kXHTMLNS, '
-			)
-		);
+		if ('_getSelectionController' in gFindBar) { // Firefox 3.1
+			eval('gFindBar._highlightDoc = '+gFindBar._highlightDoc.toSource()
+				.replace(
+					'{',
+					'{ if (!aHighlight) { XMigemoUI.clearHighlight(doc); return; }'
+				).replace(
+					'this._highlight(aHighlight, retRange, controller);',
+					'this._highlight(aHighlight, retRange, controller, aWord);'
+				).replace(
+					/if \((!doc \|\| )(!\("body" in doc\)|!\(doc instanceof HTMLDocument\))\)/,
+					'if ($1($2 && (!XMigemoUI.workForAnyXMLDocuments || !(doc instanceof XMLDocument))))'
+				).replace(
+					'doc.body',
+					'XMigemoUI.getDocumentBody(doc)'
+				)
+			);
 
-		var highlightTextFunc = ('_highlightText' in gFindBar) ? '_highlightText' : // Fx 3
-				'highlightText'; // Fx 2
-		eval('gFindBar.'+highlightTextFunc+' = '+gFindBar[highlightTextFunc].toSource()
-			.replace(
-				'{',
-				<![CDATA[
-				{
-					XMigemoUI.activeBrowser.contentDocument.documentElement.setAttribute(XMigemoUI.kLAST_HIGHLIGHT, arguments[0]);
-					XMigemoUI.updateHighlightNode(arguments[1]);
-					if (XMigemoUI.isActive) {
-						return XMigemoUI.highlightText(arguments[0], arguments[1],
-								('_searchRange' in this) ? this._searchRange : // Fx 3
-								this.mSearchRange // Fx 2
-							);
-					}
-				]]>
-			)
-		);
+			eval('gFindBar._highlight = '+gFindBar._highlight.toSource()
+				.replace(
+					/^(\(?function)([^\(]*)\(([^\)]+)\) \{/,
+					'$1$2($3, aWord) {'
+				).replace(
+					'{',
+					<![CDATA[
+					{
+						XMigemoUI.activeBrowser.contentDocument.documentElement.setAttribute(XMigemoUI.kLAST_HIGHLIGHT, aWord);
+						if (XMigemoUI.isActive) {
+							return XMigemoUI.highlightText(aWord, null, this._searchRange, aController);
+						}
+					]]>
+				)
+			);
+		}
+		else { // Firefox 3.0.x, 2,0.0.x
+			var highlightDocFunc = ('_highlightDoc' in gFindBar) ? '_highlightDoc' : // Fx 3
+					'highlightDoc'; // Fx 2
+			eval('gFindBar.'+highlightDocFunc+' = '+gFindBar[highlightDocFunc].toSource()
+				.replace(
+					'BackColor) {',
+					'BackColor) { XMigemoUI.clearHighlight(doc); return; '
+				).replace(
+					/if \((!doc \|\| )(!\("body" in doc\)|!\(doc instanceof HTMLDocument\))\)/,
+					'if ($1($2 && (!XMigemoUI.workForAnyXMLDocuments || !(doc instanceof XMLDocument))))'
+				).replace(
+					'doc.body',
+					'XMigemoUI.getDocumentBody(doc)'
+				).replace(
+					'doc.createElement(',
+					'doc.createElementNS(XMigemoUI.kXHTMLNS, '
+				)
+			);
 
-		var highlightFunc = ('_highlight' in gFindBar) ? '_highlight' : // Fx 3
-				'highlight'; // Fx 2
-		eval('gFindBar.'+highlightFunc+' = '+gFindBar[highlightFunc].toSource()
-			.replace(
-				'{',
-				<![CDATA[
-				{
-					var foundRange = XMigemoUI.shouldRebuildSelection ? XMigemoUI.textUtils.getFoundRange(arguments[0].startContainer.ownerDocument.defaultView) : null ;
-					var foundLength = (XMigemoUI.shouldRebuildSelection && XMigemoUI.textUtils.isRangeOverlap(foundRange, arguments[0])) ? foundRange.toString().length : 0 ;
-				]]>
-			).replace(
-				'return',
-				'if (foundLength) { XMigemoUI.textUtils.delayedSelect(arguments[1], foundLength, true); } return'
-			)
-		);
+			var highlightTextFunc = ('_highlightText' in gFindBar) ? '_highlightText' : // Fx 3
+					'highlightText'; // Fx 2
+			eval('gFindBar.'+highlightTextFunc+' = '+gFindBar[highlightTextFunc].toSource()
+				.replace(
+					'{',
+					<![CDATA[
+					{
+						XMigemoUI.activeBrowser.contentDocument.documentElement.setAttribute(XMigemoUI.kLAST_HIGHLIGHT, arguments[0]);
+						XMigemoUI.updateHighlightNode(arguments[1]);
+						if (XMigemoUI.isActive) {
+							return XMigemoUI.highlightText(arguments[0], arguments[1],
+									('_searchRange' in this) ? this._searchRange : // Fx 3
+									this.mSearchRange // Fx 2
+								);
+						}
+					]]>
+				)
+			);
+
+			var highlightFunc = ('_highlight' in gFindBar) ? '_highlight' : // Fx 3
+					'highlight'; // Fx 2
+			eval('gFindBar.'+highlightFunc+' = '+gFindBar[highlightFunc].toSource()
+				.replace(
+					'{',
+					<![CDATA[
+					{
+						var foundRange = XMigemoUI.shouldRebuildSelection ? XMigemoUI.textUtils.getFoundRange(arguments[0].startContainer.ownerDocument.defaultView) : null ;
+						var foundLength = (XMigemoUI.shouldRebuildSelection && XMigemoUI.textUtils.isRangeOverlap(foundRange, arguments[0])) ? foundRange.toString().length : 0 ;
+					]]>
+				).replace(
+					'return',
+					'if (foundLength) { XMigemoUI.textUtils.delayedSelect(arguments[1], foundLength, true); } return'
+				)
+			);
+		}
 
 		eval('gFindBar.setHighlightTimeout = gFindBar._setHighlightTimeout ='+
 			(gFindBar.setHighlightTimeout || gFindBar._setHighlightTimeout).toSource()
@@ -2080,22 +2117,33 @@ var XMigemoUI = {
 	{
 		try {
 			var xpathResult = this.getEditableNodes(aDocument);
-			var editable;
+			var editable, editor;
 			for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
 			{
 				editable = xpathResult.snapshotItem(i);
+				editor = editable
+						.QueryInterface(this.nsIDOMNSEditableElement)
+						.editor;
 				this.clearHighlightInternal(
 					aDocument,
-					editable
-						.QueryInterface(this.nsIDOMNSEditableElement)
-						.editor
-						.rootElement
+					editor.rootElement,
+					editor.selectionController
 				);
 			}
 		}
 		catch(e) {
 		}
-		this.clearHighlightInternal(aDocument, aDocument);
+		this.clearHighlightInternal(
+			aDocument,
+			aDocument,
+			aDocument.defaultView
+				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+				.getInterface(Components.interfaces.nsIWebNavigation)
+				.QueryInterface(Components.interfaces.nsIDocShell)
+				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+				.getInterface(Components.interfaces.nsISelectionDisplay)
+				.QueryInterface(Components.interfaces.nsISelectionController)
+		);
 
 		if (aRecursively)
 			Array.slice(aDocument.defaultView.frames)
@@ -2103,8 +2151,16 @@ var XMigemoUI = {
 					this.clearHighlight(aFrame.document, aRecursively);
 				}, this);
 	},
-	clearHighlightInternal : function(aDocument, aTarget)
+	clearHighlightInternal : function(aDocument, aTarget, aSelCon)
 	{
+		if (aSelCon && this.highlightModeSelection) { // Firefox 3.1
+			var selection = aSelCon.getSelection(aSelCon.SELECTION_FIND);
+			selection.removeAllRanges();
+			aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
+			return;
+		}
+
+		// old implementation for Firefox 3.0.x, 2.0.0.x
 		var foundRange = this.shouldRebuildSelection ? this.textUtils.getFoundRange(aDocument.defaultView) : null ;
 		var foundLength = foundRange ? foundRange.toString().length : 0 ;
 		var xpathResult = aDocument.evaluate(
@@ -2147,12 +2203,14 @@ var XMigemoUI = {
 		}
 	},
  
-	highlightText : function(aWord, aBaseNode, aRange) 
+	highlightText : function(aWord, aBaseNode, aRange, aSelCon) 
 	{
 		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
 				this.textUtils.extractRegExpSource(aWord) :
 				XMigemoFind.core.getRegExp(aWord) ;
-		var ranges = XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode);
+		var ranges = this.highlightModeSelection ?
+				XMigemoFind.core.regExpHighlightWithSelection(regexp, '', aRange, aSelCon) :
+				XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode);
 		return ranges.length ? true : false ;
 	},
 	 
