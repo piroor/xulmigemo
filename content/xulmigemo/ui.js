@@ -2217,8 +2217,10 @@ var XMigemoUI = {
 	highlightText : function(aWord, aBaseNode, aRange, aSelCon) 
 	{
 		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
-				this.textUtils.extractRegExpSource(aWord) :
-				XMigemoFind.core.getRegExp(aWord) ;
+					this.textUtils.extractRegExpSource(aWord) :
+				this.findMode == this.FIND_MODE_MIGEMO ?
+					XMigemoFind.core.getRegExp(aWord) :
+					this.textUtils.sanitize(aWord) ;
 
 		var selectionMode = this.highlightModeSelection;
 		if (!selectionMode && !aBaseNode)
