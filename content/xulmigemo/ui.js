@@ -1734,7 +1734,7 @@ var XMigemoUI = {
 			eval('gFindBar._highlightDoc = '+gFindBar._highlightDoc.toSource()
 				.replace(
 					'var body =',
-					'if (!aHighlight) { XMigemoUI.clearHighlight(doc); return; } $&'
+					'if (!aHighlight) { XMigemoUI.clearHighlight(doc); return false; } $&'
 				).replace(
 					'this._highlight(aHighlight, retRange, controller);',
 					'this._highlight(aHighlight, retRange, controller, aWord);'
@@ -1746,7 +1746,7 @@ var XMigemoUI = {
 					'XMigemoUI.getDocumentBody(doc)'
 				).replace(
 					'var retRange = null;',
-					'if (XMigemoUI.isActive) { XMigemoUI.highlightText(aWord, null, this._searchRange, controller); return; } $&'
+					'if (XMigemoUI.isActive) { XMigemoUI.highlightText(aWord, null, this._searchRange, controller); return true; } $&'
 				)
 			);
 		}
