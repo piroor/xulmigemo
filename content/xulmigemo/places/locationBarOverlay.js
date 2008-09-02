@@ -12,13 +12,19 @@ var XMigemoLocationBarOverlay = {
 	lastExceptionsRegExp : null,
 	thread : null,
 
+	enabled   : true,
+	delay     : 250,
+	useThread : false,
+
 	FIND_MODE_NATIVE : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
 	FIND_MODE_MIGEMO : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
 	FIND_MODE_REGEXP : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP,
 
 	currentSource : 0,
-	sourcesInfo : [
-		{ // keyword search ( https://bugzilla.mozilla.org/show_bug.cgi?id=392143 )
+ 
+	sourcesInfo : [ 
+	 
+		{ // keyword search ( https://bugzilla.mozilla.org/show_bug.cgi?id=392143 ) 
 			getSourceSQL : function(aFindFlag) {
 				return XMigemoPlaces.keywordSearchSourceInRangeSQL;
 			},
@@ -42,7 +48,8 @@ var XMigemoLocationBarOverlay = {
 			},
 			style : 'keyword'
 		},
-		{
+ 
+		{ // input history 
 			getSourceSQL : function(aFindFlag) {
 				return XMigemoPlaces.getInputHistorySourceInRangeSQL(aFindFlag);
 			},
@@ -56,9 +63,9 @@ var XMigemoLocationBarOverlay = {
 				return [aInput];
 			}
 		},
-		{ // match boundary
+ 
+		{ // match boundary 
 			get enabled() {
-				return false; // not implemented!
 				return (XMigemoLocationBarOverlay.lastFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
 					(XMigemoPlaces.matchBehavior == 1 || XMigemoPlaces.matchBehavior == 2);
 			},
@@ -68,13 +75,25 @@ var XMigemoLocationBarOverlay = {
 			getItemsSQL : function(aFindFlag) {
 				return XMigemoPlaces.getPlacesItemsSQL(aFindFlag);
 			},
-			termsGetter : function(aInput, aSource) {
-				return null;
-			}
+			itemFilter : function(aItem, aTerms, aFindFlag) {
+				var target = XMigemoPlaces.getFindTargetsFromFlag(aItem, aFindFlag);
+				this.regexp.compile(
+					'^(?:'+aTerms.map(function(aTerm) {
+						return XMigemoPlaces.TextUtils.sanitize(aTerm);
+					}).join('|')+')',
+					'gim'
+				);
+				var matched = XMigemoPlaces.TextUtils.brushUpTerms(
+							XMigemoPlaces.TextUtils
+								.splitByBoundaries(target.join('\n'))
+						).join('\n').match(this.regexp);
+				return !matched ? false : matched.length >= aTerms.length ;
+			},
+			regexp : new RegExp()
 		},
-		{ // match anywhere
+ 	
+		{ // match anywhere 
 			get enabled() {
-				return true; // not implemented!
 				return XMigemoPlaces.matchBehavior == 0 || XMigemoPlaces.matchBehavior == 1;
 			},
 			getSourceSQL : function(aFindFlag) {
@@ -84,9 +103,9 @@ var XMigemoLocationBarOverlay = {
 				return XMigemoPlaces.getPlacesItemsSQL(aFindFlag);
 			}
 		},
-		{ // match start
+ 
+		{ // match start 
 			get enabled() {
-				return false; // not implemented!
 				return (XMigemoLocationBarOverlay.lastFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
 					XMigemoPlaces.matchBehavior == 3;
 			},
@@ -96,16 +115,22 @@ var XMigemoLocationBarOverlay = {
 			getItemsSQL : function(aFindFlag) {
 				return XMigemoPlaces.getPlacesItemsSQL(aFindFlag);
 			},
-			termsGetter : function(aInput, aSource) {
-				return null;
-			}
+			itemFilter : function(aItem, aTerms, aFindFlag) {
+				var target = XMigemoPlaces.getFindTargetsFromFlag(aItem, aFindFlag);
+				this.regexp.compile(
+					'^(?:'+aTerms.map(function(aTerm) {
+						return XMigemoPlaces.TextUtils.sanitize(aTerm);
+					}).join('|')+')',
+					'gim'
+				);
+				var matched = target.join('\n').match(this.regexp);
+				return !matched ? false : matched.length >= aTerms.length ;
+			},
+			regexp : new RegExp()
 		}
-	],
-
-	enabled   : true,
-	delay     : 250,
-	useThread : false,
- 	
+ 
+	], 
+  
 	Converter : Components 
 			.classes['@mozilla.org/intl/texttosuburi;1']
 			.getService(Components.interfaces.nsITextToSubURI),
@@ -293,7 +318,8 @@ var XMigemoLocationBarOverlay = {
 				{
 					current = 0;
 					aSelf.currentSource = i;
-					if (!aSelf.sourcesInfo[aSelf.currentSource].enabled) continue;
+					if ('enabled' in aSelf.sourcesInfo[aSelf.currentSource] &&
+						!aSelf.sourcesInfo[aSelf.currentSource].enabled) continue;
 					while (aSelf.updateResultsForRange(current, XMigemoPlaces.chunk))
 					{
 						aSelf.progressiveBuild();
@@ -337,7 +363,8 @@ var XMigemoLocationBarOverlay = {
 		{
 			current = 0;
 			this.currentSource = i;
-			if (!this.sourcesInfo[this.currentSource].enabled) continue;
+			if ('enabled' in this.sourcesInfo[this.currentSource] &&
+				!this.sourcesInfo[this.currentSource].enabled) continue;
 			while (this.updateResultsForRange(current, XMigemoPlaces.chunk))
 			{
 				if (this.results.length >= maxResults) break build;
@@ -560,7 +587,7 @@ var XMigemoLocationBarOverlay = {
 				statement.bindDoubleParameter(termsCount+exceptionsCount+offset, Math.max(0, aStart));
 				statement.bindDoubleParameter(termsCount+exceptionsCount+offset+1, Math.max(0, aRange));
 			}
-			var item, title, terms;
+			var item, bookmark, terms;
 			var utils = this.TextUtils;
 			var maxNum = XMigemoService.getPref('browser.urlbar.maxRichResults');
 			var uri;
@@ -584,8 +611,8 @@ var XMigemoLocationBarOverlay = {
 					style : 'favicon',
 					terms : terms.join(' ')
 				};
-				if (title = (statement.getIsNull(3) ? '' : statement.getString(3) )) {
-					item.title = title;
+				if (bookmark = (statement.getIsNull(3) ? '' : statement.getString(3) )) {
+					item.title = bookmark;
 					item.style = 'bookmark';
 				}
 				if (item.tags) {
@@ -594,6 +621,10 @@ var XMigemoLocationBarOverlay = {
 				if (info.style) {
 					item.style = info.style;
 				}
+
+				if (info.itemFilter && !info.itemFilter(item, terms, this.lastFindFlag))
+					continue;
+
 				items.push(item);
 
 				if (items.length >= maxNum) break;
