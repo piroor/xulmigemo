@@ -93,7 +93,25 @@ var XMigemoUI = {
 	],
 	findBarPosition : 0,
 
-	highlightModeSelection : ('SELECTION_FIND' in Components.interfaces.nsISelectionController),
+	get highlightModeSelection()
+	{
+		return ('SELECTION_FIND' in Components.interfaces.nsISelectionController) &&
+				this._highlightUtilities.every(function(aUtility) {
+					return !aUtility.requireDOMHighlight;
+				});
+	},
+	registerHighlightUtility : function(aUtility)
+	{
+		if (this._highlightUtilities.indexOf(aUtility) < 0)
+			this._highlightUtilities.push(aUtility);
+	},
+	unregisterHighlightUtility : function(aUtility)
+	{
+		var index = this._highlightUtilities.indexOf(aUtility);
+		if (index > -1)
+			this._highlightUtilities.splice(index, 1);
+	},
+	_highlightUtilities : [],
   
 /* elements */ 
 	
@@ -2201,10 +2219,29 @@ var XMigemoUI = {
 		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
 				this.textUtils.extractRegExpSource(aWord) :
 				XMigemoFind.core.getRegExp(aWord) ;
-		var ranges = this.highlightModeSelection ?
+
+		var selectionMode = this.highlightModeSelection;
+		if (!selectionMode && !aBaseNode)
+			aBaseNode = this.createNewHighlight(aRange.startContainer.ownerDocument || aRange.startContainer);
+
+		var ranges = selectionMode ?
 				XMigemoFind.core.regExpHighlightWithSelection(regexp, '', aRange, aSelCon) :
 				XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode);
 		return ranges.length ? true : false ;
+	},
+	createNewHighlight : function(aDocument)
+	{
+		var node = aDocument.createElementNS('http://www.w3.org/1999/xhtml', 'span');
+		node.setAttribute('style', <![CDATA[
+			background-color: yellow;
+			color: black;
+			display: inline;
+			font-size: inherit;
+			padding: 0;
+		]]>.toString());
+		node.className = '__mozilla-findbar-search';
+		this.updateHighlightNode(node);
+		return node;
 	},
 	 
 	updateHighlightNode : function(aNode) 
@@ -2231,6 +2268,10 @@ var XMigemoUI = {
 			range.insertNode(contents);
 			range.detach();
 		]]></>);
+		aNode.setAttribute('style',
+			aNode.getAttribute('style')+
+			'; text-shadow: none;'
+		);
 
 		XMigemoService.ObserverService.notifyObservers(aNode, 'XMigemo:highlightNodeReaday', null);
 	},
