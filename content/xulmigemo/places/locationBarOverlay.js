@@ -20,6 +20,10 @@ var XMigemoLocationBarOverlay = {
 	FIND_MODE_MIGEMO : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
 	FIND_MODE_REGEXP : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP,
 
+	kITEM_ACCEPT   : 1,
+	kITEM_SKIP     : 2,
+	kITEM_DEFERED : 3,
+
 	currentSource : 0,
  
 	sourcesInfo : [ 
@@ -87,14 +91,17 @@ var XMigemoLocationBarOverlay = {
 							XMigemoPlaces.TextUtils
 								.splitByBoundaries(target.join('\n'))
 						).join('\n').match(this.regexp);
-				return !matched ? false : matched.length >= aTerms.length ;
+				return (matched && matched.length >= aTerms.length) ?
+					XMigemoLocationBarOverlay.kITEM_ACCEPT :
+					XMigemoLocationBarOverlay.kITEM_DEFERED ;
 			},
 			regexp : new RegExp()
 		},
  	
 		{ // match anywhere 
 			get enabled() {
-				return XMigemoPlaces.matchBehavior == 0 || XMigemoPlaces.matchBehavior == 1;
+				return (XMigemoLocationBarOverlay.lastFindMode == XMigemoLocationBarOverlay.FIND_MODE_REGEXP) ||
+					XMigemoPlaces.matchBehavior == 0;
 			},
 			getSourceSQL : function(aFindFlag) {
 				return XMigemoPlaces.getPlacesSourceInRangeSQL(aFindFlag);
@@ -124,7 +131,9 @@ var XMigemoLocationBarOverlay = {
 					'gim'
 				);
 				var matched = target.join('\n').match(this.regexp);
-				return !matched ? false : matched.length >= aTerms.length ;
+				return (matched && matched.length >= aTerms.length) ?
+					XMigemoLocationBarOverlay.kITEM_ACCEPT :
+					XMigemoLocationBarOverlay.kITEM_SKIP ;
 			},
 			regexp : new RegExp()
 		}
@@ -313,6 +322,7 @@ var XMigemoLocationBarOverlay = {
 			{
 				var maxResults = aSelf.panel.maxResults;
 				var current;
+				var deferedItems = { value : [] };
 				build:
 				for (var i = 0, maxi = aSelf.sourcesInfo.length; i < maxi; i++)
 				{
@@ -320,7 +330,7 @@ var XMigemoLocationBarOverlay = {
 					aSelf.currentSource = i;
 					if ('enabled' in aSelf.sourcesInfo[aSelf.currentSource] &&
 						!aSelf.sourcesInfo[aSelf.currentSource].enabled) continue;
-					while (aSelf.updateResultsForRange(current, XMigemoPlaces.chunk))
+					while (aSelf.updateResultsForRange(current, XMigemoPlaces.chunk, deferedItems))
 					{
 						aSelf.progressiveBuild();
 						if (aSelf.results.length >= maxResults) break build;
@@ -358,6 +368,7 @@ var XMigemoLocationBarOverlay = {
 	{
 		var maxResults = this.panel.maxResults;
 		var current;
+		var deferedItems = { value : [] };
 		build:
 		for (var i = 0, maxi = this.sourcesInfo.length; i < maxi; i++)
 		{
@@ -365,7 +376,7 @@ var XMigemoLocationBarOverlay = {
 			this.currentSource = i;
 			if ('enabled' in this.sourcesInfo[this.currentSource] &&
 				!this.sourcesInfo[this.currentSource].enabled) continue;
-			while (this.updateResultsForRange(current, XMigemoPlaces.chunk))
+			while (this.updateResultsForRange(current, XMigemoPlaces.chunk, deferedItems))
 			{
 				if (this.results.length >= maxResults) break build;
 				current += XMigemoPlaces.chunk;
@@ -417,8 +428,15 @@ var XMigemoLocationBarOverlay = {
 		}
 	},
  
-	updateResultsForRange : function(aStart, aRange) 
+	updateResultsForRange : function(aStart, aRange, aDeferedItems) 
 	{
+		if (aDeferedItems.value.length) {
+			this.results = this.results.concat(aDeferedItems.value);
+			aDeferedItems.value = [];
+			if (this.results >= XMigemoService.getPref('browser.urlbar.maxRichResults'))
+				return true;
+		}
+
 		var info = this.sourcesInfo[this.currentSource];
 		var sources = XMigemoPlaces.getSourceInRange(
 				info.getSourceSQL(this.lastFindFlag),
@@ -503,9 +521,10 @@ var XMigemoLocationBarOverlay = {
 /* build popup */ 
 	builtCount : 0,
 	 
-	findItemsFromTerms : function(aTerms, aExceptions, aStart, aRange) 
+	findItemsFromTerms : function(aTerms, aExceptions, aStart, aRange, aDeferedItems) 
 	{
 		if (!aExceptions) aExceptions = [];
+		if (!aDeferedItems) aDeferedItems = { value : [] };
 
 		var items = [];
 		if (!aTerms.length && !aExceptions.length) return items;
@@ -622,8 +641,18 @@ var XMigemoLocationBarOverlay = {
 					item.style = info.style;
 				}
 
-				if (info.itemFilter && !info.itemFilter(item, terms, this.lastFindFlag))
-					continue;
+				if (info.itemFilter) {
+					switch (info.itemFilter(item, terms, this.lastFindFlag))
+					{
+						default:
+						case this.kITEM_ACCEPT:
+							break;
+						case this.kITEM_DEFERED:
+							aDeferedItems.push(item);
+						case this.kITEM_SKIP:
+							continue;
+					}
+				}
 
 				items.push(item);
 
