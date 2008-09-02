@@ -1770,7 +1770,7 @@ var XMigemoUI = {
 					'XMigemoUI.getDocumentBody(doc)'
 				).replace(
 					'var retRange = null;',
-					'if (XMigemoUI.isActive) { XMigemoUI.highlightText(aWord, null, this._searchRange, controller); return true; } $&'
+					'if (XMigemoUI.isActive || !XMigemoUI.highlightModeSelection) { XMigemoUI.highlightText(aWord, null, this._searchRange, controller); return true; } $&'
 				)
 			);
 		}
