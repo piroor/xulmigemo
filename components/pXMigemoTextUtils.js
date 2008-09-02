@@ -27,7 +27,7 @@ pXMigemoTextUtils.prototype = {
 				.replace(this.kTRIM_PATTERN, '');
 	},
 	kTRIM_PATTERN : /^\s+|\s+$/g,
- 	
+ 
 	brushUpTerms : function(aTerms) 
 	{
 		return aTerms
@@ -38,7 +38,23 @@ pXMigemoTextUtils.prototype = {
 				.split('\n');
 	},
 	kBRUSH_UP_PATTERN : /^(.+)(\n\1$)+/gim,
-  
+ 
+	splitByBoundaries : function(aString) 
+	{
+		var parts = aString.split(/\b/);
+		var result = [];
+		parts.forEach(function(aPart) {
+			var matched = aPart.match(this.kBOUNDARY_SPLITTER_PATTERN);
+			if (matched)
+				result = result.concat(matched);
+			else
+				result.push(aPart);
+		}, this);
+		return result.length ? result : parts ;
+	},
+	// http://ablog.seesaa.net/article/20969848.html
+	kBOUNDARY_SPLITTER_PATTERN : /[\u4e00-\u9fa0\u3005\u3006\u30f5\u30f6]+|[\u3041-\u3093]+|[\u30a1-\u30f4\u30fc]+|[a-zA-Z0-9]+|[\uff41-\uff5a\uff21-\uff3a\uff10-\uff19]+|[\u3001\u3002\uff01!\uff1f?()\uff08\uff09\u300c\u300d\u300e\u300f]+|\n/gim,
+ 	 
 /* convert HTML to text */ 
 	
 	range2Text : function(aRange) 

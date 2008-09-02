@@ -47,7 +47,7 @@ var XMigemoPlaces = {
 	findURIKey       : null,
 	findKeyRegExp    : null,
 	findKeyExtractRegExp : null,
-	
+	 
 	getFindFlagFromInput : function(aInput, aNewInput) 
 	{
 		if (!aNewInput) aNewInput = {};
@@ -75,7 +75,7 @@ var XMigemoPlaces = {
 
 		return flag;
 	},
-	 
+	
 	extractFindKeysFromInput : function(aInput, aNewInput) 
 	{
 		if (!aNewInput) aNewInput = {};
@@ -134,6 +134,22 @@ var XMigemoPlaces = {
 		return contents.join(' || ');
 	},
  
+	getFindTargetsFromFlag : function(aItem, aFindFlag) 
+	{
+		var target = [];
+		if (aFindFlag & this.kFIND_TITLE)
+			target.push(aItem.title);
+		if (aFindFlag & this.kFIND_URI)
+			target.push(aItem.uri);
+		if (!target.length) {
+			target.push(aItem.title);
+			target.push(aItem.uri);
+			if (aItem.tags)
+				target = target.concat(aItem.tags.split(','));
+		}
+		return target;
+	},
+ 	
 	getFindSourceFilterFromFlag : function(aFindFlag) 
 	{
 		if (
@@ -174,7 +190,7 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	
+	 
 	placesSourceInRangeSQLBase : <![CDATA[ 
 		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
 		  FROM (SELECT p.id id,
@@ -239,7 +255,7 @@ var XMigemoPlaces = {
 	]]>.toString(),
    
 /* 入力履歴の検索 */ 
-	 
+	
 	getInputHistorySourceInRangeSQL : function(aFindFlag) 
 	{
 		var sql = this.inputHistorySourceInRangeSQLBase
@@ -257,7 +273,7 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	
+	 
 	inputHistorySourceInRangeSQLBase : <![CDATA[ 
 		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
 		  FROM (SELECT p.title title,
@@ -303,7 +319,7 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	
+	 
 	inputHistoryItemsSQLBase : <![CDATA[ 
 		SELECT title, uri, favicon, bookmark, tags, findkey
 		  FROM (SELECT *,
@@ -338,7 +354,7 @@ var XMigemoPlaces = {
 	]]>.toString(),
    
 /* スマートキーワードの検索 */ 
-	 
+	
 	get keywordSearchSourceInRangeSQL() 
 	{
 		if (!this._keywordSearchSourceInRangeSQL) {
@@ -384,9 +400,9 @@ var XMigemoPlaces = {
 		}
 		return this._keywordSearchItemInRangeSQL;
 	},
- 	 
+  
 /* Places Organizerとサイドバーの検索 */ 
-	 
+	
 	get historyInRangeSQL() 
 	{
 		if (!this._historyInRangeSQL) {
@@ -505,7 +521,14 @@ var XMigemoPlaces = {
 		aRange = Math.max(0, aRange);
 		if (!aRange) return '';
 
-		var statement = this.db.createStatement(aSQL);
+		var statement;
+		try {
+			statement = this.db.createStatement(aSQL);
+		}
+		catch(e) {
+			dump(e+'\n'+aSQL+'\n');
+			throw e;
+		}
 		statement.bindStringParameter(0, '\n');
 		statement.bindDoubleParameter(1, aStart);
 		statement.bindDoubleParameter(2, aRange);
@@ -608,7 +631,7 @@ var XMigemoPlaces = {
 			}
 		}, 1, this);
 	},
-	 
+	
 	stopProgressiveLoad : function() 
 	{
 		if (!this.progressiveLoadTimer) return;
