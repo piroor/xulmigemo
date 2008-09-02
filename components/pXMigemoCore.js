@@ -533,6 +533,13 @@ dump('STEP 2: '+array.toSource()+'\n');
  
 	regExpHighlightWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSelCon) 
 	{
+		try {
+			if (aSelCon)
+				aSelCon = aSelCon.QueryInterface(Components.interfaces.nsISelectionController);
+		}
+		catch(e) {
+			aSelCon = null;
+		}
 		if (!aSelCon) {
 			return [];
 		}
