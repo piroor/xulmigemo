@@ -413,7 +413,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, null);
 	},
 	 
-	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode) 
+	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aSetSelection, aSelCon) 
 	{
 		if (!aStartPoint) {
 			aStartPoint = aFindRange.startContainer.ownerDocument.createRange();
@@ -446,6 +446,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 		this.mFind.findBackwards = false;
 		var foundRange;
 		var foundLength;
+		var selection;
 		for (var i = 0, maxi = arrTerms.length; i < maxi; i++)
 		{
 			foundRange = this.mFind.Find(arrTerms[i], aFindRange, aStartPoint, aEndPoint);
@@ -492,6 +493,11 @@ dump('STEP 2: '+array.toSource()+'\n');
 				aStartPoint.setStart(foundRange.endContainer, foundRange.endOffset);
 				aStartPoint.collapse(true);
 			}
+			if (aSetSelection && aSelCon) {
+				selection = aSelCon.getSelection(aSelCon.SELECTION_FIND);
+				selection.addRange(foundRange);
+				aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
+			}
 		}
 
 		return arrResults;
@@ -523,6 +529,14 @@ dump('STEP 2: '+array.toSource()+'\n');
 			return [];
 		}
 		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode);
+	},
+ 
+	regExpHighlightWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSelCon) 
+	{
+		if (!aSelCon) {
+			return [];
+		}
+		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, null, true, aSelCon);
 	},
  
 	getDocShellForFrame : function(aFrame) 
