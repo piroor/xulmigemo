@@ -1733,6 +1733,12 @@ var XMigemoUI = {
 		if ('_getSelectionController' in gFindBar) { // Firefox 3.1
 			eval('gFindBar._highlightDoc = '+gFindBar._highlightDoc.toSource()
 				.replace(
+					'if (!aWord) {',
+					'$& XMigemoUI.clearHighlight(win.document);'
+				).replace(
+					'return textFound;',
+					'XMigemoUI.clearHighlight(doc); $&'
+				).replace(
 					'var body =',
 					'if (!aHighlight) { XMigemoUI.clearHighlight(doc); return false; } $&'
 				).replace(
