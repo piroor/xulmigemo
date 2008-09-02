@@ -322,12 +322,21 @@ var XMigemoLocationBarOverlay = {
 			{
 				var maxResults = aSelf.panel.maxResults;
 				var current;
-				var deferedItems = { value : [] };
+				var deferedItems = [];
 				build:
 				for (var i = 0, maxi = aSelf.sourcesInfo.length; i < maxi; i++)
 				{
 					current = 0;
 					aSelf.currentSource = i;
+
+					if (deferedItems.length) {
+						aSelf.results = aSelf.results.concat(deferedItems);
+						deferedItems = [];
+						aSelf.progressiveBuild();
+						if (aSelf.results.length >= maxResults)
+							break build;
+					}
+
 					if ('enabled' in aSelf.sourcesInfo[aSelf.currentSource] &&
 						!aSelf.sourcesInfo[aSelf.currentSource].enabled) continue;
 					while (aSelf.updateResultsForRange(current, XMigemoPlaces.chunk, deferedItems))
@@ -368,12 +377,20 @@ var XMigemoLocationBarOverlay = {
 	{
 		var maxResults = this.panel.maxResults;
 		var current;
-		var deferedItems = { value : [] };
+		var deferedItems = [];
 		build:
 		for (var i = 0, maxi = this.sourcesInfo.length; i < maxi; i++)
 		{
 			current = 0;
 			this.currentSource = i;
+
+			if (deferedItems.length) {
+				this.results = this.results.concat(deferedItems);
+				deferedItems = [];
+				if (this.results.length >= maxResults)
+					break build;
+			}
+
 			if ('enabled' in this.sourcesInfo[this.currentSource] &&
 				!this.sourcesInfo[this.currentSource].enabled) continue;
 			while (this.updateResultsForRange(current, XMigemoPlaces.chunk, deferedItems))
@@ -430,13 +447,6 @@ var XMigemoLocationBarOverlay = {
  
 	updateResultsForRange : function(aStart, aRange, aDeferedItems) 
 	{
-		if (aDeferedItems.value.length) {
-			this.results = this.results.concat(aDeferedItems.value);
-			aDeferedItems.value = [];
-			if (this.results >= XMigemoService.getPref('browser.urlbar.maxRichResults'))
-				return true;
-		}
-
 		var info = this.sourcesInfo[this.currentSource];
 		var sources = XMigemoPlaces.getSourceInRange(
 				info.getSourceSQL(this.lastFindFlag),
@@ -474,7 +484,8 @@ var XMigemoLocationBarOverlay = {
 			terms,
 			exceptions,
 			aStart,
-			aRange
+			aRange,
+			aDeferedItems
 		);
 		this.results = this.results.concat(results);
 
@@ -524,7 +535,7 @@ var XMigemoLocationBarOverlay = {
 	findItemsFromTerms : function(aTerms, aExceptions, aStart, aRange, aDeferedItems) 
 	{
 		if (!aExceptions) aExceptions = [];
-		if (!aDeferedItems) aDeferedItems = { value : [] };
+		if (!aDeferedItems) aDeferedItems = [];
 
 		var items = [];
 		if (!aTerms.length && !aExceptions.length) return items;
@@ -667,8 +678,9 @@ var XMigemoLocationBarOverlay = {
  
 	progressiveBuild : function() 
 	{
-		if (!this.results.length ||
-			this.results.length == this.builtCount)
+		if (!this.results.length) return;
+		this.results = this.results.slice(0, this.panel.maxResults);
+		if (this.results.length == this.builtCount)
 			return;
 
 		var controller = this.bar.controller;
