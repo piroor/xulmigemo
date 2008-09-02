@@ -1733,8 +1733,8 @@ var XMigemoUI = {
 		if ('_getSelectionController' in gFindBar) { // Firefox 3.1
 			eval('gFindBar._highlightDoc = '+gFindBar._highlightDoc.toSource()
 				.replace(
-					'{',
-					'{ if (!aHighlight) { XMigemoUI.clearHighlight(doc); return; }'
+					'var body =',
+					'if (!aHighlight) { XMigemoUI.clearHighlight(doc); return; } $&'
 				).replace(
 					'this._highlight(aHighlight, retRange, controller);',
 					'this._highlight(aHighlight, retRange, controller, aWord);'
@@ -1744,22 +1744,9 @@ var XMigemoUI = {
 				).replace(
 					'doc.body',
 					'XMigemoUI.getDocumentBody(doc)'
-				)
-			);
-
-			eval('gFindBar._highlight = '+gFindBar._highlight.toSource()
-				.replace(
-					/^(\(?function)([^\(]*)\(([^\)]+)\) \{/,
-					'$1$2($3, aWord) {'
 				).replace(
-					'{',
-					<![CDATA[
-					{
-						XMigemoUI.activeBrowser.contentDocument.documentElement.setAttribute(XMigemoUI.kLAST_HIGHLIGHT, aWord);
-						if (XMigemoUI.isActive) {
-							return XMigemoUI.highlightText(aWord, null, this._searchRange, aController);
-						}
-					]]>
+					'var retRange = null;',
+					'if (XMigemoUI.isActive) { XMigemoUI.highlightText(aWord, null, this._searchRange, controller); return; } $&'
 				)
 			);
 		}
