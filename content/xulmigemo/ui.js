@@ -455,7 +455,7 @@ var XMigemoUI = {
 	},
   
 /* utilities */ 
-	 
+	
 	getEditableNodes : function(aDocument) 
 	{
 		var expression = [
@@ -1228,7 +1228,7 @@ var XMigemoUI = {
 	},
   
 /* Migemo Find */ 
-	 
+	
 /* timer */ 
 	 
 /* Cancel Timer */ 
@@ -2088,7 +2088,7 @@ var XMigemoUI = {
 	},
  
 /* highlight */ 
-	
+	 
 	toggleHighlight : function(aHighlight, aAutoChecked) 
 	{
 		if (XMigemoUI.highlightCheckedAlways && aAutoChecked) {
@@ -2126,25 +2126,81 @@ var XMigemoUI = {
  
 	clearHighlight : function(aDocument, aRecursively) 
 	{
+		var targets = this.collectHighlights(aDocument, aRecursively);
+		if (this.highlightModeSelection) { // Firefox 3.1
+			targets.forEach(function(aSelCon) {
+				var selection = aSelCon.getSelection(aSelCon.SELECTION_FIND);
+				selection.removeAllRanges();
+				aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
+			});
+		}
+		else { // old implementation for Firefox 3.0.x, 2.0.0.x
+			targets.reverse();
+			var doc, range, foundRange, foundLength;
+			targets.forEach(function(aNode) {
+				if (!doc || doc != aNode.ownerDocuemnt) {
+					if (range) range.detach();
+					doc = aNode.ownerDocument;
+					range = doc.createRange();
+					foundRange = this.shouldRebuildSelection ? this.textUtils.getFoundRange(doc.defaultView) : null ;
+					foundLength = foundRange ? foundRange.toString().length : 0 ;
+				}
+
+				if (aNode.getAttribute('class') == '__mozilla-findbar-animation') {
+					range.selectNode(aNode);
+					range.deleteContents();
+					range.detach();
+					return;
+				}
+
+				range.selectNodeContents(aNode);
+
+				var child   = null;
+				var docfrag = doc.createDocumentFragment();
+				var next    = aNode.nextSibling;
+				var parent  = aNode.parentNode;
+				while ((child = aNode.firstChild))
+				{
+					docfrag.appendChild(child);
+				}
+				var selectAfter = this.shouldRebuildSelection ? this.textUtils.isRangeOverlap(foundRange, range) : false ;
+				var firstChild  = docfrag.firstChild;
+
+				parent.removeChild(aNode);
+				parent.insertBefore(docfrag, next);
+				if (selectAfter) {
+					this.textUtils.delayedSelect(firstChild, foundLength, true);
+				}
+
+				parent.normalize();
+			}, this);
+			if (range) range.detach();
+		}
+	},
+	 
+	collectHighlights : function(aDocument, aRecursively) 
+	{
+		var targets = [];
+
 		try {
-			var xpathResult = this.getEditableNodes(aDocument);
+			var xpathResult = XMigemoUI.getEditableNodes(aDocument);
 			var editable, editor;
 			for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
 			{
 				editable = xpathResult.snapshotItem(i);
 				editor = editable
-						.QueryInterface(this.nsIDOMNSEditableElement)
+						.QueryInterface(XMigemoUI.nsIDOMNSEditableElement)
 						.editor;
-				this.clearHighlightInternal(
+				targets = targets.concat(this.collectHighlightsInternal(
 					aDocument,
 					editor.rootElement,
 					editor.selectionController
-				);
+				));
 			}
 		}
 		catch(e) {
 		}
-		this.clearHighlightInternal(
+		targets = targets.concat(this.collectHighlightsInternal(
 			aDocument,
 			aDocument,
 			aDocument.defaultView
@@ -2154,66 +2210,37 @@ var XMigemoUI = {
 				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 				.getInterface(Components.interfaces.nsISelectionDisplay)
 				.QueryInterface(Components.interfaces.nsISelectionController)
-		);
+		));
 
 		if (aRecursively)
 			Array.slice(aDocument.defaultView.frames)
 				.forEach(function(aFrame) {
-					this.clearHighlight(aFrame.document, aRecursively);
+					targets = targets.concat(this.collectHighlights(aFrame.document, aRecursively));
 				}, this);
+
+		return targets;
 	},
-	clearHighlightInternal : function(aDocument, aTarget, aSelCon)
+	collectHighlightsInternal : function(aDocument, aTarget)
 	{
-		if (aSelCon && this.highlightModeSelection) { // Firefox 3.1
-			var selection = aSelCon.getSelection(aSelCon.SELECTION_FIND);
-			selection.removeAllRanges();
-			aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
-			return;
+		if (this.highlightModeSelection) { // Firefox 3.1
+			return aSelCon ? [aSelCon] : [] ;
 		}
 
-		// old implementation for Firefox 3.0.x, 2.0.0.x
-		var foundRange = this.shouldRebuildSelection ? this.textUtils.getFoundRange(aDocument.defaultView) : null ;
-		var foundLength = foundRange ? foundRange.toString().length : 0 ;
 		var xpathResult = aDocument.evaluate(
-				'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search" or @class="__mozilla-findbar-animation"]',
+				'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search"]',
 				aTarget,
 				null,
 				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
 				null
 			);
-		var range = aDocument.createRange();
+		var nodes = [];
 		for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
 		{
-			var elem = xpathResult.snapshotItem(i);
-			if (elem.getAttribute('class') == '__mozilla-findbar-animation') {
-				range.selectNode(elem);
-				range.deleteContents();
-				continue;
-			}
-
-			range.selectNodeContents(elem);
-
-			var child   = null;
-			var docfrag = aDocument.createDocumentFragment();
-			var next    = elem.nextSibling;
-			var parent  = elem.parentNode;
-			while ((child = elem.firstChild))
-			{
-				docfrag.appendChild(child);
-			}
-			var selectAfter = this.shouldRebuildSelection ? this.textUtils.isRangeOverlap(foundRange, range) : false ;
-			var firstChild  = docfrag.firstChild;
-
-			parent.removeChild(elem);
-			parent.insertBefore(docfrag, next);
-			if (selectAfter) {
-				this.textUtils.delayedSelect(firstChild, foundLength, true);
-			}
-
-			parent.normalize();
+			nodes.push(xpathResult.snapshotItem(i));
 		}
+		return nodes;
 	},
- 
+  	
 	highlightText : function(aWord, aBaseNode, aRange, aSelCon) 
 	{
 		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
@@ -2245,7 +2272,7 @@ var XMigemoUI = {
 		this.updateHighlightNode(node);
 		return node;
 	},
-	 
+	
 	updateHighlightNode : function(aNode) 
 	{
 		aNode.setAttribute('onmousedown', <><![CDATA[
@@ -2438,7 +2465,7 @@ var XMigemoUI = {
 			caseSensitive.checked  = caseSensitive.xmigemoOriginalChecked;
 		}
 	},
- 	 
+  
 	init : function() 
 	{
 		if (window
@@ -2497,7 +2524,7 @@ var XMigemoUI = {
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 	},
-	 
+	
 	delayedInit : function() { 
 		window.setTimeout("XMigemoUI.field.addEventListener('blur', this, false);", 0);
 
