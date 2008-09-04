@@ -174,7 +174,9 @@ var XMigemoMarker = {
 				width   : pageWidth,
 				height  : pageHeight,
 				wWidth  : windowWidth,
-				wHeight : windowHeight
+				wHeight : windowHeight,
+				xScrillable : (aWindow.scrollMaxX ? true : false ),
+				yScrillable : (aWindow.scrollMaxY ? true : false )
 			};
 	},
   
@@ -186,12 +188,17 @@ var XMigemoMarker = {
 		var size = this.getPageSize(aDocument.defaultView);
 		var targets = XMigemoUI.collectHighlights(aDocument);
 
+		var topOffset = 10;
+		var heightOffset = 20;
+		if (size.xScrillable)
+			heightOffset += 10;
+
 		try {
 			var ctx = canvas.getContext('2d');
 			ctx.fillStyle = 'rgba(255,255,0,1)';
 			ctx.strokeStyle = 'rgba(192,128,0,0.75)';
 			targets.forEach(function(aNode) {
-				var baseY = (size.wHeight - 20) * (aNode.offsetTop / size.height) + 10;
+				var baseY = (size.wHeight - heightOffset) * (aNode.offsetTop / size.height) + topOffset;
 				ctx.save();
 				ctx.moveTo(this.markerSize+this.markerPadding, baseY);
 				ctx.beginPath();
