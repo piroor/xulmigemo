@@ -42,6 +42,8 @@ pref("xulmigemo.highlight.animationStyle.1.size", 2);
 //   2+1 = 2(right click) + 1 (ALT_MASK)
 pref("xulmigemo.highlight.hideScreen.restoreButtons", "1,0+1,0+2,0+4,0+8,0+6,0+12");
 
+pref("xulmigemo.position.showMarkers", true);
+
 pref("xulmigemo.timeout",                       4000);
 pref("xulmigemo.enabletimeout",                 true);
 pref("xulmigemo.enableautoexit.inherit",        true);

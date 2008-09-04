@@ -1,0 +1,12 @@
+#__moz_xmigemo-found-marker-canvas {
+	display: none !important;
+}
+
+:root[__moz_xmigemo-found-marker-canvas="on"] #__moz_xmigemo-found-marker-canvas {
+	display: block !important;
+	position: fixed !important;
+	z-index: 1000200 !important;
+	right: 0 !important;
+	top: 0 !important;
+	bottom: 0 !important;
+}

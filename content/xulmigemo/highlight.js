@@ -1,6 +1,4 @@
 var XMigemoHighlight = { 
-	useGlobalStyleSheets : false,
-
 	strongHighlight  : false,
 	get requireDOMHighlight()
 	{
@@ -92,13 +90,9 @@ var XMigemoHighlight = {
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 
-		if (this.SSS) {
-			this.useGlobalStyleSheets = true;
-		}
-
 		XMigemoUI.registerHighlightUtility(this);
 	},
- 
+ 	
 	destroy : function() 
 	{
 		XMigemoUI.unregisterHighlightUtility(this);
@@ -298,7 +292,7 @@ var XMigemoHighlight = {
 			return false;
 		return window.gestureInProgress;
 	},
-  	 
+   
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)
@@ -382,19 +376,19 @@ var XMigemoHighlight = {
 		}
 
 		if (this.isDocumentHighlightable(aFrame.document))
-			this.addHighlightScreen(aFrame.document);
+			this.insertHighlightScreen(aFrame.document);
 
 		aFrame.__moz_xmigemoHighlightedScreenInitialized = true;
 	},
 	 
-	addHighlightScreen : function(aDocument) 
+	insertHighlightScreen : function(aDocument) 
 	{
 		var doc = aDocument;
 		if (doc.getElementById(this.kSCREEN))
 			return;
 
-		if (!this.useGlobalStyleSheets)
-			this.addStyleSheet('chrome://xulmigemo/content/highlight.css', doc);
+		if (!XMigemoService.useGlobalStyleSheets)
+			XMigemoService.addStyleSheet('chrome://xulmigemo/content/highlight.css', doc);
 
 		var bodies = doc.getElementsByTagName('body');
 		if(bodies.length == 0)
@@ -416,27 +410,7 @@ var XMigemoHighlight = {
 
 		objBody.insertBefore(screen, objBody.firstChild);
 	},
-	
-	get SSS() 
-	{
-		if (this._SSS === void(0)) {
-			if ('@mozilla.org/content/style-sheet-service;1' in Components.classes) {
-				this._SSS = Components.classes['@mozilla.org/content/style-sheet-service;1'].getService(Components.interfaces.nsIStyleSheetService);
-			}
-			if (!this._SSS)
-				this._SSS = null;
-		}
-		return this._SSS;
-	},
-//	_SSS : null,
  
-	addStyleSheet : function(aURI, aDocument) 
-	{
-		var newPI = document.createProcessingInstruction('xml-stylesheet',
-				'href="'+aURI+'" type="text/css" media="all"');
-		aDocument.insertBefore(newPI, document.firstChild);
-	},
-  
 	getPageSize : function(aWindow) 
 	{
 		var xScroll = aWindow.innerWidth + aWindow.scrollMaxX;

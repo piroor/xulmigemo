@@ -1,11 +1,13 @@
-var XMigemoPosition = { 
+var XMigemoMarker = { 
 	showMarkers  : false,
 	get requireDOMHighlight()
 	{
 		return this.showMarkers;
 	},
 
-	kCANVAS : '__moz_xmigemo-find-position-canvas',
+	kCANVAS : '__moz_xmigemo-found-marker-canvas',
+	markerSize : 10,
+	markerPadding : 2,
 	 
 	init : function() 
 	{
@@ -49,7 +51,7 @@ var XMigemoPosition = {
 		switch (aEvent.type)
 		{
 			case 'load':
-				window.setTimeout('XMigemoPosition.init();', 0);
+				window.setTimeout('XMigemoMarker.init();', 0);
 				return;
 
 			case 'unload':
@@ -62,14 +64,14 @@ var XMigemoPosition = {
 						aSelf.showMarkers &&
 						!XMigemoUI.highlightCheck.disabled &&
 						XMigemoUI.highlightCheck.checked)
-						aSelf.toggleCanvas(true);
+						aSelf.toggleMarkers(true);
 				}, 0, this);
 				break;
 
 			case 'XMigemoFindBarClose':
 				window.setTimeout(function(aSelf) {
 					if (aSelf.showMarkers)
-						aSelf.destroyCanvas();
+						aSelf.destroyMarkers();
 				}, 0, this);
 				break;
 
@@ -77,19 +79,19 @@ var XMigemoPosition = {
 				if (window.content)
 					window.content.__moz_xmigemoPositionMarkersShown = aEvent.targetHighlight;
 
-				if (this.updateCanvasStateTimer) {
-					window.clearTimeout(this.updateCanvasStateTimer);
-					this.updateCanvasStateTimer = null;
+				if (this.updateMarkersStateTimer) {
+					window.clearTimeout(this.updateMarkersStateTimer);
+					this.updateMarkersStateTimer = null;
 				}
-				this.updateCanvasStateTimer = window.setTimeout(function(aSelf, aHighlight) {
-					aSelf.updateCanvasStateTimer = null;
+				this.updateMarkersStateTimer = window.setTimeout(function(aSelf, aHighlight) {
+					aSelf.updateMarkersStateTimer = null;
 					if (aSelf.showMarkers)
-						aSelf.toggleCanvas(aHighlight);
+						aSelf.toggleMarkers(aHighlight);
 				}, 10, this, aEvent.targetHighlight);
 				break;
 		}
 	},
- 	
+ 
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)
@@ -110,11 +112,9 @@ var XMigemoPosition = {
 		xulmigemo.position.showMarkers
 	]]></>.toString(),
  
-/* Safari style highlight, dark screen 
-	based on http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
-*/
+/* rendering position markers */ 
 	 
-	initializeCanvas : function(aFrame, aDontFollowSubFrames) 
+	initializeMarkers : function(aFrame, aDontFollowSubFrames) 
 	{
 		if (!aFrame)
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
@@ -124,12 +124,12 @@ var XMigemoPosition = {
 		}
 
 		if (this.isAvailableForDocument(aFrame.document))
-			this.insertCanvas(aFrame.document);
+			this.insertMarkers(aFrame.document);
 
 		aFrame.__moz_xmigemoPositionMarkersInitialized = true;
 	},
 	 
-	insertCanvas : function(aDocument) 
+	insertMarkers : function(aDocument) 
 	{
 		var doc = aDocument;
 		if (doc.getElementById(this.kCANVAS))
@@ -139,19 +139,26 @@ var XMigemoPosition = {
 		if (bodies.length == 0)
 			return;
 
+		var size = this.getPageSize(aDocument.defaultView);
+		if (!size.height || !size.wHeight) return;
+
+		if (!XMigemoService.useGlobalStyleSheets)
+			XMigemoService.addStyleSheet('chrome://xulmigemo/content/position.css', doc);
+
 		var objBody = bodies[0];
 		var canvas = doc.createElementNS(XMigemoUI.kXHTMLNS, 'canvas');
 		canvas.setAttribute('id', this.kCANVAS);
-		canvas.setAttribute('style', <![CDATA[
-			position: fixed !important;
-			right: 0 !important;
-			top: 0 !important;
-			bottom: 0 !important;
-			width: 5px !important;
-		]]>.toString());
-		canvas.width = 5;
-		canvas.height = this.getPageSize(aDocument.defaultView).wHeight;
+		canvas.setAttribute(
+			'style',
+			<![CDATA[
+				width: ]]>.toString() +
+			(this.markerSize+this.markerPadding)+'px !important'
+		);
+		canvas.width = this.markerSize+this.markerPadding;
+		canvas.height = size.wHeight;
 		objBody.insertBefore(canvas, objBody.firstChild);
+
+		this.drawMarkers(aDocument);
 	},
  
 	getPageSize : function(aWindow) 
@@ -170,7 +177,38 @@ var XMigemoPosition = {
 			};
 	},
   
-	destroyCanvas : function(aFrame) 
+	drawMarkers : function(aDocument) 
+	{
+		var canvas = aDocument.getElementById(this.kCANVAS);
+		if (!canvas) return;
+
+		var size = this.getPageSize(aDocument.defaultView);
+		var targets = XMigemoUI.collectHighlights(aDocument);
+
+		try {
+			var ctx = canvas.getContext('2d');
+			ctx.fillStyle = 'rgba(255,255,0,1)';
+			ctx.strokeStyle = 'rgba(192,128,0,0.75)';
+			targets.forEach(function(aNode) {
+				var baseY = (size.wHeight - 20) * (aNode.offsetTop / size.height) + 10;
+				ctx.save();
+				ctx.moveTo(this.markerSize+this.markerPadding, baseY);
+				ctx.beginPath();
+				ctx.lineTo(this.markerPadding, baseY - (this.markerSize / 2));
+				ctx.lineTo(this.markerPadding, baseY + (this.markerSize / 2));
+				ctx.lineTo(this.markerSize+this.markerPadding, baseY);
+				ctx.fill();
+				ctx.closePath();
+				ctx.stroke();
+				ctx.restore();
+			}, this);
+		}
+		catch(e) {
+			dump('XMigemoMarker Error: ' + e.message + '\n');
+		}
+	},
+ 	
+	destroyMarkers : function(aFrame) 
 	{
 		if (!aFrame)
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
@@ -184,19 +222,19 @@ var XMigemoPosition = {
 		aFrame.document.documentElement.removeAttribute(this.kCANVAS);
 	},
  
-	toggleCanvas : function(aHighlight, aFrame) 
+	toggleMarkers : function(aHighlight, aFrame) 
 	{
 		if (!aFrame)
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
 
 		Array.slice(aFrame.frames).forEach(function(aFrame) {
-			this.toggleCanvas(aHighlight, aFrame);
+			this.toggleMarkers(aHighlight, aFrame);
 		}, this);
 
 		if (!this.isAvailableForDocument(aFrame.document)) return;
 
 		if (!('__moz_xmigemoPositionMarkersInitialized' in aFrame) && aHighlight)
-			this.initializeCanvas(aFrame, true);
+			this.initializeMarkers(aFrame, true);
 
 		aFrame.__moz_xmigemoPositionMarkers = aHighlight;
 
@@ -217,5 +255,5 @@ var XMigemoPosition = {
 	dummy : null
 }; 
  
-window.addEventListener('load', XMigemoPosition, false); 
+window.addEventListener('load', XMigemoMarker, false); 
  

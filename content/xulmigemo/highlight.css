@@ -2,8 +2,8 @@
    XMLパーサ上では属性名の大文字小文字が区別されずにすべて小文字に
    正規化されてしまい、大文字小文字を区別するCSSの属性セレクタが
    適用されなくなってしまうため */
-:root[__moz_xmigemo-find-highlight-screen="on"] *,
-:root[__moz_xmigemo-find-highlight-animation="on"] * {
+:root[__moz_xmigemo-find-highlight-screen="on"] *:not([@id^=__moz_xmigemo-]),
+:root[__moz_xmigemo-find-highlight-animation="on"] *:not([@id^=__moz_xmigemo-]) {
 	z-index: auto !important;
 }
 :root[__moz_xmigemo-find-highlight-screen="on"] #__firefox-findbar-search-id, /* Firefox 2 */

@@ -54,7 +54,12 @@ XMigemoStartupService.prototype = {
  
 	updateGlobalStyleSheets : function() 
 	{
-		var sheet = IOService.newURI('chrome://xulmigemo/content/highlight.css', null, null);
+		var sheet;
+		sheet = IOService.newURI('chrome://xulmigemo/content/highlight.css', null, null);
+		if (!this.SSS.sheetRegistered(sheet, this.SSS.AGENT_SHEET)) {
+			this.SSS.loadAndRegisterSheet(sheet, this.SSS.AGENT_SHEET);
+		}
+		sheet = IOService.newURI('chrome://xulmigemo/content/position.css', null, null);
 		if (!this.SSS.sheetRegistered(sheet, this.SSS.AGENT_SHEET)) {
 			this.SSS.loadAndRegisterSheet(sheet, this.SSS.AGENT_SHEET);
 		}
