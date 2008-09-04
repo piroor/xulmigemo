@@ -7,8 +7,10 @@ var XMigemoMarker = {
 
 	kCANVAS : '__moz_xmigemo-found-marker-canvas',
 
-	size : 10,
-	padding : 2,
+	size    : 10,
+	padding : 5,
+	fill    : '',
+	stroke  : '',
 	 
 	init : function() 
 	{
@@ -163,9 +165,7 @@ var XMigemoMarker = {
   
 	onMouseUp : function(aEvent) 
 	{
-		if (!this.isEventFiredOnMarkers(aEvent))
-			return;
-
+		if (!this.dragging) return;
 		aEvent.preventDefault();
 		aEvent.stopPropagation();
 		this.dragging = false;
@@ -218,6 +218,18 @@ var XMigemoMarker = {
 					case 'xulmigemo.highlight.foundMarker.size':
 						this.size = value;
 						break;
+
+					case 'xulmigemo.highlight.foundMarker.padding':
+						this.padding = value;
+						break;
+
+					case 'xulmigemo.highlight.foundMarker.fill':
+						this.fill = value;
+						break;
+
+					case 'xulmigemo.highlight.foundMarker.stroke':
+						this.stroke = value;
+						break;
 				}
 				break;
 		}
@@ -226,6 +238,9 @@ var XMigemoMarker = {
 	preferences : <><![CDATA[
 		xulmigemo.highlight.foundMarker.enabled
 		xulmigemo.highlight.foundMarker.size
+		xulmigemo.highlight.foundMarker.padding
+		xulmigemo.highlight.foundMarker.fill
+		xulmigemo.highlight.foundMarker.stroke
 	]]></>.toString(),
  
 /* rendering position markers */ 
@@ -302,8 +317,8 @@ var XMigemoMarker = {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.restore();
 
-			ctx.fillStyle = 'rgba(255,255,0,1)';
-			ctx.strokeStyle = 'rgba(192,128,0,0.75)';
+			ctx.fillStyle = this.fill;
+			ctx.strokeStyle = this.stroke;
 			targets.forEach(function(aNode) {
 				var baseY = (size.viewHeight - heightOffset) * ((aNode.offsetTop + aNode.offsetHeight) / size.height) + topOffset;
 				ctx.save();
