@@ -2231,7 +2231,7 @@ var XMigemoUI = {
 
 		return targets;
 	},
-	collectHighlightsInternal : function(aDocument, aTarget)
+	collectHighlightsInternal : function(aDocument, aTarget, aSelCon)
 	{
 		if (this.highlightModeSelection) { // Firefox 3.1
 			return aSelCon ? [aSelCon] : [] ;
