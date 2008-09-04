@@ -195,22 +195,10 @@ var XMigemoHighlight = {
 			this._eventCancelers.splice(index, 1);
 	},
 	 
-	isEventFiredOnScrollBar : function(aEvent) 
-	{
-		var node = aEvent.originalTarget;
-		do
-		{
-			if (/^(scrollbar|scrollbarbutton|slider|thumb|gripper)$/i.test(node.localName))
-				return true;
-			node = node.parentNode;
-		} while (node.parentNode);
-		return false;
-	},
- 
 	onMouseDown : function(aEvent) 
 	{
 		if (aEvent.originalTarget.ownerDocument.defaultView.top == window.top ||
-			this.isEventFiredOnScrollBar(aEvent) ||
+			XMigemoService.isEventFiredOnScrollBar(aEvent) ||
 			!window.content ||
 			!window.content.__moz_xmigemoHighlightedScreen)
 			return;
@@ -232,11 +220,11 @@ var XMigemoHighlight = {
 			}, 0);
 		}
 	},
- 
+ 	
 	onMouseUp : function(aEvent) 
 	{
 		if (aEvent.originalTarget.ownerDocument.defaultView.top == window.top ||
-			this.isEventFiredOnScrollBar(aEvent) ||
+			XMigemoService.isEventFiredOnScrollBar(aEvent) ||
 			!window.content ||
 			!window.content.__moz_xmigemoHighlightedScreen)
 			return;
@@ -273,7 +261,7 @@ var XMigemoHighlight = {
 		aEvent.stopPropagation();
 		aEvent.preventDefault();
 	},
-	
+	 
 	get isGestureInProgress() 
 	{
 		return (
@@ -332,7 +320,7 @@ var XMigemoHighlight = {
 			target.removeEventListener('mouseup', this, true);
 		}
 	},
-  	
+  
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)

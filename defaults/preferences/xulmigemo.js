@@ -48,7 +48,8 @@ pref("xulmigemo.highlight.foundMarker.padding", 5);
 pref("xulmigemo.highlight.foundMarker.fill",    "rgba(255,255,0,1)");
 pref("xulmigemo.highlight.foundMarker.stroke",  "rgba(192,128,0,0.75)");
 
-pref("xulmigemo.timeout",                       4000);
+pref("xulmigemo.timeout",                       5000);
+pref("xulmigemo.timeout.stopWhileScrolling",    true);
 pref("xulmigemo.enabletimeout",                 true);
 pref("xulmigemo.enableautoexit.inherit",        true);
 pref("xulmigemo.enableautoexit.nokeyword",      true);
