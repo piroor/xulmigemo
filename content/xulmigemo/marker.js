@@ -67,8 +67,9 @@ var XMigemoMarker = {
 				this.destroy();
 				return;
 
-			case 'XMigemoHighlight:mousedown':
 			case 'XMigemoHighlight:mouseup':
+				if (this.dragging) return true;
+			case 'XMigemoHighlight:mousedown':
 				return this.isEventFiredOnMarkers(aEvent.originalEvent);
 
 			case 'mousedown':
@@ -151,11 +152,13 @@ var XMigemoMarker = {
 		this.dragging = true;
 	},
 	 
-	scrollTo : function(aCanvas, aY) 
+	scrollTo : function(aNode, aY) 
 	{
-		var doc = aCanvas.ownerDocument;
-		var topOffset = parseInt(aCanvas.getAttribute('top-offset'));
-		var bottomOffset = parseInt(aCanvas.getAttribute('bottom-offset'));
+		var doc = aNode.ownerDocument;
+		var canvas = doc.getElementById(this.kCANVAS);
+		if (!canvas) return;
+		var topOffset = parseInt(canvas.getAttribute('top-offset'));
+		var bottomOffset = parseInt(canvas.getAttribute('bottom-offset'));
 		var size = XMigemoService.getDocumentSizeInfo(doc);
 		var height = size.viewHeight - topOffset - bottomOffset;
 		if (!height) return;
