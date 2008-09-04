@@ -15,7 +15,6 @@ var XMigemoHighlight = {
 	animationSize : [10, 2],
 	animationUnit : 10,
 
-	kSTYLE     : '__moz_xmigemo-find-highlight-style',
 	kSCREEN    : '__moz_xmigemo-find-highlight-screen',
 	kANIMATION : '__moz_xmigemo-find-highlight-animation',
 
@@ -391,7 +390,7 @@ var XMigemoHighlight = {
 	addHighlightScreen : function(aDocument) 
 	{
 		var doc = aDocument;
-		if (doc.getElementById(this.kSTYLE))
+		if (doc.getElementById(this.kSCREEN))
 			return;
 
 		if (!this.useGlobalStyleSheets)
