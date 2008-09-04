@@ -20,6 +20,9 @@ var XMigemoMarker = {
 			.parent) // in subframe
 			return;
 
+		window.removeEventListener('load', this, false);
+		window.addEventListener('unload', this, false);
+
 		XMigemoService.addPrefListener(this);
 
 		var bar = XMigemoUI.findBar;
@@ -28,19 +31,16 @@ var XMigemoMarker = {
 		bar.addEventListener('XMigemoFindBarToggleHighlight', this, false);
 		bar.addEventListener('XMigemoFindBarUpdateHighlight', this, false);
 
-		window.removeEventListener('load', this, false);
-		window.addEventListener('unload', this, false);
-
 		XMigemoUI.registerHighlightUtility(this);
-		XMigemoHighlight.registerEventCanceler(this);
+		if ('XMigemoHighlight' in window)
+			XMigemoHighlight.registerEventCanceler(this);
 	},
  
 	destroy : function() 
 	{
-		XMigemoUI.unregisterHighlightUtility(this);
-		XMigemoHighlight.unregisterEventCanceler(this);
+		window.removeEventListener('unload', this, false);
+
 		XMigemoService.removePrefListener(this);
-		XMigemoService.ObserverService.removeObserver(this, 'XMigemo:highlightNodeReaday');
 
 		var bar = XMigemoUI.findBar;
 		bar.removeEventListener('XMigemoFindBarOpen', this, false);
@@ -48,7 +48,9 @@ var XMigemoMarker = {
 		bar.removeEventListener('XMigemoFindBarToggleHighlight', this, false);
 		bar.removeEventListener('XMigemoFindBarUpdateHighlight', this, false);
 
-		window.removeEventListener('unload', this, false);
+		XMigemoUI.unregisterHighlightUtility(this);
+		if ('XMigemoHighlight' in window)
+			XMigemoHighlight.unregisterEventCanceler(this);
 	},
  
 	handleEvent : function(aEvent) 
