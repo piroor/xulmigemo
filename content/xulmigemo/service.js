@@ -288,7 +288,56 @@ var XMigemoService = {
 				yScrillable : (w.scrollMaxY ? true : false )
 			};
 	},
+ 
+/* event handling */ 
+	 
+	isEventFiredInInputField : function(aEvent) 
+	{
+		try { // in rich-textarea (ex. Gmail)
+			var doc = Components.lookupMethod(aEvent.originalTarget, 'ownerDocument').call(aEvent.originalTarget);
+			if (Components.lookupMethod(doc, 'designMode').call(doc) == 'on')
+				return true;
+
+			var win = Components.lookupMethod(doc, 'defaultView').call(doc);;
+			var editingSession = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+								.getInterface(Components.interfaces.nsIWebNavigation)
+								.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+								.getInterface(Components.interfaces.nsIEditingSession);
+			if (editingSession.windowIsEditable(win)) return true;
+		}
+		catch(e) {
+		}
+
+		try { // in rich-textarea (ex. Gmail)
+			var doc = Components.lookupMethod(aEvent.originalTarget, 'ownerDocument').call(aEvent.originalTarget);
+			if (Components.lookupMethod(doc, 'designMode').call(doc) == 'on')
+				return true;
+		}
+		catch(e) {
+		}
+
+		return /^(input|textarea|textbox|select|isindex|object|embed)$/i.test(aEvent.originalTarget.localName);
+	},
+ 
+	isEventFiredInFindableDocument : function(aEvent) 
+	{
+		var doc = Components.lookupMethod(aEvent.originalTarget, 'ownerDocument').call(aEvent.originalTarget);
+		var contentType = Components.lookupMethod(doc, 'contentType').call(doc);
+		return /^text\/|\+xml$|^application\/((x-)?javascript|xml)$/.test(contentType);
+	},
  	
+	isEventFiredOnScrollBar : function(aEvent) 
+	{
+		var node = aEvent.originalTarget;
+		do
+		{
+			if (/^(scrollbar|scrollbarbutton|slider|thumb|gripper)$/i.test(node.localName))
+				return true;
+			node = node.parentNode;
+		} while (node.parentNode);
+		return false;
+	},
+  
 	goDicManager : function() 
 	{
 		var uri = 'chrome://xulmigemo/content/dicManager/dicManager.xul';

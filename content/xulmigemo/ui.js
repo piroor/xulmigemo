@@ -26,7 +26,7 @@ var XMigemoUI = {
 
 	nsITypeAheadFind : Components.interfaces.nsITypeAheadFind,
 	nsIDOMNSEditableElement : Components.interfaces.nsIDOMNSEditableElement,
-	 
+	
 	get textUtils() 
 	{
 		if (!this._textUtils) {
@@ -39,7 +39,7 @@ var XMigemoUI = {
 	_textUtils : null,
   
 /* internal status */ 
-	
+	 
 	FIND_MODE_NATIVE : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE, 
 	FIND_MODE_MIGEMO : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
 	FIND_MODE_REGEXP : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP,
@@ -54,6 +54,7 @@ var XMigemoUI = {
 	autoExitQuickFindInherit : true,
 	autoExitQuickFind        : true,
 	timeout                  : 0,
+	stopTimerWhileScrolling : true,
  
 	autoStartRegExpFind      : false, 
  
@@ -291,7 +292,7 @@ var XMigemoUI = {
 	_timeoutIndicator : null,
    
 /* status */ 
-	
+	 
 	get isQuickFind() 
 	{
 		return XMigemoFind.isQuickFind;
@@ -453,7 +454,9 @@ var XMigemoUI = {
 
 		return minLength <= termLength;
 	},
-  
+ 
+	isScrolling : false, 
+ 	 
 /* utilities */ 
 	
 	getEditableNodes : function(aDocument) 
@@ -544,6 +547,7 @@ var XMigemoUI = {
 		xulmigemo.enabletimeout
 		xulmigemo.enabletimeout.indicator
 		xulmigemo.timeout
+		xulmigemo.timeout.stopWhileScrolling
 		xulmigemo.override_findtoolbar
 		xulmigemo.shortcut.findForward
 		xulmigemo.shortcut.findBackward
@@ -616,6 +620,10 @@ var XMigemoUI = {
 				this.timeout = value;
 				if (this.timeout === null)
 					this.timeout = value;
+				return;
+
+			case 'xulmigemo.timeout.stopWhileScrolling':
+				this.stopTimerWhileScrolling = value;
 				return;
 
 			case 'xulmigemo.shortcut.findForward':
@@ -714,11 +722,7 @@ var XMigemoUI = {
 				return;
 
 			case 'keypress':
-				this.keyEvent(aEvent, this.getFindFieldFromContent(aEvent.originalTarget));
-				return;
-
-			case 'mouseup':
-				this.mouseEvent(aEvent);
+				this.onKeyPress(aEvent, this.getFindFieldFromContent(aEvent.originalTarget));
 				return;
 
 			case 'XMigemoFindProgress':
@@ -735,15 +739,17 @@ var XMigemoUI = {
 				}
 				return;
 
-			case 'blur':
-				this.onBlur(aEvent);
+			case 'XMigemoFindBarOpen':
+				this.startListen();
+				this.onFindBarOpen(aEvent);
 				return;
 
-			case 'resize':
-			case 'TreeStyleTabAutoHideStateChange':
-				if (this.hidden) return;
-				this.updateFloatingFindBarAppearance(aEvent);
-				this.onChangeFindBarSize(aEvent);
+			case 'XMigemoFindBarClose':
+				this.stopListen();
+				return;
+
+			case 'blur':
+				this.onBlur(aEvent);
 				return;
 
 			case 'load':
@@ -751,7 +757,26 @@ var XMigemoUI = {
 				return;
 
 			case 'unload':
+				this.stopListen();
 				this.destroy();
+				return;
+
+			case 'mousedown':
+				this.onMouseDown(aEvent);
+				return;
+
+			case 'mouseup':
+				this.onMouseUp(aEvent);
+				return;
+
+			case 'scroll':
+				this.onScroll(aEvent);
+				return;
+
+			case 'resize':
+			case 'TreeStyleTabAutoHideStateChange':
+				this.updateFloatingFindBarAppearance(aEvent);
+				this.onChangeFindBarSize(aEvent);
 				return;
 
 			case 'SubBrowserContentExpanded':
@@ -759,8 +784,7 @@ var XMigemoUI = {
 			case 'SubBrowserAdded':
 			case 'SubBrowserRemoved':
 			case 'SubBrowserContentCollapsed':
-				if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS ||
-					this.hidden)
+				if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS)
 					return;
 				gFindBar.closeFindBar();
 				window.setTimeout('gFindBar.openFindBar();', 100);
@@ -769,8 +793,7 @@ var XMigemoUI = {
 			case 'SubBrowserFocusMoved':
 				XMigemoFind.target = this.activeBrowser;
 				this.findBar.setAttribute(this.kTARGET, this.activeBrowser.id || 'subbrowser');
-				if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS ||
-					this.hidden)
+				if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS)
 					return;
 				gFindBar.closeFindBar();
 				window.setTimeout('gFindBar.openFindBar();', 100);
@@ -779,8 +802,62 @@ var XMigemoUI = {
 			default:
 		}
 	},
-	
-	keyEvent : function(aEvent, aFromFindField) 
+	 
+	startListen : function() 
+	{
+		if (this.listening) return;
+		this.listening = true;
+
+		window.addEventListener('resize', this, false);
+
+		var target = document.getElementById('appcontent') || this.browser;
+		if (target) {
+			target.addEventListener('mousedown', this, true);
+			target.addEventListener('mouseup', this, true);
+			target.addEventListener('scroll', this, true);
+		}
+
+		if ('SplitBrowser' in window) {
+			var root = document.documentElement;
+			root.addEventListener('SubBrowserAdded', this, false);
+			root.addEventListener('SubBrowserRemoved', this, false);
+			root.addEventListener('SubBrowserContentCollapsed', this, false);
+			root.addEventListener('SubBrowserContentExpanded', this, false);
+			root.addEventListener('SubBrowserFocusMoved', this, false);
+		}
+
+		if ('TreeStyleTabService' in window)
+			document.addEventListener('TreeStyleTabAutoHideStateChange', this, false);
+	},
+ 
+	stopListen : function() 
+	{
+		if (!this.listening) return;
+		this.listening = false;
+
+		window.removeEventListener('resize', this, false);
+
+		var target = document.getElementById('appcontent') || this.browser;
+		if (target) {
+			target.removeEventListener('mousedown', this, true);
+			target.removeEventListener('mouseup', this, true);
+			target.removeEventListener('scroll', this, true);
+		}
+
+		if ('SplitBrowser' in window) {
+			var root = document.documentElement;
+			root.removeEventListener('SubBrowserAdded', this, false);
+			root.removeEventListener('SubBrowserRemoved', this, false);
+			root.removeEventListener('SubBrowserContentCollapsed', this, false);
+			root.removeEventListener('SubBrowserContentExpanded', this, false);
+			root.removeEventListener('SubBrowserFocusMoved', this, false);
+		}
+
+		if ('TreeStyleTabService' in window)
+			document.removeEventListener('TreeStyleTabAutoHideStateChange', this, false);
+	},
+ 
+	onKeyPress : function(aEvent, aFromFindField) 
 	{
 		if (
 			this.processFunctionalKeyEvent(aEvent, aFromFindField) || // XUL/Migemoの終了その他のチェック
@@ -790,46 +867,11 @@ var XMigemoUI = {
 			return;
 	},
 	
-	isEventFiredInInputField : function(aEvent) 
-	{
-		try { // in rich-textarea (ex. Gmail)
-			var doc = Components.lookupMethod(aEvent.originalTarget, 'ownerDocument').call(aEvent.originalTarget);
-			if (Components.lookupMethod(doc, 'designMode').call(doc) == 'on')
-				return true;
-
-			var win = Components.lookupMethod(doc, 'defaultView').call(doc);;
-			var editingSession = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-								.getInterface(Components.interfaces.nsIWebNavigation)
-								.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-								.getInterface(Components.interfaces.nsIEditingSession);
-			if (editingSession.windowIsEditable(win)) return true;
-		}
-		catch(e) {
-		}
-
-		try { // in rich-textarea (ex. Gmail)
-			var doc = Components.lookupMethod(aEvent.originalTarget, 'ownerDocument').call(aEvent.originalTarget);
-			if (Components.lookupMethod(doc, 'designMode').call(doc) == 'on')
-				return true;
-		}
-		catch(e) {
-		}
-
-		return /^(input|textarea|textbox|select|isindex|object|embed)$/i.test(aEvent.originalTarget.localName);
-	},
- 
-	isEventFiredInFindableDocument : function(aEvent) 
-	{
-		var doc = Components.lookupMethod(aEvent.originalTarget, 'ownerDocument').call(aEvent.originalTarget);
-		var contentType = Components.lookupMethod(doc, 'contentType').call(doc);
-		return /^text\/|\+xml$|^application\/((x-)?javascript|xml)$/.test(contentType);
-	},
- 
 	processFunctionalShortcuts : function(aEvent, aFromFindField) 
 	{
 		if (
 			!aFromFindField &&
-			this.isEventFiredInInputField(aEvent) &&
+			XMigemoService.isEventFiredInInputField(aEvent) &&
 			!(
 				aEvent.charCode == 0 ||
 				aEvent.altKey ||
@@ -857,7 +899,7 @@ var XMigemoUI = {
 			return true;
 		}
 
-		if (!this.isEventFiredInFindableDocument(aEvent))
+		if (!XMigemoService.isEventFiredInFindableDocument(aEvent))
 			return false;
 
 		if (isForwardKey || isBackwardKey) {
@@ -1010,8 +1052,8 @@ var XMigemoUI = {
 	{
 		if (
 			aFromFindField ||
-			(this.isEventFiredInInputField(aEvent) && !this.isActive) ||
-			!this.isEventFiredInFindableDocument(aEvent)
+			(XMigemoService.isEventFiredInInputField(aEvent) && !this.isActive) ||
+			!XMigemoService.isEventFiredInFindableDocument(aEvent)
 			)
 			return false;
 
@@ -1074,8 +1116,26 @@ var XMigemoUI = {
 	delayedFindTimer : null,
 	delayedFindDelay : 0,
   
-	mouseEvent : function(aEvent) 
+	onMouseDown : function(aEvent) 
 	{
+		if (!XMigemoService.isEventFiredOnScrollBar(aEvent) ||
+			!this.isActive ||
+			!this.stopTimerWhileScrolling)
+			return;
+		this.isScrolling = true;
+		this.restartTimer();
+	},
+ 
+	onMouseUp : function(aEvent) 
+	{
+		if (this.isScrolling) {
+			this.isScrolling = false;
+			if (this.isActive &&
+				this.stopTimerWhileScrolling)
+				this.restartTimer();
+			return;
+		}
+
 		if (!this.isQuickFind) {
 			this.isActive = false;
 			return;
@@ -1084,6 +1144,14 @@ var XMigemoUI = {
 //		dump("mouseEvent.originalTarget:"+aEvent.originalTarget.tagName.toLowerCase()+'\n');
 		this.cancel();
 		this.clearTimer();//ここでタイマーを殺さないといじられてしまう。タイマー怖い。
+	},
+ 
+	onScroll : function() 
+	{
+		if (!this.isActive ||
+			!this.stopTimerWhileScrolling)
+			return;
+		this.restartTimer();
 	},
  
 	onXMigemoFindProgress : function(aEvent) 
@@ -1210,7 +1278,8 @@ var XMigemoUI = {
 			aSelf.onFindStartCommandCallback();
 		}, 0, this);
 	},
-	onFindStartCommandCallback : function()
+	
+	onFindStartCommandCallback : function() 
 	{
 		switch (this.openAgainAction)
 		{
@@ -1227,10 +1296,91 @@ var XMigemoUI = {
 		}
 	},
   
+	onFindBarOpen : function(aEvent) 
+	{
+		this.updateItemOrder();
+		this.updateFindBarAppearance();
+		this.updateModeSelectorPosition();
+		if (this.lastWindowWidth != window.innerWidth) {
+			this.onChangeFindBarSize();
+			this.lastWindowWidth = window.innerWidth;
+		}
+
+		this.toggleMode();
+
+		this.findBarInitialShow();
+
+		if (this.prefillWithSelection)
+			this.doPrefillWithSelection(aEvent.isQuickFind);
+	},
+	
+	findBarInitialShow : function() 
+	{
+		if (this.findBarInitialShown) return;
+		this.findBarInitialShown = true;
+		if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_CONTENT &&
+			this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_LEFTMOST)
+			return;
+		window.setTimeout(function(aSelf) {
+			var items = aSelf.findBarItems;
+			items = items.sort(function(aA, aB) {
+					return parseInt(aA.ordinal) - parseInt(aB.ordinal);
+				}).filter(function(aItem) {
+					return aItem.boxObject.x;
+				});
+			var wrongOrder = false;
+			for (var i = 0, maxi = items.length-1; i < maxi; i++)
+			{
+				if (items[i].boxObject.x < items[i+1].boxObject.x)
+					continue;
+				wrongOrder = true;
+				break;
+			}
+			if (!wrongOrder) return;
+
+			aSelf.findBar.hidden = true;
+			window.setTimeout(function(aSelf) {
+				aSelf.findBar.hidden = false;
+				window.setTimeout(function(aSelf) {
+					aSelf.field.focus();
+				}, 0, aSelf);
+			}, 0, aSelf);
+		}, 0, this);
+	},
+ 
+	doPrefillWithSelection : function(aShowMinimalUI) 
+	{
+		var win = document.commandDispatcher.focusedWindow;
+		if (!win || win.top == window.top) win = window.content;
+		var sel = this.textUtils.trim(win && win.getSelection() ? win.getSelection().toString() : '' )
+					.replace(/\n/g, '');
+		if (!sel) return;
+
+		if (this.isActive || this.findMode != this.FIND_MODE_NATIVE) {
+			if (this.isQuickFind) return;
+			this.findTerm = sel;
+			if (
+				XMigemoFind.lastKeyword == sel ||
+				XMigemoFind.lastFoundWord == sel
+				)
+				return;
+			this.findAgain(sel, this.findMode);
+		}
+		else {
+			if (
+				 aShowMinimalUI ||
+				 this.findTerm == sel
+				 )
+				 return;
+			this.findTerm = sel;
+			this.findAgain(sel, this.FIND_MODE_NATIVE);
+		}
+	},
+   
 /* Migemo Find */ 
 	
 /* timer */ 
-	 
+	
 /* Cancel Timer */ 
 	shouldTimeout : true,
 	cancelTimer : null,
@@ -1625,7 +1775,7 @@ var XMigemoUI = {
 
 		this.setFloatingFindBarWidth(target.boxObject.width, aEvent);
 	},
-	 
+	
 	setFloatingFindBarWidth : function(aWidth, aEvent) 
 	{
 		if (aEvent &&
@@ -1946,59 +2096,13 @@ var XMigemoUI = {
 		scope.xmigemoOriginalOpen.apply(scope, arguments);
 		ui.findMigemoBar.removeAttribute('collapsed');
 
-		ui.updateItemOrder();
-		ui.updateFindBarAppearance();
-		ui.updateModeSelectorPosition();
-		if (ui.lastWindowWidth != window.innerWidth) {
-			ui.onChangeFindBarSize();
-			ui.lastWindowWidth = window.innerWidth;
-		}
-
-		ui.toggleMode();
-
-		ui.findBarInitialShow();
-
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarOpen', true, true);
+		event.isQuickFind = aShowMinimalUI;
 		ui.findBar.dispatchEvent(event);
-
-		if (ui.prefillWithSelection)
-			ui.doPrefillWithSelection(aShowMinimalUI);
 	},
-	findBarInitialShow : function()
-	{
-		if (this.findBarInitialShown) return;
-		this.findBarInitialShown = true;
-		if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_CONTENT &&
-			this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_LEFTMOST)
-			return;
-		window.setTimeout(function(aSelf) {
-			var items = aSelf.findBarItems;
-			items = items.sort(function(aA, aB) {
-					return parseInt(aA.ordinal) - parseInt(aB.ordinal);
-				}).filter(function(aItem) {
-					return aItem.boxObject.x;
-				});
-			var wrongOrder = false;
-			for (var i = 0, maxi = items.length-1; i < maxi; i++)
-			{
-				if (items[i].boxObject.x < items[i+1].boxObject.x)
-					continue;
-				wrongOrder = true;
-				break;
-			}
-			if (!wrongOrder) return;
-
-			aSelf.findBar.hidden = true;
-			window.setTimeout(function(aSelf) {
-				aSelf.findBar.hidden = false;
-				window.setTimeout(function(aSelf) {
-					aSelf.field.focus();
-				}, 0, aSelf);
-			}, 0, aSelf);
-		}, 0, this);
-	},
-	updateFindModeOnOpen : function()
+	
+	updateFindModeOnOpen : function() 
 	{
 		if (this.forcedFindMode > -1 && this.findMode != this.forcedFindMode)
 			this.findMode = this.forcedFindMode;
@@ -2012,35 +2116,7 @@ var XMigemoUI = {
 			this.lastFindMode = this.findMode;
 		}
 	},
-	doPrefillWithSelection : function(aShowMinimalUI)
-	{
-		var win = document.commandDispatcher.focusedWindow;
-		if (!win || win.top == window.top) win = window.content;
-		var sel = this.textUtils.trim(win && win.getSelection() ? win.getSelection().toString() : '' )
-					.replace(/\n/g, '');
-		if (!sel) return;
-
-		if (this.isActive || this.findMode != this.FIND_MODE_NATIVE) {
-			if (this.isQuickFind) return;
-			this.findTerm = sel;
-			if (
-				XMigemoFind.lastKeyword == sel ||
-				XMigemoFind.lastFoundWord == sel
-				)
-				return;
-			this.findAgain(sel, this.findMode);
-		}
-		else {
-			if (
-				 aShowMinimalUI ||
-				 this.findTerm == sel
-				 )
-				 return;
-			this.findTerm = sel;
-			this.findAgain(sel, this.FIND_MODE_NATIVE);
-		}
-	},
- 
+  
 	closeFindBar : function() 
 	{
 		var scope = window.gFindBar ? window.gFindBar : this ;
@@ -2060,7 +2136,8 @@ var XMigemoUI = {
 			aSelf.delayedCloseFindBar();
 		}, 0, XMigemoUI);
 	},
-	delayedCloseFindBar : function()
+	 
+	delayedCloseFindBar : function() 
 	{
 		if (this.hidden) {
 			this.findModeSelectorBox.setAttribute('hidden', true);
@@ -2086,9 +2163,9 @@ var XMigemoUI = {
 			document.commandDispatcher.suppressFocusScroll = scrollSuppressed;
 		}
 	},
- 
+  
 /* highlight */ 
-	 
+	
 	toggleHighlight : function(aHighlight, aAutoChecked) 
 	{
 		var event = document.createEvent('Events');
@@ -2251,7 +2328,7 @@ var XMigemoUI = {
 		}
 		return nodes;
 	},
-  	
+  
 	highlightText : function(aWord, aBaseNode, aRange, aSelCon) 
 	{
 		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
@@ -2490,21 +2567,11 @@ var XMigemoUI = {
 
 		this.lastFindMode = this.FIND_MODE_NATIVE;
 		this.findBar.setAttribute(this.kTARGET, this.activeBrowser.id);
+		this.findBar.addEventListener('XMigemoFindBarOpen', this, false);
+		this.findBar.addEventListener('XMigemoFindBarClose', this, false);
 
 		document.addEventListener('XMigemoFindProgress', this, false);
 		document.addEventListener('XMigemoFindAgain', this, false);
-		window.addEventListener('resize', this, false);
-
-		if ('SplitBrowser' in window) {
-			var root = document.documentElement;
-			root.addEventListener('SubBrowserAdded', this, false);
-			root.addEventListener('SubBrowserRemoved', this, false);
-			root.addEventListener('SubBrowserContentCollapsed', this, false);
-			root.addEventListener('SubBrowserContentExpanded', this, false);
-			root.addEventListener('SubBrowserFocusMoved', this, false);
-		}
-		if ('TreeStyleTabService' in window)
-			document.addEventListener('TreeStyleTabAutoHideStateChange', this, false);
 
 		var browser = this.browser;
 		if (browser) {
@@ -2517,9 +2584,6 @@ var XMigemoUI = {
 				browser.setAttribute('onkeypress', '');
 
 			(document.getElementById('appcontent') || browser).addEventListener('keypress', this, true);
-
-			var target = document.getElementById('appcontent') || browser;
-			target.addEventListener('mouseup', this, true);
 		}
 
 		this.updateFindBarPosition();
@@ -2535,7 +2599,7 @@ var XMigemoUI = {
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 	},
-	
+	 
 	delayedInit : function() { 
 		window.setTimeout("XMigemoUI.field.addEventListener('blur', this, false);", 0);
 
@@ -2556,26 +2620,14 @@ var XMigemoUI = {
 	{
 		XMigemoService.removePrefListener(this);
 
+		this.findBar.removeEventListener('XMigemoFindBarOpen', this, false);
+		this.findBar.removeEventListener('XMigemoFindBarClose', this, false);
 		document.removeEventListener('XMigemoFindProgress', this, false);
 		document.removeEventListener('XMigemoFindAgain', this, false);
-		window.removeEventListener('resize', this, false);
-
-		if ('SplitBrowser' in window) {
-			var root = document.documentElement;
-			root.removeEventListener('SubBrowserAdded', this, false);
-			root.removeEventListener('SubBrowserRemoved', this, false);
-			root.removeEventListener('SubBrowserContentCollapsed', this, false);
-			root.removeEventListener('SubBrowserContentExpanded', this, false);
-			root.removeEventListener('SubBrowserFocusMoved', this, false);
-		}
-		if ('TreeStyleTabService' in window)
-			document.removeEventListener('TreeStyleTabAutoHideStateChange', this, false);
 
 		var browser = this.browser;
 		if (browser) {
 			(document.getElementById('appcontent') || browser).removeEventListener('keypress', this, true);
-			var target = document.getElementById('appcontent') || browser;
-			target.removeEventListener('mouseup', this, true);
 		}
 
 		this.field.removeEventListener('blur', this, false);

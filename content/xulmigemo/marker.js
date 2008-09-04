@@ -150,6 +150,7 @@ var XMigemoMarker = {
 		this.scrollTo(aEvent.target, aEvent.clientY);
 
 		this.dragging = true;
+		XMigemoUI.isScrolling = true;
 	},
 	 
 	scrollTo : function(aNode, aY) 
@@ -172,8 +173,9 @@ var XMigemoMarker = {
 		aEvent.preventDefault();
 		aEvent.stopPropagation();
 		this.dragging = false;
+		XMigemoUI.isScrolling = false;
 	},
- 
+ 	
 	onMouseMove : function(aEvent) 
 	{
 		if (!this.dragging) return;
@@ -205,7 +207,7 @@ var XMigemoMarker = {
 			target.removeEventListener('mousemove', this, true);
 		}
 	},
-  	
+  
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)
