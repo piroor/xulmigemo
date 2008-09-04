@@ -1,13 +1,14 @@
 var XMigemoMarker = { 
-	showMarkers  : false,
+	enabled  : false,
 	get requireDOMHighlight()
 	{
-		return this.showMarkers;
+		return this.enabled;
 	},
 
 	kCANVAS : '__moz_xmigemo-found-marker-canvas',
-	markerSize : 10,
-	markerPadding : 2,
+
+	size : 10,
+	padding : 2,
 	 
 	init : function() 
 	{
@@ -61,7 +62,7 @@ var XMigemoMarker = {
 			case 'XMigemoFindBarOpen':
 				window.setTimeout(function(aSelf) {
 					if (!XMigemoUI.hidden &&
-						aSelf.showMarkers &&
+						aSelf.enabled &&
 						!XMigemoUI.highlightCheck.disabled &&
 						XMigemoUI.highlightCheck.checked)
 						aSelf.toggleMarkers(true);
@@ -70,7 +71,7 @@ var XMigemoMarker = {
 
 			case 'XMigemoFindBarClose':
 				window.setTimeout(function(aSelf) {
-					if (aSelf.showMarkers)
+					if (aSelf.enabled)
 						aSelf.destroyMarkers();
 				}, 0, this);
 				break;
@@ -85,7 +86,7 @@ var XMigemoMarker = {
 				}
 				this.updateMarkersStateTimer = window.setTimeout(function(aSelf, aHighlight) {
 					aSelf.updateMarkersStateTimer = null;
-					if (aSelf.showMarkers)
+					if (aSelf.enabled)
 						aSelf.toggleMarkers(aHighlight);
 				}, 10, this, aEvent.targetHighlight);
 				break;
@@ -100,16 +101,21 @@ var XMigemoMarker = {
 				var value = XMigemoService.getPref(aData);
 				switch (aData)
 				{
-					case 'xulmigemo.highlight.showMarkers':
-						this.showMarkers = value;
+					case 'xulmigemo.highlight.foundMarker.enabled':
+						this.enabled = value;
+						break;
+
+					case 'xulmigemo.highlight.foundMarker.size':
+						this.size = value;
 						break;
 				}
 				break;
 		}
 	},
-	domain  : 'xulmigemo.highlight',
+	domain  : 'xulmigemo.highlight.foundMarker',
 	preferences : <><![CDATA[
-		xulmigemo.highlight.showMarkers
+		xulmigemo.highlight.foundMarker.enabled
+		xulmigemo.highlight.foundMarker.size
 	]]></>.toString(),
  
 /* rendering position markers */ 
@@ -153,9 +159,9 @@ var XMigemoMarker = {
 			'style',
 			<![CDATA[
 				width: ]]>.toString() +
-			(this.markerSize+this.markerPadding)+'px !important'
+			(this.size+this.padding)+'px !important'
 		);
-		canvas.width = this.markerSize+this.markerPadding;
+		canvas.width = this.size+this.padding;
 		canvas.height = size.wHeight;
 		objBody.insertBefore(canvas, objBody.firstChild);
 
@@ -200,11 +206,11 @@ var XMigemoMarker = {
 			targets.forEach(function(aNode) {
 				var baseY = (size.wHeight - heightOffset) * (aNode.offsetTop / size.height) + topOffset;
 				ctx.save();
-				ctx.moveTo(this.markerSize+this.markerPadding, baseY);
+				ctx.moveTo(this.size+this.padding, baseY);
 				ctx.beginPath();
-				ctx.lineTo(this.markerPadding, baseY - (this.markerSize / 2));
-				ctx.lineTo(this.markerPadding, baseY + (this.markerSize / 2));
-				ctx.lineTo(this.markerSize+this.markerPadding, baseY);
+				ctx.lineTo(this.padding, baseY - (this.size / 2));
+				ctx.lineTo(this.padding, baseY + (this.size / 2));
+				ctx.lineTo(this.size+this.padding, baseY);
 				ctx.fill();
 				ctx.closePath();
 				ctx.stroke();
