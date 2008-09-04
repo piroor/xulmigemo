@@ -2091,6 +2091,11 @@ var XMigemoUI = {
 	 
 	toggleHighlight : function(aHighlight, aAutoChecked) 
 	{
+		var event = document.createEvent('Events');
+		event.initEvent('XMigemoFindBarUpdateHighlight', true, true);
+		event.targetHighlight = aHighlight;
+		XMigemoUI.findBar.dispatchEvent(event);
+
 		if (XMigemoUI.highlightCheckedAlways && aAutoChecked) {
 			XMigemoUI.stopDelayedToggleHighlightTimer();
 			XMigemoUI.delayedToggleHighlightTimer = window.setTimeout(function() {
@@ -2104,7 +2109,7 @@ var XMigemoUI = {
 			return;
 		}
 
-		var event = document.createEvent('Events');
+		event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarToggleHighlight', true, true);
 		event.targetHighlight = aHighlight;
 		XMigemoUI.findBar.dispatchEvent(event);
