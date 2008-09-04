@@ -455,7 +455,22 @@ var XMigemoUI = {
 		return minLength <= termLength;
 	},
  
-	isScrolling : false, 
+	get isScrolling() 
+	{
+		return this._isScrolling;
+	},
+	set isScrolling(aValue)
+	{
+		this._isScrolling = aValue;
+
+		if (aValue)
+			this.clearTimer();
+		else if (this.isActive && this.stopTimerWhileScrolling)
+			this.restartTimer();
+
+		return aValue;
+	},
+	_isScrolling : false,
  	 
 /* utilities */ 
 	
@@ -1123,16 +1138,12 @@ var XMigemoUI = {
 			!this.stopTimerWhileScrolling)
 			return;
 		this.isScrolling = true;
-		this.restartTimer();
 	},
  
 	onMouseUp : function(aEvent) 
 	{
 		if (this.isScrolling) {
 			this.isScrolling = false;
-			if (this.isActive &&
-				this.stopTimerWhileScrolling)
-				this.restartTimer();
 			return;
 		}
 
@@ -1149,7 +1160,8 @@ var XMigemoUI = {
 	onScroll : function() 
 	{
 		if (!this.isActive ||
-			!this.stopTimerWhileScrolling)
+			!this.stopTimerWhileScrolling ||
+			this.isScrolling)
 			return;
 		this.restartTimer();
 	},
