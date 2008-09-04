@@ -33,6 +33,23 @@ var XMigemoService = {
 	},
 	_TextUtils : null,
  
+	get isGecko18() { 
+		var version = this.XULAppInfo.platformVersion.split('.');
+		return parseInt(version[0]) <= 1 && parseInt(version[1]) <= 8;
+	},
+	get isGecko19() {
+		var version = this.XULAppInfo.platformVersion.split('.');
+		return parseInt(version[0]) >= 2 || parseInt(version[1]) >= 9;
+	},
+
+	get XULAppInfo() {
+		if (!this._XULAppInfo) {
+			this._XULAppInfo = Components.classes['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULAppInfo);
+		}
+		return this._XULAppInfo;
+	},
+	_XULAppInfo : null,
+ 	
 /* Prefs */ 
 	
 	get Prefs() 
@@ -212,7 +229,7 @@ var XMigemoService = {
 	{
 		return document.getElementById('xmigemo-shortcuts');
 	},
- 	
+ 
 	checkShortcutForKeyEvent : function(aShortcut, aEvent) 
 	{
 		return (
