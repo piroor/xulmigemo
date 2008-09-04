@@ -249,7 +249,7 @@ var XMigemoService = {
 		return this._useGlobalStyleSheets;
 	},
 	_useGlobalStyleSheets : null,
-	 
+	
 	get SSS() 
 	{
 		if (this._SSS === void(0)) {
@@ -269,7 +269,26 @@ var XMigemoService = {
 				'href="'+aURI+'" type="text/css" media="all"');
 		aDocument.insertBefore(newPI, document.firstChild);
 	},
-  	
+  
+	getDocumentSizeInfo : function(aDocument) 
+	{
+		var w = aDocument.defaultView;
+		var xScroll = w.innerWidth + w.scrollMaxX;
+		var yScroll = w.innerHeight + w.scrollMaxY;
+		var windowWidth  = w.innerWidth;
+		var windowHeight = w.innerHeight;
+		var pageWidth  = (xScroll < windowWidth) ? windowWidth : xScroll ;
+		var pageHeight = (yScroll < windowHeight) ? windowHeight : yScroll ;
+		return {
+				width   : pageWidth,
+				height  : pageHeight,
+				viewWidth  : windowWidth,
+				viewHeight : windowHeight,
+				xScrillable : (w.scrollMaxX ? true : false ),
+				yScrillable : (w.scrollMaxY ? true : false )
+			};
+	},
+ 	
 	goDicManager : function() 
 	{
 		var uri = 'chrome://xulmigemo/content/dicManager/dicManager.xul';

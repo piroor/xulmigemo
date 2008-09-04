@@ -92,7 +92,7 @@ var XMigemoHighlight = {
 
 		XMigemoUI.registerHighlightUtility(this);
 	},
- 	
+ 
 	destroy : function() 
 	{
 		XMigemoUI.unregisterHighlightUtility(this);
@@ -397,7 +397,7 @@ var XMigemoHighlight = {
 		screen.setAttribute('id', this.kSCREEN);
 		if (XMigemoService.isGecko18) {
 			screen.setAttribute('gecko', '1.8');
-			var pageSize = this.getPageSize(doc.defaultView);
+			var pageSize = XMigemoService.getDocumentSizeInfo(doc);
 			screen.setAttribute(
 				'style',
 				'height: '+pageSize.height+'px !important;'+
@@ -407,23 +407,7 @@ var XMigemoHighlight = {
 
 		objBody.insertBefore(screen, objBody.firstChild);
 	},
- 
-	getPageSize : function(aWindow) 
-	{
-		var xScroll = aWindow.innerWidth + aWindow.scrollMaxX;
-		var yScroll = aWindow.innerHeight + aWindow.scrollMaxY;
-		var windowWidth  = aWindow.innerWidth;
-		var windowHeight = aWindow.innerHeight;
-		var pageWidth  = (xScroll < windowWidth) ? windowWidth : xScroll ;
-		var pageHeight = (yScroll < windowHeight) ? windowHeight : yScroll ;
-		return {
-				width   : pageWidth,
-				height  : pageHeight,
-				wWidth  : windowWidth,
-				wHeight : windowHeight
-			};
-	},
-  
+ 	 
 	destroyHighlightScreen : function(aFrame) 
 	{
 		if (!aFrame)
