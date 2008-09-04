@@ -157,6 +157,8 @@
 <!ENTITY config.enableautoexit.inherit  "Separate setting of auto-exit and auto-start">
 <!ENTITY config.enableautoexit.nokeyword "Exit the mode automatically when there is no keyword left (auto-exit)">
 
+<!ENTITY config.timeout.stopWhileScrolling "Stop timer while the page is scrolled">
+
 
 
 

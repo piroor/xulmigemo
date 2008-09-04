@@ -153,6 +153,8 @@
 <!ENTITY config.enableautoexit.inherit "クイックMigemo検索の自動開始と自動終了を別々に設定する">
 <!ENTITY config.enableautoexit.nokeyword "キーワードがすべて消去されたら自動的にクイックMigemo検索を終了する">
 
+<!ENTITY config.timeout.stopWhileScrolling "ページのスクロール中はタイマーを止める">
+
 
 
 
