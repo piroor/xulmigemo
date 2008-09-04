@@ -31,6 +31,9 @@
 		<preference id="xulmigemo.highlight.animationStyle"
 			name="xulmigemo.highlight.animationStyle"
 			type="int"/>
+		<preference id="xulmigemo.highlight.foundMarker.enabled"
+			name="xulmigemo.highlight.foundMarker.enabled"
+			type="bool"/>
 		<preference id="xulmigemo.autostart.regExpFind"
 			name="xulmigemo.autostart.regExpFind"
 			type="bool"/>
@@ -88,6 +91,9 @@
 				<radio label="&config.highlight.animationStyle.1;" value="1"/>
 			</radiogroup>
 		</hbox>
+		<checkbox id="xulmigemo.highlight.foundMarker.enabled-check" flex="1"
+			label="&config.highlight.foundMarker;"
+			preference="xulmigemo.highlight.foundMarker.enabled"/>
 		<checkbox id="xulmigemo.autostart.regExpFind-check" flex="1"
 			label="&config.autoStartRegExpFind;"
 			preference="xulmigemo.autostart.regExpFind"/>
