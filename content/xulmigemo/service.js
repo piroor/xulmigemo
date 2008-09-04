@@ -49,7 +49,7 @@ var XMigemoService = {
 		return this._XULAppInfo;
 	},
 	_XULAppInfo : null,
- 	
+ 
 /* Prefs */ 
 	
 	get Prefs() 
@@ -169,7 +169,7 @@ var XMigemoService = {
 	},
   
 /* Shortcut Keys */ 
-	 
+	
 	parseShortcut : function(aShortcut) 
 	{
 		var accelKey = navigator.platform.toLowerCase().indexOf('mac') == 0 ? 'meta' : 'ctrl' ;
@@ -242,6 +242,34 @@ var XMigemoService = {
 			aShortcut.metaKey == aEvent.metaKey;
 	},
   
+	get useGlobalStyleSheets() 
+	{
+		if (this._useGlobalStyleSheets === null)
+			this._useGlobalStyleSheets = this.SSS ? true : false ;
+		return this._useGlobalStyleSheets;
+	},
+	_useGlobalStyleSheets : null,
+	 
+	get SSS() 
+	{
+		if (this._SSS === void(0)) {
+			if ('@mozilla.org/content/style-sheet-service;1' in Components.classes) {
+				this._SSS = Components.classes['@mozilla.org/content/style-sheet-service;1'].getService(Components.interfaces.nsIStyleSheetService);
+			}
+			if (!this._SSS)
+				this._SSS = null;
+		}
+		return this._SSS;
+	},
+//	_SSS : null,
+ 
+	addStyleSheet : function(aURI, aDocument) 
+	{
+		var newPI = document.createProcessingInstruction('xml-stylesheet',
+				'href="'+aURI+'" type="text/css" media="all"');
+		aDocument.insertBefore(newPI, document.firstChild);
+	},
+  	
 	goDicManager : function() 
 	{
 		var uri = 'chrome://xulmigemo/content/dicManager/dicManager.xul';
