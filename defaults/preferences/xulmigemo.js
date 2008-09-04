@@ -44,6 +44,9 @@ pref("xulmigemo.highlight.hideScreen.restoreButtons", "1,0+1,0+2,0+4,0+8,0+6,0+1
 
 pref("xulmigemo.highlight.foundMarker.enabled", true);
 pref("xulmigemo.highlight.foundMarker.size",    10);
+pref("xulmigemo.highlight.foundMarker.padding", 5);
+pref("xulmigemo.highlight.foundMarker.fill",    "rgba(255,255,0,1)");
+pref("xulmigemo.highlight.foundMarker.stroke",  "rgba(192,128,0,0.75)");
 
 pref("xulmigemo.timeout",                       4000);
 pref("xulmigemo.enabletimeout",                 true);
