@@ -1,7 +1,3 @@
-:root:not([__moz_xmigemo-found-marker-canvas="on"]) #__moz_xmigemo-found-marker-canvas {
-	display: none !important;
-}
-
 #__moz_xmigemo-found-marker-canvas {
 	position: fixed !important;
 	z-index: 1000200 !important;
