@@ -183,7 +183,7 @@ var XMigemoHighlight = {
 				break;
 		}
 	},
-	
+	 
 	isEventFiredOnScrollBar : function(aEvent) 
 	{
 		var node = aEvent.originalTarget;
@@ -262,7 +262,7 @@ var XMigemoHighlight = {
 		aEvent.stopPropagation();
 		aEvent.preventDefault();
 	},
-	
+	 
 	get isGestureInProgress() 
 	{
 		return (
@@ -299,7 +299,7 @@ var XMigemoHighlight = {
 			return false;
 		return window.gestureInProgress;
 	},
-   
+  	 
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)
@@ -394,21 +394,6 @@ var XMigemoHighlight = {
 		if (doc.getElementById(this.kSTYLE))
 			return;
 
-		var pageSize = this.getPageSize(doc.defaultView);
-
-		var heads = doc.getElementsByTagName('head');
-		if (heads.length > 0) {
-			var objHead = heads[0];
-			var node = doc.createElementNS(XMigemoUI.kXHTMLNS, 'style');
-			node.id = this.kSTYLE;
-			node.type = 'text/css';
-			node.innerHTML = '#'+this.kSCREEN+' {'+
-				'	height: '+pageSize.height+'px;'+
-				'	width: '+pageSize.width+'px;'+
-				'}';
-			objHead.insertBefore(node, objHead.firstChild);
-		}
-
 		if (!this.useGlobalStyleSheets)
 			this.addStyleSheet('chrome://xulmigemo/content/highlight.css', doc);
 
@@ -420,10 +405,19 @@ var XMigemoHighlight = {
 
 		var screen = doc.createElementNS(XMigemoUI.kXHTMLNS, 'div');
 		screen.setAttribute('id', this.kSCREEN);
+		if (XMigemoService.isGecko18) {
+			screen.setAttribute('gecko', '1.8');
+			var pageSize = this.getPageSize(doc.defaultView);
+			screen.setAttribute(
+				'style',
+				'height: '+pageSize.height+'px !important;'+
+				'width: '+pageSize.width+'px !important;'
+			);
+		}
 
 		objBody.insertBefore(screen, objBody.firstChild);
 	},
-	 
+	
 	get SSS() 
 	{
 		if (this._SSS === void(0)) {
@@ -459,7 +453,7 @@ var XMigemoHighlight = {
 				wHeight : windowHeight
 			};
 	},
-  	
+  
 	destroyHighlightScreen : function(aFrame) 
 	{
 		if (!aFrame)
@@ -509,7 +503,7 @@ var XMigemoHighlight = {
 	},
   
 /* Safari style highlight, animation */ 
-	 
+	
 	highlightFocusedFound : function(aFrame) 
 	{
 		if (!this.animationEnabled) return;
@@ -832,7 +826,7 @@ var XMigemoHighlight = {
 			}, 0, this, aEvent.view, aEvent.screenX, aEvent.screenY, aEvent.clientX, aEvent.clientY);
 		}
 	},
-	
+	 
 	getClickableElementFromPoint : function(aWindow, aScreenX, aScreenY, aClientX, aClientY) 
 	{
 		if ('elementFromPoint' in aWindow.document) {
