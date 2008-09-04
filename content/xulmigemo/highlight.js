@@ -75,12 +75,6 @@ var XMigemoHighlight = {
 
 		XMigemoService.ObserverService.addObserver(this, 'XMigemo:highlightNodeReaday', false);
 
-		var target = document.getElementById('appcontent') || XMigemoUI.browser;
-		if (target) {
-			target.addEventListener('mousedown', this, true);
-			target.addEventListener('mouseup', this, true);
-		}
-
 		var bar = XMigemoUI.findBar;
 		bar.addEventListener('XMigemoFindBarOpen', this, false);
 		bar.addEventListener('XMigemoFindBarClose', this, false);
@@ -99,12 +93,6 @@ var XMigemoHighlight = {
 		XMigemoService.removePrefListener(this);
 
 		XMigemoService.ObserverService.removeObserver(this, 'XMigemo:highlightNodeReaday');
-
-		var target = document.getElementById('appcontent') || XMigemoUI.browser;
-		if (target) {
-			target.removeEventListener('mousedown', this, true);
-			target.removeEventListener('mouseup', this, true);
-		}
 
 		var bar = XMigemoUI.findBar;
 		bar.removeEventListener('XMigemoFindBarOpen', this, false);
@@ -128,20 +116,36 @@ var XMigemoHighlight = {
 				return;
 
 			case 'mousedown':
+				if (this._eventCancelers.some(function(aCanceler) {
+						return aCanceler.handleEvent(
+							{ type : 'XMigemoHighlight:mousedown',
+							  originalEvent : aEvent }
+						);
+					}))
+					return;
 				this.onMouseDown(aEvent);
 				break;
 
 			case 'mouseup':
+				if (this._eventCancelers.some(function(aCanceler) {
+						return aCanceler.handleEvent(
+							{ type : 'XMigemoHighlight:mouseup',
+							  originalEvent : aEvent }
+						);
+					}))
+					return;
 				this.onMouseUp(aEvent);
 				break;
 
 			case 'XMigemoFindBarOpen':
 				window.setTimeout(function(aSelf) {
-					if (!XMigemoUI.hidden &&
-						aSelf.strongHighlight &&
-						!XMigemoUI.highlightCheck.disabled &&
-						XMigemoUI.highlightCheck.checked)
-						aSelf.toggleHighlightScreen(true);
+					if (XMigemoUI.hidden ||
+						!aSelf.strongHighlight ||
+						XMigemoUI.highlightCheck.disabled ||
+						!XMigemoUI.highlightCheck.checked)
+						return;
+					aSelf.startListen();
+					aSelf.toggleHighlightScreen(true);
 				}, 0, this);
 				break;
 
@@ -149,8 +153,9 @@ var XMigemoHighlight = {
 				this.clearAnimationStyleIn(XMigemoUI.activeBrowser.contentWindow, true);
 				this.clearAnimationStyle();
 				window.setTimeout(function(aSelf) {
-					if (aSelf.strongHighlight)
-						aSelf.destroyHighlightScreen();
+					if (!aSelf.strongHighlight) return;
+					aSelf.stopListen();
+					aSelf.destroyHighlightScreen();
 				}, 0, this);
 				break;
 
@@ -161,8 +166,12 @@ var XMigemoHighlight = {
 				}
 				this.updateScreenStateTimer = window.setTimeout(function(aSelf, aHighlight) {
 					aSelf.updateScreenStateTimer = null;
-					if (aSelf.strongHighlight)
-						aSelf.toggleHighlightScreen(aHighlight);
+					if (!aSelf.strongHighlight) return;
+					aSelf.toggleHighlightScreen(aHighlight);
+					if (aHighlight)
+						aSelf.startListen();
+					else
+						aSelf.stopListen();
 				}, 10, this, aEvent.targetHighlight);
 				break;
 
@@ -172,6 +181,18 @@ var XMigemoHighlight = {
 				this.clearAnimationStyle()
 				break;
 		}
+	},
+	_eventCancelers : [],
+	registerEventCanceler : function(aCanceler)
+	{
+		if (this._eventCancelers.indexOf(aCanceler) < 0)
+			this._eventCancelers.push(aCanceler);
+	},
+	unregisterEventCanceler : function(aCanceler)
+	{
+		var index = this._eventCancelers.indexOf(aCanceler);
+		if (index > -1)
+			this._eventCancelers.splice(index, 1);
 	},
 	 
 	isEventFiredOnScrollBar : function(aEvent) 
@@ -252,7 +273,7 @@ var XMigemoHighlight = {
 		aEvent.stopPropagation();
 		aEvent.preventDefault();
 	},
-	 
+	
 	get isGestureInProgress() 
 	{
 		return (
@@ -289,7 +310,29 @@ var XMigemoHighlight = {
 			return false;
 		return window.gestureInProgress;
 	},
-   
+  
+	startListen : function() 
+	{
+		if (this.listening) return;
+		this.listening = true;
+		var target = document.getElementById('appcontent') || XMigemoUI.browser;
+		if (target) {
+			target.addEventListener('mousedown', this, true);
+			target.addEventListener('mouseup', this, true);
+		}
+	},
+ 
+	stopListen : function() 
+	{
+		if (!this.listening) return;
+		this.listening = false;
+		var target = document.getElementById('appcontent') || XMigemoUI.browser;
+		if (target) {
+			target.removeEventListener('mousedown', this, true);
+			target.removeEventListener('mouseup', this, true);
+		}
+	},
+  	
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)
@@ -407,7 +450,7 @@ var XMigemoHighlight = {
 
 		objBody.insertBefore(screen, objBody.firstChild);
 	},
- 	 
+  
 	destroyHighlightScreen : function(aFrame) 
 	{
 		if (!aFrame)

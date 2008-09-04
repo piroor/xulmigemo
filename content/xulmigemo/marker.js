@@ -32,17 +32,15 @@ var XMigemoMarker = {
 		window.addEventListener('unload', this, false);
 
 		XMigemoUI.registerHighlightUtility(this);
+		XMigemoHighlight.registerEventCanceler(this);
 	},
  
 	destroy : function() 
 	{
 		XMigemoUI.unregisterHighlightUtility(this);
+		XMigemoHighlight.unregisterEventCanceler(this);
 		XMigemoService.removePrefListener(this);
 		XMigemoService.ObserverService.removeObserver(this, 'XMigemo:highlightNodeReaday');
-
-		var target = document.getElementById('appcontent') || XMigemoUI.browser;
-		if (target)
-			target.removeEventListener('mousedown', this, true);
 
 		var bar = XMigemoUI.findBar;
 		bar.removeEventListener('XMigemoFindBarOpen', this, false);
@@ -64,6 +62,10 @@ var XMigemoMarker = {
 			case 'unload':
 				this.destroy();
 				return;
+
+			case 'XMigemoHighlight:mousedown':
+			case 'XMigemoHighlight:mouseup':
+				return this.isEventFiredOnMarkers(aEvent.originalEvent);
 
 			case 'mousedown':
 				this.onMouseDown(aEvent);
@@ -127,10 +129,15 @@ var XMigemoMarker = {
 		}
 	},
 	 
+	isEventFiredOnMarkers : function(aEvent) 
+	{
+		return (aEvent.target.nodeType == Node.ELEMENT_NODE &&
+			aEvent.target.getAttribute('id') == this.kCANVAS);
+	},
+ 
 	onMouseDown : function(aEvent) 
 	{
-		if (aEvent.target.nodeType != Node.ELEMENT_NODE ||
-			aEvent.target.getAttribute('id') != this.kCANVAS)
+		if (!this.isEventFiredOnMarkers(aEvent))
 			return;
 
 		aEvent.preventDefault();
@@ -154,10 +161,12 @@ var XMigemoMarker = {
   
 	onMouseUp : function(aEvent) 
 	{
-		if (!this.dragging) return;
-		this.dragging = false;
+		if (!this.isEventFiredOnMarkers(aEvent))
+			return;
+
 		aEvent.preventDefault();
 		aEvent.stopPropagation();
+		this.dragging = false;
 	},
  
 	onMouseMove : function(aEvent) 
@@ -167,7 +176,7 @@ var XMigemoMarker = {
 		aEvent.stopPropagation();
 		this.scrollTo(aEvent.target, aEvent.clientY);
 	},
- 	
+ 
 	startListen : function() 
 	{
 		if (this.listening) return;
@@ -191,7 +200,7 @@ var XMigemoMarker = {
 			target.removeEventListener('mousemove', this, true);
 		}
 	},
-  
+  	
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)
