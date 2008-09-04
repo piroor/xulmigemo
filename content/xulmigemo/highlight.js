@@ -155,9 +155,6 @@ var XMigemoHighlight = {
 				break;
 
 			case 'XMigemoFindBarToggleHighlight':
-				if (window.content)
-					window.content.__moz_xmigemoHighlighted = aEvent.targetHighlight;
-
 				if (this.updateScreenStateTimer) {
 					window.clearTimeout(this.updateScreenStateTimer);
 					this.updateScreenStateTimer = null;

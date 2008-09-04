@@ -77,9 +77,6 @@ var XMigemoMarker = {
 				break;
 
 			case 'XMigemoFindBarToggleHighlight':
-				if (window.content)
-					window.content.__moz_xmigemoPositionMarkersShown = aEvent.targetHighlight;
-
 				if (this.updateMarkersStateTimer) {
 					window.clearTimeout(this.updateMarkersStateTimer);
 					this.updateMarkersStateTimer = null;
@@ -129,15 +126,7 @@ var XMigemoMarker = {
 			Array.slice(aFrame.frames).forEach(arguments.callee, this);
 		}
 
-		if (this.isAvailableForDocument(aFrame.document))
-			this.insertMarkers(aFrame.document);
-
-		aFrame.__moz_xmigemoPositionMarkersInitialized = true;
-	},
-	 
-	insertMarkers : function(aDocument) 
-	{
-		var doc = aDocument;
+		var doc = aFrame.document;
 		if (doc.getElementById(this.kCANVAS))
 			return;
 
@@ -145,7 +134,7 @@ var XMigemoMarker = {
 		if (bodies.length == 0)
 			return;
 
-		var size = this.getPageSize(aDocument.defaultView);
+		var size = this.getPageSize(doc.defaultView);
 		if (!size.height || !size.wHeight) return;
 
 		if (!XMigemoService.useGlobalStyleSheets)
@@ -157,17 +146,15 @@ var XMigemoMarker = {
 		canvas.setAttribute('class', '__moz_xmigemo-positioned');
 		canvas.setAttribute(
 			'style',
-			<![CDATA[
-				width: ]]>.toString() +
-			(this.size+this.padding)+'px !important'
+			'width: '+(this.size+this.padding)+'px !important'
 		);
 		canvas.width = this.size+this.padding;
 		canvas.height = size.wHeight;
 		objBody.insertBefore(canvas, objBody.firstChild);
 
-		this.drawMarkers(aDocument);
+		this.drawMarkers(doc);
 	},
- 
+	 
 	getPageSize : function(aWindow) 
 	{
 		var xScroll = aWindow.innerWidth + aWindow.scrollMaxX;
@@ -185,7 +172,7 @@ var XMigemoMarker = {
 				yScrillable : (aWindow.scrollMaxY ? true : false )
 			};
 	},
-  
+ 	 
 	drawMarkers : function(aDocument) 
 	{
 		var canvas = aDocument.getElementById(this.kCANVAS);
@@ -221,7 +208,7 @@ var XMigemoMarker = {
 			dump('XMigemoMarker Error: ' + e.message + '\n');
 		}
 	},
- 	
+ 
 	destroyMarkers : function(aFrame) 
 	{
 		if (!aFrame)
@@ -231,31 +218,28 @@ var XMigemoMarker = {
 			Array.slice(aFrame.frames).forEach(arguments.callee, this);
 		}
 
-		if (!(aFrame.document instanceof HTMLDocument)) return;
+		var canvas = aFrame.document.getElementById(this.kCANVAS);
+		if (canvas)
+			canvas.parentNode.removeChild(canvas);
 
 		aFrame.document.documentElement.removeAttribute(this.kCANVAS);
 	},
  
-	toggleMarkers : function(aHighlight, aFrame) 
+	toggleMarkers : function(aShow, aFrame) 
 	{
 		if (!aFrame)
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
 
 		Array.slice(aFrame.frames).forEach(function(aFrame) {
-			this.toggleMarkers(aHighlight, aFrame);
+			this.toggleMarkers(aShow, aFrame);
 		}, this);
 
 		if (!this.isAvailableForDocument(aFrame.document)) return;
 
-		if (!('__moz_xmigemoPositionMarkersInitialized' in aFrame) && aHighlight)
+		if (aShow)
 			this.initializeMarkers(aFrame, true);
-
-		aFrame.__moz_xmigemoPositionMarkers = aHighlight;
-
-		if (aHighlight)
-			aFrame.document.documentElement.setAttribute(this.kCANVAS, 'on');
 		else
-			aFrame.document.documentElement.removeAttribute(this.kCANVAS);
+			this.destroyMarkers(aFrame);
 	},
  
 	isAvailableForDocument : function(aDocument) 

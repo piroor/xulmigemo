@@ -2200,16 +2200,22 @@ var XMigemoUI = {
 		}
 		catch(e) {
 		}
-		targets = targets.concat(this.collectHighlightsInternal(
-			aDocument,
-			aDocument,
-			aDocument.defaultView
+		var selCon;
+		try {
+			selCon = aDocument.defaultView
 				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 				.getInterface(Components.interfaces.nsIWebNavigation)
 				.QueryInterface(Components.interfaces.nsIDocShell)
 				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 				.getInterface(Components.interfaces.nsISelectionDisplay)
-				.QueryInterface(Components.interfaces.nsISelectionController)
+				.QueryInterface(Components.interfaces.nsISelectionController);
+		}
+		catch(e) {
+		}
+		targets = targets.concat(this.collectHighlightsInternal(
+			aDocument,
+			aDocument,
+			selCon
 		));
 
 		if (aRecursively)
