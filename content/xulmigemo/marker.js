@@ -26,6 +26,7 @@ var XMigemoMarker = {
 		bar.addEventListener('XMigemoFindBarOpen', this, false);
 		bar.addEventListener('XMigemoFindBarClose', this, false);
 		bar.addEventListener('XMigemoFindBarToggleHighlight', this, false);
+		bar.addEventListener('XMigemoFindBarUpdateHighlight', this, false);
 
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
@@ -43,6 +44,7 @@ var XMigemoMarker = {
 		bar.removeEventListener('XMigemoFindBarOpen', this, false);
 		bar.removeEventListener('XMigemoFindBarClose', this, false);
 		bar.removeEventListener('XMigemoFindBarToggleHighlight', this, false);
+		bar.removeEventListener('XMigemoFindBarUpdateHighlight', this, false);
 
 		window.removeEventListener('unload', this, false);
 	},
@@ -77,19 +79,31 @@ var XMigemoMarker = {
 				break;
 
 			case 'XMigemoFindBarToggleHighlight':
-				if (this.updateMarkersStateTimer) {
-					window.clearTimeout(this.updateMarkersStateTimer);
-					this.updateMarkersStateTimer = null;
+				if (this.toggleTimer) {
+					window.clearTimeout(this.toggleTimer);
+					this.toggleTimer = null;
 				}
-				this.updateMarkersStateTimer = window.setTimeout(function(aSelf, aHighlight) {
-					aSelf.updateMarkersStateTimer = null;
+				this.toggleTimer = window.setTimeout(function(aSelf, aHighlight) {
+					aSelf.toggleTimer = null;
 					if (aSelf.enabled)
 						aSelf.toggleMarkers(aHighlight);
 				}, 10, this, aEvent.targetHighlight);
 				break;
+
+			case 'XMigemoFindBarUpdateHighlight':
+				if (this.redrawTimer) {
+					window.clearTimeout(this.redrawTimer);
+					this.redrawTimer = null;
+				}
+				this.redrawTimer = window.setTimeout(function(aSelf, aHighlight) {
+					aSelf.redrawTimer = null;
+					if (aSelf.enabled && aHighlight)
+						aSelf.redrawMarkers();
+				}, 10, this, aEvent.targetHighlight);
+				break;
 		}
 	},
- 
+ 	
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)
@@ -172,7 +186,19 @@ var XMigemoMarker = {
 				yScrillable : (aWindow.scrollMaxY ? true : false )
 			};
 	},
- 	 
+  
+	redrawMarkers : function(aFrame) 
+	{
+		if (!aFrame)
+			aFrame = XMigemoUI.activeBrowser.contentWindow;
+
+		if (aFrame.frames && aFrame.frames.length) {
+			Array.slice(aFrame.frames).forEach(arguments.callee, this);
+		}
+
+		this.drawMarkers(aFrame.document);
+	},
+	 
 	drawMarkers : function(aDocument) 
 	{
 		var canvas = aDocument.getElementById(this.kCANVAS);
@@ -188,6 +214,10 @@ var XMigemoMarker = {
 
 		try {
 			var ctx = canvas.getContext('2d');
+			ctx.save();
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.restore();
+
 			ctx.fillStyle = 'rgba(255,255,0,1)';
 			ctx.strokeStyle = 'rgba(192,128,0,0.75)';
 			targets.forEach(function(aNode) {
@@ -208,7 +238,7 @@ var XMigemoMarker = {
 			dump('XMigemoMarker Error: ' + e.message + '\n');
 		}
 	},
- 
+  
 	destroyMarkers : function(aFrame) 
 	{
 		if (!aFrame)
