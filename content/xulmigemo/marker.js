@@ -100,16 +100,16 @@ var XMigemoMarker = {
 				var value = XMigemoService.getPref(aData);
 				switch (aData)
 				{
-					case 'xulmigemo.position.showMarkers':
+					case 'xulmigemo.highlight.showMarkers':
 						this.showMarkers = value;
 						break;
 				}
 				break;
 		}
 	},
-	domain  : 'xulmigemo.position',
+	domain  : 'xulmigemo.highlight',
 	preferences : <><![CDATA[
-		xulmigemo.position.showMarkers
+		xulmigemo.highlight.showMarkers
 	]]></>.toString(),
  
 /* rendering position markers */ 
@@ -143,7 +143,7 @@ var XMigemoMarker = {
 		if (!size.height || !size.wHeight) return;
 
 		if (!XMigemoService.useGlobalStyleSheets)
-			XMigemoService.addStyleSheet('chrome://xulmigemo/content/position.css', doc);
+			XMigemoService.addStyleSheet('chrome://xulmigemo/content/marker.css', doc);
 
 		var objBody = bodies[0];
 		var canvas = doc.createElementNS(XMigemoUI.kXHTMLNS, 'canvas');
