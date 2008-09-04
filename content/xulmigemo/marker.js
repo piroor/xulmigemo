@@ -148,6 +148,7 @@ var XMigemoMarker = {
 		var objBody = bodies[0];
 		var canvas = doc.createElementNS(XMigemoUI.kXHTMLNS, 'canvas');
 		canvas.setAttribute('id', this.kCANVAS);
+		canvas.setAttribute('class', '__moz_xmigemo-positioned');
 		canvas.setAttribute(
 			'style',
 			<![CDATA[
