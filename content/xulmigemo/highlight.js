@@ -479,14 +479,7 @@ var XMigemoHighlight = {
 		else
 			doc.documentElement.removeAttribute(this.kSCREEN);
 
-		if (XMigemoUI.highlightSelectionAvailable)
-			window.setTimeout(function() {
-				var selCons = [];
-				XMigemoUI.collectHighlights(doc, true, selCons);
-				selCons.forEach(function(aSelCon) {
-					aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
-				});
-			}, 0);
+		XMigemoUI.repaintHighlightWithDelay();
 	},
  	
 	isDocumentHighlightable : function(aDocument) 
