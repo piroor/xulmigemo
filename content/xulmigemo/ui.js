@@ -1413,6 +1413,9 @@ var XMigemoUI = {
 		this.clearTimer();
 		this.cancelTimer = window.setTimeout(this.timerCallback, this.timeout, this);
 		this.updateTimeoutIndicator(this.timeout);
+		window.setTimeout(function(aDocument) {
+			XMigemoFind.setSelectionLook(aDocument, true);
+		}, 0, this.activeBrowser.contentDocument);
 	},
 	
 	timerCallback : function(aThis) 
@@ -2374,9 +2377,9 @@ var XMigemoUI = {
 				XMigemoFind.core.regExpHighlightTextWithSelection(regexp, '', aRange, aBaseNode, aSelCon) :
 				XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode);
 
-		if (aSelCon && !this.highlightSelectionOnly)
+		if (!this.highlightSelectionOnly)
 			doc.defaultView.setTimeout(function() {
-				aSelCon.setDisplaySelection(aSelCon.SELECTION_ATTENTION);
+				XMigemoFind.setSelectionLook(doc, true);
 			}, 0);
 
 		return ranges.length ? true : false ;
