@@ -277,6 +277,7 @@ var XMigemoMarker = {
 		var canvas = doc.createElementNS(XMigemoUI.kXHTMLNS, 'canvas');
 		canvas.setAttribute('id', this.kCANVAS);
 		canvas.setAttribute('class', '__moz_xmigemo-positioned');
+		canvas.setAttribute('title', XMigemoService.strbundle.getString('marker.tooltip'));
 		canvas.setAttribute(
 			'style',
 			'width: '+(this.size+this.padding)+'px !important'
