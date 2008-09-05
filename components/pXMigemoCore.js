@@ -413,7 +413,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, null);
 	},
 	 
-	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aSetSelection, aSelCon) 
+	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aSelCon) 
 	{
 		if (!aStartPoint) {
 			aStartPoint = aFindRange.startContainer.ownerDocument.createRange();
@@ -446,7 +446,8 @@ dump('STEP 2: '+array.toSource()+'\n');
 		this.mFind.findBackwards = false;
 		var foundRange;
 		var foundLength;
-		var selection;
+		var selection = aSelCon && 'SELECTION_FIND' in aSelCon ?
+				aSelCon.getSelection(aSelCon.SELECTION_FIND) : null ;
 		for (var i = 0, maxi = arrTerms.length; i < maxi; i++)
 		{
 			foundRange = this.mFind.Find(arrTerms[i], aFindRange, aStartPoint, aEndPoint);
@@ -493,12 +494,12 @@ dump('STEP 2: '+array.toSource()+'\n');
 				aStartPoint.setStart(foundRange.endContainer, foundRange.endOffset);
 				aStartPoint.collapse(true);
 			}
-			if (aSetSelection && aSelCon) {
-				selection = aSelCon.getSelection(aSelCon.SELECTION_FIND);
+			if (selection) {
 				selection.addRange(foundRange);
-				aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
 			}
 		}
+		if (selection)
+			aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
 
 		return arrResults;
 	},
@@ -531,7 +532,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode);
 	},
  
-	regExpHighlightWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSelCon) 
+	regExpHighlightTextWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode, aSelCon) 
 	{
 		try {
 			if (aSelCon)
@@ -540,10 +541,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 		catch(e) {
 			aSelCon = null;
 		}
-		if (!aSelCon) {
-			return [];
-		}
-		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, null, true, aSelCon);
+		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, aSelCon);
 	},
  
 	getDocShellForFrame : function(aFrame) 
