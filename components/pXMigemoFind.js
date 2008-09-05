@@ -397,6 +397,8 @@ mydump("findInDocument ==========================================");
 		event.initEvent('XMigemoFindProgress', true, true);
 		event.resultFlag = aResultFlag;
 		event.findFlag   = aFindFlag;
+		event.findTerm   = this.lastKeyword;
+		event.foundTerm  = aResultFlag & this.FOUND ? this.lastFoundWord : null ;
 		this.document.dispatchEvent(event);
 	},
   
