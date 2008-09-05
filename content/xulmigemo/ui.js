@@ -1185,11 +1185,15 @@ var XMigemoUI = {
 
 		var found = (statusRes == this.nsITypeAheadFind.FIND_FOUND || statusRes == this.nsITypeAheadFind.FIND_WRAPPED);
 		gFindBar.enableFindButtons(this.findTerm);
-		if (found && this.highlightCheck.checked)
-			gFindBar.setHighlightTimeout();
+		if (this.lastHighlightedKeyword != aEvent.findTerm) {
+			this.lastHighlightedKeyword = aEvent.findTerm;
+			if (found && this.highlightCheck.checked)
+				gFindBar.setHighlightTimeout(); // ‚±‚±‚ªŒ´ˆö‚Å•p”É‚ÉÄ•`‰æ‚³‚ê‚Ä‚µ‚Ü‚Á‚Ä‚¢‚éIII
+		}
 
 		gFindBar.updateStatus(statusRes, !(aEvent.findFlag & XMigemoFind.FIND_BACK));
 	},
+	lastHighlightedKeyword : null,
  
 	onInput : function(aEvent) 
 	{
