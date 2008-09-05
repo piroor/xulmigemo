@@ -851,11 +851,12 @@ mydump("setSelectionAndScroll");
 		var selection = newSelCon.getSelection(newSelCon.SELECTION_NORMAL);
 		selection.addRange(aRange);
 
-		newSelCon.scrollSelectionIntoView(
-			newSelCon.SELECTION_NORMAL,
-			newSelCon.SELECTION_FOCUS_REGION, true);
-
-		this.scrollSelectionToCenter(aDocument.defaultView);
+		if (Prefs.getBoolPref('xulmigemo.scrollSelectionToCenter'))
+			this.scrollSelectionToCenter(aDocument.defaultView);
+		else
+			newSelCon.scrollSelectionIntoView(
+				newSelCon.SELECTION_NORMAL,
+				newSelCon.SELECTION_FOCUS_REGION, true);
 	},
 	 
 	scrollSelectionToCenter : function(aFrame) 
