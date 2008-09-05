@@ -220,7 +220,7 @@ var XMigemoHighlight = {
 			}, 0);
 		}
 	},
- 	
+ 
 	onMouseUp : function(aEvent) 
 	{
 		if (aEvent.originalTarget.ownerDocument.defaultView.top == window.top ||
@@ -466,7 +466,8 @@ var XMigemoHighlight = {
 			this.toggleHighlightScreen(aHighlight, aFrame);
 		}, this);
 
-		if (!this.isDocumentHighlightable(aFrame.document)) return;
+		var doc = aFrame.document;
+		if (!this.isDocumentHighlightable(doc)) return;
 
 		if (!('__moz_xmigemoHighlightedScreenInitialized' in aFrame) && aHighlight)
 			this.initializeHighlightScreen(aFrame, true);
@@ -474,11 +475,20 @@ var XMigemoHighlight = {
 		aFrame.__moz_xmigemoHighlightedScreen = aHighlight;
 
 		if (aHighlight)
-			aFrame.document.documentElement.setAttribute(this.kSCREEN, 'on');
+			doc.documentElement.setAttribute(this.kSCREEN, 'on');
 		else
-			aFrame.document.documentElement.removeAttribute(this.kSCREEN);
+			doc.documentElement.removeAttribute(this.kSCREEN);
+
+		if (XMigemoUI.highlightSelectionAvailable)
+			window.setTimeout(function() {
+				var selCons = [];
+				XMigemoUI.collectHighlights(doc, true, selCons);
+				selCons.forEach(function(aSelCon) {
+					aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
+				});
+			}, 0);
 	},
- 
+ 	
 	isDocumentHighlightable : function(aDocument) 
 	{
 		return (

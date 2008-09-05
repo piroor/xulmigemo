@@ -94,9 +94,9 @@ var XMigemoUI = {
 	],
 	findBarPosition : 0,
 
-	get highlightModeSelection()
+	get highlightSelectionOnly()
 	{
-		return ('SELECTION_FIND' in Components.interfaces.nsISelectionController) &&
+		return this.highlightSelectionAvailable &&
 				this._highlightUtilities.every(function(aUtility) {
 					return !aUtility.requireDOMHighlight;
 				});
@@ -113,6 +113,11 @@ var XMigemoUI = {
 			this._highlightUtilities.splice(index, 1);
 	},
 	_highlightUtilities : [],
+
+	get highlightSelectionAvailable()
+	{
+		return 'SELECTION_FIND' in Components.interfaces.nsISelectionController;
+	},
   
 /* elements */ 
 	
@@ -1932,7 +1937,7 @@ var XMigemoUI = {
 					'XMigemoUI.getDocumentBody(doc)'
 				).replace(
 					'var retRange = null;',
-					'if (XMigemoUI.isActive || !XMigemoUI.highlightModeSelection) { XMigemoUI.highlightText(aWord, null, this._searchRange, controller); return true; } $&'
+					'if (XMigemoUI.isActive || !XMigemoUI.highlightSelectionOnly) { XMigemoUI.highlightText(aWord, null, this._searchRange, controller); return true; } $&'
 				)
 			);
 		}
@@ -2220,61 +2225,65 @@ var XMigemoUI = {
  
 	clearHighlight : function(aDocument, aRecursively) 
 	{
-		var targets = this.collectHighlights(aDocument, aRecursively);
-		if (this.highlightModeSelection) { // Firefox 3.1
-			targets.forEach(function(aSelCon) {
+		var selCons = [];
+		var targets = this.collectHighlights(aDocument, aRecursively, selCons);
+
+		if (this.highlightSelectionAvailable) { // Firefox 3.1
+			selCons.forEach(function(aSelCon) {
 				var selection = aSelCon.getSelection(aSelCon.SELECTION_FIND);
 				selection.removeAllRanges();
 				aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
 			});
+			if (this.highlightSelectionOnly) return;
 		}
-		else { // old implementation for Firefox 3.0.x, 2.0.0.x
-			targets.reverse();
-			var doc, range, foundRange, foundLength;
-			targets.forEach(function(aNode) {
-				if (!doc || doc != aNode.ownerDocuemnt) {
-					if (range) range.detach();
-					doc = aNode.ownerDocument;
-					range = doc.createRange();
-					foundRange = this.shouldRebuildSelection ? this.textUtils.getFoundRange(doc.defaultView) : null ;
-					foundLength = foundRange ? foundRange.toString().length : 0 ;
-				}
 
-				if (aNode.getAttribute('class') == '__mozilla-findbar-animation') {
-					range.selectNode(aNode);
-					range.deleteContents();
-					range.detach();
-					return;
-				}
+		// old implementation for Firefox 3.0.x, 2.0.0.x
+		targets.reverse();
+		var doc, range, foundRange, foundLength;
+		targets.forEach(function(aNode) {
+			if (!doc || doc != aNode.ownerDocuemnt) {
+				if (range) range.detach();
+				doc = aNode.ownerDocument;
+				range = doc.createRange();
+				foundRange = this.shouldRebuildSelection ? this.textUtils.getFoundRange(doc.defaultView) : null ;
+				foundLength = foundRange ? foundRange.toString().length : 0 ;
+			}
 
-				range.selectNodeContents(aNode);
+			if (aNode.getAttribute('class') == '__mozilla-findbar-animation') {
+				range.selectNode(aNode);
+				range.deleteContents();
+				range.detach();
+				return;
+			}
 
-				var child   = null;
-				var docfrag = doc.createDocumentFragment();
-				var next    = aNode.nextSibling;
-				var parent  = aNode.parentNode;
-				while ((child = aNode.firstChild))
-				{
-					docfrag.appendChild(child);
-				}
-				var selectAfter = this.shouldRebuildSelection ? this.textUtils.isRangeOverlap(foundRange, range) : false ;
-				var firstChild  = docfrag.firstChild;
+			range.selectNodeContents(aNode);
 
-				parent.removeChild(aNode);
-				parent.insertBefore(docfrag, next);
-				if (selectAfter) {
-					this.textUtils.delayedSelect(firstChild, foundLength, true);
-				}
+			var child   = null;
+			var docfrag = doc.createDocumentFragment();
+			var next    = aNode.nextSibling;
+			var parent  = aNode.parentNode;
+			while ((child = aNode.firstChild))
+			{
+				docfrag.appendChild(child);
+			}
+			var selectAfter = this.shouldRebuildSelection ? this.textUtils.isRangeOverlap(foundRange, range) : false ;
+			var firstChild  = docfrag.firstChild;
 
-				parent.normalize();
-			}, this);
-			if (range) range.detach();
-		}
+			parent.removeChild(aNode);
+			parent.insertBefore(docfrag, next);
+			if (selectAfter) {
+				this.textUtils.delayedSelect(firstChild, foundLength, true);
+			}
+
+			parent.normalize();
+		}, this);
+		if (range) range.detach();
 	},
 	 
-	collectHighlights : function(aDocument, aRecursively) 
+	collectHighlights : function(aDocument, aRecursively, aSelCon) 
 	{
 		var targets = [];
+		if (!aSelCon) aSelCon = [];
 
 		try {
 			var xpathResult = XMigemoUI.getEditableNodes(aDocument);
@@ -2287,45 +2296,42 @@ var XMigemoUI = {
 						.editor;
 				targets = targets.concat(this.collectHighlightsInternal(
 					aDocument,
-					editor.rootElement,
-					editor.selectionController
+					editor.rootElement
 				));
+				aSelCon.push(editor.selectionController);
 			}
 		}
 		catch(e) {
 		}
-		var selCon;
+
+		targets = targets.concat(this.collectHighlightsInternal(
+			aDocument,
+			aDocument
+		));
+
 		try {
-			selCon = aDocument.defaultView
+			var selCon = aDocument.defaultView
 				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 				.getInterface(Components.interfaces.nsIWebNavigation)
 				.QueryInterface(Components.interfaces.nsIDocShell)
 				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 				.getInterface(Components.interfaces.nsISelectionDisplay)
 				.QueryInterface(Components.interfaces.nsISelectionController);
+			aSelCon.push(selCon);
 		}
 		catch(e) {
 		}
-		targets = targets.concat(this.collectHighlightsInternal(
-			aDocument,
-			aDocument,
-			selCon
-		));
 
 		if (aRecursively)
 			Array.slice(aDocument.defaultView.frames)
 				.forEach(function(aFrame) {
-					targets = targets.concat(this.collectHighlights(aFrame.document, aRecursively));
+					targets = targets.concat(this.collectHighlights(aFrame.document, aRecursively, aSelCon));
 				}, this);
 
 		return targets;
 	},
 	collectHighlightsInternal : function(aDocument, aTarget, aSelCon)
 	{
-		if (this.highlightModeSelection) { // Firefox 3.1
-			return aSelCon ? [aSelCon] : [] ;
-		}
-
 		var xpathResult = aDocument.evaluate(
 				'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search"]',
 				aTarget,
@@ -2349,21 +2355,21 @@ var XMigemoUI = {
 					XMigemoFind.core.getRegExp(aWord) :
 					this.textUtils.sanitize(aWord) ;
 
-		var selectionMode = this.highlightModeSelection;
-		if (!selectionMode && !aBaseNode)
+		if (!this.highlightSelectionOnly && !aBaseNode)
 			aBaseNode = this.createNewHighlight(aRange.startContainer.ownerDocument || aRange.startContainer);
 
-		var ranges = selectionMode ?
-				XMigemoFind.core.regExpHighlightWithSelection(regexp, '', aRange, aSelCon) :
+		var ranges = this.highlightSelectionAvailable ?
+				XMigemoFind.core.regExpHighlightTextWithSelection(regexp, '', aRange, aBaseNode, aSelCon) :
 				XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode);
 		return ranges.length ? true : false ;
 	},
 	createNewHighlight : function(aDocument)
 	{
 		var node = aDocument.createElementNS('http://www.w3.org/1999/xhtml', 'span');
-		node.setAttribute('style', <![CDATA[
-			background-color: yellow;
-			color: black;
+		var color = this.highlightSelectionAvailable ?
+				'' :
+				'color: black; background-color: yellow;' ;
+		node.setAttribute('style', color + <![CDATA[
 			display: inline;
 			font-size: inherit;
 			padding: 0;
@@ -2397,10 +2403,6 @@ var XMigemoUI = {
 			range.insertNode(contents);
 			range.detach();
 		]]></>);
-		aNode.setAttribute('style',
-			aNode.getAttribute('style')+
-			'; text-shadow: none;'
-		);
 
 		XMigemoService.ObserverService.notifyObservers(aNode, 'XMigemo:highlightNodeReaday', null);
 	},

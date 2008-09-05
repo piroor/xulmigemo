@@ -22,6 +22,7 @@
 :root[__moz_xmigemo-find-highlight-animation="true"] .GBL-Highlighted {
 	position: relative !important;
 	z-index: 3000000 !important;
+	text-shadow: none !important;
 }
 .__mozilla-findbar-animation,
 /* セレクタを重ねて詳細度を上げておかないと、rubysupportのスタイル指定に負けてしまう */
