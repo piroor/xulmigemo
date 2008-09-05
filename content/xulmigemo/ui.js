@@ -1915,6 +1915,12 @@ var XMigemoUI = {
 			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(window._content); $1')
 		);
 
+		if ('_findAgain' in gFindBar) {
+			eval('gFindBar._findAgain = '+gFindBar._findAgain.toSource()
+				.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(window._content); $1')
+			);
+		}
+
 		if ('_getSelectionController' in gFindBar) { // Firefox 3.1
 			eval('gFindBar._highlightDoc = '+gFindBar._highlightDoc.toSource()
 				.replace(
