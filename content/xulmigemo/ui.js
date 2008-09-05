@@ -39,7 +39,7 @@ var XMigemoUI = {
 	_textUtils : null,
   
 /* internal status */ 
-	 
+	
 	FIND_MODE_NATIVE : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE, 
 	FIND_MODE_MIGEMO : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
 	FIND_MODE_REGEXP : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP,
@@ -297,7 +297,7 @@ var XMigemoUI = {
 	_timeoutIndicator : null,
    
 /* status */ 
-	 
+	
 	get isQuickFind() 
 	{
 		return XMigemoFind.isQuickFind;
@@ -476,7 +476,7 @@ var XMigemoUI = {
 		return aValue;
 	},
 	_isScrolling : false,
- 	 
+  
 /* utilities */ 
 	
 	getEditableNodes : function(aDocument) 
@@ -822,7 +822,7 @@ var XMigemoUI = {
 			default:
 		}
 	},
-	 
+	
 	startListen : function() 
 	{
 		if (this.listening) return;
@@ -2178,6 +2178,7 @@ var XMigemoUI = {
 		this.toggleMode();
 
 		this.clearHighlight(this.activeBrowser.contentDocument, true);
+		this.lastHighlightedKeyword = null;
 
 		var WindowWatcher = Components
 				.classes['@mozilla.org/embedcomp/window-watcher;1']
@@ -2192,7 +2193,7 @@ var XMigemoUI = {
 	},
   
 /* highlight */ 
-	
+	 
 	toggleHighlight : function(aHighlight, aAutoChecked) 
 	{
 		var event = document.createEvent('Events');
@@ -2289,7 +2290,7 @@ var XMigemoUI = {
 		}, this);
 		if (range) range.detach();
 	},
-	 
+	
 	collectHighlights : function(aDocument, aRecursively, aSelCon) 
 	{
 		var targets = [];
@@ -2373,7 +2374,8 @@ var XMigemoUI = {
 				XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode);
 		return ranges.length ? true : false ;
 	},
-	createNewHighlight : function(aDocument)
+	 
+	createNewHighlight : function(aDocument) 
 	{
 		var node = aDocument.createElementNS('http://www.w3.org/1999/xhtml', 'span');
 		var color = this.highlightSelectionAvailable ?
@@ -2388,7 +2390,7 @@ var XMigemoUI = {
 		this.updateHighlightNode(node);
 		return node;
 	},
-	
+ 
 	updateHighlightNode : function(aNode) 
 	{
 		aNode.setAttribute('onmousedown', <><![CDATA[
@@ -2422,7 +2424,24 @@ var XMigemoUI = {
 		alert(aEvent.target);
 		alert(aEvent.originalTarget);
 	},
-   
+  
+	repaintHighlightWithDelay : function() 
+	{
+		if (!this.highlightSelectionAvailable) return;
+
+		if (this.repaintHighlightTimer)
+			window.clearTimeout(this.repaintHighlightTimer);
+
+		this.repaintHighlightTimer = window.setTimeout(function(aSelf) {
+				aSelf.repaintHighlightTimer = null;
+				var selCons = [];
+				aSelf.collectHighlights(aSelf.activeBrowser.contentDocument, true, selCons);
+				selCons.forEach(function(aSelCon) {
+					aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
+				});
+			}, 1, this);
+	},
+ 	 
 	updateStatus : function(aStatusText) 
 	{
 		var bar = this.findBar;
