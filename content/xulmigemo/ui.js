@@ -1188,7 +1188,7 @@ var XMigemoUI = {
 		if (this.lastHighlightedKeyword != aEvent.findTerm) {
 			this.lastHighlightedKeyword = aEvent.findTerm;
 			if (found && this.highlightCheck.checked)
-				gFindBar.setHighlightTimeout(); // ‚±‚±‚ªŒ´ˆö‚Å•p”É‚ÉÄ•`‰æ‚³‚ê‚Ä‚µ‚Ü‚Á‚Ä‚¢‚éIII
+				gFindBar.setHighlightTimeout();
 		}
 
 		gFindBar.updateStatus(statusRes, !(aEvent.findFlag & XMigemoFind.FIND_BACK));
