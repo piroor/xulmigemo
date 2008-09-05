@@ -2366,12 +2366,19 @@ var XMigemoUI = {
 					XMigemoFind.core.getRegExp(aWord) :
 					this.textUtils.sanitize(aWord) ;
 
+		var doc = aRange.startContainer.ownerDocument || aRange.startContainer;
 		if (!this.highlightSelectionOnly && !aBaseNode)
-			aBaseNode = this.createNewHighlight(aRange.startContainer.ownerDocument || aRange.startContainer);
+			aBaseNode = this.createNewHighlight(doc);
 
 		var ranges = this.highlightSelectionAvailable ?
 				XMigemoFind.core.regExpHighlightTextWithSelection(regexp, '', aRange, aBaseNode, aSelCon) :
 				XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode);
+
+		if (aSelCon && !this.highlightSelectionOnly)
+			doc.defaultView.setTimeout(function() {
+				aSelCon.setDisplaySelection(aSelCon.SELECTION_ATTENTION);
+			}, 0);
+
 		return ranges.length ? true : false ;
 	},
 	 
