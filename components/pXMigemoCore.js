@@ -455,7 +455,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 			if (!foundRange) continue;
 			foundLength = foundRange.toString().length;
 			if (aSurroundNode) {
-				var selectAfter = shouldRebuildSelection ?
+				var isOverlap = shouldRebuildSelection ?
 						this.textUtils.isRangeOverlap(foundRange, selRange) :
 						false ;
 
@@ -470,7 +470,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 				nodeSurround.appendChild(docfrag);
 				parent.insertBefore(nodeSurround, before);
 
-				if (selectAfter)
+				if (isOverlap)
 					this.textUtils.delayedSelect(firstChild, foundLength, true);
 
 				foundRange = doc.createRange();
