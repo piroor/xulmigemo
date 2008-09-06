@@ -2256,6 +2256,7 @@ var XMigemoUI = {
 		// old implementation for Firefox 3.0.x, 2.0.0.x
 		highlights.reverse();
 		var doc, range, foundRange, foundLength;
+		var highlighted = !this.highlightCheck.disabled && this.highlightCheck.checked;
 		highlights.forEach(function(aHighlight) {
 			var node = aHighlight.node;
 			if (!doc || doc != node.ownerDocument) {
@@ -2279,10 +2280,11 @@ var XMigemoUI = {
 				return;
 			}
 
-			range.selectNodeContents(node.parentNode);
-			var hasSelection = this.shouldRebuildSelection ?
-					this.textUtils.isRangeOverlap(foundRange, range) :
-					false ;
+			var hasSelection = false;
+			if (this.shouldRebuildSelection && foundRange && foundRange.toString().length) {
+				range.selectNodeContents(node.parentNode);
+				hasSelection = this.textUtils.isRangeOverlap(foundRange, range);
+			}
 
 			range.selectNodeContents(node);
 
@@ -2302,13 +2304,13 @@ var XMigemoUI = {
 			parent.removeChild(node);
 			parent.insertBefore(docfrag, next);
 			if (isOverlap) {
-				this.textUtils.delayedSelect(firstChild, foundLength, true);
+				this.textUtils.delayedSelect(firstChild, foundLength, highlighted);
 			}
 			else if (hasSelection) {
 				range = foundRange.cloneRange();
 				range.collapse(true);
 				range.setStartBefore(parent.firstChild);
-				this.textUtils.selectContentWithDelay(parent, range.toString().length, foundLength, true);
+				this.textUtils.selectContentWithDelay(parent, range.toString().length, foundLength, highlighted);
 			}
 
 			parent.normalize();
