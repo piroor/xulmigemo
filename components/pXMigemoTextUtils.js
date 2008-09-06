@@ -486,6 +486,12 @@ pXMigemoTextUtils.prototype = {
 		if (startOffset || childCount || this.countNextText(aNode).lastNode != aNode) {
 			// normalize()によって選択範囲の始点・終点が変わる場合は
 			// ノードの再構築が終わった後で選択範囲を復元する
+			var range = aNode.ownerDocument.createRange();
+			range.selectNodeContents(aNode);
+			range.collapse(true);
+			range.setStartBefore(aNode.parentNode.firstChild);
+			startOffset = range.toString().length;
+			range.detach();
 			this.selectContentWithDelay(aNode.parentNode, startOffset, aSelectLength, aIsHighlight);
 		}
 		else {
@@ -505,6 +511,7 @@ pXMigemoTextUtils.prototype = {
 		// 始点の位置まで移動して、始点を設定
 		var node;
 		var startNode = aParent.firstChild;
+		if (startNode.nodeType != startNode.TEXT_NODE) startNode = this.getNextTextNode(startNode);
 		var startOffset = aStartOffset;
 		while (startOffset > 0 && startNode.textContent.length <= startOffset)
 		{
@@ -513,7 +520,7 @@ pXMigemoTextUtils.prototype = {
 			if (!node) break;
 			startNode = node;
 		}
-		if (startOffset < 0) startOffset = startNode.textContent.length - startOffset;
+		if (startOffset < 0) startOffset = startNode.textContent.length + startOffset;
 
 		var selectRange = doc.createRange();
 		selectRange.setStart(startNode, startOffset);
@@ -527,7 +534,7 @@ pXMigemoTextUtils.prototype = {
 			if (!node) break;
 			endNode = node;
 		}
-		if (offset < 0) offset = endNode.textContent.length - offset;
+		if (offset < 0) offset = endNode.textContent.length + offset;
 		if (endNode == startNode) offset += startOffset;
 
 		selectRange.setEnd(endNode, offset);
@@ -536,7 +543,8 @@ pXMigemoTextUtils.prototype = {
 		sel.removeAllRanges();
 		sel.addRange(selectRange);
 
-		this.setSelectionLookForRange(selectRange, aHighlight);
+		if (aHighlight)
+			this.setSelectionLookForRange(selectRange, true);
 	},
 	 
 	selectContentWithDelay : function(aParent, aStartOffset, aSelectLength, aIsHighlight) 
