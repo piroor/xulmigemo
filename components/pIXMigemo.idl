@@ -43,6 +43,11 @@ interface pIXMigemoTextUtils : nsISupports
 	nsIDOMRange getFoundRange(in nsIDOMWindow frame);
 	boolean isRangeOverlap(in nsIDOMRange baseRange, in nsIDOMRange targetRange);
 	void delayedSelect(in nsIDOMNode anchorNode, in unsigned long length, in boolean isHighlight);
+
+	void setSelectionLook(in nsIDOMDocument document, in boolean changeColor);
+	void setSelectionLookForDocument(in nsIDOMDocument document, in boolean changeColor);
+	void setSelectionLookForNode(in nsIDOMNode selectionContainer, in boolean changeColor);
+	void setSelectionLookForRange(in nsIDOMRange selectionRange, in boolean changeColor);
 };
 
 [scriptable, uuid(159add54-cdf2-11db-8314-0800200c9a66)]

@@ -425,7 +425,8 @@ dump('STEP 2: '+array.toSource()+'\n');
 		}
 
 		var doc = aFindRange.startContainer.ownerDocument;
-		var selRange = (Prefs.getBoolPref('xulmigemo.rebuild_selection')) ? this.textUtils.getFoundRange(doc.defaultView) : null ;
+		var selRange = this.textUtils.getFoundRange(doc.defaultView);
+		var shouldRebuildSelection = selRange && Prefs.getBoolPref('xulmigemo.rebuild_selection');
 		var arrTerms;
 		var arrResults = [];
 		var rightContext;
@@ -454,7 +455,9 @@ dump('STEP 2: '+array.toSource()+'\n');
 			if (!foundRange) continue;
 			foundLength = foundRange.toString().length;
 			if (aSurroundNode) {
-				var selectAfter = selRange ? this.textUtils.isRangeOverlap(foundRange, selRange) : false ;
+				var selectAfter = shouldRebuildSelection ?
+						this.textUtils.isRangeOverlap(foundRange, selRange) :
+						false ;
 
 				var nodeSurround   = aSurroundNode.cloneNode(true);
 				var startContainer = foundRange.startContainer;
@@ -467,9 +470,8 @@ dump('STEP 2: '+array.toSource()+'\n');
 				nodeSurround.appendChild(docfrag);
 				parent.insertBefore(nodeSurround, before);
 
-				if (selectAfter) {
+				if (selectAfter)
 					this.textUtils.delayedSelect(firstChild, foundLength, true);
-				}
 
 				foundRange = doc.createRange();
 				foundRange.selectNodeContents(nodeSurround);
