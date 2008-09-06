@@ -813,19 +813,9 @@ mydump("resetFindRangeSet");
  
 	setSelectionLook : function(aDocument, aChangeColor) 
 	{
-		[aDocument.foundEditable, aDocument.defaultView].forEach(function(aTarget) {
-			var selCon = this.getSelectionController(aTarget);
-			if (!selCon) return;
-			if (aChangeColor)
-				selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
-			else
-				selCon.setDisplaySelection(selCon.SELECTION_ON);
-			try {
-				selCon.repaintSelection(selCon.SELECTION_NORMAL);
-			}
-			catch(e) {
-			}
-		}, this);
+		if (aDocument.foundEditable)
+			this.textUtils.setSelectionLookForNode(aDocument.foundEditable, aChangeColor);
+		this.textUtils.setSelectionLookForDocument(aDocument, aChangeColor);
 	},
  
 	setSelectionAndScroll : function(aRange, aDocument) 

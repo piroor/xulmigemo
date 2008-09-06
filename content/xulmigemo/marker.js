@@ -170,7 +170,7 @@ var XMigemoMarker = {
 	 
 	scrollTo : function(aNode, aY) 
 	{
-		var doc = aNode.ownerDocument;
+		var doc = aNode.ownerDocument || aNode;
 		var canvas = doc.getElementById(this.kCANVAS);
 		if (!canvas) return;
 		var topOffset = parseInt(canvas.getAttribute('top-offset'));
@@ -312,9 +312,6 @@ var XMigemoMarker = {
 		canvas.width = this.size+this.padding;
 		canvas.height = size.viewHeight;
 		objBody.insertBefore(canvas, objBody.firstChild);
-
-		// DOM modification breaks higlight
-		XMigemoFind.setSelectionLook(doc, true);
 
 		this.drawMarkers(doc);
 	},

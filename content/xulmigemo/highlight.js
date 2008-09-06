@@ -437,9 +437,6 @@ var XMigemoHighlight = {
 		}
 
 		objBody.insertBefore(screen, objBody.firstChild);
-
-		// DOM modification breaks higlight
-		XMigemoFind.setSelectionLook(doc, true);
 	},
   
 	destroyHighlightScreen : function(aFrame) 
@@ -708,7 +705,7 @@ var XMigemoHighlight = {
 				var selection = doc.defaultView.getSelection();
 				selection.removeAllRanges();
 				selection.addRange(range);
-				XMigemoFind.setSelectionLook(doc, true);
+				XMigemoUI.textUtils.setSelectionLook(doc, true);
 				break;
 		}
 	},

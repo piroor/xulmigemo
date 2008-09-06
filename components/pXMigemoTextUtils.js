@@ -20,7 +20,7 @@ pXMigemoTextUtils.prototype = {
 	},
 	 
 /* string operations */ 
-	 
+	
 	trim : function(aInput) 
 	{
 		return aInput
@@ -54,9 +54,9 @@ pXMigemoTextUtils.prototype = {
 	},
 	// http://ablog.seesaa.net/article/20969848.html
 	kBOUNDARY_SPLITTER_PATTERN : /[\u4e00-\u9fa0\u3005\u3006\u30f5\u30f6]+|[\u3041-\u3093]+|[\u30a1-\u30f4\u30fc]+|[a-zA-Z0-9]+|[\uff41-\uff5a\uff21-\uff3a\uff10-\uff19]+|[\u3001\u3002\uff01!\uff1f?()\uff08\uff09\u300c\u300d\u300e\u300f]+|\n/gim,
- 	 
+  
 /* convert HTML to text */ 
-	
+	 
 	range2Text : function(aRange) 
 	{
 		var doc = aRange.startContainer;
@@ -128,7 +128,7 @@ pXMigemoTextUtils.prototype = {
 	},
   
 /* manipulate regular expressions */ 
-	 
+	
 	sanitize : function(str) 
 	{
 		//	[]^.+*?$|{}\(),  正規表現のメタキャラクタをエスケープ
@@ -331,25 +331,74 @@ pXMigemoTextUtils.prototype = {
 		return tmp;
 	},
   
-/* Restore selection after "highlight all" */ 
+	setSelectionLook : function(aDocument, aChangeColor) 
+	{
+		var range = this.getFoundRange(aDocument.defaultView);
+		if (range) this.setSelectionLookForRange(range, aChangeColor);
+		this.setSelectionLookForDocument(aDocument, aChangeColor);
+	},
 	
+	setSelectionLookInternal : function(aSelCon, aChangeColor) 
+	{
+		try {
+			if (aChangeColor)
+				aSelCon.setDisplaySelection(aSelCon.SELECTION_ATTENTION);
+			else
+				aSelCon.setDisplaySelection(aSelCon.SELECTION_ON);
+		}
+		catch(e) {
+		}
+		try {
+			aSelCon.repaintSelection(aSelCon.SELECTION_NORMAL);
+		}
+		catch(e) {
+		}
+	},
+ 
+	setSelectionLookForDocument : function(aDocument, aChangeColor) 
+	{
+		this.setSelectionLookInternal(this.getSelectionController(aDocument.defaultView), aChangeColor);
+	},
+ 
+	setSelectionLookForNode : function(aNode, aChangeColor) 
+	{
+		try {
+			var editor;
+			var node = aNode;
+			while (node)
+			{
+				if (editor instanceof this.nsIDOMNSEditableElement) {
+					editor = node;
+					break;
+				}
+				node = node.parentNode;
+			}
+			if (editor) {
+				this.setSelectionLookInternal(this.getSelectionController(editor), aChangeColor);
+				return;
+			}
+		}
+		catch(e) {
+		}
+		this.setSelectionLookForDocument(aNode.ownerDocument || aNode, aChangeColor);
+	},
+	nsIDOMNSEditableElement : Components.interfaces.nsIDOMNSEditableElement,
+ 
+	setSelectionLookForRange : function(aRange, aChangeColor) 
+	{
+		this.setSelectionLookForNode(aRange.startContainer, aChangeColor);
+	},
+  
+/* Restore selection after "highlight all" */ 
+	 
 	getFoundRange : function(aFrame) 
 	{
 		try {
-			var docShell = aFrame
-				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-				.getInterface(Components.interfaces.nsIWebNavigation)
-				.QueryInterface(Components.interfaces.nsIDocShell);
-			var selCon = docShell
-				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-				.getInterface(Components.interfaces.nsISelectionDisplay)
-				.QueryInterface(Components.interfaces.nsISelectionController);
+			var selCon = this.getSelectionController(aFrame);
 			if (selCon.getDisplaySelection() == selCon.SELECTION_ATTENTION) {
 				var sel = aFrame.getSelection();
 				if (!sel.rangeCount && aFrame.document.foundEditable) {
-					selCon = aFrame.document.foundEditable
-							.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
-							.editor.selectionController;
+					selCon = this.getSelectionController(aFrame.document.foundEditable);
 					sel = selCon.getSelection(selCon.SELECTION_NORMAL);
 				}
 				if (sel && sel.rangeCount)
@@ -359,6 +408,35 @@ pXMigemoTextUtils.prototype = {
 		catch(e) {
 		}
 		return null;
+	},
+	getSelectionController : function(aTarget)
+	{
+		if (!aTarget) return null;
+
+		const nsIDOMNSEditableElement = Components.interfaces.nsIDOMNSEditableElement;
+		const nsIDOMWindow = Components.interfaces.nsIDOMWindow;
+		try {
+			return (aTarget instanceof nsIDOMNSEditableElement) ?
+						aTarget.QueryInterface(nsIDOMNSEditableElement)
+							.editor
+							.selectionController :
+					(aTarget instanceof nsIDOMWindow) ?
+						this.getDocShellFromFrame(aTarget)
+							.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+							.getInterface(Components.interfaces.nsISelectionDisplay)
+							.QueryInterface(Components.interfaces.nsISelectionController) :
+					null;
+		}
+		catch(e) {
+		}
+		return null;
+	},
+	getDocShellFromFrame : function(aFrame)
+	{
+		return aFrame
+				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+				.getInterface(Components.interfaces.nsIWebNavigation)
+				.QueryInterface(Components.interfaces.nsIDocShell);
 	},
  
 	isRangeOverlap : function(aBaseRange, aTargetRange) 
@@ -407,18 +485,7 @@ pXMigemoTextUtils.prototype = {
 
 		if (startOffset || childCount || this.countNextText(aNode).lastNode != aNode) {
 			// normalize()によって選択範囲の始点・終点が変わる場合
-			if (this.delayedSelectTimer) {
-				this.delayedSelectTimer.cancel();
-				this.delayedSelectTimer = null;
-			}
-			this.delayedSelectTimer = Components
-				.classes['@mozilla.org/timer;1']
-				.createInstance(Components.interfaces.nsITimer);
-	        this.delayedSelectTimer.init(
-				this.createDelayedSelectObserver(aNode.parentNode, startOffset, childCount, aSelectLength, aIsHighlight),
-				1,
-				Components.interfaces.nsITimer.TYPE_ONE_SHOT
-			);
+			this.delayedSelectWithDelay(aNode.parentNode, startOffset, childCount, aSelectLength, aIsHighlight);
 		}
 		else {
 			var doc = aNode.ownerDocument;
@@ -445,78 +512,18 @@ pXMigemoTextUtils.prototype = {
 			var sel = doc.defaultView.getSelection();
 			sel.removeAllRanges();
 			sel.addRange(selectRange);
-			this.setSelectionLook(doc, aIsHighlight);
+			this.setSelectionLookForRange(selectRange, aIsHighlight);
 		}
 	},
-	
-	delayedSelectTimer : null, 
- 
-	// ノードの再構築が終わった後で選択範囲を復元する
-	createDelayedSelectObserver : function(aStartParent, aStartOffset, aChildCount, aSelectLength, aIsHighlight) 
+	 
+	delayedSelectWithDelay : function(aStartParent, aStartOffset, aChildCount, aSelectLength, aIsHighlight) 
 	{
-		return ({
-			owner       : this,
-			parent      : aStartParent,
-			startOffset : aStartOffset,
-			childCount  : aChildCount,
-			length      : aSelectLength,
-			highlight   : aIsHighlight,
-			observe     : function(aSubject, aTopic, aData)
-			{
-				if (aTopic != 'timer-callback') return;
-
-				var doc = this.parent.ownerDocument;
-
-				// 選択範囲の始点を含むテキストノードまで移動
-				var startNode = this.parent.firstChild;
-				var startNodeInfo;
-				while (this.childCount--)
-				{
-					startNodeInfo = this.owner.countNextText(startNode);
-					startNode = startNodeInfo.lastNode.nextSibling;
-				}
-
-				var node;
-				var startOffset = this.startOffset;
-				var selectRange = doc.createRange();
-				if (startOffset) {
-					// 始点の位置まで移動して、始点を設定
-					while (startNode.textContent.length <= startOffset)
-					{
-						startOffset -= startNode.textContent.length;
-						node = this.owner.getNextTextNode(startNode);
-						if (!node) break;
-						startNode = node;
-					}
-					selectRange.setStart(startNode, startOffset);
-				}
-				else {
-					selectRange.setStartBefore(this.parent.firstChild);
-				}
-
-				var endNode = startNode;
-				var offset = this.length;
-				while (endNode.textContent.length <= offset)
-				{
-					offset -= endNode.textContent.length;
-					node = this.owner.getNextTextNode(endNode);
-					if (!node) break;
-					endNode = node;
-				}
-				if (endNode == startNode) offset += startOffset;
-				selectRange.setEnd(endNode, offset);
-
-				var sel = doc.defaultView.getSelection();
-				sel.removeAllRanges();
-				sel.addRange(selectRange);
-				this.owner.setSelectionLook(doc, this.highlight);
-
-				this.owner.delayedSelectTimer.cancel();
-				this.owner.delayedSelectTimer = null;
-			}
-		});
+		if (this.delayedSelectWithDelayTask)
+			this.delayedSelectWithDelayTask.cancel();
+		this.delayedSelectWithDelayTask = new DelayedSelectTask(this, 1, aStartParent, aStartOffset, aChildCount, aSelectLength, aIsHighlight);
 	},
- 
+	delayedSelectWithDelayTask : null,
+ 	
 	/* 
 		強調表示の有る無しを無視して、終端にあるテキストノードと、
 		そこまでの（normalize()によって結合されるであろう）テキストノードの
@@ -578,50 +585,6 @@ pXMigemoTextUtils.prototype = {
 				aNode.nodeType == aNode.TEXT_NODE ? aNode :
 				this.getNextTextNode(aNode);
 	},
- 
-	setSelectionLook : function(aDocument, aChangeColor) 
-	{
-		var selCon;
-		if (aDocument.foundEditable) {
-			var editor = aDocument.foundEditable.QueryInterface(Components.interfaces.nsIDOMNSEditableElement).editor;
-			selCon = editor.selectionController;
-
-			if (aChangeColor) {
-				selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
-			}else{
-				selCon.setDisplaySelection(selCon.SELECTION_ON);
-			}
-			try {
-				selCon.repaintSelection(selCon.SELECTION_NORMAL);
-			}
-			catch(e) {
-			}
-		}
-
-		var docShell = this.getDocShellForFrame(aDocument.defaultView);
-		selCon = docShell
-			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-			.getInterface(Components.interfaces.nsISelectionDisplay)
-			.QueryInterface(Components.interfaces.nsISelectionController);
-
-		if (aChangeColor) {
-			selCon.setDisplaySelection(selCon.SELECTION_ATTENTION);
-		}else{
-			selCon.setDisplaySelection(selCon.SELECTION_ON);
-		}
-		try {
-			selCon.repaintSelection(selCon.SELECTION_NORMAL);
-		}
-		catch(e) {
-		}
-	},
-	getDocShellForFrame : function(aFrame)
-	{
-		return aFrame
-				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-				.getInterface(Components.interfaces.nsIWebNavigation)
-				.QueryInterface(Components.interfaces.nsIDocShell);
-	},
    
 	QueryInterface : function(aIID) 
 	{
@@ -632,6 +595,117 @@ pXMigemoTextUtils.prototype = {
 	}
 };
   
+function DelayedTask(aTextUtils) 
+{
+	this.init(aTextUtils);
+}
+DelayedTask.prototype = {
+	textUtils : null,
+	timer : null,
+	init : function(aTextUtils, aDelay)
+	{
+		this.textUtils = aTextUtils;
+		this.timer = Components
+			.classes['@mozilla.org/timer;1']
+			.createInstance(Components.interfaces.nsITimer);
+		this.timer.init(this, aDelay, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+	},
+	cancel      : function()
+	{
+		try {
+			this.timer.cancel();
+			this.timer = null;
+		}
+		catch(e) {
+		}
+		if (this.onCancel) this.onCancel();
+		delete this.textUtils;
+	},
+	observe : function(aSubject, aTopic, aData)
+	{
+		if (aTopic != 'timer-callback') return;
+		if (this.onFire) this.onFire();
+		this.cancel();
+	}
+};
+ 
+// ノードの再構築が終わった後で選択範囲を復元する
+function DelayedSelectTask(aTextUtils, aDelay, aStartParent, aStartOffset, aChildCount, aSelectLength, aIsHighlight) 
+{
+	this.parent      = aStartParent;
+	this.startOffset = aStartOffset;
+	this.childCount  = aChildCount;
+	this.length      = aSelectLength;
+	this.highlight   = aIsHighlight;
+	this.init(aTextUtils, aDelay);
+}
+DelayedSelectTask.prototype = {
+	parent      : null,
+	startOffset : 0,
+	childCount  : 0,
+	length      : 0,
+	highlight   : false,
+	onCancel : function()
+	{
+		delete this.parent;
+		delete this.startOffset;
+		delete this.childCount;
+		delete this.length;
+		delete this.highlight;
+	},
+	onFire : function()
+	{
+		dump('RESET RANGE\n');
+		var doc = this.parent.ownerDocument;
+
+		// 選択範囲の始点を含むテキストノードまで移動
+		var startNode = this.parent.firstChild;
+		var startNodeInfo;
+		while (this.childCount--)
+		{
+			startNodeInfo = this.textUtils.countNextText(startNode);
+			startNode = startNodeInfo.lastNode.nextSibling;
+		}
+
+		var node;
+		var startOffset = this.startOffset;
+		var selectRange = doc.createRange();
+		if (startOffset) {
+			// 始点の位置まで移動して、始点を設定
+			while (startNode.textContent.length <= startOffset)
+			{
+				startOffset -= startNode.textContent.length;
+				node = this.textUtils.getNextTextNode(startNode);
+				if (!node) break;
+				startNode = node;
+			}
+			selectRange.setStart(startNode, startOffset);
+		}
+		else {
+			selectRange.setStartBefore(this.parent.firstChild);
+		}
+
+		var endNode = startNode;
+		var offset = this.length;
+		while (endNode.textContent.length <= offset)
+		{
+			offset -= endNode.textContent.length;
+			node = this.textUtils.getNextTextNode(endNode);
+			if (!node) break;
+			endNode = node;
+		}
+		if (endNode == startNode) offset += startOffset;
+		selectRange.setEnd(endNode, offset);
+
+		var sel = doc.defaultView.getSelection();
+		sel.removeAllRanges();
+		sel.addRange(selectRange);
+
+		this.textUtils.setSelectionLookForRange(selectRange, this.highlight);
+	}
+};
+DelayedSelectTask.prototype.__proto__ = DelayedTask.prototype;
+ 
 var gModule = { 
 	_firstTime: true,
 

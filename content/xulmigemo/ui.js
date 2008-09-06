@@ -1413,9 +1413,9 @@ var XMigemoUI = {
 		this.clearTimer();
 		this.cancelTimer = window.setTimeout(this.timerCallback, this.timeout, this);
 		this.updateTimeoutIndicator(this.timeout);
-		window.setTimeout(function(aDocument) {
-			XMigemoFind.setSelectionLook(aDocument, true);
-		}, 0, this.activeBrowser.contentDocument);
+		window.setTimeout(function(aSelf) {
+			aSelf.textUtils.setSelectionLook(aSelf.activeBrowser.contentDocument, true);
+		}, 0, this);
 	},
 	
 	timerCallback : function(aThis) 
@@ -1602,7 +1602,7 @@ var XMigemoUI = {
 		this.clearTimer(); // ここでタイマーを殺さないといじられてしまう
 		var win = document.commandDispatcher.focusedWindow;
 		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.activeBrowser.contentDocument;
-		XMigemoFind.setSelectionLook(doc, false);
+		this.textUtils.setSelectionLook(doc, false);
 	},
  
 	commandForward : function(aEvent) 
@@ -2022,6 +2022,8 @@ var XMigemoUI = {
 				<![CDATA[
 					var checked = !XMigemoUI.highlightCheck.disabled && XMigemoUI.highlightCheck.checked;
 					$1
+					if (checked)
+						XMigemoUI.textUtils.setSelectionLook(XMigemoUI.activeBrowser.contentDocument, true);
 				]]>
 			).replace(
 				/(\b[^\.]+\.toggleHighlight\(true)(\);)/,
@@ -2286,9 +2288,8 @@ var XMigemoUI = {
 
 			parent.removeChild(node);
 			parent.insertBefore(docfrag, next);
-			if (selectAfter) {
+			if (selectAfter)
 				this.textUtils.delayedSelect(firstChild, foundLength, true);
-			}
 
 			parent.normalize();
 		}, this);
@@ -2387,11 +2388,6 @@ var XMigemoUI = {
 		var ranges = this.highlightSelectionAvailable ?
 				XMigemoFind.core.regExpHighlightTextWithSelection(regexp, '', aRange, aBaseNode, aSelCon) :
 				XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode);
-
-		if (!this.highlightSelectionOnly)
-			doc.defaultView.setTimeout(function() {
-				XMigemoFind.setSelectionLook(doc, true);
-			}, 0);
 
 		return ranges.length ? true : false ;
 	},
