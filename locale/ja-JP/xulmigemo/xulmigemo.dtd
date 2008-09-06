@@ -11,7 +11,7 @@
 <!ENTITY config.lang.description        "※変更の反映には再起動が必要です">
 
 <!ENTITY config.startfromviewport       "現在見えている領域内から検索を始める">
-<!ENTITY config.scrollSelectionToCenter "検索で見つかった箇所を画面の中心に表示する">
+<!ENTITY config.scrollSelectionToCenter "検索で見つかった箇所を画面の中心近くに表示する">
 <!ENTITY config.highlight.showScreen    "「すべて強調表示」をより強く強調する">
 <!ENTITY config.highlight.animationStyle "ヒット箇所のアニメーション：">
 <!ENTITY config.highlight.animationStyle.0 "拡大">
