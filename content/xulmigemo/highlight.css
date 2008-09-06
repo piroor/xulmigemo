@@ -7,18 +7,18 @@
 	z-index: auto !important;
 }
 :root[__moz_xmigemo-find-highlight-screen="on"] #__firefox-findbar-search-id, /* Firefox 2 */
-:root[__moz_xmigemo-find-highlight-animation="true"] #__firefox-findbar-search-id,
 :root[__moz_xmigemo-find-highlight-screen="on"] .__mozilla-findbar-search, /* Firefox 3 */
-:root[__moz_xmigemo-find-highlight-animation="true"] .__mozilla-findbar-search,
 :root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight1, /* SearchWP */
 :root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight2,
 :root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight3,
 :root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight4,
+:root[__moz_xmigemo-find-highlight-screen="on"] .GBL-Highlighted, /* Googlebar Lite */
+:root[__moz_xmigemo-find-highlight-animation="true"] #__firefox-findbar-search-id,
+:root[__moz_xmigemo-find-highlight-animation="true"] .__mozilla-findbar-search,
 :root[__moz_xmigemo-find-highlight-animation="true"] .searchwp-term-highlight1,
 :root[__moz_xmigemo-find-highlight-animation="true"] .searchwp-term-highlight2,
 :root[__moz_xmigemo-find-highlight-animation="true"] .searchwp-term-highlight3,
 :root[__moz_xmigemo-find-highlight-animation="true"] .searchwp-term-highlight4,
-:root[__moz_xmigemo-find-highlight-screen="on"] .GBL-Highlighted, /* Googlebar Lite */
 :root[__moz_xmigemo-find-highlight-animation="true"] .GBL-Highlighted {
 	position: relative !important;
 	z-index: 3000000 !important;
@@ -34,7 +34,14 @@
 :root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight2 > .__mozilla-findbar-animation,
 :root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight3 > .__mozilla-findbar-animation,
 :root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight4 > .__mozilla-findbar-animation,
-:root[__moz_xmigemo-find-highlight-screen="on"] .GBL-Highlighted > .__mozilla-findbar-animation {
+:root[__moz_xmigemo-find-highlight-screen="on"] .GBL-Highlighted > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-animation="true"] #__firefox-findbar-search-id > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-animation="true"] .__mozilla-findbar-search > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-animation="true"] .searchwp-term-highlight1 > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-animation="true"] .searchwp-term-highlight2 > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-animation="true"] .searchwp-term-highlight3 > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-animation="true"] .searchwp-term-highlight4 > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-animation="true"] .GBL-Highlighted > .__mozilla-findbar-animation {
 	display: block !important;
 }
 
