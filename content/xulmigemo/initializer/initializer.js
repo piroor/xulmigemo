@@ -105,3 +105,8 @@ function saveChosenFolder()
 }
 
 
+function onWizardCheckChange(aShouldShow)
+{
+	XMigemoService.setPref('xulmigemo.dictionary.useInitializeWizard', aShouldShow);
+}
+

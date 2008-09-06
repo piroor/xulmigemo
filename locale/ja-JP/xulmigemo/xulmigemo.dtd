@@ -237,6 +237,9 @@
 
 <!ENTITY init.final.label1  "辞書の初期設定が終わりました。">
 
+<!ENTITY init.wizard.label1 "このウィザードは、アプリケーション起動時にMigemo検索用の辞書の認識に失敗した時に自動的に表示されます。ウィザードを使用せずに、XUL/Migemoの設定ダイアログから手動で辞書を再設定することもできます。">
+<!ENTITY init.wizard.neverShow "今後は辞書を認識できなかった時でもこのウィザードを表示しない">
+
 
 
 <!ENTITY ui.migemo.checkbox.label     "Migemo">

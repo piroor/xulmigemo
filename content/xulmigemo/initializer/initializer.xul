@@ -84,6 +84,11 @@
 		document.documentElement.canRewind = false;
 	">
 	<description>&init.final.label1;</description>
+	<spacer flex="1"/>
+	<description>&init.wizard.label1;</description>
+	<checkbox id="neverShow"
+		label="&init.wizard.neverShow;"
+		oncommand="onWizardCheckChange(!this.checked);"/>
 </wizardpage>
 
 
