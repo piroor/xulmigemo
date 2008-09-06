@@ -135,17 +135,16 @@ var XMigemoMarker = {
 				}, 10, this, aEvent.targetHighlight);
 				break;
 
-			case 'XMigemoFindAgain':
 			case 'XMigemoFindBarUpdateHighlight':
-				if (this.redrawTimer) {
-					window.clearTimeout(this.redrawTimer);
-					this.redrawTimer = null;
-				}
-				this.redrawTimer = window.setTimeout(function(aSelf, aHighlight) {
-					aSelf.redrawTimer = null;
-					if (!aSelf.enabled || !aHighlight) return;
-					aSelf.redrawMarkers();
-				}, 10, this, 'targetHighlight' in aEvent ? aEvent.targetHighlight : true );
+				this.redrawMarkersWithDelay(aEvent.targetHighlight);
+				break;
+
+			case 'XMigemoFindAgain':
+				this.redrawMarkersWithDelay(true);
+				break;
+
+			case 'resize':
+				this.redrawMarkersWithDelay(true, true);
 				break;
 		}
 	},
@@ -210,6 +209,7 @@ var XMigemoMarker = {
 			target.addEventListener('mouseup', this, true);
 			target.addEventListener('mousemove', this, true);
 		}
+		window.addEventListener('resize', this, false);
 	},
  
 	stopListen : function() 
@@ -222,6 +222,7 @@ var XMigemoMarker = {
 			target.removeEventListener('mouseup', this, true);
 			target.removeEventListener('mousemove', this, true);
 		}
+		window.removeEventListener('resize', this, false);
 	},
   
 	observe : function(aSubject, aTopic, aData) 
@@ -315,7 +316,7 @@ var XMigemoMarker = {
 		this.drawMarkers(doc);
 	},
  
-	redrawMarkers : function(aFrame) 
+	redrawMarkers : function(aFrame, aResize) 
 	{
 		if (!aFrame)
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
@@ -327,13 +328,15 @@ var XMigemoMarker = {
 		this.drawMarkers(aFrame.document);
 	},
 	 
-	drawMarkers : function(aDocument) 
+	drawMarkers : function(aDocument, aResize) 
 	{
 		var canvas = aDocument.getElementById(this.kCANVAS);
 		if (!canvas) return;
 
 		var size = XMigemoService.getDocumentSizeInfo(aDocument);
 		var highlights = XMigemoUI.collectHighlights(aDocument);
+
+		if (aResize) canvas.height = size.viewHeight;
 
 		var topOffset = 10;
 		var heightOffset = 20;
@@ -396,12 +399,29 @@ var XMigemoMarker = {
 
 		aContext.restore();
 	},
- 	
+ 
 	getElementY : function(aElement) 
 	{
 		return !aElement ? 0 : arguments.callee(aElement.offsetParent) + aElement.offsetTop;
 	},
-   
+  
+	redrawMarkersWithDelay : function(aShow, aResize) 
+	{
+		if (this.redrawTimer) {
+			window.clearTimeout(this.redrawTimer);
+			this.redrawTimer = null;
+		}
+		this.redrawTimer = window.setTimeout(
+			function(aSelf) {
+				aSelf.redrawTimer = null;
+				if (!aSelf.enabled || !aShow) return;
+				aSelf.redrawMarkers(null, aResize);
+			},
+			10,
+			this
+		);
+	},
+ 	 
 	destroyMarkers : function(aFrame) 
 	{
 		if (!aFrame)
