@@ -483,7 +483,7 @@ pXMigemoTextUtils.prototype = {
 			childCount++;
 		}
 
-		var parent = aNode.nodeType == aNode.ELEMENT_NODE ? aNode : aNode.parentNode ;
+		var parent = (aNode.nodeType == aNode.ELEMENT_NODE && !this.isTextNodeOrHighlight(aNode)) ? aNode : aNode.parentNode ;
 		if (startOffset || childCount || this.countNextText(aNode).lastNode != aNode) {
 			// normalize()によって選択範囲の始点・終点が変わる場合は
 			// ノードの再構築が終わった後で選択範囲を復元する
