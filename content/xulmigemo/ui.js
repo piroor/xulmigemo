@@ -2240,7 +2240,7 @@ var XMigemoUI = {
 	clearHighlight : function(aDocument, aRecursively) 
 	{
 		var selCons = [];
-		var targets = this.collectHighlights(aDocument, aRecursively, selCons);
+		var highlights = this.collectHighlights(aDocument, aRecursively, selCons);
 
 		if (this.highlightSelectionAvailable) { // Firefox 3.1
 			selCons.forEach(function(aSelCon) {
@@ -2252,38 +2252,39 @@ var XMigemoUI = {
 		}
 
 		// old implementation for Firefox 3.0.x, 2.0.0.x
-		targets.reverse();
+		highlights.reverse();
 		var doc, range, foundRange, foundLength;
-		targets.forEach(function(aNode) {
-			if (!doc || doc != aNode.ownerDocuemnt) {
+		highlights.forEach(function(aHighlight) {
+			var node = aHighlight.node;
+			if (!doc || doc != node.ownerDocuemnt) {
 				if (range) range.detach();
-				doc = aNode.ownerDocument;
+				doc = node.ownerDocument;
 				range = doc.createRange();
 				foundRange = this.shouldRebuildSelection ? this.textUtils.getFoundRange(doc.defaultView) : null ;
 				foundLength = foundRange ? foundRange.toString().length : 0 ;
 			}
 
-			if (aNode.getAttribute('class') == '__mozilla-findbar-animation') {
-				range.selectNode(aNode);
+			if (node.getAttribute('class') == '__mozilla-findbar-animation') {
+				range.selectNode(node);
 				range.deleteContents();
 				range.detach();
 				return;
 			}
 
-			range.selectNodeContents(aNode);
+			range.selectNodeContents(node);
 
 			var child   = null;
 			var docfrag = doc.createDocumentFragment();
-			var next    = aNode.nextSibling;
-			var parent  = aNode.parentNode;
-			while ((child = aNode.firstChild))
+			var next    = node.nextSibling;
+			var parent  = node.parentNode;
+			while ((child = node.firstChild))
 			{
 				docfrag.appendChild(child);
 			}
 			var selectAfter = this.shouldRebuildSelection ? this.textUtils.isRangeOverlap(foundRange, range) : false ;
 			var firstChild  = docfrag.firstChild;
 
-			parent.removeChild(aNode);
+			parent.removeChild(node);
 			parent.insertBefore(docfrag, next);
 			if (selectAfter) {
 				this.textUtils.delayedSelect(firstChild, foundLength, true);
@@ -2296,8 +2297,11 @@ var XMigemoUI = {
 	
 	collectHighlights : function(aDocument, aRecursively, aSelCon) 
 	{
-		var targets = [];
+		var highlights = [];
 		if (!aSelCon) aSelCon = [];
+
+		var nodes;
+		var selCon;
 
 		try {
 			var xpathResult = XMigemoUI.getEditableNodes(aDocument);
@@ -2308,23 +2312,22 @@ var XMigemoUI = {
 				editor = editable
 						.QueryInterface(XMigemoUI.nsIDOMNSEditableElement)
 						.editor;
-				targets = targets.concat(this.collectHighlightsInternal(
-					aDocument,
-					editor.rootElement
-				));
-				aSelCon.push(editor.selectionController);
+				selCon = editor.selectionController;
+				nodes = this.collectHighlightNodes(aDocument, editor.rootElement);
+				highlights = highlights.concat(nodes.map(function(aNode) {
+					return {
+						node : aNode,
+						selectionController : selCon
+					};
+				}));;
+				aSelCon.push(selCon);
 			}
 		}
 		catch(e) {
 		}
 
-		targets = targets.concat(this.collectHighlightsInternal(
-			aDocument,
-			aDocument
-		));
-
 		try {
-			var selCon = aDocument.defaultView
+			selCon = aDocument.defaultView
 				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 				.getInterface(Components.interfaces.nsIWebNavigation)
 				.QueryInterface(Components.interfaces.nsIDocShell)
@@ -2334,17 +2337,25 @@ var XMigemoUI = {
 			aSelCon.push(selCon);
 		}
 		catch(e) {
+			selCon = null;
 		}
+		nodes = this.collectHighlightNodes(aDocument, aDocument);
+		highlights = highlights.concat(nodes.map(function(aNode) {
+			return {
+				node : aNode,
+				selectionController : selCon
+			};
+		}));
 
 		if (aRecursively)
 			Array.slice(aDocument.defaultView.frames)
 				.forEach(function(aFrame) {
-					targets = targets.concat(this.collectHighlights(aFrame.document, aRecursively, aSelCon));
+					highlights = highlights.concat(this.collectHighlights(aFrame.document, aRecursively, aSelCon));
 				}, this);
 
-		return targets;
+		return highlights;
 	},
-	collectHighlightsInternal : function(aDocument, aTarget, aSelCon)
+	collectHighlightNodes : function(aDocument, aTarget, aSelCon)
 	{
 		var xpathResult = aDocument.evaluate(
 				'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search"]',
@@ -2435,21 +2446,58 @@ var XMigemoUI = {
 		alert(aEvent.originalTarget);
 	},
   
-	repaintHighlightWithDelay : function() 
+	repaintHighlightWithDelay : function(aSelection) 
 	{
 		if (!this.highlightSelectionAvailable) return;
 
 		if (this.repaintHighlightTimer)
 			window.clearTimeout(this.repaintHighlightTimer);
 
-		this.repaintHighlightTimer = window.setTimeout(function(aSelf) {
-				aSelf.repaintHighlightTimer = null;
-				var selCons = [];
-				aSelf.collectHighlights(aSelf.activeBrowser.contentDocument, true, selCons);
-				selCons.forEach(function(aSelCon) {
-					aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
-				});
-			}, 1, this);
+		if (aSelection !== void(0))
+			this.nextHighlightSelectionState = aSelection;
+
+		this.repaintHighlightTimer = window.setTimeout(this.repaintHighlight, 1, this);
+	},
+	nextHighlightSelectionState : void(0),
+	repaintHighlight : function(aSelf)
+	{
+		if (!aSelf) aSelf = this;
+
+		aSelf.repaintHighlightTimer = null;
+		var selCons = [];
+		var highlights = aSelf.collectHighlights(aSelf.activeBrowser.contentDocument, true, selCons);
+		if (aSelf.nextHighlightSelectionState === void(0)) {
+			selCons.forEach(function(aSelCon) {
+				aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
+			});
+		}
+		else if (aSelf.nextHighlightSelectionState) {
+			var lastSelCon, selection;
+			highlights.forEach(function(aHighlight) {
+				var selCon = aHighlight.selectionController;
+				if (!selCon) return;
+
+				if (selCon != lastSelCon) {
+					if (lastSelCon)
+						lastSelCon.repaintSelection(lastSelCon.SELECTION_FIND);
+					selection = selCon.getSelection(selCon.SELECTION_FIND);
+				}
+				lastSelCon = selCon;
+
+				var range = aHighlight.node.ownerDocument.createRange();
+				range.selectNodeContents(aHighlight.node);
+				selection.addRange(range);
+			}, this);
+			if (lastSelCon)
+				lastSelCon.repaintSelection(lastSelCon.SELECTION_FIND);
+		}
+		else {
+			selCons.forEach(function(aSelCon) {
+				var selection = aSelCon.getSelection(aSelCon.SELECTION_FIND);
+				selection.removeAllRanges();
+			});
+		}
+		aSelf.nextHighlightSelectionState = void(0);
 	},
  	 
 	updateStatus : function(aStatusText) 

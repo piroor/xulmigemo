@@ -24,6 +24,20 @@
 	z-index: 3000000 !important;
 	text-shadow: none !important;
 }
+
+.__mozilla-findbar-animation {
+	display: none !important;
+}
+:root[__moz_xmigemo-find-highlight-screen="on"] #__firefox-findbar-search-id > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-screen="on"] .__mozilla-findbar-search > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight1 > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight2 > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight3 > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight4 > .__mozilla-findbar-animation,
+:root[__moz_xmigemo-find-highlight-screen="on"] .GBL-Highlighted > .__mozilla-findbar-animation {
+	display: block !important;
+}
+
 .__mozilla-findbar-animation,
 /* セレクタを重ねて詳細度を上げておかないと、rubysupportのスタイル指定に負けてしまう */
 :root[__moz_xmigemo-find-highlight-screen="on"] .__mozilla-findbar-animation,
@@ -57,6 +71,12 @@
 	overflow: hidden !important;
 	text-decoration: none !important;
 	padding: 0 !important;
+}
+
+/* for Firefox 3.1 */
+:root[__moz_xmigemo-find-highlight-screen="on"] .__mozilla-findbar-search {
+	color: black !important;
+	background: yellow !important;
 }
 
 #__moz_xmigemo-find-highlight-screen {

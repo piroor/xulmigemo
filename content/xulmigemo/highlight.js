@@ -479,7 +479,7 @@ var XMigemoHighlight = {
 		else
 			doc.documentElement.removeAttribute(this.kSCREEN);
 
-		XMigemoUI.repaintHighlightWithDelay();
+		XMigemoUI.repaintHighlightWithDelay(!aHighlight);
 	},
  	
 	isDocumentHighlightable : function(aDocument) 
