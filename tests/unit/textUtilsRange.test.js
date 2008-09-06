@@ -162,31 +162,3 @@ function test_getFoundRange()
 	assert.equals(0, range.compareBoundaryPoints(range.END_TO_END, foundRange));
 }
 
-test_delayedSelect.description = 'delayedSelect（DOM Rangeの選択）'
-function test_delayedSelect()
-{
-	var range = content.document.createRange();
-	var link = content.document.getElementsByTagName('a')[0];
-	var container = link.parentNode;
-	range.selectNodeContents(link);
-	range.setEnd(link.firstChild, 3);
-	var selection = content.getSelection();
-	selection.addRange(range);
-	assert.equals('sam', selection.toString());
-	assert.equals(3, container.childNodes.length);
-
-	textUtils.delayedSelect(link, 3, false);
-
-	var text = link.removeChild(link.firstChild);
-	container.insertBefore(text, link);
-	container.removeChild(link);
-	container.normalize();
-	assert.equals(1, container.childNodes.length);
-	yield 100;
-
-	selection = content.getSelection();
-	assert.equals('sam', selection.toString());
-
-	range.detach();
-}
-
