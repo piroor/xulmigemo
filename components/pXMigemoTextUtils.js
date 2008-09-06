@@ -484,49 +484,77 @@ pXMigemoTextUtils.prototype = {
 		}
 
 		if (startOffset || childCount || this.countNextText(aNode).lastNode != aNode) {
-			// normalize()によって選択範囲の始点・終点が変わる場合
-			this.delayedSelectWithDelay(aNode.parentNode, startOffset, childCount, aSelectLength, aIsHighlight);
+			// normalize()によって選択範囲の始点・終点が変わる場合は
+			// ノードの再構築が終わった後で選択範囲を復元する
+			this.selectContentWithDelay(aNode.parentNode, startOffset, aSelectLength, aIsHighlight);
 		}
 		else {
-			var doc = aNode.ownerDocument;
-			var selectRange = doc.createRange();
-			if (aNode.nodeType == aNode.ELEMENT_NODE) {
-				selectRange.selectNodeContents(aNode);
-			}
-			else if (aSelectLength) {
-				selectRange.setStart(aNode, 0);
-				var endNode = aNode;
-				var offset = aSelectLength;
-				while (endNode.textContent.length < offset)
-				{
-					offset -= endNode.textContent.length;
-					node = this.getNextTextNode(endNode);
-					if (!node) break;
-					endNode = node;
-				}
-				selectRange.setEnd(endNode, offset);
-			}
-			else {
-				selectRange.selectNode(aNode);
-			}
-			var sel = doc.defaultView.getSelection();
-			sel.removeAllRanges();
-			sel.addRange(selectRange);
-			this.setSelectionLookForRange(selectRange, aIsHighlight);
+			this.selectContent(
+				(aNode.nodeType == aNode.ELEMENT_NODE ? aNode : aNode.parentNode ),
+				0,
+				(aSelectLength || aNode.textContent.length),
+				aIsHighlight
+			);
 		}
 	},
 	 
-	delayedSelectWithDelay : function(aStartParent, aStartOffset, aChildCount, aSelectLength, aIsHighlight) 
+	selectContent : function(aParent, aStartOffset, aLength, aHighlight) 
 	{
-		if (this.delayedSelectWithDelayTask)
-			this.delayedSelectWithDelayTask.cancel();
-		this.delayedSelectWithDelayTask = new DelayedSelectTask(this, 1, aStartParent, aStartOffset, aChildCount, aSelectLength, aIsHighlight);
+		var doc = aParent.ownerDocument;
+
+		// 始点の位置まで移動して、始点を設定
+		var node;
+		var startNode = aParent.firstChild;
+		var startOffset = aStartOffset;
+		while (startOffset > 0 && startNode.textContent.length <= startOffset)
+		{
+			startOffset -= startNode.textContent.length;
+			node = this.getNextTextNode(startNode);
+			if (!node) break;
+			startNode = node;
+		}
+		if (startOffset < 0) startOffset = startNode.textContent.length - startOffset;
+
+		var selectRange = doc.createRange();
+		selectRange.setStart(startNode, startOffset);
+
+		var endNode = startNode;
+		var offset = aLength;
+		while (offset > 0 && endNode.textContent.length <= offset)
+		{
+			offset -= endNode.textContent.length;
+			node = this.getNextTextNode(endNode);
+			if (!node) break;
+			endNode = node;
+		}
+		if (offset < 0) offset = endNode.textContent.length - offset;
+		if (endNode == startNode) offset += startOffset;
+
+		selectRange.setEnd(endNode, offset);
+
+		var sel = doc.defaultView.getSelection();
+		sel.removeAllRanges();
+		sel.addRange(selectRange);
+
+		this.setSelectionLookForRange(selectRange, aHighlight);
 	},
-	delayedSelectWithDelayTask : null,
- 	
+	 
+	selectContentWithDelay : function(aParent, aStartOffset, aSelectLength, aIsHighlight) 
+	{
+		if (this.selectContentWithDelayTask)
+			this.selectContentWithDelayTask.cancel();
+		this.selectContentWithDelayTask = new DelayedTask(
+			this,
+			this.selectContent,
+			[aParent, aStartOffset, aSelectLength, aIsHighlight],
+			1
+		);
+	},
+	selectContentWithDelayTask : null,
+  
 	/* 
 		強調表示の有る無しを無視して、終端にあるテキストノードと、
-		そこまでの（normalize()によって結合されるであろう）テキストノードの
+		そこまでの（normalize()によって結合されるであろう）テキストの
 		長さの和を得る。
 		強調表示用の要素は常にテキストノードの直上にしか現れ得ないので、
 		「強調表示用の要素がある＝強調表示が解除されたらそこはテキストノードになる」
@@ -577,15 +605,16 @@ pXMigemoTextUtils.prototype = {
 	getNextTextNode : function(aNode) 
 	{
 		if (!aNode) return null;
-		aNode = aNode.nextSibling || aNode.parentNode.nextSibling;
-		if (!aNode) return null;
-		if (aNode.nodeType != aNode.TEXT_NODE)
-			aNode = aNode.firstChild;
-		return !aNode ? null :
-				aNode.nodeType == aNode.TEXT_NODE ? aNode :
-				this.getNextTextNode(aNode);
+		var walker = aNode.ownerDocument.createTreeWalker(
+				aNode.ownerDocument,
+				Components.interfaces.nsIDOMNodeFilter.SHOW_TEXT,
+				null,
+				false
+			);
+		walker.currentNode = aNode;
+		return walker.nextNode();
 	},
-   
+  	 
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Components.interfaces.pIXMigemoTextUtils) &&
@@ -595,22 +624,26 @@ pXMigemoTextUtils.prototype = {
 	}
 };
   
-function DelayedTask(aTextUtils) 
+function DelayedTask(aSubject, aMethod, aArgs, aDelay) 
 {
-	this.init(aTextUtils);
+	this.subject = aSubject;
+	this.method = aMethod;
+	this.args = aArgs;
+	this.init();
 }
 DelayedTask.prototype = {
-	textUtils : null,
+	subject : null,
+	method : null,
+	args : null,
 	timer : null,
-	init : function(aTextUtils, aDelay)
+	init : function(aDelay)
 	{
-		this.textUtils = aTextUtils;
 		this.timer = Components
 			.classes['@mozilla.org/timer;1']
 			.createInstance(Components.interfaces.nsITimer);
 		this.timer.init(this, aDelay, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
 	},
-	cancel      : function()
+	cancel : function()
 	{
 		try {
 			this.timer.cancel();
@@ -618,93 +651,22 @@ DelayedTask.prototype = {
 		}
 		catch(e) {
 		}
-		if (this.onCancel) this.onCancel();
-		delete this.textUtils;
+		delete this.subject;
+		delete this.method;
+		delete this.args;
 	},
 	observe : function(aSubject, aTopic, aData)
 	{
 		if (aTopic != 'timer-callback') return;
-		if (this.onFire) this.onFire();
+
+		if (typeof this.method == 'function')
+			this.method.apply(this.subject, this.args);
+		else
+			this.subject[this.method].apply(this.subject, this.args);
+
 		this.cancel();
 	}
 };
- 
-// ノードの再構築が終わった後で選択範囲を復元する
-function DelayedSelectTask(aTextUtils, aDelay, aStartParent, aStartOffset, aChildCount, aSelectLength, aIsHighlight) 
-{
-	this.parent      = aStartParent;
-	this.startOffset = aStartOffset;
-	this.childCount  = aChildCount;
-	this.length      = aSelectLength;
-	this.highlight   = aIsHighlight;
-	this.init(aTextUtils, aDelay);
-}
-DelayedSelectTask.prototype = {
-	parent      : null,
-	startOffset : 0,
-	childCount  : 0,
-	length      : 0,
-	highlight   : false,
-	onCancel : function()
-	{
-		delete this.parent;
-		delete this.startOffset;
-		delete this.childCount;
-		delete this.length;
-		delete this.highlight;
-	},
-	onFire : function()
-	{
-		dump('RESET RANGE\n');
-		var doc = this.parent.ownerDocument;
-
-		// 選択範囲の始点を含むテキストノードまで移動
-		var startNode = this.parent.firstChild;
-		var startNodeInfo;
-		while (this.childCount--)
-		{
-			startNodeInfo = this.textUtils.countNextText(startNode);
-			startNode = startNodeInfo.lastNode.nextSibling;
-		}
-
-		var node;
-		var startOffset = this.startOffset;
-		var selectRange = doc.createRange();
-		if (startOffset) {
-			// 始点の位置まで移動して、始点を設定
-			while (startNode.textContent.length <= startOffset)
-			{
-				startOffset -= startNode.textContent.length;
-				node = this.textUtils.getNextTextNode(startNode);
-				if (!node) break;
-				startNode = node;
-			}
-			selectRange.setStart(startNode, startOffset);
-		}
-		else {
-			selectRange.setStartBefore(this.parent.firstChild);
-		}
-
-		var endNode = startNode;
-		var offset = this.length;
-		while (endNode.textContent.length <= offset)
-		{
-			offset -= endNode.textContent.length;
-			node = this.textUtils.getNextTextNode(endNode);
-			if (!node) break;
-			endNode = node;
-		}
-		if (endNode == startNode) offset += startOffset;
-		selectRange.setEnd(endNode, offset);
-
-		var sel = doc.defaultView.getSelection();
-		sel.removeAllRanges();
-		sel.addRange(selectRange);
-
-		this.textUtils.setSelectionLookForRange(selectRange, this.highlight);
-	}
-};
-DelayedSelectTask.prototype.__proto__ = DelayedTask.prototype;
  
 var gModule = { 
 	_firstTime: true,

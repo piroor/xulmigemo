@@ -44,6 +44,9 @@ interface pIXMigemoTextUtils : nsISupports
 	boolean isRangeOverlap(in nsIDOMRange baseRange, in nsIDOMRange targetRange);
 	void delayedSelect(in nsIDOMNode anchorNode, in unsigned long length, in boolean isHighlight);
 
+	void selectContent(in nsIDOMNode parentNode, in unsigned long startOffset, in unsigned long length, in boolean isHighlight);
+	void selectContentWithDelay(in nsIDOMNode parentNode, in unsigned long startOffset, in unsigned long length, in boolean isHighlight);
+
 	void setSelectionLook(in nsIDOMDocument document, in boolean changeColor);
 	void setSelectionLookForDocument(in nsIDOMDocument document, in boolean changeColor);
 	void setSelectionLookForNode(in nsIDOMNode selectionContainer, in boolean changeColor);

@@ -2258,11 +2258,17 @@ var XMigemoUI = {
 		var doc, range, foundRange, foundLength;
 		highlights.forEach(function(aHighlight) {
 			var node = aHighlight.node;
-			if (!doc || doc != node.ownerDocuemnt) {
+			if (!doc || doc != node.ownerDocument) {
 				if (range) range.detach();
 				doc = node.ownerDocument;
 				range = doc.createRange();
-				foundRange = this.shouldRebuildSelection ? this.textUtils.getFoundRange(doc.defaultView) : null ;
+				var selection = doc.defaultView.getSelection();
+				foundRange = this.shouldRebuildSelection ?
+					(
+						this.textUtils.getFoundRange(doc.defaultView) ||
+						(selection.rangeCount ? selection.getRangeAt(0) : null )
+					) :
+					null ;
 				foundLength = foundRange ? foundRange.toString().length : 0 ;
 			}
 
@@ -2272,6 +2278,11 @@ var XMigemoUI = {
 				range.detach();
 				return;
 			}
+
+			range.selectNodeContents(node.parentNode);
+			var hasSelection = this.shouldRebuildSelection ?
+					this.textUtils.isRangeOverlap(foundRange, range) :
+					false ;
 
 			range.selectNodeContents(node);
 
@@ -2283,13 +2294,22 @@ var XMigemoUI = {
 			{
 				docfrag.appendChild(child);
 			}
-			var selectAfter = this.shouldRebuildSelection ? this.textUtils.isRangeOverlap(foundRange, range) : false ;
+			var isOverlap = this.shouldRebuildSelection ?
+					this.textUtils.isRangeOverlap(foundRange, range) :
+					false ;
 			var firstChild  = docfrag.firstChild;
 
 			parent.removeChild(node);
 			parent.insertBefore(docfrag, next);
-			if (selectAfter)
+			if (isOverlap) {
 				this.textUtils.delayedSelect(firstChild, foundLength, true);
+			}
+			else if (hasSelection) {
+				range = foundRange.cloneRange();
+				range.collapse(true);
+				range.setStartBefore(parent.firstChild);
+				this.textUtils.selectContentWithDelay(parent, range.toString().length, foundLength, true);
+			}
 
 			parent.normalize();
 		}, this);
