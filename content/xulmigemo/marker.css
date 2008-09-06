@@ -4,4 +4,9 @@
 	right: 0 !important;
 	top: 0 !important;
 	bottom: 0 !important;
+	opacity: 0.9;
+}
+
+#__moz_xmigemo-found-marker-canvas:hover {
+	opacity: 1;
 }
