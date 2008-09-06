@@ -2446,7 +2446,7 @@ var XMigemoUI = {
 		alert(aEvent.originalTarget);
 	},
   
-	repaintHighlightWithDelay : function(aSelection) 
+	repaintHighlightSelectionWithDelay : function(aSelection) 
 	{
 		if (!this.highlightSelectionAvailable) return;
 
@@ -2456,10 +2456,10 @@ var XMigemoUI = {
 		if (aSelection !== void(0))
 			this.nextHighlightSelectionState = aSelection;
 
-		this.repaintHighlightTimer = window.setTimeout(this.repaintHighlight, 1, this);
+		this.repaintHighlightTimer = window.setTimeout(this.repaintHighlightSelection, 1, this);
 	},
 	nextHighlightSelectionState : void(0),
-	repaintHighlight : function(aSelf)
+	repaintHighlightSelection : function(aSelf)
 	{
 		if (!aSelf) aSelf = this;
 

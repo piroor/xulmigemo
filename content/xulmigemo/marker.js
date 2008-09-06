@@ -385,7 +385,7 @@ var XMigemoMarker = {
 		else
 			this.destroyMarkers(aFrame);
 
-		XMigemoUI.repaintHighlightWithDelay();
+		XMigemoUI.repaintHighlightSelectionWithDelay();
 	},
  
 	isAvailableForDocument : function(aDocument) 
