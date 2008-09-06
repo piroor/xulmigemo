@@ -307,7 +307,7 @@ var XMigemoMarker = {
 		if (!canvas) return;
 
 		var size = XMigemoService.getDocumentSizeInfo(aDocument);
-		var targets = XMigemoUI.collectHighlights(aDocument);
+		var highlights = XMigemoUI.collectHighlights(aDocument);
 
 		var topOffset = 10;
 		var heightOffset = 20;
@@ -329,8 +329,9 @@ var XMigemoMarker = {
 
 			ctx.fillStyle = this.fill;
 			ctx.strokeStyle = this.stroke;
-			targets.forEach(function(aNode) {
-				var baseY = (height * (((aNode.offsetHeight / 2) + this.getElementY(aNode)) / size.height)) + topOffset;
+			highlights.forEach(function(aHighlight) {
+				var node = aHighlight.node;
+				var baseY = (height * (((node.offsetHeight / 2) + this.getElementY(node)) / size.height)) + topOffset;
 				ctx.save();
 				ctx.moveTo(rightEdge, baseY);
 				ctx.beginPath();
