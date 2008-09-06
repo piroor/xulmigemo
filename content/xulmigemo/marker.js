@@ -317,6 +317,10 @@ var XMigemoMarker = {
 		canvas.setAttribute('top-offset', topOffset);
 		canvas.setAttribute('bottom-offset', heightOffset - topOffset);
 
+		var height = size.viewHeight - heightOffset;
+		var rightEdge = this.size+this.padding;
+		var markerHalfHeight = this.size / 2;
+
 		try {
 			var ctx = canvas.getContext('2d');
 			ctx.save();
@@ -326,13 +330,13 @@ var XMigemoMarker = {
 			ctx.fillStyle = this.fill;
 			ctx.strokeStyle = this.stroke;
 			targets.forEach(function(aNode) {
-				var baseY = (size.viewHeight - heightOffset) * ((aNode.offsetTop + aNode.offsetHeight) / size.height) + topOffset;
+				var baseY = (height * (((aNode.offsetHeight / 2) + this.getElementY(aNode)) / size.height)) + topOffset;
 				ctx.save();
-				ctx.moveTo(this.size+this.padding, baseY);
+				ctx.moveTo(rightEdge, baseY);
 				ctx.beginPath();
-				ctx.lineTo(this.padding, baseY - (this.size / 2));
-				ctx.lineTo(this.padding, baseY + (this.size / 2));
-				ctx.lineTo(this.size+this.padding, baseY);
+				ctx.lineTo(this.padding, baseY - markerHalfHeight);
+				ctx.lineTo(this.padding, baseY + markerHalfHeight);
+				ctx.lineTo(rightEdge, baseY);
 				ctx.fill();
 				ctx.closePath();
 				ctx.stroke();
@@ -342,6 +346,10 @@ var XMigemoMarker = {
 		catch(e) {
 			dump('XMigemoMarker Error: ' + e.message + '\n');
 		}
+	},
+	getElementY : function(aElement)
+	{
+		return !aElement ? 0 : arguments.callee(aElement.offsetParent) + aElement.offsetTop;
 	},
   
 	destroyMarkers : function(aFrame) 
