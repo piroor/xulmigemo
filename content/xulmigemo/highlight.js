@@ -437,6 +437,9 @@ var XMigemoHighlight = {
 		}
 
 		objBody.insertBefore(screen, objBody.firstChild);
+
+		// DOM modification breaks higlight
+		XMigemoFind.setSelectionLook(doc, true);
 	},
   
 	destroyHighlightScreen : function(aFrame) 
@@ -668,6 +671,7 @@ var XMigemoHighlight = {
 		switch (this.animationStyle)
 		{
 			case this.STYLE_ZOOM:
+				var focusedNode = this.animationNode;
 				var node = doc.createElementNS(XMigemoUI.kXHTMLNS, 'span');
 				node.setAttribute('class', this.kANIMATION_NODE);
 
@@ -700,7 +704,7 @@ var XMigemoHighlight = {
 				if (doc.documentElement.getAttribute(this.kSCREEN) != 'on')
 					XMigemoUI.repaintHighlightSelectionWithDelay(true);
 
-				range.selectNodeContents(node);
+				range.selectNodeContents(focusedNode);
 				var selection = doc.defaultView.getSelection();
 				selection.removeAllRanges();
 				selection.addRange(range);

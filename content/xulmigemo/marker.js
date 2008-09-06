@@ -313,6 +313,9 @@ var XMigemoMarker = {
 		canvas.height = size.viewHeight;
 		objBody.insertBefore(canvas, objBody.firstChild);
 
+		// DOM modification breaks higlight
+		XMigemoFind.setSelectionLook(doc, true);
+
 		this.drawMarkers(doc);
 	},
  
