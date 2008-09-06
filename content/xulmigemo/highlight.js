@@ -479,7 +479,7 @@ var XMigemoHighlight = {
 		else
 			doc.documentElement.removeAttribute(this.kSCREEN);
 
-		XMigemoUI.repaintHighlightWithDelay(!aHighlight);
+		XMigemoUI.repaintHighlightSelectionWithDelay(!aHighlight);
 	},
  	
 	isDocumentHighlightable : function(aDocument) 
@@ -695,6 +695,10 @@ var XMigemoHighlight = {
 				this.setStylePropertyValue(node, 'left', 0);
 				this.setStylePropertyValue(node, 'right', 0);
 				this.setStylePropertyValue(node, 'padding', 0);
+
+				// DOM modification breaks higlight selections
+				if (doc.documentElement.getAttribute(this.kSCREEN) != 'on')
+					XMigemoUI.repaintHighlightSelectionWithDelay(true);
 				break;
 		}
 	},
