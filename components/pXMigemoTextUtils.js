@@ -483,20 +483,21 @@ pXMigemoTextUtils.prototype = {
 			childCount++;
 		}
 
+		var parent = aNode.nodeType == aNode.ELEMENT_NODE ? aNode : aNode.parentNode ;
 		if (startOffset || childCount || this.countNextText(aNode).lastNode != aNode) {
 			// normalize()によって選択範囲の始点・終点が変わる場合は
 			// ノードの再構築が終わった後で選択範囲を復元する
 			var range = aNode.ownerDocument.createRange();
 			range.selectNodeContents(aNode);
 			range.collapse(true);
-			range.setStartBefore(aNode.parentNode.firstChild);
+			range.setStartBefore(parent.firstChild);
 			startOffset = range.toString().length;
 			range.detach();
-			this.selectContentWithDelay(aNode.parentNode, startOffset, aSelectLength, aIsHighlight);
+			this.selectContentWithDelay(parent, startOffset, aSelectLength, aIsHighlight);
 		}
 		else {
 			this.selectContent(
-				(aNode.nodeType == aNode.ELEMENT_NODE ? aNode : aNode.parentNode ),
+				parent,
 				0,
 				(aSelectLength || aNode.textContent.length),
 				aIsHighlight
