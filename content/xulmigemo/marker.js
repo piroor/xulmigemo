@@ -10,8 +10,21 @@ var XMigemoMarker = {
 	size    : 10,
 	padding : 5,
 	fill    : '',
+	fillActive : '',
 	stroke  : '',
+	strokeActive : '',
 	 
+	get textUtils() 
+	{
+		if (!this._textUtils) {
+			this._textUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+				.getService(Components.interfaces.pIXMigemoTextUtils);
+		}
+		return this._textUtils;
+	},
+	_textUtils : null,
+ 
 	init : function() 
 	{
 		if (window
@@ -32,6 +45,7 @@ var XMigemoMarker = {
 		bar.addEventListener('XMigemoFindBarClose', this, false);
 		bar.addEventListener('XMigemoFindBarToggleHighlight', this, false);
 		bar.addEventListener('XMigemoFindBarUpdateHighlight', this, false);
+		document.addEventListener('XMigemoFindAgain', this, false);
 
 		XMigemoUI.registerHighlightUtility(this);
 		if ('XMigemoHighlight' in window)
@@ -49,6 +63,7 @@ var XMigemoMarker = {
 		bar.removeEventListener('XMigemoFindBarClose', this, false);
 		bar.removeEventListener('XMigemoFindBarToggleHighlight', this, false);
 		bar.removeEventListener('XMigemoFindBarUpdateHighlight', this, false);
+		document.removeEventListener('XMigemoFindAgain', this, false);
 
 		XMigemoUI.unregisterHighlightUtility(this);
 		if ('XMigemoHighlight' in window)
@@ -120,6 +135,7 @@ var XMigemoMarker = {
 				}, 10, this, aEvent.targetHighlight);
 				break;
 
+			case 'XMigemoFindAgain':
 			case 'XMigemoFindBarUpdateHighlight':
 				if (this.redrawTimer) {
 					window.clearTimeout(this.redrawTimer);
@@ -129,7 +145,7 @@ var XMigemoMarker = {
 					aSelf.redrawTimer = null;
 					if (!aSelf.enabled || !aHighlight) return;
 					aSelf.redrawMarkers();
-				}, 10, this, aEvent.targetHighlight);
+				}, 10, this, 'targetHighlight' in aEvent ? aEvent.targetHighlight : true );
 				break;
 		}
 	},
@@ -175,7 +191,7 @@ var XMigemoMarker = {
 		this.dragging = false;
 		XMigemoUI.isScrolling = false;
 	},
- 	
+ 
 	onMouseMove : function(aEvent) 
 	{
 		if (!this.dragging) return;
@@ -232,8 +248,16 @@ var XMigemoMarker = {
 						this.fill = value;
 						break;
 
+					case 'xulmigemo.highlight.foundMarker.fill.active':
+						this.fillActive = value;
+						break;
+
 					case 'xulmigemo.highlight.foundMarker.stroke':
 						this.stroke = value;
+						break;
+
+					case 'xulmigemo.highlight.foundMarker.stroke.active':
+						this.strokeActive = value;
 						break;
 				}
 				break;
@@ -246,6 +270,8 @@ var XMigemoMarker = {
 		xulmigemo.highlight.foundMarker.padding
 		xulmigemo.highlight.foundMarker.fill
 		xulmigemo.highlight.foundMarker.stroke
+		xulmigemo.highlight.foundMarker.fill.active
+		xulmigemo.highlight.foundMarker.stroke.active
 	]]></>.toString(),
  
 /* rendering position markers */ 
@@ -318,41 +344,64 @@ var XMigemoMarker = {
 		canvas.setAttribute('bottom-offset', heightOffset - topOffset);
 
 		var height = size.viewHeight - heightOffset;
-		var rightEdge = this.size+this.padding;
-		var markerHalfHeight = this.size / 2;
+		var focusedRange = this.textUtils.getFoundRange(aDocument.defaultView);
 
 		try {
 			var ctx = canvas.getContext('2d');
 			ctx.save();
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.restore();
-
-			ctx.fillStyle = this.fill;
-			ctx.strokeStyle = this.stroke;
+			var activeMarkerY = -1;
 			highlights.forEach(function(aHighlight) {
 				var node = aHighlight.node;
-				var baseY = (height * (((node.offsetHeight / 2) + this.getElementY(node)) / size.height)) + topOffset;
-				ctx.save();
-				ctx.moveTo(rightEdge, baseY);
-				ctx.beginPath();
-				ctx.lineTo(this.padding, baseY - markerHalfHeight);
-				ctx.lineTo(this.padding, baseY + markerHalfHeight);
-				ctx.lineTo(rightEdge, baseY);
-				ctx.fill();
-				ctx.closePath();
-				ctx.stroke();
-				ctx.restore();
+				var y = (height * (((node.offsetHeight / 2) + this.getElementY(node)) / size.height)) + topOffset;
+				if (focusedRange && activeMarkerY < 0) {
+					var range = node.ownerDocument.createRange();
+					range.selectNodeContents(node);
+					if (this.textUtils.isRangeOverlap(focusedRange, range))
+						activeMarkerY = y;
+					range.detach();
+					if (activeMarkerY > -1) return;
+				}
+				this.drawMarkerAt(ctx, y);
 			}, this);
+			if (activeMarkerY > -1)
+				this.drawMarkerAt(ctx, activeMarkerY, true);
 		}
 		catch(e) {
 			dump('XMigemoMarker Error: ' + e.message + '\n');
 		}
 	},
-	getElementY : function(aElement)
+	 
+	drawMarkerAt : function(aContext, aY, aActive) 
+	{
+		var rightEdge = this.size+this.padding;
+		var leftEdge = aActive ? (this.padding * 0.5) : this.padding ;
+		var halfHeight = ((aActive ? (this.padding * 0.5) : 0 ) + this.size) / 2;
+
+		aContext.save();
+
+		aContext.fillStyle = aActive ? this.fillActive : this.fill ;
+		aContext.strokeStyle = aActive ? this.strokeActive : this.stroke ;
+		aContext.lineWidth = aActive ? 1.5 : 1 ;
+
+		aContext.moveTo(rightEdge, aY);
+		aContext.beginPath();
+		aContext.lineTo(leftEdge, aY - halfHeight);
+		aContext.lineTo(leftEdge, aY + halfHeight);
+		aContext.lineTo(rightEdge, aY);
+		aContext.fill();
+		aContext.closePath();
+		aContext.stroke();
+
+		aContext.restore();
+	},
+ 	
+	getElementY : function(aElement) 
 	{
 		return !aElement ? 0 : arguments.callee(aElement.offsetParent) + aElement.offsetTop;
 	},
-  
+   
 	destroyMarkers : function(aFrame) 
 	{
 		if (!aFrame)

@@ -687,7 +687,7 @@ var XMigemoHighlight = {
 					range.insertNode(contents);
 				}
 
-				range.detach();
+//				range.detach();
 
 				this.animationNode = node;
 				this.setStylePropertyValue(node, 'top', 0);
@@ -699,6 +699,12 @@ var XMigemoHighlight = {
 				// DOM modification breaks higlight selections
 				if (doc.documentElement.getAttribute(this.kSCREEN) != 'on')
 					XMigemoUI.repaintHighlightSelectionWithDelay(true);
+
+				range.selectNodeContents(node);
+				var selection = doc.defaultView.getSelection();
+				selection.removeAllRanges();
+				selection.addRange(range);
+				XMigemoFind.setSelectionLook(doc, true);
 				break;
 		}
 	},
