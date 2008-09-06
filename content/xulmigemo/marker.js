@@ -180,7 +180,7 @@ var XMigemoMarker = {
 		var height = size.viewHeight - topOffset - bottomOffset;
 		if (!height) return;
 		var w = doc.defaultView;
-		w.scrollTo(w.scrollX, (aY / height * size.height) - (size.viewHeight / 2));
+		w.scrollTo(w.scrollX, ((aY - topOffset) / height * size.height) - (size.viewHeight / 2));
 	},
   
 	onMouseUp : function(aEvent) 
