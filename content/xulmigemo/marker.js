@@ -377,7 +377,7 @@ var XMigemoMarker = {
 	{
 		var rightEdge = this.size+this.padding;
 		var leftEdge = aActive ? (this.padding * 0.5) : this.padding ;
-		var halfHeight = ((aActive ? (this.padding * 0.5) : 0 ) + this.size) / 2;
+		var halfHeight = ((aActive ? (this.padding * 0.5) : 0 ) + this.size) / 2.5;
 
 		aContext.save();
 
