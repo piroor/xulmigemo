@@ -861,16 +861,24 @@ mydump("setSelectionAndScroll");
 		if (!frame) return;
 
 		var selection = frame.getSelection();
-		var range = frame.document.createRange();
 		var elem;
+
+		var padding = Prefs.getIntPref('xulmigemo.scrollSelectionToCenter.padding');
+		var targetX,
+			targetY,
+			targetW,
+			targetH;
 
 		if (frame.document.foundEditable) {
 			elem = frame.document.foundEditable;
-
 			var box = elem.ownerDocument.getBoxObjectFor(elem);
-			frame.scrollTo(box.x - frame.innerWidth / 2, box.y - frame.innerHeight / 2);
+			targetX = box.x;
+			targetY = box.y;
+			targetW = box.width;
+			targetH = box.height;
 		}
 		else {
+			var range = frame.document.createRange();
 			elem = frame.document.createElement('span');
 			range.setStart(selection.focusNode, selection.focusOffset);
 			range.setEnd(selection.focusNode, selection.focusOffset);
@@ -880,11 +888,28 @@ mydump("setSelectionAndScroll");
 			if (!box.x && !box.y)
 				box = frame.document.getBoxObjectFor(elem.parentNode);
 
-			frame.scrollTo(box.x - frame.innerWidth / 2, box.y - frame.innerHeight / 2);
+			targetX = box.x;
+			targetY = box.y;
+			targetW = box.width;
+			targetH = box.height;
 
 			elem.parentNode.removeChild(elem);
 			range.detach();
 		}
+
+		var viewW = frame.innerWidth;
+		var xUnit = viewW * (padding / 100);
+		var x = (targetX - frame.scrollX < xUnit) ? targetX - xUnit :
+				(targetX + targetW - frame.scrollX > viewW - xUnit) ? targetX + targetW - (viewW - xUnit) :
+					frame.scrollX ;
+
+		var viewH = frame.innerHeight;
+		var yUnit = viewH * (padding / 100);
+		var y = (targetY - frame.scrollY < yUnit ) ? targetY - yUnit  :
+				(targetY + targetH - frame.scrollY > viewH - yUnit ) ? targetY + targetH - (viewH - yUnit)  :
+					frame.scrollY ;
+
+		frame.scrollTo(x, y);
 	},
  
 	getSelectionFrame : function(aFrame) 
