@@ -100,8 +100,15 @@ function chooseFolder()
 
 function saveChosenFolder()
 {
+	var utils = Components
+			.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
+			.getService(Components.interfaces.pIXMigemoFileAccess);
+
 	XMigemoService.setPref('xulmigemo.dicpath', '');
-	XMigemoService.setPref('xulmigemo.dicpath', document.getElementById('choose-path').value);
+	XMigemoService.setPref('xulmigemo.dicpath-relative', '');
+	var path = document.getElementById('choose-path').value;
+	XMigemoService.setPref('xulmigemo.dicpath', path);
+	XMigemoService.setPref('xulmigemo.dicpath-relative', utils.getRelativePath(path));
 }
 
 
