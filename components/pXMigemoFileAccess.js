@@ -109,12 +109,20 @@ pXMigemoFileAccess.prototype = {
 		catch(e) {
 		}
 
-		if (aPath.indexOf('[ProfD]') == 0) {
-			return aPath.replace('[ProfD]', DIR.get('ProfD', nsIFile).path);
-		}
-		if (aPath.indexOf('[CurProcD]') == 0) {
-			return aPath.replace('[CurProcD]', DIR.get('CurProcD', nsIFile).path);
-		}
+		var path;
+		if (this.relativePathKeywords.some(function(aKeyword) {
+				try {
+					if (aPath.indexOf('['+aKeyword+']') == 0) {
+						path = aPath.replace('['+aKeyword+']', DIR.get(aKeyword, nsIFile).path);
+						return true;
+					}
+				}
+				catch(e) {
+				}
+				return false;
+			}))
+			return path;
+
 		if (aPath.indexOf('.') == 0) {
 			// relative path
 			if (PLATFORM.indexOf('Win') > -1) {
@@ -132,15 +140,20 @@ pXMigemoFileAccess.prototype = {
 
 	getRelativePath : function(aPath)
 	{
-		var ProfD = DIR.get('ProfD', nsIFile);
-		if (aPath.indexOf(ProfD.path) == 0) {
-			return aPath.replace(ProfD.path, '[ProfD]');
-		}
-
-		var CurProcD = DIR.get('CurProcD', nsIFile);
-		if (aPath.indexOf(CurProcD.path) == 0) {
-			return aPath.replace(CurProcD.path, '[CurProcD]');
-		}
+		var path;
+		if (this.relativePathKeywords.some(function(aKeyword) {
+				try {
+					var dir = DIR.get(aKeyword, nsIFile);
+					if (aPath.indexOf(dir.path) == 0) {
+						path = aPath.replace(dir.path, '['+aKeyword+']');
+						return true;
+					}
+				}
+				catch(e) {
+				}
+				return false;
+			}))
+			return path;
 
 		var file = Components
 				.classes['@mozilla.org/file/local;1']
@@ -161,6 +174,19 @@ pXMigemoFileAccess.prototype = {
 
 		return aPath;
 	},
+
+	relativePathKeywords : [
+		'ProfD',
+		'AppData',
+		'LocalAppData',
+		'Home',
+		'Desk',
+		'Docs', // OS X
+		'CurProcD',
+		'CurWorkD',
+		'GreD'
+	],
+
 
 	getExistingPath : function(aPath)
 	{
