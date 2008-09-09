@@ -135,7 +135,7 @@ pXMigemoCache.prototype = {
 	},
  
 /* File I/O */ 
-	
+	 
 	get cacheFile() 
 	{
 		return this.cacheFileHolder;
@@ -153,39 +153,39 @@ pXMigemoCache.prototype = {
 
 		try {
 			this.cacheFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-			this.cacheFile.initWithPath(this.cacheDir.path);
+			this.cacheFile.initWithPath(this.dicpath);
 			this.cacheFile.append(aFileName);
 		}
 		catch(e) {
 			this.cacheFile = null;
 		}
 	},
-
-	get cacheDir() 
+	 
+	get dicpath() 
 	{
-		if (!this.cacheDirHolder) { // default cache directory; can be overridden.
-			var util = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-					.getService(Components.interfaces.pIXMigemoFileAccess);
-			var dicDir = util.getAbsolutePath(decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath'))));
+		var fullPath = this.fileUtils.getExistingPath(
+				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')))
+			);
+		var relPath = this.fileUtils.getExistingPath(
+				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
+			);
+		if (relPath && (!fullPaht || fullPath != relPath))
+			Prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
 
-			try {
-				this.cacheDirHolder = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-				this.cacheDirHolder.initWithPath(dicDir);
-			}
-			catch(e) {
-				this.cacheDirHolder = null;
-			}
+		return fullPath || relPath;
+	},
+	 
+	get fileUtils() 
+	{
+		if (!this._fileUtils) {
+			this._fileUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
+				.getService(Components.interfaces.pIXMigemoFileAccess);
 		}
-		return this.cacheDirHolder;
+		return this._fileUtils;
 	},
-	set cacheDir(val)
-	{
-		this.cacheDirHolder = val;
-		return this.cacheDir;
-	},
-	cacheDirHolder : null,
- 
+	_fileUtils : null,
+  	 
 	load : function() 
 	{
 		var util = Components
@@ -291,7 +291,7 @@ function NSGetModule(compMgr, fileSpec)
 	return gModule;
 }
  
-function mydump(aString)
+function mydump(aString) 
 {
 	if (DEBUG)
 		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');

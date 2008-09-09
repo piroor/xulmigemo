@@ -22,6 +22,9 @@
 		<preference id="xulmigemo.dicpath"
 			name="xulmigemo.dicpath"
 			type="string"/>
+		<preference id="xulmigemo.dicpath-relative"
+			name="xulmigemo.dicpath-relative"
+			type="string"/>
 		<preference id="xulmigemo.cache.update.time"
 			name="xulmigemo.cache.update.time"
 			type="int"/>
@@ -36,6 +39,10 @@
 			<button label="&config.dic.find;"
 				oncommand="getDP()"/>
 		</hbox>
+		<box collapsed="true">
+			<textbox id="xulmigemo.dicpath-relative-textbox"
+				preference="xulmigemo.dicpath-relative"/>
+		</box>
 		<description flex="1" style="max-width: &config.dic.description.maxwidth;">&config.dic.description;</description>
 		<checkbox id="xulmigemo.dic.useInitializeWizard-check" flex="1"
 			label="&config.dic.useInitializeWizard;"

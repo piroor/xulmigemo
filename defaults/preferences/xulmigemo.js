@@ -78,6 +78,7 @@ pref("xulmigemo.shortcut.goDicManager",          "Accel+Shift+F7");
 pref("xulmigemo.shortcut.openAgain", 1);
 
 pref("xulmigemo.dicpath",                       "");
+pref("xulmigemo.dicpath-relative",              "");
 
 pref("xulmigemo.cache.update.time",             500);
 pref("xulmigemo.cache.override.ja",             "migemocache.txt");

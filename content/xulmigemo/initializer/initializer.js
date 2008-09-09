@@ -110,3 +110,8 @@ function onWizardCheckChange(aShouldShow)
 	XMigemoService.setPref('xulmigemo.dictionary.useInitializeWizard', aShouldShow);
 }
 
+
+function mydump()
+{
+	dump(Array.slice(arguments).join(' ')+'\n');
+}

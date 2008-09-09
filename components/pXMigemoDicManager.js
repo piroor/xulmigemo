@@ -46,6 +46,7 @@ pXMigemoDicManager.prototype = {
 				switch (aData)
 				{
 					case 'xulmigemo.dicpath':
+					case 'xulmigemo.dicpath-relative':
 						this.reload();
 						break;
 
@@ -76,7 +77,33 @@ pXMigemoDicManager.prototype = {
 				return;
 		}
 	},
+	isUpdating : false,
  
+	get dicpath() 
+	{
+		var fullPath = this.fileUtils.getExistingPath(
+				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')))
+			);
+		var relPath = this.fileUtils.getExistingPath(
+				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
+			);
+		if (relPath && (!fullPaht || fullPath != relPath))
+			Prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
+
+		return fullPath || relPath;
+	},
+	 
+	get fileUtils() 
+	{
+		if (!this._fileUtils) {
+			this._fileUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
+				.getService(Components.interfaces.pIXMigemoFileAccess);
+		}
+		return this._fileUtils;
+	},
+	_fileUtils : null,
+  	
 	set dictionary(val) 
 	{
 		this._dictionary = val;
@@ -118,7 +145,7 @@ pXMigemoDicManager.prototype = {
 		return this._cache;
 	},
 	_cache : null,
- 	
+ 
 	reload : function() 
 	{
 		this.dictionary.load();
@@ -131,7 +158,7 @@ pXMigemoDicManager.prototype = {
 				.classes['@mozilla.org/filepicker;1']
 				.createInstance(Components.interfaces.nsIFilePicker);
 
-		var current = aDefault || decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')));
+		var current = aDefault || this.dicpath;
 		var displayDirectory = Components.classes['@mozilla.org/file/local;1'].createInstance();
 		if (displayDirectory instanceof Components.interfaces.nsILocalFile) {
 			try {
@@ -179,7 +206,7 @@ pXMigemoDicManager.prototype = {
 
 		if (
 			(
-				!decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath'))) ||
+				!this.dicpath ||
 				!this.dictionary.load() ||
 				!this.cache.load()
 			) &&
@@ -214,7 +241,7 @@ pXMigemoDicManager.prototype = {
 		ObserverService.removeObserver(this, 'XMigemo:dictionaryModified');
 	},
  
-	get strbundle()
+	get strbundle() 
 	{
 		if (!this._strbundle)
 			this._strbundle = new XMigemoStringBundle('chrome://xulmigemo/locale/xulmigemo.properties');
