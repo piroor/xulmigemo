@@ -79,8 +79,14 @@ var XMigemoFileDownloader = {
 
 		this.dicDir = parentDir;
 
+		var utils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
+				.getService(Components.interfaces.pIXMigemoFileAccess);
+
 		XMigemoService.setPref('xulmigemo.dicpath', '');
+		XMigemoService.setPref('xulmigemo.dicpath-relative', '');
 		XMigemoService.setPref('xulmigemo.dicpath', parentDir.path);
+		XMigemoService.setPref('xulmigemo.dicpath-relative', utils.getRelativePath(parentDir.path));
 
 		if (this.onCompleteListener && typeof this.onCompleteListener == 'function')
 			this.onCompleteListener();
