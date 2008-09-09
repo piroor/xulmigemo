@@ -48,7 +48,32 @@ pXMigemoDictionary.prototype = {
 	RESULT_ERROR_INVALID_OPERATION : pIXMigemoDictionary.RESULT_ERROR_INVALID_OPERATION,
  
 /* File I/O */ 
+	 
+	get dicpath() 
+	{
+		var fullPath = this.fileUtils.getExistingPath(
+				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')))
+			);
+		var relPath = this.fileUtils.getExistingPath(
+				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
+			);
+		if (relPath && (!fullPaht || fullPath != relPath))
+			Prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
+
+		return fullPath || relPath;
+	},
 	
+	get fileUtils() 
+	{
+		if (!this._fileUtils) {
+			this._fileUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
+				.getService(Components.interfaces.pIXMigemoFileAccess);
+		}
+		return this._fileUtils;
+	},
+	_fileUtils : null,
+  
 	load : function() 
 	{
 		if (!this.lang) return false;
@@ -57,7 +82,7 @@ pXMigemoDictionary.prototype = {
 		var util = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
 					.getService(Components.interfaces.pIXMigemoFileAccess);
-		var dicDir = util.getAbsolutePath(decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath'))));
+		var dicDir = this.dicpath;
 
 		var error = false;
 
@@ -108,7 +133,7 @@ pXMigemoDictionary.prototype = {
 		if (!('user' in this.list)) return;
 
 		var file;
-		var dicDir = decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')));
+		var dicDir = this.dicpath;
 		if (!dicDir) return;
 
 		file = Components
@@ -156,7 +181,7 @@ pXMigemoDictionary.prototype = {
 	},
   
 	// internal 
-	
+	 
 	list : [], 
  
 	modifyDic : function(aTermSet, aOperation) 
@@ -274,7 +299,7 @@ pXMigemoDictionary.prototype = {
 
 		return this.RESULT_OK;
 	},
-  
+ 	 
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(pIXMigemoDictionary) &&
@@ -340,7 +365,7 @@ function NSGetModule(compMgr, fileSpec)
 {
 	return gModule;
 }
- 	
+ 
 function mydump(aString) 
 {
 	if (DEBUG)

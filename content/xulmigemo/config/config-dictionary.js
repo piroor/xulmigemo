@@ -7,25 +7,28 @@ const XMigemo = Components
 	.getService(Components.interfaces.pIXMigemoFactory)
 	.getService(Prefs.getCharPref('xulmigemo.lang'));
 
+const util = Components
+	.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
+	.getService(Components.interfaces.pIXMigemoFileAccess);
+
+var gAbsolutePath;
+var gRelativePath;
+
 function getDP()
 {
-	var util = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-				.getService(Components.interfaces.pIXMigemoFileAccess);
-	var path = util.getAbsolutePath(document.getElementById('xulmigemo.dicpath').value);
+	var path = gAbsolutePath.value;
 	var folderPath = XMigemo.dictionaryManager.showDirectoryPicker(path);
-	if (folderPath) {
-		var relativePath = util.getRelativePath(folderPath);
-		if (relativePath && folderPath.length > relativePath.length)
-			folderPath = relativePath;
-	}
-	var field = document.getElementById('xulmigemo.dicpath-textbox');
-	if (folderPath && field.value != folderPath) {
-		field.value = folderPath;
-		var event = document.createEvent('UIEvents');
-		event.initUIEvent('input', true, false, window, 0);
-		field.dispatchEvent(event);
-	}
+	if (!folderPath || gAbsolutePath.value == folderPath) return;
+
+	gAbsolutePath.value = folderPath;
+	var event = document.createEvent('UIEvents');
+	event.initUIEvent('input', true, false, window, 0);
+	gAbsolutePath.dispatchEvent(event);
+
+	gRelativePath.value = util.getRelativePath(folderPath);
+	event = document.createEvent('UIEvents');
+	event.initUIEvent('input', true, false, window, 0);
+	gRelativePath.dispatchEvent(event);
 }
 
 
@@ -35,6 +38,22 @@ var gCacheTextbox;
 
 function initDicPane()
 {
+	gAbsolutePath = document.getElementById('xulmigemo.dicpath-textbox');
+	gRelativePath = document.getElementById('xulmigemo.dicpath-relative-textbox');
+
+	var fromRelative = false;
+	var path = gAbsolutePath.value;
+	if (path) {
+		var file = Components
+				.classes['@mozilla.org/file/local;1']
+				.createInstance(Components.interfaces.nsILocalFile);
+		file.initWithPath(path);
+		if (!file.exists()) fromRelative = true;
+	}
+	if (fromRelative && gRelativePath.value)
+		gAbsolutePath.value = util.getAbsolutePath(gRelativePath.value);
+
+
 	gCacheSlider  = document.getElementById('xulmigemo.cache.update.time-slider');
 	var scrollbar = document.getElementById('xulmigemo.cache.update.time-scrollbar');
 	if (!('value' in gCacheSlider)) {

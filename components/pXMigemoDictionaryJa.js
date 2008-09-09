@@ -37,7 +37,7 @@ pXMigemoDictionary.prototype = {
 	},
 	 
 	// pIXMigemoDictionary 
-	
+	 
 	initialized : false, 
  
 	RESULT_OK                      : pIXMigemoDictionary.RESULT_OK, 
@@ -48,7 +48,32 @@ pXMigemoDictionary.prototype = {
 	RESULT_ERROR_INVALID_OPERATION : pIXMigemoDictionary.RESULT_ERROR_INVALID_OPERATION,
  
 /* File I/O */ 
+	 
+	get dicpath() 
+	{
+		var fullPath = this.fileUtils.getExistingPath(
+				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')))
+			);
+		var relPath = this.fileUtils.getExistingPath(
+				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
+			);
+		if (relPath && (!fullPaht || fullPath != relPath))
+			Prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
+
+		return fullPath || relPath;
+	},
 	
+	get fileUtils() 
+	{
+		if (!this._fileUtils) {
+			this._fileUtils = Components
+				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
+				.getService(Components.interfaces.pIXMigemoFileAccess);
+		}
+		return this._fileUtils;
+	},
+	_fileUtils : null,
+  	
 	load : function() 
 	{
 		// dicPath
@@ -58,7 +83,7 @@ pXMigemoDictionary.prototype = {
 		var util = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
 					.getService(Components.interfaces.pIXMigemoFileAccess);
-		var dicDir = util.getAbsolutePath(decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath'))));
+		var dicDir = this.dicpath;
 
 		var error = false;
 
@@ -149,15 +174,15 @@ pXMigemoDictionary.prototype = {
 			dics.push(this.getDicFor(this.cList[i], true));
 		return dics.join('\n');
 	},
-  	
+  
 	// pIXMigemoDictionaryJa 
-	
+	 
 	saveUserDicFor : function(aKey) 
 	{
 		if (!(aKey+'-user' in this.list)) return;
 
 		var file;
-		var dicDir = decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')));
+		var dicDir = this.dicpath;
 		if (!dicDir) return;
 
 		file = Components
@@ -220,7 +245,7 @@ pXMigemoDictionary.prototype = {
 	},
   
 	// internal 
-	
+	 
 	list : [], 
  
 	cList : ['', 'k', 's', 't', 'h', 'm', 'n', 'y', 'r', 'w', 'd', 'z', 'g', 'p', 'b', 'alph'], 

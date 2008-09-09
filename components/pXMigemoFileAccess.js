@@ -1,7 +1,17 @@
 var UConv = Components
-			.classes['@mozilla.org/intl/scriptableunicodeconverter']
-			.getService(Components.interfaces.nsIScriptableUnicodeConverter);
+		.classes['@mozilla.org/intl/scriptableunicodeconverter']
+		.getService(Components.interfaces.nsIScriptableUnicodeConverter);
 
+const DIR = Components
+		.classes['@mozilla.org/file/directory_service;1']
+		.getService(Components.interfaces.nsIProperties);
+
+const nsIFile = Components.interfaces.nsIFile;
+
+const PLATFORM = Components
+		.classes['@mozilla.org/network/protocol;1?name=http']
+		.getService(Components.interfaces.nsIHttpProtocolHandler)
+		.oscpu;
 
 function pXMigemoFileAccess() {}
 
@@ -71,6 +81,8 @@ pXMigemoFileAccess.prototype = {
 		catch(e) {
 			dump(e+'\n');
 		}
+		if (!aFile)
+			throw 'writeTo: output file is not specified!';
 
 		if (aFile.exists()) aFile.remove(true); // 上書き確認は無し。必要があれば処理を追加。
 		aFile.create(aFile.NORMAL_FILE_TYPE, 0666); // アクセス権を8進数で指定。 Win9x などでは無視される。
@@ -87,7 +99,9 @@ pXMigemoFileAccess.prototype = {
 
 	getAbsolutePath : function(aPath)
 	{
-		var file = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+		var file = Components
+				.classes['@mozilla.org/file/local;1']
+				.createInstance(Components.interfaces.nsILocalFile);
 		try {
 			file.initWithPath(aPath);
 			return aPath;
@@ -95,25 +109,44 @@ pXMigemoFileAccess.prototype = {
 		catch(e) {
 		}
 
-		// relative path
-		var platform = Components.classes['@mozilla.org/network/protocol;1?name=http'].getService(Components.interfaces.nsIHttpProtocolHandler).oscpu;
-		if (platform.indexOf('Win') > -1) {
-			aPath = aPath.replace(/^\.\.\./g, '\.\.\\\.\.')
-						.replace(/\\\.\.\./g, '\\\.\.\\\.\.')
-						.replace(/\\/g, '/');
+		if (aPath.indexOf('[ProfD]') == 0) {
+			return aPath.replace('[ProfD]', DIR.get('ProfD', nsIFile).path);
 		}
-		const DIR = Components.classes['@mozilla.org/file/directory_service;1'].getService(Components.interfaces.nsIProperties);
-		var binDir = DIR.get('CurProcD', Components.interfaces.nsIFile);
-		file.setRelativeDescriptor(binDir, aPath);
-		return file.path;
+		if (aPath.indexOf('[CurProcD]') == 0) {
+			return aPath.replace('[CurProcD]', DIR.get('CurProcD', nsIFile).path);
+		}
+		if (aPath.indexOf('.') == 0) {
+			// relative path
+			if (PLATFORM.indexOf('Win') > -1) {
+				aPath = aPath.replace(/^\.\.\./g, '\.\.\\\.\.')
+							.replace(/\\\.\.\./g, '\\\.\.\\\.\.')
+							.replace(/\\/g, '/');
+			}
+			var binDir = DIR.get('CurProcD', nsIFile);
+			file.setRelativeDescriptor(binDir, aPath);
+			return file.path;
+		}
+
+		return '';
 	},
 
 	getRelativePath : function(aPath)
 	{
-		var file = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+		var ProfD = DIR.get('ProfD', nsIFile);
+		if (aPath.indexOf(ProfD.path) == 0) {
+			return aPath.replace(ProfD.path, '[ProfD]');
+		}
+
+		var CurProcD = DIR.get('CurProcD', nsIFile);
+		if (aPath.indexOf(CurProcD.path) == 0) {
+			return aPath.replace(CurProcD.path, '[CurProcD]');
+		}
+
+		var file = Components
+				.classes['@mozilla.org/file/local;1']
+				.createInstance(Components.interfaces.nsILocalFile);
 		file.initWithPath(aPath);
 
-		const DIR = Components.classes['@mozilla.org/file/directory_service;1'].getService(Components.interfaces.nsIProperties);
 		var binDir = DIR.get('CurProcD', Components.interfaces.nsIFile);
 		try {
 			aPath = file.getRelativeDescriptor(binDir);
@@ -122,14 +155,22 @@ pXMigemoFileAccess.prototype = {
 			return '';
 		}
 
-		var platform = Components.classes['@mozilla.org/network/protocol;1?name=http'].getService(Components.interfaces.nsIHttpProtocolHandler).oscpu;
-		if (platform.indexOf('Win') > -1) {
+		if (PLATFORM.indexOf('Win') > -1) {
 			aPath = aPath.replace(/\//g, '\\');
 		}
 
-		return decodeURIComponent(escape(aPath));
+		return aPath;
 	},
 
+	getExistingPath : function(aPath)
+	{
+		var file = Components
+				.classes['@mozilla.org/file/local;1']
+				.createInstance(Components.interfaces.nsILocalFile);
+		file.initWithPath(this.getAbsolutePath(aPath));
+		if (file.exists()) return aPath;
+		return '';
+	},
 
 	QueryInterface : function(aIID)
 	{
