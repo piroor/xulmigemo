@@ -50,8 +50,44 @@ var XMigemoMarker = {
 		XMigemoUI.registerHighlightUtility(this);
 		if ('XMigemoHighlight' in window)
 			XMigemoHighlight.registerEventCanceler(this);
+
+		this.initScrollBarSize();
 	},
- 
+	 
+	initScrollBarSize : function() 
+	{
+		var vbox = document.createElement('box');
+		vbox.setAttribute('class', 'xmigemo-marker-dummyScrollbarBox');
+		var vbar = vbox.appendChild(document.createElement('scrollbar'));
+		vbar.setAttribute('orient', 'vertical');
+		document.documentElement.appendChild(vbox);
+
+		var hbox = document.createElement('box');
+		hbox.setAttribute('class', 'xmigemo-marker-dummyScrollbarBox');
+		var hbar = hbox.appendChild(document.createElement('scrollbar'));
+		hbar.setAttribute('orient', 'horizontal');
+		document.documentElement.appendChild(hbox);
+
+		window.setTimeout(function(aSelf) {
+			aSelf.scrollBarWidth = vbar.boxObject.width;
+			aSelf.scrollBarHeight = hbar.boxObject.height;
+			aSelf.scrollButtonWidth = (
+				document.getAnonymousElementByAttribute(hbar, 'sbattr', 'scrollbar-up-top').boxObject.width ||
+				document.getAnonymousElementByAttribute(hbar, 'sbattr', 'scrollbar-up-bottom').boxObject.width
+			);
+			aSelf.scrollButtonHeight = (
+				document.getAnonymousElementByAttribute(vbar, 'sbattr', 'scrollbar-up-top').boxObject.height ||
+				document.getAnonymousElementByAttribute(vbar, 'sbattr', 'scrollbar-up-bottom').boxObject.height
+			);
+			vbox.parentNode.removeChild(vbox);
+			hbox.parentNode.removeChild(hbox);
+		}, 0, this);
+	},
+	scrollBarWidth : 0,
+	scrollBarHeight : 0,
+	scrollButtonWidth : 0,
+	scrollButtonHeight : 0,
+ 	 
 	destroy : function() 
 	{
 		window.removeEventListener('unload', this, false);
@@ -173,13 +209,17 @@ var XMigemoMarker = {
 		var doc = aNode.ownerDocument || aNode;
 		var canvas = doc.getElementById(this.kCANVAS);
 		if (!canvas) return;
-		var topOffset = parseInt(canvas.getAttribute('top-offset'));
-		var bottomOffset = parseInt(canvas.getAttribute('bottom-offset'));
 		var size = XMigemoService.getDocumentSizeInfo(doc);
-		var height = size.viewHeight - topOffset - bottomOffset;
-		if (!height) return;
+		var height = size.viewHeight;
+		if (size.xScrollable) height -= this.scrollBarHeight;
+		if (height <= 0) return;
 		var w = doc.defaultView;
-		w.scrollTo(w.scrollX, ((aY - topOffset) / height * size.height) - (size.viewHeight / 2));
+		var topOffset = this.scrollButtonHeight;
+		var availableHeight = height - (topOffset * 2);
+		w.scrollTo(
+			Math.max(0, w.scrollX),
+			Math.min(w.scrollMaxY, ((aY - topOffset) / availableHeight * size.height) - (height / 2))
+		);
 	},
   
 	onMouseUp : function(aEvent) 
@@ -310,7 +350,9 @@ var XMigemoMarker = {
 			'width: '+(this.size+this.padding)+'px !important'
 		);
 		canvas.width = this.size+this.padding;
-		canvas.height = size.viewHeight;
+		var height = size.viewHeight;
+		if (size.xScrollable) height -= this.scrollBarHeight;
+		canvas.height = height;
 		objBody.insertBefore(canvas, objBody.firstChild);
 
 		this.drawMarkers(doc);
@@ -336,17 +378,15 @@ var XMigemoMarker = {
 		var size = XMigemoService.getDocumentSizeInfo(aDocument);
 		var highlights = XMigemoUI.collectHighlights(aDocument);
 
-		if (aResize) canvas.height = size.viewHeight;
+		var viewHeight = size.viewHeight;
+		if (size.xScrollable) viewHeight -= this.scrollBarHeight;
 
-		var topOffset = 10;
-		var heightOffset = 20;
-		if (size.xScrillable)
-			heightOffset += 10;
+		if (aResize) canvas.height = viewHeight;
 
-		canvas.setAttribute('top-offset', topOffset);
-		canvas.setAttribute('bottom-offset', heightOffset - topOffset);
+		var topOffset = this.scrollButtonHeight;
+		var heightOffset = (topOffset * 2) + this.scrollBarHeight;
 
-		var height = size.viewHeight - heightOffset;
+		var availHeight = viewHeight - (topOffset * 2);
 		var focusedRange = this.textUtils.getFoundRange(aDocument.defaultView);
 
 		try {
@@ -357,7 +397,7 @@ var XMigemoMarker = {
 			var activeMarkerY = -1;
 			highlights.forEach(function(aHighlight) {
 				var node = aHighlight.node;
-				var y = (height * (((node.offsetHeight / 2) + this.getElementY(node)) / size.height)) + topOffset;
+				var y = (availHeight * (((node.offsetHeight / 2) + this.getElementY(node)) / size.height)) + topOffset;
 				if (focusedRange && activeMarkerY < 0) {
 					var range = node.ownerDocument.createRange();
 					range.selectNodeContents(node);
@@ -421,7 +461,7 @@ var XMigemoMarker = {
 			this
 		);
 	},
- 	 
+  
 	destroyMarkers : function(aFrame) 
 	{
 		if (!aFrame)
