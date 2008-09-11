@@ -279,14 +279,15 @@ var XMigemoService = {
 		var windowHeight = w.innerHeight;
 		var pageWidth  = (xScroll < windowWidth) ? windowWidth : xScroll ;
 		var pageHeight = (yScroll < windowHeight) ? windowHeight : yScroll ;
-		return {
+		var retVal = {
 				width   : pageWidth,
 				height  : pageHeight,
 				viewWidth  : windowWidth,
 				viewHeight : windowHeight,
-				xScrillable : (w.scrollMaxX ? true : false ),
-				yScrillable : (w.scrollMaxY ? true : false )
+				xScrollable : (w.scrollMaxX ? true : false ),
+				yScrollable : (w.scrollMaxY ? true : false )
 			};
+		return retVal;
 	},
  
 /* event handling */ 
