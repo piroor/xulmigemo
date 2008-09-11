@@ -47,6 +47,7 @@ pXMigemoDicManager.prototype = {
 				{
 					case 'xulmigemo.dicpath':
 					case 'xulmigemo.dicpath-relative':
+						if (this.autoReloadDisabled) return;
 						this.reload();
 						break;
 
@@ -87,8 +88,11 @@ pXMigemoDicManager.prototype = {
 		var relPath = this.fileUtils.getExistingPath(
 				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
 			);
-		if (relPath && (!fullPaht || fullPath != relPath))
+		if (relPath && (!fullPaht || fullPath != relPath)) {
+			this.autoReloadDisabled = true;
 			Prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
+			this.autoReloadDisabled = false;
+		}
 
 		return fullPath || relPath;
 	},
@@ -223,6 +227,18 @@ pXMigemoDicManager.prototype = {
 				'chrome,dialog,modal,centerscreen,dependent',
 				null
 			);
+		}
+		else {
+			var relPath = Prefs.getCharPref('xulmigemo.dicpath-relative');
+			if (!relPath) {
+				relPath = this.dicpath;
+				relPath = this.fileUtils.getRelativePath(relPath);
+				if (relPath && relPath != this.dicpath) {
+					this.autoReloadDisabled = true;
+					Prefs.setCharPref('xulmigemo.dicpath-relative', unescape(encodeURIComponent(relPath)));
+					this.autoReloadDisabled = false;
+				}
+			}
 		}
 
 		this.initialized = true;
