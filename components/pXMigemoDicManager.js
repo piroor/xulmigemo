@@ -88,7 +88,7 @@ pXMigemoDicManager.prototype = {
 		var relPath = this.fileUtils.getExistingPath(
 				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
 			);
-		if (relPath && (!fullPaht || fullPath != relPath)) {
+		if (relPath && (!fullPath || fullPath != relPath)) {
 			this.autoReloadDisabled = true;
 			Prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
 			this.autoReloadDisabled = false;
