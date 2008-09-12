@@ -169,7 +169,7 @@ pXMigemoCache.prototype = {
 		var relPath = this.fileUtils.getExistingPath(
 				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
 			);
-		if (relPath && (!fullPaht || fullPath != relPath))
+		if (relPath && (!fullPath || fullPath != relPath))
 			Prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
 
 		return fullPath || relPath;
