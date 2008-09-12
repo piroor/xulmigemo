@@ -194,7 +194,8 @@ pXMigemoFileAccess.prototype = {
 				.classes['@mozilla.org/file/local;1']
 				.createInstance(Components.interfaces.nsILocalFile);
 		try {
-			file.initWithPath(this.getAbsolutePath(aPath));
+			aPath = this.getAbsolutePath(aPath);
+			file.initWithPath(aPath);
 			if (file.exists()) return aPath;
 		}
 		catch(e) {
