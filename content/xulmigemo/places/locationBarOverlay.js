@@ -13,6 +13,7 @@ var XMigemoLocationBarOverlay = {
 	thread : null,
 
 	enabled   : true,
+	isActive  : false,
 	delay     : 250,
 	useThread : false,
 
@@ -226,6 +227,7 @@ var XMigemoLocationBarOverlay = {
 		var input = this.input;
 		return (
 			this.enabled &&
+			this.isActive &&
 			!this.bar.disableAutoComplete &&
 			XMigemoPlaces.isValidInput(input)
 			);
@@ -920,12 +922,19 @@ XMIgemoAutoCompletePopupController.prototype = {
  
 	get matchCount() 
 	{
-		return this.matchCountOverride || this.controller.matchCount;
+		if (this.service.isMigemoActive)
+			return this.matchCountOverride || this.controller.matchCount;
+		return this.controller.matchCount;
 	},
  
 	startSearch : function(aString) 
 	{
-		if (this.service.isMigemoActive) return;
+		if (!this.service.TextUtils.trim(aString) &&
+			this.service.isActive) {
+			this.service.clearListbox();
+			this.service.isActive = false;
+			this.controller.searchString = '';
+		}
 		return this.controller.startSearch(aString);
 	},
  
@@ -936,6 +945,7 @@ XMIgemoAutoCompletePopupController.prototype = {
  
 	handleText : function(aIgnoreSelection) 
 	{
+		this.service.isActive = true;
 		if (this.service.isMigemoActive) {
 			this.service.onSearchBegin();
 			return;
@@ -951,7 +961,8 @@ XMIgemoAutoCompletePopupController.prototype = {
 	{
 		var popup = this.input.popup;
 		var index = popup.selectedIndex;
-		if (this.resultsOverride.length &&
+		if (this.service.isMigemoActive &&
+			this.resultsOverride.length &&
 			index > -1 &&
 			popup.popupOpen) {
 			popup.overrideValue = this.resultsOverride[index].uri;
@@ -1000,6 +1011,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 		var popup = input.popup;
 		var isMac = navigator.platform.toLowerCase().indexOf('mac') == 0;
 		if (
+			this.service.isMigemoActive &&
 			this.resultsOverride.length &&
 			(
 				aKey == nsIDOMKeyEvent.DOM_VK_UP ||
@@ -1049,6 +1061,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 			}
 		}
 		else if (
+			this.service.isMigemoActive &&
 			this.resultsOverride.length &&
 			(
 				aKey == nsIDOMKeyEvent.DOM_VK_LEFT ||
@@ -1075,7 +1088,8 @@ XMIgemoAutoCompletePopupController.prototype = {
 	{
 		var popup = this.input.popup;
 		var index = popup.selectedIndex;
-		if (this.resultsOverride.length &&
+		if (this.service.isMigemoActive &&
+			this.resultsOverride.length &&
 			index > -1) {
 			var retval = false;
 			popup.selectedIndex = -1;
@@ -1107,35 +1121,41 @@ XMIgemoAutoCompletePopupController.prototype = {
  
 	getValueAt : function(aIndex) 
 	{
-		if (this.resultsOverride.length)
+		if (this.service.isMigemoActive &&
+			this.resultsOverride.length)
 			return this.resultsOverride[aIndex].uri;
 		return this.controller.getValueAt(aIndex);
 	},
  
 	getCommentAt : function(aIndex) 
 	{
-		if (this.resultsOverride.length)
+		if (this.service.isMigemoActive &&
+			this.resultsOverride.length)
 			return this.resultsOverride[aIndex].title;
 		return this.controller.getCommentAt(aIndex);
 	},
  
 	getStyleAt : function(aIndex) 
 	{
-		if (this.resultsOverride.length)
+		if (this.service.isMigemoActive &&
+			this.resultsOverride.length)
 			return this.resultsOverride[aIndex].style;
 		return this.controller.getStyleAt(aIndex);
 	},
  
 	getImageAt : function(aIndex) 
 	{
-		if (this.resultsOverride.length)
+		if (this.service.isMigemoActive &&
+			this.resultsOverride.length)
 			return this.resultsOverride[aIndex].icon;
 		return this.controller.getImageAt(aIndex);
 	},
  
 	get searchString() 
 	{
-		return this.searchStringOverride || this.controller.searchString;
+		if (this.service.isMigemoActive)
+			return this.searchStringOverride || this.controller.searchString;
+		return this.controller.searchString;
 	},
 	set searchString(aValue)
 	{
