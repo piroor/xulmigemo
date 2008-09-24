@@ -18,6 +18,7 @@
 <!ENTITY config.highlight.animationStyle.1 "ジャンプ">
 <!ENTITY config.highlight.foundMarker   "検索がヒットした箇所をスクロールバーの横に表示する">
 <!ENTITY config.autoStartRegExpFind     "/regexp/ のような入力を正規表現と見なして検索する">
+<!ENTITY config.disableIME              "Migemo検索の時はIMEを自動的にOFFにする">
 
 
 <!ENTITY config.caption.recognize       "文字の認識">

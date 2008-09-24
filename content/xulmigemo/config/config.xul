@@ -13,7 +13,8 @@
 	title="&config.title;">
 
 
-<prefpane id="prefpane-general" label="&config.tab.general;" flex="1">
+<prefpane id="prefpane-general" label="&config.tab.general;" flex="1"
+	onpaneload="initGeneralPane();">
 	<preferences>
 		<preference id="xulmigemo.lang"
 			name="xulmigemo.lang"
@@ -47,6 +48,13 @@
 		<preference id="xulmigemo.splitTermsAutomatically"
 			name="xulmigemo.splitTermsAutomatically"
 			type="bool"/>
+
+		<preference id="xulmigemo.disableIME.quickFindFor"
+			name="xulmigemo.disableIME.quickFindFor"
+			type="int"/>
+		<preference id="xulmigemo.disableIME.normalFindFor"
+			name="xulmigemo.disableIME.normalFindFor"
+			type="int"/>
 	</preferences>
 
 	<hbox align="center">
@@ -97,6 +105,15 @@
 		<checkbox id="xulmigemo.autostart.regExpFind-check" flex="1"
 			label="&config.autoStartRegExpFind;"
 			preference="xulmigemo.autostart.regExpFind"/>
+		<checkbox id="xulmigemo.disableIME-check" flex="1"
+			label="&config.disableIME;"
+			oncommand="onChangeDisableIMECheck();"/>
+		<box collapsed="true">
+			<textbox id="xulmigemo.disableIME.quickFindFor-textbox"
+				preference="xulmigemo.disableIME.quickFindFor"/>
+			<textbox id="xulmigemo.disableIME.normalFindFor-textbox"
+				preference="xulmigemo.disableIME.normalFindFor"/>
+		</box>
 	</vbox>
 
 	<groupbox>

@@ -1,3 +1,40 @@
+var gDisableIME;
+var gNormalFind;
+var gQuickFind;
+
+function initGeneralPane()
+{
+	gDisableIME = document.getElementById('xulmigemo.disableIME-check');
+	gNormalFind = document.getElementById('xulmigemo.disableIME.normalFindFor-textbox');
+	gQuickFind = document.getElementById('xulmigemo.disableIME.quickFindFor-textbox');
+	var platform = navigator.platform.toLowerCase();
+	if (platform.indexOf('win') < 0 && platform.indexOf('mac') < 0) {
+		gDisableIME.setAttribute('hidden', true);
+	}
+	else {
+		gDisableIME.removeAttribute('hidden');
+		initDisableIMECheck();
+	}
+}
+
+function onChangeDisableIMECheck()
+{
+	gNormalFind.value = gQuickFind.value = (gDisableIME.checked ? 2 : 0 );
+	[gNormalFind, gQuickFind].forEach(fireInputEvent);
+}
+function initDisableIMECheck()
+{
+	var normalFind = parseInt(gNormalFind.value);
+	var quickFind = parseInt(gQuickFind.value);
+
+	gDisableIME.checked = (
+		(normalFind & Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO) &&
+		(quickFind & Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO)
+	) ? true : false ;
+}
+
+
+
 var shortcutFindBackward;
 var shortcutFindForward;
 var shortcutManualStart;
@@ -50,11 +87,15 @@ function clearShortcut(aNode)
 	aNode.keyData = XMigemoService.parseShortcut(aNode.value);
 	aNode.keyData.modified = true;
 
+	fireInputEvent(aNode);
+}
+
+function fireInputEvent(aNode)
+{
 	var event = document.createEvent('UIEvents');
 	event.initUIEvent('input', true, false, window, 0);
 	aNode.dispatchEvent(event);
 }
-
 
 
 
