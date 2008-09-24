@@ -59,6 +59,7 @@ var XMigemoUI = {
 	autoStartRegExpFind      : false, 
  
 	disableIMEOnQuickFind    : false, 
+	disableIMEOnNormalFind   : false,
  
 	highlightCheckedAlways     : false, 
 	highlightCheckedAlwaysMinLength : 2,
@@ -582,6 +583,7 @@ var XMigemoUI = {
 		xulmigemo.appearance.indicator.height
 		xulmigemo.appearance.closeButtonPosition
 		xulmigemo.disableIME.quickFind
+		xulmigemo.disableIME.normalFind
 		xulmigemo.rebuild_selection
 		xulmigemo.find_delay
 		xulmigemo.ignore_find_links_only_behavior
@@ -709,6 +711,10 @@ var XMigemoUI = {
 
 			case 'xulmigemo.disableIME.quickFind':
 				this.disableIMEOnQuickFind = value;
+				return;
+
+			case 'xulmigemo.disableIME.normalFind':
+				this.disableIMEOnNormalFind = value;
 				return;
 
 			case 'xulmigemo.rebuild_selection':
@@ -1330,6 +1336,9 @@ var XMigemoUI = {
 		this.toggleMode();
 
 		this.findBarInitialShow();
+
+		if (!aEvent.isQuickFind && this.disableIMEOnNormalFind)
+			this.disableFindFieldIME();
 
 		if (this.prefillWithSelection)
 			this.doPrefillWithSelection(aEvent.isQuickFind);

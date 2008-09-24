@@ -3,7 +3,7 @@ pref("xulmigemo.lang", "");
 pref("xulmigemo.autostart",                     false);
 pref("xulmigemo.autostart.regExpFind",          true);
 pref("xulmigemo.disableIME.quickFind",          true);
-//pref("xulmigemo.disableIME.normalFind",         false);
+pref("xulmigemo.disableIME.normalFind",         false);
 pref("xulmigemo.prefillwithselection",          true);
 pref("xulmigemo.startfromviewport",             true);
 pref("xulmigemo.linksonly",                     false);
