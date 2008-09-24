@@ -245,9 +245,9 @@ interface pIXMigemoFind : nsIObserver
 
 	attribute unsigned short findMode;
 
-	const unsigned short FIND_MODE_NATIVE = 0;
-	const unsigned short FIND_MODE_MIGEMO = 1;
-	const unsigned short FIND_MODE_REGEXP = 2;
+	const unsigned short FIND_MODE_NATIVE = 1;
+	const unsigned short FIND_MODE_MIGEMO = 2;
+	const unsigned short FIND_MODE_REGEXP = 4;
 
 	readonly attribute AString lastKeyword;
 	readonly attribute AString previousKeyword;
@@ -294,9 +294,9 @@ interface pIXMigemoTextTransformJa : pIXMigemoTextTransform
 	AString roman2kana(in AString roman);
 	AString roman2kana2(in AString roman, in unsigned short kanaFlag);
 	AString getKana(in AString key, in unsigned short kanaFlag);
-	const unsigned short KANA_HIRA = 0;
-	const unsigned short KANA_KATA = 1;
-	const unsigned short KANA_ALL  = 2;
+	const unsigned short KANA_HIRA = 1;
+	const unsigned short KANA_KATA = 2;
+	const unsigned short KANA_ALL  = 4;
 
 	AString hira2roman(in AString hiragana); // hiragana => roman
 	AString hira2kata(in AString hiragana); // hiragana => katakana

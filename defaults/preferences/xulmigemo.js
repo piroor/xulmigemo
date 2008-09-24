@@ -2,8 +2,9 @@ pref("xulmigemo.lang", "");
 
 pref("xulmigemo.autostart",                     false);
 pref("xulmigemo.autostart.regExpFind",          true);
-pref("xulmigemo.disableIME.quickFind",          true);
-pref("xulmigemo.disableIME.normalFind",         false);
+// 1 = normal find, 2 = migemo, 4 = regexp, 7 = all
+pref("xulmigemo.disableIME.quickFindFor",       7);
+pref("xulmigemo.disableIME.normalFindFor",      0);
 pref("xulmigemo.prefillwithselection",          true);
 pref("xulmigemo.startfromviewport",             true);
 pref("xulmigemo.linksonly",                     false);

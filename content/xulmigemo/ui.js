@@ -58,8 +58,8 @@ var XMigemoUI = {
  
 	autoStartRegExpFind      : false, 
  
-	disableIMEOnQuickFind    : false, 
-	disableIMEOnNormalFind   : false,
+	disableIMEOnQuickFindFor  : 7, 
+	disableIMEOnNormalFindFor : 0,
  
 	highlightCheckedAlways     : false, 
 	highlightCheckedAlwaysMinLength : 2,
@@ -532,6 +532,15 @@ var XMigemoUI = {
 		}, 100, this);
 	},
  
+	disableFindFieldIMEForCurrentMode : function(aQuickFind) 
+	{
+		if (aQuickFind ?
+				(this.disableIMEOnQuickFindFor & this.findMode) :
+				(this.disableIMEOnNormalFindFor & this.findMode)
+			)
+			this.disableFindFieldIME();
+	},
+ 
 	getDocumentBody : function(aDocument) 
 	{
 		if (aDocument instanceof HTMLDocument)
@@ -582,8 +591,8 @@ var XMigemoUI = {
 		xulmigemo.appearance.buttonLabelsMode
 		xulmigemo.appearance.indicator.height
 		xulmigemo.appearance.closeButtonPosition
-		xulmigemo.disableIME.quickFind
-		xulmigemo.disableIME.normalFind
+		xulmigemo.disableIME.quickFindFor
+		xulmigemo.disableIME.normalFindFor
 		xulmigemo.rebuild_selection
 		xulmigemo.find_delay
 		xulmigemo.ignore_find_links_only_behavior
@@ -709,12 +718,12 @@ var XMigemoUI = {
 				this.findBarInitialShown = false;
 				return;
 
-			case 'xulmigemo.disableIME.quickFind':
-				this.disableIMEOnQuickFind = value;
+			case 'xulmigemo.disableIME.quickFindFor':
+				this.disableIMEOnQuickFindFor = value;
 				return;
 
-			case 'xulmigemo.disableIME.normalFind':
-				this.disableIMEOnNormalFind = value;
+			case 'xulmigemo.disableIME.normalFindFor':
+				this.disableIMEOnNormalFindFor = value;
 				return;
 
 			case 'xulmigemo.rebuild_selection':
@@ -1275,6 +1284,7 @@ var XMigemoUI = {
 		}
 		this.lastFindMode = this.findMode;
 		this.isModeChanged = true;
+		this.disableFindFieldIMEForCurrentMode(this.isQuickFind);
 		if (!this.inCancelingProcess &&
 			!this.hidden)
 			this.field.focus();
@@ -1337,11 +1347,10 @@ var XMigemoUI = {
 
 		this.findBarInitialShow();
 
-		if (!aEvent.isQuickFind && this.disableIMEOnNormalFind)
-			this.disableFindFieldIME();
-
 		if (this.prefillWithSelection)
 			this.doPrefillWithSelection(aEvent.isQuickFind);
+
+		this.disableFindFieldIMEForCurrentMode(aEvent.isQuickFind);
 	},
 	
 	findBarInitialShow : function() 
@@ -1597,7 +1606,7 @@ var XMigemoUI = {
 	
 	commandStart : function(aEvent, aLinksOnly) 
 	{
-		if (this.disableIMEOnQuickFind)
+		if (this.disableIMEOnQuickFindFor)
 			this.disableFindFieldIME();
 		XMigemoFind.clear(false);
 		XMigemoFind.isLinksOnly = aLinksOnly ? true : false ;
