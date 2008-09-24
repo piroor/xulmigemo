@@ -880,6 +880,11 @@ XMIgemoAutoCompletePopupController.prototype = {
 		return this.mController;
 	},
  
+	get isMigemoResult() 
+	{
+		return this.service.isActive && this.resultsOverride.length;
+	},
+ 
 	init : function(aBaseController) 
 	{
 		this.mController = aBaseController;
@@ -922,7 +927,7 @@ XMIgemoAutoCompletePopupController.prototype = {
  
 	get matchCount() 
 	{
-		if (this.service.isMigemoActive)
+		if (this.isMigemoResult)
 			return this.matchCountOverride || this.controller.matchCount;
 		return this.controller.matchCount;
 	},
@@ -961,8 +966,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 	{
 		var popup = this.input.popup;
 		var index = popup.selectedIndex;
-		if (this.service.isMigemoActive &&
-			this.resultsOverride.length &&
+		if (this.isMigemoResult &&
 			index > -1 &&
 			popup.popupOpen) {
 			popup.overrideValue = this.resultsOverride[index].uri;
@@ -1011,8 +1015,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 		var popup = input.popup;
 		var isMac = navigator.platform.toLowerCase().indexOf('mac') == 0;
 		if (
-			this.service.isMigemoActive &&
-			this.resultsOverride.length &&
+			this.isMigemoResult &&
 			(
 				aKey == nsIDOMKeyEvent.DOM_VK_UP ||
 				aKey == nsIDOMKeyEvent.DOM_VK_DOWN ||
@@ -1061,8 +1064,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 			}
 		}
 		else if (
-			this.service.isMigemoActive &&
-			this.resultsOverride.length &&
+			this.isMigemoResult &&
 			(
 				aKey == nsIDOMKeyEvent.DOM_VK_LEFT ||
 				aKey == nsIDOMKeyEvent.DOM_VK_RIGHT ||
@@ -1088,8 +1090,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 	{
 		var popup = this.input.popup;
 		var index = popup.selectedIndex;
-		if (this.service.isMigemoActive &&
-			this.resultsOverride.length &&
+		if (this.isMigemoResult &&
 			index > -1) {
 			var retval = false;
 			popup.selectedIndex = -1;
@@ -1121,41 +1122,35 @@ XMIgemoAutoCompletePopupController.prototype = {
  
 	getValueAt : function(aIndex) 
 	{
-		if (this.service.isMigemoActive &&
-			this.resultsOverride.length)
+		if (this.isMigemoResult)
 			return this.resultsOverride[aIndex].uri;
 		return this.controller.getValueAt(aIndex);
 	},
  
 	getCommentAt : function(aIndex) 
 	{
-		if (this.service.isMigemoActive &&
-			this.resultsOverride.length)
+		if (this.isMigemoResult)
 			return this.resultsOverride[aIndex].title;
 		return this.controller.getCommentAt(aIndex);
 	},
  
 	getStyleAt : function(aIndex) 
 	{
-		if (this.service.isMigemoActive &&
-			this.resultsOverride.length)
+		if (this.isMigemoResult)
 			return this.resultsOverride[aIndex].style;
 		return this.controller.getStyleAt(aIndex);
 	},
  
 	getImageAt : function(aIndex) 
 	{
-		if (this.service.isMigemoActive &&
-			this.resultsOverride.length)
+		if (this.isMigemoResult)
 			return this.resultsOverride[aIndex].icon;
 		return this.controller.getImageAt(aIndex);
 	},
  
 	get searchString() 
 	{
-		if (this.service.isMigemoActive)
-			return this.searchStringOverride || this.controller.searchString;
-		return this.controller.searchString;
+		return this.searchStringOverride || this.controller.searchString;
 	},
 	set searchString(aValue)
 	{
