@@ -43,6 +43,11 @@ var XMigemoUI = {
 	FIND_MODE_NATIVE : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE, 
 	FIND_MODE_MIGEMO : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
 	FIND_MODE_REGEXP : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP,
+	findModeFromIndex : {
+		'0' : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
+		'1' : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
+		'2' : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP
+	},
 
 	forcedFindMode   : -1,
 	lastFindMode     : -1,
@@ -636,7 +641,7 @@ var XMigemoUI = {
 				return;
 
 			case 'xulmigemo.findMode.always':
-				this.forcedFindMode = value;
+				this.forcedFindMode = (value in this.findModeFromIndex) ? this.findModeFromIndex[value] : value ;
 				return;
 
 			case 'xulmigemo.enabletimeout':
@@ -2740,8 +2745,10 @@ var XMigemoUI = {
 	delayedInit : function() { 
 		window.setTimeout("XMigemoUI.field.addEventListener('blur', this, false);", 0);
 
-		if (XMigemoService.getPref('xulmigemo.findMode.default') > -1)
-			this.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
+		if (XMigemoService.getPref('xulmigemo.findMode.default') > -1) {
+			var value = XMigemoService.getPref('xulmigemo.findMode.default');
+			this.findMode = (value in this.findModeFromIndex) ? this.findModeFromIndex[value] : value ;
+		}
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.highlight'))
 			this.highlightCheck.checked = this.highlightCheck.xmigemoOriginalChecked = true;
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.caseSensitive')) {
