@@ -26,9 +26,9 @@ pref("xulmigemo.checked_by_default.highlight.always",     false);
 pref("xulmigemo.checked_by_default.highlight.always.minLength", 2);
 pref("xulmigemo.checked_by_default.caseSensitive.always", false);
 
-// 1 = native, 2 = migemo, 4 = regexp
+// 0 = native, 1 = migemo, 2 = regexp
 pref("xulmigemo.findMode.always", -1);
-pref("xulmigemo.findMode.default", 1);
+pref("xulmigemo.findMode.default", 0);
 
 pref("xulmigemo.highlight.showScreen",     true);
 pref("xulmigemo.highlight.animateFound",   true);

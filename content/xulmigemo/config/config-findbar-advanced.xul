@@ -33,9 +33,9 @@
 			<radiogroup id="xulmigemo.findMode.default-radio"
 				orient="horizontal"
 				preference="xulmigemo.findMode.default">
-				<radio label="&ui.mode.normal.label;" value="1"/>
-				<radio label="&ui.mode.regexp.label;" value="4"/>
-				<radio label="&ui.mode.migemo.label;" value="2"/>
+				<radio label="&ui.mode.normal.label;" value="0"/>
+				<radio label="&ui.mode.regexp.label;" value="2"/>
+				<radio label="&ui.mode.migemo.label;" value="1"/>
 			</radiogroup>
 		</hbox>
 		<checkbox id="xulmigemo.checked_by_default.highlight-check"
