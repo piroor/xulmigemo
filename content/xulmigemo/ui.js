@@ -39,22 +39,43 @@ var XMigemoUI = {
 	_textUtils : null,
   
 /* internal status */ 
-	
+	 
 	FIND_MODE_NATIVE : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE, 
 	FIND_MODE_MIGEMO : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
 	FIND_MODE_REGEXP : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP,
-	findModeFromIndex : {
-		'0' : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
-		'1' : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
-		'2' : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP
-	},
 
 	forcedFindMode   : -1,
 	lastFindMode     : -1,
 	backupFindMode   : -1,
 
 	isModeChanged : false,
- 
+	 
+	findModeVersion : 2, 
+	findModeFrom1To2 : {
+		'0' : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
+		'1' : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
+		'2' : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP
+	},
+	upgradeFindModePrefs : function()
+	{
+		var modeVersion = XMigemoService.getPref('xulmigemo.findMode.version') || 1;
+		if (modeVersion == this.findModeVersion) return;
+
+		var table = 'findModeFrom'+modeVersion+'To'+this.findModeVersion;
+		if (!(table in this)) return;
+
+		table = this[table];
+		'xulmigemo.findMode.default xulmigemo.findMode.always'
+			.split(' ')
+			.forEach(function(aPref) {
+				var value = XMigemoService.getPref(aPref);
+				if (value in table)
+					XMigemoService.setPref(aPref, table[value]);
+			}, this);
+
+		XMigemoService.setPref('xulmigemo.findMode.version', this.findModeVersion);
+	},
+ 	 
 	autoStartQuickFind       : false, 
 	autoExitQuickFindInherit : true,
 	autoExitQuickFind        : true,
@@ -641,7 +662,7 @@ var XMigemoUI = {
 				return;
 
 			case 'xulmigemo.findMode.always':
-				this.forcedFindMode = (value in this.findModeFromIndex) ? this.findModeFromIndex[value] : value ;
+				this.forcedFindMode = value;
 				return;
 
 			case 'xulmigemo.enabletimeout':
@@ -1838,7 +1859,7 @@ var XMigemoUI = {
 	},
    
 /* Override FindBar */ 
-	 
+	
 	overrideFindBar : function() 
 	{
 		this.replaceFindBarMethods();
@@ -2540,7 +2561,7 @@ var XMigemoUI = {
 		}
 		aSelf.nextHighlightSelectionState = void(0);
 	},
- 	 
+  
 	updateStatus : function(aStatusText) 
 	{
 		var bar = this.findBar;
@@ -2732,6 +2753,7 @@ var XMigemoUI = {
 		this.updateItemOrder();
 		this.overrideFindBar();
 
+		this.upgradeFindModePrefs();
 		XMigemoService.addPrefListener(this);
 
 		window.setTimeout(function(aSelf) {
@@ -2745,10 +2767,8 @@ var XMigemoUI = {
 	delayedInit : function() { 
 		window.setTimeout("XMigemoUI.field.addEventListener('blur', this, false);", 0);
 
-		if (XMigemoService.getPref('xulmigemo.findMode.default') > -1) {
-			var value = XMigemoService.getPref('xulmigemo.findMode.default');
-			this.findMode = (value in this.findModeFromIndex) ? this.findModeFromIndex[value] : value ;
-		}
+		if (XMigemoService.getPref('xulmigemo.findMode.default') > -1)
+			this.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.highlight'))
 			this.highlightCheck.checked = this.highlightCheck.xmigemoOriginalChecked = true;
 		if (XMigemoService.getPref('xulmigemo.checked_by_default.caseSensitive')) {

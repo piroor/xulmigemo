@@ -243,9 +243,9 @@
 				align="center"
 				preference="xulmigemo.findMode.always">
 				<radio label="&config.findMode.always.undefined.label;" value="-1"/>
-				<radio label="&ui.mode.normal.label;" value="0"/>
-				<radio label="&ui.mode.regexp.label;" value="2"/>
-				<radio label="&ui.mode.migemo.label;" value="1"/>
+				<radio label="&ui.mode.normal.label;" value="1"/>
+				<radio label="&ui.mode.regexp.label;" value="4"/>
+				<radio label="&ui.mode.migemo.label;" value="2"/>
 			</radiogroup>
 		</hbox>
 		<separator class="groove"/>
