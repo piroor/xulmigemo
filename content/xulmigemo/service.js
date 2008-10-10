@@ -51,7 +51,7 @@ var XMigemoService = {
 	_XULAppInfo : null,
  
 /* Prefs */ 
-	
+	 
 	get Prefs() 
 	{
 		if (!this._Prefs) {
@@ -61,15 +61,13 @@ var XMigemoService = {
 	},
 	_Prefs : null,
  
-	knsISupportsString : ('nsISupportsWString' in Components.interfaces) ? Components.interfaces.nsISupportsWString : Components.interfaces.nsISupportsString, 
- 
-	getPref : function(aPrefstring, aStringType) 
+	getPref : function(aPrefstring) 
 	{
 		try {
 			switch (this.Prefs.getPrefType(aPrefstring))
 			{
 				case this.Prefs.PREF_STRING:
-					return this.Prefs.getComplexValue(aPrefstring, aStringType || this.knsISupportsString).data;
+					return decodeURIComponent(escape(this.Prefs.getCharPref(aPrefstring)));
 					break;
 				case this.Prefs.PREF_INT:
 					return this.Prefs.getIntPref(aPrefstring);
@@ -84,7 +82,7 @@ var XMigemoService = {
 
 		return null;
 	},
- 
+ 	
 	setPref : function(aPrefstring, aNewValue, aPrefObj) 
 	{
 		var pref = aPrefObj || this.Prefs ;
@@ -99,11 +97,7 @@ var XMigemoService = {
 		switch (type)
 		{
 			case 'string':
-				var string = ('@mozilla.org/supports-wstring;1' in Components.classes) ?
-						Components.classes['@mozilla.org/supports-wstring;1'].createInstance(this.knsISupportsString) :
-						Components.classes['@mozilla.org/supports-string;1'].createInstance(this.knsISupportsString) ;
-				string.data = aNewValue;
-				pref.setComplexValue(aPrefstring, this.knsISupportsString, string);
+				pref.setCharPref(aPrefstring, unescape(encodeURIComponent(aNewValue)));
 				break;
 			case 'number':
 				pref.setIntPref(aPrefstring, parseInt(aNewValue));
@@ -326,7 +320,7 @@ var XMigemoService = {
 		var contentType = Components.lookupMethod(doc, 'contentType').call(doc);
 		return /^text\/|\+xml$|^application\/((x-)?javascript|xml)$/.test(contentType);
 	},
- 	
+ 
 	isEventFiredOnScrollBar : function(aEvent) 
 	{
 		var node = aEvent.originalTarget;
