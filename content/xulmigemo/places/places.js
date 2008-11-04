@@ -292,7 +292,7 @@ var XMigemoPlaces = {
 		                 1
 		               ) rank
 		          FROM moz_inputhistory i
-		               JOIN moz_places p ON i.place_id = p.id
+		               LEFT OUTER JOIN moz_places p ON i.place_id = p.id
 		               %SOURCE_FILTER%
 		         WHERE 1 %EXCLUDE_JAVASCRIPT%
 		                 %ONLY_TYPED%
@@ -341,7 +341,7 @@ var XMigemoPlaces = {
 		                   1
 		                 ) rank
 		            FROM moz_inputhistory i
-		                 JOIN moz_places p ON i.place_id = p.id
+		                 LEFT OUTER JOIN moz_places p ON i.place_id = p.id
 		                 %SOURCE_FILTER%
 		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
 		           WHERE 1 %EXCLUDE_JAVASCRIPT%
