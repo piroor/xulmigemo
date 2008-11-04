@@ -281,23 +281,25 @@ var XMigemoPlaces = {
 		               p.url uri,
 		               p.frecency frecency,
 		               %BOOKMARK_TITLE%,
-		               %TAGS%,
-		               ROUND(
-		                 MAX(0,
-		                   (
-		                     (i.input = ?4) +
-		                     (SUBSTR(i.input, 1, LENGTH(?4)) = ?4)
-		                    ) * i.use_count
-		                 ),
-		                 1
-		               ) rank
-		          FROM moz_inputhistory i
-		               LEFT OUTER JOIN moz_places p ON i.place_id = p.id
+		               %TAGS%
+		          FROM (SELECT MAX(ROUND(
+		                         MAX(
+		                           0,
+		                           (
+		                             (i.input = ?4) + (SUBSTR(i.input, 1, LENGTH(?4)) = ?4)
+		                           ) * i.use_count
+		                         ),
+		                         1
+		                       )) AS rank,
+		                       place_id
+		                  FROM moz_inputhistory i
+		                 GROUP BY i.place_id HAVING rank > 0
+		               ) AS i
+		               LEFT JOIN moz_places p ON i.place_id = p.id
 		               %SOURCE_FILTER%
 		         WHERE 1 %EXCLUDE_JAVASCRIPT%
 		                 %ONLY_TYPED%
 		                 %ONLY_TAGGED%
-		         GROUP BY i.place_id HAVING rank > 0
 		         ORDER BY rank DESC, frecency DESC
 		         LIMIT ?2,?3)
 	]]>.toString(),
@@ -331,26 +333,30 @@ var XMigemoPlaces = {
 		                 p.frecency frecency,
 		                 %BOOKMARK_TITLE%,
 		                 %TAGS%,
-		                 ROUND(
-		                   MAX(0,
-		                     (
-		                       (i.input = ?1) +
-		                       (SUBSTR(i.input, 1, LENGTH(?1)) = ?1)
-		                      ) * i.use_count
-		                   ),
-		                   1
-		                 ) rank
-		            FROM moz_inputhistory i
-		                 LEFT OUTER JOIN moz_places p ON i.place_id = p.id
+		                 i.rank rank
+		            FROM (SELECT MAX(ROUND(
+		                           MAX(
+		                             0,
+		                             (
+		                               (i.input = ?1) + (SUBSTR(i.input, 1, LENGTH(?1)) = ?1)
+		                             ) * i.use_count
+		                           ),
+		                           1
+		                         )) AS rank,
+		                         place_id
+		                    FROM moz_inputhistory i
+		                   GROUP BY i.place_id HAVING rank > 0
+		                 ) AS i
+		                 LEFT JOIN moz_places p ON i.place_id = p.id
 		                 %SOURCE_FILTER%
 		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
 		           WHERE 1 %EXCLUDE_JAVASCRIPT%
 		                   %ONLY_TYPED%
 		                   %ONLY_TAGGED%
 		           GROUP BY i.place_id HAVING rank > 0
-		           ORDER BY rank DESC, frecency DESC
 		           %SOURCES_LIMIT_PART%)
-		   GROUP BY uri)
+		   GROUP BY uri
+		   ORDER BY rank DESC, frecency DESC)
 		   WHERE %TERMS_RULES%
 	]]>.toString(),
    
