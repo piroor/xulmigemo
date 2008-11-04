@@ -281,21 +281,20 @@ var XMigemoPlaces = {
 		               p.url uri,
 		               p.frecency frecency,
 		               %BOOKMARK_TITLE%,
-		               %TAGS%
-		          FROM (SELECT MAX(ROUND(
+		               %TAGS%, i.rank rank
+		          FROM (SELECT ROUND(
 		                         MAX(
-		                           0,
 		                           (
 		                             (i.input = ?4) + (SUBSTR(i.input, 1, LENGTH(?4)) = ?4)
 		                           ) * i.use_count
 		                         ),
 		                         1
-		                       )) AS rank,
+		                       ) AS rank,
 		                       place_id
 		                  FROM moz_inputhistory i
 		                 GROUP BY i.place_id HAVING rank > 0
 		               ) AS i
-		               LEFT JOIN moz_places p ON i.place_id = p.id
+		               LEFT OUTER JOIN moz_places p ON i.place_id = p.id
 		               %SOURCE_FILTER%
 		         WHERE 1 %EXCLUDE_JAVASCRIPT%
 		                 %ONLY_TYPED%
@@ -334,26 +333,24 @@ var XMigemoPlaces = {
 		                 %BOOKMARK_TITLE%,
 		                 %TAGS%,
 		                 i.rank rank
-		            FROM (SELECT MAX(ROUND(
+		            FROM (SELECT ROUND(
 		                           MAX(
-		                             0,
 		                             (
 		                               (i.input = ?1) + (SUBSTR(i.input, 1, LENGTH(?1)) = ?1)
 		                             ) * i.use_count
 		                           ),
 		                           1
-		                         )) AS rank,
+		                         ) AS rank,
 		                         place_id
 		                    FROM moz_inputhistory i
 		                   GROUP BY i.place_id HAVING rank > 0
 		                 ) AS i
-		                 LEFT JOIN moz_places p ON i.place_id = p.id
+		                 LEFT OUTER JOIN moz_places p ON i.place_id = p.id
 		                 %SOURCE_FILTER%
 		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
 		           WHERE 1 %EXCLUDE_JAVASCRIPT%
 		                   %ONLY_TYPED%
 		                   %ONLY_TAGGED%
-		           GROUP BY i.place_id HAVING rank > 0
 		           %SOURCES_LIMIT_PART%)
 		   GROUP BY uri
 		   ORDER BY rank DESC, frecency DESC)
