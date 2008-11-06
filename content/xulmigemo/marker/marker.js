@@ -27,6 +27,7 @@ var XMigemoMarker = {
  
 	init : function() 
 	{
+		window.removeEventListener('load', this, false);
 		if (window
 			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 			.getInterface(Components.interfaces.nsIWebNavigation)
@@ -35,7 +36,6 @@ var XMigemoMarker = {
 			.parent) // in subframe
 			return;
 
-		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 
 		XMigemoService.addPrefListener(this);

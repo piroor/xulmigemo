@@ -23,6 +23,7 @@ var XMigemoHighlight = {
 	 
 	init : function() 
 	{
+		window.removeEventListener('load', this, false);
 		if (window
 			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 			.getInterface(Components.interfaces.nsIWebNavigation)
@@ -81,7 +82,6 @@ var XMigemoHighlight = {
 		bar.addEventListener('XMigemoFindBarToggleHighlight', this, false);
 		document.addEventListener('XMigemoFindAgain', this, false);
 
-		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 
 		XMigemoUI.registerHighlightUtility(this);

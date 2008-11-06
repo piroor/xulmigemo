@@ -216,6 +216,16 @@ interface pIXMigemo : pIXMigemoEngine
 		in AString regExpSource
 	);
 
+	attribute boolean andFindAvailable;
+	attribute boolean notFindAvailable;
+	AString getRegExpFromMultipleTermsInput(
+		in AString input,
+		out AString termsRegExp,
+		out AString exceptionsRegExp
+	);
+	boolean isValidInput(in AString input);
+	AString trimInput(in AString input);
+
 	attribute double createCacheTimeOverride;
 	readonly attribute pIXMigemoCache cache;
 	readonly attribute pIXMigemoDicManager dictionaryManager;

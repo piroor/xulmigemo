@@ -110,7 +110,7 @@ pXMigemoCore.prototype = {
 	{
 		return !this.engine ? '' : this.getRegExpInternal(aInput, void(0)) ;
 	},
-	 
+	
 	getRegExpInternal : function(aInput, aEnableAutoSplit) 
 	{
 		var myExp = [];
@@ -178,7 +178,7 @@ pXMigemoCore.prototype = {
 				return self.getRegExp(aInput);
 			});
 	},
- 	
+ 
 	getRegExpFor : function(aInput) 
 	{
 		if (!aInput) return null;
@@ -364,8 +364,72 @@ dump('STEP 2: '+array.toSource()+'\n');
 		return containsArray ? [final] : final ;
 	},
    
-/* Find */ 
+/* AND/NOT find */ 
 	 
+	andFindAvailable : true, 
+	notFindAvailable : true,
+ 
+	getRegExpFromMultipleTermsInput : function(aInput, aTermsRegExp, aExceptionRegExp) 
+	{
+		if (!aTermsRegExp) aTermsRegExp = {};
+		if (!aExceptionRegExp) aExceptionRegExp = {};
+
+		aExceptionRegExp.value = '';
+		if (this.notFindAvailable) {
+			var exceptions = {};
+			aInput = this.siftExceptions(aInput, exceptions);
+			if (exceptions.value.length)
+				aExceptionRegExp.value = this.textUtils.getORFindRegExpFromTerms(this.getRegExps(exceptions.value.join(' ')));
+		}
+
+		var regexps = this.getRegExps(aInput);
+		var result = this.andFindAvailable ?
+				this.textUtils.getANDFindRegExpFromTerms(regexps) :
+				this.getRegExp(aInput) ;
+
+		aTermsRegExp.value = this.textUtils.getORFindRegExpFromTerms(regexps);
+
+		return result;
+	},
+	 
+	siftExceptions : function(aInput, aExceptions) 
+	{
+		if (!aExceptions) aExceptions = {};
+		aExceptions.value = [];
+		var findInput = aInput.split(/\s+/).filter(function(aTerm) {
+			if (aTerm.indexOf('-') == 0) {
+				aExceptions.value.push(aTerm.substring(1));
+				return false;
+			}
+			return true;
+		}).join(' ');
+		return findInput;
+	},
+   	
+	isValidInput : function(aInput) 
+	{
+		var converted = aInput.replace(/\s+/g, '\n');
+		return (
+				this.textUtils.isRegExp(aInput) ||
+				this.kMIGEMO_PATTERN.test(converted) ||
+				(this.notFindAvailable && this.kNOT_PATTERN.test(converted))
+			);
+	},
+	kMIGEMO_PATTERN : /^[\w\-\:\}\{\$\?\*\+\.\^\/\;\\]+$/im,
+	kNOT_PATTERN : /^-/im,
+ 
+	trimInput : function(aInput) 
+	{
+		var input = this.textUtils.trim(aInput);
+		if (this.notFindAvailable) {
+			// ì¸óÕíÜÇÃNOTåüçıópââéZéqÇèúäO
+			input = input.replace(/\s+-$/, '');
+		}
+		return input;
+	},
+ 
+/* Find */ 
+	
 	get mFind() 
 	{
 		if (!this._mFind)
@@ -615,9 +679,23 @@ dump('STEP 2: '+array.toSource()+'\n');
 
 			case 'timer-callback':
 				return;
+
+			case 'nsPref:changed':
+				switch (aData)
+				{
+					case 'xulmigemo.ANDFind.enabled':
+						this.andFindAvailable = Prefs.getBoolPref(aData);
+						return;
+
+					case 'xulmigemo.NOTFind.enabled':
+						this.notFindAvailable = Prefs.getBoolPref(aData);
+						return;
+				}
 		}
 	},
- 
+	
+	domain : 'xulmigemo', 
+  
 	init : function(aLang) 
 	{
 		if (this.initialized) return;
@@ -641,11 +719,19 @@ dump('STEP 2: '+array.toSource()+'\n');
 		this.dictionaryManager.init(this.dictionary, this.cache);
 
 		ObserverService.addObserver(this, 'XMigemo:cacheCleared', false);
+
+		var pbi = Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+		pbi.addObserver(this.domain, this, false);
+		this.observe(null, 'nsPref:changed', 'xulmigemo.ANDFind.enabled');
+		this.observe(null, 'nsPref:changed', 'xulmigemo.NOTFind.enabled');
 	},
  
 	destroy : function() 
 	{
 		ObserverService.removeObserver(this, 'XMigemo:cacheCleared');
+
+		var pbi = Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+		pbi.removeObserver(this.domain, this, false);
 	},
  
 	QueryInterface : function(aIID) 
@@ -677,7 +763,7 @@ pXMigemoFactory.prototype = {
 	get wrappedJSObject() {
 		return this;
 	},
-	 
+	
 	services : {}, 
  
 	getService : function(aLang) 
