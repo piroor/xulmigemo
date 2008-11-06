@@ -49,7 +49,7 @@
 /* セレクタを重ねて詳細度を上げておかないと、rubysupportのスタイル指定に負けてしまう */
 :root[__moz_xmigemo-find-highlight-screen="on"] .__mozilla-findbar-animation,
 :root[__moz_xmigemo-find-highlight-animation="true"] .__mozilla-findbar-animation {
-	-moz-binding: url("chrome://xulmigemo/content/highlight.xml#animation-box") !important;
+	-moz-binding: url("chrome://xulmigemo/content/highlight/highlight.xml#animation-box") !important;
 	position: absolute !important;
 	z-index: 3000100 !important;
 	padding: 0 !important;
