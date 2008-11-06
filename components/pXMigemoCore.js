@@ -369,7 +369,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 	andFindAvailable : true, 
 	notFindAvailable : true,
  
-	getRegExpFromMultipleTermsInput : function(aInput, aTermsRegExp, aExceptionRegExp) 
+	getRegExpFunctional : function(aInput, aTermsRegExp, aExceptionRegExp) 
 	{
 		if (!aTermsRegExp) aTermsRegExp = {};
 		if (!aExceptionRegExp) aExceptionRegExp = {};
@@ -406,7 +406,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 		return findInput;
 	},
    	
-	isValidInput : function(aInput) 
+	isValidFunctionalInput : function(aInput) 
 	{
 		var converted = aInput.replace(/\s+/g, '\n');
 		return (
@@ -418,7 +418,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 	kMIGEMO_PATTERN : /^[\w\-\:\}\{\$\?\*\+\.\^\/\;\\]+$/im,
 	kNOT_PATTERN : /^-/im,
  
-	trimInput : function(aInput) 
+	trimFunctionalInput : function(aInput) 
 	{
 		var input = this.textUtils.trim(aInput);
 		if (this.notFindAvailable) {

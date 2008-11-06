@@ -39,9 +39,9 @@ var XMigemoCore = {
 		return this.XMigemo.notFindAvailable;
 	},
  
-	getRegExpFromMultipleTermsInput : function(aInput, aTermsRegExp, aExceptionRegExp) 
+	getRegExpFunctional : function(aInput, aTermsRegExp, aExceptionRegExp) 
 	{
-		return this.XMigemo.getRegExpFromMultipleTermsInput(aInput, aTermsRegExp, aExceptionRegExp);
+		return this.XMigemo.getRegExpFunctional(aInput, aTermsRegExp, aExceptionRegExp);
 	},
  
 	isValidInput : function(aInput) 
@@ -49,9 +49,9 @@ var XMigemoCore = {
 		return this.XMigemo.isValidInput(aInput);
 	},
  
-	trimInput : function(aInput) 
+	trimFunctionalInput : function(aInput) 
 	{
-		return this.XMigemo.trimInput(aInput);
+		return this.XMigemo.trimFunctionalInput(aInput);
 	},
  
 /* Find */ 

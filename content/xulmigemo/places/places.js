@@ -605,7 +605,7 @@ var XMigemoPlaces = {
 		else {
 			var termsRegExp = {};
 			this.lastFindRegExp = new RegExp(
-				XMigemoCore.getRegExpFromMultipleTermsInput(aBaseQuery.searchTerms, termsRegExp),
+				XMigemoCore.getRegExpFunctional(aBaseQuery.searchTerms, termsRegExp),
 				'gim'
 			);
 			this.lastTermsRegExp = new RegExp(termsRegExp.value, 'gim');

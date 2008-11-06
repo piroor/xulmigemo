@@ -168,7 +168,7 @@ var XMigemoLocationBarOverlay = {
  
 	get input() 
 	{
-		return XMigemoCore.trimInput(this.bar.value);
+		return XMigemoCore.trimFunctionalInput(this.bar.value);
 	},
  
 	get panel() 
@@ -429,7 +429,7 @@ var XMigemoLocationBarOverlay = {
 			var termsRegExp = {};
 			var exceptionRegExp = {};
 			this.lastFindRegExp = new RegExp(
-				XMigemoCore.getRegExpFromMultipleTermsInput(findInput, termsRegExp, exceptionRegExp),
+				XMigemoCore.getRegExpFunctional(findInput, termsRegExp, exceptionRegExp),
 				'gim'
 			);
 			if (exceptionRegExp.value)
