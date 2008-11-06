@@ -55,8 +55,8 @@ XMigemoStartupService.prototype = {
 	updateGlobalStyleSheets : function() 
 	{
 		var sheets = [
-				'chrome://xulmigemo/content/highlight.css',
-				'chrome://xulmigemo/content/marker.css'
+				'chrome://xulmigemo/content/highlight/highlight.css',
+				'chrome://xulmigemo/content/marker/marker.css'
 			];
 		sheets.forEach(function(aSheet) {
 			var sheet = IOService.newURI(aSheet, null, null);
