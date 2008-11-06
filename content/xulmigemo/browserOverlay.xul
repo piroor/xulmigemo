@@ -12,6 +12,8 @@
 <window id="main-window">
 	<hbox id="XMigemoFindToolbar"
 		insertbefore="FindToolbar"/>
+
+	<script src="chrome://xulmigemo/content/tabPreviews.js" type="application/x-javascript; e4x=1"/>
 </window>
 
 </overlay>

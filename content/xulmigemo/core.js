@@ -44,9 +44,9 @@ var XMigemoCore = {
 		return this.XMigemo.getRegExpFunctional(aInput, aTermsRegExp, aExceptionRegExp);
 	},
  
-	isValidInput : function(aInput) 
+	isValidFunctionalInput : function(aInput) 
 	{
-		return this.XMigemo.isValidInput(aInput);
+		return this.XMigemo.isValidFunctionalInput(aInput);
 	},
  
 	trimFunctionalInput : function(aInput) 

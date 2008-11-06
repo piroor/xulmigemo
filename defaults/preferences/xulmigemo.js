@@ -100,6 +100,8 @@ pref("xulmigemo.places.bookmarksPanel",        true);
 pref("xulmigemo.places.historyPanel",          true);
 pref("xulmigemo.places.organizer",             true);
 
+pref("xulmigemo.ctrlTab.enabled", true);
+
 pref("xulmigemo.mailnews.threadsearch.enabled", true);
 pref("xulmigemo.mailnews.threadsearch.body",    false);
 
