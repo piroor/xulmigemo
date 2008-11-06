@@ -546,6 +546,9 @@
 		<preference id="xulmigemo.places.organizer"
 			name="xulmigemo.places.organizer"
 			type="bool"/>
+		<preference id="xulmigemo.ctrlTab.enabled"
+			name="xulmigemo.ctrlTab.enabled"
+			type="bool"/>
 
 		<preference id="xulmigemo.mailnews.threadsearch.enabled"
 			name="xulmigemo.mailnews.threadsearch.enabled"
@@ -583,6 +586,9 @@
 		</vbox>
 		</hbox>
 	</groupbox>
+	<checkbox id="xulmigemo.ctrlTab.enabled-check" flex="1"
+		label="&config.ctrlTab.enabled;"
+		preference="xulmigemo.ctrlTab.enabled"/>
 
 	<groupbox>
 		<caption label="&config.caption.mailnews;"/>
