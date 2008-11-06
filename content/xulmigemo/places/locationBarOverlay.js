@@ -168,12 +168,7 @@ var XMigemoLocationBarOverlay = {
  
 	get input() 
 	{
-		var input = this.TextUtils.trim(this.bar.value);
-		if (XMigemoPlaces.notFindAvailable) {
-			// ì¸óÕíÜÇÃNOTåüçıópââéZéqÇèúäO
-			input = input.replace(/\s+-$/, '');
-		}
-		return input;
+		return XMigemoCore.trimInput(this.bar.value);
 	},
  
 	get panel() 
@@ -431,24 +426,15 @@ var XMigemoLocationBarOverlay = {
 			this.lastFindMode = Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP;
 		}
 		else {
-			if (XMigemoPlaces.notFindAvailable) {
-				var exceptions = {};
-				findInput = XMigemoPlaces.siftExceptions(findInput, exceptions);
-				if (exceptions.value.length)
-					this.lastExceptionsRegExp = new RegExp(this.TextUtils.getORFindRegExpFromTerms(XMigemoCore.getRegExps(exceptions.value.join(' '))), 'gim');
-			}
-			var terms = XMigemoCore.getRegExps(findInput);
+			var termsRegExp = {};
+			var exceptionRegExp = {};
 			this.lastFindRegExp = new RegExp(
-				(XMigemoPlaces.andFindAvailable ?
-					this.TextUtils.getANDFindRegExpFromTerms(terms) :
-					XMigemoCore.getRegExp(findInput)
-				),
+				XMigemoCore.getRegExpFromMultipleTermsInput(findInput, termsRegExp, exceptionRegExp),
 				'gim'
 			);
-			this.lastTermsRegExp = new RegExp(
-				this.TextUtils.getORFindRegExpFromTerms(terms),
-				'gim'
-			);
+			if (exceptionRegExp.value)
+				this.lastExceptionsRegExp = new RegExp(exceptionRegExp.value, 'gim');
+			this.lastTermsRegExp = new RegExp(termsRegExp.value, 'gim');
 			this.lastFindMode = Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO;
 		}
 	},

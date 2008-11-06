@@ -29,6 +29,31 @@ var XMigemoCore = {
 		return this.XMigemo.flattenRegExp(aRegExp);
 	},
  
+	get andFindAvailable() 
+	{
+		return this.XMigemo.andFindAvailable;
+	},
+ 
+	get notFindAvailable() 
+	{
+		return this.XMigemo.notFindAvailable;
+	},
+ 
+	getRegExpFromMultipleTermsInput : function(aInput, aTermsRegExp, aExceptionRegExp) 
+	{
+		return this.XMigemo.getRegExpFromMultipleTermsInput(aInput, aTermsRegExp, aExceptionRegExp);
+	},
+ 
+	isValidInput : function(aInput) 
+	{
+		return this.XMigemo.isValidInput(aInput);
+	},
+ 
+	trimInput : function(aInput) 
+	{
+		return this.XMigemo.trimInput(aInput);
+	},
+ 
 /* Find */ 
 	
 	regExpFind : function(aRegExp, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 

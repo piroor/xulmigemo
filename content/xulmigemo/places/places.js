@@ -3,8 +3,6 @@ var XMigemoPlaces = {
 	chunk     : 100, 
 	ignoreURI : true,
 	minLength : 3,
-	andFindAvailable : true,
-	notFindAvailable : true,
 	boundaryFindAvailable : false,
 	filterJavaScript : true,
 	filterTyped : false,
@@ -23,15 +21,9 @@ var XMigemoPlaces = {
 				!/^\w+:\/\//.test(aInput)
 			) &&
 			this.minLength <= aInput.length &&
-			(
-				this.TextUtils.isRegExp(aInput) ||
-				this.kMIGEMO_PATTERN.test(converted) ||
-				(this.notFindAvailable && this.kNOT_PATTERN.test(converted))
-			)
+			XMigemoCore.isValidInput(aInput)
 			);
 	},
-	kMIGEMO_PATTERN : /^[\w\-\:\}\{\$\?\*\+\.\^\/\;\\]+$/im,
-	kNOT_PATTERN : /^-/im,
  
 /* SQL */ 
 	 
@@ -611,18 +603,12 @@ var XMigemoPlaces = {
 				this.lastTermsRegExp = new RegExp(this.TextUtils.extractRegExpSource(aQuery.searchTerms), 'gim');
 		}
 		else {
-//			if (this.notFindAvailable) {
-//				var exceptions = {};
-//				findInput = this.siftExceptions(findInput, exceptions);
-//				this.lastExceptions = exceptions.value;
-//			}
-			var regexps = XMigemoCore.getRegExps(aBaseQuery.searchTerms);
+			var termsRegExp = {};
 			this.lastFindRegExp = new RegExp(
-				(this.andFindAvailable ?
-					this.TextUtils.getANDFindRegExpFromTerms(regexps) :
-					XMigemoCore.getRegExp(aBaseQuery.searchTerms)
-				), 'gim');
-			this.lastTermsRegExp = new RegExp(this.TextUtils.getORFindRegExpFromTerms(regexps), 'gim');
+				XMigemoCore.getRegExpFromMultipleTermsInput(aBaseQuery.searchTerms, termsRegExp),
+				'gim'
+			);
+			this.lastTermsRegExp = new RegExp(termsRegExp.value, 'gim');
 		}
 		this.lastTermSets = [];
 		this.lastQueries = [];
@@ -682,20 +668,6 @@ var XMigemoPlaces = {
 		return true;
 	},
   
-	siftExceptions : function(aInput, aExceptions) 
-	{
-		if (!aExceptions) aExceptions = {};
-		aExceptions.value = [];
-		var findInput = aInput.split(/\s+/).filter(function(aTerm) {
-			if (aTerm.indexOf('-') == 0) {
-				aExceptions.value.push(aTerm.substring(1));
-				return false;
-			}
-			return true;
-		}).join(' ');
-		return findInput;
-	},
- 
 /* event handling */ 
 	
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -705,14 +677,6 @@ var XMigemoPlaces = {
 		var value = XMigemoService.getPref(aPrefName);
 		switch (aPrefName)
 		{
-			case 'xulmigemo.places.enableANDFind':
-				this.andFindAvailable = value;
-				return;
-
-			case 'xulmigemo.places.enableNOTFind':
-				this.notFindAvailable = value;
-				return;
-
 			case 'xulmigemo.places.enableBoundaryFind':
 				this.boundaryFindAvailable = value;
 				return;
@@ -777,8 +741,6 @@ var XMigemoPlaces = {
 		'browser.urlbar'
 	],
 	preferences : <![CDATA[
-		xulmigemo.places.enableANDFind
-		xulmigemo.places.enableNOTFind
 		xulmigemo.places.enableBoundaryFind
 		xulmigemo.places.ignoreURI
 		xulmigemo.places.chunk

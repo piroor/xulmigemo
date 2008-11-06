@@ -86,8 +86,9 @@ pref("xulmigemo.cache.override.ja",             "migemocache.txt");
 pref("xulmigemo.find_delay",                    50);
 
 
-pref("xulmigemo.places.enableANDFind",         true);
-pref("xulmigemo.places.enableNOTFind",         true);
+pref("xulmigemo.ANDFind.enabled", true);
+pref("xulmigemo.NOTFind.enabled", true);
+
 pref("xulmigemo.places.enableBoundaryFind",    false);
 pref("xulmigemo.places.chunk",                 100);
 pref("xulmigemo.places.minLength",             2);
