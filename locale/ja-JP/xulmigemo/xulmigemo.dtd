@@ -122,6 +122,8 @@
 <!ENTITY config.places.historyPanel   "履歴サイドバー">
 <!ENTITY config.places.organizer      "履歴とブックマークの管理">
 
+<!ENTITY config.ctrlTab.enabled "タブのプレビューの検索で有効にする（Firefox 3.1以降でのみ有効）">
+
 <!ENTITY config.caption.mailnews        "Thunderbird">
 <!ENTITY config.mailnews.threadsearch.enabled "メールのクイック検索で有効にする">
 <!ENTITY config.mailnews.threadsearch.body    "本文の検索でも有効にする（処理が重くなります）">

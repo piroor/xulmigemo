@@ -122,6 +122,8 @@
 <!ENTITY config.places.historyPanel   "History Sidebar">
 <!ENTITY config.places.organizer      "Library">
 
+<!ENTITY config.ctrlTab.enabled "Activate for Tab Previews (only Firefox 3 or later)">
+
 <!ENTITY config.caption.mailnews        "Thunderbird">
 <!ENTITY config.mailnews.threadsearch.enabled "Activate for quick mail search">
 <!ENTITY config.mailnews.threadsearch.body    "Activate for message bodies (possibly makes Thunderbird heavy)">
