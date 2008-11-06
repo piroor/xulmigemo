@@ -179,6 +179,16 @@ interface pIXMigemo : pIXMigemoEngine
 	AString getRegExp(in AString input);
 	nsIVariant getRegExps(in AString input); /* for input split by whitespace characters */
 
+	AString getRegExpFromMultipleTermsInput(
+		in AString input,
+		out AString termsRegExp,
+		out AString exceptionsRegExp
+	);
+	attribute boolean andFindAvailable;
+	attribute boolean notFindAvailable;
+	boolean isValidInput(in AString input);
+	AString trimInput(in AString input);
+
 	/* find by regular expression, and return the first item of found terms as DOM2 Range. */
 	nsIDOMRange regExpFind(
 		in AString regExpSource,
@@ -215,16 +225,6 @@ interface pIXMigemo : pIXMigemoEngine
 	nsIVariant flattenRegExp(
 		in AString regExpSource
 	);
-
-	attribute boolean andFindAvailable;
-	attribute boolean notFindAvailable;
-	AString getRegExpFromMultipleTermsInput(
-		in AString input,
-		out AString termsRegExp,
-		out AString exceptionsRegExp
-	);
-	boolean isValidInput(in AString input);
-	AString trimInput(in AString input);
 
 	attribute double createCacheTimeOverride;
 	readonly attribute pIXMigemoCache cache;
