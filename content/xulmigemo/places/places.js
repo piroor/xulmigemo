@@ -21,7 +21,7 @@ var XMigemoPlaces = {
 				!/^\w+:\/\//.test(aInput)
 			) &&
 			this.minLength <= aInput.length &&
-			XMigemoCore.isValidInput(aInput)
+			XMigemoCore.isValidFunctionalInput(aInput)
 			);
 	},
  
