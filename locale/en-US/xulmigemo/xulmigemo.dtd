@@ -78,6 +78,7 @@
 <!ENTITY config.dic.find                "Find...">
 <!ENTITY config.dic.description         "*Specified relative path will be merged to the installation path of Firefox(Thunderbird).">
 <!ENTITY config.dic.description.maxwidth "40em">
+<!ENTITY config.dic.goInitializeWizard  "Go to initialization wizard now">
 
 <!ENTITY config.dic.showManager         "Manage Dictionary">
 

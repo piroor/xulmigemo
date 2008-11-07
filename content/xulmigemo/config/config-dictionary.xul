@@ -47,6 +47,11 @@
 		<checkbox id="xulmigemo.dic.useInitializeWizard-check" flex="1"
 			label="&config.dic.useInitializeWizard;"
 			preference="xulmigemo.dictionary.useInitializeWizard"/>
+		<hbox>
+			<spacer flex="1"/>
+			<button label="&config.dic.goInitializeWizard;"
+				oncommand="goInitializeWizard();"/>
+		</hbox>
 	</groupbox>
 
 	<hbox>
