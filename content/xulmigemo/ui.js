@@ -1969,13 +1969,24 @@ var XMigemoUI = {
 			eval('gFindBar._highlightDoc = '+gFindBar._highlightDoc.toSource()
 				.replace(
 					'if (!aWord) {',
-					'$& XMigemoUI.clearHighlight(win.document);'
+					<![CDATA[
+						if (aWord && aWord != this._lastHighlightString) {
+							XMigemoUI.clearHighlight(win.document);
+						}
+						else $& XMigemoUI.clearHighlight(win.document);
+					]]>.toString()
 				).replace(
 					'return textFound;',
 					'XMigemoUI.clearHighlight(doc); $&'
 				).replace(
 					'var body =',
-					'if (!aHighlight) { XMigemoUI.clearHighlight(doc); return false; } $&'
+					<![CDATA[
+						if (!aHighlight) {
+							XMigemoUI.clearHighlight(doc);
+							return textFound || aWord == this._lastHighlightString;
+						}
+						$&
+					]]>.toString()
 				).replace(
 					'this._highlight(aHighlight, retRange, controller);',
 					'this._highlight(aHighlight, retRange, controller, aWord);'
@@ -1987,7 +1998,14 @@ var XMigemoUI = {
 					'XMigemoUI.getDocumentBody(doc)'
 				).replace(
 					'var retRange = null;',
-					'if (XMigemoUI.isActive || !XMigemoUI.highlightSelectionOnly) { XMigemoUI.highlightText(aWord, null, this._searchRange, controller); return true; } $&'
+					<![CDATA[
+						if (XMigemoUI.isActive || !XMigemoUI.highlightSelectionOnly) {
+							if (XMigemoUI.highlightText(aWord, null, this._searchRange, controller))
+								this._lastHighlightString = aWord;
+							return true;
+						}
+						$&
+					]]>.toString()
 				)
 			);
 		}
