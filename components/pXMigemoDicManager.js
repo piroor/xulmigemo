@@ -209,24 +209,25 @@ pXMigemoDicManager.prototype = {
 		ObserverService.addObserver(this, 'XMigemo:dictionaryModified', false);
 
 		if (
-			(
-				!this.dicpath ||
-				!this.dictionary.load() ||
-				!this.cache.load()
-			) &&
-			Prefs.getBoolPref('xulmigemo.dictionary.useInitializeWizard') &&
-			!WindowManager.getMostRecentWindow('xulmigemo:initializer')
+			!this.dicpath ||
+			!this.dictionary.load() ||
+			!this.cache.load()
 			) {
-			var WindowWatcher = Components
-				.classes['@mozilla.org/embedcomp/window-watcher;1']
-				.getService(Components.interfaces.nsIWindowWatcher);
-			WindowWatcher.openWindow(
-				null,
-				'chrome://xulmigemo/content/initializer/initializer.xul',
-				'xulmigemo:initializer',
-				'chrome,dialog,modal,centerscreen,dependent',
-				null
-			);
+			if (
+				Prefs.getBoolPref('xulmigemo.dictionary.useInitializeWizard') &&
+				!WindowManager.getMostRecentWindow('xulmigemo:initializer')
+				) {
+				var WindowWatcher = Components
+					.classes['@mozilla.org/embedcomp/window-watcher;1']
+					.getService(Components.interfaces.nsIWindowWatcher);
+				WindowWatcher.openWindow(
+					null,
+					'chrome://xulmigemo/content/initializer/initializer.xul',
+					'xulmigemo:initializer',
+					'chrome,dialog,modal,centerscreen,dependent',
+					null
+				);
+			}
 		}
 		else {
 			var relPath = Prefs.getCharPref('xulmigemo.dicpath-relative');
