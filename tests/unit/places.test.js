@@ -1,10 +1,15 @@
 var orig = {};
+utils.include('../../content/xulmigemo/core.js', orig, 'Shift_JIS');
 utils.include('../../content/xulmigemo/places/places.js', orig, 'Shift_JIS');
 
+var XMigemoCore;
 var XMigemoPlaces;
 
 function setUp()
 {
+	XMigemoCore = {};
+	XMigemoCore.__proto__ = orig.XMigemoCore;
+
 	XMigemoPlaces = {};
 	XMigemoPlaces.__proto__ = orig.XMigemoPlaces;
 
