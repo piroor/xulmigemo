@@ -2166,6 +2166,9 @@ var XMigemoUI = {
 	openFindBar : function(aShowMinimalUI) 
 	{
 		var ui = XMigemoUI;
+		if (aShowMinimalUI) {
+			ui.findMode = ui.FIND_MODE_NATIVE;
+		}
 		ui.updateFindModeOnOpen();
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
