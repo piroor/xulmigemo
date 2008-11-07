@@ -31,6 +31,29 @@ function getDP()
 	gRelativePath.dispatchEvent(event);
 }
 
+function goInitializeWizard()
+{
+	var wizard = Components
+			.classes['@mozilla.org/appshell/window-mediator;1']
+			.getService(Components.interfaces.nsIWindowMediator)
+			.getMostRecentWindow('xulmigemo:initializer');
+	if (wizard) {
+		wizard.focus();
+		return;
+	}
+
+	window.openDialog(
+		'chrome://xulmigemo/content/initializer/initializer.xul',
+		'xulmigemo:initializer',
+		'chrome,dialog,modal,centerscreen,dependent'
+	);
+	window.setTimeout(function() {
+		document.getElementById('xulmigemo.dicpath-textbox').checked = decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')));
+		document.getElementById('xulmigemo.dicpath-relative-textbox').checked = decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')));
+		document.getElementById('xulmigemo.dic.useInitializeWizard-check').checked = Prefs.getBoolPref('xulmigemo.dic.useInitializeWizard');
+	}, 0);
+}
+
 
 
 var gCacheSlider;

@@ -76,6 +76,7 @@
 <!ENTITY config.caption.dic             "辞書フォルダ">
 <!ENTITY config.dic.useInitializeWizard "起動時に辞書が見つからないときはウィザードを表示する">
 <!ENTITY config.dic.find                "参照...">
+<!ENTITY config.dic.goInitializeWizard  "今すぐウィザードを使って辞書を設定する">
 
 <!ENTITY config.dic.showManager         "辞書の管理">
 <!ENTITY config.dic.description         "※相対パスはFirefox（Thunderbird）のインストールフォルダを基準として解釈されます">
