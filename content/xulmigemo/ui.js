@@ -1979,15 +1979,6 @@ var XMigemoUI = {
 					'return textFound;',
 					'XMigemoUI.clearHighlight(doc); $&'
 				).replace(
-					'var body =',
-					<![CDATA[
-						if (!aHighlight) {
-							XMigemoUI.clearHighlight(doc);
-							return textFound || aWord == this._lastHighlightString;
-						}
-						$&
-					]]>.toString()
-				).replace(
 					'this._highlight(aHighlight, retRange, controller);',
 					'this._highlight(aHighlight, retRange, controller, aWord);'
 				).replace(
@@ -2000,12 +1991,26 @@ var XMigemoUI = {
 					'var retRange = null;',
 					<![CDATA[
 						if (XMigemoUI.isActive || !XMigemoUI.highlightSelectionOnly) {
-							if (XMigemoUI.highlightText(aWord, null, this._searchRange, controller))
+							if (!aHighlight) XMigemoUI.clearHighlight(doc);
+							if (XMigemoUI.highlightText(aHighlight, aWord, null, this._searchRange, controller)) {
 								this._lastHighlightString = aWord;
-							return true;
+								return true;
+							}
+							else {
+								return false;
+							}
 						}
 						$&
 					]]>.toString()
+				)
+			);
+			eval('gFindBar.xmigemoOriginalToggleHighlight = '+gFindBar.xmigemoOriginalToggleHighlight.toSource()
+				.replace(
+					')',
+					', aAutoChecked, aKeepLastStatus)'
+				).replace(
+					/(this\._updateStatusUI\([^\)]+\);)/g,
+					'if (!aKeepLastStatus) { $1 }'
 				)
 			);
 		}
@@ -2038,10 +2043,15 @@ var XMigemoUI = {
 						XMigemoUI.activeBrowser.contentDocument.documentElement.setAttribute(XMigemoUI.kLAST_HIGHLIGHT, arguments[0]);
 						XMigemoUI.updateHighlightNode(arguments[1]);
 						if (XMigemoUI.isActive) {
-							return XMigemoUI.highlightText(arguments[0], arguments[1],
+							var found = XMigemoUI.highlightText(
+									arguments[0],
+									arguments[0],
+									arguments[1],
 									('_searchRange' in this) ? this._searchRange : // Fx 3
-									this.mSearchRange // Fx 2
+										this.mSearchRange // Fx 2
 								);
+							this._lastHighlightString = arguments[0];
+							return found;
 						}
 					]]>
 				)
@@ -2073,10 +2083,10 @@ var XMigemoUI = {
 						return;
 				]]>
 			).replace(
-				/(\w+\.toggleHighlight\(false\);)/,
+				/(\w+\.toggleHighlight\(false)(\);)/,
 				<![CDATA[
 					var checked = !XMigemoUI.highlightCheck.disabled && XMigemoUI.highlightCheck.checked;
-					$1
+					$1, false, true$2
 					if (checked)
 						XMigemoUI.textUtils.setSelectionLook(XMigemoUI.activeBrowser.contentDocument, true);
 				]]>
@@ -2275,7 +2285,7 @@ var XMigemoUI = {
 				var disabled = XMigemoUI.highlightCheck.disabled;
 				var checked = XMigemoUI.highlightCheck.checked;
 				if (!XMigemoUI.findTerm || !checked) highlight = false;
-				XMigemoUI.toggleHighlight(highlight);
+				XMigemoUI.toggleHighlight(highlight, false, true);
 			}, 10);
 			return;
 		}
@@ -2456,7 +2466,7 @@ var XMigemoUI = {
 		return nodes;
 	},
   
-	highlightText : function(aWord, aBaseNode, aRange, aSelCon) 
+	highlightText : function(aDoHighlight, aWord, aBaseNode, aRange, aSelCon) 
 	{
 		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
 					this.textUtils.extractRegExpSource(aWord) :
@@ -2468,7 +2478,9 @@ var XMigemoUI = {
 		if (!this.highlightSelectionOnly && !aBaseNode)
 			aBaseNode = this.createNewHighlight(doc);
 
-		var ranges = this.highlightSelectionAvailable ?
+		var ranges = !aDoHighlight ?
+				[XMigemoFind.core.regExpFind(regexp, '', aRange, null, null, false)] :
+			this.highlightSelectionAvailable ?
 				XMigemoFind.core.regExpHighlightTextWithSelection(regexp, '', aRange, aBaseNode, aSelCon) :
 				XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode);
 
