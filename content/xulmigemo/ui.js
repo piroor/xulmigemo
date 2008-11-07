@@ -1119,7 +1119,6 @@ var XMigemoUI = {
 			return false;
 
 		if (this.isActive) {
-//			dump("migemo is active"+'\n');
 			if (
 				aEvent.charCode != 0 &&
 				!aEvent.ctrlKey &&
@@ -1136,7 +1135,6 @@ var XMigemoUI = {
 			}
 		}
 		else if (this.autoStartQuickFind) {
-//			dump("autoStartQuickFind:"+this.autoStartQuickFind+'\n');
 			if (aEvent.charCode == 32) { // Space
 				return true;
 			}
@@ -1198,7 +1196,6 @@ var XMigemoUI = {
 			return;
 		}
 
-//		dump("mouseEvent.originalTarget:"+aEvent.originalTarget.tagName.toLowerCase()+'\n');
 		this.cancel();
 		this.clearTimer();//ここでタイマーを殺さないといじられてしまう。タイマー怖い。
 	},
@@ -1268,8 +1265,9 @@ var XMigemoUI = {
  
 	onBlur : function() 
 	{
-		if (this.isQuickFind)
+		if (this.isQuickFind) {
 			this.cancel();
+		}
 	},
  
 	onChangeFindBarSize : function(aEvent) 
@@ -1299,13 +1297,12 @@ var XMigemoUI = {
 	{
 		this.clearTimer();
 		gFindBar.toggleHighlight(false);
-		if (!this.hidden) {
-			if (this.findMode != this.FIND_MODE_NATIVE &&
-				!this.inCancelingProcess) {
-				this.start(true);
+		if (!this.hidden && !this.inCancelingProcess) {
+			if (this.isQuickFind || this.findMode == this.FIND_MODE_NATIVE) {
+				this.cancel(true);
 			}
 			else {
-				this.cancel(true);
+				this.start(true);
 			}
 		}
 		this.lastFindMode = this.findMode;
@@ -1452,7 +1449,6 @@ var XMigemoUI = {
 	
 	startTimer : function() 
 	{
-//		dump("xmigemoStartTimer"+'\n');
 		if (!this.isQuickFind) return;
 		this.clearTimer();
 		this.cancelTimer = window.setTimeout(this.timerCallback, this.timeout, this);
@@ -1464,7 +1460,6 @@ var XMigemoUI = {
 	
 	timerCallback : function(aThis) 
 	{
-//		dump("xmigemoTimeout"+'\n');
 		XMigemoFind.shiftLastKeyword();
 		aThis.cancel();
 	},
@@ -1478,7 +1473,6 @@ var XMigemoUI = {
  
 	clearTimer : function() 
 	{
-//		dump("xmigemoClearTimer"+'\n');
 		if (this.cancelTimer) {
 			window.clearTimeout(this.cancelTimer);
 			this.cancelTimer = null;
@@ -1542,7 +1536,6 @@ var XMigemoUI = {
   
 	start : function(aSilently) 
 	{
-//		dump('xmigemoStart\n');
 		this.isActive = true;
 
 		if (!aSilently) {
@@ -2166,10 +2159,8 @@ var XMigemoUI = {
 	openFindBar : function(aShowMinimalUI) 
 	{
 		var ui = XMigemoUI;
-		if (aShowMinimalUI) {
-			ui.findMode = ui.FIND_MODE_NATIVE;
-		}
-		ui.updateFindModeOnOpen();
+		ui.updateFindModeOnOpen(aShowMinimalUI ? ui.FIND_MODE_NATIVE : 0 );
+		if (aShowMinimalUI) ui.isQuickFind = true;
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalOpen.apply(scope, arguments);
@@ -2181,10 +2172,13 @@ var XMigemoUI = {
 		ui.findBar.dispatchEvent(event);
 	},
 	
-	updateFindModeOnOpen : function() 
+	updateFindModeOnOpen : function(aOverrideMode) 
 	{
 		if (this.forcedFindMode > -1 && this.findMode != this.forcedFindMode)
 			this.findMode = this.forcedFindMode;
+
+		if (aOverrideMode)
+			this.findMode = aOverrideMode;
 
 		if (this.findMode != this.FIND_MODE_NATIVE && !this.isActive) {
 			this.isActive = true;
@@ -2223,7 +2217,9 @@ var XMigemoUI = {
 			this.findMigemoBar.setAttribute('collapsed', true);
 		}
 
-		if (this.isActive) this.cancel(true);
+		if (this.isActive) {
+			this.cancel(true);
+		}
 
 		this.isActive = false;
 
@@ -2589,7 +2585,6 @@ var XMigemoUI = {
  
 	findNext : function() 
 	{
-//		dump('XMigemoUI.findNext\n');
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindAgain', true, true);
 		event.direction = XMigemoFind.FIND_FORWARD;
@@ -2620,7 +2615,6 @@ var XMigemoUI = {
  
 	findPrevious : function() 
 	{
-//		dump('XMigemoUI.findPrevious\n');
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindAgain', true, true);
 		event.direction = XMigemoFind.FIND_BACK;
@@ -2810,10 +2804,10 @@ var XMigemoUI = {
 window.addEventListener('load', XMigemoUI, false); 
  
 //obsolete 
-function xmFind(){//dump("xmFind"+'\n');
+function xmFind(){
 XMigemoFind.find(false, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword, false);
 }
-function xmFindPrev(){//dump("xmFindPrev"+'\n');
+function xmFindPrev(){
 XMigemoFind.find(true, XMigemoFind.lastKeyword || XMigemoFind.previousKeyword, false);
 }
  
