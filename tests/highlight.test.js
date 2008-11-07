@@ -166,7 +166,6 @@ var baseTests = {
 htmlTests.__proto__ = baseTests;
 xmlTests.__proto__ = baseTests;
 
-
 var highlightTest = new TestCase('ハイライト表示の基本テスト（HTML）');
 highlightTest.tests = htmlTests;
 
@@ -218,6 +217,7 @@ highlightAdvancedTest.tests = {
 		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 
 		XMigemoHighlight.toggleHighlightScreen(true);
+		content.scrollTo(0, 0);
 		yield wait;
 
 		var link = content.document.getElementsByTagName('a')[0];

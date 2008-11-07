@@ -71,19 +71,19 @@ startupTest.tests = {
 	},
 
 	'起動時のモード：通常検索': function() {
-		utils.setPref('xulmigemo.findMode.default', 0);
+		utils.setPref('xulmigemo.findMode.default', 1);
 		yield Do(normalSetUp(keyEventTest));
 		assert.findbarState('FIND_MODE_NATIVE', false);
 	},
 
 	'起動時のモード：正規表現検索': function() {
-		utils.setPref('xulmigemo.findMode.default', 2);
+		utils.setPref('xulmigemo.findMode.default', 4);
 		yield Do(normalSetUp(keyEventTest));
 		assert.findbarState('FIND_MODE_REGEXP', false);
 	},
 
 	'起動時のモード：Migemo検索': function() {
-		utils.setPref('xulmigemo.findMode.default', 1);
+		utils.setPref('xulmigemo.findMode.default', 2);
 		yield Do(normalSetUp(keyEventTest));
 		assert.findbarState('FIND_MODE_MIGEMO', false);
 	}
