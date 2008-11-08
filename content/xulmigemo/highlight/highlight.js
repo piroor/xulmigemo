@@ -49,7 +49,7 @@ var XMigemoHighlight = {
 				gFindBar._updateStatusUI = gFindBar.updateStatus;
 		}
 
-		if (typeof gSearchWP != 'undefined') { // SearchWP
+		if ('gSearchWPOverlay' in window) { // SearchWP
 			eval(
 				'gSearchWPOverlay.toggleHighlight = '+
 				gSearchWPOverlay.toggleHighlight.toSource().replace(
@@ -58,6 +58,15 @@ var XMigemoHighlight = {
 					'gSearchWPHighlighting.toggleHighlight'
 				)
 			);
+		}
+		else if ('gSearchWP' in window && 'Highlighting' in gSearchWP) {
+			eval('gSearchWP.Highlighting.toggleHighlight = '+gSearchWP.Highlighting.toggleHighlight.toSource().replace(
+				/(\}\)?)$/,
+				<![CDATA[
+					if (XMigemoHighlight.strongHighlight)
+						XMigemoHighlight.toggleHighlightScreen(gSearchWP.Preferences.highlighted);
+				$1]]>
+			));
 		}
 
 		if (typeof GBL_Listener != 'undefined') { // Googlebar Lite
