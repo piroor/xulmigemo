@@ -581,11 +581,11 @@ pXMigemoTextTransformJa.prototype = {
 	optimizeRegExp : function(aString) 
 	{
 		var ret = aString
-			.replace(/\|\|+/g, '|')
-			.replace(/\(\|/g, '\(').replace(/\|\)/g, '\)')
-			.replace(/\(\)/g, '\)')
-			.replace(/\(([^()\[\]|]+)\)/g, '$1')
-			.replace(/\[([^()\[\]|])\]/g, '$1')
+			.replace(/([^\\]|^)\|\|+/g, '$1|')
+			.replace(/([^\\]|^)\(\|/g, '$1\(').replace(/([^\\]|^)\|\)/g, '$1\)')
+			.replace(/([^\\]|^)\(\)/g, '$1\)')
+			.replace(/([^\\]|^)\(([^()\[\]|]*[^()\[\]|\\])\)/g, '$1$2')
+			.replace(/([^\\]|^)\[([^()\[\]|\\])\]/g, '$1$2')
 			.replace(/\([^()\[\]|](\|[^()\[\]|])+\)/g, function(aString) {
 				return '['+(aString.substring(1, aString.length-1).split('|').join(''))+']';
 			});
