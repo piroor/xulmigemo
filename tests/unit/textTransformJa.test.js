@@ -269,7 +269,7 @@ function test_joinVoiceMarks()
 	assertJoinVoiceMarks('ガギグゲゴ', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ');
 	assertJoinVoiceMarks('ガギグゲゴ', 'カ゛キ゛ク゛ケ゛コ゛');
 	assertJoinVoiceMarks('パピプペポ', 'ハ゜ヒ゜フ゜ヘ゜ホ゜');
-	assertJoinVoiceMarks('ア゛イ゛ウ゛エ゛オ゛', 'ア゛イ゛ウ゛エ゛オ゛');
+	assertJoinVoiceMarks('ア゛イ゛ヴエ゛オ゛', 'ア゛イ゛ウ゛エ゛オ゛');
 	assertJoinVoiceMarks('日本語', '日本語');
 	assertJoinVoiceMarks('()[]|', '()[]|');
 	assertJoinVoiceMarks('([', '([');
