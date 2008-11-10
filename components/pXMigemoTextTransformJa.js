@@ -757,7 +757,7 @@ pXMigemoTextTransformJa.prototype = {
 	zenkaku2hankakuSub : function(aStr) 
 	{
 		var code = aStr.charCodeAt(0);
-		return String.charCodeFrom(code - 0xfee0)
+		return String.fromCharCode(code - 0xfee0)
 	},
   
 	joinVoiceMarks : function(aStr) 
