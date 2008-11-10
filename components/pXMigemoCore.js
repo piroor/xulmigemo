@@ -158,9 +158,9 @@ pXMigemoCore.prototype = {
 				'' ;
 
 		myExp = myExp.replace(/\n|^\||\|$/g, '')
-					.replace(/\|\|+/g, '|')
-					.replace(/\(\|/g, '(')
-					.replace(/\|\)/g, ')');
+					.replace(/([^\\]|^)\|\|+/g, '$1|')
+					.replace(/([^\\]|^)\(\|/g, '$1(')
+					.replace(/([^\\]|^)\|\)/g, '$1)');
 
 		mydump('created pattern: '+encodeURIComponent(myExp));
 
