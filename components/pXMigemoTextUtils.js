@@ -137,13 +137,21 @@ pXMigemoTextUtils.prototype = {
 	},
 	kSANITIZE_PATTERN : /([\-\:\}\{\|\$\?\*\+\.\^\]\/\[\;\\\(\)])/g,
  
-	sanitize2 : function(str) 
+	sanitizeForTransformInput : function(str) 
 	{
-		//	^.+*?${}\,
-		str = str.replace(this.kSANITIZE2_PATTERN, "\\$1");
+		//	()[]|\,
+		str = str.replace(this.kSANITIZE_PATTERN_INPUT, "\\$1");
 		return str;
 	},
-	kSANITIZE2_PATTERN : /([\-\:\}\{\$\?\*\+\.\^\/\;\\])/g,
+	kSANITIZE_PATTERN_INPUT : /([\(\)\[\]\|\\])/g,
+ 
+	sanitizeForTransformOutput : function(str) 
+	{
+		//	^.+*?${},
+		str = str.replace(this.kSANITIZE_PATTERN_OUTPUT, "\\$1");
+		return str;
+	},
+	kSANITIZE_PATTERN_OUTPUT : /([\-\:\}\{\$\?\*\+\.\^\/\;])/g,
  
 	extractRegExpSource : function(aInput) 
 	{
