@@ -61,12 +61,21 @@ function test_sanitize()
 	);
 }
 
-test_sanitize2.description = 'sanitize2（Migemoが生成するパターンに含まれない正規表現のメタキャラクタのエスケープ）';
-function test_sanitize2()
+test_sanitizeForTransformInput.description = 'sanitizeForTransformInput';
+function test_sanitizeForTransformInput()
 {
 	assert.equals(
-		'a\\\\bc(def|ghi)jk[\\^lmn]o\\.\\*p\\+q\\?r\\{0\\}s\\$',
-		textUtils.sanitize2('a\\bc(def|ghi)jk[^lmn]o.*p+q?r{0}s$')
+		'a\\\\bc\\(def\\|ghi\\)jk\\[^lmn\\]o.*p+q?r{0}s$',
+		textUtils.sanitizeForTransformInput('a\\bc(def|ghi)jk[^lmn]o.*p+q?r{0}s$')
+	);
+}
+
+test_sanitizeForTransformOutput.description = 'sanitizeForTransformOutput（Migemoが生成するパターンに含まれない正規表現のメタキャラクタのエスケープ）';
+function test_sanitizeForTransformOutput()
+{
+	assert.equals(
+		'a\\bc(def|ghi)jk[\\^lmn]o\\.\\*p\\+q\\?r\\{0\\}s\\$',
+		textUtils.sanitizeForTransformOutput('a\\bc(def|ghi)jk[^lmn]o.*p+q?r{0}s$')
 	);
 }
 

@@ -87,7 +87,7 @@ pXMigemoTextTransformJa.prototype = {
 	{
 		aStr = aStr || '' ;
 		var alph = this.zenkaku2hankaku(aStr.toLowerCase());
-		if (/^[a-z0-9]+$/i.test(alph))
+		if (/^[-a-z0-9]+$/i.test(alph))
 			return true;
 
 		return this.kata2hira(aStr).replace(/[\u3041-\u3093\u309b\u309c\u30fc]/g, '') ? false : true ;
@@ -194,17 +194,16 @@ pXMigemoTextTransformJa.prototype = {
 		{
 			kata = pairs[i+1]
 			kata.split('|').forEach(function(aKata, aIndex) {
+				if (aKata == '-') return; // —áŠO
 				self.KATAHIRA_Hash[aKata] = pairs[i];
 				self.KATAPAT.push(aKata);
 				if (aIndex == 0) {
 					self.HIRAKATA_ZEN_Hash[pairs[i]] = aKata;
 				}
-				else {
-					kata = '('+kata+')'.replace(/\((\.)\|(\.)\)/, '[$1$2]');
-				}
 			});
-
-			this.HIRAKATA_Hash[pairs[i]] = kata;
+			this.HIRAKATA_Hash[pairs[i]] = '('+kata+')'
+				.replace(/\((.)\|(.)\)/, '[$1$2]')
+				.replace(/\((.)\|(.)\|(.)\)/, '[$1$2$3]');
 			this.HIRAPAT.push(pairs[i]);
 		}
 
@@ -471,10 +470,12 @@ pXMigemoTextTransformJa.prototype = {
 								result += str.charAt(0);
 							}
 							else {
-								result += '('+
-									str.charAt(0)+'|'+
-									self.hira2kataPattern(str.charAt(0)).replace(/^\(|\)$/g, '')+
-									')';
+								result += (
+										'('+
+										str.charAt(0)+'|'+
+										self.hira2kataPattern(str.charAt(0)).replace(/^\(|\)$/g, '')+
+										')'
+									).replace(/(.)\|\1/g, '$1');
 							}
 							str = str.substring(1);
 						}
@@ -488,7 +489,9 @@ pXMigemoTextTransformJa.prototype = {
 						return hash[aChar];
 					};
 		var ret = this.optimizeRegExp(
-				this.normalize_double_n(String(aString).toLowerCase())
+				this.normalize_double_n(
+						String(aString).toLowerCase()
+					)
 					.replace(this.ROMPAT, func)
 			);
 //dump(aString+' -> '+encodeURIComponent(ret)+'\n');
@@ -548,14 +551,14 @@ pXMigemoTextTransformJa.prototype = {
 	 
 	expand2 : function(aString, aKana) 
 	{
-		var target = aString.match(/[a-z]+$/i);
+		var target = aString.match(/[-a-z]+$/i);
 		if (!target) return aString;
 
 		if (!((this.ROMINITIALPAT).test(target))) {
 			return aString;
 		}
 
-		var base   = aString.replace(/[a-z]+$/i, '');
+		var base   = aString.replace(/[-a-z]+$/i, '');
 
 		var regexp = new RegExp('^'+target+'.*$', 'i');
 		var checked = {};
@@ -567,15 +570,12 @@ pXMigemoTextTransformJa.prototype = {
 
 		if (!entries.length) return aString;
 
-		var ret = base +
-			this.optimizeRegExp('('+this.roman2kana2(
-				entries.map(function(aItem) {
-					return aItem.key;
-				}).join('|'),
-				aKana
-			)+')');
+		var last = entries.map(function(aItem) {
+				return this.roman2kana2(aItem.key, aKana);
+			}, this);
+		last = (last.length > 1) ? '('+last.join('|')+')' : last[0] ;
 
-		return ret;
+		return base + this.optimizeRegExp(last);
 	},
   
 	optimizeRegExp : function(aString) 
@@ -697,9 +697,9 @@ pXMigemoTextTransformJa.prototype = {
 
 '\u3046\u309b	\u30f4|\uff73\uff9e',
 
-'\u30fc	\uff70',
-'\u3002	\uff61',
-'\u3001	\uff64',
+'\u30fc	\u30fc|\uff70|-',
+'\u3002	\u3002|\uff61',
+'\u3001	\u3001|\uff64',
 
 '\u3063	\u30c3|\uff6f'
 	].join('\n'),

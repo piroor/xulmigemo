@@ -71,9 +71,11 @@ pXMigemoEngineJa.prototype = {
 		mydump('noCache');
 
 		var hira = XMigemoTextService.expand(
-				XMigemoTextUtils.sanitize(
+				XMigemoTextUtils.sanitizeForTransformOutput(
 					XMigemoTextService.roman2kana(
-						XMigemoTextService.kata2hira(aInput)
+						XMigemoTextService.kata2hira(
+							XMigemoTextUtils.sanitizeForTransformInput(aInput)
+						)
 					)
 				)
 			);
@@ -83,9 +85,9 @@ pXMigemoEngineJa.prototype = {
 		var ignoreHiraKata = Prefs.getBoolPref('xulmigemo.ignoreHiraKata');
 		var kana = ignoreHiraKata ? '' :
 				XMigemoTextService.expand2(
-					XMigemoTextUtils.sanitize2(
+					XMigemoTextUtils.sanitizeForTransformOutput(
 						XMigemoTextService.roman2kana2(
-							roman,
+							XMigemoTextUtils.sanitizeForTransformInput(roman),
 							XMigemoTextService.KANA_KATA
 						)
 					),
@@ -93,9 +95,9 @@ pXMigemoEngineJa.prototype = {
 				);
 		var hiraAndKana = ignoreHiraKata ?
 				XMigemoTextService.expand2(
-					XMigemoTextUtils.sanitize2(
+					XMigemoTextUtils.sanitizeForTransformOutput(
 						XMigemoTextService.roman2kana2(
-							roman,
+							XMigemoTextUtils.sanitizeForTransformInput(roman),
 							XMigemoTextService.KANA_ALL
 						)
 					),
@@ -157,9 +159,9 @@ pXMigemoEngineJa.prototype = {
 		}
 
 		return pattern.replace(/\n|^\||\|$/g, '')
-				.replace(/\|\|+/g, '|')
-				.replace(/\(\|/g, '(')
-				.replace(/\|\)/g, ')');
+				.replace(/([^\\]|^)\|\|+/g, '$1|')
+				.replace(/([^\\]|^)\(\|/g, '$1(')
+				.replace(/([^\\]|^)\|\)/g, '$1)');
 	},
  
 	splitInput : function(aInput) 
