@@ -84,6 +84,9 @@ function test_roman2kana()
 	assertRoman2Kana('ａｉｕｅｏ', 'ａｉｕｅｏ');
 	assertRoman2Kana('がぎぐげご', 'gagigugego');
 	assertRoman2Kana('にほんご', 'nihongo');
+	assertRoman2Kana('ぽーとれーと', 'po-tore-to');
+	assertRoman2Kana('きゃっきゃ', 'kyakkya');
+	assertRoman2Kana('うっうー', 'uwwu-');
 	assertRoman2Kana('()[]|', '()[]|');
 	assertRoman2Kana('([', '([');
 	assertRoman2Kana(')]', ')]');
@@ -98,26 +101,34 @@ function test_roman2kana2()
 	assertRoman2Kana2('あいうえお', 'aiueo', transform.KANA_HIRA);
 	assertRoman2Kana2('がぎぐげご', 'gagigugego', transform.KANA_HIRA);
 	assertRoman2Kana2('にほんご', 'nihongo', transform.KANA_HIRA);
+	assertRoman2Kana2('ぽーとれーと', 'po-tore-to', transform.KANA_HIRA);
+	assertRoman2Kana2('きゃっきゃ', 'kyakkya', transform.KANA_HIRA);
+	assertRoman2Kana2('うっうー', 'uwwu-', transform.KANA_HIRA);
 	assertRoman2Kana2('ａｉｕｅｏ', 'ａｉｕｅｏ', transform.KANA_HIRA);
-	assertRoman2Kana2('[アｱ][イｲ][ウｳ][エｴ][オｵ]', 'aiueo', transform.KANA_KATA);
-	assertRoman2Kana2('(ガ|ｶﾞ)(ギ|ｷﾞ)(グ|ｸﾞ)(ゲ|ｹﾞ)(ゴ|ｺﾞ)', 'gagigugego', transform.KANA_KATA);
-	assertRoman2Kana2('[ニﾆ][ホﾎ][ンﾝ](ゴ|ｺﾞ)', 'nihongo', transform.KANA_KATA);
-	assertRoman2Kana2('ａｉｕｅｏ', 'ａｉｕｅｏ', transform.KANA_KATA);
-	assertRoman2Kana2('[あアｱ][いイｲ][うウｳ][えエｴ][おオｵ]', 'aiueo', transform.KANA_ALL);
-	assertRoman2Kana2('(が|ガ|ｶﾞ)(ぎ|ギ|ｷﾞ)(ぐ|グ|ｸﾞ)(げ|ゲ|ｹﾞ)(ご|ゴ|ｺﾞ)', 'gagigugego', transform.KANA_ALL);
-	assertRoman2Kana2('[にニﾆ][ほホﾎ][んンﾝ](ご|ゴ|ｺﾞ)', 'nihongo', transform.KANA_ALL);
-	assertRoman2Kana2('ａｉｕｅｏ', 'ａｉｕｅｏ', transform.KANA_ALL);
-
 	assertRoman2Kana2('()[]|', '()[]|', transform.KANA_HIRA);
 	assertRoman2Kana2('([', '([', transform.KANA_HIRA);
 	assertRoman2Kana2(')]', ')]', transform.KANA_HIRA);
 	assertRoman2Kana2('|', '|', transform.KANA_HIRA);
 
+	assertRoman2Kana2('[アｱ][イｲ][ウｳ][エｴ][オｵ]', 'aiueo', transform.KANA_KATA);
+	assertRoman2Kana2('(ガ|ｶﾞ)(ギ|ｷﾞ)(グ|ｸﾞ)(ゲ|ｹﾞ)(ゴ|ｺﾞ)', 'gagigugego', transform.KANA_KATA);
+	assertRoman2Kana2('[ニﾆ][ホﾎ][ンﾝ](ゴ|ｺﾞ)', 'nihongo', transform.KANA_KATA);
+	assertRoman2Kana2('(ポ|ﾎﾟ)[ーｰ-][トﾄ][レﾚ][ーｰ-][トﾄ]', 'po-tore-to', transform.KANA_KATA);
+	assertRoman2Kana2('[キｷ][ャｬ][ッｯ][キｷ][ャｬ]', 'kyakkya', transform.KANA_HIRA);
+	assertRoman2Kana2('[ウｳ][ッｯ][ウｳ][ーｰ-]', 'uwwu-', transform.KANA_HIRA);
+	assertRoman2Kana2('ａｉｕｅｏ', 'ａｉｕｅｏ', transform.KANA_KATA);
 	assertRoman2Kana2('()[]|', '()[]|', transform.KANA_KATA);
 	assertRoman2Kana2('([', '([', transform.KANA_KATA);
 	assertRoman2Kana2(')]', ')]', transform.KANA_KATA);
 	assertRoman2Kana2('|', '|', transform.KANA_KATA);
 
+	assertRoman2Kana2('[あアｱ][いイｲ][うウｳ][えエｴ][おオｵ]', 'aiueo', transform.KANA_ALL);
+	assertRoman2Kana2('(が|ガ|ｶﾞ)(ぎ|ギ|ｷﾞ)(ぐ|グ|ｸﾞ)(げ|ゲ|ｹﾞ)(ご|ゴ|ｺﾞ)', 'gagigugego', transform.KANA_ALL);
+	assertRoman2Kana2('[にニﾆ][ほホﾎ][んンﾝ](ご|ゴ|ｺﾞ)', 'nihongo', transform.KANA_ALL);
+	assertRoman2Kana2('(ぽ|ポ|ﾎﾟ)[ーｰ-][とトﾄ][れレﾚ][ーｰ-][とトﾄ]', 'po-tore-to', transform.KANA_KATA);
+	assertRoman2Kana2('[きキｷ][ゃャｬ][っッｯ][きキｷ][ゃャｬ]', 'kyakkya', transform.KANA_HIRA);
+	assertRoman2Kana2('[うウｳ][っッｯ][うウｳ][ーｰ-]', 'uwwu-', transform.KANA_HIRA);
+	assertRoman2Kana2('ａｉｕｅｏ', 'ａｉｕｅｏ', transform.KANA_ALL);
 	assertRoman2Kana2('()[]|', '()[]|', transform.KANA_ALL);
 	assertRoman2Kana2('([', '([', transform.KANA_ALL);
 	assertRoman2Kana2(')]', ')]', transform.KANA_ALL);
