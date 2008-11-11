@@ -78,9 +78,9 @@ function testGetFindFlagFromInput()
 
 	assert.equals('tagged bookmarked history title uri find', newInput.value);
 
-	assert.isTrue(flags & XMigemoPlaces.kFIND_HISTORY);
-	assert.isTrue(flags & XMigemoPlaces.kFIND_BOOKMARKS);
-	assert.isTrue(flags & XMigemoPlaces.kFIND_TAGGED);
+	assert.isTrue(flags & XMigemoPlaces.kSOURCE_HISTORY);
+	assert.isTrue(flags & XMigemoPlaces.kSOURCE_BOOKMARKS);
+	assert.isTrue(flags & XMigemoPlaces.kSOURCE_TAGGED);
 	assert.isTrue(flags & XMigemoPlaces.kFIND_TITLE);
 	assert.isTrue(flags & XMigemoPlaces.kFIND_URI);
 }
@@ -118,17 +118,17 @@ function testGetFindSourceFilterFromFlag()
 {
 	var flags, result;
 
-	flags = XMigemoPlaces.kFIND_HISTORY;
+	flags = XMigemoPlaces.kSOURCE_HISTORY;
 	result = XMigemoPlaces.getFindSourceFilterFromFlag(flags);
 	assert.contains('JOIN moz_historyvisits', result);
 	assert.notContains('JOIN moz_bookmarks', result);
 
-	flags = XMigemoPlaces.kFIND_BOOKMARKS;
+	flags = XMigemoPlaces.kSOURCE_BOOKMARKS;
 	result = XMigemoPlaces.getFindSourceFilterFromFlag(flags);
 	assert.contains('JOIN moz_bookmarks', result);
 	assert.notContains('JOIN moz_historyvisits', result);
 
-	flags = XMigemoPlaces.kFIND_TAGGED;
+	flags = XMigemoPlaces.kSOURCE_TAGGED;
 	result = XMigemoPlaces.getFindSourceFilterFromFlag(flags);
 	assert.contains('JOIN moz_bookmarks', result);
 	assert.notContains('JOIN moz_historyvisits', result);

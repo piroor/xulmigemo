@@ -301,6 +301,11 @@ var XMigemoLocationBarOverlay = {
 		this.bar.controller.stopSearch();
 		this.updateRegExp();
 		this.builtCount = 0;
+
+		if (this.lastFindFlag & XMigemoPlaces.kSOURCE_NONE) {
+			return;
+		}
+
 		this.busy = true;
 
 		if (this.useThread) { // thread mode
