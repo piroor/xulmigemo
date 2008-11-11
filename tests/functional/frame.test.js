@@ -19,7 +19,7 @@ var frameTest = new TestCase('フレームを使用したページのテスト')
 
 frameTest.tests = {
 	setUp : function() {
-		yield Do(commonSetUp(baseURL+'res/frameTest.html'));
+		yield Do(commonSetUp(baseURL+'../res/frameTest.html'));
 	},
 
 	tearDown : function() {
@@ -69,7 +69,7 @@ var frameTestNotFound = new TestCase('検索語句を含まないフレームが
 
 frameTestNotFound.tests = {
 	setUp : function() {
-		yield Do(commonSetUp(baseURL+'res/frameTest2.html'));
+		yield Do(commonSetUp(baseURL+'../res/frameTest2.html'));
 	},
 
 	tearDown : function() {
