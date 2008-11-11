@@ -7,6 +7,7 @@ var XMigemoPlaces = {
 	filterJavaScript : true,
 	filterTyped : false,
 	matchBehavior : 1,
+	searchSources : 3,
  
 	TextUtils : Components 
 			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
@@ -27,11 +28,12 @@ var XMigemoPlaces = {
  
 /* SQL */ 
 	 
-	kFIND_HISTORY   : 1, 
-	kFIND_BOOKMARKS : 2,
-	kFIND_TAGGED    : 4,
-	kFIND_TITLE     : 8,
-	kFIND_URI       : 16,
+	kSOURCE_HISTORY   : 1, 
+	kSOURCE_BOOKMARKS : 2,
+	kSOURCE_TAGGED    : 4,
+	kSOURCE_NONE      : 8,
+	kFIND_TITLE : 128,
+	kFIND_URI   : 256,
 
 	findHistoryKey   : null,
 	findBookmarksKey : null,
@@ -45,19 +47,33 @@ var XMigemoPlaces = {
 	{
 		if (!aNewInput) aNewInput = {};
 		var keys = this.extractFindKeysFromInput(aInput, aNewInput);
-		var flag = 0;
+		var sourcesFlag = 0;
 
-		if (!keys.length) return flag;
+		if (this.searchSources == 0) {
+			sourcesFlag |= this.kSOURCE_NONE;
+		}
+		else {
+			if (this.searchSources & this.kSOURCE_HISTORY)
+				sourcesFlag |= this.kSOURCE_HISTORY;
+			if (this.searchSources & this.kSOURCE_BOOKMARKS)
+				sourcesFlag |= this.kSOURCE_BOOKMARKS;
+		}
+
+		if (!keys.length) return sourcesFlag;
+
+		var flag = 0;
 
 		if (this.findHistoryKey === '' ||
 			(this.findHistoryKey && keys.indexOf(this.findHistoryKey) > -1))
-			flag |= this.kFIND_HISTORY;
+			flag |= this.kSOURCE_HISTORY;
 		if (this.findBookmarksKey === '' ||
 			(this.findBookmarksKey && keys.indexOf(this.findBookmarksKey) > -1))
-			flag |= this.kFIND_BOOKMARKS;
+			flag |= this.kSOURCE_BOOKMARKS;
 		if (this.findTaggedKey === '' ||
 			(this.findTaggedKey && keys.indexOf(this.findTaggedKey) > -1))
-			flag |= this.kFIND_TAGGED;
+			flag |= this.kSOURCE_TAGGED;
+
+		if (!flag) flag |= sourcesFlag;
 
 		if (this.findTitleKey === '' ||
 			(this.findTitleKey && keys.indexOf(this.findTitleKey) > -1))
@@ -146,17 +162,17 @@ var XMigemoPlaces = {
 	getFindSourceFilterFromFlag : function(aFindFlag) 
 	{
 		if (
-			aFindFlag & this.kFIND_HISTORY &&
-			!(aFindFlag & this.kFIND_BOOKMARKS) &&
-			!(aFindFlag & this.kFIND_TAGGED)
+			aFindFlag & this.kSOURCE_HISTORY &&
+			!(aFindFlag & this.kSOURCE_BOOKMARKS) &&
+			!(aFindFlag & this.kSOURCE_TAGGED)
 			) {
 			return ' JOIN moz_historyvisits filter ON p.id = filter.place_id ';
 		}
 		else if (
-			!(aFindFlag & this.kFIND_HISTORY) &&
+			!(aFindFlag & this.kSOURCE_HISTORY) &&
 			(
-				aFindFlag & this.kFIND_BOOKMARKS ||
-				aFindFlag & this.kFIND_TAGGED
+				aFindFlag & this.kSOURCE_BOOKMARKS ||
+				aFindFlag & this.kSOURCE_TAGGED
 			)
 			) {
 			return ' JOIN moz_bookmarks filter ON p.id = filter.fk ';
@@ -468,7 +484,7 @@ var XMigemoPlaces = {
 	{
 		return aSQL.replace(
 				'%ONLY_TAGGED%',
-				aFindFlag & this.kFIND_TAGGED ?
+				aFindFlag & this.kSOURCE_TAGGED ?
 					'AND tags NOT NULL' :
 					''
 			);
@@ -731,6 +747,10 @@ var XMigemoPlaces = {
 				this.matchBehavior = value;
 				return;
 
+			case 'browser.urlbar.search.sources':
+				this.searchSources = (value === null) ? 3 : value ;
+				return;
+
 			default:
 				return;
 		}
@@ -754,6 +774,7 @@ var XMigemoPlaces = {
 		browser.urlbar.match.url
 		browser.urlbar.matchOnlyTyped
 		browser.urlbar.matchBehavior
+		browser.urlbar.search.sources
 	]]>.toString(),
  
 	handleEvent : function(aEvent) 
