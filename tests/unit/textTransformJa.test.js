@@ -54,6 +54,8 @@ function test_normalizeInput()
 	assertNormalizeInput('([', '([');
 	assertNormalizeInput(')]', ')]');
 	assertNormalizeInput('|', '|');
+	assertNormalizeInput('window.open();', 'window.open();');
+	assertNormalizeInput('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
 }
 
 function test_normalizeKeyInput()
@@ -73,6 +75,8 @@ function test_normalizeKeyInput()
 	assertNormalizeKeyInput('([', '([');
 	assertNormalizeKeyInput(')]', ')]');
 	assertNormalizeKeyInput('|', '|');
+	assertNormalizeKeyInput('window.open();', 'window.open();');
+	assertNormalizeKeyInput('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
 }
 
 
@@ -93,12 +97,30 @@ function test_roman2kana()
 	assertRoman2Kana('\\(\\[', '\\(\\[');
 	assertRoman2Kana('\\)\\]', '\\)\\]');
 	assertRoman2Kana('\\|', '\\|');
+
+	function assertRoman2KanaPattern(aExpected, aInput) {
+		var regexp = transform.roman2kana(aInput);
+		regexp = new RegExp(regexp, 'i');
+		assert.pattern(aExpected, regexp);
+	}
+	assertRoman2KanaPattern('かんとく', 'kantoku');
+	assertRoman2KanaPattern('かんとく', 'kanntoku');
+//	assertRoman2KanaPattern('なんにん', 'nannin');
+	assertRoman2KanaPattern('なんにん', 'nannnin');
+	assertRoman2KanaPattern('うぇるかむ', 'werukamu');
 }
 
 function test_roman2kana2()
 {
 	function assertRoman2Kana2(aExpected, aInput, aType) {
 		assert.equals(aExpected, transform.roman2kana2(aInput, aType));
+	}
+	function assertRoman2Kana2Pattern(aExpected, aUnexpected, aInput, aType) {
+		var regexp = transform.roman2kana2(aInput, aType);
+		regexp = new RegExp(regexp, 'i');
+		assert.pattern(aExpected, regexp);
+		if (aUnexpected)
+			assert.notPattern(aUnexpected, regexp);
 	}
 	assertRoman2Kana2('あいうえお', 'aiueo', transform.KANA_HIRA);
 	assertRoman2Kana2('がぎぐげご', 'gagigugego', transform.KANA_HIRA);
@@ -111,6 +133,11 @@ function test_roman2kana2()
 	assertRoman2Kana2('\\(\\[', '\\(\\[', transform.KANA_HIRA);
 	assertRoman2Kana2('\\)\\]', '\\)\\]', transform.KANA_HIRA);
 	assertRoman2Kana2('\\|', '\\|', transform.KANA_HIRA);
+	assertRoman2Kana2Pattern('かんとく', 'カントク', 'kantoku', transform.KANA_HIRA);
+	assertRoman2Kana2Pattern('かんとく', 'カントク', 'kanntoku', transform.KANA_HIRA);
+//	assertRoman2Kana2Pattern('なんにん', 'ナンニン', 'nannin', transform.KANA_HIRA);
+	assertRoman2Kana2Pattern('なんにん', 'ナンニン', 'nannnin', transform.KANA_HIRA);
+	assertRoman2Kana2Pattern('うぇるかむ', 'ウェルカム', 'werukamu', transform.KANA_HIRA);
 
 	assertRoman2Kana2('[アｱ][イｲ][ウｳ][エｴ][オｵ]', 'aiueo', transform.KANA_KATA);
 	assertRoman2Kana2('(ガ|ｶﾞ)(ギ|ｷﾞ)(グ|ｸﾞ)(ゲ|ｹﾞ)(ゴ|ｺﾞ)', 'gagigugego', transform.KANA_KATA);
@@ -123,6 +150,13 @@ function test_roman2kana2()
 	assertRoman2Kana2('\\(\\[', '\\(\\[', transform.KANA_KATA);
 	assertRoman2Kana2('\\)\\]', '\\)\\]', transform.KANA_KATA);
 	assertRoman2Kana2('\\|', '\\|', transform.KANA_KATA);
+	assertRoman2Kana2Pattern('カントク', 'かんとく', 'kantoku', transform.KANA_KATA);
+	assertRoman2Kana2Pattern('カントク', 'かんとく', 'kanntoku', transform.KANA_KATA);
+	assertRoman2Kana2Pattern('ｶﾝﾄｸ', 'かんとく', 'kantoku', transform.KANA_KATA);
+	assertRoman2Kana2Pattern('ｶﾝﾄｸ', 'かんとく', 'kanntoku', transform.KANA_KATA);
+//	assertRoman2Kana2Pattern('ナンニン', 'なんにん', 'nannin', transform.KANA_KATA);
+	assertRoman2Kana2Pattern('ナンニン', 'なんにん', 'nannnin', transform.KANA_KATA);
+	assertRoman2Kana2Pattern('ウェルカム', 'うぇるかむ', 'werukamu', transform.KANA_KATA);
 
 	assertRoman2Kana2('[あアｱ][いイｲ][うウｳ][えエｴ][おオｵ]', 'aiueo', transform.KANA_ALL);
 	assertRoman2Kana2('(が|ガ|ｶﾞ)(ぎ|ギ|ｷﾞ)(ぐ|グ|ｸﾞ)(げ|ゲ|ｹﾞ)(ご|ゴ|ｺﾞ)', 'gagigugego', transform.KANA_ALL);
@@ -135,6 +169,13 @@ function test_roman2kana2()
 	assertRoman2Kana2('\\(\\[', '\\(\\[', transform.KANA_ALL);
 	assertRoman2Kana2('\\)\\]', '\\)\\]', transform.KANA_ALL);
 	assertRoman2Kana2('\\|', '\\|', transform.KANA_ALL);
+	assertRoman2Kana2Pattern('カントク', null, 'kantoku', transform.KANA_ALL);
+	assertRoman2Kana2Pattern('かンとく', null, 'kanntoku', transform.KANA_ALL);
+	assertRoman2Kana2Pattern('ｶﾝﾄｸ', null, 'kantoku', transform.KANA_ALL);
+	assertRoman2Kana2Pattern('なんニン', null, 'nannnin', transform.KANA_ALL);
+	assertRoman2Kana2Pattern('ナンニん', null, 'nannnin', transform.KANA_ALL);
+	assertRoman2Kana2Pattern('ウぇるカむ', null, 'werukamu', transform.KANA_ALL);
+	assertRoman2Kana2Pattern('ゑるカム', null, 'werukamu', transform.KANA_ALL);
 }
 
 function test_hira2roman()
@@ -154,6 +195,8 @@ function test_hira2roman()
 	assertHira2Roman('([', '([');
 	assertHira2Roman(')]', ')]');
 	assertHira2Roman('|', '|');
+	assertHira2Roman('window.open();', 'window.open();');
+	assertHira2Roman('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
 }
 
 function test_hira2kata()
@@ -174,6 +217,8 @@ function test_hira2kata()
 	assertHira2Kata('([', '([');
 	assertHira2Kata(')]', ')]');
 	assertHira2Kata('|', '|');
+	assertHira2Kata('window.open();', 'window.open();');
+	assertHira2Kata('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
 
 	function assertHira2KataPattern(aExpected, aInput) {
 		assert.equals(aExpected, transform.hira2kataPattern(aInput));
@@ -191,6 +236,8 @@ function test_hira2kata()
 	assertHira2KataPattern('\\(\\[', '\\(\\[');
 	assertHira2KataPattern('\\)\\]', '\\)\\]');
 	assertHira2KataPattern('\\|', '\\|');
+	assertHira2KataPattern('window.open();', 'window.open();');
+	assertHira2KataPattern('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
 }
 
 function test_kata2hira()
@@ -210,6 +257,8 @@ function test_kata2hira()
 	assertKata2Hira('([', '([');
 	assertKata2Hira(')]', ')]');
 	assertKata2Hira('|', '|');
+	assertKata2Hira('window.open();', 'window.open();');
+	assertKata2Hira('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
 }
 
 function test_zenkaku2hankaku()
@@ -229,6 +278,8 @@ function test_zenkaku2hankaku()
 	assertZenkaku2Hankaku('([', '([');
 	assertZenkaku2Hankaku(')]', ')]');
 	assertZenkaku2Hankaku('|', '|');
+	assertZenkaku2Hankaku('window.open();', 'window.open();');
+	assertZenkaku2Hankaku('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
 }
 
 function test_roman2zen()
@@ -288,6 +339,8 @@ function test_isYomi()
 	assertIsYomi(false, '([');
 	assertIsYomi(false, ')]');
 	assertIsYomi(false, '|');
+	assertIsYomi(false, 'window.open();');
+	assertIsYomi(false, 'window.open("about:blank", "_blank", "all");');
 }
 
 function test_joinVoiceMarks()
@@ -314,22 +367,44 @@ function test_joinVoiceMarks()
 	assertJoinVoiceMarks('([', '([');
 	assertJoinVoiceMarks(')]', ')]');
 	assertJoinVoiceMarks('|', '|');
+	assertJoinVoiceMarks('window.open();', 'window.open();');
+	assertJoinVoiceMarks('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
 }
 
 
 function test_expand()
 {
 	function assertExpand(aExpected, aInput) {
-		assert.equals(aExpected, transform.expand(aInput));
+		var regexp = transform.expand(aInput);
+		regexp = new RegExp(regexp, 'i');
+		assert.pattern(aExpected, regexp);
 	}
-	assertExpand('(か|き|きゃ|きゅ|きょ|く|け|こ|っか|っき|っきゃ|っきゅ|っきょ|っく|っけ|っこ)', 'k');
+	assertExpand('け', 'k');
+	assertExpand('かかあ', 'かk');
+	assertExpand('かこ', 'かk');
+	assertExpand('かっか', 'かk');
 	assertExpand('ー', '-');
+	assertExpand('おー', 'お-');
 
 	function assertExpand2(aExpected, aInput, aType) {
-		assert.equals(aExpected, transform.expand2(aInput, aType));
+		var regexp = transform.expand2(aInput, aType);
+		regexp = new RegExp(regexp, 'i');
+		assert.pattern(aExpected, regexp);
 	}
 	assertExpand2('ー', '-', transform.KANA_HIRA);
-	assertExpand2('[ーｰ-]', '-', transform.KANA_KATA);
-	assertExpand2('[ーｰ-]', '-', transform.KANA_ALL);
+	assertExpand2('ー', '-', transform.KANA_KATA);
+	assertExpand2('ｰ', '-', transform.KANA_KATA);
+	assertExpand2('-', '-', transform.KANA_KATA);
+	assertExpand2('ー', '-', transform.KANA_ALL);
+	assertExpand2('ｰ', '-', transform.KANA_ALL);
+	assertExpand2('-', '-', transform.KANA_ALL);
+
+	assertExpand2('おー', 'お-', transform.KANA_HIRA);
+	assertExpand2('おー', 'お-', transform.KANA_KATA);
+	assertExpand2('おｰ', 'お-', transform.KANA_KATA);
+	assertExpand2('お-', 'お-', transform.KANA_KATA);
+	assertExpand2('おー', 'お-', transform.KANA_ALL);
+	assertExpand2('おｰ', 'お-', transform.KANA_ALL);
+	assertExpand2('お-', 'お-', transform.KANA_ALL);
 }
 
