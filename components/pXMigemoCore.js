@@ -190,7 +190,7 @@ pXMigemoCore.prototype = {
 		var cacheText = cache.getCacheFor(aInput);
 		if (cacheText) {
 			mydump('cache:'+encodeURIComponent(cacheText));
-			return cacheText;
+			return cacheText.replace(/\n/g, '');
 		}
 
 		var date1 = new Date();
