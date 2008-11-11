@@ -7,8 +7,8 @@ var XMigemoUI,
 	gFindBar,
 	field,
 	inputElem;
-var keyEventTest = baseURL+'res/keyEventTest.html';
-var keyEventTestXML = baseURL+'res/keyEventTest.xml';
+var keyEventTest = baseURL+'../res/keyEventTest.html';
+var keyEventTestXML = baseURL+'../res/keyEventTest.xml';
 var wait = 500;
 
 function commonSetUp(aURI)
