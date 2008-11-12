@@ -3,10 +3,12 @@
 	pIXMigemoTextTransformJa
 */
 var DEBUG = false;
+var TEST = false;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
  
-var Prefs = Components 
-			.classes['@mozilla.org/preferences;1']
-			.getService(Components.interfaces.nsIPrefBranch);
+var Prefs = Cc['@mozilla.org/preferences;1']
+			.getService(Ci.nsIPrefBranch);
  
 function pXMigemoEngineJa() { 
 	mydump('create instance pIXMigemoEngine(lang=ja)');
@@ -36,22 +38,45 @@ pXMigemoEngineJa.prototype = {
 	get dictionary() 
 	{
 		if (!this._dictionary) {
-			this._dictionary = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang]
-				.getService(Components.interfaces.pIXMigemoDictionary)
-				.QueryInterface(Components.interfaces.pIXMigemoDictionaryJa);
+			if (TEST && pXMigemoDictionaryJa) {
+				this._dictionary = new pXMigemoDictionaryJa();
+			}
+			else {
+				this._dictionary = Cc['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang]
+					.getService(Ci.pIXMigemoDictionary)
+					.QueryInterface(Ci.pIXMigemoDictionaryJa);
+			}
 		}
 		return this._dictionary;
 	},
 	_dictionary : null,
  
+	get textUtils() 
+	{
+		if (!this._textUtils) {
+			if (TEST && pXMigemoTextUtils) {
+				this._textUtils = new pXMigemoTextUtils();
+			}
+			else {
+				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+						.getService(Ci.pIXMigemoTextUtils);
+			}
+		}
+		return this._textUtils;
+	},
+	_textUtils : null,
+ 
 	get textTransform() 
 	{
 		if (!this._textTransform) {
-			this._textTransform = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang='+this.lang]
-					.getService(Components.interfaces.pIXMigemoTextTransform)
-					.QueryInterface(Components.interfaces.pIXMigemoTextTransformJa);
+			if (TEST && pXMigemoTextTransformJa) {
+				this._textTransform = new pXMigemoTextTransformJa();
+			}
+			else {
+				this._textTransform = Cc['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang='+this.lang]
+					.getService(Ci.pIXMigemoTextTransform)
+					.QueryInterface(Ci.pIXMigemoTextTransformJa);
+			}
 		}
 		return this._textTransform;
 	},
@@ -63,57 +88,54 @@ pXMigemoEngineJa.prototype = {
 
 		aInput = aInput.toLowerCase();
 
-		var XMigemoTextService = this.textTransform;
-		var XMigemoTextUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
+		var transform = this.textTransform;
 
 		mydump('noCache');
 
-		var hira = XMigemoTextService.expand(
-				XMigemoTextUtils.sanitizeForTransformOutput(
-					XMigemoTextService.roman2kana(
-						XMigemoTextService.kata2hira(
-							XMigemoTextUtils.sanitizeForTransformInput(aInput)
+		var hira = transform.expand(
+				this.textUtils.sanitizeForTransformOutput(
+					transform.roman2kana(
+						transform.kata2hira(
+							this.textUtils.sanitizeForTransformInput(aInput)
 						)
 					)
 				)
 			);
 
 		var roman = aInput;
-		if (/[\uff66-\uff9f]/.test(roman)) roman = XMigemoTextService.hira2roman(XMigemoTextService.kata2hira(roman))
+		if (/[\uff66-\uff9f]/.test(roman)) roman = transform.hira2roman(transform.kata2hira(roman))
 		var ignoreHiraKata = Prefs.getBoolPref('xulmigemo.ignoreHiraKata');
 		var kana = ignoreHiraKata ? '' :
-				XMigemoTextService.expand2(
-					XMigemoTextUtils.sanitizeForTransformOutput(
-						XMigemoTextService.roman2kana2(
-							XMigemoTextUtils.sanitizeForTransformInput(roman),
-							XMigemoTextService.KANA_KATA
+				transform.expand2(
+					this.textUtils.sanitizeForTransformOutput(
+						transform.roman2kana2(
+							this.textUtils.sanitizeForTransformInput(roman),
+							transform.KANA_KATA
 						)
 					),
-					XMigemoTextService.KANA_KATA
+					transform.KANA_KATA
 				);
 		var hiraAndKana = ignoreHiraKata ?
-				XMigemoTextService.expand2(
-					XMigemoTextUtils.sanitizeForTransformOutput(
-						XMigemoTextService.roman2kana2(
-							XMigemoTextUtils.sanitizeForTransformInput(roman),
-							XMigemoTextService.KANA_ALL
+				transform.expand2(
+					this.textUtils.sanitizeForTransformOutput(
+						transform.roman2kana2(
+							this.textUtils.sanitizeForTransformInput(roman),
+							transform.KANA_ALL
 						)
 					),
-					XMigemoTextService.KANA_ALL
+					transform.KANA_ALL
 				) :
 				hira + '|' + kana ;
 		mydump('hiraAndKana: '+encodeURIComponent(hiraAndKana));
 
-		var zen = XMigemoTextService.roman2zen(aInput); // aInput ?
+		var zen = transform.roman2zen(aInput); // aInput ?
 		mydump('zen: '+encodeURIComponent(zen));
 
 		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC);
 
-		var original = XMigemoTextUtils.sanitize(aInput);
+		var original = this.textUtils.sanitize(aInput);
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
-			original = XMigemoTextService.addLatinModifiers(original);
+			original = transform.addLatinModifiers(original);
 
 		var pattern = '';
 		if (lines.length) {
@@ -142,7 +164,7 @@ pXMigemoEngineJa.prototype = {
 				.join('\n')
 				.replace(/^(.+)$(\n\1.*$)+/img, '$1')
 				.replace(/^.$\n?/mg, ''); // 一文字だけの項目は用済みなので削除
-			searchterm = XMigemoTextUtils.sanitize(searchterm)
+			searchterm = this.textUtils.sanitize(searchterm)
 				.replace(/\n/g, '|');
 			pattern += (pattern ? '|' : '') + searchterm;//.substring(0, searchterm.length-1);
 
@@ -190,22 +212,19 @@ pXMigemoEngineJa.prototype = {
 			return [];
 		}
 
-		var XMigemoTextService = this.textTransform;
-		var XMigemoTextUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
+		var transform = this.textTransform;
 
-		var hira = XMigemoTextService.expand(
-					XMigemoTextUtils.sanitize(
-						XMigemoTextService.roman2kana(
-							XMigemoTextService.kata2hira(aInput)
+		var hira = transform.expand(
+					this.textUtils.sanitize(
+						transform.roman2kana(
+							transform.kata2hira(aInput)
 						)
 					)
 				);
 
-		var str = XMigemoTextUtils.sanitize(aInput);
+		var str = this.textUtils.sanitize(aInput);
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
-			str = XMigemoTextService.addLatinModifiers(str);
+			str = transform.addLatinModifiers(str);
 
 		var tmp  = '^' + hira + '.+$'; //日本語
 		var tmpA = '^(' + str + ').+$'; //アルファベット
@@ -267,8 +286,8 @@ pXMigemoEngineJa.prototype = {
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemoEngine) &&
-			!aIID.equals(Components.interfaces.nsISupports))
+		if(!aIID.equals(Ci.pIXMigemoEngine) &&
+			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
 	}
@@ -283,7 +302,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -292,7 +311,7 @@ var gModule = {
 
 	getClassObject : function (aComponentManager, aCID, aIID)
 	{
-		if (!aIID.equals(Components.interfaces.nsIFactory))
+		if (!aIID.equals(Ci.nsIFactory))
 			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
 
 		for (var key in this._objects) {

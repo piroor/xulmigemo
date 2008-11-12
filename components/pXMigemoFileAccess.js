@@ -1,16 +1,17 @@
-var UConv = Components
-		.classes['@mozilla.org/intl/scriptableunicodeconverter']
-		.getService(Components.interfaces.nsIScriptableUnicodeConverter);
+var TEST = false;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
 
-const DIR = Components
-		.classes['@mozilla.org/file/directory_service;1']
-		.getService(Components.interfaces.nsIProperties);
+var UConv = Cc['@mozilla.org/intl/scriptableunicodeconverter']
+		.getService(Ci.nsIScriptableUnicodeConverter);
 
-const nsIFile = Components.interfaces.nsIFile;
+var DIR = Cc['@mozilla.org/file/directory_service;1']
+		.getService(Ci.nsIProperties);
 
-const PLATFORM = Components
-		.classes['@mozilla.org/network/protocol;1?name=http']
-		.getService(Components.interfaces.nsIHttpProtocolHandler)
+var nsIFile = Ci.nsIFile;
+
+var PLATFORM = Cc['@mozilla.org/network/protocol;1?name=http']
+		.getService(Ci.nsIHttpProtocolHandler)
 		.oscpu;
 
 function pXMigemoFileAccess() {}
@@ -34,15 +35,13 @@ pXMigemoFileAccess.prototype = {
 	{
 		var fileContents;
 
-		var stream = Components
-						.classes['@mozilla.org/network/file-input-stream;1']
-						.createInstance(Components.interfaces.nsIFileInputStream);
+		var stream = Cc['@mozilla.org/network/file-input-stream;1']
+						.createInstance(Ci.nsIFileInputStream);
 		try {
 			stream.init(aFile, 1, 0, false); // open as "read only"
 
-			var scriptableStream = Components
-									.classes['@mozilla.org/scriptableinputstream;1']
-									.createInstance(Components.interfaces.nsIScriptableInputStream);
+			var scriptableStream = Cc['@mozilla.org/scriptableinputstream;1']
+									.createInstance(Ci.nsIScriptableInputStream);
 			scriptableStream.init(stream);
 
 			var fileSize = scriptableStream.available();
@@ -87,9 +86,8 @@ pXMigemoFileAccess.prototype = {
 		if (aFile.exists()) aFile.remove(true); // 上書き確認は無し。必要があれば処理を追加。
 		aFile.create(aFile.NORMAL_FILE_TYPE, 0666); // アクセス権を8進数で指定。 Win9x などでは無視される。
 
-		var stream = Components
-						.classes['@mozilla.org/network/file-output-stream;1']
-						.createInstance(Components.interfaces.nsIFileOutputStream);
+		var stream = Cc['@mozilla.org/network/file-output-stream;1']
+						.createInstance(Ci.nsIFileOutputStream);
 		stream.init(aFile, 2, 0x200, false); // open as "write only"
 		stream.write(aContent, aContent.length);
 		stream.close();
@@ -99,9 +97,8 @@ pXMigemoFileAccess.prototype = {
 
 	getAbsolutePath : function(aPath)
 	{
-		var file = Components
-				.classes['@mozilla.org/file/local;1']
-				.createInstance(Components.interfaces.nsILocalFile);
+		var file = Cc['@mozilla.org/file/local;1']
+				.createInstance(Ci.nsILocalFile);
 		try {
 			file.initWithPath(aPath);
 			return aPath;
@@ -155,12 +152,11 @@ pXMigemoFileAccess.prototype = {
 			}))
 			return path;
 
-		var file = Components
-				.classes['@mozilla.org/file/local;1']
-				.createInstance(Components.interfaces.nsILocalFile);
+		var file = Cc['@mozilla.org/file/local;1']
+				.createInstance(Ci.nsILocalFile);
 		file.initWithPath(aPath);
 
-		var binDir = DIR.get('CurProcD', Components.interfaces.nsIFile);
+		var binDir = DIR.get('CurProcD', Ci.nsIFile);
 		try {
 			aPath = file.getRelativeDescriptor(binDir);
 		}
@@ -190,9 +186,8 @@ pXMigemoFileAccess.prototype = {
 
 	getExistingPath : function(aPath)
 	{
-		var file = Components
-				.classes['@mozilla.org/file/local;1']
-				.createInstance(Components.interfaces.nsILocalFile);
+		var file = Cc['@mozilla.org/file/local;1']
+				.createInstance(Ci.nsILocalFile);
 		try {
 			aPath = this.getAbsolutePath(aPath);
 			file.initWithPath(aPath);
@@ -205,8 +200,8 @@ pXMigemoFileAccess.prototype = {
 
 	QueryInterface : function(aIID)
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemoFileAccess) &&
-			!aIID.equals(Components.interfaces.nsISupports))
+		if(!aIID.equals(Ci.pIXMigemoFileAccess) &&
+			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
 	}
@@ -224,7 +219,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -233,7 +228,7 @@ var gModule = {
 
 	getClassObject : function (aComponentManager, aCID, aIID)
 	{
-		if (!aIID.equals(Components.interfaces.nsIFactory))
+		if (!aIID.equals(Ci.nsIFactory))
 			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
 
 		for (var key in this._objects) {

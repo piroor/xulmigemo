@@ -3,18 +3,18 @@
 	pIXMigemoCache
 */
 var DEBUG = false;
+var TEST = false;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
  
-var ObserverService = Components 
-		.classes['@mozilla.org/observer-service;1']
-		.getService(Components.interfaces.nsIObserverService);;
+var ObserverService = Cc['@mozilla.org/observer-service;1']
+		.getService(Ci.nsIObserverService);;
 
-var Prefs = Components
-		.classes['@mozilla.org/preferences;1']
-		.getService(Components.interfaces.nsIPrefBranch);
+var Prefs = Cc['@mozilla.org/preferences;1']
+		.getService(Ci.nsIPrefBranch);
 
-var WindowManager = Components
-		.classes['@mozilla.org/appshell/window-mediator;1']
-		.getService(Components.interfaces.nsIWindowMediator);
+var WindowManager = Cc['@mozilla.org/appshell/window-mediator;1']
+		.getService(Ci.nsIWindowMediator);
  
 function pXMigemoDicManager() { 
 	mydump('create instance pIXMigemoDicManager');
@@ -64,11 +64,18 @@ pXMigemoDicManager.prototype = {
 				var input = RegExp.$2;
 				var term = RegExp.$3;
 
-				const XMigemo = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/core;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-					.getService(Components.interfaces.pIXMigemo);
-
-				this.cache.clearCacheForAllPatterns(XMigemo.textTransform.normalizeKeyInput(input));
+				var lang = Prefs.getCharPref('xulmigemo.lang')
+				var core;
+				if (TEST && pXMigemoCore) {
+					core = new pXMigemoCore();
+					core.init(lang);
+				}
+				else {
+					core = Cc['@piro.sakura.ne.jp/xmigemo/factory;1']
+						.getService(Ci.pIXMigemoFactory)
+						.getService(lang);
+				}
+				this.cache.clearCacheForAllPatterns(core.textTransform.normalizeKeyInput(input));
 				return;
 
 				return;
@@ -100,9 +107,13 @@ pXMigemoDicManager.prototype = {
 	get fileUtils() 
 	{
 		if (!this._fileUtils) {
-			this._fileUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-				.getService(Components.interfaces.pIXMigemoFileAccess);
+			if (TEST && pXMigemoFileAccess) {
+				this._fileUtils = new pXMigemoFileAccess();
+			}
+			else {
+				this._fileUtils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
+						.getService(Ci.pIXMigemoFileAccess);
+			}
 		}
 		return this._fileUtils;
 	},
@@ -116,18 +127,30 @@ pXMigemoDicManager.prototype = {
 	get dictionary()
 	{
 		if (!this._dictionary) { // default dictionary; can be overridden.
-			var id = '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+Prefs.getCharPref('xulmigemo.lang');
-			if (id in Components.classes) {
-				this._dictionary = Components
-					.classes[id]
-					.getService(Components.interfaces.pIXMigemoDictionary);
+			var lang = Prefs.getCharPref('xulmigemo.lang');
+			var constructor;
+			if (TEST) {
+				eval('constructor = pXMigemoDictionary'+
+						lang.replace(/^./, function(aChar) {
+							return aChar.toUpperCase();
+						})
+				);
+			}
+			if (constructor) {
+				this._dictionary = new constructor();
 			}
 			else {
-				this._dictionary = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*']
-					.createInstance(Components.interfaces.pIXMigemoDictionary)
-					.QueryInterface(Components.interfaces.pIXMigemoDictionaryUniversal);
-				this._dictionary.lang = Prefs.getCharPref('xulmigemo.lang');
+				var id = '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+lang;
+				if (id in Cc) {
+					this._dictionary = Cc[id]
+						.getService(Ci.pIXMigemoDictionary);
+				}
+				else {
+					this._dictionary = Cc['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*']
+						.createInstance(Ci.pIXMigemoDictionary)
+						.QueryInterface(Ci.pIXMigemoDictionaryUniversal);
+					this._dictionary.lang = Prefs.getCharPref('xulmigemo.lang');
+				}
 			}
 		}
 		return this._dictionary;
@@ -142,9 +165,13 @@ pXMigemoDicManager.prototype = {
 	get cache()
 	{
 		if (!this._cache) { // default cache; can be overridden.
-			this._cache = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
-				.getService(Components.interfaces.pIXMigemoCache);
+			if (TEST && pXMigemoCache) {
+				this._cache = new pXMigemoCache();
+			}
+			else {
+				this._cache = Cc['@piro.sakura.ne.jp/xmigemo/cache;1']
+					.getService(Ci.pIXMigemoCache);
+			}
 		}
 		return this._cache;
 	},
@@ -158,13 +185,12 @@ pXMigemoDicManager.prototype = {
  
 	showDirectoryPicker : function(aDefault) 
 	{
-		var filePicker = Components
-				.classes['@mozilla.org/filepicker;1']
-				.createInstance(Components.interfaces.nsIFilePicker);
+		var filePicker = Cc['@mozilla.org/filepicker;1']
+				.createInstance(Ci.nsIFilePicker);
 
 		var current = aDefault || this.dicpath;
-		var displayDirectory = Components.classes['@mozilla.org/file/local;1'].createInstance();
-		if (displayDirectory instanceof Components.interfaces.nsILocalFile) {
+		var displayDirectory = Cc['@mozilla.org/file/local;1'].createInstance();
+		if (displayDirectory instanceof Ci.nsILocalFile) {
 			try {
 				displayDirectory.initWithPath(current);
 				filePicker.displayDirectory = displayDirectory;
@@ -199,7 +225,7 @@ pXMigemoDicManager.prototype = {
 		}
 
 		try {
-			var pbi = Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+			var pbi = Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
 			pbi.addObserver(this.domain, this, false);
 		}
 		catch(e) {
@@ -217,9 +243,8 @@ pXMigemoDicManager.prototype = {
 				Prefs.getBoolPref('xulmigemo.dictionary.useInitializeWizard') &&
 				!WindowManager.getMostRecentWindow('xulmigemo:initializer')
 				) {
-				var WindowWatcher = Components
-					.classes['@mozilla.org/embedcomp/window-watcher;1']
-					.getService(Components.interfaces.nsIWindowWatcher);
+				var WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
+					.getService(Ci.nsIWindowWatcher);
 				WindowWatcher.openWindow(
 					null,
 					'chrome://xulmigemo/content/initializer/initializer.xul',
@@ -248,7 +273,7 @@ pXMigemoDicManager.prototype = {
 	destroy : function() 
 	{
 		try {
-			var pbi = Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+			var pbi = Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
 			pbi.removeObserver(this.domain, this, false);
 		}
 		catch(e) {
@@ -268,8 +293,8 @@ pXMigemoDicManager.prototype = {
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemoDicManager) &&
-			!aIID.equals(Components.interfaces.nsISupports))
+		if(!aIID.equals(Ci.pIXMigemoDicManager) &&
+			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
 	}
@@ -283,9 +308,8 @@ XMigemoStringBundle.prototype = {
 	get stringBundleService()
 	{
 		if (!this._stringBundleService) {
-			this._stringBundleService = Components
-				.classes['@mozilla.org/intl/stringbundle;1']
-				.getService(Components.interfaces.nsIStringBundleService);
+			this._stringBundleService = Cc['@mozilla.org/intl/stringbundle;1']
+				.getService(Ci.nsIStringBundleService);
 		}
 		return this._stringBundleService;
 	},
@@ -311,7 +335,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -320,7 +344,7 @@ var gModule = {
 
 	getClassObject : function (aComponentManager, aCID, aIID)
 	{
-		if (!aIID.equals(Components.interfaces.nsIFactory))
+		if (!aIID.equals(Ci.nsIFactory))
 			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
 
 		for (var key in this._objects) {

@@ -1,10 +1,13 @@
-var ObserverService = Components 
-			.classes['@mozilla.org/observer-service;1']
-			.getService(Components.interfaces.nsIObserverService);
+var TEST = false;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var gXMigemoMail;
 
-var Prefs = Components
-			.classes['@mozilla.org/preferences;1']
-			.getService(Components.interfaces.nsIPrefBranch);
+var ObserverService = Cc['@mozilla.org/observer-service;1']
+			.getService(Ci.nsIObserverService);
+
+var Prefs = Cc['@mozilla.org/preferences;1']
+			.getService(Ci.nsIPrefBranch);
 
 var MailSession;
  
@@ -55,11 +58,13 @@ pXMigemoMail.prototype = {
 	get summariesDB() 
 	{
 		if (!this.mSummariesDB) {
-			const DirectoryService = Components.classes['@mozilla.org/file/directory_service;1'].getService(Components.interfaces.nsIProperties);
-			var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
+			const DirectoryService = Cc['@mozilla.org/file/directory_service;1']
+					.getService(Ci.nsIProperties);
+			var file = DirectoryService.get('ProfD', Ci.nsIFile);
 			file.append(this.kDATABASE);
 
-			var storageService = Components.classes['@mozilla.org/storage/service;1'].getService(Components.interfaces.mozIStorageService);
+			var storageService = Cc['@mozilla.org/storage/service;1']
+					.getService(Ci.mozIStorageService);
 			this.mSummariesDB = storageService.openDatabase(file);
 
 			if (!this.mSummariesDB.tableExists(this.kTABLE)) {
@@ -178,10 +183,16 @@ pXMigemoMail.prototype = {
 	get core() 
 	{
 		if (!this._core) {
-			this._core = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/factory;1']
-				.getService(Components.interfaces.pIXMigemoFactory)
-				.getService(Prefs.getCharPref('xulmigemo.lang'));
+			var lang = Prefs.getCharPref('xulmigemo.lang');
+			if (TEST && pXMigemoCore) {
+				this._core = new pXMigemoCore();
+				this._core.init(lang);
+			}
+			else {
+				this._core = Cc['@piro.sakura.ne.jp/xmigemo/factory;1']
+					.getService(Ci.pIXMigemoFactory)
+					.getService(lang);
+			}
 		}
 		return this._core;
 	},
@@ -189,10 +200,15 @@ pXMigemoMail.prototype = {
  
 	get textUtils() 
 	{
-		if (!this._textUtils)
-			this._textUtils = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-					.getService(Components.interfaces.pIXMigemoTextUtils);
+		if (!this._textUtils) {
+			if (TEST && pXMigemoTextUtils) {
+				this._textUtils = new pXMigemoTextUtils();
+			}
+			else {
+				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+						.getService(Ci.pIXMigemoTextUtils);
+			}
+		}
 		return this._textUtils;
 	},
 	_textUtils : null,
@@ -247,9 +263,9 @@ pXMigemoMail.prototype = {
 	OnItemAdded : function(aParentItem, aItem)
 	{
 		try {
-			var summary = this.getSummary(aParentItem.QueryInterface(Components.interfaces.nsIMsgFolder));
+			var summary = this.getSummary(aParentItem.QueryInterface(Ci.nsIMsgFolder));
 			if (summary.isBuilding) return;
-			summary.addItem(aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr));
+			summary.addItem(aItem.QueryInterface(Ci.nsIMsgDBHdr));
 			summary.updateCache();
 		}
 		catch(e) {
@@ -258,9 +274,9 @@ pXMigemoMail.prototype = {
 	OnItemRemoved : function(aParentItem, aItem)
 	{
 		try {
-			var summary = this.getSummary(aParentItem.QueryInterface(Components.interfaces.nsIMsgFolder));
+			var summary = this.getSummary(aParentItem.QueryInterface(Ci.nsIMsgFolder));
 			if (summary.isBuilding) return;
-			summary.removeItem(aItem.QueryInterface(Components.interfaces.nsIMsgDBHdr));
+			summary.removeItem(aItem.QueryInterface(Ci.nsIMsgDBHdr));
 			summary.updateCache();
 		}
 		catch(e) {
@@ -277,11 +293,11 @@ pXMigemoMail.prototype = {
 		switch (aEvent.toString())
 		{
 			case 'CompactCompleted':
-				this.refreshSummaryCache(aItem.QueryInterface(Components.interfaces.nsIMsgFolder));
+				this.refreshSummaryCache(aItem.QueryInterface(Ci.nsIMsgFolder));
 				return;
 
 			case 'FolderLoaded':
-				this.getSummary(aItem.QueryInterface(Components.interfaces.nsIMsgFolder));
+				this.getSummary(aItem.QueryInterface(Ci.nsIMsgFolder));
 				return;
 		}
 	},
@@ -292,10 +308,10 @@ pXMigemoMail.prototype = {
 
 		this.initialized = true;
 
-		MailSession = Components.classes['@mozilla.org/messenger/services/session;1']
-					.getService(Components.interfaces.nsIMsgMailSession);
+		MailSession = Cc['@mozilla.org/messenger/services/session;1']
+					.getService(Ci.nsIMsgMailSession);
 
-		var nsIFolderListener = Components.interfaces.nsIFolderListener;
+		var nsIFolderListener = Ci.nsIFolderListener;
 		MailSession.AddFolderListener(this, nsIFolderListener.added | nsIFolderListener.removed | nsIFolderListener.event);
 
 		ObserverService.addObserver(this, 'quit-application', false);
@@ -331,7 +347,7 @@ pXMigemoMail.prototype = {
 				return;
 
 			case 'XMigemo:compactFolderRequested':
-				var folder = aSubject.QueryInterface(Components.interfaces.nsIMsgFolder);
+				var folder = aSubject.QueryInterface(Ci.nsIMsgFolder);
 				if (!folder.expungedBytes && aData != 'forceCompact')
 					this.refreshSummaryCache(folder);
 				return;
@@ -340,10 +356,10 @@ pXMigemoMail.prototype = {
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemoMail) &&
-			!aIID.equals(Components.interfaces.nsIFolderListener) &&
-			!aIID.equals(Components.interfaces.nsIObserver) &&
-			!aIID.equals(Components.interfaces.nsISupports))
+		if(!aIID.equals(Ci.pIXMigemoMail) &&
+			!aIID.equals(Ci.nsIFolderListener) &&
+			!aIID.equals(Ci.nsIObserver) &&
+			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
 	}
@@ -422,8 +438,9 @@ FolderSummary.prototype = {
 			cc = {},
 			bodies = {};
 
-		var sv = Components.classes['@piro.sakura.ne.jp/xmigemo/mail;1']
-				.getService(Components.interfaces.pIXMigemoMail);
+		var sv = gXMigemoMail ||
+				Cc['@piro.sakura.ne.jp/xmigemo/mail;1']
+					.getService(Ci.pIXMigemoMail);
 		sv.loadSummaryCache(this.mFolder, ids, authors, subjects, recipients, cc, bodies);
 		if (!ids.value) {
 			this.buildProgressively();
@@ -467,8 +484,8 @@ FolderSummary.prototype = {
 		this.mBodies = [];
 
 		this.mMessages = this.mFolder.getMsgDatabase(null).EnumerateMessages();
-		this.mProgressiveBuildTimer = Components.classes['@mozilla.org/timer;1']
-					.createInstance(Components.interfaces.nsITimer);
+		this.mProgressiveBuildTimer = Cc['@mozilla.org/timer;1']
+					.createInstance(Ci.nsITimer);
 		this.mProgressiveBuildTimer.init(this, this.delay,
 			this.mProgressiveBuildTimer.TYPE_REPEATING_SLACK);
 	},
@@ -489,16 +506,17 @@ FolderSummary.prototype = {
 			this.mUpdateCacheTimer.cancel();
 			this.mUpdateCacheTimer = null;
 		}
-		this.mUpdateCacheTimer = Components.classes['@mozilla.org/timer;1']
-					.createInstance(Components.interfaces.nsITimer);
+		this.mUpdateCacheTimer = Cc['@mozilla.org/timer;1']
+					.createInstance(Ci.nsITimer);
 		this.mUpdateCacheTimer.init(this, 100,
 			this.mUpdateCacheTimer.TYPE_ONE_SHOT);
 	},
 	
 	updateCacheCallback : function() 
 	{
-		var sv = Components.classes['@piro.sakura.ne.jp/xmigemo/mail;1']
-				.getService(Components.interfaces.pIXMigemoMail);
+		var sv = gXMigemoMail ||
+				Cc['@piro.sakura.ne.jp/xmigemo/mail;1']
+					.getService(Ci.pIXMigemoMail);
 		sv.saveSummaryCache(
 			this.mFolder,
 			this.mIds.join('\n'),
@@ -522,7 +540,7 @@ FolderSummary.prototype = {
 			return false;
 		}
 
-		var msg = this.mMessages.getNext().QueryInterface(Components.interfaces.nsIMsgDBHdr);
+		var msg = this.mMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
 		this.addItem(msg);
 
 		return true;
@@ -544,8 +562,8 @@ FolderSummary.prototype = {
 		if (!Prefs.getBoolPref('xulmigemo.mailnews.threadsearch.body')) return '';
 
 		var stream = this.mFolder.getOfflineFileStream(aMsgHdr.messageKey, {}, {})
-			.QueryInterface(Components.interfaces.nsISeekableStream)
-			.QueryInterface(Components.interfaces.nsILineInputStream);
+			.QueryInterface(Ci.nsISeekableStream)
+			.QueryInterface(Ci.nsILineInputStream);
 		stream.seek(stream.NS_SEEK_SET, aMsgHdr.messageOffset);
 
 		var multipart = false;
@@ -582,9 +600,8 @@ FolderSummary.prototype = {
 
 		stream.close();
 
-		var UConv = Components
-			.classes['@mozilla.org/intl/scriptableunicodeconverter']
-			.getService(Components.interfaces.nsIScriptableUnicodeConverter);
+		var UConv = Cc['@mozilla.org/intl/scriptableunicodeconverter']
+			.getService(Ci.nsIScriptableUnicodeConverter);
 
 		msg = msg.join('\n');
 		if (multipart && boundary) {
@@ -645,8 +662,8 @@ FolderSummary.prototype = {
 		});
 		return aInput;
 	},
-	MIMEHeaderParam : Components.classes['@mozilla.org/network/mime-hdrparam;1']
-		.getService(Components.interfaces.nsIMIMEHeaderParam),
+	MIMEHeaderParam : Cc['@mozilla.org/network/mime-hdrparam;1']
+		.getService(Ci.nsIMIMEHeaderParam),
  	 
 	removeItem : function(aMsgHdr) 
 	{
@@ -690,7 +707,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -699,7 +716,7 @@ var gModule = {
 
 	getClassObject : function (aComponentManager, aCID, aIID)
 	{
-		if (!aIID.equals(Components.interfaces.nsIFactory))
+		if (!aIID.equals(Ci.nsIFactory))
 			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
 
 		for (var key in this._objects) {
@@ -720,7 +737,8 @@ var gModule = {
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoMail()).QueryInterface(aIID);
+					gXMigemoMail = new pXMigemoMail();
+					return gXMigemoMail.QueryInterface(aIID);
 				}
 			}
 		}
