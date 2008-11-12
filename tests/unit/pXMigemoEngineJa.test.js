@@ -5,6 +5,7 @@ var engine;
 function setUp()
 {
 	engine = new pXMigemoEngineJa();
+	engine.dictionary.load();
 }
 
 function tearDown()

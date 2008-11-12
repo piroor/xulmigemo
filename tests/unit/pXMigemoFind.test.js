@@ -10,6 +10,7 @@ function setUp()
 
 function tearDown()
 {
+	find.destroy();
 	find = null;
 }
 
