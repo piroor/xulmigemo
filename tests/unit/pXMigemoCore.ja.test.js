@@ -1,26 +1,28 @@
-utils.include('xMigemoClasses.inc.js');
+utils.include('pXMigemoClasses.inc.js');
 
-var engine;
+var core;
 
 function setUp()
 {
-	engine = new pXMigemoEngineJa();
+	core = new pXMigemoCore();
+	core.init('ja');
 }
 
 function tearDown()
 {
-	engine = null;
+	core.destroy();
+	core = null;
 }
 
 function test_getRegExpFor()
 {
-	assert.equals('\\(|（', engine.getRegExpFor('('));
-	assert.equals('\\)|）', engine.getRegExpFor(')'));
-	assert.equals('\\[|［', engine.getRegExpFor('['));
-	assert.equals('\\]|］', engine.getRegExpFor(']'));
+	assert.equals('\\(|（', core.getRegExpFor('('));
+	assert.equals('\\)|）', core.getRegExpFor(')'));
+	assert.equals('\\[|［', core.getRegExpFor('['));
+	assert.equals('\\]|］', core.getRegExpFor(']'));
 
 	function assertRegExpFor(aExpected, aInput) {
-		var regexp = engine.getRegExpFor(aInput);
+		var regexp = core.getRegExpFor(aInput);
 		regexp = new RegExp(regexp, 'i');
 		assert.pattern(aExpected, regexp);
 	}
@@ -45,4 +47,6 @@ function test_getRegExpFor()
 	assertRegExpFor('お-', 'o-');
 	assertRegExpFor('日本語', 'nihongo');
 	assertRegExpFor('ハロー', 'hello');
+	assertRegExpFor('window.open();', 'window.open();');
+	assertRegExpFor('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
 }

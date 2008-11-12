@@ -1,4 +1,4 @@
-utils.include('../../components/pXMigemoTextTransformJa.js', null, 'Shift_JIS');
+utils.include('pXMigemoClasses.inc.js');
 
 var transform;
 

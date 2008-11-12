@@ -1,6 +1,6 @@
 var description = 'XMigemoTextUtilsのテスト（基本）';
 
-utils.include('xMigemoClasses.inc.js');
+utils.include('pXMigemoClasses.inc.js');
 
 var textUtils;
 
