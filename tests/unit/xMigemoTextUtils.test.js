@@ -1,6 +1,6 @@
 var description = 'XMigemoTextUtilsのテスト（基本）';
 
-utils.include('../../components/pXMigemoTextUtils.js', null, 'Shift_JIS');
+utils.include('xMigemoClasses.inc.js');
 
 var textUtils;
 
