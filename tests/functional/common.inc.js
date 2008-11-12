@@ -1,3 +1,5 @@
+var profile = '../res/profile-ja/';
+
 var XMigemoUI,
 	XMigemoHighlight,
 	win,
@@ -112,4 +114,4 @@ function pref(aKey, aValue) {
 	}
 	utils.setPref(aKey, aValue);
 }
-utils.include('../defaults/preferences/xulmigemo.js');
+utils.include('../../defaults/preferences/xulmigemo.js');
