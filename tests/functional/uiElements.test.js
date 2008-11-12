@@ -1,21 +1,20 @@
-// 文字列等に非ASCII文字を使う場合は、ファイルのエンコーディングを
-// UTF-8にしてください。
+var description = 'XMigemoUIのユニットテスト';
 
 utils.include('common.inc.js');
 
-var XMigemoUIUnitTest = new TestCase('XMigemoUIのユニットテスト');
+function setUp()
+{
+	yield Do(commonSetUp(keyEventTest));
+	assert.isTrue(XMigemoUI.hidden);
+}
 
-XMigemoUIUnitTest.tests = {
-	setUp : function() {
-		yield Do(commonSetUp(keyEventTest));
-		assert.isTrue(XMigemoUI.hidden);
-	},
+function tearDown()
+{
+	commonTearDown();
+}
 
-	tearDown : function() {
-		commonTearDown();
-	},
-
-	'プロパティのチェック': function() {
+function testProperties()
+{
 		assert.isTrue(XMigemoUI.browser);
 		assert.isTrue(XMigemoUI.activeBrowser);
 		assert.isTrue(XMigemoUI.findBar);
@@ -30,5 +29,4 @@ XMigemoUIUnitTest.tests = {
 		assert.isTrue(XMigemoUI.timeoutIndicator);
 		assert.isTrue(win.XMigemoFind);
 		assert.isTrue(win.XMigemoCore);
-	}
-};
+}
