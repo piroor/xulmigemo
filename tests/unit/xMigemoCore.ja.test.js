@@ -46,4 +46,6 @@ function test_getRegExpFor()
 	assertRegExpFor('お-', 'o-');
 	assertRegExpFor('日本語', 'nihongo');
 	assertRegExpFor('ハロー', 'hello');
+	assertRegExpFor('window.open();', 'window.open();');
+	assertRegExpFor('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
 }
