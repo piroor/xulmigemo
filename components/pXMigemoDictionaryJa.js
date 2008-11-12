@@ -16,11 +16,11 @@ var Prefs = Cc['@mozilla.org/preferences;1']
 
 var pIXMigemoDictionary = Ci.pIXMigemoDictionary;
  
-function pXMigemoDictionary() { 
+function pXMigemoDictionaryJa() { 
 	mydump('create instance pIXMigemoDictionary(lang=ja)');
 }
 
-pXMigemoDictionary.prototype = {
+pXMigemoDictionaryJa.prototype = {
 	lang : 'ja',
 
 	get contractID() {
@@ -481,15 +481,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoDictionary.prototype.classID,
-			contractID : pXMigemoDictionary.prototype.contractID,
-			className  : pXMigemoDictionary.prototype.classDescription,
+			CID        : pXMigemoDictionaryJa.prototype.classID,
+			contractID : pXMigemoDictionaryJa.prototype.contractID,
+			className  : pXMigemoDictionaryJa.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoDictionary()).QueryInterface(aIID);
+					return (new pXMigemoDictionaryJa()).QueryInterface(aIID);
 				}
 			}
 		}
