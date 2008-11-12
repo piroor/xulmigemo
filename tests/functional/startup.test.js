@@ -93,6 +93,7 @@ function testStartWithRegExpFindMode()
 
 testStartWithMigemoFindMode.description = '起動時のモード：Migemo検索';
 function testStartWithMigemoFindMode()
+{
 	utils.setPref('xulmigemo.findMode.default', 2);
 	yield Do(normalSetUp(keyEventTest));
 	assert.findbarState('FIND_MODE_MIGEMO', false);
