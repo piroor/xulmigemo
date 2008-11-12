@@ -1,4 +1,5 @@
 var profile = '../res/profile-ja/';
+//var options = ['-console', '-jsconsole'];
 
 var XMigemoUI,
 	XMigemoHighlight,
@@ -110,6 +111,7 @@ function pref(aKey, aValue) {
 	{
 		case 'xulmigemo.lang':
 		case 'xulmigemo.dicpath':
+		case 'xulmigemo.dicpath-relative':
 			return;
 	}
 	utils.setPref(aKey, aValue);
