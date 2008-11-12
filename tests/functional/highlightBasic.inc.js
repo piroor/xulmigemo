@@ -7,6 +7,7 @@ function setUp()
 }
 
 function tearDown()
+{
 	commonTearDown();
 }
 
