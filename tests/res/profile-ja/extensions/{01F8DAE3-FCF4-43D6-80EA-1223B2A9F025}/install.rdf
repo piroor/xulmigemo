@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<RDF:RDF xmlns:em="http://www.mozilla.org/2004/em-rdf#"
+         xmlns:NC="http://home.netscape.com/NC-rdf#"
+         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <RDF:Description RDF:about="urn:mozilla:install-manifest"
+                   em:id="{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}"
+                   em:name="XUL/Migemo"
+                   em:version="0.0.0"
+                   em:optionsURL="chrome://xulmigemo/content/config/config.xul"
+                   em:iconURL="chrome://xulmigemo/content/icon.png">
+	<em:targetApplication>
+      <!-- Firefox -->
+	  <RDF:Description em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
+	                   em:minVersion="2.0"
+	                   em:maxVersion="99.99.99.99" />
+    </em:targetApplication>
+    <em:targetApplication>
+      <!-- Thunderbird -->
+	  <RDF:Description em:id="{3550f703-e582-4d05-9a08-453d09bdfdc6}"
+	                   em:minVersion="2.0"
+	                   em:maxVersion="99.99.99.99" />
+	</em:targetApplication>
+  </RDF:Description>
+</RDF:RDF>
