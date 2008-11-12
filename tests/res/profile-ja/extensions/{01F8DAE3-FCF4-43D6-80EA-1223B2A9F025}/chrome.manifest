@@ -1,0 +1,28 @@
+content	xulmigemo	content/xulmigemo/
+
+overlay	chrome://browser/content/browser.xul	chrome://xulmigemo/content/browserOverlay.xul
+
+overlay	chrome://global/content/viewSource.xul	chrome://xulmigemo/content/viewSourceOverlay.xul
+overlay	chrome://global/content/viewPartialSource.xul	chrome://xulmigemo/content/viewSourceOverlay.xul
+overlay	chrome://help/content/help.xul	chrome://xulmigemo/content/helpOverlay.xul
+
+overlay	chrome://browser/content/browser.xul	chrome://xulmigemo/content/places/locationBarOverlay.xul	appversion>=3.0pre
+overlay	chrome://browser/content/bookmarks/bookmarksPanel.xul	chrome://xulmigemo/content/places/bookmarksPanelOverlay.xul	appversion>=3.0pre
+overlay	chrome://browser/content/history/history-panel.xul	chrome://xulmigemo/content/places/historyPanelOverlay.xul	appversion>=3.0pre
+overlay	chrome://browser/content/places/places.xul	chrome://xulmigemo/content/places/organizerOverlay.xul	appversion>=3.0pre
+
+overlay	chrome://messenger/content/messenger.xul	chrome://xulmigemo/content/mailWindowOverlay.xul
+overlay	chrome://messenger/content/messageWindow.xul	chrome://xulmigemo/content/mailWindowOverlay.xul
+
+locale	xulmigemo	en-US	locale/en-US/xulmigemo/
+locale	xulmigemo-platform	en-US	locale/en-US/xulmigemo/
+locale	xulmigemo-platform	en-US	locale/en-US/xulmigemo/	os=WINNT
+locale	xulmigemo-platform	en-US	locale/en-US/xulmigemo/	os=Linux
+locale	xulmigemo-platform	en-US	jar:platform/Darwin/chrome/xulmigemo.jar!/locale/en-US/xulmigemo/ os=Darwin
+locale	xulmigemo	ja-JP	locale/ja-JP/xulmigemo/
+locale	xulmigemo-platform	ja-JP	locale/ja-JP/xulmigemo/
+locale	xulmigemo-platform	ja-JP	locale/en-US/xulmigemo/	os=WINNT
+locale	xulmigemo-platform	ja-JP	locale/en-US/xulmigemo/	os=Linux
+locale	xulmigemo-platform	ja-JP	jar:platform/Darwin/chrome/xulmigemo.jar!/locale/ja-JP/xulmigemo/ os=Darwin
+
+skin	xulmigemo	classic/1.0	skin/classic/xulmigemo/
