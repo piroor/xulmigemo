@@ -1,4 +1,4 @@
-var profile = '../res/profile-ja/';
+//var profile = '../res/profile-ja/';
 //var options = ['-console', '-jsconsole'];
 
 var XMigemoUI,
