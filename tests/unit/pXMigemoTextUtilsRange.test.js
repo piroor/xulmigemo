@@ -1,7 +1,7 @@
 var description = 'XMigemoTextUtilsのテスト（DOM Range関連）';
 var isAsync = true;
 
-utils.include('../../components/pXMigemoTextUtils.js', null, 'Shift_JIS');
+utils.include('pXMigemoClasses.inc.js');
 
 var textUtils;
 

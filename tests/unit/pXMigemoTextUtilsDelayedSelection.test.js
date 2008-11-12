@@ -1,6 +1,6 @@
 var description = 'XMigemoTextUtilsのテスト（遅延選択関連）';
 
-utils.include('../../components/pXMigemoTextUtils.js', null, 'Shift_JIS');
+utils.include('pXMigemoClasses.inc.js');
 
 var textUtils;
 
