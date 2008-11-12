@@ -1,4 +1,4 @@
-utils.include('../../components/pXMigemoEngineJa.js', null, 'Shift_JIS');
+utils.include('xMigemoClasses.inc.js');
 
 var engine;
 

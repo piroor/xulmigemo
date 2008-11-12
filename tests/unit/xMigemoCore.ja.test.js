@@ -1,4 +1,4 @@
-utils.include('../../components/pXMigemoCore.js', null, 'Shift_JIS');
+utils.include('xMigemoClasses.inc.js');
 
 var core;
 
@@ -10,6 +10,7 @@ function setUp()
 
 function tearDown()
 {
+	core.destroy();
 	core = null;
 }
 
