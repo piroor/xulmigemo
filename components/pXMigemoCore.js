@@ -5,14 +5,15 @@
 	pIXMigemoTextUtils
 */
 var DEBUG = false;
+var TEST = false;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
  
-var ObserverService = Components 
-			.classes['@mozilla.org/observer-service;1']
-			.getService(Components.interfaces.nsIObserverService);;
+var ObserverService = Cc['@mozilla.org/observer-service;1']
+			.getService(Ci.nsIObserverService);;
 
-var Prefs = Components
-			.classes['@mozilla.org/preferences;1']
-			.getService(Components.interfaces.nsIPrefBranch);
+var Prefs = Cc['@mozilla.org/preferences;1']
+			.getService(Ci.nsIPrefBranch);
  
 function pXMigemoCore() { 
 	mydump('create instance pIXMigemo');
@@ -40,9 +41,13 @@ pXMigemoCore.prototype = {
 	get dictionaryManager() 
 	{
 		if (!this._dictionaryManager) {
-			this._dictionaryManager = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-				.createInstance(Components.interfaces.pIXMigemoDicManager);
+			if (TEST && pXMigemoDicManager) {
+				this._dictionaryManager = new pXMigemoDicManager();
+			}
+			else {
+				this._dictionaryManager = Cc['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
+						.createInstance(Ci.pIXMigemoDicManager);
+			}
 		}
 		return this._dictionaryManager;
 	},
@@ -51,9 +56,13 @@ pXMigemoCore.prototype = {
 	get textUtils() 
 	{
 		if (!this._textUtils) {
-			this._textUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
+			if (TEST && pXMigemoTextUtils) {
+				this._textUtils = new pXMigemoTextUtils();
+			}
+			else {
+				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+						.getService(Ci.pIXMigemoTextUtils);
+			}
 		}
 		return this._textUtils;
 	},
@@ -62,9 +71,14 @@ pXMigemoCore.prototype = {
 	get cache() 
 	{
 		if (!this._cache) {
-			var cache = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/cache;1']
-					.createInstance(Components.interfaces.pIXMigemoCache);
+			var cache;
+			if (TEST && pXMigemoCache) {
+				cache = new pXMigemoCache();
+			}
+			else {
+				cache = Cc['@piro.sakura.ne.jp/xmigemo/cache;1']
+						.createInstance(Ci.pIXMigemoCache);
+			}
 			var override;
 			try {
 				override = Prefs.getCharPref('xulmigemo.cache.override.'+this.lang);
@@ -433,7 +447,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 	get mFind() 
 	{
 		if (!this._mFind)
-			this._mFind = Components.classes['@mozilla.org/embedcomp/rangefind;1'].createInstance(Components.interfaces.nsIFind);
+			this._mFind = Cc['@mozilla.org/embedcomp/rangefind;1'].createInstance(Ci.nsIFind);
 		return this._mFind;
 	},
 	_mFind : null,
@@ -572,7 +586,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 	 
 	getDocumentBody : function(aDocument) 
 	{
-		if (aDocument instanceof Components.interfaces.nsIDOMHTMLDocument)
+		if (aDocument instanceof Ci.nsIDOMHTMLDocument)
 			return aDocument.body;
 
 		try {
@@ -580,7 +594,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 					'descendant::*[contains(" BODY body ", concat(" ", local-name(), " "))]',
 					aDocument,
 					null,
-					Components.interfaces.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
+					Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
 					null
 				);
 			return xpathResult.singleNodeValue;
@@ -602,7 +616,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 	{
 		try {
 			if (aSelCon)
-				aSelCon = aSelCon.QueryInterface(Components.interfaces.nsISelectionController);
+				aSelCon = aSelCon.QueryInterface(Ci.nsISelectionController);
 		}
 		catch(e) {
 			aSelCon = null;
@@ -613,9 +627,9 @@ dump('STEP 2: '+array.toSource()+'\n');
 	getDocShellForFrame : function(aFrame) 
 	{
 		return aFrame
-				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-				.getInterface(Components.interfaces.nsIWebNavigation)
-				.QueryInterface(Components.interfaces.nsIDocShell);
+				.QueryInterface(Ci.nsIInterfaceRequestor)
+				.getInterface(Ci.nsIWebNavigation)
+				.QueryInterface(Ci.nsIDocShell);
 	},
   
 /* Update Cache */ 
@@ -629,13 +643,12 @@ dump('STEP 2: '+array.toSource()+'\n');
 			this.updateCacheTimers[key] = null;
 		}
 
-		this.updateCacheTimers[key] = Components
-			.classes['@mozilla.org/timer;1']
-			.createInstance(Components.interfaces.nsITimer);
+		this.updateCacheTimers[key] = Cc['@mozilla.org/timer;1']
+			.createInstance(Ci.nsITimer);
         this.updateCacheTimers[key].init(
 			this.createUpdateCacheObserver(patterns, key),
 			100,
-			Components.interfaces.nsITimer.TYPE_REPEATING_SLACK
+			Ci.nsITimer.TYPE_REPEATING_SLACK
 		);
 	},
  
@@ -702,25 +715,37 @@ dump('STEP 2: '+array.toSource()+'\n');
 
 		this.initialized = true;
 
-		var id = '@piro.sakura.ne.jp/xmigemo/engine;1?lang='+(aLang || Prefs.getCharPref('xulmigemo.lang'));
-		if (id in Components.classes) {
-			this.engine = Components
-				.classes[id]
-				.getService(Components.interfaces.pIXMigemoEngine);
+		var lang = aLang || Prefs.getCharPref('xulmigemo.lang');
+		var constructor;
+		if (TEST) {
+			eval('constructor = pXMigemoEngine'+
+					lang.replace(/^./, function(aChar) {
+						return aChar.toUpperCase();
+					})
+			);
+		}
+		if (constructor) {
+			this.engine = new constructor();
 		}
 		else {
-			this.engine = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/engine;1?lang=*']
-				.createInstance(Components.interfaces.pIXMigemoEngine)
-				.QueryInterface(Components.interfaces.pIXMigemoEngineUniversal);
-			this.engine.lang = aLang || Prefs.getCharPref('xulmigemo.lang');
+			var id = '@piro.sakura.ne.jp/xmigemo/engine;1?lang='+lang;
+			if (id in Cc) {
+				this.engine = Cc[id]
+					.getService(Ci.pIXMigemoEngine);
+			}
+			else {
+				this.engine = Cc['@piro.sakura.ne.jp/xmigemo/engine;1?lang=*']
+					.createInstance(Ci.pIXMigemoEngine)
+					.QueryInterface(Ci.pIXMigemoEngineUniversal);
+				this.engine.lang = aLang || Prefs.getCharPref('xulmigemo.lang');
+			}
 		}
 
 		this.dictionaryManager.init(this.dictionary, this.cache);
 
 		ObserverService.addObserver(this, 'XMigemo:cacheCleared', false);
 
-		var pbi = Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+		var pbi = Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
 		pbi.addObserver(this.domain, this, false);
 		this.observe(null, 'nsPref:changed', 'xulmigemo.ANDFind.enabled');
 		this.observe(null, 'nsPref:changed', 'xulmigemo.NOTFind.enabled');
@@ -730,16 +755,16 @@ dump('STEP 2: '+array.toSource()+'\n');
 	{
 		ObserverService.removeObserver(this, 'XMigemo:cacheCleared');
 
-		var pbi = Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+		var pbi = Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
 		pbi.removeObserver(this.domain, this, false);
 	},
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemo) &&
-			!aIID.equals(Components.interfaces.pIXMigemoEngine) &&
-			!aIID.equals(Components.interfaces.nsIObserver) &&
-			!aIID.equals(Components.interfaces.nsISupports))
+		if(!aIID.equals(Ci.pIXMigemo) &&
+			!aIID.equals(Ci.pIXMigemoEngine) &&
+			!aIID.equals(Ci.nsIObserver) &&
+			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
 	}
@@ -769,9 +794,8 @@ pXMigemoFactory.prototype = {
 	getService : function(aLang) 
 	{
 		if (!(aLang in this.services)) {
-			this.services[aLang] = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/core;1']
-				.createInstance(Components.interfaces.pIXMigemo);
+			this.services[aLang] = Cc['@piro.sakura.ne.jp/xmigemo/core;1']
+				.createInstance(Ci.pIXMigemo);
 			this.services[aLang].init(aLang);
 		}
 		return this.services[aLang];
@@ -779,8 +803,8 @@ pXMigemoFactory.prototype = {
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemoFactory) &&
-			!aIID.equals(Components.interfaces.nsISupports))
+		if(!aIID.equals(Ci.pIXMigemoFactory) &&
+			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
 	}
@@ -795,7 +819,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -804,7 +828,7 @@ var gModule = {
 
 	getClassObject : function (aComponentManager, aCID, aIID)
 	{
-		if (!aIID.equals(Components.interfaces.nsIFactory))
+		if (!aIID.equals(Ci.nsIFactory))
 			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
 
 		for (var key in this._objects) {

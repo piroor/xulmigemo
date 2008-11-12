@@ -3,12 +3,14 @@
 	pIXMigemoTextUtils
 */
 var DEBUG = false;
+var TEST = false;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
  
-var Prefs = Components 
-			.classes['@mozilla.org/preferences;1']
-			.getService(Components.interfaces.nsIPrefBranch);
+var Prefs = Cc['@mozilla.org/preferences;1']
+			.getService(Ci.nsIPrefBranch);
 
-const pIXMigemoFind = Components.interfaces.pIXMigemoFind;
+const pIXMigemoFind = Ci.pIXMigemoFind;
  
 function pXMigemoFind() { 
 	mydump('create instance pIXMigemoFind');
@@ -140,10 +142,16 @@ pXMigemoFind.prototype = {
 	get core()
 	{
 		if (!this._core) {
-			this._core = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/factory;1']
-				.getService(Components.interfaces.pIXMigemoFactory)
-				.getService(Prefs.getCharPref('xulmigemo.lang'));
+			var lang = Prefs.getCharPref('xulmigemo.lang');
+			if (TEST && pXMigemoCore) {
+				this._core = new pXMigemoCore();
+				this._core.init(lang);
+			}
+			else {
+				this._core = Cc['@piro.sakura.ne.jp/xmigemo/factory;1']
+					.getService(Ci.pIXMigemoFactory)
+					.getService(lang);
+			}
 		}
 		return this._core;
 	},
@@ -151,10 +159,15 @@ pXMigemoFind.prototype = {
  
 	get textUtils() 
 	{
-		if (!this._textUtils)
-			this._textUtils = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-					.getService(Components.interfaces.pIXMigemoTextUtils);
+		if (!this._textUtils) {
+			if (TEST && pXMigemoTextUtils) {
+				this._textUtils = new pXMigemoTextUtils();
+			}
+			else {
+				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+						.getService(Ci.pIXMigemoTextUtils);
+			}
+		}
 		return this._textUtils;
 	},
 	_textUtils : null,
@@ -164,9 +177,8 @@ pXMigemoFind.prototype = {
 	get mFind() 
 	{
 		if (!this._mFind)
-			this._mFind = Components
-					.classes['@mozilla.org/embedcomp/rangefind;1']
-					.createInstance(Components.interfaces.nsIFind);
+			this._mFind = Cc['@mozilla.org/embedcomp/rangefind;1']
+					.createInstance(Ci.nsIFind);
 		return this._mFind;
 	},
 	_mFind : null,
@@ -498,7 +510,7 @@ mydump('findEditableFromRange');
 		{
 			var isEditable = false;
 			try {
-				node.QueryInterface(Components.interfaces.nsIDOMNSEditableElement);
+				node.QueryInterface(Ci.nsIDOMNSEditableElement);
 				return node;
 			}
 			catch(e) {
@@ -670,7 +682,7 @@ mydump("count:"+count);
 
 		var walker = doc.createTreeWalker(
 				doc.documentElement,
-				Components.interfaces.nsIDOMNodeFilter.SHOW_ELEMENT,
+				Ci.nsIDOMNodeFilter.SHOW_ELEMENT,
 				this.visibleNodeFilter,
 				false
 			);
@@ -701,8 +713,8 @@ mydump("count:"+count);
 	},
 	 
 	visibleNodeFilter : { 
-		kSKIP   : Components.interfaces.nsIDOMNodeFilter.FILTER_SKIP,
-		kACCEPT : Components.interfaces.nsIDOMNodeFilter.FILTER_ACCEPT,
+		kSKIP   : Ci.nsIDOMNodeFilter.FILTER_SKIP,
+		kACCEPT : Ci.nsIDOMNodeFilter.FILTER_ACCEPT,
 		acceptNode : function(aNode)
 		{
 			var size = aNode.offsetWidth * aNode.offsetHeight;
@@ -794,16 +806,16 @@ mydump("resetFindRangeSet");
 	{
 		if (!aTarget) return null;
 
-		const nsIDOMNSEditableElement = Components.interfaces.nsIDOMNSEditableElement;
-		const nsIDOMWindow = Components.interfaces.nsIDOMWindow;
+		const nsIDOMNSEditableElement = Ci.nsIDOMNSEditableElement;
+		const nsIDOMWindow = Ci.nsIDOMWindow;
 		try {
 			return (aTarget instanceof nsIDOMNSEditableElement) ?
 						aTarget.QueryInterface(nsIDOMNSEditableElement).editor.selectionController :
 					(aTarget instanceof nsIDOMWindow) ?
 						DocShellIterator.prototype.getDocShellFromFrame(aTarget)
-							.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-							.getInterface(Components.interfaces.nsISelectionDisplay)
-							.QueryInterface(Components.interfaces.nsISelectionController) :
+							.QueryInterface(Ci.nsIInterfaceRequestor)
+							.getInterface(Ci.nsISelectionDisplay)
+							.QueryInterface(Ci.nsISelectionController) :
 					null;
 		}
 		catch(e) {
@@ -943,7 +955,7 @@ mydump("setSelectionAndScroll");
 	{
 		if (aDocument.foundEditable || aDocument.lastFoundEditable)
 			(aDocument.foundEditable || aDocument.lastFoundEditable)
-				.QueryInterface(Components.interfaces.nsIDOMNSEditableElement)
+				.QueryInterface(Ci.nsIDOMNSEditableElement)
 				.editor.selection.removeAllRanges();
 
 		var sel = aDocument.defaultView.getSelection();
@@ -955,12 +967,12 @@ mydump("setSelectionAndScroll");
 		var xulBrowserWindow;
 		try {
 			xulBrowserWindow = this.window
-					.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-					.getInterface(Components.interfaces.nsIWebNavigation)
-					.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+					.QueryInterface(Ci.nsIInterfaceRequestor)
+					.getInterface(Ci.nsIWebNavigation)
+					.QueryInterface(Ci.nsIDocShellTreeItem)
 					.treeOwner
-					.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-					.getInterface(Components.interfaces.nsIXULWindow)
+					.QueryInterface(Ci.nsIInterfaceRequestor)
+					.getInterface(Ci.nsIXULWindow)
 					.XULBrowserWindow;
 		}
 		catch(e) {
@@ -972,9 +984,8 @@ mydump("setSelectionAndScroll");
 		}
 		else {
 			var charset = aLink.ownerDocument.characterSet;
-			var uri = Components
-						.classes['@mozilla.org/intl/texttosuburi;1']
-						.getService(Components.interfaces.nsITextToSubURI)
+			var uri = Cc['@mozilla.org/intl/texttosuburi;1']
+						.getService(Ci.nsITextToSubURI)
 						.unEscapeURIForUI(charset, aLink.href);
 			xulBrowserWindow.setOverLink(uri, null);
 		}
@@ -983,13 +994,12 @@ mydump("setSelectionAndScroll");
 	updateStatusBarWithDelay : function(aLink) 
 	{
 		this.cancelUpdateStatusBarTimer();
-		this.updateStatusBarTimer = Components
-				.classes['@mozilla.org/timer;1']
-				.createInstance(Components.interfaces.nsITimer);
+		this.updateStatusBarTimer = Cc['@mozilla.org/timer;1']
+				.createInstance(Ci.nsITimer);
 		this.updateStatusBarTimer.init(
 			this.createDelayedUpdateStatusBarObserver(aLink),
 			1,
-			Components.interfaces.nsITimer.TYPE_ONE_SHOT
+			Ci.nsITimer.TYPE_ONE_SHOT
 		);
 	},
 	cancelUpdateStatusBarTimer : function(aLink)
@@ -1051,9 +1061,8 @@ mydump("setSelectionAndScroll");
 
 		if (!aFocusToFoundTarget) return;
 
-		var WindowWatcher = Components
-				.classes['@mozilla.org/embedcomp/window-watcher;1']
-				.getService(Components.interfaces.nsIWindowWatcher);
+		var WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
+				.getService(Ci.nsIWindowWatcher);
 		if (this.window != WindowWatcher.activeWindow) return;
 
 		win = Components.lookupMethod(doc, 'defaultView').call(doc);
@@ -1171,7 +1180,7 @@ mydump("setSelectionAndScroll");
 		this.initialized = true;
 
 		try {
-			var pbi = Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+			var pbi = Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
 			pbi.addObserver(this.domain, this, false);
 		}
 		catch(e) {
@@ -1192,7 +1201,7 @@ mydump("setSelectionAndScroll");
 	destroy : function() 
 	{
 		try {
-			var pbi = Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+			var pbi = Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
 			pbi.removeObserver(this.domain, this, false);
 		}
 		catch(e) {
@@ -1202,7 +1211,7 @@ mydump("setSelectionAndScroll");
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(pIXMigemoFind) &&
-			!aIID.equals(Components.interfaces.nsISupports))
+			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
 	}
@@ -1221,11 +1230,11 @@ function DocShellIterator(aFrame, aFromBack)
 }
 
 DocShellIterator.prototype = {
-	nsIDocShell           : Components.interfaces.nsIDocShell,
-	nsIDocShellTreeNode   : Components.interfaces.nsIDocShellTreeNode,
-	nsIDocShellTreeItem   : Components.interfaces.nsIDocShellTreeItem,
-	nsIWebNavigation      : Components.interfaces.nsIWebNavigation,
-	nsIInterfaceRequestor : Components.interfaces.nsIInterfaceRequestor,
+	nsIDocShell           : Ci.nsIDocShell,
+	nsIDocShellTreeNode   : Ci.nsIDocShellTreeNode,
+	nsIDocShellTreeItem   : Ci.nsIDocShellTreeItem,
+	nsIWebNavigation      : Ci.nsIWebNavigation,
+	nsIInterfaceRequestor : Ci.nsIInterfaceRequestor,
 
 	mCurrentDocShell : null,
 	mInitialDocShell : null,
@@ -1254,7 +1263,7 @@ DocShellIterator.prototype = {
 			.QueryInterface(this.nsIDocShell)
 			.QueryInterface(this.nsIWebNavigation)
 			.QueryInterface(this.nsIInterfaceRequestor)
-			.getInterface(Components.interfaces.nsIDOMWindow);
+			.getInterface(Ci.nsIDOMWindow);
 	},
 	 
 	getDocShellFromFrame : function(aFrame) 
@@ -1272,7 +1281,7 @@ DocShellIterator.prototype = {
 	 
 	getDocumentBody : function(aDocument) 
 	{
-		if (aDocument instanceof Components.interfaces.nsIDOMHTMLDocument)
+		if (aDocument instanceof Ci.nsIDOMHTMLDocument)
 			return aDocument.body;
 
 		try {
@@ -1280,7 +1289,7 @@ DocShellIterator.prototype = {
 					'descendant::*[contains(" BODY body ", concat(" ", local-name(), " "))]',
 					aDocument,
 					null,
-					Components.interfaces.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
+					Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
 					null
 				);
 			return xpathResult.singleNodeValue;
@@ -1453,7 +1462,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -1462,7 +1471,7 @@ var gModule = {
 
 	getClassObject : function (aComponentManager, aCID, aIID)
 	{
-		if (!aIID.equals(Components.interfaces.nsIFactory))
+		if (!aIID.equals(Ci.nsIFactory))
 			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
 
 		for (var key in this._objects) {

@@ -1,4 +1,7 @@
 // for ASCII 
+var TEST = false;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
  
 function pXMigemoTextTransform() { 
 	this.init();
@@ -22,9 +25,13 @@ pXMigemoTextTransform.prototype = {
 	get textUtils() 
 	{
 		if (!this._textUtils) {
-			this._textUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
+			if (TEST && pXMigemoTextUtils) {
+				this._textUtils = new pXMigemoTextUtils();
+			}
+			else {
+				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+						.getService(Ci.pIXMigemoTextUtils);
+			}
 		}
 		return this._textUtils;
 	},
@@ -135,8 +142,8 @@ pXMigemoTextTransform.prototype = {
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemoTextTransform) &&
-			!aIID.equals(Components.interfaces.nsISupports))
+		if(!aIID.equals(Ci.pIXMigemoTextTransform) &&
+			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
 	}
@@ -151,7 +158,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -160,7 +167,7 @@ var gModule = {
 
 	getClassObject : function (aComponentManager, aCID, aIID)
 	{
-		if (!aIID.equals(Components.interfaces.nsIFactory))
+		if (!aIID.equals(Ci.nsIFactory))
 			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
 
 		for (var key in this._objects) {

@@ -3,14 +3,15 @@
 	pIXMigemoTextUtils
 */
 var DEBUG = false;
+var TEST = false;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
  
-var ObserverService = Components 
-			.classes['@mozilla.org/observer-service;1']
-			.getService(Components.interfaces.nsIObserverService);
+var ObserverService = Cc['@mozilla.org/observer-service;1'] 
+			.getService(Ci.nsIObserverService);
 
-var Prefs = Components
-			.classes['@mozilla.org/preferences;1']
-			.getService(Components.interfaces.nsIPrefBranch);
+var Prefs = Cc['@mozilla.org/preferences;1']
+			.getService(Ci.nsIPrefBranch);
  
 function pXMigemoCache() { 
 	mydump('create instance pIXMigemoCache');
@@ -33,16 +34,42 @@ pXMigemoCache.prototype = {
 	 
 	initialized : false, 
  
+	get textUtils() 
+	{
+		if (!this._textUtils) {
+			if (TEST && pXMigemoTextUtils) {
+				this._textUtils = new pXMigemoTextUtils();
+			}
+			else {
+				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+						.getService(Ci.pIXMigemoTextUtils);
+			}
+		}
+		return this._textUtils;
+	},
+	_textUtils : null,
+ 
+	get fileUtils() 
+	{
+		if (!this._fileUtils) {
+			if (TEST && pXMigemoFileAccess) {
+				this._fileUtils = new pXMigemoFileAccess();
+			}
+			else {
+				this._fileUtils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
+						.getService(Ci.pIXMigemoFileAccess);
+			}
+		}
+		return this._fileUtils;
+	},
+	_fileUtils : null,
+ 	
 	memCache       : '', 
 	diskCacheClone : '',
  
 	getCacheFor : function (aRoman) 
 	{
-		var XMigemoTextUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
-
-		var miexp = new RegExp('(^'+XMigemoTextUtils.sanitize(aRoman)+'\t.+\n)', 'im');
+		var miexp = new RegExp('(^'+this.textUtils.sanitize(aRoman)+'\t.+\n)', 'im');
 		if (this.memCache.match(miexp)) {
 			mydump('use memCache');
 			return RegExp.$1.split('\t')[1];
@@ -93,11 +120,7 @@ pXMigemoCache.prototype = {
  
 	setMemCache : function(aRoman, aRegExp) 
 	{
-		var XMigemoTextUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
-
-		var tmpexp = new RegExp('(^'+XMigemoTextUtils.sanitize(aRoman)+'\t.+\n)', 'im');
+		var tmpexp = new RegExp('(^'+this.textUtils.sanitize(aRoman)+'\t.+\n)', 'im');
 		if (this.memCache.match(tmpexp)) {
 			return;
 		}
@@ -116,18 +139,11 @@ pXMigemoCache.prototype = {
 		var file = this.cacheFile;
 		if (!file) return;
 
-		var XMigemoTextUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
-
 		var newCache = this.diskCacheClone;
-		var tmpexp = new RegExp('(^' + XMigemoTextUtils.sanitize(aRoman) + '\t.+\n)', 'im');
+		var tmpexp = new RegExp('(^' + this.textUtils.sanitize(aRoman) + '\t.+\n)', 'im');
 		newCache = [newCache.replace(tmpexp, ''), aRoman, '\t', aMyRegExp, '\n'].join('');
 
-		var util = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-					.getService(Components.interfaces.pIXMigemoFileAccess);
-		var oldCache = util.readFrom(file, 'Shift_JIS');
+		var oldCache = this.fileUtils.readFrom(file, 'Shift_JIS');
 
 		if (newCache != oldCache) {
 			this.save();
@@ -152,7 +168,8 @@ pXMigemoCache.prototype = {
 			return;
 
 		try {
-			this.cacheFile = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+			this.cacheFile = Cc['@mozilla.org/file/local;1']
+					.createInstance(Ci.nsILocalFile);
 			this.cacheFile.initWithPath(this.dicpath);
 			this.cacheFile.append(aFileName);
 		}
@@ -174,33 +191,18 @@ pXMigemoCache.prototype = {
 
 		return fullPath || relPath;
 	},
-	 
-	get fileUtils() 
-	{
-		if (!this._fileUtils) {
-			this._fileUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-				.getService(Components.interfaces.pIXMigemoFileAccess);
-		}
-		return this._fileUtils;
-	},
-	_fileUtils : null,
-  	 
+  
 	load : function() 
 	{
-		var util = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-					.getService(Components.interfaces.pIXMigemoFileAccess);
-
 		var file = this.cacheFile;
 		if (!file || !file.exists()) {
 //			return false;
-			util.writeTo(file, '', 'Shift_JIS');
+			this.fileUtils.writeTo(file, '', 'Shift_JIS');
 			this.initialized = true;
 			return true;
 		}
 
-		this.diskCacheClone = util.readFrom(file, 'Shift_JIS');
+		this.diskCacheClone = this.fileUtils.readFrom(file, 'Shift_JIS');
 
 		mydump('pIXMigemoCache: loaded');
 		this.initialized = true;
@@ -217,19 +219,15 @@ pXMigemoCache.prototype = {
 		var file = this.cacheFile;
 		if (!file) return;
 
-		var util = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-					.getService(Components.interfaces.pIXMigemoFileAccess);
-
-		var cache = util.readFrom(file, 'Shift_JIS');
+		var cache = this.fileUtils.readFrom(file, 'Shift_JIS');
 		if (cache != this.diskCacheClone)
-			util.writeTo(file, this.diskCacheClone, 'Shift_JIS');
+			this.fileUtils.writeTo(file, this.diskCacheClone, 'Shift_JIS');
 	},
   
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemoCache) &&
-			!aIID.equals(Components.interfaces.nsISupports))
+		if(!aIID.equals(Ci.pIXMigemoCache) &&
+			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
 	}
@@ -244,7 +242,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -253,7 +251,7 @@ var gModule = {
 
 	getClassObject : function (aComponentManager, aCID, aIID)
 	{
-		if (!aIID.equals(Components.interfaces.nsIFactory))
+		if (!aIID.equals(Ci.nsIFactory))
 			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
 
 		for (var key in this._objects) {

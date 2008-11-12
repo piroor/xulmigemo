@@ -1,6 +1,9 @@
-var Prefs = Components 
-			.classes['@mozilla.org/preferences;1']
-			.getService(Components.interfaces.nsIPrefBranch);
+var TEST = false;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+
+var Prefs = Cc['@mozilla.org/preferences;1']
+			.getService(Ci.nsIPrefBranch);
  
 function pXMigemoTextUtils() {} 
 
@@ -88,7 +91,7 @@ pXMigemoTextUtils.prototype = {
 					].join(''),
 					aRange.commonAncestorContainer,
 					null,
-					Components.interfaces.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE,
+					Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE,
 					null
 				);
 
@@ -299,15 +302,13 @@ pXMigemoTextUtils.prototype = {
 		if (this._db)
 			return this._db;
 
-		const DirectoryService = Components
-			.classes['@mozilla.org/file/directory_service;1']
-			.getService(Components.interfaces.nsIProperties);
-		var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
+		const DirectoryService = Cc['@mozilla.org/file/directory_service;1']
+			.getService(Ci.nsIProperties);
+		var file = DirectoryService.get('ProfD', Ci.nsIFile);
 		file.append('xulmigemo.sqlite');
 
-		const StorageService = Components
-			.classes['@mozilla.org/storage/service;1']
-			.getService(Components.interfaces.mozIStorageService);
+		const StorageService = Cc['@mozilla.org/storage/service;1']
+			.getService(Ci.mozIStorageService);
 		this._db = StorageService.openDatabase(file);
 
 		return this._db;
@@ -390,7 +391,7 @@ pXMigemoTextUtils.prototype = {
 		}
 		this.setSelectionLookForDocument(aNode.ownerDocument || aNode, aChangeColor);
 	},
-	nsIDOMNSEditableElement : Components.interfaces.nsIDOMNSEditableElement,
+	nsIDOMNSEditableElement : Ci.nsIDOMNSEditableElement,
  
 	setSelectionLookForRange : function(aRange, aChangeColor) 
 	{
@@ -421,8 +422,8 @@ pXMigemoTextUtils.prototype = {
 	{
 		if (!aTarget) return null;
 
-		const nsIDOMNSEditableElement = Components.interfaces.nsIDOMNSEditableElement;
-		const nsIDOMWindow = Components.interfaces.nsIDOMWindow;
+		const nsIDOMNSEditableElement = Ci.nsIDOMNSEditableElement;
+		const nsIDOMWindow = Ci.nsIDOMWindow;
 		try {
 			return (aTarget instanceof nsIDOMNSEditableElement) ?
 						aTarget.QueryInterface(nsIDOMNSEditableElement)
@@ -430,9 +431,9 @@ pXMigemoTextUtils.prototype = {
 							.selectionController :
 					(aTarget instanceof nsIDOMWindow) ?
 						this.getDocShellFromFrame(aTarget)
-							.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-							.getInterface(Components.interfaces.nsISelectionDisplay)
-							.QueryInterface(Components.interfaces.nsISelectionController) :
+							.QueryInterface(Ci.nsIInterfaceRequestor)
+							.getInterface(Ci.nsISelectionDisplay)
+							.QueryInterface(Ci.nsISelectionController) :
 					null;
 		}
 		catch(e) {
@@ -442,9 +443,9 @@ pXMigemoTextUtils.prototype = {
 	getDocShellFromFrame : function(aFrame)
 	{
 		return aFrame
-				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-				.getInterface(Components.interfaces.nsIWebNavigation)
-				.QueryInterface(Components.interfaces.nsIDocShell);
+				.QueryInterface(Ci.nsIInterfaceRequestor)
+				.getInterface(Ci.nsIWebNavigation)
+				.QueryInterface(Ci.nsIDocShell);
 	},
  
 	isRangeOverlap : function(aBaseRange, aTargetRange) 
@@ -624,7 +625,7 @@ pXMigemoTextUtils.prototype = {
 		if (!aNode) return null;
 		var walker = aNode.ownerDocument.createTreeWalker(
 				aNode.ownerDocument,
-				Components.interfaces.nsIDOMNodeFilter.SHOW_TEXT,
+				Ci.nsIDOMNodeFilter.SHOW_TEXT,
 				null,
 				false
 			);
@@ -634,8 +635,8 @@ pXMigemoTextUtils.prototype = {
   	 
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Components.interfaces.pIXMigemoTextUtils) &&
-			!aIID.equals(Components.interfaces.nsISupports))
+		if(!aIID.equals(Ci.pIXMigemoTextUtils) &&
+			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
 	}
@@ -655,10 +656,9 @@ DelayedTask.prototype = {
 	timer : null,
 	init : function(aDelay)
 	{
-		this.timer = Components
-			.classes['@mozilla.org/timer;1']
-			.createInstance(Components.interfaces.nsITimer);
-		this.timer.init(this, aDelay, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+		this.timer = Cc['@mozilla.org/timer;1']
+			.createInstance(Ci.nsITimer);
+		this.timer.init(this, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
 	},
 	cancel : function()
 	{
@@ -694,7 +694,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -703,7 +703,7 @@ var gModule = {
 
 	getClassObject : function (aComponentManager, aCID, aIID)
 	{
-		if (!aIID.equals(Components.interfaces.nsIFactory))
+		if (!aIID.equals(Ci.nsIFactory))
 			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
 
 		for (var key in this._objects) {

@@ -4,16 +4,17 @@
 	pIXMigemoTextTransform
 */
 var DEBUG = false;
+var TEST = false;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
  
-var ObserverService = Components 
-			.classes['@mozilla.org/observer-service;1']
-			.getService(Components.interfaces.nsIObserverService);;
+var ObserverService = Cc['@mozilla.org/observer-service;1'] 
+			.getService(Ci.nsIObserverService);;
 
-var Prefs = Components
-			.classes['@mozilla.org/preferences;1']
-			.getService(Components.interfaces.nsIPrefBranch);
+var Prefs = Cc['@mozilla.org/preferences;1']
+			.getService(Ci.nsIPrefBranch);
 
-const pIXMigemoDictionary = Components.interfaces.pIXMigemoDictionary;
+var pIXMigemoDictionary = Ci.pIXMigemoDictionary;
  
 function pXMigemoDictionary() { 
 	mydump('create instance pIXMigemoDictionary(lang=*)');
@@ -40,6 +41,51 @@ pXMigemoDictionary.prototype = {
 	 
 	initialized : false, 
  
+	get textUtils() 
+	{
+		if (!this._textUtils) {
+			if (TEST && pXMigemoTextUtils) {
+				this._textUtils = new pXMigemoTextUtils();
+			}
+			else {
+				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
+						.getService(Ci.pIXMigemoTextUtils);
+			}
+		}
+		return this._textUtils;
+	},
+	_textUtils : null,
+ 
+	get textTransform() 
+	{
+		if (!this._textTransform) {
+			if (TEST && pXMigemoTextTransform) {
+				this._textTransform = new pXMigemoTextTransform();
+			}
+			else {
+				this._textTransform = Cc['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*']
+						.getService(Ci.pIXMigemoTextTransform);
+			}
+		}
+		return this._textTransform;
+	},
+	_textTransform : null,
+ 	
+	get fileUtils() 
+	{
+		if (!this._fileUtils) {
+			if (TEST && pXMigemoFileAccess) {
+				this._fileUtils = new pXMigemoFileAccess();
+			}
+			else {
+				this._fileUtils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
+						.getService(Ci.pIXMigemoFileAccess);
+			}
+		}
+		return this._fileUtils;
+	},
+	_fileUtils : null,
+ 
 	RESULT_OK                      : pIXMigemoDictionary.RESULT_OK, 
 	RESULT_ERROR_INVALID_INPUT     : pIXMigemoDictionary.RESULT_ERROR_INVALID_INPUT,
 	RESULT_ERROR_ALREADY_EXIST     : pIXMigemoDictionary.RESULT_ERROR_ALREADY_EXIST,
@@ -62,38 +108,25 @@ pXMigemoDictionary.prototype = {
 
 		return fullPath || relPath;
 	},
-	
-	get fileUtils() 
-	{
-		if (!this._fileUtils) {
-			this._fileUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-				.getService(Components.interfaces.pIXMigemoFileAccess);
-		}
-		return this._fileUtils;
-	},
-	_fileUtils : null,
-  
+ 
 	load : function() 
 	{
 		if (!this.lang) return false;
 
 		var file;
-		var util = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-					.getService(Components.interfaces.pIXMigemoFileAccess);
 		var dicDir = this.dicpath;
 
 		var error = false;
 
 		if (dicDir) {
-			file = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
+			file = Cc['@mozilla.org/file/local;1']
+				.createInstance(Ci.nsILocalFile);
 			file.initWithPath(dicDir);
 			file.append(this.lang+'.txt');
 		}
 		if (file && file.exists()) {
 //			dump('system dic loaded from '+file.path+'\n');
-			this.list['system'] = util.readFrom(file, 'UTF-8');
+			this.list['system'] = this.fileUtils.readFrom(file, 'UTF-8');
 		}
 		else {
 //			dump('system dic not found at '+file.path+'\n');
@@ -103,13 +136,14 @@ pXMigemoDictionary.prototype = {
 
 		// ユーザー辞書
 		if (dicDir) {
-			file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+			file = Cc["@mozilla.org/file/local;1"]
+				.createInstance(Ci.nsILocalFile);
 			file.initWithPath(dicDir);
 			file.append(this.lang+'.user.txt');
 		}
 		if (file && file.exists()) {
 //			dump('user dic loaded from '+file.path+'\n');
-			this.list['user'] = util.readFrom(file, 'UTF-8');
+			this.list['user'] = this.fileUtils.readFrom(file, 'UTF-8');
 		}
 		else {
 //			dump('user dic not found at '+file.path+'\n');
@@ -136,16 +170,12 @@ pXMigemoDictionary.prototype = {
 		var dicDir = this.dicpath;
 		if (!dicDir) return;
 
-		file = Components
-				.classes["@mozilla.org/file/local;1"]
-				.createInstance(Components.interfaces.nsILocalFile);
+		file = Cc["@mozilla.org/file/local;1"]
+				.createInstance(Ci.nsILocalFile);
 		file.initWithPath(dicDir);
 		file.append(this.lang+'.user.txt');
 
-		var util = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-					.getService(Components.interfaces.pIXMigemoFileAccess);
-		util.writeTo(file, (this.list['user'] || ''), 'UTF-8');
+		this.fileUtils.writeTo(file, (this.list['user'] || ''), 'UTF-8');
 	},
   
 	addTerm : function(aInput, aTerm) 
@@ -192,19 +222,12 @@ pXMigemoDictionary.prototype = {
 			)
 			return this.RESULT_ERROR_INVALID_OPERATION;
 
-		var XMigemoTextService = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*']
-				.getService(Components.interfaces.pIXMigemoTextTransform);
-		var XMigemoTextUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
-
 		var input = aTermSet.input ? String(aTermSet.input) : '' ;
 		var term  = aTermSet.term ? String(aTermSet.term) : '' ;
-		if (!input || !XMigemoTextService.isValidInput(input))
+		if (!input || !this.textTransform.isValidInput(input))
 			return this.RESULT_ERROR_INVALID_INPUT;
 
-		input = XMigemoTextService.normalizeInput(input);
+		input = this.textTransform.normalizeInput(input);
 		if (aTermSet) aTermSet.input = input;
 
 		if (aOperation == 'add' && !term) {
@@ -221,7 +244,7 @@ pXMigemoDictionary.prototype = {
 			regexp.compile('^'+input+'\t(.+)$', 'm');
 			if (regexp.test(systemDic)) {
 				var terms = RegExp.$1.split('\t').join('\n');
-				regexp.compile('^'+XMigemoTextUtils.sanitize(term)+'$', 'm');
+				regexp.compile('^'+this.textUtils.sanitize(term)+'$', 'm');
 				if (regexp.test(terms))
 					return this.RESULT_ERROR_ALREADY_EXIST;
 			}
@@ -230,7 +253,7 @@ pXMigemoDictionary.prototype = {
 		regexp.compile('^'+input+'\t(.+)$', 'm');
 		if (regexp.test(userDic)) {
 			var terms = RegExp.$1.split('\t').join('\n');
-			regexp.compile('^'+XMigemoTextUtils.sanitize(term)+'$', 'm');
+			regexp.compile('^'+this.textUtils.sanitize(term)+'$', 'm');
 			if ((aOperation == 'remove' && !term) || regexp.test(terms)) {
 				// ユーザ辞書にすでに登録済みである場合
 				switch (aOperation)
@@ -299,12 +322,12 @@ pXMigemoDictionary.prototype = {
 
 		return this.RESULT_OK;
 	},
- 	 
+  
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(pIXMigemoDictionary) &&
-			!aIID.equals(Components.interfaces.pIXMigemoDictionaryUniversal) &&
-			!aIID.equals(Components.interfaces.nsISupports))
+			!aIID.equals(Ci.pIXMigemoDictionaryUniversal) &&
+			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
 	}
@@ -319,7 +342,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -328,7 +351,7 @@ var gModule = {
 
 	getClassObject : function (aComponentManager, aCID, aIID)
 	{
-		if (!aIID.equals(Components.interfaces.nsIFactory))
+		if (!aIID.equals(Ci.nsIFactory))
 			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
 
 		for (var key in this._objects) {
