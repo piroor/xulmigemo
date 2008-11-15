@@ -676,11 +676,10 @@ mydump("count:"+count);
 		this.visibleNodeFilter.endY        = aFrame.scrollY + topY + aFrame.innerHeight;
 		this.visibleNodeFilter.minPixels   = 12;
 		this.visibleNodeFilter.minSize     = aFrame.innerWidth * aFrame.innerHeight;
-		this.visibleNodeFilter.shouldReject  =
+		this.visibleNodeFilter.isInvisible  =
 			this.visibleNodeFilter[(aFindFlag & this.FIND_BACK) ? 'isBelow' : 'isAbove' ];
-		this.visibleNodeFilter.shouldAccept =
+		this.visibleNodeFilter.isInScreenCompletely =
 			this.visibleNodeFilter[(aFindFlag & this.FIND_BACK) ? 'isAbove' : 'isBelow' ];
-		this.visibleNodeFilter.lastResult  = this.visibleNodeFilter.kSKIP;
 
 		var walker = doc.createTreeWalker(
 				doc.documentElement,
@@ -691,30 +690,43 @@ mydump("count:"+count);
 
 		var node, lastNode;
 		if (aFindFlag & this.FIND_BACK) {
+			lastNode = doc.documentElement;
 			while (node = walker.lastChild())
-			{
-				walker.currentNode = node;
-			}
-			lastNode = node;
-			this.visibleNodeFilter.found = false;
-			while (!this.visibleNodeFilter.found &&
-				(node = walker.previousNode()))
 			{
 				lastNode = node;
 				walker.currentNode = node;
+			}
+			node = lastNode;
+			this.visibleNodeFilter.found = false;
+			if (this.visibleNodeFilter.acceptNode(node) != this.visibleNodeFilter.kACCEPT) {
+				while (!this.visibleNodeFilter.found &&
+					(node = walker.previousNode()))
+				{
+					lastNode = node;
+					walker.currentNode = node;
+				}
 			}
 		}
 		else {
 			node = doc.documentElement;
 			lastNode = node;
 			this.visibleNodeFilter.found = false;
-			while (!this.visibleNodeFilter.found &&
-				(node = walker.nextNode()))
-			{
-				lastNode = node;
-				walker.currentNode = node;
+			if (this.visibleNodeFilter.acceptNode(node) != this.visibleNodeFilter.kACCEPT) {
+				while (!this.visibleNodeFilter.found &&
+					(node = walker.nextNode()))
+				{
+					lastNode = node;
+					walker.currentNode = node;
+				}
 			}
 		}
+		if (
+			(!lastNode || lastNode == doc.documentElement) &&
+			this.visibleNodeFilter.lastInScreenNode
+			) {
+			lastNode = this.visibleNodeFilter.lastInScreenNode;
+		}
+		this.visibleNodeFilter.clear();
 		return lastNode || doc.documentElement;
 	},
 	 
@@ -726,19 +738,26 @@ mydump("count:"+count);
 			var size = aNode.offsetWidth * aNode.offsetHeight;
 			result = (
 				size == 0 ||
-				aNode.offsetHeight > this.frameHeight ||
-				this.shouldReject(aNode, true)
+				this.isInvisible(aNode, true) ||
+				/^\s*$/.test(aNode.textContent)
 				) ? this.kSKIP : this.kACCEPT ;
 
 			if (result == this.kACCEPT) {
-				if (size > this.minSize) result = this.kSKIP;
+				if (!this.isInScreenCompletely(aNode, true)) {
+					this.lastInScreenNode = aNode;
+				}
+				if (aNode.offsetHeight > this.frameHeight) {
+					result = this.kSKIP;
+				}
+			}
+			if (result == this.kACCEPT) {
+				if (size > this.minSize) {
+					result = this.kSKIP;
+				}
 				this.minSize = Math.min(this.minSize, size);
 			}
-
-			if (!this.found && this.shouldAccept(aNode, false))
+			if (!this.found && this.isInScreenCompletely(aNode, false))
 				this.found = true;
-
-			this.lastResult = result;
 
 			return result;
 		},
@@ -764,15 +783,18 @@ mydump("count:"+count);
 		{
 			return aNode.ownerDocument.getBoxObjectFor(aNode).screenY;
 		},
-		shouldReject : null,
-		shouldAccept : null,
-		frameHeight  : 0,
-		startY       : 0,
-		endY         : 0,
-		minPixels    : 12,
-		minSize      : 0,
-		lastResult   : null,
-		found        : false
+		isInvisible : null,
+		isInScreenCompletely : null,
+		frameHeight : 0,
+		startY      : 0,
+		endY        : 0,
+		minPixels   : 12,
+		minSize     : 0,
+		found       : false,
+		clear : function()
+		{
+			this.lastInScreenNode = null;
+		}
 	},
    
 	resetFindRangeSet : function(aRangeSet, aFoundRange, aFindFlag, aDocument) 

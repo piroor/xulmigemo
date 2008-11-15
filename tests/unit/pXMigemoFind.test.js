@@ -30,7 +30,7 @@ function testFindFirstVisibleNode()
 		frame.scrollTo(
 			0,
 			(aFindFlag & findModule.FIND_BACK ?
-				item.offsetTop - frame.innerHeight + item.offsetHeight + 12 :
+				item.offsetTop - frame.innerHeight + item.offsetHeight :
 				item.offsetTop
 			)
 		);
@@ -39,16 +39,17 @@ function testFindFirstVisibleNode()
 	}
 
 	yield utils.addTab(baseURL+'../res/shortPage.html', { selected : true });
-	assertScrollAndFind(utils.contentDocument.getElementsByTagName('BODY')[0], findModule.FIND_DEFAULT);
+	assertScrollAndFind(utils.contentDocument.documentElement, findModule.FIND_DEFAULT);
+	assertScrollAndFind('p3', findModule.FIND_BACK);
 
 	yield utils.addTab(baseURL+'../res/longPage.html', { selected : true });
-	assertScrollAndFind('p1', findModule.FIND_DEFAULT);
+	assertScrollAndFind(utils.contentDocument.documentElement, findModule.FIND_DEFAULT);
 	assertScrollAndFind('p10', findModule.FIND_DEFAULT);
 	assertScrollAndFind('p10', findModule.FIND_BACK);
 	assertScrollAndFind('p5', findModule.FIND_BACK);
 
 	yield utils.addTab(baseURL+'../res/tooLongPage.html', { selected : true });
-	assertScrollAndFind('p1', findModule.FIND_DEFAULT);
+	assertScrollAndFind(utils.contentDocument.documentElement, findModule.FIND_DEFAULT);
 	assertScrollAndFind('p10', findModule.FIND_DEFAULT);
 	assertScrollAndFind('p10', findModule.FIND_BACK);
 	assertScrollAndFind('p5', findModule.FIND_BACK);
