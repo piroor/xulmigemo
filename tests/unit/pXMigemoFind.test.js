@@ -34,4 +34,11 @@ function testFindFirstVisibleNode()
 	frame.scrollTo(0, 0);
 	node = findModule.findFirstVisibleNode(findModule.FIND_DEFAULT, frame);
 	assert.equals(frame.document.getElementsByTagName('P')[0], node);
+
+	yield utils.addTab(baseURL+'../res/tooLongPage.html', { selected : true });
+
+	frame = utils.contentWindow;
+	frame.scrollTo(0, 0);
+	node = findModule.findFirstVisibleNode(findModule.FIND_DEFAULT, frame);
+	assert.equals(frame.document.getElementsByTagName('P')[0], node);
 }
