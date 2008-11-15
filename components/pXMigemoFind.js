@@ -669,9 +669,11 @@ mydump("count:"+count);
 	{
 		var doc = aFrame.document;
 
+		var topY = doc.getBoxObjectFor(doc.documentElement).screenY;
+
 		this.visibleNodeFilter.frameHeight = aFrame.innerHeight;
-		this.visibleNodeFilter.startY      = aFrame.scrollY;
-		this.visibleNodeFilter.endY        = aFrame.scrollY + aFrame.innerHeight;
+		this.visibleNodeFilter.startY      = aFrame.scrollY + topY;
+		this.visibleNodeFilter.endY        = aFrame.scrollY + topY + aFrame.innerHeight;
 		this.visibleNodeFilter.minPixels   = 12;
 		this.visibleNodeFilter.minSize     = aFrame.innerWidth * aFrame.innerHeight;
 		this.visibleNodeFilter.shouldReject  =
@@ -687,29 +689,33 @@ mydump("count:"+count);
 				false
 			);
 
-		var node;
+		var node, lastNode;
 		if (aFindFlag & this.FIND_BACK) {
 			while (node = walker.lastChild())
 			{
 				walker.currentNode = node;
 			}
+			lastNode = node;
 			this.visibleNodeFilter.found = false;
 			while (!this.visibleNodeFilter.found &&
 				(node = walker.previousNode()))
 			{
+				lastNode = node;
 				walker.currentNode = node;
 			}
 		}
 		else {
-			node = walker.firstChild();
+			node = doc.documentElement;
+			lastNode = node;
 			this.visibleNodeFilter.found = false;
 			while (!this.visibleNodeFilter.found &&
 				(node = walker.nextNode()))
 			{
+				lastNode = node;
 				walker.currentNode = node;
 			}
 		}
-		return node || doc.documentElement;
+		return lastNode || doc.documentElement;
 	},
 	 
 	visibleNodeFilter : { 
@@ -756,7 +762,7 @@ mydump("count:"+count);
 		},
 		getY : function(aNode)
 		{
-			return aNode.ownerDocument.getBoxObjectFor(aNode).y;
+			return aNode.ownerDocument.getBoxObjectFor(aNode).screenY;
 		},
 		shouldReject : null,
 		shouldAccept : null,
