@@ -10,7 +10,7 @@ var Ci = Components.interfaces;
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
 
-const pIXMigemoFind = Ci.pIXMigemoFind;
+var pIXMigemoFind = Ci.pIXMigemoFind;
  
 function pXMigemoFind() { 
 	mydump('create instance pIXMigemoFind');
