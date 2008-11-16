@@ -105,8 +105,9 @@ function testRegExpFind()
 
 
 	// Enterキーでの再検索
-	yield Do(assert.find_found(mode, findTerm, 'single'));
+	yield Do(assert.find_found(mode, findTerm, 'text'));
 	var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN };
+	yield Do(assert.find_again(mode, key, 1, 'single'));
 	yield Do(assert.find_again(mode, key, 1, 'field'));
 	yield Do(assert.find_again(mode, key, 3, 'field'));
 	key.shiftKey = true;
