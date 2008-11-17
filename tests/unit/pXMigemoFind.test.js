@@ -21,7 +21,7 @@ function testFindFirstVisibleNode()
 {
 	var win = utils.getTestWindow();
 	win.resizeTo(500, 500);
-	assert.largerThan(200, utils.contentWindow.innerHeight);
+	assert.compare(200, '<', utils.contentWindow.innerHeight);
 
 	function assertScrollAndFind(aIdOrNode, aFindFlag)
 	{
