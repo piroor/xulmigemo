@@ -46,11 +46,11 @@ function testFindFirstVisibleNode()
 	assertScrollAndFind(utils.contentDocument.documentElement, findModule.FIND_DEFAULT);
 	assertScrollAndFind('p10', findModule.FIND_DEFAULT);
 	assertScrollAndFind('p10', findModule.FIND_BACK);
-	assertScrollAndFind('p5', findModule.FIND_BACK);
+	assertScrollAndFind('p21', findModule.FIND_BACK);
 
 	yield utils.addTab(baseURL+'../res/tooLongPage.html', { selected : true });
 	assertScrollAndFind(utils.contentDocument.documentElement, findModule.FIND_DEFAULT);
 	assertScrollAndFind('p10', findModule.FIND_DEFAULT);
 	assertScrollAndFind('p10', findModule.FIND_BACK);
-	assertScrollAndFind('p5', findModule.FIND_BACK);
+	assertScrollAndFind('p21', findModule.FIND_BACK);
 }
