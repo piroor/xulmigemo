@@ -610,7 +610,10 @@ var XMigemoPlaces = {
 		this.stopProgressiveLoad();
 		if (!aBaseQuery || !aOptions || !aTree || !aSourceSQL) return;
 
-		this.lastExceptions = [];
+		this.lastFindRegExp = null;
+		this.lastTermsRegExp = null;
+		this.lastExceptionsRegExp = null;
+
 		if (
 			this.autoStartRegExpFind &&
 			this.TextUtils.isRegExp(aBaseQuery.searchTerms)
@@ -620,11 +623,14 @@ var XMigemoPlaces = {
 		}
 		else {
 			var termsRegExp = {};
+			var exceptionRegExp = {};
 			this.lastFindRegExp = new RegExp(
-				XMigemoCore.getRegExpFunctional(aBaseQuery.searchTerms, termsRegExp),
+				XMigemoCore.getRegExpFunctional(aBaseQuery.searchTerms, termsRegExp, exceptionRegExp),
 				'gim'
 			);
 			this.lastTermsRegExp = new RegExp(termsRegExp.value, 'gim');
+//			if (exceptionRegExp.value)
+//				this.lastExceptionsRegExp = new RegExp('^(?:'+exceptionRegExp.value+')$', 'gim');
 		}
 		this.lastTermSets = [];
 		this.lastQueries = [];
@@ -657,6 +663,9 @@ var XMigemoPlaces = {
 	{
 		var source = this.getSourceInRange(aSourceSQL, aStart, aRange);
 		if (!source) return false;
+
+//		if (this.lastExceptionsRegExp)
+//			source = source.replace(this.lastExceptionsRegExp, '');
 
 		var termSets = source.match(this.lastFindRegExp);
 		if (!termSets) return true;
