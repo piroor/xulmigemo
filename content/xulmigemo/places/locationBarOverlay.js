@@ -437,9 +437,9 @@ var XMigemoLocationBarOverlay = {
 				XMigemoCore.getRegExpFunctional(findInput, termsRegExp, exceptionRegExp),
 				'gim'
 			);
+			this.lastTermsRegExp = new RegExp(termsRegExp.value, 'gim');
 			if (exceptionRegExp.value)
 				this.lastExceptionsRegExp = new RegExp(exceptionRegExp.value, 'gim');
-			this.lastTermsRegExp = new RegExp(termsRegExp.value, 'gim');
 			this.lastFindMode = Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO;
 		}
 	},
