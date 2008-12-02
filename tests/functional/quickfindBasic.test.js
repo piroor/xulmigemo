@@ -21,6 +21,7 @@ function testAutoStartAutoExitTimeout()
 	yield Do(assert.autoStart('nihongo'));
 	yield Do(assert.timeout());
 	yield Do(assert.findStart());
+	yield Do(assert.autoStart('nihongo'));
 }
 
 testAutoStartManualExitByBS.description = '自動開始→手動終了（BS）';
@@ -31,6 +32,7 @@ function testAutoStartManualExitByBS()
 	yield Do(assert.autoStart(findTerm));
 	yield Do(assert.exitByBS(findTerm));
 	yield Do(assert.findStart());
+	yield Do(assert.autoStart(findTerm));
 }
 
 testAutoStartManualExitByESC.description = '自動開始→手動終了（ESC）';
@@ -41,6 +43,7 @@ function testAutoStartManualExitByESC()
 	yield Do(assert.autoStart(findTerm));
 	yield Do(assert.exitByESC());
 	yield Do(assert.findStart());
+	yield Do(assert.autoStart(findTerm));
 }
 
 testAutoStartManualExitByClick.description = '自動開始→手動終了（画面クリック）';
@@ -51,6 +54,7 @@ function testAutoStartManualExitByClick()
 	yield Do(assert.autoStart(findTerm));
 	yield Do(assert.exitByClick());
 	yield Do(assert.findStart());
+	yield Do(assert.autoStart(findTerm));
 }
 
 testManulStartInQuickFind.description = '自動開始の時に手動開始を試みた場合';
@@ -67,6 +71,7 @@ function testManulStartAutoExitTimeout()
 	yield Do(assert.manualStart(findTerm));
 	yield Do(assert.timeout());
 	yield Do(assert.findStart());
+	yield Do(assert.manualStart(findTerm));
 }
 
 testManulStartManualExitByBS.description = '手動開始→手動終了（BS）';
@@ -76,6 +81,7 @@ function testManulStartManualExitByBS()
 	yield Do(assert.manualStart(findTerm));
 	yield Do(assert.exitByBS(findTerm));
 	yield Do(assert.findStart());
+	yield Do(assert.manualStart(findTerm));
 }
 
 testManulStartManualExitByESC.description = '手動開始→手動終了（ESC）';
@@ -85,6 +91,7 @@ function testManulStartManualExitByESC()
 	yield Do(assert.manualStart(findTerm));
 	yield Do(assert.exitByESC());
 	yield Do(assert.findStart());
+	yield Do(assert.manualStart(findTerm));
 }
 
 testManulStartManualExitByClick.description = '手動開始→手動終了（画面クリック）';
@@ -94,6 +101,7 @@ function testManulStartManualExitByClick()
 	yield Do(assert.manualStart(findTerm));
 	yield Do(assert.exitByClick());
 	yield Do(assert.findStart());
+	yield Do(assert.manualStart(findTerm));
 }
 
 testAutoStartInQuickFind.description = '手動開始の時に自動開始を試みた場合';
