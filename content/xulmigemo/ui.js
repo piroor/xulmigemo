@@ -1536,6 +1536,9 @@ var XMigemoUI = {
   
 	start : function(aSilently) 
 	{
+		if (this.inStartingProcess) return;
+		this.inStartingProcess = true;
+
 		this.isActive = true;
 
 		if (!aSilently) {
@@ -1551,18 +1554,24 @@ var XMigemoUI = {
 
 		this.lastFindMode = this.findMode;
 
-		if (this.hidden)
+		if (this.hidden) {
 			gFindBar.openFindBar();
-		else
+		}
+		else {
+			this.updateFindUI();
 			this.toggleMode();
+		}
 
 		if (this.findTerm != XMigemoFind.lastKeyword)
 			this.findTerm = XMigemoFind.lastKeyword;
+
+		this.inStartingProcess = false;
 	},
+	inStartingProcess : false,
  
 	cancel : function(aSilently) 
 	{
-		if (this.inCancelingProcess) return;
+		if (this.inCancelingProcess || this.inStartingProcess) return;
 		this.inCancelingProcess = true;
 
 		this.isActive = false;
