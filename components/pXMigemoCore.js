@@ -489,7 +489,8 @@ dump('STEP 2: '+array.toSource()+'\n');
 					ranges.push(foundRange);
 			}, this);
 			if (ranges.length) {
-				ranges.sort(this.textUtils.compareRangePosition);
+				var compare = this.textUtils.wrappedJSObject.compareRangePosition;
+				ranges.sort(compare);
 				foundRange = aFindBackwards ? ranges[ranges.length-1] : ranges[0];
 			}
 		}
