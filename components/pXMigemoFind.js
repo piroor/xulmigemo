@@ -266,12 +266,9 @@ mydump("findInDocument ==========================================");
 		var isPrevEditable = false;
 		var editableInOut  = false;
 
-		var termsRegExp = null;
-
 		if (this.findMode != this.FIND_MODE_NATIVE) {
-			termsRegExp = new RegExp(aFindTerm, 'gim')
 			if (aFindFlag & this.FIND_BACK) {
-				aFindTerm = termsRegExp;
+				aFindTerm = new RegExp(aFindTerm, 'gim');
 			}
 			else {
 				aFindTerm = new RegExp(aFindTerm, 'im');
@@ -290,10 +287,10 @@ mydump("findInDocument ==========================================");
 				rangeSet = this.getFindRangeSet(aFindFlag, aDocShellIterator);
 
 				isPrevEditable = isEditable;
-				isEditable     = this.getParentEditableFromRange(rangeSet.range) ? true : false ;
+				isEditable     = this.findEditableFromRange(rangeSet.range) ? true : false ;
 				editableInOut  = isEditable != isPrevEditable;
 
-				resultFlag = this.findInDocumentInternal(aFindFlag, aFindTerm, termsRegExp, rangeSet, doc, aForceFocus);
+				resultFlag = this.findInDocumentInternal(aFindFlag, aFindTerm, rangeSet, doc, aForceFocus);
 			}
 
 			if (resultFlag & this.FINISH_FIND) {
@@ -336,22 +333,13 @@ mydump("findInDocument ==========================================");
 		return resultFlag;
 	},
 	 
-	findInDocumentInternal : function(aFindFlag, aFindTerm, aTermsRegExp, aRangeSet, aDocument, aForceFocus) 
+	findInDocumentInternal : function(aFindFlag, aFindTerm, aRangeSet, aDocument, aForceFocus) 
 	{
-		var results;
-		var restText;
+		var result;
+		var rangeText = this.textUtils.range2Text(aRangeSet.range);
+
 		var resultFlag;
 
-		var rangeText = this.textUtils.range2Text(aRangeSet.range);
-		var terms;
-
-		var compareRangePosition = this.textUtils.wrappedJSObject.compareRangePosition;
-		var compare = function(aA, aB) {
-				return compareRangePosition(aA.foundRange, aB.foundRange) ||
-					compareRangePosition(aA.range, aB.range);
-			};
-
-		var self = this;
 		while (true)
 		{
 			if (this.isLinksOnly) {
@@ -360,53 +348,59 @@ mydump("findInDocument ==========================================");
 					return this.NOTFOUND;
 			}
 
-			results = [];
-			restText = rangeText;
+			result = this.findInText(aFindFlag, aFindTerm, rangeText);
 
-			terms = aTermsRegExp ? restText.match(aTermsRegExp) : [aFindTerm] ;
-			if (!terms) return this.NOTFOUND;
-			if (terms.length > 1)
-				terms = this.textUtils.brushUpTerms(terms);
-
-			resultFlag = this.NOTFOUND;
-			terms.forEach(function(aTerm) {
-				var result = this.findInRange(aFindFlag, aTerm, aRangeSet, aForceFocus);
-				if (!result.foundRange) return;
-				results.push(result);
-			}, this);
-			if (results.length) {
-				results.sort(compare);
-				if (aFindFlag & this.FIND_BACK) results.reverse();
-				restText = results[0].restText;
-				resultFlag = results[0].flag;
-				this.foundRange = results[0].foundRange;
-			}
+			resultFlag = result.foundTerm ?
+				this.findInRange(aFindFlag, result.foundTerm, aRangeSet, aForceFocus) :
+				this.NOTFOUND ;
 
 			if (resultFlag & this.FOUND) {
 				if (this.isLinksOnly && !(resultFlag & this.FOUND_IN_LINK)) {
-					rangeText = restText;
+					rangeText = result.rest;
 					this.resetFindRangeSet(aRangeSet, this.foundRange, aFindFlag, aDocument);
 					continue;
 				}
-				this.lastFoundWord = this.foundRange.toString();
-				var doc = aRangeSet.range.startContainer.ownerDocument;
-				if (resultFlag & this.FOUND_IN_EDITABLE) {
-					doc.foundEditable = this.getParentEditableFromRange(this.foundRange);
-				}
-				else {
-					doc.foundEditable = null;
-				}
-				if (aForceFocus) {
-					Components.lookupMethod(doc.defaultView, 'focus').call(doc.defaultView);
-					if (resultFlag & this.FOUND_IN_LINK) this.focusToLink(aForceFocus);
-				}
-				this.setSelectionAndScroll(this.foundRange, doc);
 				resultFlag |= this.FINISH_FIND;
 				if (aFindFlag & this.FIND_WRAP)
 					resultFlag |= this.WRAPPED;
 			}
 			return resultFlag;
 		}
+	},
+ 
+	findInText : function(aFindFlag, aTerm, aText) 
+	{
+		var result = {
+				foundTerm : null,
+				rest      : aText
+			};
+		if (this.findMode != this.FIND_MODE_NATIVE) {
+			if (aText.match(aTerm)) {
+				if (aFindFlag & this.FIND_BACK) {
+					result.foundTerm = RegExp.lastMatch;
+					result.rest = RegExp.leftContext;
+				}
+				else {
+					result.foundTerm = RegExp.lastMatch;
+					result.rest = RegExp.rightContext;
+				}
+			}
+		}
+		else if (aFindFlag & this.FIND_BACK) {
+			var index = rangeText.lastIndexOf(aTerm);
+			if (index > -1) {
+				result.foundTerm = aTerm;
+				result.rest = rangeText.substring(0, index);
+			}
+		}
+		else {
+			var index = rangeText.indexOf(aTerm);
+			if (index > -1) {
+				result.foundTerm = aTerm;
+				result.rest = rangeText.substring(index);
+			}
+		}
+		return result;
 	},
  
 	dispatchProgressEvent : function(aFindFlag, aResultFlag) 
@@ -423,49 +417,61 @@ mydump("findInDocument ==========================================");
 	findInRange : function(aFindFlag, aTerm, aRangeSet, aForceFocus) 
 	{
 mydump("findInRange");
-		var result = {
-				term  : aTerm,
-				flag  : this.NOTFOUND,
-				foundRange : null,
-				range : null,
-				restText : this.textUtils.range2Text(aRangeSet.range)
-			};
+		var resultFlag = this.NOTFOUND;
 
 		this.mFind.findBackwards = Boolean(aFindFlag & this.FIND_BACK);
-		result.range = result.foundRange = this.mFind.Find(aTerm, aRangeSet.range, aRangeSet.start, aRangeSet.end) || null ;
-		if (!result.foundRange) {
-			return result;
+
+		this.foundRange = this.mFind.Find(aTerm, aRangeSet.range, aRangeSet.start, aRangeSet.end) || null ;
+		if (!this.foundRange) {
+			return resultFlag;
 		}
+
+		resultFlag = this.FOUND;
+
+		//※mozilla.party.jp 5.0でMac OS Xで動いてるのを見たが、
+		//どうも選択範囲の色が薄いらしい…
+		var v = this.foundRange.commonAncestorContainer.parentNode.ownerDocument.defaultView;
+		if (aForceFocus)
+			Components.lookupMethod(v, 'focus').call(v);
+
+		if (this.findEditable()) {
+			resultFlag |= this.FOUND_IN_EDITABLE;
+			return resultFlag;
+		}
+
+		var link = this.findLink(aForceFocus);
+		if (link) resultFlag |= this.FOUND_IN_LINK;
 
 		var doc = aRangeSet.range.startContainer.ownerDocument;
-
-		result.flag = this.FOUND;
-		var owner = this.getParentEditableFromRange(result.range);
-		if (owner) {
-			result.flag |= this.FOUND_IN_EDITABLE;
-			var range = doc.createRange();
-			range.selectNode(result.owner);
-			result.range = range;
-		}
-
-		var range = result.range.cloneRange();
-		if (aFindFlag & this.FIND_BACK) {
-			range.collapse(true);
-			range.setStart(aRangeSet.start.startContainer, aRangeSet.start.startOffset);
+		if (this.isLinksOnly) {
+			if (link) {
+				this.lastFoundWord = this.foundRange.toString();
+				this.setSelectionAndScroll(this.foundRange, doc);
+			}
 		}
 		else {
-			range.collapse(false);
-			range.setEnd(aRangeSet.end.endContainer, aRangeSet.end.endOffset);
+			this.lastFoundWord = this.foundRange.toString();
+			this.setSelectionAndScroll(this.foundRange, doc);
 		}
-		result.restText = this.textUtils.range2Text(range);
-
-		var link = this.findLinkFromRange(aForceFocus);
-		if (link) result.flag |= this.FOUND_IN_LINK;
-
-		return result;
+		return resultFlag;
 	},
 	 
-	focusToLink : function(aForceFocus) 
+	findEditable : function() 
+	{
+		if (!this.foundRange) return false;
+
+		var doc = this.foundRange.startContainer.ownerDocument;
+		doc.foundEditable = this.findEditableFromRange(this.foundRange);
+		if (doc.foundEditable) {
+			doc.lastFoundEditable = doc.foundEditable;
+			this.lastFoundWord = this.foundRange.toString();
+			this.setSelectionAndScroll(this.foundRange, doc);
+			return true;
+		}
+		return false;
+	},
+ 
+	findLink : function(aForceFocus) 
 	{
 		var link = this.findLinkFromRange(this.foundRange);
 		if (link && aForceFocus) {
@@ -496,9 +502,9 @@ mydump("findLinkFromRange");
 		return null;
 	},
  
-	getParentEditableFromRange : function(aRange) 
+	findEditableFromRange : function(aRange) 
 	{
-mydump('getParentEditableFromRange');
+mydump('findEditableFromRange');
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
 		{
@@ -872,7 +878,7 @@ mydump("setSelectionAndScroll");
 		}, this);
 
 		// set new range
-		var newSelCon = this.getSelectionController(this.getParentEditableFromRange(aRange)) ||
+		var newSelCon = this.getSelectionController(this.findEditableFromRange(aRange)) ||
 				this.getSelectionController(aDocument.defaultView);
 		var selection = newSelCon.getSelection(newSelCon.SELECTION_NORMAL);
 		selection.addRange(aRange);
@@ -1102,7 +1108,7 @@ mydump("setSelectionAndScroll");
 		var range = this.getFoundRange(aFrame);
 		if (range) {
 			var foundLink = this.findLinkFromRange(range);
-			var foundEditable = this.getParentEditableFromRange(range);
+			var foundEditable = this.findEditableFromRange(range);
 			var target = foundLink || foundEditable;
 			if (target) {
 				try {
