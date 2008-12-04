@@ -51,6 +51,21 @@ function test_getRegExpFor()
 	assertRegExpFor('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
 }
 
+function test_regExpFind_forHiddenTargets()
+{
+	yield Do(utils.loadURI('../res/containsHiddenMatchTarget.html'));
+
+	var range = content.document.createRange();
+	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
+	var foundRange = core.regExpFind('a|b|c', 'gi', range, null, null, false);
+	assert.equals('a', foundRange.toString());
+
+	content.document.getElementsByTagName('legend')[0].setAttribute('style', 'display:inline');
+	yield 100;
+	foundRange = core.regExpFind('a|b|c', 'gi', range, null, null, false);
+	assert.equals('b', foundRange.toString());
+}
+
 function test_regExpFindArr_forHiddenTargets()
 {
 	yield Do(utils.loadURI('../res/containsHiddenMatchTarget.html'));
