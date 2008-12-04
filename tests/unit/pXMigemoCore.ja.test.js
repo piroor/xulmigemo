@@ -50,3 +50,18 @@ function test_getRegExpFor()
 	assertRegExpFor('window.open();', 'window.open();');
 	assertRegExpFor('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
 }
+
+function test_regExpFindArr_forHiddenTargets()
+{
+	yield Do(utils.loadURI('../res/containsHiddenMatchTarget.html'));
+
+	var range = content.document.createRange();
+	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
+	var array = core.regExpFindArr('a|能', 'gi', range, null, null);
+	assert.equals(3, array.length);
+
+	content.document.getElementsByTagName('legend')[0].setAttribute('style', 'display:inline');
+	yield 100;
+	array = core.regExpFindArr('a|能', 'gi', range, null, null);
+	assert.equals(4, array.length);
+}

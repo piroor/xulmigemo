@@ -493,32 +493,41 @@ dump('STEP 2: '+array.toSource()+'\n');
 	 
 	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aSelCon) 
 	{
-		if (!aStartPoint) {
-			aStartPoint = aFindRange.startContainer.ownerDocument.createRange();
-			aStartPoint.setStart(aFindRange.startContainer, aFindRange.startOffset);
+		var findRange = aFindRange.cloneRange();
+
+		var startPoint = aStartPoint;
+		if (startPoint) {
+			startPoint = startPoint.cloneRange();
 		}
-		if (!aEndPoint) {
-			aEndPoint = aFindRange.endContainer.ownerDocument.createRange();
-			aEndPoint.setStart(aFindRange.endContainer, aFindRange.endOffset);
+		else {
+			startPoint = findRange.startContainer.ownerDocument.createRange();
+			startPoint.setStart(findRange.startContainer, findRange.startOffset);
 		}
 
-		var doc = aFindRange.startContainer.ownerDocument;
+		if (!aEndPoint) {
+			aEndPoint = findRange.endContainer.ownerDocument.createRange();
+			aEndPoint.setStart(findRange.endContainer, findRange.endOffset);
+		}
+
+		var doc = findRange.startContainer.ownerDocument;
 		var selRange = this.textUtils.getFoundRange(doc.defaultView);
 		var shouldRebuildSelection = selRange && Prefs.getBoolPref('xulmigemo.rebuild_selection');
-		var arrTerms;
 		var arrResults = [];
 		var rightContext;
 
 		if (aRegExpFlags == 'null' ||
 			aRegExpFlags == 'undefined' ||
-			aRegExpFlags == 'false')
+			aRegExpFlags == 'false') {
 			aRegExpFlags = '';
+		}
+		aRegExpFlags = aRegExpFlags.toLowerCase();
+		if (aRegExpFlags.indexOf('g') < 0) {
+			aRegExpFlags += 'g';
+		}
 		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
 
-		var txt = this.textUtils.range2Text(aFindRange);
-		arrTerms = txt.match(new RegExp(regExp.source, 'img'));
-
-		if (!arrTerms) {
+		var text = this.textUtils.range2Text(findRange);
+		if (!text.match(new RegExp(regExp.source, 'img'))) {
 			return arrResults;
 		}
 
@@ -527,9 +536,13 @@ dump('STEP 2: '+array.toSource()+'\n');
 		var foundLength;
 		var selection = aSelCon && 'SELECTION_FIND' in aSelCon ?
 				aSelCon.getSelection(aSelCon.SELECTION_FIND) : null ;
-		for (var i = 0, maxi = arrTerms.length; i < maxi; i++)
+
+		var match;
+		while (match = text.match(regExp))
 		{
-			foundRange = this.mFind.Find(arrTerms[i], aFindRange, aStartPoint, aEndPoint);
+			Array.slice(match).some(function(aTerm) {
+				return foundRange = this.mFind.Find(aTerm, findRange, startPoint, aEndPoint);
+			}, this);
 			if (!foundRange) continue;
 			foundLength = foundRange.toString().length;
 			if (aSurroundNode) {
@@ -555,28 +568,29 @@ dump('STEP 2: '+array.toSource()+'\n');
 				foundRange.selectNodeContents(nodeSurround);
 				arrResults.push(foundRange);
 
-				aFindRange.selectNodeContents(this.getDocumentBody(doc));
-				aFindRange.setStartBefore(before);
+				findRange.selectNodeContents(this.getDocumentBody(doc));
+				findRange.setStartBefore(before);
 				try {
-					aFindRange.setEnd(aEndPoint.startContainer, aEndPoint.startOffset);
+					findRange.setEnd(aEndPoint.startContainer, aEndPoint.startOffset);
 				}
 				catch(e) {
 				}
-				aStartPoint.selectNodeContents(this.getDocumentBody(doc));
-				aStartPoint.setStartBefore(before);
-				aStartPoint.collapse(true);
+				startPoint.selectNodeContents(this.getDocumentBody(doc));
+				startPoint.setStartBefore(before);
+				startPoint.collapse(true);
 			}
 			else {
 				arrResults.push(foundRange);
 
-				aFindRange.setStart(foundRange.endContainer, foundRange.endOffset);
-				aStartPoint.selectNodeContents(this.getDocumentBody(doc));
-				aStartPoint.setStart(foundRange.endContainer, foundRange.endOffset);
-				aStartPoint.collapse(true);
+				findRange.setStart(foundRange.endContainer, foundRange.endOffset);
+				startPoint.selectNodeContents(this.getDocumentBody(doc));
+				startPoint.setStart(foundRange.endContainer, foundRange.endOffset);
+				startPoint.collapse(true);
 			}
 			if (selection) {
 				selection.addRange(foundRange);
 			}
+			text = this.textUtils.range2Text(findRange);
 		}
 		if (selection)
 			aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
