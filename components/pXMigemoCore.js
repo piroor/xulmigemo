@@ -485,7 +485,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 			this.mFind.findBackwards = aFindBackwards;
 			var ranges = [];
 			terms.forEach(function(aTerm) {
-				if (foundRange = this.mFind.Find(match[i], aFindRange, aStartPoint, aEndPoint))
+				if (foundRange = this.mFind.Find(aTerm, aFindRange, aStartPoint, aEndPoint))
 					ranges.push(foundRange);
 			}, this);
 			if (ranges.length) {
