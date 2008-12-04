@@ -338,6 +338,9 @@ mydump("findInDocument ==========================================");
 		var result;
 		var rangeText = this.textUtils.range2Text(aRangeSet.range);
 		var restText;
+		var doc;
+
+		this.foundRange = null;
 
 		while (true)
 		{
@@ -350,27 +353,29 @@ mydump("findInDocument ==========================================");
 			result = this.findInText(aFindFlag, aFindTerm, rangeText);
 			restText = result.restText;
 			result = this.findInRange(aFindFlag, result.foundTerm, aRangeSet, aForceFocus);
-			this.foundRange = result.foundRange;
 
 			if (result.flag & this.FOUND) {
 				if (this.isLinksOnly && !(result.flag & this.FOUND_IN_LINK)) {
 					rangeText = restText;
+					this.foundRange = result.range;
 					this.resetFindRangeSet(aRangeSet, this.foundRange, aFindFlag, aDocument);
 					continue;
 				}
+				this.foundRange = result.range;
 				this.lastFoundWord = this.foundRange.toString();
-				var doc = aRangeSet.range.startContainer.ownerDocument;
+				doc = this.foundRange.commonAncestorContainer.parentNode.ownerDocument;
 				if (result.flag & this.FOUND_IN_EDITABLE) {
 					doc.foundEditable = this.getParentEditableFromRange(this.foundRange);
+					doc.lastFoundEditable = doc.foundEditable;
 				}
 				else {
 					doc.foundEditable = null;
 				}
 				if (aForceFocus) {
-					Components.lookupMethod(doc.defaultView, 'focus').call(doc.defaultView);
+					doc.defaultView.focus();
 					if (result.flag & this.FOUND_IN_LINK) this.focusToLink(aForceFocus);
 				}
-				this.setSelectionAndScroll(this.foundRange, doc);
+				this.setSelectionAndScroll(this.foundRange, aRangeSet.range.startContainer.ownerDocument);
 				result.flag |= this.FINISH_FIND;
 				if (aFindFlag & this.FIND_WRAP)
 					result.flag |= this.WRAPPED;
@@ -387,14 +392,8 @@ mydump("findInDocument ==========================================");
 			};
 		if (this.findMode != this.FIND_MODE_NATIVE) {
 			if (aText.match(aTerm)) {
-				if (aFindFlag & this.FIND_BACK) {
-					result.foundTerm = RegExp.lastMatch;
-					result.restText = RegExp.leftContext;
-				}
-				else {
-					result.foundTerm = RegExp.lastMatch;
-					result.restText = RegExp.rightContext;
-				}
+				result.foundTerm = RegExp.lastMatch;
+				result.restText = (aFindFlag & this.FIND_BACK) ? RegExp.leftContext : result.restText = RegExp.rightContext ;
 			}
 		}
 		else if (aFindFlag & this.FIND_BACK) {
@@ -429,27 +428,26 @@ mydump("findInDocument ==========================================");
 	{
 mydump("findInRange");
 		var result = {
-				term  : aTerm,
 				flag  : this.NOTFOUND,
-				foundRange : null
+				range : null
 			};
-		if (!result.foundTerm) {
+		if (!aTerm) {
 			return result;
 		}
 
 		this.mFind.findBackwards = Boolean(aFindFlag & this.FIND_BACK);
 
-		result.foundRange = this.mFind.Find(aTerm, aRangeSet.range, aRangeSet.start, aRangeSet.end) || null ;
-		if (!result.foundRange) {
+		result.range = this.mFind.Find(aTerm, aRangeSet.range, aRangeSet.start, aRangeSet.end) || null ;
+		if (!result.range) {
 			return result;
 		}
 
 		result.flag = this.FOUND;
 
-		if (this.getParentEditableFromRange(result.foundRange)) {
+		if (this.getParentEditableFromRange(result.range)) {
 			result.flag |= this.FOUND_IN_EDITABLE;
 		}
-		if (this.findLinkFromRange(result.foundRange)) {
+		if (this.findLinkFromRange(result.range)) {
 			result.flag |= this.FOUND_IN_LINK;
 		}
 
