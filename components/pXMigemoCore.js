@@ -480,22 +480,17 @@ dump('STEP 2: '+array.toSource()+'\n');
 		var foundRange = null;
 
 		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
-		var match = text.match(regExp);
-		if (match) {
+		var terms = this.textUtils.brushUpTerms(text.match(regExp));
+		if (terms.length) {
 			this.mFind.findBackwards = aFindBackwards;
-			if (aFindBackwards) {
-				for (var i = match.length-1; i > -1; i--)
-				{
-					if (foundRange = this.mFind.Find(match[i], aFindRange, aStartPoint, aEndPoint))
-						break;
-				}
-			}
-			else {
-				for (var i = 0, maxi = match.length; i < maxi; i++)
-				{
-					if (foundRange = this.mFind.Find(match[i], aFindRange, aStartPoint, aEndPoint))
-						break;
-				}
+			var ranges = [];
+			terms.forEach(function(aTerm) {
+				if (foundRange = this.mFind.Find(match[i], aFindRange, aStartPoint, aEndPoint))
+					ranges.push(foundRange);
+			}, this);
+			if (ranges.length) {
+				ranges.sort(this.textUtils.compareRangePosition);
+				foundRange = aFindBackwards ? ranges[ranges.length-1] : ranges[0];
 			}
 		}
 		return foundRange;
