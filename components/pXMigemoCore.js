@@ -543,7 +543,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 			Array.slice(match).some(function(aTerm) {
 				return foundRange = this.mFind.Find(aTerm, findRange, startPoint, aEndPoint);
 			}, this);
-			if (!foundRange) continue;
+			if (!foundRange) break;
 			foundLength = foundRange.toString().length;
 			if (aSurroundNode) {
 				var isOverlap = shouldRebuildSelection ?
