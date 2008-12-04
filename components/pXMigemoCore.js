@@ -547,68 +547,71 @@ dump('STEP 2: '+array.toSource()+'\n');
 		}
 
 		this.mFind.findBackwards = false;
-		var foundRange;
-		var foundLength;
 		var selection = aSelCon && 'SELECTION_FIND' in aSelCon ?
 				aSelCon.getSelection(aSelCon.SELECTION_FIND) : null ;
 
-		var match;
-		while (match = text.match(regExp))
-		{
-			Array.slice(match).some(function(aTerm) {
-				return foundRange = this.mFind.Find(aTerm, findRange, startPoint, aEndPoint);
-			}, this);
-			if (!foundRange) break;
-			foundLength = foundRange.toString().length;
-			if (aSurroundNode) {
-				var isOverlap = shouldRebuildSelection ?
-						this.textUtils.isRangeOverlap(foundRange, selRange) :
-						false ;
+		var originalFindRange = findRange;
+		var originalStartPoint = startPoint;
+		this.textUtils.brushUpTerms(text.match(regExp)).forEach(function(aTerm) {
+			var foundRange;
+			var findRange = originalFindRange.cloneRange();
+			var startPoint = originalStartPoint.cloneRange();
+			var text = this.textUtils.range2Text(findRange);
+			while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, aEndPoint))
+			{
+				var foundLength = foundRange.toString().length;
+				if (aSurroundNode) {
+					var isOverlap = shouldRebuildSelection ?
+							this.textUtils.isRangeOverlap(foundRange, selRange) :
+							false ;
 
-				var nodeSurround   = aSurroundNode.cloneNode(true);
-				var startContainer = foundRange.startContainer;
-				var startOffset    = foundRange.startOffset;
-				var endOffset      = foundRange.endOffset;
-				var docfrag        = foundRange.extractContents();
-				var before         = startContainer.splitText(startOffset);
-				var parent         = before.parentNode;
-				var firstChild     = docfrag.firstChild;
-				nodeSurround.appendChild(docfrag);
-				parent.insertBefore(nodeSurround, before);
+					var nodeSurround   = aSurroundNode.cloneNode(true);
+					var startContainer = foundRange.startContainer;
+					var startOffset    = foundRange.startOffset;
+					var endOffset      = foundRange.endOffset;
+					var docfrag        = foundRange.extractContents();
+					var before         = startContainer.splitText(startOffset);
+					var parent         = before.parentNode;
+					var firstChild     = docfrag.firstChild;
+					nodeSurround.appendChild(docfrag);
+					parent.insertBefore(nodeSurround, before);
 
-				if (isOverlap)
-					this.textUtils.delayedSelect(firstChild, foundLength, true);
+					if (isOverlap)
+						this.textUtils.delayedSelect(firstChild, foundLength, true);
 
-				foundRange = doc.createRange();
-				foundRange.selectNodeContents(nodeSurround);
-				arrResults.push(foundRange);
+					foundRange = doc.createRange();
+					foundRange.selectNodeContents(nodeSurround);
+					arrResults.push(foundRange);
 
-				findRange.selectNodeContents(this.getDocumentBody(doc));
-				findRange.setStartBefore(before);
-				try {
-					findRange.setEnd(aEndPoint.startContainer, aEndPoint.startOffset);
+					findRange.selectNodeContents(this.getDocumentBody(doc));
+					findRange.setStartBefore(before);
+					try {
+						findRange.setEnd(aEndPoint.startContainer, aEndPoint.startOffset);
+					}
+					catch(e) {
+					}
+					startPoint.selectNodeContents(this.getDocumentBody(doc));
+					startPoint.setStartBefore(before);
+					startPoint.collapse(true);
 				}
-				catch(e) {
-				}
-				startPoint.selectNodeContents(this.getDocumentBody(doc));
-				startPoint.setStartBefore(before);
-				startPoint.collapse(true);
-			}
-			else {
-				arrResults.push(foundRange);
+				else {
+					arrResults.push(foundRange);
 
-				findRange.setStart(foundRange.endContainer, foundRange.endOffset);
-				startPoint.selectNodeContents(this.getDocumentBody(doc));
-				startPoint.setStart(foundRange.endContainer, foundRange.endOffset);
-				startPoint.collapse(true);
+					findRange.setStart(foundRange.endContainer, foundRange.endOffset);
+					startPoint.selectNodeContents(this.getDocumentBody(doc));
+					startPoint.setStart(foundRange.endContainer, foundRange.endOffset);
+					startPoint.collapse(true);
+				}
+				if (selection) {
+					selection.addRange(foundRange);
+				}
+				text = this.textUtils.range2Text(findRange);
 			}
-			if (selection) {
-				selection.addRange(foundRange);
-			}
-			text = this.textUtils.range2Text(findRange);
-		}
+		}, this);
 		if (selection)
 			aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
+
+		arrResults.sort(this.textUtils.compareRangePosition);
 
 		return arrResults;
 	},

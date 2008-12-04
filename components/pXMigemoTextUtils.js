@@ -471,6 +471,27 @@ pXMigemoTextUtils.prototype = {
 		return false;
 	},
  
+	// for sorting
+	compareRangePosition : function(aBaseRange, aTargetRange) 
+	{
+		if (
+			!aBaseRange ||
+			!aTargetRange ||
+			aBaseRange.startContainer.ownerDocument != aTargetRange.startContainer.ownerDocument
+			)
+			return 0;
+
+		try {
+			if (aBaseRange.compareBoundaryPoints(aBaseRange.START_TO_END, aTargetRange) < 0)
+				return -1;
+			else if (aBaseRange.compareBoundaryPoints(aBaseRange.END_TO_START, aTargetRange) > 0)
+				return 1;
+		}
+		catch(e) {
+		}
+		return 0;
+	},
+ 
 	delayedSelect : function(aNode, aSelectLength, aIsHighlight) 
 	{
 		/*

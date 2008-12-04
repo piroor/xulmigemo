@@ -57,11 +57,13 @@ function test_regExpFindArr_forHiddenTargets()
 
 	var range = content.document.createRange();
 	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
-	var array = core.regExpFindArr('a|能', 'gi', range, null, null);
-	assert.equals(3, array.length);
+	var array = core.regExpFindArr('a|b|c', 'gi', range, null, null);
+	assert.equals(4, array.length);
+	assert.equals(['a', 'b', 'a', 'c'], array.map(function(aRange) { return aRange.toString(); }));
 
 	content.document.getElementsByTagName('legend')[0].setAttribute('style', 'display:inline');
 	yield 100;
-	array = core.regExpFindArr('a|能', 'gi', range, null, null);
-	assert.equals(4, array.length);
+	array = core.regExpFindArr('a|b|c', 'gi', range, null, null);
+	assert.equals(5, array.length);
+	assert.equals(['b', 'a', 'b', 'a', 'c'], array.map(function(aRange) { return aRange.toString(); }));
 }
