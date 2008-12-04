@@ -465,24 +465,39 @@ dump('STEP 2: '+array.toSource()+'\n');
 
 		//patTextはgetRegExp()で得られた正規表現オブジェクト
 		var doc = Components.lookupMethod(aFindRange.startContainer, 'ownerDocument').call(aFindRange.startContainer);
-		var term;
-		var txt = this.textUtils.range2Text(aFindRange);
+		var text = this.textUtils.range2Text(aFindRange);
 
 		if (aRegExpFlags == 'null' ||
 			aRegExpFlags == 'undefined' ||
-			aRegExpFlags == 'false')
+			aRegExpFlags == 'false') {
 			aRegExpFlags = '';
-
-		if (aFindBackwards && aRegExpFlags.indexOf('g') < 0) aRegExpFlags += 'g';
-
-		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
-		if (txt.match(regExp)) {
-			term = RegExp.lastMatch;
+		}
+		aRegExpFlags = aRegExpFlags.toLowerCase();
+		if (aRegExpFlags.indexOf('g') < 0) {
+			aRegExpFlags += 'g';
 		}
 
-		this.mFind.findBackwards = aFindBackwards;
+		var foundRange = null;
 
-		var foundRange = this.mFind.Find(term, aFindRange, aStartPoint, aEndPoint);
+		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
+		var match = text.match(regExp);
+		if (match) {
+			this.mFind.findBackwards = aFindBackwards;
+			if (aFindBackwards) {
+				for (var i = match.length-1; i > -1; i--)
+				{
+					if (foundRange = this.mFind.Find(match[i], aFindRange, aStartPoint, aEndPoint))
+						break;
+				}
+			}
+			else {
+				for (var i = 0, maxi = match.length; i < maxi; i++)
+				{
+					if (foundRange = this.mFind.Find(match[i], aFindRange, aStartPoint, aEndPoint))
+						break;
+				}
+			}
+		}
 		return foundRange;
 	},
  
