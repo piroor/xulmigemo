@@ -1,4 +1,4 @@
-var TEST = false;
+var TEST = false; 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
@@ -21,7 +21,7 @@ pXMigemoTextUtils.prototype = {
 	get wrappedJSObject() {
 		return this;
 	},
-	 
+	
 /* string operations */ 
 	
 	trim : function(aInput) 
@@ -59,7 +59,7 @@ pXMigemoTextUtils.prototype = {
 	kBOUNDARY_SPLITTER_PATTERN : /[\u4e00-\u9fa0\u3005\u3006\u30f5\u30f6]+|[\u3041-\u3093]+|[\u30a1-\u30f4\u30fc]+|[a-zA-Z0-9]+|[\uff41-\uff5a\uff21-\uff3a\uff10-\uff19]+|[\u3001\u3002\uff01!\uff1f?()\uff08\uff09\u300c\u300d\u300e\u300f]+|\n/gim,
   
 /* convert HTML to text */ 
-	 
+	
 	range2Text : function(aRange) 
 	{
 		var doc = aRange.startContainer;
@@ -117,10 +117,10 @@ pXMigemoTextUtils.prototype = {
 
 		return result.join('');
 	},
-	_skipInvisibleNodes : true,
-	getExceptionsIterator : function(aDocument, aStartNode)
+	
+	getExceptionsIterator : function(aDocument, aStartNode) 
 	{
-		if (this._skipInvisibleNodes) {
+		if (Prefs.getBoolPref('xulmigemo.ignoreAnyInvisibleNode')) {
 			var walker = aDocument.createTreeWalker(
 					aStartNode,
 					Ci.nsIDOMNodeFilter.SHOW_ELEMENT,
@@ -149,7 +149,8 @@ pXMigemoTextUtils.prototype = {
 			return function() { return nodes.iterateNext(); };
 		}
 	},
-	exceptionsFilter : {
+	
+	exceptionsFilter : { 
 		kSKIP   : Ci.nsIDOMNodeFilter.FILTER_SKIP,
 		kACCEPT : Ci.nsIDOMNodeFilter.FILTER_ACCEPT,
 		acceptNode : function(aNode)
@@ -174,7 +175,7 @@ pXMigemoTextUtils.prototype = {
 			return this.kSKIP;
 		}
 	},
-  
+    
 /* manipulate regular expressions */ 
 	
 	sanitize : function(str) 
@@ -444,7 +445,7 @@ pXMigemoTextUtils.prototype = {
 	},
   
 /* Restore selection after "highlight all" */ 
-	 
+	
 	getFoundRange : function(aFrame) 
 	{
 		try {
@@ -579,7 +580,7 @@ pXMigemoTextUtils.prototype = {
 			);
 		}
 	},
-	 
+	
 	selectContent : function(aParent, aStartOffset, aLength, aHighlight) 
 	{
 		var doc = aParent.ownerDocument;
@@ -622,7 +623,7 @@ pXMigemoTextUtils.prototype = {
 		if (aHighlight)
 			this.setSelectionLookForRange(selectRange, true);
 	},
-	 
+	
 	selectContentWithDelay : function(aParent, aStartOffset, aSelectLength, aIsHighlight) 
 	{
 		if (this.selectContentWithDelayTask)
@@ -698,7 +699,7 @@ pXMigemoTextUtils.prototype = {
 		walker.currentNode = aNode;
 		return walker.nextNode();
 	},
-  	 
+   
 	QueryInterface : function(aIID) 
 	{
 		if(!aIID.equals(Ci.pIXMigemoTextUtils) &&

@@ -10,6 +10,7 @@ pref("xulmigemo.startfromviewport",             true);
 pref("xulmigemo.linksonly",                     false);
 pref("xulmigemo.ignoreHiraKata",                true);
 pref("xulmigemo.ignoreLatinModifiers",          true);
+pref("xulmigemo.ignoreAnyInvisibleNode",        true);
 pref("xulmigemo.splitTermsAutomatically",       false);
 pref("xulmigemo.scrollSelectionToCenter",       true);
 pref("xulmigemo.scrollSelectionToCenter.padding", 30);
