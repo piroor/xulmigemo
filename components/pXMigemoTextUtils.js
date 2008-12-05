@@ -155,13 +155,15 @@ pXMigemoTextUtils.prototype = {
 		kACCEPT : Ci.nsIDOMNodeFilter.FILTER_ACCEPT,
 		acceptNode : function(aNode)
 		{
-			var box = aNode.ownerDocument.getBoxObjectFor(aNode);
-			if (!box.width && !box.height && !box.screenX && !box.screenY) {
+			if (!aNode.offsetWidth &&
+				!aNode.offsetHeight &&
+				!aNode.offsetLeft &&
+				!aNode.offsetTop) {
 				return this.kACCEPT;
 			}
-
 			switch (aNode.localName.toLowerCase())
 			{
+				case 'script':
 				case 'textarea':
 					return this.kACCEPT;
 				case 'input':
