@@ -463,37 +463,29 @@ dump('STEP 2: '+array.toSource()+'\n');
 			aEndPoint.setEndAfter(aFindRange.endContainer);
 		}
 
-		//patTextはgetRegExp()で得られた正規表現オブジェクト
-		var doc = Components.lookupMethod(aFindRange.startContainer, 'ownerDocument').call(aFindRange.startContainer);
-		var text = this.textUtils.range2Text(aFindRange);
-
 		if (aRegExpFlags == 'null' ||
 			aRegExpFlags == 'undefined' ||
 			aRegExpFlags == 'false') {
 			aRegExpFlags = '';
 		}
 		aRegExpFlags = aRegExpFlags.toLowerCase();
-		if (aRegExpFlags.indexOf('g') < 0) {
-			aRegExpFlags += 'g';
+		if (aFindBackwards) {
+			if (aRegExpFlags.indexOf('g') < 0) aRegExpFlags += 'g';
 		}
+		else {
+			aRegExpFlags = aRegExpFlags.replace(/g/g, '');
+		}
+		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
 
 		var foundRange = null;
 
-		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
-		var terms = this.textUtils.brushUpTerms(text.match(regExp));
-		if (terms.length) {
+		var text = this.textUtils.range2Text(aFindRange);
+		if (text.match(regExp)) {
+			term = RegExp.lastMatch;
 			this.mFind.findBackwards = aFindBackwards;
-			var ranges = [];
-			terms.forEach(function(aTerm) {
-				if (foundRange = this.mFind.Find(aTerm, aFindRange, aStartPoint, aEndPoint))
-					ranges.push(foundRange);
-			}, this);
-			if (ranges.length) {
-				var compare = this.textUtils.wrappedJSObject.compareRangePosition;
-				ranges.sort(compare);
-				foundRange = aFindBackwards ? ranges[ranges.length-1] : ranges[0];
-			}
+			foundRange = this.mFind.Find(term, aFindRange, aStartPoint, aEndPoint);
 		}
+
 		return foundRange;
 	},
  
@@ -542,17 +534,18 @@ dump('STEP 2: '+array.toSource()+'\n');
 			return arrResults;
 		}
 
+		var terms = this.textUtils.brushUpTerms(text.match(regExp));
+
 		this.mFind.findBackwards = false;
 		var selection = aSelCon && 'SELECTION_FIND' in aSelCon ?
 				aSelCon.getSelection(aSelCon.SELECTION_FIND) : null ;
 
 		var originalFindRange = findRange;
 		var originalStartPoint = startPoint;
-		this.textUtils.brushUpTerms(text.match(regExp)).forEach(function(aTerm) {
+		terms.forEach(function(aTerm) {
 			var foundRange;
 			var findRange = originalFindRange.cloneRange();
 			var startPoint = originalStartPoint.cloneRange();
-			var text = this.textUtils.range2Text(findRange);
 			while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, aEndPoint))
 			{
 				var foundLength = foundRange.toString().length;
@@ -601,7 +594,6 @@ dump('STEP 2: '+array.toSource()+'\n');
 				if (selection) {
 					selection.addRange(foundRange);
 				}
-				text = this.textUtils.range2Text(findRange);
 			}
 		}, this);
 		if (selection)
