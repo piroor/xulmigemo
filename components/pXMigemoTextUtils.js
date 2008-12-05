@@ -82,21 +82,9 @@ pXMigemoTextUtils.prototype = {
 		var nodeRange = doc.createRange();
 
 		try {
-			var specialNodes = doc.evaluate(
-					[
-						'descendant::*[',
-							'contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " ")) or ',
-							'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
-						']'
-					].join(''),
-					aRange.commonAncestorContainer,
-					null,
-					Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE,
-					null
-				);
-
+			var iterateNext = this.getExceptionsIterator(doc, aRange.commonAncestorContainer);
 			var node;
-			while (node = specialNodes.iterateNext())
+			while (node = iterateNext())
 			{
 				nodeRange.selectNode(node);
 				if (aRange.compareBoundaryPoints(aRange.START_TO_START, nodeRange) == 1 ||
@@ -107,10 +95,10 @@ pXMigemoTextUtils.prototype = {
 				result.push(textRange.toString());
 				switch (node.localName.toLowerCase())
 				{
-					case 'script':
-						break;
-					default:
+					case 'textarea':
+					case 'input':
 						result.push(node.value);
+					default:
 						break;
 				}
 				textRange.selectNode(node);
@@ -128,6 +116,63 @@ pXMigemoTextUtils.prototype = {
 		textRange.detach();
 
 		return result.join('');
+	},
+	_skipInvisibleNodes : true,
+	getExceptionsIterator : function(aDocument, aStartNode)
+	{
+		if (this._skipInvisibleNodes) {
+			var walker = aDocument.createTreeWalker(
+					aStartNode,
+					Ci.nsIDOMNodeFilter.SHOW_ELEMENT,
+					this.exceptionsFilter,
+					false
+				);
+			return function() {
+				var nextNode = walker.nextNode();
+				if (nextNode) walker.currentNode = nextNode;
+				return nextNode;
+			};
+		}
+		else {
+			var nodes = aDocument.evaluate(
+					[
+						'descendant::*[',
+							'contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " ")) or ',
+							'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
+						']'
+					].join(''),
+					aStartNode,
+					null,
+					Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE,
+					null
+				);
+			return function() { return nodes.iterateNext(); };
+		}
+	},
+	exceptionsFilter : {
+		kSKIP   : Ci.nsIDOMNodeFilter.FILTER_SKIP,
+		kACCEPT : Ci.nsIDOMNodeFilter.FILTER_ACCEPT,
+		acceptNode : function(aNode)
+		{
+			if (!aNode.offsetWidth && !aNode.offsetHeight) {
+				return this.kACCEPT;
+			}
+
+			switch (aNode.localName.toLowerCase())
+			{
+				case 'textarea':
+					return this.kACCEPT;
+				case 'input':
+					switch (aNode.getAttribute('type').toLowerCase())
+					{
+						case 'text':
+						case 'file':
+							return this.kACCEPT;
+					}
+					break;
+			}
+			return this.kSKIP;
+		}
 	},
   
 /* manipulate regular expressions */ 
