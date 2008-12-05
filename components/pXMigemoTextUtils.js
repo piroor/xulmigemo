@@ -155,7 +155,8 @@ pXMigemoTextUtils.prototype = {
 		kACCEPT : Ci.nsIDOMNodeFilter.FILTER_ACCEPT,
 		acceptNode : function(aNode)
 		{
-			if (!aNode.offsetWidth && !aNode.offsetHeight) {
+			var box = aNode.ownerDocument.getBoxObjectFor(aNode);
+			if (!box.width && !box.height && !box.screenX && !box.screenY) {
 				return this.kACCEPT;
 			}
 
