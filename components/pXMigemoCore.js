@@ -529,7 +529,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 		}
 		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
 
-		var text = this.textUtils.range2Text(findRange);
+		var text = this.textUtils.lazyRange2Text(findRange);
 		if (!text.match(new RegExp(regExp.source, 'img'))) {
 			return arrResults;
 		}
