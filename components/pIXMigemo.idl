@@ -28,6 +28,7 @@ interface pIXMigemoTextUtils : nsISupports
 	nsIVariant splitByBoundaries(in AString input);
 
 	AString range2Text(in nsIDOMRange range);
+	AString lazyRange2Text(in nsIDOMRange range); // possibly returns text including "hidden" elemens
 
 	AString sanitize(in AString regexpPattern);
 	AString sanitizeForTransformInput(in AString regexpPattern);
