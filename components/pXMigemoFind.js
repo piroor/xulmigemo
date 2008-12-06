@@ -335,7 +335,8 @@ mydump("findInDocument ==========================================");
 	 
 	findInDocumentInternal : function(aFindFlag, aFindTerm, aRangeSet, aDocument, aForceFocus) 
 	{
-		var result;
+		var textFindResult;
+		var rangeFindResult;
 		var rangeText = this.textUtils.range2Text(aRangeSet.range);
 		var restText;
 		var doc;
@@ -350,21 +351,21 @@ mydump("findInDocument ==========================================");
 					return this.NOTFOUND;
 			}
 
-			result = this.findInText(aFindFlag, aFindTerm, rangeText);
-			restText = result.restText;
-			result = this.findInRange(aFindFlag, result.foundTerm, aRangeSet, aForceFocus);
+			textFindResult = this.findInText(aFindFlag, aFindTerm, rangeText);
+			restText = textFindResult.restText;
+			rangeFindResult = this.findInRange(aFindFlag, textFindResult.foundTerm, aRangeSet);
 
-			if (result.flag & this.FOUND) {
-				if (this.isLinksOnly && !(result.flag & this.FOUND_IN_LINK)) {
+			if (rangeFindResult.flag & this.FOUND) {
+				if (this.isLinksOnly && !(rangeFindResult.flag & this.FOUND_IN_LINK)) {
 					rangeText = restText;
-					this.foundRange = result.range;
+					this.foundRange = rangeFindResult.range;
 					this.resetFindRangeSet(aRangeSet, this.foundRange, aFindFlag, aDocument);
 					continue;
 				}
-				this.foundRange = result.range;
+				this.foundRange = rangeFindResult.range;
 				this.lastFoundWord = this.foundRange.toString();
 				doc = this.foundRange.commonAncestorContainer.parentNode.ownerDocument;
-				if (result.flag & this.FOUND_IN_EDITABLE) {
+				if (rangeFindResult.flag & this.FOUND_IN_EDITABLE) {
 					doc.foundEditable = this.getParentEditableFromRange(this.foundRange);
 					doc.lastFoundEditable = doc.foundEditable;
 				}
@@ -373,14 +374,14 @@ mydump("findInDocument ==========================================");
 				}
 				if (aForceFocus) {
 					doc.defaultView.focus();
-					if (result.flag & this.FOUND_IN_LINK) this.focusToLink(aForceFocus);
+					if (rangeFindResult.flag & this.FOUND_IN_LINK) this.focusToLink(aForceFocus);
 				}
 				this.setSelectionAndScroll(this.foundRange, aRangeSet.range.startContainer.ownerDocument);
-				result.flag |= this.FINISH_FIND;
+				rangeFindResult.flag |= this.FINISH_FIND;
 				if (aFindFlag & this.FIND_WRAP)
-					result.flag |= this.WRAPPED;
+					rangeFindResult.flag |= this.WRAPPED;
 			}
-			return result.flag;
+			return rangeFindResult.flag;
 		}
 	},
  
@@ -424,7 +425,7 @@ mydump("findInDocument ==========================================");
 		this.document.dispatchEvent(event);
 	},
   
-	findInRange : function(aFindFlag, aTerm, aRangeSet, aForceFocus) 
+	findInRange : function(aFindFlag, aTerm, aRangeSet) 
 	{
 mydump("findInRange");
 		var result = {

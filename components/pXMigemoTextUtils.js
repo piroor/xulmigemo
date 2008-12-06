@@ -62,6 +62,16 @@ pXMigemoTextUtils.prototype = {
 	
 	range2Text : function(aRange) 
 	{
+		return this.range2TextInternal(aRange, false);
+	},
+ 
+	laxyRange2Text : function(aRange) 
+	{
+		return this.range2TextInternal(aRange, true);
+	},
+ 
+	range2TextInternal : function(aRange, aLazy) 
+	{
 		var doc = aRange.startContainer;
 		if (doc.ownerDocument) doc = doc.ownerDocument;
 
@@ -82,7 +92,7 @@ pXMigemoTextUtils.prototype = {
 		var nodeRange = doc.createRange();
 
 		try {
-			var iterateNext = this.getExceptionsIterator(doc, aRange.commonAncestorContainer);
+			var iterateNext = this.getExceptionsIterator(doc, aRange.commonAncestorContainer, aLazy);
 			var node;
 			while (node = iterateNext())
 			{
@@ -118,9 +128,9 @@ pXMigemoTextUtils.prototype = {
 		return result.join('');
 	},
 	
-	getExceptionsIterator : function(aDocument, aStartNode) 
+	getExceptionsIterator : function(aDocument, aStartNode, aLazy) 
 	{
-		if (Prefs.getBoolPref('xulmigemo.ignoreAnyInvisibleNode')) {
+		if (!aLazy) {
 			var walker = aDocument.createTreeWalker(
 					aStartNode,
 					Ci.nsIDOMNodeFilter.SHOW_ELEMENT,
