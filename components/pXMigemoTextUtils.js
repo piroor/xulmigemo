@@ -94,13 +94,17 @@ pXMigemoTextUtils.prototype = {
 		try {
 			var iterateNext = this.getExceptionsIterator(doc, aRange.commonAncestorContainer, aLazy);
 			var node;
+			var found = false;
 			while (node = iterateNext())
 			{
 				nodeRange.selectNode(node);
 				if (aRange.compareBoundaryPoints(aRange.START_TO_START, nodeRange) == 1 ||
-					nodeRange.compareBoundaryPoints(aRange.END_TO_END, aRange) == 1)
-					continue;
-
+					nodeRange.compareBoundaryPoints(aRange.END_TO_END, aRange) == 1) {
+					if (!found)
+						continue;
+					else
+						break;
+				}
 				textRange.setEndBefore(node);
 				result.push(textRange.toString());
 				switch (node.localName.toLowerCase())
@@ -114,6 +118,7 @@ pXMigemoTextUtils.prototype = {
 				textRange.selectNode(node);
 				textRange.collapse(false);
 				//textRange.setStartAfter(node);Ç»Ç∫Ç©ÉGÉâÅ[Ç™èoÇÈ
+				found = true;
 			}
 		}
 		catch(e) {
