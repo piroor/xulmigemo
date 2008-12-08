@@ -118,7 +118,6 @@ pXMigemoTextUtils.prototype = {
 					null
 				);
 			var node;
-			var nodeValue;
 			var found = false;
 			var selCon = aLazy ? null : this.getSelectionController(doc.defaultView) ;
 			while (node = nodes.iterateNext())
@@ -134,9 +133,8 @@ pXMigemoTextUtils.prototype = {
 				textRange.setEndBefore(node);
 				result.push(textRange.toString());
 				if (node.nodeType == node.TEXT_NODE) {
-					nodeValue = node.nodeValue;
-					if (selCon.checkVisibility(node, 0, nodeValue.length))
-						result.push(nodeValue);
+					if (selCon.checkVisibility(node, 0, 0))
+						result.push(node.nodeValue);
 				}
 				else {
 					switch (node.localName.toLowerCase())
