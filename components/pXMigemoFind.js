@@ -366,7 +366,7 @@ mydump("findInDocument ==========================================");
 				this.lastFoundWord = this.foundRange.toString();
 				doc = this.foundRange.commonAncestorContainer.parentNode.ownerDocument;
 				if (rangeFindResult.flag & this.FOUND_IN_EDITABLE) {
-					doc.foundEditable = this.getParentEditableFromRange(this.foundRange);
+					doc.foundEditable = rangeFindResult.foundEditable;
 					doc.lastFoundEditable = doc.foundEditable;
 				}
 				else {
@@ -429,8 +429,10 @@ mydump("findInDocument ==========================================");
 	{
 mydump("findInRange");
 		var result = {
-				flag  : this.NOTFOUND,
-				range : null
+				flag          : this.NOTFOUND,
+				range         : null,
+				foundEditable : null,
+				foundLink     : null
 			};
 		if (!aTerm) {
 			return result;
@@ -445,10 +447,10 @@ mydump("findInRange");
 
 		result.flag = this.FOUND;
 
-		if (this.getParentEditableFromRange(result.range)) {
+		if (result.foundEditable = this.getParentEditableFromRange(result.range)) {
 			result.flag |= this.FOUND_IN_EDITABLE;
 		}
-		if (this.findLinkFromRange(result.range)) {
+		if (result.foundLink = this.findLinkFromRange(result.range)) {
 			result.flag |= this.FOUND_IN_LINK;
 		}
 
@@ -582,15 +584,12 @@ mydump("count:"+count);
 				String(aRangeParent.localName).toLowerCase() != 'body' ||
 				!this.startFromViewport
 				) {
-				findRange.selectNodeContents(aRangeParent);
 				if (aFindFlag & this.FIND_BACK) {
-					startPt.setStart(aRangeParent, childCount);
-					startPt.setEnd(aRangeParent, childCount);
+					startPt.collapse(false);
 					endPt.collapse(true);
 				}
 				else {
-					startPt.setStart(aRangeParent, 0);
-					startPt.setEnd(aRangeParent, 0);
+					startPt.collapse(true);
 					endPt.collapse(false);
 				}
 			}
