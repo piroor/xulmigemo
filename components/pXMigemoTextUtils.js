@@ -5,7 +5,25 @@ var Ci = Components.interfaces;
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
-function pXMigemoTextUtils() {} 
+function pXMigemoTextUtils() { 
+
+	var excludeNodesCondition = 'contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " "))';
+	this._lazyExceptionsExpression = [
+			'descendant::*[',
+				excludeNodesCondition,
+				' or ',
+				'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
+			']'
+		].join('');
+	this._exceptionsExpression = this._lazyExceptionsExpression + ' | '+[
+			'descendant::text()[',
+				'normalize-space()',
+				' and ',
+				'not(ancestor::*['+excludeNodesCondition+'])',
+			']'
+		].join('');
+
+}
 
 pXMigemoTextUtils.prototype = {
 	get contractID() {
@@ -65,7 +83,7 @@ pXMigemoTextUtils.prototype = {
 		return this.range2TextInternal(aRange, false);
 	},
  
-	laxyRange2Text : function(aRange) 
+	lazyRange2Text : function(aRange) 
 	{
 		return this.range2TextInternal(aRange, true);
 	},
@@ -92,10 +110,18 @@ pXMigemoTextUtils.prototype = {
 		var nodeRange = doc.createRange();
 
 		try {
-			var iterateNext = this.getExceptionsIterator(doc, aRange.commonAncestorContainer, aLazy);
+			var nodes = doc.evaluate(
+					(aLazy ? this._lazyExceptionsExpression : this._exceptionsExpression ),
+					aRange.commonAncestorContainer,
+					null,
+					Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE,
+					null
+				);
 			var node;
+			var nodeValue;
 			var found = false;
-			while (node = iterateNext())
+			var selCon = aLazy ? null : this.getSelectionController(doc.defaultView) ;
+			while (node = nodes.iterateNext())
 			{
 				nodeRange.selectNode(node);
 				if (aRange.compareBoundaryPoints(aRange.START_TO_START, nodeRange) == 1 ||
@@ -107,13 +133,21 @@ pXMigemoTextUtils.prototype = {
 				}
 				textRange.setEndBefore(node);
 				result.push(textRange.toString());
-				switch (node.localName.toLowerCase())
-				{
-					case 'textarea':
-					case 'input':
-						result.push(node.value);
-					default:
-						break;
+				if (node.nodeType == node.TEXT_NODE) {
+					nodeValue = node.nodeValue;
+					if (selCon.checkVisibility(node, 0, nodeValue.length))
+						result.push(nodeValue);
+				}
+				else {
+					switch (node.localName.toLowerCase())
+					{
+						case 'textarea':
+						case 'input':
+						case 'textbox':
+							result.push(node.value);
+						default:
+							break;
+					}
 				}
 				textRange.selectNode(node);
 				textRange.collapse(false);
@@ -132,68 +166,7 @@ pXMigemoTextUtils.prototype = {
 
 		return result.join('');
 	},
-	
-	getExceptionsIterator : function(aDocument, aStartNode, aLazy) 
-	{
-		if (!aLazy) {
-			var walker = aDocument.createTreeWalker(
-					aStartNode,
-					Ci.nsIDOMNodeFilter.SHOW_ELEMENT,
-					this.exceptionsFilter,
-					false
-				);
-			return function() {
-				var nextNode = walker.nextNode();
-				if (nextNode) walker.currentNode = nextNode;
-				return nextNode;
-			};
-		}
-		else {
-			var nodes = aDocument.evaluate(
-					[
-						'descendant::*[',
-							'contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " ")) or ',
-							'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
-						']'
-					].join(''),
-					aStartNode,
-					null,
-					Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE,
-					null
-				);
-			return function() { return nodes.iterateNext(); };
-		}
-	},
-	
-	exceptionsFilter : { 
-		kSKIP   : Ci.nsIDOMNodeFilter.FILTER_SKIP,
-		kACCEPT : Ci.nsIDOMNodeFilter.FILTER_ACCEPT,
-		acceptNode : function(aNode)
-		{
-			if (!aNode.offsetWidth &&
-				!aNode.offsetHeight &&
-				!aNode.offsetLeft &&
-				!aNode.offsetTop) {
-				return this.kACCEPT;
-			}
-			switch (aNode.localName.toLowerCase())
-			{
-				case 'script':
-				case 'textarea':
-					return this.kACCEPT;
-				case 'input':
-					switch (aNode.getAttribute('type').toLowerCase())
-					{
-						case 'text':
-						case 'file':
-							return this.kACCEPT;
-					}
-					break;
-			}
-			return this.kSKIP;
-		}
-	},
-    
+  
 /* manipulate regular expressions */ 
 	
 	sanitize : function(str) 
