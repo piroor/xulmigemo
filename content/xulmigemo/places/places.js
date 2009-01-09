@@ -560,7 +560,7 @@ var XMigemoPlaces = {
 		if (!statement || aSQL != this.getSourceInRangeLastSQL) {
 			this.getSourceInRangeLastStatement = null;
 			this.getSourceInRangeLastSQL = aSQL;
-			if (statement) statement.finalize();
+			if (statement && 'finalize' in statement) statement.finalize();
 			try {
 				statement = this.db.createStatement(aSQL);
 				this.getSourceInRangeLastStatement = statement;
@@ -855,7 +855,8 @@ var XMigemoPlaces = {
 		window.removeEventListener('unload', this, false);
 		XMigemoService.removePrefListener(this);
 
-		if (this.getSourceInRangeLastStatement) {
+		if (this.getSourceInRangeLastStatement &&
+			'finalize' in this.getSourceInRangeLastStatement) {
 			this.getSourceInRangeLastStatement.finalize();
 		}
 	}

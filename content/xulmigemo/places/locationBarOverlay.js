@@ -593,7 +593,7 @@ var XMigemoLocationBarOverlay = {
 		if (!statement || sql != this.findItemsFromTermsLastSQL) {
 			this.findItemsFromTermsLastStatement = null;
 			this.findItemsFromTermsLastSQL = sql;
-			if (statement) statement.finalize();
+			if (statement && 'finalize' in statement) statement.finalize();
 			try {
 				statement = XMigemoPlaces.db.createStatement(sql);
 				this.findItemsFromTermsLastStatement = statement;
@@ -844,7 +844,8 @@ var XMigemoLocationBarOverlay = {
 		window.removeEventListener('unload', this, false);
 		this.destroyLocationBar();
 		XMigemoService.removePrefListener(this);
-		if (this.findItemsFromTermsLastStatement) {
+		if (this.findItemsFromTermsLastStatement &&
+			'finalize' in this.findItemsFromTermsLastStatements) {
 			this.findItemsFromTermsLastStatement.finalize();
 		}
 	},
