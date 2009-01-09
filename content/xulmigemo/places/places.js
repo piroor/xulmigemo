@@ -200,8 +200,10 @@ var XMigemoPlaces = {
 						this.insertTaggedCondition(
 							sql,
 							aFindFlag
-						)
-					)
+						),
+						aFindFlag
+					),
+					aFindFlag
 				);
 		return sql;
 	},
@@ -239,8 +241,10 @@ var XMigemoPlaces = {
 						this.insertTaggedCondition(
 							sql,
 							aFindFlag
-						)
-					)
+						),
+						aFindFlag
+					),
+					aFindFlag
 				);
 		return sql;
 	},
@@ -283,8 +287,10 @@ var XMigemoPlaces = {
 						this.insertTaggedCondition(
 							sql,
 							aFindFlag
-						)
-					)
+						),
+						aFindFlag
+					),
+					aFindFlag
 				);
 		return sql;
 	},
