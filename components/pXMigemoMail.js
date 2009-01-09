@@ -90,8 +90,7 @@ pXMigemoMail.prototype = {
 	{
 //dump('pIXMigemoMail::loadSummaryCache('+aFolder.URI+')\n');
 
-		var statement = this.summariesDB.createStatement(
-				'SELECT * FROM '+this.kTABLE+' WHERE '+this.kKEY+' = ?1');
+		var statement = this.loadSummaryCacheStatement;
 		statement.bindStringParameter(0, aFolder.URI);
 		try {
 			statement.executeStep();
@@ -112,12 +111,20 @@ pXMigemoMail.prototype = {
 		}
 		statement.reset();
 	},
+	get loadSummaryCacheStatement()
+	{
+		if (!this._loadSummaryCacheStatement) {
+			this._loadSummaryCacheStatement = this.summariesDB.createStatement(
+				'SELECT * FROM '+this.kTABLE+' WHERE '+this.kKEY+' = ?1'
+			);
+		}
+		return this._loadSummaryCacheStatement;
+	},
+	_loadSummaryCacheStatement : null,
  
 	saveSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc, aBodies) 
 	{
-		var statement = this.summariesDB.createStatement(
-				'INSERT OR REPLACE INTO '+this.kTABLE+
-				' VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)');
+		var statement = this.saveSummaryCacheStatement;
 		statement.bindStringParameter(this.kKEY_INDEX, aFolder.URI);
 		statement.bindStringParameter(this.kID_INDEX, aIds);
 		statement.bindStringParameter(this.kAUTHOR_INDEX, aAuthors);
@@ -136,13 +143,23 @@ pXMigemoMail.prototype = {
 
 //dump('pIXMigemoMail::saveSummaryCache('+aFolder.URI+')\n');
 	},
+	get saveSummaryCacheStatement()
+	{
+		if (!this._saveSummaryCacheStatement) {
+			this._saveSummaryCacheStatement = this.summariesDB.createStatement(
+				'INSERT OR REPLACE INTO '+this.kTABLE+
+				' VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)'
+			);
+		}
+		return this._saveSummaryCacheStatement;
+	},
+	_saveSummaryCacheStatement : null,
  
 	clearSummaryCache : function(aFolder) 
 	{
 //dump('pIXMigemoMail::clearSummaryCache('+aFolder.URI+')\n');
 
-		var statement = this.summariesDB.createStatement(
-				'DELETE FROM '+this.kTABLE+' WHERE '+this.kKEY+' = ?1');
+		var statement = this.clearSummaryCacheStatement;
 		statement.bindStringParameter(0, aFolder.URI);
 		try {
 			statement.executeStep();
@@ -151,6 +168,16 @@ pXMigemoMail.prototype = {
 		}
 		statement.reset();
 	},
+	get clearSummaryCacheStatement()
+	{
+		if (!this._clearSummaryCacheStatement) {
+			this._clearSummaryCacheStatement = this.summariesDB.createStatement(
+				'DELETE FROM '+this.kTABLE+' WHERE '+this.kKEY+' = ?1'
+			);
+		}
+		return this._clearSummaryCacheStatement;
+	},
+	_clearSummaryCacheStatement : null,
  
 	refreshSummaryCache : function(aFolder) 
 	{
@@ -330,6 +357,10 @@ pXMigemoMail.prototype = {
 
 		ObserverService.removeObserver(this, 'quit-application');
 		ObserverService.removeObserver(this, 'XMigemo:compactFolderRequested');
+
+		this.loadSummaryCacheStatement.finalize();
+		this.saveSummaryCacheStatement.finalize();
+		this.clearSummaryCacheStatement.finalize();
 
 		for (var i in this.summaries)
 		{

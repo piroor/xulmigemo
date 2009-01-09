@@ -491,7 +491,7 @@ var XMigemoPlaces = {
 				'%ONLY_TYPED%',
 				(
 					this.filterTyped || // Firefox 3.0.x
-					(aFindFlag & this.kSOURCE_TYPED) : // Firefox 3.1 or later
+					(aFindFlag & this.kSOURCE_TYPED) // Firefox 3.1 or later
 				) ?
 					'AND p.typed = 1' :
 					''
@@ -551,13 +551,20 @@ var XMigemoPlaces = {
 		aRange = Math.max(0, aRange);
 		if (!aRange) return '';
 
-		var statement;
-		try {
-			statement = this.db.createStatement(aSQL);
-		}
-		catch(e) {
-			dump(e+'\n'+aSQL+'\n');
-			throw e;
+		var statement = this.getSourceInRangeLastStatement;
+		if (!statement || aSQL != this.getSourceInRangeLastSQL) {
+			this.getSourceInRangeLastStatement = null;
+			this.getSourceInRangeLastSQL = aSQL;
+			if (statement) statement.finalize();
+			try {
+				statement = this.db.createStatement(aSQL);
+				this.getSourceInRangeLastStatement = statement;
+			}
+			catch(e) {
+				this.getSourceInRangeLastSQL = null;
+				dump(e+'\n'+aSQL+'\n');
+				throw e;
+			}
 		}
 		statement.bindStringParameter(0, '\n');
 		statement.bindDoubleParameter(1, aStart);
@@ -580,6 +587,8 @@ var XMigemoPlaces = {
 		statement.reset();
 		return this.TextUtils.trim(sources || '');
 	},
+	getSourceInRangeLastStatement : null,
+	getSourceInRangeLastSQL : null,
 	
 	get db() 
 	{
@@ -840,6 +849,10 @@ var XMigemoPlaces = {
 	{
 		window.removeEventListener('unload', this, false);
 		XMigemoService.removePrefListener(this);
+
+		if (this.getSourceInRangeLastStatement) {
+			this.getSourceInRangeLastStatement.finalize();
+		}
 	}
    
 }; 
