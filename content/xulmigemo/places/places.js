@@ -805,6 +805,7 @@ var XMigemoPlaces = {
 		browser.urlbar.restrict.history
 		browser.urlbar.restrict.bookmark
 		browser.urlbar.restrict.tag
+		browser.urlbar.restrict.typed
 		browser.urlbar.match.title
 		browser.urlbar.match.url
 		browser.urlbar.matchOnlyTyped
