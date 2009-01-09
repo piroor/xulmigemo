@@ -7,6 +7,7 @@ var XMigemoPlaces = {
 	filterJavaScript : true,
 	filterTyped : false,
 	matchBehavior : 1,
+	defaultBehavior : 0,
 	searchSources : 3,
  
 	TextUtils : Components 
@@ -28,13 +29,13 @@ var XMigemoPlaces = {
  
 /* SQL */ 
 	 
-	kSOURCE_HISTORY   : 1, 
+	kSOURCE_NONE      : 1024, 
+	kSOURCE_HISTORY   : 1,
 	kSOURCE_BOOKMARKS : 2,
 	kSOURCE_TAGGED    : 4,
-	kSOURCE_TYPED     : 8,
-	kSOURCE_NONE      : 16,
-	kFIND_TITLE : 128,
-	kFIND_URI   : 256,
+	kSOURCE_TYPED     : 32,
+	kFIND_TITLE       : 8,
+	kFIND_URI         : 16,
 
 	findHistoryKey   : null,
 	findBookmarksKey : null,
@@ -49,7 +50,7 @@ var XMigemoPlaces = {
 	{
 		if (!aNewInput) aNewInput = {};
 		var keys = this.extractFindKeysFromInput(aInput, aNewInput);
-		var sourcesFlag = 0;
+		var sourcesFlag = this.defaultBehavior;
 
 		if (this.searchSources == 0) {
 			sourcesFlag |= this.kSOURCE_NONE;
@@ -777,6 +778,10 @@ var XMigemoPlaces = {
 				this.matchBehavior = value;
 				return;
 
+			case 'browser.urlbar.default.behavior':
+				this.defaultBehavior = value || 0;
+				return;
+
 			case 'browser.urlbar.search.sources':
 				this.searchSources = (value === null) ? 3 : value ;
 				return;
@@ -804,6 +809,7 @@ var XMigemoPlaces = {
 		browser.urlbar.match.url
 		browser.urlbar.matchOnlyTyped
 		browser.urlbar.matchBehavior
+		browser.urlbar.default.behavior
 		browser.urlbar.search.sources
 	]]>.toString(),
  
