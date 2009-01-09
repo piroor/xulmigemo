@@ -52,14 +52,19 @@ var XMigemoPlaces = {
 		var keys = this.extractFindKeysFromInput(aInput, aNewInput);
 		var sourcesFlag = this.defaultBehavior;
 
-		if (this.searchSources == 0) {
-			sourcesFlag |= this.kSOURCE_NONE;
-		}
-		else {
-			if (this.searchSources & this.kSOURCE_HISTORY)
+		switch (this.searchSources)
+		{
+			case 0:
+				sourcesFlag |= this.kSOURCE_NONE;
+				break;
+			case this.kSOURCE_HISTORY:
 				sourcesFlag |= this.kSOURCE_HISTORY;
-			if (this.searchSources & this.kSOURCE_BOOKMARKS)
+				break;
+			case this.kSOURCE_BOOKMARKS:
 				sourcesFlag |= this.kSOURCE_BOOKMARKS;
+				break;
+			default:
+				break;
 		}
 
 		if (!keys.length) return sourcesFlag;
