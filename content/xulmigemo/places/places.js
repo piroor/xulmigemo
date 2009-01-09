@@ -31,13 +31,15 @@ var XMigemoPlaces = {
 	kSOURCE_HISTORY   : 1, 
 	kSOURCE_BOOKMARKS : 2,
 	kSOURCE_TAGGED    : 4,
-	kSOURCE_NONE      : 8,
+	kSOURCE_TYPED     : 8,
+	kSOURCE_NONE      : 16,
 	kFIND_TITLE : 128,
 	kFIND_URI   : 256,
 
 	findHistoryKey   : null,
 	findBookmarksKey : null,
 	findTaggedKey    : null,
+	findTypedKey     : null,
 	findTitleKey     : null,
 	findURIKey       : null,
 	findKeyRegExp    : null,
@@ -72,6 +74,9 @@ var XMigemoPlaces = {
 		if (this.findTaggedKey === '' ||
 			(this.findTaggedKey && keys.indexOf(this.findTaggedKey) > -1))
 			flag |= this.kSOURCE_TAGGED;
+		if (this.findTypedKey === '' ||
+			(this.findTypedKey && keys.indexOf(this.findTypedKey) > -1))
+			flag |= this.kSOURCE_TYPED;
 
 		if (!flag) flag |= sourcesFlag;
 
@@ -110,6 +115,7 @@ var XMigemoPlaces = {
 		if (this.findHistoryKey) keys.push(this.findHistoryKey);
 		if (this.findBookmarksKey) keys.push(this.findBookmarksKey);
 		if (this.findTaggedKey) keys.push(this.findTaggedKey);
+		if (this.findTypedKey) keys.push(this.findTypedKey);
 		if (this.findTitleKey) keys.push(this.findTitleKey);
 		if (this.findURIKey) keys.push(this.findURIKey);
 
@@ -324,8 +330,10 @@ var XMigemoPlaces = {
 						this.insertTaggedCondition(
 							sql,
 							aFindFlag
-						)
-					)
+						),
+						aFindFlag
+					),
+					aFindFlag
 				);
 		return sql;
 	},
@@ -460,7 +468,7 @@ var XMigemoPlaces = {
 		         LIMIT ?2,?3)
 	]]>.toString(),
    
-	insertJavaScriptCondition : function(aSQL) 
+	insertJavaScriptCondition : function(aSQL, aFindFlag) 
 	{
 		return aSQL.replace(
 				'%EXCLUDE_JAVASCRIPT%',
@@ -470,11 +478,14 @@ var XMigemoPlaces = {
 			);
 	},
  
-	insertTypedCondition : function(aSQL) 
+	insertTypedCondition : function(aSQL, aFindFlag) 
 	{
 		return aSQL.replace(
 				'%ONLY_TYPED%',
-				this.filterTyped ?
+				(this.filterTyped === null ?
+					(aFindFlag & this.kSOURCE_TYPED) : // Firefox 3.1 or later
+					this.filterTyped // Firefox 3.0.x
+				) ?
 					'AND p.typed = 1' :
 					''
 			);
@@ -736,6 +747,10 @@ var XMigemoPlaces = {
 				return;
 			case 'browser.urlbar.restrict.tag':
 				this.findTaggedKey = value;
+				this.updateFindKeyRegExp();
+				return;
+			case 'browser.urlbar.restrict.typed':
+				this.findTypedKey = value;
 				this.updateFindKeyRegExp();
 				return;
 
