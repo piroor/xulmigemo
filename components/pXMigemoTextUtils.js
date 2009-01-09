@@ -270,7 +270,7 @@ pXMigemoTextUtils.prototype = {
 					statement.reset();
 				}
 			});
-			statement.finalize();
+			if ('finalize' in statement) statement.finalize();
 
 	/*
 		SELECT GROUP_CONCAT(
@@ -325,7 +325,7 @@ pXMigemoTextUtils.prototype = {
 			}
 			finally {
 				statement.reset();
-				statement.finalize();
+				if ('finalize' in statement) statement.finalize();
 			}
 		}
 		finally {
