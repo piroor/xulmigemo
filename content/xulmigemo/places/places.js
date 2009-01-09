@@ -482,9 +482,9 @@ var XMigemoPlaces = {
 	{
 		return aSQL.replace(
 				'%ONLY_TYPED%',
-				(this.filterTyped === null ?
+				(
+					this.filterTyped || // Firefox 3.0.x
 					(aFindFlag & this.kSOURCE_TYPED) : // Firefox 3.1 or later
-					this.filterTyped // Firefox 3.0.x
 				) ?
 					'AND p.typed = 1' :
 					''
