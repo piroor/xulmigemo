@@ -260,8 +260,8 @@ pXMigemoTextUtils.prototype = {
 
 		try {
 			var self = this;
+			var statement = this.db.createStatement('INSERT INTO '+tableName+' (term) VALUES (?1)');
 			aTerms.forEach(function(aTerm, aIndex) {
-				var statement = self.db.createStatement('INSERT INTO '+tableName+' (term) VALUES (?1)');
 				try {
 					statement.bindStringParameter(0, aTerm);
 					while (statement.executeStep()) {};
@@ -270,6 +270,8 @@ pXMigemoTextUtils.prototype = {
 					statement.reset();
 				}
 			});
+			statement.finalize();
+
 	/*
 		SELECT GROUP_CONCAT(
 		         '(?:' || term0 || ').*(?:' ||
@@ -292,7 +294,7 @@ pXMigemoTextUtils.prototype = {
 					return 'term'+aIndex;
 				});
 
-			var statement = this.db.createStatement(
+			statement = this.db.createStatement(
 					'SELECT GROUP_CONCAT("(?:" || '+
 						fieldNames.join(' || ").*(?:" || ')+
 						' || ")", "|") '+
@@ -323,6 +325,7 @@ pXMigemoTextUtils.prototype = {
 			}
 			finally {
 				statement.reset();
+				statement.finalize();
 			}
 		}
 		finally {

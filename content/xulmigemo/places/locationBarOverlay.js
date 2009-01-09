@@ -589,13 +589,20 @@ var XMigemoLocationBarOverlay = {
 			sql = sql.replace('%SOURCES_LIMIT_PART%', '');
 		}
 
-		var statement;
-		try {
-			statement = XMigemoPlaces.db.createStatement(sql);
-		}
-		catch(e) {
-			dump(e+'\n'+sql+'\n');
-			return items;
+		var statement = this.findItemsFromTermsLastStatement;
+		if (!statement || sql != this.findItemsFromTermsLastSQL) {
+			this.findItemsFromTermsLastStatement = null;
+			this.findItemsFromTermsLastSQL = sql;
+			if (statement) statement.finalize();
+			try {
+				statement = XMigemoPlaces.db.createStatement(sql);
+				this.findItemsFromTermsLastStatement = statement;
+			}
+			catch(e) {
+				this.findItemsFromTermsLastSQL = null;
+				dump(e+'\n'+sql+'\n');
+				return items;
+			}
 		}
 		try {
 			bindings.forEach(function(aValue, aIndex) {
@@ -676,6 +683,8 @@ var XMigemoLocationBarOverlay = {
 		}
 		return items;
 	},
+	findItemsFromTermsLastStatement : null,
+	findItemsFromTermsLastSQL : null,
  
 	progressiveBuild : function() 
 	{
@@ -835,6 +844,9 @@ var XMigemoLocationBarOverlay = {
 		window.removeEventListener('unload', this, false);
 		this.destroyLocationBar();
 		XMigemoService.removePrefListener(this);
+		if (this.findItemsFromTermsLastStatement) {
+			this.findItemsFromTermsLastStatement.finalize();
+		}
 	},
 	
 	destroyLocationBar : function() 
