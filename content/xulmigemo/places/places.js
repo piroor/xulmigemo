@@ -8,7 +8,6 @@ var XMigemoPlaces = {
 	filterTyped : false,
 	matchBehavior : 1,
 	defaultBehavior : 0,
-	searchSources : 3,
  
 	TextUtils : Components 
 			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
@@ -51,21 +50,6 @@ var XMigemoPlaces = {
 		if (!aNewInput) aNewInput = {};
 		var keys = this.extractFindKeysFromInput(aInput, aNewInput);
 		var sourcesFlag = this.defaultBehavior;
-
-		switch (this.searchSources)
-		{
-			case 0:
-				sourcesFlag |= this.kSOURCE_NONE;
-				break;
-			case this.kSOURCE_HISTORY:
-				sourcesFlag |= this.kSOURCE_HISTORY;
-				break;
-			case this.kSOURCE_BOOKMARKS:
-				sourcesFlag |= this.kSOURCE_BOOKMARKS;
-				break;
-			default:
-				break;
-		}
 
 		if (!keys.length) return sourcesFlag;
 
@@ -796,10 +780,6 @@ var XMigemoPlaces = {
 				this.defaultBehavior = value || 0;
 				return;
 
-			case 'browser.urlbar.search.sources':
-				this.searchSources = (value === null) ? 3 : value ;
-				return;
-
 			default:
 				return;
 		}
@@ -825,7 +805,6 @@ var XMigemoPlaces = {
 		browser.urlbar.matchOnlyTyped
 		browser.urlbar.matchBehavior
 		browser.urlbar.default.behavior
-		browser.urlbar.search.sources
 	]]>.toString(),
  
 	handleEvent : function(aEvent) 
