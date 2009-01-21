@@ -238,7 +238,11 @@ var XMigemoLocationBarOverlay = {
 		switch (aPrefName)
 		{
 			case 'xulmigemo.places.locationBar':
-				this.enabled = value;
+			case 'browser.urlbar.autocomplete.enabled':
+				var migemoEnabled = XMigemoService.getPref('xulmigemo.places.locationBar');
+				var findEnabled = XMigemoService.getPref('browser.urlbar.autocomplete.enabled');
+				if (findEnabled === null) findEnabled = true;
+				this.enabled = migemoEnabled && findEnabled;
 				return;
 
 			case 'xulmigemo.places.locationBar.delay':
@@ -254,12 +258,14 @@ var XMigemoLocationBarOverlay = {
 		}
 	},
 	domains : [
-		'xulmigemo.places.locationBar'
+		'xulmigemo.places.locationBar',
+		'browser.urlbar.autocomplete.enabled'
 	],
 	preferences : <![CDATA[
 		xulmigemo.places.locationBar
 		xulmigemo.places.locationBar.delay
 		xulmigemo.places.locationBar.useThread
+		browser.urlbar.autocomplete.enabled
 	]]>.toString(),
  
 	handleEvent : function(aEvent) 
