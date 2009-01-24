@@ -20,6 +20,22 @@ function fireClickEventOn(aNode, aButton) {
 	yield 1500;
 }
 
+function getTabs(aTabBrowser) {
+	var tabs = aTabBrowser.ownerDocument.evaluate(
+			'descendant::*[local-name()="tab"]',
+			aTabBrowser.mTabContainer,
+			null,
+			XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+			null
+		);
+	var array = [];
+	for (var i = 0, maxi = tabs.snapshotLength; i < maxi)
+	{
+		array.push(tabs.snapshotItem(i));
+	}
+	return array;
+}
+
 function setUp()
 {
 	yield Do(commonSetUp(keyEventTest));
@@ -54,10 +70,10 @@ function testClickOnScreen()
 	yield wait;
 
 	var link = content.document.getElementsByTagName('a')[0];
-	var tabNum = browser.mTabContainer.childNodes.length;
+	var tabNum = getTabs(browser).length;
 	yield Do(fireClickEventOn(link, 1));
 	assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
-	assert.equals(tabNum+1, browser.mTabContainer.childNodes.length);
+	assert.equals(tabNum+1, getTabs(browser).length);
 
 	yield Do(fireClickEventOn(link, 0));
 	assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
