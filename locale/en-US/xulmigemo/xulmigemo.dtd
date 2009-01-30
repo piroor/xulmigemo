@@ -93,6 +93,15 @@
 <!ENTITY config.cache.update.time.now   "Update Cache Now">
 
 
+<!ENTITY config.tab.openAgain             "Mode Circulation">
+
+<!ENTITY config.shortcut.openAgain.caption "When Ctrl(Command)-F is pressed while finding:">
+<!ENTITY config.shortcut.openAgain.none    "Do nothing (Firefox Default)">
+<!ENTITY config.shortcut.openAgain.switch  "Normal =&gt; RegExp =&gt; Migemo =&gt; Normal...">
+<!ENTITY config.shortcut.openAgain.circulate "Normal =&gt; RegExp =&gt; Migemo =&gt; Exit =&gt; Normal...">
+<!ENTITY config.shortcut.openAgain.toggle  "Find =&gt; Exit =&gt; Find...">
+
+
 <!ENTITY config.tab.shortcut            "Shortcut">
 
 <!ENTITY config.shortcut.findForward    "Find Next">
@@ -102,10 +111,6 @@
 <!ENTITY config.shortcut.manualStartLinksOnly2 "(find only links)">
 <!ENTITY config.shortcut.manualExit     "Exit Quick Migemo Find">
 <!ENTITY config.shortcut.goDicManager   "Show Dictionary Manager">
-<!ENTITY config.shortcut.openAgain.caption "When Ctrl(Command)-F is pressed while finding:">
-<!ENTITY config.shortcut.openAgain.none    "Do nothing (Firefox Default)">
-<!ENTITY config.shortcut.openAgain.switch  "Switch Find Mode">
-<!ENTITY config.shortcut.openAgain.toggle  "Exit Find">
 
 <!ENTITY config.shortcut.set            "Set">
 <!ENTITY config.shortcut.clear          "Clear">
