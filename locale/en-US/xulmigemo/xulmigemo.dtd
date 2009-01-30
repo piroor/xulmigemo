@@ -97,9 +97,9 @@
 
 <!ENTITY config.shortcut.openAgain.caption "When Ctrl(Command)-F is pressed while finding,">
 <!ENTITY config.shortcut.openAgain.0 "Do nothing (Firefox Default)">
-<!ENTITY config.shortcut.openAgain.1 "Circulate [Normal] =&gt; [RegExp] =&gt; [Migemo] =&gt; [Normal]...">
-<!ENTITY config.shortcut.openAgain.2 "Circulate Start Find =&gt; Exit Find =&gt; Start Find...">
-<!ENTITY config.shortcut.openAgain.3 "Circulate [Normal] =&gt; [RegExp] =&gt; [Migemo] =&gt; Exit =&gt; [Normal]...">
+<!ENTITY config.shortcut.openAgain.1 "Circulate [Normal] =&gt; [RegExp] =&gt; [Migemo] =&gt; [Normal] =&gt;...">
+<!ENTITY config.shortcut.openAgain.2 "Circulate Start Find =&gt; Exit Find =&gt; Start Find =&gt;...">
+<!ENTITY config.shortcut.openAgain.3 "Circulate [Normal] =&gt; [RegExp] =&gt; [Migemo] =&gt; Exit =&gt; [Normal] =&gt;...">
 
 <!ENTITY config.shortcut.findForward    "Find Next">
 <!ENTITY config.shortcut.findBackward   "Find Backward">
