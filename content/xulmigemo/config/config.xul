@@ -325,28 +325,12 @@
 </prefpane>
 
 
-<prefpane id="prefpane-openAgain" label="&config.tab.openAgain;" flex="1">
+<prefpane id="prefpane-shortcut" label="&config.tab.shortcut;" flex="1"
+	onpaneload="initShortcutPane();">
 	<preferences>
 		<preference id="xulmigemo.shortcut.openAgain"
 			name="xulmigemo.shortcut.openAgain"
 			type="int"/>
-	</preferences>
-	<groupbox>
-		<caption label="&config.shortcut.openAgain.caption;"/>
-		<radiogroup id="xulmigemo.shortcut.openAgain-radio"
-			preference="xulmigemo.shortcut.openAgain">
-			<radio label="&config.shortcut.openAgain.none;"   value="0"/>
-			<radio label="&config.shortcut.openAgain.switch;" value="1"/>
-			<radio label="&config.shortcut.openAgain.circulate;" value="3"/>
-			<radio label="&config.shortcut.openAgain.toggle;" value="2"/>
-		</radiogroup>
-	</groupbox>
-</prefpane>
-
-
-<prefpane id="prefpane-shortcut" label="&config.tab.shortcut;" flex="1"
-	onpaneload="initShortcutPane();">
-	<preferences>
 		<preference id="xulmigemo.shortcut.findForward"
 			name="xulmigemo.shortcut.findForward"
 			type="string"/>
@@ -373,6 +357,22 @@
 			type="string"/>
 	</preferences>
 
+	<vbox>
+		<label value="&config.shortcut.openAgain.caption;"
+			control="xulmigemo.shortcut.openAgain-menulist"/>
+		<hbox>
+			<spacer style="width:1em;"/>
+			<menulist id="xulmigemo.shortcut.openAgain-menulist"
+				preference="xulmigemo.shortcut.openAgain">
+				<menupopup>
+					<menuitem label="&config.shortcut.openAgain.0;" value="0"/>
+					<menuitem label="&config.shortcut.openAgain.1;" value="1"/>
+					<menuitem label="&config.shortcut.openAgain.3;" value="3"/>
+					<menuitem label="&config.shortcut.openAgain.2;" value="2"/>
+				</menupopup>
+			</menulist>
+		</hbox>
+	</vbox>
 	<hbox>
 		<spacer flex="1"/>
 		<grid>
