@@ -93,16 +93,13 @@
 <!ENTITY config.cache.update.time.now   "今すぐキャッシュを更新">
 
 
-<!ENTITY config.tab.openAgain             "モード切り替え">
-
-<!ENTITY config.shortcut.openAgain.caption "検索を実行中にもう一度Ctrl(Command)-Fを入力した時：">
-<!ENTITY config.shortcut.openAgain.none    "何もしない（Firefox既定の動作）">
-<!ENTITY config.shortcut.openAgain.switch  "通常検索→正規表現検索→Migemo検索→通常検索...">
-<!ENTITY config.shortcut.openAgain.circulate "通常検索→正規表現検索→Migemo検索→検索終了→通常検索...">
-<!ENTITY config.shortcut.openAgain.toggle  "検索開始→検索終了→検索開始...">
-
-
 <!ENTITY config.tab.shortcut            "ショートカット">
+
+<!ENTITY config.shortcut.openAgain.caption "検索を実行中にもう一度Ctrl(Command)-Fを入力した時は">
+<!ENTITY config.shortcut.openAgain.0 "何もしない（Firefox既定の動作）">
+<!ENTITY config.shortcut.openAgain.1 "[通常]→[正規表現]→[Migemo]→[通常]... と切り替える">
+<!ENTITY config.shortcut.openAgain.2 "検索開始→検索終了→検索開始... と切り替える">
+<!ENTITY config.shortcut.openAgain.3 "[通常]→[正規表現]→[Migemo]→検索終了→[通常]... と切り替える">
 
 <!ENTITY config.shortcut.findForward    "次を検索">
 <!ENTITY config.shortcut.findBackward   "前を検索">
