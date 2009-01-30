@@ -87,6 +87,17 @@ function testManualSwitch()
 	eval(findCommand);
 	yield wait;
 	assert.isTrue(XMigemoUI.hidden);
+
+	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
+	yield wait;
+	XMigemoUI.openAgainAction = XMigemoUI.ACTION_SWITCH_OR_CLOSE;
+	yield Do(assert.findCommand('FIND_MODE_NATIVE'));
+	yield Do(assert.findCommand('FIND_MODE_REGEXP'));
+	yield Do(assert.findCommand('FIND_MODE_MIGEMO'));
+	eval(findCommand);
+	yield wait;
+	assert.isTrue(XMigemoUI.hidden);
+	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 }
 
 testAutoSwitch.description = '検索モードの自動切り替え';
