@@ -97,9 +97,9 @@
 
 <!ENTITY config.shortcut.openAgain.caption "検索を実行中にもう一度Ctrl(Command)-Fを入力した時は">
 <!ENTITY config.shortcut.openAgain.0 "何もしない（Firefox既定の動作）">
-<!ENTITY config.shortcut.openAgain.1 "[通常]→[正規表現]→[Migemo]→[通常]... と切り替える">
-<!ENTITY config.shortcut.openAgain.2 "検索開始→検索終了→検索開始... と切り替える">
-<!ENTITY config.shortcut.openAgain.3 "[通常]→[正規表現]→[Migemo]→検索終了→[通常]... と切り替える">
+<!ENTITY config.shortcut.openAgain.1 "[通常]→[正規表現]→[Migemo]→[通常]→... と切り替える">
+<!ENTITY config.shortcut.openAgain.2 "検索開始→検索終了→検索開始→... と切り替える">
+<!ENTITY config.shortcut.openAgain.3 "[通常]→[正規表現]→[Migemo]→検索終了→[通常]→... と切り替える">
 
 <!ENTITY config.shortcut.findForward    "次を検索">
 <!ENTITY config.shortcut.findBackward   "前を検索">
