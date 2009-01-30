@@ -96,6 +96,7 @@ var XMigemoUI = {
 	ACTION_NONE     : 0,
 	ACTION_SWITCH   : 1,
 	ACTION_CLOSE    : 2,
+	ACTION_SWITCH_OR_CLOSE : 3,
  
 	shouldRebuildSelection : false, 
 	prefillWithSelection   : false,
@@ -1348,6 +1349,21 @@ var XMigemoUI = {
 				var items = selector.childNodes;
 				this.findMode = items[(selector.selectedIndex + 1) % (items.length)].value;
 				this.onChangeMode();
+				break;
+
+			case this.ACTION_SWITCH_OR_CLOSE:
+				var selector = this.findModeSelector;
+				var items = Array.slice(selector.childNodes);
+				items.push(-1);
+				target = items[(selector.selectedIndex + 1) % (items.length)];
+				if (target == -1) {
+					this.findMode = items[0].value;
+					gFindBar.closeFindBar();
+				}
+				else {
+					this.findMode = target.value;
+					this.onChangeMode();
+				}
 				break;
 
 			case this.ACTION_CLOSE:
