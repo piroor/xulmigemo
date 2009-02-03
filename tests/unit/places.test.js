@@ -1,24 +1,27 @@
 var orig = {};
 utils.include('../../content/xulmigemo/core.js', orig, 'Shift_JIS');
-utils.include('../../content/xulmigemo/places/places.js', orig, 'Shift_JIS');
+utils.include('../../content/xulmigemo/places/places.js', null, 'Shift_JIS');
 
 var XMigemoCore;
-var XMigemoPlaces;
+var service;
 
 function setUp()
 {
 	XMigemoCore = {};
 	XMigemoCore.__proto__ = orig.XMigemoCore;
 
-	XMigemoPlaces = {};
-	XMigemoPlaces.__proto__ = orig.XMigemoPlaces;
+	service = {};
+	service.__proto__ = XMigemoPlaces;
 
-	XMigemoPlaces.findHistoryKey = '^';
-	XMigemoPlaces.findBookmarksKey = '*';
-	XMigemoPlaces.findTaggedKey = '+';
-	XMigemoPlaces.findTitleKey = '@';
-	XMigemoPlaces.findURIKey = '#';
-	XMigemoPlaces.updateFindKeyRegExp();
+	service.findHistoryKey = '^';
+	service.findBookmarksKey = '*';
+	service.findTaggedKey = '+';
+	service.findTitleKey = '@';
+	service.findURIKey = '#';
+	service.updateFindKeyRegExp();
+
+	service.defaultBehavior = 0;
+	service.autoStartRegExpFind = true;
 }
 
 function tearDown()
@@ -27,40 +30,40 @@ function tearDown()
 
 function test_isValidInput()
 {
-	assert.isFalse(XMigemoPlaces.isValidInput('http://piro.sakura.ne.jp/'));
-	assert.isFalse(XMigemoPlaces.isValidInput('https://addons.mozilla.org/'));
-	assert.isFalse(XMigemoPlaces.isValidInput('i')); // too short input
-	assert.isTrue(XMigemoPlaces.isValidInput('/reg(ular)?exp(ression)?s?/'));
-	assert.isTrue(XMigemoPlaces.isValidInput('nihongo'));
-	assert.isTrue(XMigemoPlaces.isValidInput('nihongo eigo'));
+	assert.isFalse(service.isValidInput('http://piro.sakura.ne.jp/'));
+	assert.isFalse(service.isValidInput('https://addons.mozilla.org/'));
+	assert.isFalse(service.isValidInput('i')); // too short input
+	assert.isTrue(service.isValidInput('/reg(ular)?exp(ression)?s?/'));
+	assert.isTrue(service.isValidInput('nihongo'));
+	assert.isTrue(service.isValidInput('nihongo eigo'));
 }
 
 function test_updateFindKeyRegExp()
 {
-	XMigemoPlaces.updateFindKeyRegExp();
-	assert.isNotNull(XMigemoPlaces.findKeyRegExp);
+	service.updateFindKeyRegExp();
+	assert.isNotNull(service.findKeyRegExp);
 
-	assert.pattern('word + word word', XMigemoPlaces.findKeyRegExp);
-	assert.pattern('word + word * word', XMigemoPlaces.findKeyRegExp);
-	assert.pattern('word @ word # word', XMigemoPlaces.findKeyRegExp);
-	assert.notPattern('word word word', XMigemoPlaces.findKeyRegExp);
-	assert.notPattern('word ; word word', XMigemoPlaces.findKeyRegExp);
-	assert.notPattern('word $ word word', XMigemoPlaces.findKeyRegExp);
+	assert.pattern('word + word word', service.findKeyRegExp);
+	assert.pattern('word + word * word', service.findKeyRegExp);
+	assert.pattern('word @ word # word', service.findKeyRegExp);
+	assert.notPattern('word word word', service.findKeyRegExp);
+	assert.notPattern('word ; word word', service.findKeyRegExp);
+	assert.notPattern('word $ word word', service.findKeyRegExp);
 
-	XMigemoPlaces.findHistoryKey = '';
-	XMigemoPlaces.findBookmarksKey = '';
-	XMigemoPlaces.findTaggedKey = '';
-	XMigemoPlaces.findTitleKey = '';
-	XMigemoPlaces.findURIKey = '';
-	XMigemoPlaces.updateFindKeyRegExp();
-	assert.isNull(XMigemoPlaces.findKeyRegExp);
+	service.findHistoryKey = '';
+	service.findBookmarksKey = '';
+	service.findTaggedKey = '';
+	service.findTitleKey = '';
+	service.findURIKey = '';
+	service.updateFindKeyRegExp();
+	assert.isNull(service.findKeyRegExp);
 }
 
 function test_extractFindKeysFromInput()
 {
 	var input = 'tagged + bookmarked * history ^ title @ uri # find';
 	var newInput = {};
-	var keys = XMigemoPlaces.extractFindKeysFromInput(input, newInput);
+	var keys = service.extractFindKeysFromInput(input, newInput);
 
 	assert.equals('tagged bookmarked history title uri find', newInput.value);
 	assert.contains('+', keys);
@@ -74,41 +77,41 @@ function test_getFindFlagFromInput()
 {
 	var input = 'tagged + bookmarked * history ^ title @ uri # find';
 	var newInput = {};
-	var flags = XMigemoPlaces.getFindFlagFromInput(input, newInput);
+	var flags = service.getFindFlagFromInput(input, newInput);
 
 	assert.equals('tagged bookmarked history title uri find', newInput.value);
 
-	assert.isTrue(flags & XMigemoPlaces.kRESTRICT_HISTORY);
-	assert.isTrue(flags & XMigemoPlaces.kRESTRICT_BOOKMARKS);
-	assert.isTrue(flags & XMigemoPlaces.kRESTRICT_TAGGED);
-	assert.isTrue(flags & XMigemoPlaces.kFIND_TITLE);
-	assert.isTrue(flags & XMigemoPlaces.kFIND_URI);
+	assert.isTrue(flags & service.kRESTRICT_HISTORY);
+	assert.isTrue(flags & service.kRESTRICT_BOOKMARKS);
+	assert.isTrue(flags & service.kRESTRICT_TAGGED);
+	assert.isTrue(flags & service.kFIND_TITLE);
+	assert.isTrue(flags & service.kFIND_URI);
 }
 
 function test_getFindKeyContentsFromFlag()
 {
 	var flags, result;
 
-	flags = XMigemoPlaces.kFIND_TITLE;
-	result = XMigemoPlaces.getFindKeyContentsFromFlag(flags);
+	flags = service.kFIND_TITLE;
+	result = service.getFindKeyContentsFromFlag(flags);
 	assert.contains('COALESCE(bookmark, title)', result);
 	assert.notContains('uri', result);
 	assert.notContains('COALESCE(tags, "")', result);
 
-	flags = XMigemoPlaces.kFIND_URI;
-	result = XMigemoPlaces.getFindKeyContentsFromFlag(flags);
+	flags = service.kFIND_URI;
+	result = service.getFindKeyContentsFromFlag(flags);
 	assert.notContains('COALESCE(bookmark, title)', result);
 	assert.contains('uri', result);
 	assert.notContains('COALESCE(tags, "")', result);
 
-	flags = XMigemoPlaces.kFIND_TITLE | XMigemoPlaces.kFIND_URI;
-	result = XMigemoPlaces.getFindKeyContentsFromFlag(flags);
+	flags = service.kFIND_TITLE | service.kFIND_URI;
+	result = service.getFindKeyContentsFromFlag(flags);
 	assert.contains('COALESCE(bookmark, title)', result);
 	assert.contains('uri', result);
 	assert.notContains('COALESCE(tags, "")', result);
 
 	flags = 0;
-	result = XMigemoPlaces.getFindKeyContentsFromFlag(flags);
+	result = service.getFindKeyContentsFromFlag(flags);
 	assert.contains('COALESCE(bookmark, title)', result);
 	assert.contains('uri', result);
 	assert.contains('COALESCE(tags, "")', result);
@@ -118,18 +121,18 @@ function test_getFindSourceFilterFromFlag()
 {
 	var flags, result;
 
-	flags = XMigemoPlaces.kRESTRICT_HISTORY;
-	result = XMigemoPlaces.getFindSourceFilterFromFlag(flags);
+	flags = service.kRESTRICT_HISTORY;
+	result = service.getFindSourceFilterFromFlag(flags);
 	assert.contains('JOIN moz_historyvisits', result);
 	assert.notContains('JOIN moz_bookmarks', result);
 
-	flags = XMigemoPlaces.kRESTRICT_BOOKMARKS;
-	result = XMigemoPlaces.getFindSourceFilterFromFlag(flags);
+	flags = service.kRESTRICT_BOOKMARKS;
+	result = service.getFindSourceFilterFromFlag(flags);
 	assert.contains('JOIN moz_bookmarks', result);
 	assert.notContains('JOIN moz_historyvisits', result);
 
-	flags = XMigemoPlaces.kRESTRICT_TAGGED;
-	result = XMigemoPlaces.getFindSourceFilterFromFlag(flags);
+	flags = service.kRESTRICT_TAGGED;
+	result = service.getFindSourceFilterFromFlag(flags);
 	assert.contains('JOIN moz_bookmarks', result);
 	assert.notContains('JOIN moz_historyvisits', result);
 }
@@ -144,8 +147,8 @@ assert.insertCondition = function(aMethod, aSQL, aRestrictTarget, aCondition)
 		'kRESTRICT_TAGGED',
 		'kRESTRICT_TYPED'
 	].forEach(function(aFlag) {
-		var flag = XMigemoPlaces[aFlag];
-		var result = XMigemoPlaces[aMethod](aSQL, flag);
+		var flag = service[aFlag];
+		var result = service[aMethod](aSQL, flag);
 		if (aRestrictTarget == '*' || aRestrictTarget == aFlag) {
 			assert.contains(aCondition, result, message+' / '+aFlag);
 		}
@@ -164,14 +167,14 @@ function test_insertConditions()
 		'tags NOT NULL'
 	);
 
-	XMigemoPlaces.filterTyped = false;
+	service.filterTyped = false;
 	assert.insertCondition(
 		'insertTypedCondition',
 		'%ONLY_TYPED%',
 		'kRESTRICT_TYPED',
 		'typed = 1'
 	);
-	XMigemoPlaces.filterTyped = true;
+	service.filterTyped = true;
 	assert.insertCondition(
 		'insertTypedCondition',
 		'%ONLY_TYPED%',
@@ -179,14 +182,14 @@ function test_insertConditions()
 		'typed = 1'
 	);
 
-	XMigemoPlaces.filterJavaScript = false;
+	service.filterJavaScript = false;
 	assert.insertCondition(
 		'insertJavaScriptCondition',
 		'%EXCLUDE_JAVASCRIPT%',
 		'',
 		'url NOT LIKE "javascript:%"'
 	);
-	XMigemoPlaces.filterJavaScript = true;
+	service.filterJavaScript = true;
 	assert.insertCondition(
 		'insertJavaScriptCondition',
 		'%EXCLUDE_JAVASCRIPT%',
@@ -205,7 +208,7 @@ function test_getSingleStringFromRange_withoutRange()
 			         ORDER BY id ASC
 			         LIMIT 0,2)
 		]]>.toString();
-	assert.equals('', XMigemoPlaces.getSingleStringFromRange(sql, 0, 0));
+	assert.equals('', service.getSingleStringFromRange(sql, 0, 0));
 }
 
 function test_getSingleStringFromRange_withoutBinding()
@@ -217,9 +220,9 @@ function test_getSingleStringFromRange_withoutBinding()
 			         ORDER BY id ASC
 			         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
 		]]>.toString();
-	var sources1 = XMigemoPlaces.getSingleStringFromRange(sql, 0, 2);
-	var sources2 = XMigemoPlaces.getSingleStringFromRange(sql, 2, 2);
-	var sources3 = XMigemoPlaces.getSingleStringFromRange(sql, 0, 4);
+	var sources1 = service.getSingleStringFromRange(sql, 0, 2);
+	var sources2 = service.getSingleStringFromRange(sql, 2, 2);
+	var sources3 = service.getSingleStringFromRange(sql, 0, 4);
 	assert.notEquals(sources1, sources2);
 	assert.equals(sources1+'\n'+sources2, sources3);
 }
@@ -235,9 +238,9 @@ function test_getSingleStringFromRange_withBinding()
 			         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
 		]]>.toString();
 	var binding = ['http://%', 1];
-	var sources1 = XMigemoPlaces.getSingleStringFromRange(sql, 0, 2, binding);
-	var sources2 = XMigemoPlaces.getSingleStringFromRange(sql, 2, 2, binding);
-	var sources3 = XMigemoPlaces.getSingleStringFromRange(sql, 0, 4, binding);
+	var sources1 = service.getSingleStringFromRange(sql, 0, 2, binding);
+	var sources2 = service.getSingleStringFromRange(sql, 2, 2, binding);
+	var sources3 = service.getSingleStringFromRange(sql, 0, 4, binding);
 	assert.notEquals(sources1, sources2);
 	assert.equals(sources1+'\n'+sources2, sources3);
 }
