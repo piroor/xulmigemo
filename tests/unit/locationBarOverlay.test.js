@@ -5,6 +5,7 @@ utils.include('../../content/xulmigemo/places/locationBarOverlay.js', null, 'Shi
 
 var XMigemoCore;
 var XMigemoPlaces;
+var searchSource;
 var service;
 
 function setUp()
@@ -17,6 +18,9 @@ function setUp()
 
 	service = {};
 	service.__proto__ = XMigemoLocationBarOverlay;
+
+	searchSource = {};
+	searchSource.__proto__ = XMigemoLocationBarSearchSource;
 
 	XMigemoPlaces.findHistoryKey = '^';
 	XMigemoPlaces.findBookmarksKey = '*';
@@ -33,7 +37,19 @@ function tearDown()
 {
 }
 
-function test_foo()
+function test_findSources()
+{
+	for (var i in service.sources)
+	{
+		let source = service.sources[i];
+	}
+}
+
+function test_findItemsFromRange()
+{
+}
+
+function test_findItemsFromRangeByTerms()
 {
 }
 
