@@ -561,13 +561,17 @@ var XMigemoLocationBarOverlay = {
 
 		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
 
+		/* output of the SQL must be:
+			SELECT place_title, place_uri, favicon_uri, bookmark_title, tags, findkey
+			  FROM ...
+		*/
 		var sql      = aSource.getItemsSQL(aFindInfo.findFlag);
 		var bindings = aSource.getItemsBindingFor(aFindInfo.input);
 		var offset   = bindings.length;
 
 		var termsCount      = aTerms.length;
 		var exceptionsCount = aExceptions.length;
-		if (/\%TERMS_RULES\%/i.test(sql)) {
+		if (/%TERMS_RULES%/i.test(sql)) {
 			sql = sql.replace(
 					'%TERMS_RULES%',
 					(aTerms.length ?
