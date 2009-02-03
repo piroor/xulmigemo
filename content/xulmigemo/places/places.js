@@ -198,7 +198,7 @@ var XMigemoPlaces = {
 	},
 	 
 	placesSourceInRangeSQLBase : <![CDATA[ 
-		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
+		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, %PLACE_FOR_LINEBREAK%)
 		  FROM (SELECT p.id id,
 		               p.title title,
 		               p.url uri,
@@ -214,7 +214,7 @@ var XMigemoPlaces = {
 		               %ONLY_TYPED%
 		               %ONLY_TAGGED%
 		         ORDER BY frecency DESC
-		         LIMIT ?2,?3)
+		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
 	]]>.toString(),
   
 	getPlacesItemsSQL : function(aFindFlag) 
@@ -285,7 +285,7 @@ var XMigemoPlaces = {
 	},
 	 
 	inputHistorySourceInRangeSQLBase : <![CDATA[ 
-		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
+		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, %PLACE_FOR_LINEBREAK%)
 		  FROM (SELECT p.title title,
 		               p.url uri,
 		               p.frecency frecency,
@@ -294,7 +294,7 @@ var XMigemoPlaces = {
 		          FROM (SELECT ROUND(
 		                         MAX(
 		                           (
-		                             (i.input = ?4) + (SUBSTR(i.input, 1, LENGTH(?4)) = ?4)
+		                             (i.input = ?1) + (SUBSTR(i.input, 1, LENGTH(?1)) = ?1)
 		                           ) * i.use_count
 		                         ),
 		                         1
@@ -309,7 +309,7 @@ var XMigemoPlaces = {
 		                 %ONLY_TYPED%
 		                 %ONLY_TAGGED%
 		         ORDER BY rank DESC, frecency DESC
-		         LIMIT ?2,?3)
+		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
 	]]>.toString(),
   
 	getInputHistoryItemsSQL : function(aFindFlag) 
@@ -374,15 +374,15 @@ var XMigemoPlaces = {
 	{
 		if (!this._keywordSearchSourceInRangeSQL) {
 			this._keywordSearchSourceInRangeSQL = <![CDATA[
-				SELECT GROUP_CONCAT(search_url, ?1)
-				  FROM (SELECT REPLACE(s.url, '%s', ?5) search_url
+				SELECT GROUP_CONCAT(search_url, %PLACE_FOR_LINEBREAK%)
+				  FROM (SELECT REPLACE(s.url, '%s', ?2) search_url
 				          FROM moz_keywords k
 				               JOIN moz_bookmarks b ON b.keyword_id = k.id
 				               JOIN moz_places s ON s.id = b.fk
 				               LEFT OUTER JOIN moz_places h ON h.url = search_url
-				          WHERE LOWER(k.keyword) = LOWER(?4)
+				          WHERE LOWER(k.keyword) = LOWER(?1)
 				          ORDER BY h.frecency DESC
-		                  LIMIT ?2,?3)
+		                  LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
 			]]>.toString();
 		}
 		return this._keywordSearchSourceInRangeSQL;
@@ -429,7 +429,7 @@ var XMigemoPlaces = {
 	},
 	
 	historyInRangeSQLBase : <![CDATA[ 
-		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
+		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, %PLACE_FOR_LINEBREAK%)
 		  FROM (SELECT p.id id,
 		               p.title title,
 		               p.url uri,
@@ -437,7 +437,7 @@ var XMigemoPlaces = {
 		               %TAGS%
 		          FROM moz_places p
 		         WHERE p.hidden <> 1
-		         LIMIT ?2,?3)
+		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
 	]]>.toString(),
   
 	get bookmarksInRangeSQL() 
@@ -451,7 +451,7 @@ var XMigemoPlaces = {
 	},
 	
 	bookmarksInRangeSQLBase : <![CDATA[ 
-		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, ?1)
+		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, %PLACE_FOR_LINEBREAK%)
 		  FROM (SELECT b.id id,
 		               b.title title,
 		               p.url uri,
@@ -460,7 +460,7 @@ var XMigemoPlaces = {
 		          FROM moz_bookmarks b
 		               LEFT OUTER JOIN moz_places p ON b.fk = p.id
 		         WHERE b.type = 1 AND b.title IS NOT NULL
-		         LIMIT ?2,?3)
+		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
 	]]>.toString(),
    
 	insertJavaScriptCondition : function(aSQL, aFindFlag) 
@@ -531,41 +531,61 @@ var XMigemoPlaces = {
 		 WHERE b.type = 1 AND b.fk = p.id) tags
 	]]>.toString(),
   
-	getSourceInRange : function(aSQL, aStart, aRange, aAdditionalBinding) 
+	getSingleStringFromRange : function(aSQL, aStart, aRange, aAdditionalBinding) 
 	{
-		if (!this.db) return '';
+		if (!aSQL || !this.db) return '';
 
 		aStart = Math.max(0, aStart);
 		aRange = Math.max(0, aRange);
 		if (!aRange) return '';
 
-		var statement = this.getSourceInRangeLastStatement;
-		if (!statement || aSQL != this.getSourceInRangeLastSQL) {
-			this.getSourceInRangeLastStatement = null;
-			this.getSourceInRangeLastSQL = aSQL;
+		var offset = aAdditionalBinding ? aAdditionalBinding.length : 0 ;
+		var offsets = {
+				PLACE_FOR_LINEBREAK : -1,
+				PLACE_FOR_START     : -1,
+				PLACE_FOR_RANGE     : -1
+			};
+		var regexp = new RegExp();
+		for (var i in offsets)
+		{
+			if (aSQL.indexOf('%'+i+'%') < 0) continue;
+			regexp.compile('%'+i+'%', 'g');
+			offsets[i] = offset;
+			offset++;
+			aSQL = aSQL.replace(regexp, '?'+offset);
+		}
+
+		var statement = this.getSingleStringFromRange_lastStatement;
+		if (!statement || aSQL != this.getSingleStringFromRange_lastSQL) {
+			this.getSingleStringFromRange_lastStatement = null;
+			this.getSingleStringFromRange_lastSQL = aSQL;
 			if (statement && 'finalize' in statement) statement.finalize();
 			try {
 				statement = this.db.createStatement(aSQL);
-				this.getSourceInRangeLastStatement = statement;
+				this.getSingleStringFromRange_lastStatement = statement;
 			}
 			catch(e) {
-				this.getSourceInRangeLastSQL = null;
+				this.getSingleStringFromRange_lastSQL = null;
 				dump(e+'\n'+aSQL+'\n');
 				throw e;
 			}
 		}
-		statement.bindStringParameter(0, '\n');
-		statement.bindDoubleParameter(1, aStart);
-		statement.bindDoubleParameter(2, aRange);
+
 		if (aAdditionalBinding && aAdditionalBinding.length) {
-			var offset = 3;
 			aAdditionalBinding.forEach(function(aValue, aIndex) {
 				if (typeof aValue == 'number')
-					statement.bindDoubleParameter(aIndex + offset, aValue);
+					statement.bindDoubleParameter(aIndex, aValue);
 				else
-					statement.bindStringParameter(aIndex + offset, aValue);
+					statement.bindStringParameter(aIndex, aValue);
 			});
 		}
+
+		if (offsets.PLACE_FOR_LINEBREAK > -1)
+			statement.bindStringParameter(offsets.PLACE_FOR_LINEBREAK, '\n');
+		if (offsets.PLACE_FOR_START > -1)
+			statement.bindDoubleParameter(offsets.PLACE_FOR_START, aStart);
+		if (offsets.PLACE_FOR_RANGE > -1)
+			statement.bindDoubleParameter(offsets.PLACE_FOR_RANGE, aRange);
 
 		var sources;
 		while(statement.executeStep())
@@ -575,8 +595,8 @@ var XMigemoPlaces = {
 		statement.reset();
 		return this.TextUtils.trim(sources || '');
 	},
-	getSourceInRangeLastStatement : null,
-	getSourceInRangeLastSQL : null,
+	getSingleStringFromRange_lastStatement : null,
+	getSingleStringFromRange_lastSQL : null,
 	
 	get db() 
 	{
@@ -676,7 +696,7 @@ var XMigemoPlaces = {
  
 	updateQuery : function(aBaseQuery, aSourceSQL, aStart, aRange) 
 	{
-		var source = this.getSourceInRange(aSourceSQL, aStart, aRange);
+		var source = this.getSingleStringFromRange(aSourceSQL, aStart, aRange);
 		if (!source) return false;
 
 //		if (this.lastExceptionsRegExp)
@@ -833,9 +853,9 @@ var XMigemoPlaces = {
 		window.removeEventListener('unload', this, false);
 		XMigemoService.removePrefListener(this);
 
-		if (this.getSourceInRangeLastStatement &&
-			'finalize' in this.getSourceInRangeLastStatement) {
-			this.getSourceInRangeLastStatement.finalize();
+		if (this.getSingleStringFromRange_lastStatement &&
+			'finalize' in this.getSingleStringFromRange_lastStatement) {
+			this.getSingleStringFromRange_lastStatement.finalize();
 		}
 	}
    
