@@ -28,13 +28,12 @@ var XMigemoPlaces = {
  
 /* SQL */ 
 	 
-	kSOURCE_NONE      : 1024, 
-	kSOURCE_HISTORY   : 1,
-	kSOURCE_BOOKMARKS : 2,
-	kSOURCE_TAGGED    : 4,
-	kSOURCE_TYPED     : 32,
-	kFIND_TITLE       : 8,
-	kFIND_URI         : 16,
+	kRESTRICT_HISTORY   : 1, 
+	kRESTRICT_BOOKMARKS : 2,
+	kRESTRICT_TAGGED    : 4,
+	kRESTRICT_TYPED     : 32,
+	kFIND_TITLE         : 8,
+	kFIND_URI           : 16,
 
 	findHistoryKey   : null,
 	findBookmarksKey : null,
@@ -57,16 +56,16 @@ var XMigemoPlaces = {
 
 		if (this.findHistoryKey === '' ||
 			(this.findHistoryKey && keys.indexOf(this.findHistoryKey) > -1))
-			flag |= this.kSOURCE_HISTORY;
+			flag |= this.kRESTRICT_HISTORY;
 		if (this.findBookmarksKey === '' ||
 			(this.findBookmarksKey && keys.indexOf(this.findBookmarksKey) > -1))
-			flag |= this.kSOURCE_BOOKMARKS;
+			flag |= this.kRESTRICT_BOOKMARKS;
 		if (this.findTaggedKey === '' ||
 			(this.findTaggedKey && keys.indexOf(this.findTaggedKey) > -1))
-			flag |= this.kSOURCE_TAGGED;
+			flag |= this.kRESTRICT_TAGGED;
 		if (this.findTypedKey === '' ||
 			(this.findTypedKey && keys.indexOf(this.findTypedKey) > -1))
-			flag |= this.kSOURCE_TYPED;
+			flag |= this.kRESTRICT_TYPED;
 
 		if (!flag) flag |= sourcesFlag;
 
@@ -158,17 +157,17 @@ var XMigemoPlaces = {
 	getFindSourceFilterFromFlag : function(aFindFlag) 
 	{
 		if (
-			aFindFlag & this.kSOURCE_HISTORY &&
-			!(aFindFlag & this.kSOURCE_BOOKMARKS) &&
-			!(aFindFlag & this.kSOURCE_TAGGED)
+			aFindFlag & this.kRESTRICT_HISTORY &&
+			!(aFindFlag & this.kRESTRICT_BOOKMARKS) &&
+			!(aFindFlag & this.kRESTRICT_TAGGED)
 			) {
 			return ' JOIN moz_historyvisits filter ON p.id = filter.place_id ';
 		}
 		else if (
-			!(aFindFlag & this.kSOURCE_HISTORY) &&
+			!(aFindFlag & this.kRESTRICT_HISTORY) &&
 			(
-				aFindFlag & this.kSOURCE_BOOKMARKS ||
-				aFindFlag & this.kSOURCE_TAGGED
+				aFindFlag & this.kRESTRICT_BOOKMARKS ||
+				aFindFlag & this.kRESTRICT_TAGGED
 			)
 			) {
 			return ' JOIN moz_bookmarks filter ON p.id = filter.fk ';
@@ -480,7 +479,7 @@ var XMigemoPlaces = {
 				'%ONLY_TYPED%',
 				(
 					this.filterTyped || // Firefox 3.0.x
-					(aFindFlag & this.kSOURCE_TYPED) // Firefox 3.1 or later
+					(aFindFlag & this.kRESTRICT_TYPED) // Firefox 3.1 or later
 				) ?
 					'AND p.typed = 1' :
 					''
@@ -491,7 +490,7 @@ var XMigemoPlaces = {
 	{
 		return aSQL.replace(
 				'%ONLY_TAGGED%',
-				aFindFlag & this.kSOURCE_TAGGED ?
+				aFindFlag & this.kRESTRICT_TAGGED ?
 					'AND tags NOT NULL' :
 					''
 			);

@@ -25,7 +25,7 @@ function tearDown()
 {
 }
 
-function testValidInput()
+function test_isValidInput()
 {
 	assert.isFalse(XMigemoPlaces.isValidInput('http://piro.sakura.ne.jp/'));
 	assert.isFalse(XMigemoPlaces.isValidInput('https://addons.mozilla.org/'));
@@ -35,7 +35,7 @@ function testValidInput()
 	assert.isTrue(XMigemoPlaces.isValidInput('nihongo eigo'));
 }
 
-function testUpdateFindKeyRegExp()
+function test_updateFindKeyRegExp()
 {
 	XMigemoPlaces.updateFindKeyRegExp();
 	assert.isNotNull(XMigemoPlaces.findKeyRegExp);
@@ -56,7 +56,7 @@ function testUpdateFindKeyRegExp()
 	assert.isNull(XMigemoPlaces.findKeyRegExp);
 }
 
-function testExtractFindKeysFromInput()
+function test_extractFindKeysFromInput()
 {
 	var input = 'tagged + bookmarked * history ^ title @ uri # find';
 	var newInput = {};
@@ -70,7 +70,7 @@ function testExtractFindKeysFromInput()
 	assert.contains('#', keys);
 }
 
-function testGetFindFlagFromInput()
+function test_getFindFlagFromInput()
 {
 	var input = 'tagged + bookmarked * history ^ title @ uri # find';
 	var newInput = {};
@@ -78,14 +78,14 @@ function testGetFindFlagFromInput()
 
 	assert.equals('tagged bookmarked history title uri find', newInput.value);
 
-	assert.isTrue(flags & XMigemoPlaces.kSOURCE_HISTORY);
-	assert.isTrue(flags & XMigemoPlaces.kSOURCE_BOOKMARKS);
-	assert.isTrue(flags & XMigemoPlaces.kSOURCE_TAGGED);
+	assert.isTrue(flags & XMigemoPlaces.kRESTRICT_HISTORY);
+	assert.isTrue(flags & XMigemoPlaces.kRESTRICT_BOOKMARKS);
+	assert.isTrue(flags & XMigemoPlaces.kRESTRICT_TAGGED);
 	assert.isTrue(flags & XMigemoPlaces.kFIND_TITLE);
 	assert.isTrue(flags & XMigemoPlaces.kFIND_URI);
 }
 
-function testGetFindKeyContentsFromFlag()
+function test_getFindKeyContentsFromFlag()
 {
 	var flags, result;
 
@@ -114,22 +114,76 @@ function testGetFindKeyContentsFromFlag()
 	assert.contains('COALESCE(tags, "")', result);
 }
 
-function testGetFindSourceFilterFromFlag()
+function test_getFindSourceFilterFromFlag()
 {
 	var flags, result;
 
-	flags = XMigemoPlaces.kSOURCE_HISTORY;
+	flags = XMigemoPlaces.kRESTRICT_HISTORY;
 	result = XMigemoPlaces.getFindSourceFilterFromFlag(flags);
 	assert.contains('JOIN moz_historyvisits', result);
 	assert.notContains('JOIN moz_bookmarks', result);
 
-	flags = XMigemoPlaces.kSOURCE_BOOKMARKS;
+	flags = XMigemoPlaces.kRESTRICT_BOOKMARKS;
 	result = XMigemoPlaces.getFindSourceFilterFromFlag(flags);
 	assert.contains('JOIN moz_bookmarks', result);
 	assert.notContains('JOIN moz_historyvisits', result);
 
-	flags = XMigemoPlaces.kSOURCE_TAGGED;
+	flags = XMigemoPlaces.kRESTRICT_TAGGED;
 	result = XMigemoPlaces.getFindSourceFilterFromFlag(flags);
 	assert.contains('JOIN moz_bookmarks', result);
 	assert.notContains('JOIN moz_historyvisits', result);
 }
+
+
+assert.insertCondition = function(aMethod, aSQL, aRestrictTarget, aCondition)
+{
+	var message = aMethod+' for '+aRestrictTarget;
+	[
+		'kRESTRICT_HISTORY',
+		'kRESTRICT_BOOKMARKS',
+		'kRESTRICT_TAGGED',
+		'kRESTRICT_TYPED'
+	].forEach(function(aFlag) {
+		var flag = XMigemoPlaces[aFlag];
+		var result = XMigemoPlaces[aMethod](aSQL, flag);
+		if (aRestrictTarget == '*' || aRestrictTarget == aFlag) {
+			assert.contains(aCondition, result, message+' / '+aFlag);
+		}
+		else {
+			assert.notContains(aCondition, result, message+' / '+aFlag);
+		}
+	});
+}
+
+function test_insertConditions()
+{
+	assert.insertCondition(
+		'insertTaggedCondition',
+		'%ONLY_TAGGED%',
+		'kRESTRICT_TAGGED',
+		'tags NOT NULL'
+	);
+	assert.insertCondition(
+		'insertTypedCondition',
+		'%ONLY_TYPED%',
+		'kRESTRICT_TYPED',
+		'typed = 1'
+	);
+
+	XMigemoPlaces.filterJavaScript = false;
+	assert.insertCondition(
+		'insertJavaScriptCondition',
+		'%EXCLUDE_JAVASCRIPT%',
+		'',
+		'url NOT LIKE "javascript:%"'
+	);
+	XMigemoPlaces.filterJavaScript = true;
+	assert.insertCondition(
+		'insertJavaScriptCondition',
+		'%EXCLUDE_JAVASCRIPT%',
+		'*',
+		'url NOT LIKE "javascript:%"'
+	);
+}
+
+
