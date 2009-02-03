@@ -1,5 +1,28 @@
+var XMigemoLocationBarSearchSource = { 
+	create : function(aDefinition)
+	{
+		aDefinition.__proto__ = this;
+		return aDefinition;
+	},
+	isAvailable : function(aFindMode)
+	{
+		return true;
+	},
+	getSourceBindingFor : function(aInput)
+	{
+		return [];
+	},
+	getItemsBindingFor : function(aInput)
+	{
+		return [];
+	},
+	itemFilter : function(aItem, aTerms, aFindFlag) {
+		return XMigemoLocationBarOverlay.kITEM_ACCEPT;
+	}
+};
+ 
 var XMigemoLocationBarOverlay = { 
-	 
+	
 	results : [], 
 	lastFoundPlaces : {},
 	lastInput : '',
@@ -30,8 +53,8 @@ var XMigemoLocationBarOverlay = {
 		'MATCHING_START'
 	],
 	sources : { 
-	 
-		KEYWORD_SEARCH : { // https://bugzilla.mozilla.org/show_bug.cgi?id=392143 
+	
+		KEYWORD_SEARCH : XMigemoLocationBarSearchSource.create({ // https://bugzilla.mozilla.org/show_bug.cgi?id=392143 
 			getSourceSQL : function(aFindFlag) {
 				return XMigemoPlaces.keywordSearchSourceInRangeSQL;
 			},
@@ -54,9 +77,9 @@ var XMigemoLocationBarOverlay = {
 				return [];
 			},
 			style : 'keyword'
-		},
+		}),
  
-		INPUT_HISTORY : { 
+		INPUT_HISTORY : XMigemoLocationBarSearchSource.create({ 
 			getSourceSQL : function(aFindFlag) {
 				return XMigemoPlaces.getInputHistorySourceInRangeSQL(aFindFlag);
 			},
@@ -69,12 +92,12 @@ var XMigemoLocationBarOverlay = {
 			getItemsBindingFor : function(aInput) {
 				return [aInput];
 			}
-		},
+		}),
  
-		MATCHING_BOUNDARY : { 
-			isAvailable : function(aFindInfo) {
+		MATCHING_BOUNDARY : XMigemoLocationBarSearchSource.create({ 
+			isAvailable : function(aFindMode) {
 				if (!XMigemoPlaces.boundaryFindAvailable) return false;
-				return (aFindInfo.lastFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
+				return (aFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
 					(XMigemoPlaces.matchBehavior == 1 || XMigemoPlaces.matchBehavior == 2);
 			},
 			getSourceSQL : function(aFindFlag) {
@@ -83,10 +106,6 @@ var XMigemoLocationBarOverlay = {
 			getItemsSQL : function(aFindFlag) {
 				return XMigemoPlaces.getPlacesItemsSQL(aFindFlag);
 			},
-//			regExpConverter : function(aRegExp) {
-//				this.regexp.compile(aRegExp.source.replace(/\(\?:/g, '\\b(?:'));
-//				return this.regexp;
-//			},
 			itemFilter : function(aItem, aTerms, aFindFlag) {
 				var target = XMigemoPlaces.getFindTargetsFromFlag(aItem, aFindFlag);
 				this.regexp.compile(
@@ -104,12 +123,12 @@ var XMigemoLocationBarOverlay = {
 					XMigemoLocationBarOverlay.kITEM_DEFERED ;
 			},
 			regexp : new RegExp()
-		},
- 	
-		MATCHING_ANYWHERE : { 
-			isAvailable : function(aFindInfo) {
+		}),
+ 
+		MATCHING_ANYWHERE : XMigemoLocationBarSearchSource.create({ 
+			isAvailable : function(aFindMode) {
 				if (!XMigemoPlaces.boundaryFindAvailable) return XMigemoPlaces.matchBehavior != 3;
-				return (aFindInfo.lastFindMode == XMigemoLocationBarOverlay.FIND_MODE_REGEXP) ||
+				return (aFindMode == XMigemoLocationBarOverlay.FIND_MODE_REGEXP) ||
 					XMigemoPlaces.matchBehavior == 0;
 			},
 			getSourceSQL : function(aFindFlag) {
@@ -118,11 +137,11 @@ var XMigemoLocationBarOverlay = {
 			getItemsSQL : function(aFindFlag) {
 				return XMigemoPlaces.getPlacesItemsSQL(aFindFlag);
 			}
-		},
+		}),
  
-		MATCHING_START : { // match start 
-			isAvailable : function(aFindInfo) {
-				return (aFindInfo.lastFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
+		MATCHING_START : XMigemoLocationBarSearchSource.create({ // match start 
+			isAvailable : function(aFindMode) {
+				return (aFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
 					XMigemoPlaces.matchBehavior == 3;
 			},
 			getSourceSQL : function(aFindFlag) {
@@ -145,7 +164,7 @@ var XMigemoLocationBarOverlay = {
 					XMigemoLocationBarOverlay.kITEM_SKIP ;
 			},
 			regexp : new RegExp()
-		}
+		})
  
 	}, 
   
@@ -162,7 +181,7 @@ var XMigemoLocationBarOverlay = {
 	kXULNS : 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
  
 /* elements */ 
-	 
+	
 	get bar() 
 	{
 		return document.getElementById('urlbar');
@@ -197,7 +216,7 @@ var XMigemoLocationBarOverlay = {
 	},
   
 /* status */ 
-	 
+	
 	get busy() 
 	{
 		return this.throbber.getAttribute('busy') == 'true';
@@ -231,7 +250,7 @@ var XMigemoLocationBarOverlay = {
 	},
   
 /* event handling */ 
-	 
+	
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
 		if (aTopic != 'nsPref:changed') return;
@@ -303,7 +322,7 @@ var XMigemoLocationBarOverlay = {
 				aSelf.delayedStart();
 		}, this.delay, this);
 	},
-	 
+	
 	delayedStart : function() 
 	{
 		this.bar.controller.stopSearch();
@@ -355,7 +374,7 @@ var XMigemoLocationBarOverlay = {
 							break build;
 					}
 
-					if ('isAvailable' in source && !source.isAvailable(findInfo)) continue;
+					if (!source.isAvailable(findInfo.findMode)) continue;
 					while (true)
 					{
 						result = aSelf.findItemsFromRange(findInfo, source, current, XMigemoPlaces.chunk)
@@ -417,7 +436,7 @@ var XMigemoLocationBarOverlay = {
 					break build;
 			}
 
-			if ('isAvailable' in source && !source.isAvailable(this.lastFindInfo)) continue;
+			if (!source.isAvailable(this.lastFindInfo.findMode)) continue;
 			while (true)
 			{
 				result = this.findItemsFromRange(source, current, XMigemoPlaces.chunk);
@@ -490,15 +509,14 @@ var XMigemoLocationBarOverlay = {
 		var sources = XMigemoPlaces.getSingleStringFromRange(
 				aSource.getSourceSQL(aFindInfo.findFlag),
 				aStart, aRange,
-				(aSource.getSourceBindingFor ? aSource.getSourceBindingFor(aFindInfo.input) : null )
+				aSource.getSourceBindingFor(aFindInfo.input)
 			);
 		if (!sources) {
 			result.reachedToEnd = true;
 			return result;
 		}
 
-		var regexp = aFindInfo.findRegExp
-		if (aSource.regExpConverter) regexp = aSource.regExpConverter(regexp);
+		var regexp = aFindInfo.findRegExp;
 		var terms = aSource.termsGetter ?
 				aSource.termsGetter(aFindInfo.input, sources) :
 				sources.match(regexp) ;
@@ -570,7 +588,7 @@ var XMigemoLocationBarOverlay = {
  
 /* build popup */ 
 	builtCount : 0,
-	 
+	
 	findItemsFromTerms : function(aFindInfo, aSource, aTerms, aExceptions, aStart, aRange, aDeferedItems) 
 	{
 		if (!aExceptions) aExceptions = [];
@@ -582,7 +600,7 @@ var XMigemoLocationBarOverlay = {
 		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
 
 		var sql      = aSource.getItemsSQL(aFindInfo.findFlag);
-		var bindings = aSource.getItemsBindingFor ? aSource.getItemsBindingFor(aFindInfo.input) : [] ;
+		var bindings = aSource.getItemsBindingFor(aFindInfo.input);
 		var offset   = bindings.length;
 
 		var termsCount      = aTerms.length;
@@ -696,17 +714,15 @@ var XMigemoLocationBarOverlay = {
 					item.style = aSource.style;
 				}
 
-				if (aSource.itemFilter) {
-					switch (aSource.itemFilter(item, terms, aFindInfo.findFlag))
-					{
-						default:
-						case this.kITEM_ACCEPT:
-							break;
-						case this.kITEM_DEFERED:
-							aDeferedItems.push(item);
-						case this.kITEM_SKIP:
-							continue;
-					}
+				switch (aSource.itemFilter(item, terms, aFindInfo.findFlag))
+				{
+					default:
+					case this.kITEM_ACCEPT:
+						break;
+					case this.kITEM_DEFERED:
+						aDeferedItems.push(item);
+					case this.kITEM_SKIP:
+						continue;
 				}
 
 				items.push(item);
