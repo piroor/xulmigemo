@@ -1,5 +1,5 @@
 var XMigemoPlaces = { 
-	 
+	
 	chunk     : 100, 
 	ignoreURI : true,
 	minLength : 3,
@@ -26,8 +26,57 @@ var XMigemoPlaces = {
 			);
 	},
  
-/* SQL */ 
-	 
+	formatInputForKeywordSearch : function(aInput) { 
+		var input = aInput;
+		var index = input.search(/\s/);
+		if (index < 0) index = input.length;
+		return {
+			keyword : this.TextUtils.trim(input.substring(0, index)),
+			terms   : this.TextUtils.trim(input.substring(index+1))
+				.replace(/\+/g, '%2B')
+				.replace(/\s+/g, '+')
+		};
+	},
+ 
+	parseInput : function(aInput) 
+	{
+		var info = {
+				input            : aInput,
+				findFlag         : 0,
+				findMode         : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
+				findRegExp       : null,
+				termsRegExp      : null,
+				exceptionsRegExp : null
+			};
+
+		var updatedInput = {};
+		info.findFlag = this.getFindFlagFromInput(aInput, updatedInput);
+		info.input = updatedInput.value;
+
+		var findInput = info.input;
+		if (this.autoStartRegExpFind &&
+			this.TextUtils.isRegExp(findInput)) {
+			var source = this.TextUtils.extractRegExpSource(findInput);
+			info.findRegExp =
+				info.termsRegExp = new RegExp(source, 'gim');
+			info.findMode = Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP;
+		}
+		else {
+			var termsRegExp = {};
+			var exceptionsRegExp = {};
+			info.findRegExp = new RegExp(
+				XMigemoCore.getRegExpFunctional(findInput, termsRegExp, exceptionsRegExp),
+				'gim'
+			);
+			info.termsRegExp = new RegExp(termsRegExp.value, 'gim');
+			if (exceptionsRegExp.value)
+				info.exceptionsRegExp = new RegExp(exceptionsRegExp.value, 'gim');
+			info.findMode = Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO;
+		}
+
+		return info;
+	},
+	
 	kRESTRICT_HISTORY   : 1, 
 	kRESTRICT_BOOKMARKS : 2,
 	kRESTRICT_TAGGED    : 4,
@@ -43,7 +92,7 @@ var XMigemoPlaces = {
 	findURIKey       : null,
 	findKeyRegExp    : null,
 	findKeyExtractRegExp : null,
-	 
+ 
 	getFindFlagFromInput : function(aInput, aNewInput) 
 	{
 		if (!aNewInput) aNewInput = {};
@@ -153,7 +202,7 @@ var XMigemoPlaces = {
 		}
 		return target;
 	},
- 	
+ 
 	getFindSourceFilterFromFlag : function(aFindFlag) 
 	{
 		if (
@@ -175,6 +224,8 @@ var XMigemoPlaces = {
 		return '';
 	},
   
+/* SQL */ 
+	
 /* Placesデータベース全体の検索 */ 
 	
 	getPlacesSourceInRangeSQL : function(aFindFlag) 
@@ -196,7 +247,7 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	 
+	
 	placesSourceInRangeSQLBase : <![CDATA[ 
 		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, %PLACE_FOR_LINEBREAK%)
 		  FROM (SELECT p.id id,
@@ -283,7 +334,7 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	 
+	
 	inputHistorySourceInRangeSQLBase : <![CDATA[ 
 		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, %PLACE_FOR_LINEBREAK%)
 		  FROM (SELECT p.title title,
@@ -332,7 +383,7 @@ var XMigemoPlaces = {
 				);
 		return sql;
 	},
-	 
+	
 	inputHistoryItemsSQLBase : <![CDATA[ 
 		SELECT title, uri, favicon, bookmark, tags, findkey
 		  FROM (SELECT *,
@@ -628,18 +679,6 @@ var XMigemoPlaces = {
 	},
 //	_db : null,
   
-	parseInputForKeywordSearch : function(aInput) { 
-		var input = aInput;
-		var index = input.search(/\s/);
-		if (index < 0) index = input.length;
-		return {
-			keyword : this.TextUtils.trim(input.substring(0, index)),
-			terms   : this.TextUtils.trim(input.substring(index+1))
-				.replace(/\+/g, '%2B')
-				.replace(/\s+/g, '+')
-		};
-	},
- 
 	startProgressiveLoad : function(aBaseQuery, aOptions, aTree, aSourceSQL) 
 	{
 		this.stopProgressiveLoad();
@@ -839,7 +878,7 @@ var XMigemoPlaces = {
 				break;
 		}
 	},
-	 
+	
 	init : function() 
 	{
 		window.removeEventListener('load', this, false);
