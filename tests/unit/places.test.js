@@ -163,10 +163,19 @@ function test_insertConditions()
 		'kRESTRICT_TAGGED',
 		'tags NOT NULL'
 	);
+
+	XMigemoPlaces.filterTyped = false;
 	assert.insertCondition(
 		'insertTypedCondition',
 		'%ONLY_TYPED%',
 		'kRESTRICT_TYPED',
+		'typed = 1'
+	);
+	XMigemoPlaces.filterTyped = true;
+	assert.insertCondition(
+		'insertTypedCondition',
+		'%ONLY_TYPED%',
+		'*',
 		'typed = 1'
 	);
 
