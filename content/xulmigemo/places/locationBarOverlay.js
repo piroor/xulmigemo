@@ -8,9 +8,15 @@ var XMigemoLocationBarSearchSource = {
 	{
 		return true;
 	},
+	getSourceSQL : function(aFindFlag) {
+		return '';
+	},
 	getSourceBindingFor : function(aInput)
 	{
 		return [];
+	},
+	getItemsSQL : function(aFindFlag) {
+		return '';
 	},
 	getItemsBindingFor : function(aInput)
 	{
@@ -18,16 +24,15 @@ var XMigemoLocationBarSearchSource = {
 	},
 	itemFilter : function(aItem, aTerms, aFindFlag) {
 		return XMigemoLocationBarOverlay.kITEM_ACCEPT;
-	}
+	},
+	style : null
 };
  
 var XMigemoLocationBarOverlay = { 
 	
-	results : [], 
+	foundItems : [], 
 	lastFoundPlaces : {},
 	lastInput : '',
-	lastTerms : [],
-	lastExceptions : [],
 	thread : null,
 
 	enabled   : true,
@@ -42,8 +47,6 @@ var XMigemoLocationBarOverlay = {
 	kITEM_ACCEPT  : 1,
 	kITEM_SKIP    : 2,
 	kITEM_DEFERED : 3,
-
-	currentSource : 0,
  
 	sourcesOrder : [
 		'KEYWORD_SEARCH',
@@ -344,7 +347,7 @@ var XMigemoLocationBarOverlay = {
 					aSelf.progressiveBuild();
 				if (!aSelf.isMigemoActive ||
 					aSelf.threadDone ||
-					aSelf.results.length >= maxResults) {
+					aSelf.foundItems.length >= maxResults) {
 					aSelf.busy = false;
 					aSelf.stopProgressiveBuild();
 				}
@@ -367,10 +370,10 @@ var XMigemoLocationBarOverlay = {
 					source = aSelf.sources[aSelf.sourcesOrder[i]];
 
 					if (deferedItems.length) {
-						aSelf.results = aSelf.results.concat(deferedItems);
+						aSelf.foundItems = aSelf.foundItems.concat(deferedItems);
 						deferedItems = [];
 						aSelf.progressiveBuild();
-						if (aSelf.results.length >= maxResults)
+						if (aSelf.foundItems.length >= maxResults)
 							break build;
 					}
 
@@ -379,13 +382,12 @@ var XMigemoLocationBarOverlay = {
 					{
 						result = aSelf.findItemsFromRange(findInfo, source, current, XMigemoPlaces.chunk)
 						deferedItems = deferedItems.concat(result.deferedItems);
-						aSelf.results = aSelf.results.concat(result.items);
-						aSelf.lastTerms = aSelf.TextUtils.brushUpTerms(aSelf.lastTerms.concat(result.terms));
+						aSelf.foundItems = aSelf.foundItems.concat(result.items);
 
 						if (result.reachedToEnd) break;
 
 						aSelf.progressiveBuild();
-						if (aSelf.results.length >= maxResults) break build;
+						if (aSelf.foundItems.length >= maxResults) break build;
 						yield;
 						current += XMigemoPlaces.chunk;
 					}
@@ -430,9 +432,9 @@ var XMigemoLocationBarOverlay = {
 			source = this.sources[this.sourcesOrder[i]];
 
 			if (deferedItems.length) {
-				this.results = this.results.concat(deferedItems);
+				this.foundItems = this.foundItems.concat(deferedItems);
 				deferedItems = [];
-				if (this.results.length >= maxResults)
+				if (this.foundItems.length >= maxResults)
 					break build;
 			}
 
@@ -441,12 +443,11 @@ var XMigemoLocationBarOverlay = {
 			{
 				result = this.findItemsFromRange(source, current, XMigemoPlaces.chunk);
 				deferedItems = deferedItems.concat(result.deferedItems);
-				this.results = this.results.concat(result.items);
-				this.lastTerms = this.TextUtils.brushUpTerms(this.lastTerms.concat(result.terms));
+				this.foundItems = this.foundItems.concat(result.items);
 
 				if (result.reachedToEnd) break;
 
-				if (this.results.length >= maxResults) break build;
+				if (this.foundItems.length >= maxResults) break build;
 				current += XMigemoPlaces.chunk;
 			}
 		}
@@ -558,11 +559,9 @@ var XMigemoLocationBarOverlay = {
 		this.stopDelayedStart();
 		this.stopProgressiveBuild();
 
-		this.results = [];
+		this.foundItems = [];
 		this.lastFoundPlaces = {};
 		this.lastInput = '';
-		this.lastTerms = [];
-		this.lastExceptions = [];
 		this.threadDone = true;
 
 		this.panel.overrideValue = null;
@@ -740,9 +739,9 @@ var XMigemoLocationBarOverlay = {
  
 	progressiveBuild : function() 
 	{
-		if (!this.results.length) return;
-		this.results = this.results.slice(0, this.panel.maxResults);
-		if (this.results.length == this.builtCount)
+		if (!this.foundItems.length) return;
+		this.foundItems = this.foundItems.slice(0, this.panel.maxResults);
+		if (this.foundItems.length == this.builtCount)
 			return;
 
 		var controller = this.bar.controller;
@@ -750,16 +749,16 @@ var XMigemoLocationBarOverlay = {
 			controller.searchStringOverride = this.lastInput;
 			this.clearListbox();
 		}
-		for (let i = this.builtCount, maxi = this.results.length; i < maxi; i++)
+		for (let i = this.builtCount, maxi = this.foundItems.length; i < maxi; i++)
 		{
 			this.buildItemAt(i);
 		}
 		this.stopDelayedClose();
-		controller.resultsOverride = this.results;
-		controller.matchCountOverride = this.results.length;
+		controller.resultsOverride = this.foundItems;
+		controller.matchCountOverride = this.foundItems.length;
 		this.panel.adjustHeight();
 		this.bar.openPopup();
-		this.builtCount = this.results.length;
+		this.builtCount = this.foundItems.length;
 	},
  
 	stopProgressiveBuild : function() 
@@ -779,8 +778,8 @@ var XMigemoLocationBarOverlay = {
 		var existingCount = listbox.children.length;
 
 		var item = null;
-		if (aIndex <= this.results.length) {
-			item = this.results[aIndex];
+		if (aIndex <= this.foundItems.length) {
+			item = this.foundItems[aIndex];
 			item.uri = this.Converter.unEscapeURIForUI('UTF-8', item.uri);
 		}
 
