@@ -4,12 +4,7 @@ var XMigemoLocationBarOverlay = {
 	lastFoundPlaces : {},
 	lastInput : '',
 	lastTerms : [],
-	lastFindFlag : 0,
 	lastExceptions : [],
-	lastFindRegExp : null,
-	lastFindMode : 0,
-	lastTermsRegExp : null,
-	lastExceptionsRegExp : null,
 	thread : null,
 
 	enabled   : true,
@@ -27,9 +22,16 @@ var XMigemoLocationBarOverlay = {
 
 	currentSource : 0,
  
-	sourcesInfo : [ 
+	sourcesOrder : [
+		'KEYWORD_SEARCH',
+		'INPUT_HISTORY',
+		'MATCHING_BOUNDARY',
+		'MATCHING_ANYWHERE',
+		'MATCHING_START'
+	],
+	sources : { 
 	 
-		{ // keyword search ( https://bugzilla.mozilla.org/show_bug.cgi?id=392143 ) 
+		KEYWORD_SEARCH : { // https://bugzilla.mozilla.org/show_bug.cgi?id=392143 
 			getSourceSQL : function(aFindFlag) {
 				return XMigemoPlaces.keywordSearchSourceInRangeSQL;
 			},
@@ -54,7 +56,7 @@ var XMigemoLocationBarOverlay = {
 			style : 'keyword'
 		},
  
-		{ // input history 
+		INPUT_HISTORY : { 
 			getSourceSQL : function(aFindFlag) {
 				return XMigemoPlaces.getInputHistorySourceInRangeSQL(aFindFlag);
 			},
@@ -69,10 +71,10 @@ var XMigemoLocationBarOverlay = {
 			}
 		},
  
-		{ // match boundary 
-			get enabled() {
+		MATCHING_BOUNDARY : { 
+			isAvailable : function(aFindInfo) {
 				if (!XMigemoPlaces.boundaryFindAvailable) return false;
-				return (XMigemoLocationBarOverlay.lastFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
+				return (aFindInfo.lastFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
 					(XMigemoPlaces.matchBehavior == 1 || XMigemoPlaces.matchBehavior == 2);
 			},
 			getSourceSQL : function(aFindFlag) {
@@ -104,10 +106,10 @@ var XMigemoLocationBarOverlay = {
 			regexp : new RegExp()
 		},
  	
-		{ // match anywhere 
-			get enabled() {
+		MATCHING_ANYWHERE : { 
+			isAvailable : function(aFindInfo) {
 				if (!XMigemoPlaces.boundaryFindAvailable) return XMigemoPlaces.matchBehavior != 3;
-				return (XMigemoLocationBarOverlay.lastFindMode == XMigemoLocationBarOverlay.FIND_MODE_REGEXP) ||
+				return (aFindInfo.lastFindMode == XMigemoLocationBarOverlay.FIND_MODE_REGEXP) ||
 					XMigemoPlaces.matchBehavior == 0;
 			},
 			getSourceSQL : function(aFindFlag) {
@@ -118,9 +120,9 @@ var XMigemoLocationBarOverlay = {
 			}
 		},
  
-		{ // match start 
-			get enabled() {
-				return (XMigemoLocationBarOverlay.lastFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
+		MATCHING_START : { // match start 
+			isAvailable : function(aFindInfo) {
+				return (aFindInfo.lastFindMode != XMigemoLocationBarOverlay.FIND_MODE_REGEXP) &&
 					XMigemoPlaces.matchBehavior == 3;
 			},
 			getSourceSQL : function(aFindFlag) {
@@ -145,7 +147,7 @@ var XMigemoLocationBarOverlay = {
 			regexp : new RegExp()
 		}
  
-	], 
+	}, 
   
 	Converter : Components 
 			.classes['@mozilla.org/intl/texttosuburi;1']
@@ -306,13 +308,9 @@ var XMigemoLocationBarOverlay = {
 	{
 		this.bar.controller.stopSearch();
 
-		var info = this.parseInput(this.lastInput);
-		this.lastInput = info.input;
-		this.lastFindFlag = info.findFlag;
-		this.lastFindMode = info.findMode;
-		this.lastFindRegExp = info.findRegExp;
-		this.lastTermsRegExp = info.termsRegExp;
-		this.lastExceptionsRegExp = info.exceptionRegExp;
+		var findInfo = this.parseInput(this.lastInput);
+		this.lastFindInfo = findInfo;
+		this.lastInput = findInfo.input;
 
 		this.builtCount = 0;
 
@@ -341,11 +339,13 @@ var XMigemoLocationBarOverlay = {
 				var maxResults = aSelf.panel.maxResults;
 				var current;
 				var deferedItems = [];
+				var source;
+				var result;
 				build:
-				for (var i = 0, maxi = aSelf.sourcesInfo.length; i < maxi; i++)
+				for (var i in aSelf.sourcesOrder)
 				{
 					current = 0;
-					aSelf.currentSource = i;
+					source = aSelf.sources[aSelf.sourcesOrder[i]];
 
 					if (deferedItems.length) {
 						aSelf.results = aSelf.results.concat(deferedItems);
@@ -355,10 +355,16 @@ var XMigemoLocationBarOverlay = {
 							break build;
 					}
 
-					if ('enabled' in aSelf.sourcesInfo[aSelf.currentSource] &&
-						!aSelf.sourcesInfo[aSelf.currentSource].enabled) continue;
-					while (aSelf.updateResultsForRange(current, XMigemoPlaces.chunk, deferedItems))
+					if ('isAvailable' in source && !source.isAvailable(findInfo)) continue;
+					while (true)
 					{
+						result = aSelf.findItemsFromRange(findInfo, source, current, XMigemoPlaces.chunk)
+						deferedItems = deferedItems.concat(result.deferedItems);
+						aSelf.results = aSelf.results.concat(result.items);
+						aSelf.lastTerms = aSelf.TextUtils.brushUpTerms(aSelf.lastTerms.concat(result.terms));
+
+						if (result.reachedToEnd) break;
+
 						aSelf.progressiveBuild();
 						if (aSelf.results.length >= maxResults) break build;
 						yield;
@@ -396,11 +402,13 @@ var XMigemoLocationBarOverlay = {
 		var maxResults = this.panel.maxResults;
 		var current;
 		var deferedItems = [];
+		var source;
+		var result;
 		build:
-		for (var i = 0, maxi = this.sourcesInfo.length; i < maxi; i++)
+		for (var i in this.sourcesOrder)
 		{
 			current = 0;
-			this.currentSource = i;
+			source = this.sources[this.sourcesOrder[i]];
 
 			if (deferedItems.length) {
 				this.results = this.results.concat(deferedItems);
@@ -409,10 +417,16 @@ var XMigemoLocationBarOverlay = {
 					break build;
 			}
 
-			if ('enabled' in this.sourcesInfo[this.currentSource] &&
-				!this.sourcesInfo[this.currentSource].enabled) continue;
-			while (this.updateResultsForRange(current, XMigemoPlaces.chunk, deferedItems))
+			if ('isAvailable' in source && !source.isAvailable(this.lastFindInfo)) continue;
+			while (true)
 			{
+				result = this.findItemsFromRange(source, current, XMigemoPlaces.chunk);
+				deferedItems = deferedItems.concat(result.deferedItems);
+				this.results = this.results.concat(result.items);
+				this.lastTerms = this.TextUtils.brushUpTerms(this.lastTerms.concat(result.terms));
+
+				if (result.reachedToEnd) break;
+
 				if (this.results.length >= maxResults) break build;
 				current += XMigemoPlaces.chunk;
 			}
@@ -429,12 +443,12 @@ var XMigemoLocationBarOverlay = {
 	parseInput : function(aInput) 
 	{
 		var info = {
-				input           : aInput,
-				findFlag        : 0,
-				findMode        : this.FIND_MODE_NATIVE,
-				findRegExp      : null,
-				termsRegExp     : null,
-				exceptionRegExp : null
+				input            : aInput,
+				findFlag         : 0,
+				findMode         : this.FIND_MODE_NATIVE,
+				findRegExp       : null,
+				termsRegExp      : null,
+				exceptionsRegExp : null
 			};
 
 		var updatedInput = {};
@@ -451,67 +465,74 @@ var XMigemoLocationBarOverlay = {
 		}
 		else {
 			var termsRegExp = {};
-			var exceptionRegExp = {};
+			var exceptionsRegExp = {};
 			info.findRegExp = new RegExp(
-				XMigemoCore.getRegExpFunctional(findInput, termsRegExp, exceptionRegExp),
+				XMigemoCore.getRegExpFunctional(findInput, termsRegExp, exceptionsRegExp),
 				'gim'
 			);
 			info.termsRegExp = new RegExp(termsRegExp.value, 'gim');
-			if (exceptionRegExp.value)
-				info.exceptionRegExp = new RegExp(exceptionRegExp.value, 'gim');
+			if (exceptionsRegExp.value)
+				info.exceptionsRegExp = new RegExp(exceptionsRegExp.value, 'gim');
 			info.findMode = this.FIND_MODE_MIGEMO;
 		}
 
 		return info;
 	},
  
-	updateResultsForRange : function(aStart, aRange, aDeferedItems) 
+	findItemsFromRange : function(aFindInfo, aSource, aStart, aRange) 
 	{
-		var info = this.sourcesInfo[this.currentSource];
+		var result = {
+				items        : [],
+				deferedItems : [],
+				terms        : [],
+				reachedToEnd : false
+			};
 		var sources = XMigemoPlaces.getSingleStringFromRange(
-				info.getSourceSQL(this.lastFindFlag),
+				aSource.getSourceSQL(aFindInfo.findFlag),
 				aStart, aRange,
-				(info.getSourceBindingFor ? info.getSourceBindingFor(this.lastInput) : null )
+				(aSource.getSourceBindingFor ? aSource.getSourceBindingFor(aFindInfo.input) : null )
 			);
-		if (!sources) return false;
+		if (!sources) {
+			result.reachedToEnd = true;
+			return result;
+		}
 
-		var regexp = this.lastFindRegExp
-		if (info.regExpConverter) regexp = info.regExpConverter(regexp);
-		var terms = info.termsGetter ?
-				info.termsGetter(this.lastInput, sources) :
+		var regexp = aFindInfo.findRegExp
+		if (aSource.regExpConverter) regexp = aSource.regExpConverter(regexp);
+		var terms = aSource.termsGetter ?
+				aSource.termsGetter(aFindInfo.input, sources) :
 				sources.match(regexp) ;
-		if (!terms) return true;
+		if (!terms) return result;
 
 		var utils = this.TextUtils;
 
-		terms = this.TextUtils.brushUpTerms(terms)
+		result.terms = this.TextUtils.brushUpTerms(terms)
 			.filter(function(aTerm) {
 				return utils.trim(aTerm);
 			});
-		this.lastTerms = this.TextUtils.brushUpTerms(this.lastTerms.concat(terms));
 
 		var exceptions = [];
-		if (info.exceptionsGetter) {
-			exceptions = info.exceptionsGetter();
+		if (aSource.exceptionsGetter) {
+			exceptions = aSource.exceptionsGetter();
 		}
-		else if (this.lastExceptionsRegExp) {
-			exceptions = sources.match(this.lastExceptionsRegExp) || [];
+		else if (aFindInfo.exceptionsRegExp) {
+			exceptions = sources.match(aFindInfo.exceptionsRegExp) || [];
 			exceptions = this.TextUtils.brushUpTerms(exceptions)
 				.filter(function(aTerm) {
 					return utils.trim(aTerm);
 				});
 		}
 
-		results = this.findItemsFromTerms(
-			terms,
+		result.items = this.findItemsFromTerms(
+			aFindInfo,
+			aSource,
+			result.terms,
 			exceptions,
 			aStart,
 			aRange,
-			aDeferedItems
+			result.deferedItems
 		);
-		this.results = this.results.concat(results);
-
-		return true;
+		return result;
 	},
  
 	clear : function() 
@@ -523,11 +544,7 @@ var XMigemoLocationBarOverlay = {
 		this.lastFoundPlaces = {};
 		this.lastInput = '';
 		this.lastTerms = [];
-		this.lastFindFlag = 0;
 		this.lastExceptions = [];
-		this.lastFindRegExp = null;
-		this.lastTermsRegExp = null;
-		this.lastExceptionsRegExp = null;
 		this.threadDone = true;
 
 		this.panel.overrideValue = null;
@@ -554,7 +571,7 @@ var XMigemoLocationBarOverlay = {
 /* build popup */ 
 	builtCount : 0,
 	 
-	findItemsFromTerms : function(aTerms, aExceptions, aStart, aRange, aDeferedItems) 
+	findItemsFromTerms : function(aFindInfo, aSource, aTerms, aExceptions, aStart, aRange, aDeferedItems) 
 	{
 		if (!aExceptions) aExceptions = [];
 		if (!aDeferedItems) aDeferedItems = [];
@@ -564,10 +581,8 @@ var XMigemoLocationBarOverlay = {
 
 		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
 
-		var info = this.sourcesInfo[this.currentSource];
-
-		var sql      = info.getItemsSQL(this.lastFindFlag);
-		var bindings = info.getItemsBindingFor ? info.getItemsBindingFor(this.lastInput) : [] ;
+		var sql      = aSource.getItemsSQL(aFindInfo.findFlag);
+		var bindings = aSource.getItemsBindingFor ? aSource.getItemsBindingFor(aFindInfo.input) : [] ;
 		var offset   = bindings.length;
 
 		var termsCount      = aTerms.length;
@@ -657,7 +672,7 @@ var XMigemoLocationBarOverlay = {
 				this.lastFoundPlaces[uri] = true;
 
 				terms = this.TextUtils.brushUpTerms(
-						statement.getString(5).match(this.lastTermsRegExp) ||
+						statement.getString(5).match(aFindInfo.termsRegExp) ||
 						[]
 					).filter(function(aTerm) {
 						return utils.trim(aTerm);
@@ -677,12 +692,12 @@ var XMigemoLocationBarOverlay = {
 				if (item.tags) {
 					item.style = 'tag';
 				}
-				if (info.style) {
-					item.style = info.style;
+				if (aSource.style) {
+					item.style = aSource.style;
 				}
 
-				if (info.itemFilter) {
-					switch (info.itemFilter(item, terms, this.lastFindFlag))
+				if (aSource.itemFilter) {
+					switch (aSource.itemFilter(item, terms, aFindInfo.findFlag))
 					{
 						default:
 						case this.kITEM_ACCEPT:

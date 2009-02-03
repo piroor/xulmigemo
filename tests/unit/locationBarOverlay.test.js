@@ -43,7 +43,7 @@ function test_parseInput()
 	assert.equals(service.FIND_MODE_MIGEMO, info.findMode);
 	assert.pattern('にほんご', info.findRegExp);
 	assert.pattern('にほんご', info.termsRegExp);
-	assert.isNull(info.exceptionRegExp);
+	assert.isNull(info.exceptionsRegExp);
 
 	info = service.parseInput('nihongo -eigo');
 	assert.equals('nihongo -eigo', info.input);
@@ -51,7 +51,7 @@ function test_parseInput()
 	assert.equals(service.FIND_MODE_MIGEMO, info.findMode);
 	assert.pattern('にほんご', info.findRegExp);
 	assert.pattern('にほんご', info.termsRegExp);
-	assert.pattern('えいご', info.exceptionRegExp);
+	assert.pattern('えいご', info.exceptionsRegExp);
 
 	XMigemoPlaces.autoStartRegExpFind = true;
 	info = service.parseInput('/reg(ular )?exp?(ression)?/');
@@ -62,13 +62,13 @@ function test_parseInput()
 	assert.pattern('regular expression', info.findRegExp);
 	assert.pattern('regexp', info.termsRegExp);
 	assert.pattern('regular expression', info.termsRegExp);
-	assert.isNull(info.exceptionRegExp);
+	assert.isNull(info.exceptionsRegExp);
 
 	XMigemoPlaces.autoStartRegExpFind = false;
 	info = service.parseInput('/reg(ular )?exp?(ression)?/');
 	assert.equals('/reg(ular )?exp?(ression)?/', info.input);
 	assert.equals(0, info.findFlag);
 	assert.equals(service.FIND_MODE_MIGEMO, info.findMode);
-	assert.isNull(info.exceptionRegExp);
+	assert.isNull(info.exceptionsRegExp);
 }
 
