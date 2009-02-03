@@ -504,7 +504,6 @@ var XMigemoLocationBarOverlay = {
 		var result = {
 				items        : [],
 				deferedItems : [],
-				terms        : [],
 				reachedToEnd : false
 			};
 		var sources = XMigemoPlaces.getSingleStringFromRange(
@@ -525,7 +524,7 @@ var XMigemoLocationBarOverlay = {
 
 		var utils = this.TextUtils;
 
-		result.terms = this.TextUtils.brushUpTerms(terms)
+		terms = this.TextUtils.brushUpTerms(terms)
 			.filter(function(aTerm) {
 				return utils.trim(aTerm);
 			});
@@ -542,15 +541,16 @@ var XMigemoLocationBarOverlay = {
 				});
 		}
 
-		result.items = this.findItemsFromTerms(
-			aFindInfo,
-			aSource,
-			result.terms,
-			exceptions,
-			aStart,
-			aRange,
-			result.deferedItems
-		);
+		var foundItems = this.findItemsFromRangeByTerms(
+				aFindInfo,
+				aSource,
+				aStart,
+				aRange,
+				terms,
+				exceptions
+			);
+		result.items = foundItems.items;
+		result.deferedItems = foundItems.deferedItems;
 		return result;
 	},
  
@@ -588,13 +588,15 @@ var XMigemoLocationBarOverlay = {
 /* build popup */ 
 	builtCount : 0,
 	
-	findItemsFromTerms : function(aFindInfo, aSource, aTerms, aExceptions, aStart, aRange, aDeferedItems) 
+	findItemsFromRangeByTerms : function(aFindInfo, aSource, aStart, aRange, aTerms, aExceptions) 
 	{
+		var result = {
+				items        : [],
+				deferedItems : []
+			};
 		if (!aExceptions) aExceptions = [];
-		if (!aDeferedItems) aDeferedItems = [];
 
-		var items = [];
-		if (!aTerms.length && !aExceptions.length) return items;
+		if (!aTerms.length && !aExceptions.length) return result;
 
 		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
 
@@ -632,7 +634,7 @@ var XMigemoLocationBarOverlay = {
 		}
 		if (aStart !== void(0)) {
 			aRange = Math.max(0, aRange);
-			if (!aRange) return items;
+			if (!aRange) return result;
 			sql = sql.replace(
 				'%SOURCES_LIMIT_PART%',
 				'LIMIT ?'+(termsCount+exceptionsCount+offset+1)+',?'+(termsCount+exceptionsCount+offset+2)
@@ -654,7 +656,7 @@ var XMigemoLocationBarOverlay = {
 			catch(e) {
 				this.findItemsFromTermsLastSQL = null;
 				dump(e+'\n'+sql+'\n');
-				return items;
+				return result;
 			}
 		}
 		try {
@@ -719,20 +721,20 @@ var XMigemoLocationBarOverlay = {
 					case this.kITEM_ACCEPT:
 						break;
 					case this.kITEM_DEFERED:
-						aDeferedItems.push(item);
+						result.deferedItems.push(item);
 					case this.kITEM_SKIP:
 						continue;
 				}
 
-				items.push(item);
+				result.items.push(item);
 
-				if (items.length >= maxNum) break;
+				if (result.items.length >= maxNum) break;
 			};
 		}
 		finally {
 			statement.reset();
 		}
-		return items;
+		return result;
 	},
 	findItemsFromTermsLastStatement : null,
 	findItemsFromTermsLastSQL : null,
