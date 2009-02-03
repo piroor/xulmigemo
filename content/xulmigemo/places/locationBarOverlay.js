@@ -605,14 +605,14 @@ var XMigemoLocationBarOverlay = {
 			sql = sql.replace('%SOURCES_LIMIT_PART%', '');
 		}
 
-		var statement = this.findItemsFromTermsLastStatement;
+		var statement = this.findItemsFromTerms_lastStatement;
 		if (!statement || sql != this.findItemsFromTermsLastSQL) {
-			this.findItemsFromTermsLastStatement = null;
+			this.findItemsFromTerms_lastStatement = null;
 			this.findItemsFromTermsLastSQL = sql;
 			if (statement && 'finalize' in statement) statement.finalize();
 			try {
 				statement = XMigemoPlaces.db.createStatement(sql);
-				this.findItemsFromTermsLastStatement = statement;
+				this.findItemsFromTerms_lastStatement = statement;
 			}
 			catch(e) {
 				this.findItemsFromTermsLastSQL = null;
@@ -697,7 +697,7 @@ var XMigemoLocationBarOverlay = {
 		}
 		return result;
 	},
-	findItemsFromTermsLastStatement : null,
+	findItemsFromTerms_lastStatement : null,
 	findItemsFromTermsLastSQL : null,
  
 	progressiveBuild : function() 
@@ -858,9 +858,9 @@ var XMigemoLocationBarOverlay = {
 		window.removeEventListener('unload', this, false);
 		this.destroyLocationBar();
 		XMigemoService.removePrefListener(this);
-		if (this.findItemsFromTermsLastStatement &&
-			'finalize' in this.findItemsFromTermsLastStatements) {
-			this.findItemsFromTermsLastStatement.finalize();
+		if (this.findItemsFromTerms_lastStatement &&
+			'finalize' in this.findItemsFromTerms_lastStatements) {
+			this.findItemsFromTerms_lastStatement.finalize();
 		}
 	},
 	
