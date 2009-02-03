@@ -449,7 +449,7 @@ var XMigemoLocationBarOverlay = {
 	updateResultsForRange : function(aStart, aRange, aDeferedItems) 
 	{
 		var info = this.sourcesInfo[this.currentSource];
-		var sources = XMigemoPlaces.getSourceInRange(
+		var sources = XMigemoPlaces.getSingleStringFromRange(
 				info.getSourceSQL(this.lastFindFlag),
 				aStart, aRange,
 				(info.getSourceBindingFor ? info.getSourceBindingFor(this.lastInput) : null )

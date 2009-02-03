@@ -196,3 +196,49 @@ function test_insertConditions()
 }
 
 
+function test_getSingleStringFromRange_withoutRange()
+{
+	var sql = <![CDATA[
+			SELECT GROUP_CONCAT(url, %PLACE_FOR_LINEBREAK%)
+			  FROM (SELECT *
+			          FROM moz_places
+			         ORDER BY id ASC
+			         LIMIT 0,2)
+		]]>.toString();
+	assert.equals('', XMigemoPlaces.getSingleStringFromRange(sql, 0, 0));
+}
+
+function test_getSingleStringFromRange_withoutBinding()
+{
+	var sql = <![CDATA[
+			SELECT GROUP_CONCAT(url, %PLACE_FOR_LINEBREAK%)
+			  FROM (SELECT *
+			          FROM moz_places
+			         ORDER BY id ASC
+			         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
+		]]>.toString();
+	var sources1 = XMigemoPlaces.getSingleStringFromRange(sql, 0, 2);
+	var sources2 = XMigemoPlaces.getSingleStringFromRange(sql, 2, 2);
+	var sources3 = XMigemoPlaces.getSingleStringFromRange(sql, 0, 4);
+	assert.notEquals(sources1, sources2);
+	assert.equals(sources1+'\n'+sources2, sources3);
+}
+
+function test_getSingleStringFromRange_withBinding()
+{
+	var sql = <![CDATA[
+			SELECT GROUP_CONCAT(url, %PLACE_FOR_LINEBREAK%)
+			  FROM (SELECT *
+			          FROM moz_places
+			         WHERE url LIKE ?1 OR visit_count > ?2
+			         ORDER BY id ASC
+			         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
+		]]>.toString();
+	var binding = ['http://%', 1];
+	var sources1 = XMigemoPlaces.getSingleStringFromRange(sql, 0, 2, binding);
+	var sources2 = XMigemoPlaces.getSingleStringFromRange(sql, 2, 2, binding);
+	var sources3 = XMigemoPlaces.getSingleStringFromRange(sql, 0, 4, binding);
+	assert.notEquals(sources1, sources2);
+	assert.equals(sources1+'\n'+sources2, sources3);
+}
+
