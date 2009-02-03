@@ -31,7 +31,6 @@ var XMigemoLocationBarSearchSource = {
 var XMigemoLocationBarOverlay = { 
 	
 	foundItems : [], 
-	lastFoundPlaces : {},
 	lastInput : '',
 	thread : null,
 
@@ -441,7 +440,7 @@ var XMigemoLocationBarOverlay = {
 			if (!source.isAvailable(this.lastFindInfo.findMode)) continue;
 			while (true)
 			{
-				result = this.findItemsFromRange(source, current, XMigemoPlaces.chunk);
+				result = this.findItemsFromRange(this.lastFindInfo, source, current, XMigemoPlaces.chunk);
 				deferedItems = deferedItems.concat(result.deferedItems);
 				this.foundItems = this.foundItems.concat(result.items);
 
@@ -514,40 +513,6 @@ var XMigemoLocationBarOverlay = {
 		result.deferedItems = foundItems.deferedItems;
 		return result;
 	},
- 
-	clear : function() 
-	{
-		this.stopDelayedStart();
-		this.stopProgressiveBuild();
-
-		this.foundItems = [];
-		this.lastFoundPlaces = {};
-		this.lastInput = '';
-		this.threadDone = true;
-
-		this.panel.overrideValue = null;
-
-		this.busy = false;
-	},
- 
-	delayedClose : function() 
-	{
-		this.stopDelayedClose();
-		this.delayedCloseTimer = window.setTimeout(function(aSelf) {
-			aSelf.stopDelayedClose();
-			aSelf.bar.closePopup();
-		}, this.delay, this);
-	},
-	stopDelayedClose : function()
-	{
-		if (!this.delayedCloseTimer) return;
-		window.clearTimeout(this.delayedCloseTimer);
-		this.delayedCloseTimer = null;
-	},
-	delayedCloseTimer : null,
- 
-/* build popup */ 
-	builtCount : 0,
 	
 	findItemsFromRangeByTerms : function(aFindInfo, aSource, aStart, aRange, aTerms, aExceptions) 
 	{
@@ -556,6 +521,7 @@ var XMigemoLocationBarOverlay = {
 				deferedItems : []
 			};
 		if (!aExceptions) aExceptions = [];
+		if (!aFindInfo.blackList) aFindInfo.blackList = {};
 
 		if (!aTerms.length && !aExceptions.length) return result;
 
@@ -652,8 +618,8 @@ var XMigemoLocationBarOverlay = {
 			while(statement.executeStep())
 			{
 				uri = statement.getString(1);
-				if (uri in this.lastFoundPlaces) continue;
-				this.lastFoundPlaces[uri] = true;
+				if (uri in aFindInfo.blackList) continue;
+				aFindInfo.blackList[uri] = true;
 
 				terms = this.TextUtils.brushUpTerms(
 						statement.getString(5).match(aFindInfo.termsRegExp) ||
@@ -703,7 +669,41 @@ var XMigemoLocationBarOverlay = {
 	},
 	findItemsFromTerms_lastStatement : null,
 	findItemsFromTermsLastSQL : null,
+  
+	clear : function() 
+	{
+		this.stopDelayedStart();
+		this.stopProgressiveBuild();
+
+		this.foundItems = [];
+		this.lastFindInfo = null;
+		this.lastInput = '';
+		this.threadDone = true;
+
+		this.panel.overrideValue = null;
+
+		this.busy = false;
+	},
  
+	delayedClose : function() 
+	{
+		this.stopDelayedClose();
+		this.delayedCloseTimer = window.setTimeout(function(aSelf) {
+			aSelf.stopDelayedClose();
+			aSelf.bar.closePopup();
+		}, this.delay, this);
+	},
+	stopDelayedClose : function()
+	{
+		if (!this.delayedCloseTimer) return;
+		window.clearTimeout(this.delayedCloseTimer);
+		this.delayedCloseTimer = null;
+	},
+	delayedCloseTimer : null,
+ 
+/* build popup */ 
+	builtCount : 0,
+	
 	progressiveBuild : function() 
 	{
 		if (!this.foundItems.length) return;
