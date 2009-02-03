@@ -62,18 +62,18 @@ var XMigemoLocationBarOverlay = {
 				return XMigemoPlaces.keywordSearchSourceInRangeSQL;
 			},
 			getSourceBindingFor : function(aInput) {
-				var result = XMigemoPlaces.parseInputForKeywordSearch(aInput);
+				var result = XMigemoPlaces.formatInputForKeywordSearch(aInput);
 				return [result.keyword, result.terms];
 			},
 			getItemsSQL : function(aFindFlag) {
 				return XMigemoPlaces.keywordSearchItemInRangeSQL;
 			},
 			getItemsBindingFor : function(aInput) {
-				var result = XMigemoPlaces.parseInputForKeywordSearch(aInput);
+				var result = XMigemoPlaces.formatInputForKeywordSearch(aInput);
 				return [result.keyword, result.terms];
 			},
 			termsGetter : function(aInput, aSource) {
-				var result = XMigemoPlaces.parseInputForKeywordSearch(aInput);
+				var result = XMigemoPlaces.formatInputForKeywordSearch(aInput);
 				return [result.keyword, result.terms];
 			},
 			exceptionsGetter : function(aInput) {
@@ -330,7 +330,7 @@ var XMigemoLocationBarOverlay = {
 	{
 		this.bar.controller.stopSearch();
 
-		var findInfo = this.parseInput(this.lastInput);
+		var findInfo = XMigemoPlaces.parseInput(this.lastInput);
 		this.lastFindInfo = findInfo;
 		this.lastInput = findInfo.input;
 
@@ -460,45 +460,6 @@ var XMigemoLocationBarOverlay = {
 		throw Components.results.NS_ERROR_NO_INTERFACE;
 	},
   
-	parseInput : function(aInput) 
-	{
-		var info = {
-				input            : aInput,
-				findFlag         : 0,
-				findMode         : this.FIND_MODE_NATIVE,
-				findRegExp       : null,
-				termsRegExp      : null,
-				exceptionsRegExp : null
-			};
-
-		var updatedInput = {};
-		info.findFlag = XMigemoPlaces.getFindFlagFromInput(aInput, updatedInput);
-		info.input = updatedInput.value;
-
-		var findInput = info.input;
-		if (XMigemoPlaces.autoStartRegExpFind &&
-			this.TextUtils.isRegExp(findInput)) {
-			var source = this.TextUtils.extractRegExpSource(findInput);
-			info.findRegExp =
-				info.termsRegExp = new RegExp(source, 'gim');
-			info.findMode = this.FIND_MODE_REGEXP;
-		}
-		else {
-			var termsRegExp = {};
-			var exceptionsRegExp = {};
-			info.findRegExp = new RegExp(
-				XMigemoCore.getRegExpFunctional(findInput, termsRegExp, exceptionsRegExp),
-				'gim'
-			);
-			info.termsRegExp = new RegExp(termsRegExp.value, 'gim');
-			if (exceptionsRegExp.value)
-				info.exceptionsRegExp = new RegExp(exceptionsRegExp.value, 'gim');
-			info.findMode = this.FIND_MODE_MIGEMO;
-		}
-
-		return info;
-	},
- 
 	findItemsFromRange : function(aFindInfo, aSource, aStart, aRange) 
 	{
 		var result = {

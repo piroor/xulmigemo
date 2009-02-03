@@ -38,6 +38,47 @@ function test_isValidInput()
 	assert.isTrue(service.isValidInput('nihongo eigo'));
 }
 
+
+function test_parseInput()
+{
+	var info;
+	const pIMigemoFind = Components.interfaces.pIXMigemoFind;
+
+	info = service.parseInput('nihongo');
+	assert.equals('nihongo', info.input);
+	assert.equals(0, info.findFlag);
+	assert.equals(pIMigemoFind.FIND_MODE_MIGEMO, info.findMode);
+	assert.pattern('‚É‚Ù‚ñ‚²', info.findRegExp);
+	assert.pattern('‚É‚Ù‚ñ‚²', info.termsRegExp);
+	assert.isNull(info.exceptionsRegExp);
+
+	info = service.parseInput('nihongo -eigo');
+	assert.equals('nihongo -eigo', info.input);
+	assert.equals(0, info.findFlag);
+	assert.equals(pIMigemoFind.FIND_MODE_MIGEMO, info.findMode);
+	assert.pattern('‚É‚Ù‚ñ‚²', info.findRegExp);
+	assert.pattern('‚É‚Ù‚ñ‚²', info.termsRegExp);
+	assert.pattern('‚¦‚¢‚²', info.exceptionsRegExp);
+
+	service.autoStartRegExpFind = true;
+	info = service.parseInput('/reg(ular )?exp?(ression)?/');
+	assert.equals('/reg(ular )?exp?(ression)?/', info.input);
+	assert.equals(0, info.findFlag);
+	assert.equals(pIMigemoFind.FIND_MODE_REGEXP, info.findMode);
+	assert.pattern('regexp', info.findRegExp);
+	assert.pattern('regular expression', info.findRegExp);
+	assert.pattern('regexp', info.termsRegExp);
+	assert.pattern('regular expression', info.termsRegExp);
+	assert.isNull(info.exceptionsRegExp);
+
+	service.autoStartRegExpFind = false;
+	info = service.parseInput('/reg(ular )?exp?(ression)?/');
+	assert.equals('/reg(ular )?exp?(ression)?/', info.input);
+	assert.equals(0, info.findFlag);
+	assert.equals(pIMigemoFind.FIND_MODE_MIGEMO, info.findMode);
+	assert.isNull(info.exceptionsRegExp);
+}
+
 function test_updateFindKeyRegExp()
 {
 	service.updateFindKeyRegExp();
@@ -196,6 +237,11 @@ function test_insertConditions()
 		'*',
 		'url NOT LIKE "javascript:%"'
 	);
+}
+
+function test_formatInputForKeywordSearch()
+{
+	assert.isTrue(false); // TBD
 }
 
 
