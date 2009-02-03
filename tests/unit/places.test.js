@@ -48,17 +48,17 @@ function test_parseInput()
 	assert.equals('nihongo', info.input);
 	assert.equals(0, info.findFlag);
 	assert.equals(pIMigemoFind.FIND_MODE_MIGEMO, info.findMode);
-	assert.pattern('Ç…ÇŸÇÒÇ≤', info.findRegExp);
-	assert.pattern('Ç…ÇŸÇÒÇ≤', info.termsRegExp);
+	assert.pattern('„Å´„Åª„Çì„Åî', info.findRegExp);
+	assert.pattern('„Å´„Åª„Çì„Åî', info.termsRegExp);
 	assert.isNull(info.exceptionsRegExp);
 
 	info = service.parseInput('nihongo -eigo');
 	assert.equals('nihongo -eigo', info.input);
 	assert.equals(0, info.findFlag);
 	assert.equals(pIMigemoFind.FIND_MODE_MIGEMO, info.findMode);
-	assert.pattern('Ç…ÇŸÇÒÇ≤', info.findRegExp);
-	assert.pattern('Ç…ÇŸÇÒÇ≤', info.termsRegExp);
-	assert.pattern('Ç¶Ç¢Ç≤', info.exceptionsRegExp);
+	assert.pattern('„Å´„Åª„Çì„Åî', info.findRegExp);
+	assert.pattern('„Å´„Åª„Çì„Åî', info.termsRegExp);
+	assert.pattern('„Åà„ÅÑ„Åî', info.exceptionsRegExp);
 
 	service.autoStartRegExpFind = true;
 	info = service.parseInput('/reg(ular )?exp?(ression)?/');
@@ -241,7 +241,15 @@ function test_insertConditions()
 
 function test_formatInputForKeywordSearch()
 {
-	assert.isTrue(false); // TBD
+	var result;
+
+	result = service.formatInputForKeywordSearch('keyword term');
+	assert.equals('keyword', result.keyword);
+	assert.equals('term', result.terms);
+
+	result = service.formatInputForKeywordSearch('language C++ JavaScript Ruby ');
+	assert.equals('language', result.keyword);
+	assert.equals('C%2B%2B+JavaScript+Ruby', result.terms);
 }
 
 
