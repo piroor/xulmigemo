@@ -305,7 +305,15 @@ var XMigemoLocationBarOverlay = {
 	delayedStart : function() 
 	{
 		this.bar.controller.stopSearch();
-		this.updateRegExp();
+
+		var info = this.parseInput(this.lastInput);
+		this.lastInput = info.input;
+		this.lastFindFlag = info.findFlag;
+		this.lastFindMode = info.findMode;
+		this.lastFindRegExp = info.findRegExp;
+		this.lastTermsRegExp = info.termsRegExp;
+		this.lastExceptionsRegExp = info.exceptionRegExp;
+
 		this.builtCount = 0;
 
 		this.busy = true;
@@ -418,32 +426,43 @@ var XMigemoLocationBarOverlay = {
 		throw Components.results.NS_ERROR_NO_INTERFACE;
 	},
   
-	updateRegExp : function() 
+	parseInput : function(aInput) 
 	{
-		var updatedInput = {};
-		this.lastFindFlag = XMigemoPlaces.getFindFlagFromInput(this.lastInput, updatedInput);
-		this.lastInput = updatedInput.value;
+		var info = {
+				input           : aInput,
+				findFlag        : 0,
+				findMode        : this.FIND_MODE_NATIVE,
+				findRegExp      : null,
+				termsRegExp     : null,
+				exceptionRegExp : null
+			};
 
-		var findInput = this.lastInput;
+		var updatedInput = {};
+		info.findFlag = XMigemoPlaces.getFindFlagFromInput(aInput, updatedInput);
+		info.input = updatedInput.value;
+
+		var findInput = info.input;
 		if (XMigemoPlaces.autoStartRegExpFind &&
 			this.TextUtils.isRegExp(findInput)) {
 			var source = this.TextUtils.extractRegExpSource(findInput);
-			this.lastFindRegExp =
-				this.lastTermsRegExp = new RegExp(source, 'gim');
-			this.lastFindMode = Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP;
+			info.findRegExp =
+				info.termsRegExp = new RegExp(source, 'gim');
+			info.findMode = this.FIND_MODE_REGEXP;
 		}
 		else {
 			var termsRegExp = {};
 			var exceptionRegExp = {};
-			this.lastFindRegExp = new RegExp(
+			info.findRegExp = new RegExp(
 				XMigemoCore.getRegExpFunctional(findInput, termsRegExp, exceptionRegExp),
 				'gim'
 			);
-			this.lastTermsRegExp = new RegExp(termsRegExp.value, 'gim');
+			info.termsRegExp = new RegExp(termsRegExp.value, 'gim');
 			if (exceptionRegExp.value)
-				this.lastExceptionsRegExp = new RegExp(exceptionRegExp.value, 'gim');
-			this.lastFindMode = Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO;
+				info.exceptionRegExp = new RegExp(exceptionRegExp.value, 'gim');
+			info.findMode = this.FIND_MODE_MIGEMO;
 		}
+
+		return info;
 	},
  
 	updateResultsForRange : function(aStart, aRange, aDeferedItems) 
