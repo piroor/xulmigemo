@@ -582,6 +582,10 @@ var XMigemoPlaces = {
 		 WHERE b.type = 1 AND b.fk = p.id) tags
 	]]>.toString(),
   
+	/* output of the SQL must be:
+		SELECT single_string
+		  FROM ...
+	 */
 	getSingleStringFromRange : function(aSQL, aStart, aRange, aAdditionalBinding) 
 	{
 		if (!aSQL || !this.db) return '';
@@ -642,7 +646,7 @@ var XMigemoPlaces = {
 		while(statement.executeStep())
 		{
 			sources = statement.getString(0);
-		};
+		}
 		statement.reset();
 		return this.TextUtils.trim(sources || '');
 	},
