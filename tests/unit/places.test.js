@@ -163,7 +163,7 @@ function test_getFindTargetsFromFlag()
 	var item = {
 			title : 'タイトル',
 			uri   : 'http://www.example.com/',
-			tags  : 'tag'
+			tags  : 'tag1,tag2'
 		};
 	assert.equals(
 		['タイトル'],
@@ -178,7 +178,7 @@ function test_getFindTargetsFromFlag()
 		service.getFindTargetsFromFlag(item, service.kFIND_TITLE | service.kFIND_URI)
 	);
 	assert.equals(
-		['タイトル', 'http://www.example.com/', 'tag'],
+		['タイトル', 'http://www.example.com/', 'tag1', 'tag2'],
 		service.getFindTargetsFromFlag(item, 0)
 	);
 }
