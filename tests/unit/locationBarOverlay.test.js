@@ -84,10 +84,10 @@ function getItemsBySQL(aSQL, aBindings)
 function assert_placesSQLSearch(aSource)
 {
 	var typed            = 'http://www.example.com/really_typed1';
-	var bookmark         = 'http://www.example.com/bookmark1';
+	var bookmark         = 'http://www.example.com/bookmark6';
 	var visited          = 'http://www.example.com/visited6';
 	var visited_bookmark = 'http://www.example.com/bookmark1';
-	var tagged_bookmark  = 'http://www.example.com/tagged';
+	var tagged_bookmark  = 'http://www.example.com/bookmark2';
 	var tagged_visited   = 'http://www.example.com/tagged_visited';
 	var javascript       = 'javascript:alert(\'OK\')';
 
