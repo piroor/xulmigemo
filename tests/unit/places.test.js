@@ -239,20 +239,6 @@ function test_insertConditions()
 	);
 }
 
-function test_formatInputForKeywordSearch()
-{
-	var result;
-
-	result = service.formatInputForKeywordSearch('keyword term');
-	assert.equals('keyword', result.keyword);
-	assert.equals('term', result.terms);
-
-	result = service.formatInputForKeywordSearch('language C++ JavaScript Ruby ');
-	assert.equals('language', result.keyword);
-	assert.equals('C%2B%2B+JavaScript+Ruby', result.terms);
-}
-
-
 function test_getSingleStringFromRange_withoutRange()
 {
 	var sql = <![CDATA[

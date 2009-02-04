@@ -42,7 +42,33 @@ function test_findSources()
 	for (var i in service.sources)
 	{
 		let source = service.sources[i];
+		assert.isFunction(source.isAvailable, i);
+		assert.isFunction(source.getSourceSQL, i);
+		assert.isFunction(source.getSourceBindingFor, i);
+		assert.isFunction(source.getItemsSQL, i);
+		assert.isFunction(source.getItemsBindingFor, i);
+		assert.isFunction(source.itemFilter, i);
 	}
+}
+
+function test_findSource_KEYWORD_SEARCH()
+{
+	var source = service.sources.KEYWORD_SEARCH;
+
+	var result;
+	result = source.formatInput('keyword term');
+	assert.equals('keyword', result.keyword);
+	assert.equals('term', result.terms);
+
+	result = source.formatInput('language C++ JavaScript Ruby ');
+	assert.equals('language', result.keyword);
+	assert.equals('C%2B%2B+JavaScript+Ruby', result.terms);
+
+	assert.equals(['keyword', 'terms'], source.getSourceBindingFor('keyword terms'));
+	assert.equals(['keyword', 'terms'], source.getItemsBindingFor('keyword terms'));
+	assert.equals(['keyword', 'terms'], source.termsGetter('keyword terms', 'keyword terms'));
+	assert.equals([], source.exceptionsGetter('keyword terms'));
+	assert.equals('keyword', source.style);
 }
 
 function test_findItemsFromRange()
