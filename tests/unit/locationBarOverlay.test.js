@@ -95,6 +95,119 @@ function test_findSource_INPUT_HISTORY()
 	assert.isTrue(source.isAvailable(service.FIND_MODE_REGEXP));
 }
 
+function test_findSource_MATCHING_BOUNDARY()
+{
+	var source = service.sources.MATCHING_BOUNDARY;
+
+	assert.isNull(source.style);
+
+	XMigemoPlaces.boundaryFindAvailable = true;
+	XMigemoPlaces.matchBehavior = 0;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 1;
+	assert.isTrue(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 2;
+	assert.isTrue(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 3;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+
+	XMigemoPlaces.boundaryFindAvailable = false;
+	XMigemoPlaces.matchBehavior = 0;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 1;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 2;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 3;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+
+	var item = {
+			title : 'にほんご日本語ニホンゴnihongo',
+			uri   : 'http://www.example.com/'
+		};
+	assert.equals(service.kITEM_ACCEPT, source.itemFilter(item, ['にほん'], 0));
+	assert.equals(service.kITEM_ACCEPT, source.itemFilter(item, ['にほん', '日本'], 0));
+	assert.equals(service.kITEM_ACCEPT, source.itemFilter(item, ['にほん', 'example'], 0));
+	assert.equals(service.kITEM_DEFERED, source.itemFilter(item, ['ほん'], 0));
+	assert.equals(service.kITEM_DEFERED, source.itemFilter(item, ['にほん', '本'], 0));
+	assert.equals(service.kITEM_DEFERED, source.itemFilter(item, ['にほん', 'xam'], 0));
+}
+
+function test_findSource_MATCHING_ANYWHERE()
+{
+	var source = service.sources.MATCHING_ANYWHERE;
+
+	assert.isNull(source.style);
+
+	XMigemoPlaces.boundaryFindAvailable = true;
+	XMigemoPlaces.matchBehavior = 0;
+	assert.isTrue(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isTrue(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 1;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isTrue(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 2;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isTrue(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 3;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isTrue(source.isAvailable(service.FIND_MODE_REGEXP));
+
+	XMigemoPlaces.boundaryFindAvailable = false;
+	XMigemoPlaces.matchBehavior = 0;
+	assert.isTrue(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isTrue(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 1;
+	assert.isTrue(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isTrue(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 2;
+	assert.isTrue(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isTrue(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 3;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+}
+
+function test_findSource_MATCHING_START()
+{
+	var source = service.sources.MATCHING_START;
+
+	assert.isNull(source.style);
+
+	XMigemoPlaces.matchBehavior = 0;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 1;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 2;
+	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+	XMigemoPlaces.matchBehavior = 3;
+	assert.isTrue(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+
+	var item = {
+			title : 'にほんご日本語ニホンゴnihongo',
+			uri   : 'http://www.example.com/'
+		};
+	assert.equals(service.kITEM_ACCEPT, source.itemFilter(item, ['にほん'], 0));
+	assert.equals(service.kITEM_SKIP, source.itemFilter(item, ['ほん'], 0));
+	assert.equals(service.kITEM_SKIP, source.itemFilter(item, ['日本'], 0));
+	assert.equals(service.kITEM_ACCEPT, source.itemFilter(item, ['http'], 0));
+	assert.equals(service.kITEM_SKIP, source.itemFilter(item, ['example'], 0));
+	assert.equals(service.kITEM_ACCEPT, source.itemFilter(item, ['にほん', 'http'], 0));
+	assert.equals(service.kITEM_SKIP, source.itemFilter(item, ['にほん', 'example'], 0));
+}
+
 function test_findItemsFromRange()
 {
 }
