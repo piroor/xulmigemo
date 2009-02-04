@@ -52,6 +52,32 @@ function test_findSources()
 	}
 }
 
+function getItemsBySQL(aSQL, aBindings)
+{
+	var statement = XMigemoPlaces.db.createStatement(aSQL);
+	aBindings.forEach(function(aValue, aIndex) {
+		if (typeof aValue == 'number')
+			statement.bindDoubleParameter(aIndex, aValue);
+		else
+			statement.bindStringParameter(aIndex, aValue);
+	});
+	var items = [];
+	while(statement.executeStep())
+	{
+		items.push({
+			title    : statement.getString(0),
+			uri      : statement.getString(1),
+			favicon  : statement.getString(2),
+			bookmark : statement.getString(3),
+			tags     : statement.getString(4),
+			findkey  : statement.getString(5)
+		});
+	}
+	statement.reset();
+	if (statement && 'finalize' in statement) statement.finalize();
+	return items;
+}
+
 function test_findSource_KEYWORD_SEARCH()
 {
 	var source = service.sources.KEYWORD_SEARCH;
@@ -78,6 +104,20 @@ function test_findSource_KEYWORD_SEARCH()
 
 	assert.isTrue(source.isAvailable(service.FIND_MODE_MIGEMO));
 	assert.isTrue(source.isAvailable(service.FIND_MODE_REGEXP));
+
+	result = XMigemoPlaces.getSingleStringFromRange(
+			source.getSourceSQL(0),
+			0, 100,
+			source.getSourceBindingFor('key term')
+		);
+	assert.contains('http://www.example.com/term', result);
+
+	var sql = source.getItemsSQL(0)
+				.replace('%SOURCES_LIMIT_PART%', 'LIMIT 0,10');
+	var bindings = source.getItemsBindingFor('key term');
+	var items = getItemsBySQL(sql, bindings);
+	assert.equals(1, items.length);
+	assert.equals('http://www.example.com/term', items[0].uri);
 }
 
 function test_findSource_INPUT_HISTORY()
