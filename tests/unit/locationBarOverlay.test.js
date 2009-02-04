@@ -32,8 +32,8 @@ function setUp()
 
 	XMigemoPlaces.defaultBehavior = 0;
 	XMigemoPlaces.autoStartRegExpFind = true;
-	XMigemoPlaces.filterJavaScript = true;
-	XMigemoPlaces.filterTyped = false;
+	XMigemoPlaces.excludeJavaScript = true;
+	XMigemoPlaces.restrictTyped = false;
 	XMigemoPlaces.boundaryFindAvailable = true;
 }
 
