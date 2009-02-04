@@ -66,9 +66,33 @@ function test_findSource_KEYWORD_SEARCH()
 
 	assert.equals(['keyword', 'terms'], source.getSourceBindingFor('keyword terms'));
 	assert.equals(['keyword', 'terms'], source.getItemsBindingFor('keyword terms'));
+
+	assert.isFunction(source.termsGetter);
 	assert.equals(['keyword', 'terms'], source.termsGetter('keyword terms', 'keyword terms'));
+
+	assert.isFunction(source.exceptionsGetter);
 	assert.equals([], source.exceptionsGetter('keyword terms'));
+
 	assert.equals('keyword', source.style);
+
+	assert.isTrue(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isTrue(source.isAvailable(service.FIND_MODE_REGEXP));
+}
+
+function test_findSource_INPUT_HISTORY()
+{
+	var source = service.sources.INPUT_HISTORY;
+
+	assert.equals(['input'], source.getSourceBindingFor('input'));
+	assert.equals(['input'], source.getItemsBindingFor('input'));
+
+	assert.isNotFunction(source.termsGetter);
+	assert.isNotFunction(source.exceptionsGetter);
+
+	assert.isNull(source.style);
+
+	assert.isTrue(source.isAvailable(service.FIND_MODE_MIGEMO));
+	assert.isTrue(source.isAvailable(service.FIND_MODE_REGEXP));
 }
 
 function test_findItemsFromRange()
