@@ -32,6 +32,9 @@ function setUp()
 
 	XMigemoPlaces.defaultBehavior = 0;
 	XMigemoPlaces.autoStartRegExpFind = true;
+	XMigemoPlaces.filterJavaScript = true;
+	XMigemoPlaces.filterTyped = false;
+	XMigemoPlaces.boundaryFindAvailable = true;
 }
 
 function tearDown()
@@ -76,6 +79,30 @@ function getItemsBySQL(aSQL, aBindings)
 	statement.reset();
 	if (statement && 'finalize' in statement) statement.finalize();
 	return items;
+}
+
+function assert_placesSQLSearch(aSource)
+{
+	result = XMigemoPlaces.getSingleStringFromRange(
+			aSource.getSourceSQL(0),
+			0, 1000,
+			aSource.getSourceBindingFor('')
+		);
+	assert.contains('http://www.example.com/really_typed1', result);
+	assert.contains('http://www.example.com/bookmark1', result);
+	assert.contains('http://www.example.com/visited1', result);
+	assert.notContains('javascript:', result);
+
+	var sql = aSource.getItemsSQL(0)
+				.replace('%TERMS_RULES%', '1')
+				.replace('%SOURCES_LIMIT_PART%', 'LIMIT 0,1000');
+	var items = getItemsBySQL(sql, []);
+	assert.notEquals(0, items.length);
+	var uris = items.map(function(aItem) { return aItem.uri; });
+	assert.contains('http://www.example.com/really_typed1', uris);
+	assert.contains('http://www.example.com/bookmark1', uris);
+	assert.contains('http://www.example.com/visited1', uris);
+	assert.notContains('javascript:alert(\'OK\')', uris);
 }
 
 function test_findSource_KEYWORD_SEARCH()
@@ -202,6 +229,8 @@ function test_findSource_MATCHING_BOUNDARY()
 	assert.equals(service.kITEM_DEFERED, source.itemFilter(item, ['ほん'], 0));
 	assert.equals(service.kITEM_DEFERED, source.itemFilter(item, ['にほん', '本'], 0));
 	assert.equals(service.kITEM_DEFERED, source.itemFilter(item, ['にほん', 'xam'], 0));
+
+	assert_placesSQLSearch(source);
 }
 
 function test_findSource_MATCHING_ANYWHERE()
@@ -237,6 +266,8 @@ function test_findSource_MATCHING_ANYWHERE()
 	XMigemoPlaces.matchBehavior = 3;
 	assert.isFalse(source.isAvailable(service.FIND_MODE_MIGEMO));
 	assert.isFalse(source.isAvailable(service.FIND_MODE_REGEXP));
+
+	assert_placesSQLSearch(source);
 }
 
 function test_findSource_MATCHING_START()
@@ -269,6 +300,8 @@ function test_findSource_MATCHING_START()
 	assert.equals(service.kITEM_SKIP, source.itemFilter(item, ['example'], 0));
 	assert.equals(service.kITEM_ACCEPT, source.itemFilter(item, ['にほん', 'http'], 0));
 	assert.equals(service.kITEM_SKIP, source.itemFilter(item, ['にほん', 'example'], 0));
+
+	assert_placesSQLSearch(source);
 }
 
 function test_findItemsFromRange()
