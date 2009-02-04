@@ -177,7 +177,7 @@ INSERT INTO "moz_places" VALUES(15,'place:folder=UNFILED_BOOKMARKS','folder=UNFI
 INSERT INTO "moz_places" VALUES(17,'http://www.example.com/tagged','タグ付けされたブックマーク','moc.elpmaxe.www.',1,0,0,NULL,150);
 INSERT INTO "moz_places" VALUES(18,'http://www.example.com/visited','訪問したことがあるだけのページ','moc.elpmaxe.www.',1,0,0,2,100);
 INSERT INTO "moz_places" VALUES(19,'http://www.example.com/tagged_visited','タグ付けされた訪問済みページ','moc.elpmaxe.www.',1,0,0,2,175);
-INSERT INTO "moz_places" VALUES(20,'http://www.example.com/typed','ロケーションバーから訪問したページ','moc.elpmaxe.www.',3,0,1,2,4100);
+INSERT INTO "moz_places" VALUES(20,'http://www.example.com/really_typed1','ロケーションバーから実際に訪問したページ1','moc.elpmaxe.www.',3,0,1,2,4100);
 INSERT INTO "moz_places" VALUES(22,'javascript:alert(''OK'')','alert(''OK'')',NULL,0,0,0,NULL,140);
 INSERT INTO "moz_places" VALUES(24,'http://www.example.com/bookmark1','bookmark1','moc.elpmaxe.www.',1,0,0,NULL,150);
 INSERT INTO "moz_places" VALUES(25,'http://www.example.com/bookmark2','bookmark2','moc.elpmaxe.www.',0,0,0,NULL,140);
@@ -199,7 +199,7 @@ INSERT INTO "moz_places" VALUES(40,'http://www.example.com/visited7','訪問済�
 INSERT INTO "moz_places" VALUES(41,'http://www.example.com/visited8','訪問済み8','moc.elpmaxe.www.',1,0,0,7,100);
 INSERT INTO "moz_places" VALUES(42,'http://www.example.com/visited9','訪問済み9','moc.elpmaxe.www.',1,0,0,7,100);
 INSERT INTO "moz_places" VALUES(43,'http://www.example.com/visited10','訪問済み10','moc.elpmaxe.www.',1,0,0,7,100);
-INSERT INTO "moz_places" VALUES(44,'http://www.example.com/typed1','ロケーションバーから訪問したページ1','moc.elpmaxe.www.',2,0,1,NULL,4000);
+INSERT INTO "moz_places" VALUES(44,'http://www.example.com/really_typed2','ロケーションバーから実際に訪問したページ2','moc.elpmaxe.www.',2,0,1,NULL,4000);
 INSERT INTO "moz_places" VALUES(45,'http://www.example.com/typed2','ロケーションバーから訪問したページ2','moc.elpmaxe.www.',2,0,1,NULL,4000);
 INSERT INTO "moz_places" VALUES(46,'http://www.example.com/typed3','ロケーションバーから訪問したページ3','moc.elpmaxe.www.',1,0,1,NULL,2000);
 INSERT INTO "moz_places" VALUES(47,'http://www.example.com/typed4','ロケーションバーから訪問したページ4','moc.elpmaxe.www.',1,0,1,NULL,2000);
@@ -208,7 +208,7 @@ INSERT INTO "moz_places" VALUES(49,'http://www.example.com/typed6','ロケーシ
 INSERT INTO "moz_places" VALUES(50,'http://www.example.com/typed7','ロケーションバーから訪問したページ7','moc.elpmaxe.www.',1,0,1,NULL,2000);
 INSERT INTO "moz_places" VALUES(51,'http://www.example.com/typed8','ロケーションバーから訪問したページ8','moc.elpmaxe.www.',1,0,1,NULL,2000);
 INSERT INTO "moz_places" VALUES(52,'http://www.example.com/typed9','ロケーションバーから訪問したページ9','moc.elpmaxe.www.',1,0,1,NULL,2000);
-INSERT INTO "moz_places" VALUES(53,'http://www.example.com/typed10','ロケーションバーから訪問したページ10','moc.elpmaxe.www.',3,0,1,NULL,6000);
+INSERT INTO "moz_places" VALUES(53,'http://www.example.com/really_typed3','ロケーションバーから実際に訪問したページ3','moc.elpmaxe.www.',3,0,1,NULL,6000);
 DROP TABLE IF EXISTS "sqlite_sequence";
 CREATE TABLE sqlite_sequence(name,seq);
 INSERT INTO "sqlite_sequence" VALUES('moz_keywords',1);
