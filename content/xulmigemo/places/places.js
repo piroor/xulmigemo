@@ -209,6 +209,16 @@ var XMigemoPlaces = {
 			) {
 			return ' JOIN moz_bookmarks filter ON p.id = filter.fk ';
 		}
+		else if (
+			(aFindFlag & this.kRESTRICT_HISTORY) &&
+			(
+				aFindFlag & this.kRESTRICT_BOOKMARKS ||
+				aFindFlag & this.kRESTRICT_TAGGED
+			)
+			) {
+			return ' JOIN moz_historyvisits filter1 ON p.id = filter1.place_id '+
+					' JOIN moz_bookmarks filter2 ON p.id = filter2.fk ';
+		}
 		return '';
 	},
   
@@ -221,12 +231,14 @@ var XMigemoPlaces = {
 		var sql = this.placesSourceInRangeSQLBase
 				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
 				.replace('%TAGS%', this.tagsSQLFragment)
-				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag))
-				.replace('%SOURCE_FILTER%', this.getFindSourceFilterFromFlag(aFindFlag));
+				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						this.insertTaggedCondition(
-							sql,
+							this.insertFilter(
+								sql,
+								aFindFlag
+							),
 							aFindFlag
 						),
 						aFindFlag
@@ -250,6 +262,7 @@ var XMigemoPlaces = {
 		               %SOURCE_FILTER%
 		         WHERE p.frecency <> 0 AND p.hidden <> 1
 		               %EXCLUDE_JAVASCRIPT%
+		               %SOURCE_CONDITION%
 		               %ONLY_TYPED%
 		               %ONLY_TAGGED%
 		         ORDER BY frecency DESC
@@ -259,15 +272,16 @@ var XMigemoPlaces = {
 	getPlacesItemsSQL : function(aFindFlag) 
 	{
 		var sql = this.placesItemsSQLBase
-				.replace('%PARENT_FOLDER%', this.parentFolderSQLFragment)
 				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
 				.replace('%TAGS%', this.tagsSQLFragment)
-				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag))
-				.replace('%SOURCE_FILTER%', this.getFindSourceFilterFromFlag(aFindFlag));
+				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						this.insertTaggedCondition(
-							sql,
+							this.insertFilter(
+								sql,
+								aFindFlag
+							),
 							aFindFlag
 						),
 						aFindFlag
@@ -293,6 +307,7 @@ var XMigemoPlaces = {
 		                 %SOURCE_FILTER%
 		           WHERE p.frecency <> 0 AND p.hidden <> 1
 		                 %EXCLUDE_JAVASCRIPT%
+		                 %SOURCE_CONDITION%
 		                 %ONLY_TYPED%
 		                 %ONLY_TAGGED%
 		           ORDER BY frecency DESC
@@ -308,12 +323,14 @@ var XMigemoPlaces = {
 		var sql = this.inputHistorySourceInRangeSQLBase
 				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
 				.replace('%TAGS%', this.tagsSQLFragment)
-				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag))
-				.replace('%SOURCE_FILTER%', this.getFindSourceFilterFromFlag(aFindFlag));
+				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						this.insertTaggedCondition(
-							sql,
+							this.insertFilter(
+								sql,
+								aFindFlag
+							),
 							aFindFlag
 						),
 						aFindFlag
@@ -345,6 +362,7 @@ var XMigemoPlaces = {
 		               LEFT OUTER JOIN moz_places p ON i.place_id = p.id
 		               %SOURCE_FILTER%
 		         WHERE 1 %EXCLUDE_JAVASCRIPT%
+		                 %SOURCE_CONDITION%
 		                 %ONLY_TYPED%
 		                 %ONLY_TAGGED%
 		         ORDER BY rank DESC, frecency DESC
@@ -354,15 +372,16 @@ var XMigemoPlaces = {
 	getInputHistoryItemsSQL : function(aFindFlag) 
 	{
 		var sql = this.inputHistoryItemsSQLBase
-				.replace('%PARENT_FOLDER%', this.parentFolderSQLFragment)
 				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
 				.replace('%TAGS%', this.tagsSQLFragment)
-				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag))
-				.replace('%SOURCE_FILTER%', this.getFindSourceFilterFromFlag(aFindFlag));
+				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						this.insertTaggedCondition(
-							sql,
+							this.insertFilter(
+								sql,
+								aFindFlag
+							),
 							aFindFlag
 						),
 						aFindFlag
@@ -399,6 +418,7 @@ var XMigemoPlaces = {
 		                 %SOURCE_FILTER%
 		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
 		           WHERE 1 %EXCLUDE_JAVASCRIPT%
+		                   %SOURCE_CONDITION%
 		                   %ONLY_TYPED%
 		                   %ONLY_TAGGED%
 		           %SOURCES_LIMIT_PART%)
@@ -490,6 +510,24 @@ var XMigemoPlaces = {
 		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
 	]]>.toString(),
    
+	insertFilter : function(aSQL, aFindFlag) 
+	{
+		return aSQL.replace(
+				'%SOURCE_FILTER%',
+				((aFindFlag & this.kRESTRICT_HISTORY) ?
+					' JOIN moz_historyvisits filter1 ON p.id = filter1.place_id ' :
+					'' ) +
+				((aFindFlag & this.kRESTRICT_BOOKMARKS || aFindFlag & this.kRESTRICT_TAGGED) ?
+					' JOIN moz_bookmarks filter2 ON p.id = filter2.fk ' :
+					'' )
+			).replace(
+				'%SOURCE_CONDITION%',
+				(aFindFlag & this.kRESTRICT_BOOKMARKS && !(aFindFlag & this.kRESTRICT_TAGGED)) ?
+					' AND ('+this.parentFolderSQLFragment+') ' :
+					''
+			);
+	},
+ 
 	insertJavaScriptCondition : function(aSQL, aFindFlag) 
 	{
 		return aSQL.replace(
