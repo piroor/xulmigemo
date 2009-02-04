@@ -8,14 +8,16 @@ var XMigemoLocationBarSearchSource = {
 	{
 		return true;
 	},
-	getSourceSQL : function(aFindFlag) {
+	getSourceSQL : function(aFindFlag)
+	{
 		return '';
 	},
 	getSourceBindingFor : function(aInput)
 	{
 		return [];
 	},
-	getItemsSQL : function(aFindFlag) {
+	getItemsSQL : function(aFindFlag)
+	{
 		return '';
 	},
 	getItemsBindingFor : function(aInput)
@@ -61,24 +63,35 @@ var XMigemoLocationBarOverlay = {
 				return XMigemoPlaces.keywordSearchSourceInRangeSQL;
 			},
 			getSourceBindingFor : function(aInput) {
-				var result = XMigemoPlaces.formatInputForKeywordSearch(aInput);
+				var result = this.formatInput(aInput);
 				return [result.keyword, result.terms];
 			},
 			getItemsSQL : function(aFindFlag) {
 				return XMigemoPlaces.keywordSearchItemInRangeSQL;
 			},
 			getItemsBindingFor : function(aInput) {
-				var result = XMigemoPlaces.formatInputForKeywordSearch(aInput);
+				var result = this.formatInput(aInput);
 				return [result.keyword, result.terms];
 			},
 			termsGetter : function(aInput, aSource) {
-				var result = XMigemoPlaces.formatInputForKeywordSearch(aInput);
+				var result = this.formatInput(aInput);
 				return [result.keyword, result.terms];
 			},
 			exceptionsGetter : function(aInput) {
 				return [];
 			},
-			style : 'keyword'
+			style : 'keyword',
+			formatInput : function(aInput) {
+				var input = aInput;
+				var index = input.search(/\s/);
+				if (index < 0) index = input.length;
+				return {
+					keyword : XMigemoPlaces.TextUtils.trim(input.substring(0, index)),
+					terms   : XMigemoPlaces.TextUtils.trim(input.substring(index+1))
+						.replace(/\+/g, '%2B')
+						.replace(/\s+/g, '+')
+				};
+			}
 		}),
  
 		INPUT_HISTORY : XMigemoLocationBarSearchSource.create({ 

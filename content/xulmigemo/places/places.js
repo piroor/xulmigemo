@@ -26,18 +26,6 @@ var XMigemoPlaces = {
 			);
 	},
  
-	formatInputForKeywordSearch : function(aInput) { 
-		var input = aInput;
-		var index = input.search(/\s/);
-		if (index < 0) index = input.length;
-		return {
-			keyword : this.TextUtils.trim(input.substring(0, index)),
-			terms   : this.TextUtils.trim(input.substring(index+1))
-				.replace(/\+/g, '%2B')
-				.replace(/\s+/g, '+')
-		};
-	},
- 
 	parseInput : function(aInput) 
 	{
 		var info = {
@@ -421,51 +409,39 @@ var XMigemoPlaces = {
    
 /* スマートキーワードの検索 */ 
 	
-	get keywordSearchSourceInRangeSQL() 
-	{
-		if (!this._keywordSearchSourceInRangeSQL) {
-			this._keywordSearchSourceInRangeSQL = <![CDATA[
-				SELECT GROUP_CONCAT(search_url, %PLACE_FOR_LINEBREAK%)
-				  FROM (SELECT REPLACE(s.url, '%s', ?2) search_url
-				          FROM moz_keywords k
-				               JOIN moz_bookmarks b ON b.keyword_id = k.id
-				               JOIN moz_places s ON s.id = b.fk
-				               LEFT OUTER JOIN moz_places h ON h.url = search_url
-				          WHERE LOWER(k.keyword) = LOWER(?1)
-				          ORDER BY h.frecency DESC
-		                  LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
-			]]>.toString();
-		}
-		return this._keywordSearchSourceInRangeSQL;
-	},
+	keywordSearchSourceInRangeSQL : <![CDATA[ 
+		SELECT GROUP_CONCAT(search_url, %PLACE_FOR_LINEBREAK%)
+		  FROM (SELECT REPLACE(s.url, '%s', ?2) search_url
+		          FROM moz_keywords k
+		               JOIN moz_bookmarks b ON b.keyword_id = k.id
+		               JOIN moz_places s ON s.id = b.fk
+		               LEFT OUTER JOIN moz_places h ON h.url = search_url
+		          WHERE LOWER(k.keyword) = LOWER(?1)
+		          ORDER BY h.frecency DESC
+                  LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
+	]]>.toString(),
  
-	get keywordSearchItemInRangeSQL() 
-	{
-		if (!this._keywordSearchItemInRangeSQL) {
-			this._keywordSearchItemInRangeSQL = <![CDATA[
-				SELECT h.title,
-				       REPLACE(s.url, '%s', ?2) search_url,
-				       IFNULL(f.url,
-				              (SELECT f.url
-				                 FROM moz_places r
-				                      JOIN moz_favicons f ON f.id = r.favicon_id
-				                WHERE r.rev_host = s.rev_host
-				                ORDER BY r.frecency DESC LIMIT 1)),
-				       b.title,
-				       NULL,
-				       REPLACE(s.url, '%s', ?2) search_source
-				  FROM moz_keywords k
-				       JOIN moz_bookmarks b ON b.keyword_id = k.id
-				       JOIN moz_places s ON s.id = b.fk
-				       LEFT OUTER JOIN moz_places h ON h.url = search_url
-				       LEFT OUTER JOIN moz_favicons f ON f.id = h.favicon_id
-				 WHERE LOWER(k.keyword) = LOWER(?1)
-				 ORDER BY h.frecency DESC
-		         %SOURCES_LIMIT_PART%
-			]]>.toString();
-		}
-		return this._keywordSearchItemInRangeSQL;
-	},
+	keywordSearchItemInRangeSQL : <![CDATA[ 
+		SELECT h.title,
+		       REPLACE(s.url, '%s', ?2) search_url,
+		       IFNULL(f.url,
+		              (SELECT f.url
+		                 FROM moz_places r
+		                      JOIN moz_favicons f ON f.id = r.favicon_id
+		                WHERE r.rev_host = s.rev_host
+		                ORDER BY r.frecency DESC LIMIT 1)),
+		       b.title,
+		       NULL,
+		       REPLACE(s.url, '%s', ?2) search_source
+		  FROM moz_keywords k
+		       JOIN moz_bookmarks b ON b.keyword_id = k.id
+		       JOIN moz_places s ON s.id = b.fk
+		       LEFT OUTER JOIN moz_places h ON h.url = search_url
+		       LEFT OUTER JOIN moz_favicons f ON f.id = h.favicon_id
+		 WHERE LOWER(k.keyword) = LOWER(?1)
+		 ORDER BY h.frecency DESC
+         %SOURCES_LIMIT_PART%
+	]]>.toString(),
   
 /* Places Organizerとサイドバーの検索 */ 
 	
