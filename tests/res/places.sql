@@ -177,7 +177,7 @@ INSERT INTO "moz_places" VALUES(15,'place:folder=UNFILED_BOOKMARKS','folder=UNFI
 INSERT INTO "moz_places" VALUES(17,'http://www.example.com/tagged','タグ付けされたブックマーク','moc.elpmaxe.www.',1,0,0,NULL,150);
 INSERT INTO "moz_places" VALUES(18,'http://www.example.com/visited','訪問したことがあるだけのページ','moc.elpmaxe.www.',1,0,0,2,100);
 INSERT INTO "moz_places" VALUES(19,'http://www.example.com/tagged_visited','タグ付けされた訪問済みページ','moc.elpmaxe.www.',1,0,0,2,175);
-INSERT INTO "moz_places" VALUES(20,'ロケーションバーから訪問したページ','404 Not Found','moc.elpmaxe.www.',3,0,1,2,4100);
+INSERT INTO "moz_places" VALUES(20,'http://www.example.com/typed','ロケーションバーから訪問したページ','moc.elpmaxe.www.',3,0,1,2,4100);
 INSERT INTO "moz_places" VALUES(22,'javascript:alert(''OK'')','alert(''OK'')',NULL,0,0,0,NULL,140);
 INSERT INTO "moz_places" VALUES(24,'http://www.example.com/bookmark1','bookmark1','moc.elpmaxe.www.',1,0,0,NULL,150);
 INSERT INTO "moz_places" VALUES(25,'http://www.example.com/bookmark2','bookmark2','moc.elpmaxe.www.',0,0,0,NULL,140);
