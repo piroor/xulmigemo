@@ -4,8 +4,8 @@ var XMigemoPlaces = {
 	ignoreURI : true,
 	minLength : 3,
 	boundaryFindAvailable : false,
-	filterJavaScript : true,
-	filterTyped : false,
+	excludeJavaScript : true,
+	restrictTyped : false,
 	matchBehavior : 1,
 	defaultBehavior : 0,
  
@@ -523,7 +523,7 @@ var XMigemoPlaces = {
 	{
 		return aSQL.replace(
 				'%EXCLUDE_JAVASCRIPT%',
-				this.filterJavaScript ?
+				this.excludeJavaScript ?
 					'AND p.url NOT LIKE "javascript:%"' :
 					''
 			);
@@ -534,7 +534,7 @@ var XMigemoPlaces = {
 		return aSQL.replace(
 				'%ONLY_TYPED%',
 				(
-					this.filterTyped || // Firefox 3.0.x
+					this.restrictTyped || // Firefox 3.0.x
 					(aFindFlag & this.kRESTRICT_TYPED) // Firefox 3.1 or later
 				) ?
 					'AND p.typed = 1' :
@@ -840,7 +840,7 @@ var XMigemoPlaces = {
 				return;
 
 			case 'browser.urlbar.filter.javascript':
-				this.filterJavaScript = value;
+				this.excludeJavaScript = value;
 				return;
 
 			case 'browser.urlbar.restrict.history':
@@ -870,7 +870,7 @@ var XMigemoPlaces = {
 				return;
 
 			case 'browser.urlbar.matchOnlyTyped':
-				this.filterTyped = value;
+				this.restrictTyped = value;
 				return;
 
 			case 'browser.urlbar.matchBehavior':
