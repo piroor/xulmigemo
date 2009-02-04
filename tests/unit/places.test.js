@@ -158,6 +158,31 @@ function test_getFindKeyContentsFromFlag()
 	assert.contains('COALESCE(tags, "")', result);
 }
 
+function test_getFindTargetsFromFlag()
+{
+	var item = {
+			title : 'タイトル',
+			uri   : 'http://www.example.com/',
+			tags  : 'tag'
+		};
+	assert.equals(
+		['タイトル'],
+		service.getFindTargetsFromFlag(item, service.kFIND_TITLE)
+	);
+	assert.equals(
+		['http://www.example.com/'],
+		service.getFindTargetsFromFlag(item, service.kFIND_URI)
+	);
+	assert.equals(
+		['タイトル', 'http://www.example.com/'],
+		service.getFindTargetsFromFlag(item, service.kFIND_TITLE | service.kFIND_URI)
+	);
+	assert.equals(
+		['タイトル', 'http://www.example.com/', 'tag'],
+		service.getFindTargetsFromFlag(item, 0)
+	);
+}
+
 function test_getFindSourceFilterFromFlag()
 {
 	var flags, result;
