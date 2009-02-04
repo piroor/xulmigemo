@@ -649,12 +649,46 @@ var XMigemoPlaces = {
 			var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
 			file.append('places.sqlite');
 			if (file.exists()) {
-				const StorageService = Components
-					.classes['@mozilla.org/storage/service;1']
-					.getService(Components.interfaces.mozIStorageService);
-				this._db = StorageService.openDatabase(file);
+				this._db = StorageService = Components
+							.classes['@mozilla.org/storage/service;1']
+							.getService(Components.interfaces.mozIStorageService)
+							.openDatabase(file);
 			}
 		}
+		return this._db;
+	},
+	set db(val) // for test
+	{
+		if (!val) {
+			delete this._db;
+			return val;
+		}
+
+		this._db = val;
+		if (!(this._db instanceof Components.interfaces.mozIStorageConnection)) {
+			var file = this._db;
+			if (typeof this._db == 'string') {
+				if (this._db.indexOf('file://') == 0) {
+					file = Components
+							.classes['@mozilla.org/network/io-service;1']
+							.getService(Components.interfaces.nsIIOService)
+							.getProtocolHandler('file')
+							.QueryInterface(Components.interfaces.nsIFileProtocolHandler)
+							.getFileFromURLSpec(this._db);
+				}
+				else {
+					file = Components
+							.classes['@mozilla.org/file/local;1']
+							.createInstance(Components.interfaces.nsILocalFile);
+					file.initWithPath(this._db);
+				}
+			}
+			this._db = StorageService = Components
+						.classes['@mozilla.org/storage/service;1']
+						.getService(Components.interfaces.mozIStorageService)
+						.openDatabase(file);
+		}
+
 		return this._db;
 	},
 //	_db : null,
