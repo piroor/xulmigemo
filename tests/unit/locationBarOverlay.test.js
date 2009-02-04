@@ -134,6 +134,28 @@ function test_findSource_INPUT_HISTORY()
 
 	assert.isTrue(source.isAvailable(service.FIND_MODE_MIGEMO));
 	assert.isTrue(source.isAvailable(service.FIND_MODE_REGEXP));
+
+	result = XMigemoPlaces.getSingleStringFromRange(
+			source.getSourceSQL(0),
+			0, 1000,
+			source.getSourceBindingFor('type')
+		);
+	assert.contains('http://www.example.com/really_typed1', result);
+	assert.notContains('http://www.example.com/visited', result);
+
+	var sql = source.getItemsSQL(0)
+				.replace('%TERMS_RULES%', '1')
+				.replace('%SOURCES_LIMIT_PART%', 'LIMIT 0,1000');
+	var bindings = source.getItemsBindingFor('type');
+	var items = getItemsBySQL(sql, bindings);
+	assert.equals(3, items.length);
+	assert.equals(
+		'http://www.example.com/really_typed1\n'+
+		'http://www.example.com/really_typed2\n'+
+		'http://www.example.com/really_typed3',
+		items.map(function(aItem) { return aItem.uri; })
+			.sort().join('\n')
+	);
 }
 
 function test_findSource_MATCHING_BOUNDARY()
