@@ -71,6 +71,9 @@ pXMigemoTextUtils.prototype = {
 			else
 				result.push(aPart);
 		}, this);
+		result = result.filter(function(aPart) {
+			return this.trim(aPart);
+		}, this);
 		return result.length ? result : parts ;
 	},
 	// http://ablog.seesaa.net/article/20969848.html

@@ -145,3 +145,12 @@ function test_getANDFindRegExpFromTerms()
 	assert.pattern('フランス語,英語,日本語', regexp);
 	assert.notPattern('日本語,フランス語', regexp);
 }
+
+function test_splitByBoundaries()
+{
+	var result;
+	result = textUtils.splitByBoundaries('にほんご日本語ニホンゴnihongo');
+	assert.equals(['にほんご', '日本語', 'ニホンゴ', 'nihongo'], result);
+	result = textUtils.splitByBoundaries('nihongo eigo japanese english');
+	assert.equals(['nihongo', 'eigo', 'japanese', 'english'], result);
+}
