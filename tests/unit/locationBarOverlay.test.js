@@ -112,8 +112,8 @@ function assert_placesSQLSearch(aSource)
 	assert_placesSQLSearchSub(
 		aSource,
 		XMigemoPlaces.kRESTRICT_BOOKMARKS,
-		[bookmark, visited_bookmark, tagged_bookmark],
-		[typed, visited, tagged_visited, javascript],
+		[bookmark, visited_bookmark, tagged_bookmark, tagged_visited],
+		[typed, visited, javascript],
 		'ブックマークに限定'
 	);
 
@@ -128,8 +128,8 @@ function assert_placesSQLSearch(aSource)
 	assert_placesSQLSearchSub(
 		aSource,
 		XMigemoPlaces.kRESTRICT_HISTORY | XMigemoPlaces.kRESTRICT_BOOKMARKS,
-		[visited_bookmark],
-		[typed, bookmark, visited, tagged_bookmark, tagged_visited, javascript],
+		[visited_bookmark, tagged_visited],
+		[typed, bookmark, visited, tagged_bookmark, javascript],
 		'訪問済みブックマークに限定'
 	);
 }

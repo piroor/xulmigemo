@@ -262,7 +262,6 @@ var XMigemoPlaces = {
 		               %SOURCE_FILTER%
 		         WHERE p.frecency <> 0 AND p.hidden <> 1
 		               %EXCLUDE_JAVASCRIPT%
-		               %SOURCE_CONDITION%
 		               %ONLY_TYPED%
 		               %ONLY_TAGGED%
 		         ORDER BY frecency DESC
@@ -307,7 +306,6 @@ var XMigemoPlaces = {
 		                 %SOURCE_FILTER%
 		           WHERE p.frecency <> 0 AND p.hidden <> 1
 		                 %EXCLUDE_JAVASCRIPT%
-		                 %SOURCE_CONDITION%
 		                 %ONLY_TYPED%
 		                 %ONLY_TAGGED%
 		           ORDER BY frecency DESC
@@ -362,7 +360,6 @@ var XMigemoPlaces = {
 		               LEFT OUTER JOIN moz_places p ON i.place_id = p.id
 		               %SOURCE_FILTER%
 		         WHERE 1 %EXCLUDE_JAVASCRIPT%
-		                 %SOURCE_CONDITION%
 		                 %ONLY_TYPED%
 		                 %ONLY_TAGGED%
 		         ORDER BY rank DESC, frecency DESC
@@ -418,7 +415,6 @@ var XMigemoPlaces = {
 		                 %SOURCE_FILTER%
 		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
 		           WHERE 1 %EXCLUDE_JAVASCRIPT%
-		                   %SOURCE_CONDITION%
 		                   %ONLY_TYPED%
 		                   %ONLY_TAGGED%
 		           %SOURCES_LIMIT_PART%)
@@ -520,11 +516,6 @@ var XMigemoPlaces = {
 				((aFindFlag & this.kRESTRICT_BOOKMARKS || aFindFlag & this.kRESTRICT_TAGGED) ?
 					' JOIN moz_bookmarks filter2 ON p.id = filter2.fk ' :
 					'' )
-			).replace(
-				'%SOURCE_CONDITION%',
-				(aFindFlag & this.kRESTRICT_BOOKMARKS && !(aFindFlag & this.kRESTRICT_TAGGED)) ?
-					' AND ('+this.parentFolderSQLFragment+') ' :
-					''
 			);
 	},
  
