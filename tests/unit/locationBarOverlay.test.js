@@ -83,26 +83,83 @@ function getItemsBySQL(aSQL, aBindings)
 
 function assert_placesSQLSearch(aSource)
 {
+	var typed           = 'http://www.example.com/really_typed1';
+	var bookmark        = 'http://www.example.com/bookmark1';
+	var tagged_bookmark = 'http://www.example.com/tagged';
+	var tagged          = 'http://www.example.com/tagged_visited';
+	var visited         = 'http://www.example.com/visited6';
+	var javascript      = 'javascript:alert(\'OK\')';
+
+	XMigemoPlaces.filterJavaScript = false;
+	assert_placesSQLSearchSub(
+		aSource,
+		0,
+		[typed, bookmark, tagged_bookmark, tagged, visited, javascript],
+		[],
+		'JavaScriptフィルタOFF'
+	);
+
+	XMigemoPlaces.filterJavaScript = true;
+	assert_placesSQLSearchSub(
+		aSource,
+		0,
+		[typed, bookmark, tagged_bookmark, tagged, visited],
+		[javascript],
+		'JavaScriptフィルタON'
+	);
+
+	assert_placesSQLSearchSub(
+		aSource,
+		XMigemoPlaces.kRESTRICT_BOOKMARKS,
+		[bookmark, tagged_bookmark, tagged],
+		[typed, visited, javascript],
+		'ブックマークに限定'
+	);
+
+	assert_placesSQLSearchSub(
+		aSource,
+		XMigemoPlaces.kRESTRICT_HISTORY,
+		[typed, tagged_bookmark, tagged, visited],
+		[bookmark, javascript],
+		'訪問済みページに限定'
+	);
+
+	assert_placesSQLSearchSub(
+		aSource,
+		XMigemoPlaces.kRESTRICT_HISTORY | XMigemoPlaces.kRESTRICT_BOOKMARKS,
+		[tagged],
+		[typed, bookmark, tagged_bookmark, visited, javascript],
+		'訪問済みブックマークに限定'
+	);
+}
+
+function assert_placesSQLSearchSub(aSource, aFindFlag, aContains, aNotContains, aMessage)
+{
 	result = XMigemoPlaces.getSingleStringFromRange(
-			aSource.getSourceSQL(0),
+			aSource.getSourceSQL(aFindFlag),
 			0, 1000,
 			aSource.getSourceBindingFor('')
 		);
-	assert.contains('http://www.example.com/really_typed1', result);
-	assert.contains('http://www.example.com/bookmark1', result);
-	assert.contains('http://www.example.com/visited1', result);
-	assert.notContains('javascript:', result);
 
-	var sql = aSource.getItemsSQL(0)
+	aContains.forEach(function(aURI) {
+		assert.contains(aURI, result, aMessage);
+	});
+	aNotContains.forEach(function(aURI) {
+		assert.notContains(aURI, result, aMessage);
+	});
+
+	var sql = aSource.getItemsSQL(aFindFlag)
 				.replace('%TERMS_RULES%', '1')
 				.replace('%SOURCES_LIMIT_PART%', 'LIMIT 0,1000');
 	var items = getItemsBySQL(sql, []);
 	assert.notEquals(0, items.length);
 	var uris = items.map(function(aItem) { return aItem.uri; });
-	assert.contains('http://www.example.com/really_typed1', uris);
-	assert.contains('http://www.example.com/bookmark1', uris);
-	assert.contains('http://www.example.com/visited1', uris);
-	assert.notContains('javascript:alert(\'OK\')', uris);
+	aContains.forEach(function(aURI) {
+		assert.contains(aURI, uris, aMessage);
+	});
+	aNotContains.forEach(function(aURI) {
+		assert.notContains(aURI, uris, aMessage);
+	});
 }
 
 function test_findSource_KEYWORD_SEARCH()
