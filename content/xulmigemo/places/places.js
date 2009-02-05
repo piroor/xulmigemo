@@ -190,37 +190,6 @@ var XMigemoPlaces = {
 		}
 		return target;
 	},
- 
-	getFindSourceFilterFromFlag : function(aFindFlag) 
-	{
-		if (
-			aFindFlag & this.kRESTRICT_HISTORY &&
-			!(aFindFlag & this.kRESTRICT_BOOKMARKS) &&
-			!(aFindFlag & this.kRESTRICT_TAGGED)
-			) {
-			return ' JOIN moz_historyvisits filter ON p.id = filter.place_id ';
-		}
-		else if (
-			!(aFindFlag & this.kRESTRICT_HISTORY) &&
-			(
-				aFindFlag & this.kRESTRICT_BOOKMARKS ||
-				aFindFlag & this.kRESTRICT_TAGGED
-			)
-			) {
-			return ' JOIN moz_bookmarks filter ON p.id = filter.fk ';
-		}
-		else if (
-			(aFindFlag & this.kRESTRICT_HISTORY) &&
-			(
-				aFindFlag & this.kRESTRICT_BOOKMARKS ||
-				aFindFlag & this.kRESTRICT_TAGGED
-			)
-			) {
-			return ' JOIN moz_historyvisits filter1 ON p.id = filter1.place_id '+
-					' JOIN moz_bookmarks filter2 ON p.id = filter2.fk ';
-		}
-		return '';
-	},
   
 /* SQL */ 
 	

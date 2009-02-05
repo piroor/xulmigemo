@@ -1,5 +1,6 @@
 var orig = {};
 utils.include('../../content/xulmigemo/core.js', orig, 'Shift_JIS');
+utils.include('../../content/xulmigemo/service.js', orig, 'Shift_JIS');
 utils.include('../../content/xulmigemo/places/places.js', orig, 'Shift_JIS');
 utils.include('../../content/xulmigemo/places/locationBarOverlay.js', null, 'Shift_JIS');
 
@@ -12,6 +13,9 @@ function setUp()
 {
 	XMigemoCore = {};
 	XMigemoCore.__proto__ = orig.XMigemoCore;
+
+	XMigemoService = {};
+	XMigemoService.__proto__ = orig.XMigemoService;
 
 	XMigemoPlaces = {};
 	XMigemoPlaces.__proto__ = orig.XMigemoPlaces;
@@ -362,11 +366,87 @@ function test_findSource_MATCHING_START()
 	assert_placesSQLSearch(source);
 }
 
-function test_findItemsFromRange()
+function getResults(aFindInfo, aSource)
 {
+	var sources = XMigemoPlaces.getSingleStringFromRange(
+			aSource.getSourceSQL(aFindInfo.findFlag),
+			0,
+			1000,
+			aSource.getSourceBindingFor(aFindInfo.input)
+		);
+	return service.findItemsFromRangeByTerms(
+			aFindInfo,
+			aSource,
+			0,
+			1000,
+			sources.match(aFindInfo.findRegExp) || [],
+			sources.match(aFindInfo.exceptionsRegExp) || []
+		);
 }
 
 function test_findItemsFromRangeByTerms()
 {
+	var result;
+
+	result = getResults(
+		XMigemoPlaces.parseInput('訪問 場所 -ページ'),
+		service.sources.MATCHING_ANYWHERE
+	);
+	assert.notEquals(0, result.items.length);
+	assert.equals(0, result.deferedItems.length, inspect(result.deferedItems));
+	result.items.forEach(function(aItem) {
+		assert.contains('訪問', aItem.title+'\n'+aItem.uri+'\n'+aItem.tags, inspect(aItem));
+		assert.contains('場所', aItem.title+'\n'+aItem.uri+'\n'+aItem.tags, inspect(aItem));
+		assert.notContains('ページ', aItem.title+'\n'+aItem.uri+'\n'+aItem.tags, inspect(aItem));
+	});
+
+	XMigemoPlaces.boundaryFindAvailable = true;
+	XMigemoPlaces.matchBehavior = 1;
+	result = getResults(
+		XMigemoPlaces.parseInput('バー 訪問 -ブックマーク'),
+		service.sources.MATCHING_BOUNDARY
+	);
+	assert.equals(0, result.items.length, inspect(result.items));
+	assert.notEquals(0, result.deferedItems.length);
+	result.deferedItems.forEach(function(aItem) {
+		assert.contains('バー', aItem.title+'\n'+aItem.uri+'\n'+aItem.tags, inspect(aItem));
+		assert.contains('訪問', aItem.title+'\n'+aItem.uri+'\n'+aItem.tags, inspect(aItem));
+		assert.notContains('ブックマーク', aItem.title+'\n'+aItem.uri+'\n'+aItem.tags, inspect(aItem));
+	});
+}
+
+function test_findItemsFromRange()
+{
+	var result;
+
+	result = service.findItemsFromRange(
+		XMigemoPlaces.parseInput('訪問 場所 -ページ'),
+		service.sources.MATCHING_ANYWHERE,
+		0,
+		1000
+	);
+	assert.notEquals(0, result.items.length);
+	assert.equals(0, result.deferedItems.length, inspect(result.deferedItems));
+	result.items.forEach(function(aItem) {
+		assert.contains('訪問', aItem.title+'\n'+aItem.uri+'\n'+aItem.tags, inspect(aItem));
+		assert.contains('場所', aItem.title+'\n'+aItem.uri+'\n'+aItem.tags, inspect(aItem));
+		assert.notContains('ページ', aItem.title+'\n'+aItem.uri+'\n'+aItem.tags, inspect(aItem));
+	});
+
+	XMigemoPlaces.boundaryFindAvailable = true;
+	XMigemoPlaces.matchBehavior = 1;
+	result = service.findItemsFromRange(
+		XMigemoPlaces.parseInput('バー 訪問 -ブックマーク'),
+		service.sources.MATCHING_BOUNDARY,
+		0,
+		1000
+	);
+	assert.equals(0, result.items.length, inspect(result.items));
+	assert.notEquals(0, result.deferedItems.length);
+	result.deferedItems.forEach(function(aItem) {
+		assert.contains('バー', aItem.title+'\n'+aItem.uri+'\n'+aItem.tags, inspect(aItem));
+		assert.contains('訪問', aItem.title+'\n'+aItem.uri+'\n'+aItem.tags, inspect(aItem));
+		assert.notContains('ブックマーク', aItem.title+'\n'+aItem.uri+'\n'+aItem.tags, inspect(aItem));
+	});
 }
 
