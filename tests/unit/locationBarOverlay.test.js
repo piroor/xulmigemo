@@ -91,7 +91,7 @@ function assert_placesSQLSearch(aSource)
 	var tagged_visited   = 'http://www.example.com/tagged_visited';
 	var javascript       = 'javascript:alert(\'OK\')';
 
-	XMigemoPlaces.filterJavaScript = false;
+	XMigemoPlaces.excludeJavaScript = false;
 	assert_placesSQLSearchSub(
 		aSource,
 		0,
@@ -100,7 +100,7 @@ function assert_placesSQLSearch(aSource)
 		'JavaScriptフィルタOFF'
 	);
 
-	XMigemoPlaces.filterJavaScript = true;
+	XMigemoPlaces.excludeJavaScript = true;
 	assert_placesSQLSearchSub(
 		aSource,
 		0,
