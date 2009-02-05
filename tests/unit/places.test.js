@@ -184,26 +184,6 @@ function test_getFindTargetsFromFlag()
 	);
 }
 
-function test_getFindSourceFilterFromFlag()
-{
-	var flags, result;
-
-	flags = service.kRESTRICT_HISTORY;
-	result = service.getFindSourceFilterFromFlag(flags);
-	assert.contains('JOIN moz_historyvisits', result);
-	assert.notContains('JOIN moz_bookmarks', result);
-
-	flags = service.kRESTRICT_BOOKMARKS;
-	result = service.getFindSourceFilterFromFlag(flags);
-	assert.contains('JOIN moz_bookmarks', result);
-	assert.notContains('JOIN moz_historyvisits', result);
-
-	flags = service.kRESTRICT_TAGGED;
-	result = service.getFindSourceFilterFromFlag(flags);
-	assert.contains('JOIN moz_bookmarks', result);
-	assert.notContains('JOIN moz_historyvisits', result);
-}
-
 
 function assert_insertCondition(aMethod, aSQL, aRestrictTarget, aCondition)
 {
@@ -216,7 +196,8 @@ function assert_insertCondition(aMethod, aSQL, aRestrictTarget, aCondition)
 	].forEach(function(aFlag) {
 		var flag = service[aFlag];
 		var result = service[aMethod](aSQL, flag);
-		if (aRestrictTarget == '*' || aRestrictTarget == aFlag) {
+		if (aRestrictTarget == '*' ||
+			aRestrictTarget.indexOf(aFlag) > -1) {
 			assert.contains(aCondition, result, message+' / '+aFlag);
 		}
 		else {
@@ -227,6 +208,21 @@ function assert_insertCondition(aMethod, aSQL, aRestrictTarget, aCondition)
 
 function test_insertConditions()
 {
+	assert_insertCondition(
+		'insertFilter',
+		'%SOURCE_FILTER%',
+		'kRESTRICT_HISTORY',
+		'JOIN moz_historyvisits'
+	);
+
+	assert_insertCondition(
+		'insertFilter',
+		'%SOURCE_FILTER%',
+		'kRESTRICT_BOOKMARKS kRESTRICT_TAGGED',
+		'JOIN moz_bookmarks'
+	);
+
+
 	assert_insertCondition(
 		'insertTaggedCondition',
 		'%ONLY_TAGGED%',
