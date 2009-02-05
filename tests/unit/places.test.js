@@ -291,6 +291,8 @@ function test_getSingleStringFromRange_withoutBinding()
 	var sources3 = service.getSingleStringFromRange(sql, 0, 4);
 	assert.notEquals(sources1, sources2);
 	assert.equals(sources1+'\n'+sources2, sources3);
+
+	assert.equals('', service.getSingleStringFromRange(sql, 10000, 5));
 }
 
 function test_getSingleStringFromRange_withBinding()
@@ -309,5 +311,7 @@ function test_getSingleStringFromRange_withBinding()
 	var sources3 = service.getSingleStringFromRange(sql, 0, 4, binding);
 	assert.notEquals(sources1, sources2);
 	assert.equals(sources1+'\n'+sources2, sources3);
+
+	assert.equals('', service.getSingleStringFromRange(sql, 10000, 5));
 }
 
