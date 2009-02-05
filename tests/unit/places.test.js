@@ -205,7 +205,7 @@ function test_getFindSourceFilterFromFlag()
 }
 
 
-assert.insertCondition = function(aMethod, aSQL, aRestrictTarget, aCondition)
+function assert_insertCondition(aMethod, aSQL, aRestrictTarget, aCondition)
 {
 	var message = aMethod+' for '+aRestrictTarget;
 	[
@@ -227,37 +227,37 @@ assert.insertCondition = function(aMethod, aSQL, aRestrictTarget, aCondition)
 
 function test_insertConditions()
 {
-	assert.insertCondition(
+	assert_insertCondition(
 		'insertTaggedCondition',
 		'%ONLY_TAGGED%',
 		'kRESTRICT_TAGGED',
 		'tags NOT NULL'
 	);
 
-	service.filterTyped = false;
-	assert.insertCondition(
+	service.restrictTyped = false;
+	assert_insertCondition(
 		'insertTypedCondition',
 		'%ONLY_TYPED%',
 		'kRESTRICT_TYPED',
 		'typed = 1'
 	);
-	service.filterTyped = true;
-	assert.insertCondition(
+	service.restrictTyped = true;
+	assert_insertCondition(
 		'insertTypedCondition',
 		'%ONLY_TYPED%',
 		'*',
 		'typed = 1'
 	);
 
-	service.filterJavaScript = false;
-	assert.insertCondition(
+	service.excludeJavaScript = false;
+	assert_insertCondition(
 		'insertJavaScriptCondition',
 		'%EXCLUDE_JAVASCRIPT%',
 		'',
 		'url NOT LIKE "javascript:%"'
 	);
-	service.filterJavaScript = true;
-	assert.insertCondition(
+	service.excludeJavaScript = true;
+	assert_insertCondition(
 		'insertJavaScriptCondition',
 		'%EXCLUDE_JAVASCRIPT%',
 		'*',
