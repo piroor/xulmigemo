@@ -82,3 +82,34 @@ function test_regExpFindArr_forHiddenTargets()
 	assert.equals(5, array.length);
 	assert.equals(['b', 'a', 'b', 'a', 'c'], array.map(function(aRange) { return aRange.toString(); }));
 }
+
+
+test_regExpHighlightTextWithSelection.description = 'Firefox 3.1以降での選択範囲によるハイライト表示';
+function test_regExpHighlightTextWithSelection()
+{
+	yield Do(utils.loadURI('../res/keyEventTest.html'));
+
+	var selCon = content.QueryInterface(Ci.nsIInterfaceRequestor)
+						.getInterface(Ci.nsIWebNavigation)
+						.QueryInterface(Ci.nsIDocShell)
+						.QueryInterface(Ci.nsIInterfaceRequestor)
+						.getInterface(Ci.nsISelectionDisplay)
+						.QueryInterface(Ci.nsISelectionController);
+
+	var range = content.document.createRange();
+	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
+	core.regExpHighlightTextWithSelection('text', '', range, null, selCon);
+
+	var selection = selCon.getSelection(selCon.SELECTION_FIND);
+	assert.notEquals(0, selection.rangeCount);
+
+	var input = content.document.getElementsByTagName('input')[0];
+	selCon = input.QueryInterface(Ci.nsIDOMNSEditableElement)
+				.editor
+				.selectionController;
+	selection = selCon.getSelection(selCon.SELECTION_FIND);
+	assert.notEquals(0, selection.rangeCount);
+}
+if (!('SELECTION_FIND' in Components.interfaces.nsISelectionController)) {
+	test_regExpHighlightTextWithSelection.priority = 'never';
+}
