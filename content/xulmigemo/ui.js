@@ -2017,7 +2017,7 @@ var XMigemoUI = {
 					<![CDATA[
 						if (XMigemoUI.isActive || !XMigemoUI.highlightSelectionOnly) {
 							if (!aHighlight) XMigemoUI.clearHighlight(doc);
-							if (XMigemoUI.highlightText(aHighlight, aWord, null, this._searchRange, controller)) {
+							if (XMigemoUI.highlightText(aHighlight, aWord, null, this._searchRange)) {
 								this._lastHighlightString = aWord;
 								return true;
 							}
@@ -2414,10 +2414,10 @@ var XMigemoUI = {
 		if (range) range.detach();
 	},
 	
-	collectHighlights : function(aDocument, aRecursively, aSelCon) 
+	collectHighlights : function(aDocument, aRecursively, aSelCons) 
 	{
 		var highlights = [];
-		if (!aSelCon) aSelCon = [];
+		if (!aSelCons) aSelCons = [];
 
 		var nodes;
 		var selCon;
@@ -2439,7 +2439,7 @@ var XMigemoUI = {
 						selectionController : selCon
 					};
 				}));;
-				aSelCon.push(selCon);
+				aSelCons.push(selCon);
 			}
 		}
 		catch(e) {
@@ -2453,7 +2453,7 @@ var XMigemoUI = {
 				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 				.getInterface(Components.interfaces.nsISelectionDisplay)
 				.QueryInterface(Components.interfaces.nsISelectionController);
-			aSelCon.push(selCon);
+			aSelCons.push(selCon);
 		}
 		catch(e) {
 			selCon = null;
@@ -2469,12 +2469,12 @@ var XMigemoUI = {
 		if (aRecursively)
 			Array.slice(aDocument.defaultView.frames)
 				.forEach(function(aFrame) {
-					highlights = highlights.concat(this.collectHighlights(aFrame.document, aRecursively, aSelCon));
+					highlights = highlights.concat(this.collectHighlights(aFrame.document, aRecursively, aSelCons));
 				}, this);
 
 		return highlights;
 	},
-	collectHighlightNodes : function(aDocument, aTarget, aSelCon)
+	collectHighlightNodes : function(aDocument, aTarget)
 	{
 		var xpathResult = aDocument.evaluate(
 				'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search"]',
@@ -2491,7 +2491,7 @@ var XMigemoUI = {
 		return nodes;
 	},
   
-	highlightText : function(aDoHighlight, aWord, aBaseNode, aRange, aSelCon) 
+	highlightText : function(aDoHighlight, aWord, aBaseNode, aRange) 
 	{
 		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
 					this.textUtils.extractRegExpSource(aWord) :
@@ -2506,8 +2506,8 @@ var XMigemoUI = {
 		var ranges = !aDoHighlight ?
 				[XMigemoFind.core.regExpFind(regexp, '', aRange, null, null, false)] :
 			this.highlightSelectionAvailable ?
-				XMigemoFind.core.regExpHighlightTextWithSelection(regexp, '', aRange, aBaseNode, aSelCon) :
-				XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode);
+				XMigemoFind.core.regExpHighlightTextWithSelection(regexp, '', aRange, aBaseNode) :
+				XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode) ;
 
 		return ranges.length ? true : false ;
 	},
