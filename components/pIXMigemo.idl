@@ -221,8 +221,7 @@ interface pIXMigemo : pIXMigemoEngine
 		in AString regExpSource,
 		in AString regExpFlags,
 		in nsIDOMRange findRange,
-		in nsIDOMNode surroundNode,
-		in nsISupports selectionController
+		in nsIDOMNode surroundNode
 	);
 
 	nsIVariant flattenRegExp(

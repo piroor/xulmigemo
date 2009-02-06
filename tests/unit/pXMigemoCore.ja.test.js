@@ -89,16 +89,16 @@ function test_regExpHighlightTextWithSelection()
 {
 	yield Do(utils.loadURI('../res/keyEventTest.html'));
 
+	var range = content.document.createRange();
+	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
+	core.regExpHighlightTextWithSelection('text', '', range, null);
+
 	var selCon = content.QueryInterface(Ci.nsIInterfaceRequestor)
 						.getInterface(Ci.nsIWebNavigation)
 						.QueryInterface(Ci.nsIDocShell)
 						.QueryInterface(Ci.nsIInterfaceRequestor)
 						.getInterface(Ci.nsISelectionDisplay)
 						.QueryInterface(Ci.nsISelectionController);
-
-	var range = content.document.createRange();
-	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
-	core.regExpHighlightTextWithSelection('text', '', range, null, selCon);
 
 	var selection = selCon.getSelection(selCon.SELECTION_FIND);
 	assert.notEquals(0, selection.rangeCount);

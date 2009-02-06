@@ -494,7 +494,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, null);
 	},
 	 
-	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aSelCon) 
+	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aUseSelection) 
 	{
 		var findRange = aFindRange.cloneRange();
 
@@ -537,8 +537,17 @@ dump('STEP 2: '+array.toSource()+'\n');
 		var terms = this.textUtils.brushUpTerms(text.match(regExp));
 
 		this.mFind.findBackwards = false;
-		var frameSelection = aSelCon && 'SELECTION_FIND' in aSelCon ?
-				aSelCon.getSelection(aSelCon.SELECTION_FIND) : null ;
+
+		var selCon = (aUseSelection && 'SELECTION_FIND' in Ci.nsISelectionController) ?
+						doc.defaultView
+							.QueryInterface(Ci.nsIInterfaceRequestor)
+							.getInterface(Ci.nsIWebNavigation)
+							.QueryInterface(Ci.nsIDocShell)
+							.QueryInterface(Ci.nsIInterfaceRequestor)
+							.getInterface(Ci.nsISelectionDisplay)
+							.QueryInterface(Ci.nsISelectionController) :
+						null ;
+		var frameSelection = selCon ? selCon.getSelection(selCon.SELECTION_FIND) : null ;
 
 		var originalFindRange = findRange;
 		var originalStartPoint = startPoint;
@@ -546,7 +555,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 			var foundRange;
 			var findRange = originalFindRange.cloneRange();
 			var startPoint = originalStartPoint.cloneRange();
-			var selCon;
+			var subSelCon;
 			while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, aEndPoint))
 			{
 				var foundLength = foundRange.toString().length;
@@ -593,11 +602,11 @@ dump('STEP 2: '+array.toSource()+'\n');
 					startPoint.collapse(true);
 				}
 				if (frameSelection) {
-					selCon = this.getEditorSelConFromRange(foundRange);
-					if (selCon) {
-						selCon.getSelection(selCon.SELECTION_FIND)
+					subSelCon = this.getEditorSelConFromRange(foundRange);
+					if (subSelCon) {
+						subSelCon.getSelection(selCon.SELECTION_FIND)
 							.addRange(foundRange);
-						selCon.repaintSelection(selCon.SELECTION_FIND);
+						subSelCon.repaintSelection(selCon.SELECTION_FIND);
 					}
 					else {
 						frameSelection.addRange(foundRange);
@@ -606,7 +615,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 			}
 		}, this);
 		if (frameSelection)
-			aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
+			selCon.repaintSelection(selCon.SELECTION_FIND);
 
 		arrResults.sort(this.textUtils.compareRangePosition);
 
@@ -657,16 +666,9 @@ dump('STEP 2: '+array.toSource()+'\n');
 		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode);
 	},
  
-	regExpHighlightTextWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode, aSelCon) 
+	regExpHighlightTextWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
 	{
-		try {
-			if (aSelCon)
-				aSelCon = aSelCon.QueryInterface(Ci.nsISelectionController);
-		}
-		catch(e) {
-			aSelCon = null;
-		}
-		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, aSelCon);
+		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, true);
 	},
  
 	getDocShellForFrame : function(aFrame) 
