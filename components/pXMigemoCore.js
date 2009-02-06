@@ -537,7 +537,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 		var terms = this.textUtils.brushUpTerms(text.match(regExp));
 
 		this.mFind.findBackwards = false;
-		var selection = aSelCon && 'SELECTION_FIND' in aSelCon ?
+		var frameSelection = aSelCon && 'SELECTION_FIND' in aSelCon ?
 				aSelCon.getSelection(aSelCon.SELECTION_FIND) : null ;
 
 		var originalFindRange = findRange;
@@ -546,6 +546,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 			var foundRange;
 			var findRange = originalFindRange.cloneRange();
 			var startPoint = originalStartPoint.cloneRange();
+			var selCon;
 			while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, aEndPoint))
 			{
 				var foundLength = foundRange.toString().length;
@@ -591,17 +592,41 @@ dump('STEP 2: '+array.toSource()+'\n');
 					startPoint.setStart(foundRange.endContainer, foundRange.endOffset);
 					startPoint.collapse(true);
 				}
-				if (selection) {
-					selection.addRange(foundRange);
+				if (frameSelection) {
+					selCon = this.getEditorSelConFromRange(foundRange);
+					if (selCon) {
+						selCon.getSelection(selCon.SELECTION_FIND)
+							.addRange(foundRange);
+						selCon.repaintSelection(selCon.SELECTION_FIND);
+					}
+					else {
+						frameSelection.addRange(foundRange);
+					}
 				}
 			}
 		}, this);
-		if (selection)
+		if (frameSelection)
 			aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
 
 		arrResults.sort(this.textUtils.compareRangePosition);
 
 		return arrResults;
+	},
+	getEditorSelConFromRange : function(aRange)
+	{
+		var editorElement = aRange.startContainer.ownerDocument.evaluate(
+				'ancestor::*[contains(" INPUT input TEXTAREA textarea textbox ", concat(" ", local-name(), " "))][last()]',
+				aRange.startContainer,
+				null,
+				Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
+				null
+			).singleNodeValue;
+		return (editorElement && (editorElement instanceof Ci.nsIDOMNSEditableElement)) ?
+			editorElement
+				.QueryInterface(Ci.nsIDOMNSEditableElement)
+				.editor
+				.selectionController :
+			null ;
 	},
 	 
 	getDocumentBody : function(aDocument) 
