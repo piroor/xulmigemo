@@ -328,8 +328,8 @@
 <prefpane id="prefpane-shortcut" label="&config.tab.shortcut;" flex="1"
 	onpaneload="initShortcutPane();">
 	<preferences>
-		<preference id="xulmigemo.shortcut.openAgain"
-			name="xulmigemo.shortcut.openAgain"
+		<preference id="xulmigemo.shortcut.modeCirculation"
+			name="xulmigemo.shortcut.modeCirculation"
 			type="int"/>
 		<preference id="xulmigemo.shortcut.findForward"
 			name="xulmigemo.shortcut.findForward"
@@ -358,20 +358,39 @@
 	</preferences>
 
 	<vbox>
-		<label value="&config.shortcut.openAgain.caption;"
-			control="xulmigemo.shortcut.openAgain-menulist"/>
-		<hbox>
-			<spacer style="width:1em;"/>
-			<menulist id="xulmigemo.shortcut.openAgain-menulist"
-				preference="xulmigemo.shortcut.openAgain">
-				<menupopup>
-					<menuitem label="&config.shortcut.openAgain.0;" value="0"/>
-					<menuitem label="&config.shortcut.openAgain.1;" value="1"/>
-					<menuitem label="&config.shortcut.openAgain.3;" value="3"/>
-					<menuitem label="&config.shortcut.openAgain.2;" value="2"/>
-				</menupopup>
-			</menulist>
+		<label value="&config.shortcut.modeCirculation.before1;"/>
+		<hbox align="center">
+			<label value="&config.shortcut.modeCirculation.before2;"/>
+			<checkbox id="modeCirculation-native"
+				preference="xulmigemo.shortcut.modeCirculation"
+				label="&config.shortcut.modeCirculation.native;"
+				flag="1"
+				onsyncfrompreference="return readModeCirculationPref(this);"
+				onsynctopreference="return writeModeCirculationPref(this);"/>
+			<label value="&config.shortcut.modeCirculation.n2r;"/>
+			<checkbox id="modeCirculation-regexp"
+				preference="xulmigemo.shortcut.modeCirculation"
+				label="&config.shortcut.modeCirculation.regexp;"
+				flag="4"
+				onsyncfrompreference="return readModeCirculationPref(this);"
+				onsynctopreference="return writeModeCirculationPref(this);"/>
+			<label value="&config.shortcut.modeCirculation.r2m;"/>
+			<checkbox id="modeCirculation-migemo"
+				preference="xulmigemo.shortcut.modeCirculation"
+				label="&config.shortcut.modeCirculation.migemo;"
+				flag="2"
+				onsyncfrompreference="return readModeCirculationPref(this);"
+				onsynctopreference="return writeModeCirculationPref(this);"/>
+			<label value="&config.shortcut.modeCirculation.m2e;"/>
+			<checkbox id="modeCirculation-exit"
+				preference="xulmigemo.shortcut.modeCirculation"
+				label="&config.shortcut.modeCirculation.exit;"
+				flag="256"
+				onsyncfrompreference="return readModeCirculationPref(this);"
+				onsynctopreference="return writeModeCirculationPref(this);"/>
+			<label value="&config.shortcut.modeCirculation.after1;"/>
 		</hbox>
+		<label value="&config.shortcut.modeCirculation.after2;"/>
 	</vbox>
 	<hbox>
 		<spacer flex="1"/>

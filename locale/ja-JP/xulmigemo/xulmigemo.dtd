@@ -95,11 +95,17 @@
 
 <!ENTITY config.tab.shortcut            "ショートカット">
 
-<!ENTITY config.shortcut.openAgain.caption "検索を実行中にもう一度Ctrl(Command)-Fを入力した時は">
-<!ENTITY config.shortcut.openAgain.0 "何もしない（Firefox既定の動作）">
-<!ENTITY config.shortcut.openAgain.1 "[通常]→[正規表現]→[Migemo]→[通常]→... と切り替える">
-<!ENTITY config.shortcut.openAgain.2 "検索開始→検索終了→検索開始→... と切り替える">
-<!ENTITY config.shortcut.openAgain.3 "[通常]→[正規表現]→[Migemo]→検索終了→[通常]→... と切り替える">
+<!ENTITY config.shortcut.modeCirculation.before1 "検索中にもう一度Ctrl(Command)-Fを入力した時は、モードを">
+<!ENTITY config.shortcut.modeCirculation.before2 "  ">
+<!ENTITY config.shortcut.modeCirculation.native  "[通常]">
+<!ENTITY config.shortcut.modeCirculation.n2r     "→">
+<!ENTITY config.shortcut.modeCirculation.regexp  "[正規表現]">
+<!ENTITY config.shortcut.modeCirculation.r2m     "→">
+<!ENTITY config.shortcut.modeCirculation.migemo  "[Migemo]">
+<!ENTITY config.shortcut.modeCirculation.m2e     "→">
+<!ENTITY config.shortcut.modeCirculation.exit    "検索終了">
+<!ENTITY config.shortcut.modeCirculation.after1  "...と切り替える">
+<!ENTITY config.shortcut.modeCirculation.after2  "">
 
 <!ENTITY config.shortcut.findForward    "次を検索">
 <!ENTITY config.shortcut.findBackward   "前を検索">

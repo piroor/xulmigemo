@@ -95,11 +95,16 @@
 
 <!ENTITY config.tab.shortcut            "Shortcut">
 
-<!ENTITY config.shortcut.openAgain.caption "When Ctrl(Command)-F is pressed while finding,">
-<!ENTITY config.shortcut.openAgain.0 "Do nothing (Firefox Default)">
-<!ENTITY config.shortcut.openAgain.1 "Circulate [Normal] =&gt; [RegExp] =&gt; [Migemo] =&gt; [Normal] =&gt;...">
-<!ENTITY config.shortcut.openAgain.2 "Circulate Start Find =&gt; Exit Find =&gt; Start Find =&gt;...">
-<!ENTITY config.shortcut.openAgain.3 "Circulate [Normal] =&gt; [RegExp] =&gt; [Migemo] =&gt; Exit =&gt; [Normal] =&gt;...">
+<!ENTITY config.shortcut.modeCirculation.before1 "Circulation of find mode by Ctrl(Command)-F:">
+<!ENTITY config.shortcut.modeCirculation.native  "[Normal]">
+<!ENTITY config.shortcut.modeCirculation.n2r     "=&gt;">
+<!ENTITY config.shortcut.modeCirculation.regexp  "[RegExp]">
+<!ENTITY config.shortcut.modeCirculation.r2m     "=&gt;">
+<!ENTITY config.shortcut.modeCirculation.migemo  "[Migemo]">
+<!ENTITY config.shortcut.modeCirculation.m2e     "=&gt;">
+<!ENTITY config.shortcut.modeCirculation.exit    "Exit">
+<!ENTITY config.shortcut.modeCirculation.after1  "...">
+<!ENTITY config.shortcut.modeCirculation.after2  "">
 
 <!ENTITY config.shortcut.findForward    "Find Next">
 <!ENTITY config.shortcut.findBackward   "Find Backward">
