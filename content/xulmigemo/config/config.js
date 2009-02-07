@@ -98,6 +98,28 @@ function fireInputEvent(aNode)
 }
 
 
+function readModeCirculationPref(aCheckbox)
+{
+	var current = document.getElementById('xulmigemo.shortcut.modeCirculation').value;
+	var flag = parseInt(aCheckbox.getAttribute('flag'));
+	return current & flag;
+}
+
+function writeModeCirculationPref(aCheckbox)
+{
+	var current = document.getElementById('xulmigemo.shortcut.modeCirculation').value;
+	var flag = parseInt(aCheckbox.getAttribute('flag'));
+	if ((current & flag) != aCheckbox.checked) {
+		if (current & flag) {
+			current ^= flag;
+		}
+		else {
+			current |= flag;
+		}
+	}
+	return current;
+}
+
 
 function opener()
 {

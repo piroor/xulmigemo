@@ -4,9 +4,9 @@
 }
 
 
-.status-box label[value=""],
-.status-box description[value=""],
-.shrinked-label[value=""] {
+label[value=""]:empty,
+description[value=""]:empty,
+.shrinked-label[value=""]:empty {
 	display: none;
 }
 
