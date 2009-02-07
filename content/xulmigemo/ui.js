@@ -92,11 +92,10 @@ var XMigemoUI = {
  
 	caseSensitiveCheckedAlways : false, 
  
-	openAgainAction : 0, 
-	ACTION_NONE     : 0,
-	ACTION_SWITCH   : 1,
-	ACTION_CLOSE    : 2,
-	ACTION_SWITCH_OR_CLOSE : 3,
+	modeCirculation : 0,
+	modeCirculationTable : [],
+	CIRCULATE_MODE_NONE : 0,
+	CIRCULATE_MODE_EXIT : 256,
  
 	shouldRebuildSelection : false, 
 	prefillWithSelection   : false,
@@ -614,7 +613,7 @@ var XMigemoUI = {
 		xulmigemo.shortcut.manualStartLinksOnly2
 		xulmigemo.shortcut.goDicManager
 		xulmigemo.shortcut.manualExit
-		xulmigemo.shortcut.openAgain
+		xulmigemo.shortcut.modeCirculation
 		xulmigemo.appearance.buttonLabelsMode
 		xulmigemo.appearance.indicator.height
 		xulmigemo.appearance.closeButtonPosition
@@ -724,8 +723,17 @@ var XMigemoUI = {
 				XMigemoService.updateKey('xmigemo-shortcut-goDicManager', this.goDicManagerKey);
 				return;
 
-			case 'xulmigemo.shortcut.openAgain':
-				this.openAgainAction = value;
+			case 'xulmigemo.shortcut.modeCirculation':
+				this.modeCirculation = value;
+				this.modeCirculationTable = [];
+				if (this.modeCirculation & this.FIND_MODE_NATIVE)
+					this.modeCirculationTable.push(this.FIND_MODE_NATIVE);
+				if (this.modeCirculation & this.FIND_MODE_REGEXP)
+					this.modeCirculationTable.push(this.FIND_MODE_REGEXP);
+				if (this.modeCirculation & this.FIND_MODE_MIGEMO)
+					this.modeCirculationTable.push(this.FIND_MODE_MIGEMO);
+				if (this.modeCirculation & this.CIRCULATE_MODE_EXIT)
+					this.modeCirculationTable.push(this.CIRCULATE_MODE_EXIT);
 				return;
 
 			case 'xulmigemo.appearance.buttonLabelsMode':
@@ -1342,34 +1350,43 @@ var XMigemoUI = {
 	
 	onFindStartCommandCallback : function() 
 	{
-		switch (this.openAgainAction)
+		var nextMode = this.getModeCirculationNext();
+		switch (nextMode)
 		{
-			case this.ACTION_SWITCH:
-				var selector = this.findModeSelector;
-				var items = selector.childNodes;
-				this.findMode = items[(selector.selectedIndex + 1) % (items.length)].value;
-				this.onChangeMode();
+			case this.CIRCULATE_MODE_NONE:
 				break;
 
-			case this.ACTION_SWITCH_OR_CLOSE:
-				var selector = this.findModeSelector;
-				var items = Array.slice(selector.childNodes);
-				items.push(-1);
-				target = items[(selector.selectedIndex + 1) % (items.length)];
-				if (target == -1) {
-					this.findMode = items[0].value;
-					gFindBar.closeFindBar();
+			case this.CIRCULATE_MODE_EXIT:
+				nextMode = this.getModeCirculationNext(nextMode);
+				if (nextMode != this.CIRCULATE_MODE_EXIT) {
+					this.findMode = nextMode;
 				}
-				else {
-					this.findMode = target.value;
-					this.onChangeMode();
-				}
-				break;
-
-			case this.ACTION_CLOSE:
 				gFindBar.closeFindBar();
 				break;
+
+			default:
+				this.findMode = nextMode;
+				this.onChangeMode();
+				break;
 		}
+	},
+	getModeCirculationNext : function(aCurrentMode)
+	{
+		if (!this.modeCirculationTable.length) {
+			return this.CIRCULATE_MODE_NONE;
+		}
+		var modes = [
+				this.FIND_MODE_NATIVE,
+				this.FIND_MODE_REGEXP,
+				this.FIND_MODE_MIGEMO,
+				this.CIRCULATE_MODE_EXIT
+			];
+		var index = modes.indexOf(aCurrentMode || this.findMode);
+		do {
+			index = (index + 1) % (modes.length);	
+		}
+		while (this.modeCirculationTable.indexOf(modes[index]) < 0)
+		return modes[index];
 	},
   
 	onFindBarOpen : function(aEvent) 
