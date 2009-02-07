@@ -76,8 +76,12 @@ pref("xulmigemo.shortcut.manualExit",            "ESCAPE");
 pref("xulmigemo.shortcut.findForward",           "F4");
 pref("xulmigemo.shortcut.findBackward",          "Shift+F4");
 pref("xulmigemo.shortcut.goDicManager",          "Accel+Shift+F7");
-// 0 = do nothing, 1 = switch find mode, 2 = close find bar, 3 = switch or close
-pref("xulmigemo.shortcut.openAgain", 1);
+// 0 = do nothing
+// 1 = normal find
+// 2 = migemo find
+// 4 = regexp find
+// 256 = Exit
+pref("xulmigemo.shortcut.modeCirculation", 7);
 
 pref("xulmigemo.dicpath",                       "");
 pref("xulmigemo.dicpath-relative",              "");
