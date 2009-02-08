@@ -92,7 +92,25 @@ var XMigemoUI = {
  
 	caseSensitiveCheckedAlways : false, 
  
-	modeCirculation : 0,
+	_modeCirculation : 0,
+	get modeCirculation()
+	{
+		return this._modeCirculation;
+	},
+	set modeCirculation(val)
+	{
+		this._modeCirculation = val;
+		this.modeCirculationTable = [];
+		if (this.modeCirculation & this.FIND_MODE_NATIVE)
+			this.modeCirculationTable.push(this.FIND_MODE_NATIVE);
+		if (this.modeCirculation & this.FIND_MODE_REGEXP)
+			this.modeCirculationTable.push(this.FIND_MODE_REGEXP);
+		if (this.modeCirculation & this.FIND_MODE_MIGEMO)
+			this.modeCirculationTable.push(this.FIND_MODE_MIGEMO);
+		if (this.modeCirculation & this.CIRCULATE_MODE_EXIT)
+			this.modeCirculationTable.push(this.CIRCULATE_MODE_EXIT);
+		return val;
+	},
 	modeCirculationTable : [],
 	CIRCULATE_MODE_NONE : 0,
 	CIRCULATE_MODE_EXIT : 256,
@@ -725,15 +743,6 @@ var XMigemoUI = {
 
 			case 'xulmigemo.shortcut.modeCirculation':
 				this.modeCirculation = value;
-				this.modeCirculationTable = [];
-				if (this.modeCirculation & this.FIND_MODE_NATIVE)
-					this.modeCirculationTable.push(this.FIND_MODE_NATIVE);
-				if (this.modeCirculation & this.FIND_MODE_REGEXP)
-					this.modeCirculationTable.push(this.FIND_MODE_REGEXP);
-				if (this.modeCirculation & this.FIND_MODE_MIGEMO)
-					this.modeCirculationTable.push(this.FIND_MODE_MIGEMO);
-				if (this.modeCirculation & this.CIRCULATE_MODE_EXIT)
-					this.modeCirculationTable.push(this.CIRCULATE_MODE_EXIT);
 				return;
 
 			case 'xulmigemo.appearance.buttonLabelsMode':
