@@ -96,6 +96,7 @@
 <!ENTITY config.tab.shortcut            "Shortcut">
 
 <!ENTITY config.shortcut.modeCirculation.before1 "Circulation of find mode by Ctrl(Command)-F:">
+<!ENTITY config.shortcut.modeCirculation.before2  "">
 <!ENTITY config.shortcut.modeCirculation.native  "[Normal]">
 <!ENTITY config.shortcut.modeCirculation.n2r     "=&gt;">
 <!ENTITY config.shortcut.modeCirculation.regexp  "[RegExp]">
