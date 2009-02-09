@@ -11,9 +11,6 @@ function normalSetUp(aURI)
 	var retVal = utils.addTab(aURI);
 	yield retVal;
 
-	if (originalWarnOnClose)
-		utils.setPref('browser.tabs.warnOnClose', false);
-
 	browser = utils.getBrowser();
 	browser.removeAllTabsBut(retVal.tab);
 
@@ -46,23 +43,38 @@ assert.findbarState = function(aMode, aShown) {
 }
 
 
+var customPrefs = {
+		'browser.tabs.warnOnClose' : false
+		'xulmigemo.findMode.always' : -1,
+		'xulmigemo.findMode.default' : 0,
+		'xulmigemo.checked_by_default.findbar' : false,
+		'xulmigemo.checked_by_default.highlight' : false,
+		'xulmigemo.checked_by_default.highlight.always' : false,
+		'xulmigemo.checked_by_default.caseSensitive' : false,
+		'xulmigemo.checked_by_default.caseSensitive.always' : false
+	};
+var originalPrefs = {};
+for (var i in customPrefs)
+{
+	originalPrefs[i] = utils.getPref(i);
+}
+
 function setUp()
 {
-	utils.setPref('xulmigemo.findMode.always', -1);
-	utils.setPref('xulmigemo.findMode.default', 0);
-	utils.setPref('xulmigemo.checked_by_default.findbar', false);
-	utils.setPref('xulmigemo.checked_by_default.highlight', false);
-	utils.setPref('xulmigemo.checked_by_default.highlight.always', false);
-	utils.setPref('xulmigemo.checked_by_default.caseSensitive', false);
-	utils.setPref('xulmigemo.checked_by_default.caseSensitive.always', false);
+	for (var i in customPrefs)
+	{
+		utils.setPref(i, customPrefs[i]);
+	}
 }
 
 function tearDown()
 {
 	commonTearDown();
 
-	if (originalWarnOnClose)
-		utils.setPref('browser.tabs.warnOnClose', true);
+	for (var i in originalPrefs)
+	{
+		utils.setPref(i, originalPrefs[i]);
+	}
 }
 
 
