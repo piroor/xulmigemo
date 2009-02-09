@@ -44,7 +44,7 @@ assert.findbarState = function(aMode, aShown) {
 
 
 var customPrefs = {
-		'browser.tabs.warnOnClose' : false
+		'browser.tabs.warnOnClose' : false,
 		'xulmigemo.findMode.always' : -1,
 		'xulmigemo.findMode.default' : 0,
 		'xulmigemo.checked_by_default.findbar' : false,
