@@ -118,6 +118,50 @@ function test_manualSwitch_circulation()
 	yield Do(assert.findCommand('FIND_MODE_NATIVE'));
 }
 
+function test_manualSwitch_circulation_forcedFindMode()
+{
+	assert.isTrue(XMigemoUI.hidden);
+
+	XMigemoUI.modeCirculation = XMigemoUI.FIND_MODE_NATIVE |
+								XMigemoUI.FIND_MODE_REGEXP |
+								XMigemoUI.FIND_MODE_MIGEMO |
+								XMigemoUI.CIRCULATE_MODE_EXIT;
+
+	XMigemoUI.forcedFindMode = XMigemoUI.FIND_MODE_NATIVE;
+	yield Do(assert.findCommand('FIND_MODE_NATIVE'));
+	yield Do(assert.findCommand('FIND_MODE_REGEXP'));
+	yield Do(assert.findCommand('FIND_MODE_MIGEMO'));
+	eval(findCommand);
+	yield wait;
+	assert.isTrue(XMigemoUI.hidden);
+	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
+	yield Do(assert.findCommand('FIND_MODE_NATIVE'));
+
+	XMigemoUI.closeFindBar();
+	yield wait;
+
+	XMigemoUI.forcedFindMode = XMigemoUI.FIND_MODE_REGEXP;
+	yield Do(assert.findCommand('FIND_MODE_REGEXP'));
+	yield Do(assert.findCommand('FIND_MODE_MIGEMO'));
+	eval(findCommand);
+	yield wait;
+	assert.isTrue(XMigemoUI.hidden);
+	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
+	yield Do(assert.findCommand('FIND_MODE_REGEXP'));
+
+	XMigemoUI.closeFindBar();
+	yield wait;
+
+	XMigemoUI.forcedFindMode = XMigemoUI.FIND_MODE_MIGEMO;
+	yield Do(assert.findCommand('FIND_MODE_MIGEMO'));
+	eval(findCommand);
+	yield wait;
+	assert.isTrue(XMigemoUI.hidden);
+	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
+	yield Do(assert.findCommand('FIND_MODE_MIGEMO'));
+
+}
+
 testAutoSwitch.description = '検索モードの自動切り替え';
 function testAutoSwitch()
 {
