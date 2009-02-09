@@ -2,12 +2,17 @@ var description = '起動時の設定のテスト';
 
 utils.include('common.inc.js');
 
+var originalWarnOnClose = utils.getPref('browser.tabs.warnOnClose');
+
 function normalSetUp(aURI)
 {
 	yield utils.setUpTestWindow();
 
 	var retVal = utils.addTab(aURI);
 	yield retVal;
+
+	if (originalWarnOnClose)
+		utils.setPref('browser.tabs.warnOnClose', false);
 
 	browser = utils.getBrowser();
 	browser.removeAllTabsBut(retVal.tab);
@@ -55,6 +60,9 @@ function setUp()
 function tearDown()
 {
 	commonTearDown();
+
+	if (originalWarnOnClose)
+		utils.setPref('browser.tabs.warnOnClose', true);
 }
 
 
