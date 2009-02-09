@@ -37,7 +37,8 @@ function commonSetUp(aURI)
 	gFindBar = win.gFindBar;
 
 	XMigemoUI = win.XMigemoUI;
-	XMigemoUI.openAgainAction = XMigemoUI.ACTION_NONE;
+	XMigemoUI.modeCirculation = XMigemoUI.CIRCULATE_MODE_NONE;
+	XMigemoUI.forcedFindMode = -1;
 	XMigemoUI.highlightCheckedAlways = false;
 	XMigemoUI.caseSensitiveCheckedAlways = false;
 	XMigemoUI.autoStartRegExpFind = true;
