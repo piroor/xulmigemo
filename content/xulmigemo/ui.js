@@ -1375,7 +1375,6 @@ var XMigemoUI = {
 
 			default:
 				this.findMode = nextMode;
-				this.onChangeMode();
 				break;
 		}
 	},
@@ -2238,7 +2237,10 @@ var XMigemoUI = {
 	openFindBar : function(aShowMinimalUI) 
 	{
 		var ui = XMigemoUI;
-		ui.updateFindModeOnOpen(aShowMinimalUI ? ui.FIND_MODE_NATIVE : 0 );
+		ui.updateFindModeOnOpen(
+			(aShowMinimalUI ? ui.FIND_MODE_NATIVE : 0 ),
+			(aShowMinimalUI != ui.isQuickFind)
+		);
 		if (aShowMinimalUI) ui.isQuickFind = true;
 
 		var scope = window.gFindBar ? window.gFindBar : this ;
@@ -2251,9 +2253,11 @@ var XMigemoUI = {
 		ui.findBar.dispatchEvent(event);
 	},
 	
-	updateFindModeOnOpen : function(aOverrideMode) 
+	updateFindModeOnOpen : function(aOverrideMode, aSwitchQuickFindMode) 
 	{
-		if (this.forcedFindMode > -1 && this.findMode != this.forcedFindMode)
+		if (this.forcedFindMode > -1 &&
+			this.findMode != this.forcedFindMode &&
+			(this.hidden || aSwitchQuickFindMode))
 			this.findMode = this.forcedFindMode;
 
 		if (aOverrideMode)
