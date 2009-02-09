@@ -53,11 +53,6 @@ var customPrefs = {
 		'xulmigemo.checked_by_default.caseSensitive' : false,
 		'xulmigemo.checked_by_default.caseSensitive.always' : false
 	};
-var originalPrefs = {};
-for (var i in customPrefs)
-{
-	originalPrefs[i] = utils.getPref(i);
-}
 
 function setUp()
 {
@@ -70,11 +65,6 @@ function setUp()
 function tearDown()
 {
 	commonTearDown();
-
-	for (var i in originalPrefs)
-	{
-		utils.setPref(i, originalPrefs[i]);
-	}
 }
 
 

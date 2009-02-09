@@ -14,8 +14,6 @@ var keyEventTest = baseURL+'../res/keyEventTest.html';
 var keyEventTestXML = baseURL+'../res/keyEventTest.xml';
 var wait = 500;
 
-var originalWarnOnClose = utils.getPref('browser.tabs.warnOnClose');
-
 function commonSetUp(aURI)
 {
 	yield utils.setUpTestWindow();
@@ -23,8 +21,7 @@ function commonSetUp(aURI)
 	var retVal = utils.addTab(aURI);
 	yield retVal;
 
-	if (originalWarnOnClose)
-		utils.setPref('browser.tabs.warnOnClose', false);
+	utils.setPref('browser.tabs.warnOnClose', false);
 
 	browser = utils.getBrowser();
 	browser.removeAllTabsBut(retVal.tab);
@@ -84,9 +81,6 @@ function commonSetUp(aURI)
 function commonTearDown()
 {
 	utils.tearDownTestWindow();
-
-	if (originalWarnOnClose)
-		utils.setPref('browser.tabs.warnOnClose', true);
 }
 
 var key_Ctrl_A = {
