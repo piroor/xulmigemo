@@ -176,6 +176,8 @@ function test_roman2kana2()
 	assertRoman2Kana2Pattern('ナンニん', null, 'nannnin', transform.KANA_ALL);
 	assertRoman2Kana2Pattern('ウぇるカむ', null, 'werukamu', transform.KANA_ALL);
 	assertRoman2Kana2Pattern('ゑるカム', null, 'werukamu', transform.KANA_ALL);
+	assertRoman2Kana2Pattern('う゛ぇくたー', null, 'vekuta-', transform.KANA_ALL);
+	assertRoman2Kana2Pattern('ヴェルディ', null, 'verudhi', transform.KANA_ALL);
 }
 
 function test_hira2roman()
@@ -208,6 +210,7 @@ function test_hira2kata()
 	assertHira2Kata('ａｉｕｅｏ', 'ａｉｕｅｏ');
 	assertHira2Kata('アイウエオ', 'あいうえお');
 	assertHira2Kata('アイウエオ', 'アイウエオ');
+	assertHira2Kata('ヴ', 'う゛');
 	assertHira2Kata('ｱｲｳｴｵ', 'ｱｲｳｴｵ');
 	assertHira2Kata('ガギグゲゴ', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ');
 	assertHira2Kata('po-to', 'po-to');
@@ -223,10 +226,12 @@ function test_hira2kata()
 	function assertHira2KataPattern(aExpected, aInput) {
 		assert.equals(aExpected, transform.hira2kataPattern(aInput));
 	}
+
 	assertHira2KataPattern('aiueo', 'aiueo');
 	assertHira2KataPattern('ａｉｕｅｏ', 'ａｉｕｅｏ');
 	assertHira2KataPattern('(ア|ｱ)(イ|ｲ)(ウ|ｳ)(エ|ｴ)(オ|ｵ)', 'あいうえお');
 	assertHira2KataPattern('アイウエオ', 'アイウエオ');
+	assertHira2KataPattern('(ヴ|ｳﾞ)', 'う゛');
 	assertHira2KataPattern('ｱｲｳｴｵ', 'ｱｲｳｴｵ');
 	assertHira2KataPattern('ガギグゲゴ', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ');
 	assertHira2KataPattern('po-to', 'po-to');
