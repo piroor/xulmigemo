@@ -480,16 +480,24 @@ pXMigemoTextTransformJa.prototype = {
 						if (str.charAt(0) == '[')
 							str = '('+(str.substring(1, str.length-1).split('').join('|'))+')';
 						var result = '';
+						var char;
 						while (str.length > 0)
 						{
-							if (/[\(\)\|]/.test(str.charAt(0))) {
-								result += str.charAt(0);
+							if (str.indexOf('\u3046\u309b') == 0) { // ÅuÇ§ÅJÅvÇæÇØÇÕì¡ó·Ç≈àÍï∂éöàµÇ¢
+								char = str.substring(0, 2);
+								str  = str.substring(1);
+							}
+							else {
+								char = str.charAt(0);
+							}
+							if (/[\(\)\|]/.test(char)) {
+								result += char;
 							}
 							else {
 								result += (
 										'('+
-										str.charAt(0)+'|'+
-										self.hira2kataPattern(str.charAt(0)).replace(/^\(|\)$/g, '')+
+										char+'|'+
+										self.hira2kataPattern(char).replace(/^\(|\)$/g, '')+
 										')'
 									).replace(/(.)\|\1/g, '$1');
 							}
@@ -611,6 +619,8 @@ pXMigemoTextTransformJa.prototype = {
 /* hiragana, katakana */ 
 	
 	KANATAB : [ 
+'\u3046\u309b	\u30f4|\uff73\uff9e',
+
 '\u3042	\u30a2|\uff71',
 '\u3044	\u30a4|\uff72',
 '\u3046	\u30a6|\uff73',
@@ -710,8 +720,6 @@ pXMigemoTextTransformJa.prototype = {
 '\u3077	\u30d7|\uff8c\uff9f',
 '\u307a	\u30da|\uff8d\uff9f',
 '\u307d	\u30dd|\uff8e\uff9f',
-
-'\u3046\u309b	\u30f4|\uff73\uff9e',
 
 '\u30fc	\u30fc|\uff70|-',
 '\u3002	\u3002|\uff61',
