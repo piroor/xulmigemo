@@ -1314,6 +1314,7 @@ var XMigemoUI = {
 	onChangeMode : function() 
 	{
 		this.clearTimer();
+		var highlighted = this.highlightCheck.checked;
 		gFindBar.toggleHighlight(false);
 		if (!this.hidden && !this.inCancelingProcess) {
 			if (this.isQuickFind || this.findMode == this.FIND_MODE_NATIVE) {
@@ -1327,8 +1328,12 @@ var XMigemoUI = {
 		this.isModeChanged = true;
 		this.disableFindFieldIMEForCurrentMode(this.isQuickFind);
 		if (!this.inCancelingProcess &&
-			!this.hidden)
+			!this.hidden) {
 			this.field.focus();
+		}
+		if (highlighted) {
+			gFindBar.toggleHighlight(true);
+		}
 	},
  
 	// flip back to another find mode
