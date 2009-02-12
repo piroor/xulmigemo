@@ -4,7 +4,7 @@ var kHIGHLIGHTS = 'descendant::*[@id="__firefox-findbar-search-id" or @class="__
 assert.highlightCheck = function(aDisabled, aChecked, aMessage) {
 	var check = XMigemoUI.highlightCheck;
 	if (aDisabled)
-		assert.True(check.disabled, aMessage);
+		assert.isTrue(check.disabled, aMessage);
 	else
 		assert.isFalse(check.disabled, aMessage);
 	if (aChecked)
