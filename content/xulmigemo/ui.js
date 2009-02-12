@@ -825,6 +825,7 @@ var XMigemoUI = {
 
 			case 'XMigemoFindBarClose':
 				this.stopListen();
+				this.highlightCheck.checked = false;
 				return;
 
 			case 'blur':

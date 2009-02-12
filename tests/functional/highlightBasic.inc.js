@@ -11,17 +11,6 @@ function tearDown()
 	commonTearDown();
 }
 
-function selectTextInPage()
-{
-	var selection = content.getSelection();
-	var range = content.document.createRange();
-	var node = content.document.getElementsByTagName('a')[0].firstChild;
-	range.setStart(node, 0);
-	range.setEnd(node, 6);
-	selection.addRange(range);
-	assert.equals('sample', selection.toString());
-}
-
 testAutoHighlightNormal.description = '通常の検索で自動ハイライトが正常に動作するかどうか';
 function testAutoHighlightNormal()
 {
@@ -35,12 +24,6 @@ function testAutoHighlightNormal()
 		'not found long term',
 		10
 	));
-	gFindBar.closeFindBar();
-	yield wait;
-	selectTextInPage();
-	gFindBar.openFindBar();
-	yield wait;
-	assert.highlightCheck(false, true);
 }
 
 testAutoHighlightRegExp.description = '正規表現検索で自動ハイライトが正常に動作するかどうか';
@@ -56,12 +39,6 @@ function testAutoHighlightRegExp()
 		'not found long term',
 		10
 	));
-	gFindBar.closeFindBar();
-	yield wait;
-	selectTextInPage();
-	gFindBar.openFindBar();
-	yield wait;
-	assert.highlightCheck(false, true);
 }
 
 testAutoHighlightMigemo.description = 'Migemo検索で自動ハイライトが正常に動作するかどうか';
@@ -77,12 +54,6 @@ function testAutoHighlightMigemo()
 		'not found long term',
 		4
 	));
-	gFindBar.closeFindBar();
-	yield wait;
-	selectTextInPage();
-	gFindBar.openFindBar();
-	yield wait;
-	assert.highlightCheck(false, true);
 }
 
 testSafariHighlight.description = 'Safari風自動ハイライト';
@@ -106,7 +77,7 @@ function testSafariHighlight()
 function getHighlightCount()
 {
 	return content.document.evaluate(
-			'count(descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search"])',
+			'count('+kHIGHLIGHTS+')',
 			content.document,
 			null,
 			XPathResult.NUMBER_TYPE,

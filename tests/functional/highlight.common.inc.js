@@ -25,6 +25,18 @@ assert.find_notFound = function(aTerm, aMessage) {
 	assert.equals('notfound', field.getAttribute('status'), aMessage);
 }
 
+function selectTextInPage()
+{
+	var selection = content.getSelection();
+	var range = content.document.createRange();
+	var node = content.document.getElementsByTagName('a')[0].firstChild;
+	range.setStart(node, 0);
+	range.setEnd(node, 6);
+	selection.addRange(range);
+	assert.equals('sample', selection.toString());
+	return selection;
+}
+
 function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongNum) {
 	var message = 'mode is '+aMode;
 
@@ -52,6 +64,22 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 	yield Do(assert.find_notFound(aNGLong, message));
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
+
+	gFindBar.closeFindBar();
+	yield wait;
+	var selection = selectTextInPage();
+	var lastFindTerm = selection.toString();
+	gFindBar.openFindBar();
+	yield wait;
+	assert.highlightCheck(false, true);
+
+	gFindBar.closeFindBar();
+	yield wait;
+	selection.removeAllRanges();
+	gFindBar.openFindBar();
+	yield wait;
+	assert.equals(lastFindTerm, field.value);
+	assert.highlightCheck(false, false);
 }
 
 assert.screenStateForFind = function(aTerm, aShown) {
