@@ -1267,12 +1267,6 @@ function DocShellIterator(aFrame, aFromBack)
 }
 
 DocShellIterator.prototype = {
-	nsIDocShell           : Ci.nsIDocShell,
-	nsIDocShellTreeNode   : Ci.nsIDocShellTreeNode,
-	nsIDocShellTreeItem   : Ci.nsIDocShellTreeItem,
-	nsIWebNavigation      : Ci.nsIWebNavigation,
-	nsIInterfaceRequestor : Ci.nsIInterfaceRequestor,
-
 	mCurrentDocShell : null,
 	mInitialDocShell : null,
 	mFromBack : false,
@@ -1290,25 +1284,25 @@ DocShellIterator.prototype = {
 	get document()
 	{
 		return this.mCurrentDocShell
-			.QueryInterface(this.nsIDocShell)
-			.QueryInterface(this.nsIWebNavigation)
+			.QueryInterface(Ci.nsIDocShell)
+			.QueryInterface(Ci.nsIWebNavigation)
 			.document;
 	},
 	get view()
 	{
 		return this.mCurrentDocShell
-			.QueryInterface(this.nsIDocShell)
-			.QueryInterface(this.nsIWebNavigation)
-			.QueryInterface(this.nsIInterfaceRequestor)
+			.QueryInterface(Ci.nsIDocShell)
+			.QueryInterface(Ci.nsIWebNavigation)
+			.QueryInterface(Ci.nsIInterfaceRequestor)
 			.getInterface(Ci.nsIDOMWindow);
 	},
 	 
 	getDocShellFromFrame : function(aFrame) 
 	{
 		return aFrame
-			.QueryInterface(this.nsIInterfaceRequestor)
-			.getInterface(this.nsIWebNavigation)
-			.QueryInterface(this.nsIDocShell);
+			.QueryInterface(Ci.nsIInterfaceRequestor)
+			.getInterface(Ci.nsIWebNavigation)
+			.QueryInterface(Ci.nsIDocShell);
 	},
   
 	get body() 
@@ -1343,8 +1337,8 @@ DocShellIterator.prototype = {
 	get initialDocument()
 	{
 		return this.mInitialDocShell
-			.QueryInterface(this.nsIDocShell)
-			.QueryInterface(this.nsIWebNavigation)
+			.QueryInterface(Ci.nsIDocShell)
+			.QueryInterface(Ci.nsIWebNavigation)
 			.document;
 	},
  
@@ -1371,7 +1365,7 @@ DocShellIterator.prototype = {
 	 
 	getNextDocShell : function(aNode) 
 	{
-		aNode = aNode.QueryInterface(this.nsIDocShellTreeNode);
+		aNode = aNode.QueryInterface(Ci.nsIDocShellTreeNode);
 		// 子がある場合、最初の子を返す
 		if (aNode.childCount) return aNode.getChildAt(0);
 		var curNode = aNode;
@@ -1382,13 +1376,13 @@ DocShellIterator.prototype = {
 		while (curNode)
 		{
 			// このノードが最上位である場合、検索終了
-			curItem = curNode.QueryInterface(this.nsIDocShellTreeItem);
+			curItem = curNode.QueryInterface(Ci.nsIDocShellTreeItem);
 			var parentItem = curItem.sameTypeParent;
 			if (!parentItem) return null;
 
 			// nextSiblingに相当するノードを取得して返す
 			childOffset = this.getChildOffsetFromDocShellNode(curNode);
-			parentNode = parentItem.QueryInterface(this.nsIDocShellTreeNode);
+			parentNode = parentItem.QueryInterface(Ci.nsIDocShellTreeNode);
 			if (childOffset > -1 && childOffset < parentNode.childCount-1)
 				return parentNode.getChildAt(childOffset+1);
 
@@ -1400,9 +1394,9 @@ DocShellIterator.prototype = {
  
 	getPrevDocShell : function(aNode) 
 	{
-		aNode = aNode.QueryInterface(this.nsIDocShellTreeNode);
+		aNode = aNode.QueryInterface(Ci.nsIDocShellTreeNode);
 		var curNode = aNode;
-		var curItem = curNode.QueryInterface(this.nsIDocShellTreeItem);
+		var curItem = curNode.QueryInterface(Ci.nsIDocShellTreeItem);
 		// このノードが最上位（一番最初）である場合、検索終了
 		var parentNode;
 		var parentItem = curItem.sameTypeParent;
@@ -1417,19 +1411,19 @@ DocShellIterator.prototype = {
 		// previousSiblingに相当するノードが子を持っている場合、
 		// 最後の子を返す。
 		// 子が無ければ、previousSiblingに相当するノードそれ自体を返す。
-		parentNode = parentItem.QueryInterface(this.nsIDocShellTreeNode);
+		parentNode = parentItem.QueryInterface(Ci.nsIDocShellTreeNode);
 		curItem = parentNode.getChildAt(childOffset-1);
 		return this.getLastChildDocShell(curItem) || curItem;
 	},
  
 	getChildOffsetFromDocShellNode : function(aNode) 
 	{
-		aNode = aNode.QueryInterface(this.nsIDocShellTreeItem);
+		aNode = aNode.QueryInterface(Ci.nsIDocShellTreeItem);
 		var parent = aNode.sameTypeParent;
 		if (!parent) return -1;
 
 		// nextSiblingに相当するノードを取得して返す
-		parent = parent.QueryInterface(this.nsIDocShellTreeNode);
+		parent = parent.QueryInterface(Ci.nsIDocShellTreeNode);
 		if ('childOffset' in aNode) { // Firefox 2
 			return aNode.childOffset;
 		}
@@ -1445,12 +1439,12 @@ DocShellIterator.prototype = {
  
 	getLastChildDocShell : function(aItem) 
 	{
-		var curItem = aItem.QueryInterface(this.nsIDocShellTreeItem);
+		var curItem = aItem.QueryInterface(Ci.nsIDocShellTreeItem);
 		var curNode;
 		var childCount;
 		while (true)
 		{
-			curNode = curItem.QueryInterface(this.nsIDocShellTreeNode);
+			curNode = curItem.QueryInterface(Ci.nsIDocShellTreeNode);
 			childCount = curNode.childCount;
 			if (!childCount)
 				return (curItem == aItem) ? null : curItem ;
