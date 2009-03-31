@@ -11,6 +11,32 @@ var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
 
 var pIXMigemoFind = Ci.pIXMigemoFind;
+
+// for Firefox 3.6 or later
+function getBoxObjectFor(aNode)
+{
+	if ('getBoxObjectFor' in aNode.ownerDocument)
+		return aNode.ownerDocument.getBoxObjectFor(aNode);
+
+	var box = {
+			x       : 0,
+			y       : 0,
+			width   : 0,
+			height  : 0,
+			screenX : 0,
+			screenY : 0
+		};
+	try {
+		var rect = aNode.getBoundingClientRect();
+		box.x = rect.left+1;
+		box.y = rect.top+1;
+		box.width  = rect.right-rect.left;
+		box.height = rect.bottom-rect.top;
+	}
+	catch(e) {
+	}
+	return box;
+}
  
 function pXMigemoFind() { 
 	mydump('create instance pIXMigemoFind');
@@ -652,7 +678,7 @@ mydump("count:"+count);
 	{
 		var doc = aFrame.document;
 
-		var topY = doc.getBoxObjectFor(doc.documentElement).screenY;
+		var topY = getBoxObjectFor(doc.documentElement).y;
 
 		this.visibleNodeFilter.frameHeight = aFrame.innerHeight;
 		this.visibleNodeFilter.startY      = aFrame.scrollY + topY;
@@ -764,7 +790,7 @@ mydump("count:"+count);
 		},
 		getY : function(aNode)
 		{
-			return aNode.ownerDocument.getBoxObjectFor(aNode).screenY;
+			return getBoxObjectFor(aNode).y;
 		},
 		isInvisible : null,
 		isInScreenCompletely : null,

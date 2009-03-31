@@ -255,7 +255,7 @@ var XMigemoHighlight = {
 		var self = this;
 		var checker = function() {
 				var screen = window.content.document.getElementById(self.kSCREEN);
-				return !screen || !window.content.document.getBoxObjectFor(screen).width;
+				return !screen || !utils.getBoxObjectFor(screen).width;
 			};
 		var callback = this.combinations.some(function(aCombination) {
 					return aCombination.button == aEvent.button &&
@@ -854,7 +854,7 @@ var XMigemoHighlight = {
 			var accService = Components.classes['@mozilla.org/accessibilityService;1']
 								.getService(Components.interfaces.nsIAccessibilityService);
 			var acc = accService.getAccessibleFor(aWindow.document);
-			var box = aWindow.document.getBoxObjectFor(aWindow.document.documentElement);
+			var box = utils.getBoxObjectFor(aWindow.document.documentElement);
 			accNode = /* acc.getChildAtPoint(aScreenX - box.screenX, aScreenY - box.screenY) || */ acc.getChildAtPoint(aScreenX, aScreenY);
 			accNode = accNode.QueryInterface(Components.interfaces.nsIAccessNode).DOMNode;
 		}
@@ -887,7 +887,7 @@ var XMigemoHighlight = {
 		var walker = aWindow.document.createTreeWalker(startNode, NodeFilter.SHOW_ELEMENT, filter, false);
 		for (var node = walker.firstChild(); node != null; node = walker.nextNode())
 		{
-			var box = doc.getBoxObjectFor(node);
+			var box = utils.getBoxObjectFor(node);
 			var l = box.screenX;
 			var t = box.screenY;
 			var r = l + box.width;

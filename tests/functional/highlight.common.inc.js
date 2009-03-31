@@ -87,7 +87,7 @@ assert.screenStateForFind = function(aTerm, aShown) {
 	yield 1500;
 	var screen = content.document.getElementById(kSCREEN);
 	assert.isTrue(screen);
-	var box = content.document.getBoxObjectFor(screen);
+	var box = utils.getBoxObjectFor(screen);
 	if (aShown) {
 		assert.isTrue(XMigemoUI.highlightCheck.checked);
 		assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
