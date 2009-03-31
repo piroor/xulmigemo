@@ -6,7 +6,7 @@ utils.include('quickfind.inc.js');
 utils.include('highlight.common.inc.js');
 
 function fireClickEventOn(aNode, aButton) {
-	var box = aNode.ownerDocument.getBoxObjectFor(aNode);
+	var box = utils.getBoxObjectFor(aNode);
 	action.fireMouseEventOnElement(
 		content.document.getElementById(kSCREEN),
 		{
