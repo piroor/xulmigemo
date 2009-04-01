@@ -112,6 +112,11 @@ var XMigemoHighlight = {
 		window.removeEventListener('unload', this, false);
 	},
  
+	getBoxObjectFor : function(aNode) 
+	{
+		return window['piro.sakura.ne.jp'].boxObject.getBoxObjectFor(aNode);
+	},
+ 
 	handleEvent : function(aEvent) 
 	{
 		switch (aEvent.type)
@@ -255,7 +260,7 @@ var XMigemoHighlight = {
 		var self = this;
 		var checker = function() {
 				var screen = window.content.document.getElementById(self.kSCREEN);
-				return !screen || !utils.getBoxObjectFor(screen).width;
+				return !screen || !this.getBoxObjectFor(screen).width;
 			};
 		var callback = this.combinations.some(function(aCombination) {
 					return aCombination.button == aEvent.button &&
@@ -854,7 +859,7 @@ var XMigemoHighlight = {
 			var accService = Components.classes['@mozilla.org/accessibilityService;1']
 								.getService(Components.interfaces.nsIAccessibilityService);
 			var acc = accService.getAccessibleFor(aWindow.document);
-			var box = utils.getBoxObjectFor(aWindow.document.documentElement);
+			var box = this.getBoxObjectFor(aWindow.document.documentElement);
 			accNode = /* acc.getChildAtPoint(aScreenX - box.screenX, aScreenY - box.screenY) || */ acc.getChildAtPoint(aScreenX, aScreenY);
 			accNode = accNode.QueryInterface(Components.interfaces.nsIAccessNode).DOMNode;
 		}
@@ -887,7 +892,7 @@ var XMigemoHighlight = {
 		var walker = aWindow.document.createTreeWalker(startNode, NodeFilter.SHOW_ELEMENT, filter, false);
 		for (var node = walker.firstChild(); node != null; node = walker.nextNode())
 		{
-			var box = utils.getBoxObjectFor(node);
+			var box = this.getBoxObjectFor(node);
 			var l = box.screenX;
 			var t = box.screenY;
 			var r = l + box.width;
