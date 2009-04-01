@@ -2539,11 +2539,12 @@ var XMigemoUI = {
 		if (!this.highlightSelectionOnly && !aBaseNode)
 			aBaseNode = this.createNewHighlight(doc);
 
+		var flags = (this.findMode != this.FIND_MODE_NATIVE || !this.caseSensitiveCheck.checked) ? 'i' : '' ;
 		var ranges = !aDoHighlight ?
 				[XMigemoFind.core.regExpFind(regexp, '', aRange, null, null, false)] :
 			this.highlightSelectionAvailable ?
-				XMigemoFind.core.regExpHighlightTextWithSelection(regexp, '', aRange, aBaseNode) :
-				XMigemoFind.core.regExpHighlightText(regexp, '', aRange, aBaseNode) ;
+				XMigemoFind.core.regExpHighlightTextWithSelection(regexp, flags, aRange, aBaseNode) :
+				XMigemoFind.core.regExpHighlightText(regexp, flags, aRange, aBaseNode) ;
 
 		return ranges.length ? true : false ;
 	},
