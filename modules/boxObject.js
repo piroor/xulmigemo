@@ -1,3 +1,6 @@
+var EXPORTED_SYMBOLS = ['window'];
+var window = {};
+
 /*
  lisence: The MIT License, Copyright (c) 2009 SHIMODA "Piro" Hiroshi
    http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/license.txt
@@ -156,7 +159,7 @@
 					'/descendant::*[contains(" frame FRAME iframe IFRAME browser tabbrowser ", concat(" ", local-name(), " "))]',
 					parentDocument,
 					null,
-					XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+					Ci.nsIDOMXPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
 					null
 				);
 			for (let i = 0, maxi = nodes.snapshotLength; i < maxi; i++)

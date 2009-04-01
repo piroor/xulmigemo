@@ -13,27 +13,16 @@ var Prefs = Cc['@mozilla.org/preferences;1']
 var pIXMigemoFind = Ci.pIXMigemoFind;
 
 // for Firefox 3.6 or later
-function getBoxFor(aNode)
+var boxObjectModule = {};
+function getBoxObjectFor(aNode)
 {
 	if ('getBoxObjectFor' in aNode.ownerDocument)
 		return aNode.ownerDocument.getBoxObjectFor(aNode);
 
-	var box = {
-			x       : 0,
-			y       : 0,
-			width   : 0,
-			height  : 0
-		};
-	try {
-		var rect = aNode.getBoundingClientRect();
-		box.x = rect.left;
-		box.y = rect.top;
-		box.width  = rect.right-rect.left;
-		box.height = rect.bottom-rect.top;
+	if (!('window' in boxObjectModule)) {
+		Components.utils.import('resource://xulmigemo-modules/boxObject.js', boxObjectModule);
 	}
-	catch(e) {
-	}
-	return box;
+	return boxObjectModule.window['piro.sakura.ne.jp'].boxObject.getBoxObjectFor(aNode);
 }
  
 function pXMigemoFind() { 
@@ -676,7 +665,7 @@ mydump("count:"+count);
 	{
 		var doc = aFrame.document;
 
-		var topY = getBoxFor(doc.documentElement).y;
+		var topY = getBoxObjectFor(doc.documentElement).screenY;
 
 		this.visibleNodeFilter.frameHeight = aFrame.innerHeight;
 		this.visibleNodeFilter.startY      = aFrame.scrollY + topY;
@@ -788,7 +777,7 @@ mydump("count:"+count);
 		},
 		getY : function(aNode)
 		{
-			return getBoxFor(aNode).y;
+			return getBoxObjectFor(aNode).screenY;
 		},
 		isInvisible : null,
 		isInScreenCompletely : null,
@@ -918,7 +907,7 @@ mydump("setSelectionAndScroll");
 
 		if (frame.document.foundEditable) {
 			elem = frame.document.foundEditable;
-			var box = getBoxFor(elem);
+			var box = getBoxObjectFor(elem);
 			targetX = box.x;
 			targetY = box.y;
 			targetW = box.width;
@@ -931,9 +920,9 @@ mydump("setSelectionAndScroll");
 			range.setEnd(selection.focusNode, selection.focusOffset);
 			range.insertNode(elem);
 
-			var box = getBoxFor(elem);
+			var box = getBoxObjectFor(elem);
 			if (!box.x && !box.y)
-				box = getBoxFor(elem.parentNode);
+				box = getBoxObjectFor(elem.parentNode);
 
 			targetX = box.x;
 			targetY = box.y;

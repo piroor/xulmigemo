@@ -114,8 +114,13 @@ var XMigemoHighlight = {
  
 	getBoxObjectFor : function(aNode) 
 	{
-		return window['piro.sakura.ne.jp'].boxObject.getBoxObjectFor(aNode);
+		if (!('window' in this._boxObjectModule) &&
+			'import' in Components.utils) {
+			Components.utils.import('resource://xulmigemo-modules/boxObject.js', this._boxObjectModule);
+		}
+		return this._boxObjectModule.window['piro.sakura.ne.jp'].boxObject.getBoxObjectFor(aNode);
 	},
+	_boxObjectModule : {},
  
 	handleEvent : function(aEvent) 
 	{
