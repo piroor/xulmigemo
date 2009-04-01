@@ -6,7 +6,7 @@ assert.found = function(aTerm, aDocument) {
 	var range = XMigemoUI.lastFoundRange;
 	assert.isTrue(range);
 	if (aTerm) assert.equals(aTerm, range.toString());
-	assert.equals(aDocument, range.startContainer.ownerDocument);
+	assert.equals(aDocument.URL, range.startContainer.ownerDocument.URL);
 }
 
 assert.find_again = function(aKey, aTimes, aTerm, aDocument) {
@@ -28,8 +28,8 @@ function testFindInFrame()
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 	yield wait;
 
-	var firstDoc = content.frames[0].document;
-	var secondDoc = content.frames[1].document;
+	var firstDoc = $('frame1', content).contentDocument;
+	var secondDoc = $('frame2', content).contentDocument;
 
 	action.inputTextToField(field, 'nihongo');
 	yield wait;
