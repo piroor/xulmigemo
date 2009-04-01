@@ -13,7 +13,7 @@ var Prefs = Cc['@mozilla.org/preferences;1']
 var pIXMigemoFind = Ci.pIXMigemoFind;
 
 // for Firefox 3.6 or later
-function getBoxObjectFor(aNode)
+function getBoxFor(aNode)
 {
 	if ('getBoxObjectFor' in aNode.ownerDocument)
 		return aNode.ownerDocument.getBoxObjectFor(aNode);
@@ -22,14 +22,12 @@ function getBoxObjectFor(aNode)
 			x       : 0,
 			y       : 0,
 			width   : 0,
-			height  : 0,
-			screenX : 0,
-			screenY : 0
+			height  : 0
 		};
 	try {
 		var rect = aNode.getBoundingClientRect();
-		box.x = rect.left+1;
-		box.y = rect.top+1;
+		box.x = rect.left;
+		box.y = rect.top;
 		box.width  = rect.right-rect.left;
 		box.height = rect.bottom-rect.top;
 	}
@@ -678,7 +676,7 @@ mydump("count:"+count);
 	{
 		var doc = aFrame.document;
 
-		var topY = getBoxObjectFor(doc.documentElement).y;
+		var topY = getBoxFor(doc.documentElement).y;
 
 		this.visibleNodeFilter.frameHeight = aFrame.innerHeight;
 		this.visibleNodeFilter.startY      = aFrame.scrollY + topY;
@@ -790,7 +788,7 @@ mydump("count:"+count);
 		},
 		getY : function(aNode)
 		{
-			return getBoxObjectFor(aNode).y;
+			return getBoxFor(aNode).y;
 		},
 		isInvisible : null,
 		isInScreenCompletely : null,
@@ -920,7 +918,7 @@ mydump("setSelectionAndScroll");
 
 		if (frame.document.foundEditable) {
 			elem = frame.document.foundEditable;
-			var box = elem.ownerDocument.getBoxObjectFor(elem);
+			var box = getBoxFor(elem);
 			targetX = box.x;
 			targetY = box.y;
 			targetW = box.width;
@@ -933,9 +931,9 @@ mydump("setSelectionAndScroll");
 			range.setEnd(selection.focusNode, selection.focusOffset);
 			range.insertNode(elem);
 
-			var box = frame.document.getBoxObjectFor(elem);
+			var box = getBoxFor(elem);
 			if (!box.x && !box.y)
-				box = frame.document.getBoxObjectFor(elem.parentNode);
+				box = getBoxFor(elem.parentNode);
 
 			targetX = box.x;
 			targetY = box.y;
