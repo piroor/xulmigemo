@@ -260,7 +260,7 @@ var XMigemoHighlight = {
 		var self = this;
 		var checker = function() {
 				var screen = window.content.document.getElementById(self.kSCREEN);
-				return !screen || !this.getBoxObjectFor(screen).width;
+				return !screen || !self.getBoxObjectFor(screen).width;
 			};
 		var callback = this.combinations.some(function(aCombination) {
 					return aCombination.button == aEvent.button &&
