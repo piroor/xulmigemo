@@ -195,8 +195,9 @@ pXMigemoCache.prototype = {
 	load : function() 
 	{
 		var file = this.cacheFile;
-		if (!file || !file.exists()) {
-//			return false;
+		if (!file) return false;
+
+		if (!file.exists()) {
 			this.fileUtils.writeTo(file, '', 'Shift_JIS');
 			this.initialized = true;
 			return true;
