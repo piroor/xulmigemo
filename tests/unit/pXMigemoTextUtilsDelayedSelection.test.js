@@ -42,7 +42,7 @@ function testNormalTextSingle()
 	container.removeChild(highlight);
 	container.normalize();
 	assert.equals(5, container.childNodes.length);
-	yield 100;
+	yield 500;
 
 	selection = content.getSelection();
 	assert.equals('is', selection.toString());
@@ -130,7 +130,6 @@ function testSelectContentWithDelay()
 	var container = content.document.getElementsByTagName('p')[0];
 
 	var range = content.document.createRange();
-	range.selectNodeContents(container.childNodes[4]);
 	range.setStart(container.childNodes[4], 1);
 	range.setEnd(container.childNodes[4], 5);
 	assert.equals('text', range.toString());
