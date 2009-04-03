@@ -20,6 +20,7 @@ function tearDown()
 
 testFind.setUp = function() {
 	yield Do(utils.loadURI(baseURL+'../res/frameTest.html'));
+	findModule.startFromViewport = false;
 };
 function testFind()
 {
@@ -62,6 +63,7 @@ function testFind()
 
 testFindInFrame.setUp = function() {
 	yield Do(utils.loadURI(baseURL+'../res/frameTest.html'));
+	findModule.startFromViewport = false;
 };
 function testFindInFrame()
 {
