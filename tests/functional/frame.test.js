@@ -20,14 +20,15 @@ function tearDown()
 }
 
 testFindInFrame.description = 'フレーム内の検索';
-function testFindInFrame()
-{
+testFindInFrame.setUp = function() {
 	yield Do(commonSetUp(baseURL+'../res/frameTest.html'));
 
 	gFindBar.openFindBar();
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 	yield wait;
-
+};
+function testFindInFrame()
+{
 	var firstDoc = $('frame1', content).contentDocument;
 	var secondDoc = $('frame2', content).contentDocument;
 
@@ -61,14 +62,15 @@ function testFindInFrame()
 }
 
 testNotFound.description = '検索語句を含まないフレームがある場合の検索';
-function testNotFound()
-{
+testNotFound.setUp = function() {
 	yield Do(commonSetUp(baseURL+'../res/frameTest2.html'));
 
 	gFindBar.openFindBar();
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 	yield wait;
-
+};
+function testNotFound()
+{
 	var rootDoc = content.document;
 	var frameDoc = content.frames[0].document;
 
