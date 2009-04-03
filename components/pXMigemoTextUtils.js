@@ -136,7 +136,7 @@ pXMigemoTextUtils.prototype = {
 				textRange.setEndBefore(node);
 				result.push(textRange.toString());
 				if (node.nodeType == node.TEXT_NODE) {
-					if (selCon.checkVisibility(node, 0, 0))
+					if (selCon.checkVisibility(node, 0, node.nodeValue.length))
 						result.push(node.nodeValue);
 				}
 				else {
