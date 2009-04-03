@@ -1,8 +1,13 @@
+if (utils.checkAppVersion('3.0') < 0) var priority = 'never';
+
 var orig = {};
-utils.include('../../content/xulmigemo/core.js', orig, 'Shift_JIS');
-utils.include('../../content/xulmigemo/service.js', orig, 'Shift_JIS');
-utils.include('../../content/xulmigemo/places/places.js', orig, 'Shift_JIS');
-utils.include('../../content/xulmigemo/places/locationBarOverlay.js', null, 'Shift_JIS');
+function warmUp()
+{
+	utils.include('../../content/xulmigemo/core.js', orig, 'Shift_JIS');
+	utils.include('../../content/xulmigemo/service.js', orig, 'Shift_JIS');
+	utils.include('../../content/xulmigemo/places/places.js', orig, 'Shift_JIS');
+	utils.include('../../content/xulmigemo/places/locationBarOverlay.js', null, 'Shift_JIS');
+}
 
 var XMigemoCore;
 var XMigemoPlaces;
