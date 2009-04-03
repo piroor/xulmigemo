@@ -18,12 +18,10 @@ function tearDown()
 }
 
 
-testFind.setUp = function() {
-	yield Do(utils.loadURI(baseURL+'../res/frameTest.html'));
-	findModule.startFromViewport = false;
-};
-function testFind()
+function assertFindInSingleFrame()
 {
+	yield Do(utils.loadURI(baseURL+'../res/keyEventTest.html'));
+
 	function assertFound(aTerm) {
 		assert.equals(aTerm, findModule.foundRange);
 	}
@@ -61,12 +59,27 @@ function testFind()
 	assertFound('にほんご');
 }
 
-testFindInFrame.setUp = function() {
-	yield Do(utils.loadURI(baseURL+'../res/frameTest.html'));
+testFind.setUp = function() {
 	findModule.startFromViewport = false;
 };
-function testFindInFrame()
+function testFind()
 {
+	assertFindInSingleFrame();
+}
+
+testFindFromViewport.setUp = function() {
+	findModule.startFromViewport = true;
+};
+function testFindFromViewport()
+{
+	assertFindInSingleFrame();
+}
+
+
+function assertFindInMultipleFrames()
+{
+	yield Do(utils.loadURI(baseURL+'../res/frameTest.html'));
+
 	function assertFoundInDocument(aTerm, aDocument) {
 		assert.equals(aTerm, findModule.foundRange);
 		assert.equals(aDocument, findModule.foundRange.startContainer.ownerDocument);
@@ -121,6 +134,23 @@ function testFindInFrame()
 	findModule.findPrevious(false);
 	assertFoundInDocument('ニホンゴ', firstDoc);
 }
+
+testFindInFrame.setUp = function() {
+	findModule.startFromViewport = false;
+};
+function testFindInFrame()
+{
+	assertFindInMultipleFrames();
+}
+
+testFindInFrameFromViewport.setUp = function() {
+	findModule.startFromViewport = true;
+};
+function testFindInFrameFromViewport()
+{
+	assertFindInMultipleFrames();
+}
+
 
 testFindFirstVisibleNode.setUp = function() {
 	var win = utils.getTestWindow();
