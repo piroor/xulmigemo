@@ -64,7 +64,7 @@ testFind.setUp = function() {
 };
 function testFind()
 {
-	assertFindInSingleFrame();
+	yield Do(assertFindInSingleFrame());
 }
 
 testFindFromViewport.setUp = function() {
@@ -72,7 +72,7 @@ testFindFromViewport.setUp = function() {
 };
 function testFindFromViewport()
 {
-	assertFindInSingleFrame();
+	yield Do(assertFindInSingleFrame());
 }
 
 
@@ -90,22 +90,31 @@ function assertFindInMultipleFrames()
 
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('日本語', firstDoc);
+yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('にほんご', firstDoc);
+yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('ニホンゴ', firstDoc);
+yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('nihongo', firstDoc);
+yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('日本語', secondDoc);
+yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('にほんご', secondDoc);
+yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('ニホンゴ', secondDoc);
+yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('nihongo', secondDoc);
+yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('日本語', firstDoc);
+yield 400;
 
 	findModule.find(true, 'nihongo', false);
 	assertFoundInDocument('nihongo', secondDoc);
@@ -140,7 +149,7 @@ testFindInFrame.setUp = function() {
 };
 function testFindInFrame()
 {
-	assertFindInMultipleFrames();
+	yield Do(assertFindInMultipleFrames());
 }
 
 testFindInFrameFromViewport.setUp = function() {
@@ -148,7 +157,7 @@ testFindInFrameFromViewport.setUp = function() {
 };
 function testFindInFrameFromViewport()
 {
-	assertFindInMultipleFrames();
+	yield Do(assertFindInMultipleFrames());
 }
 
 
