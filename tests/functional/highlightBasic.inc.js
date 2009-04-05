@@ -65,7 +65,7 @@ function testSafariHighlight()
 	yield wait;
 	field.focus();
 
-	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NORMAL;
+	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 	yield Do(assert.screenStateForFind('text field', true));
 	yield Do(assert.screenStateForFind('', false));
 	yield Do(assert.screenStateForFind('t', false));
