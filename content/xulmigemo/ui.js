@@ -2069,6 +2069,26 @@ var XMigemoUI = {
 					'if (!aKeepLastStatus) { $1 }'
 				)
 			);
+/*
+			var setter = gFindBar.__lookupSetter__('browser');
+			var getter = gFindBar.__lookupGetter__('browser');
+			eval('setter = '+setter.toSource()
+				.replace(
+					/this._browser.(?:add|remove)EventListener\("(keypress|mouseup)"[^\)]+(true|false)\);/g,
+					function(aMatch) {
+						try {
+							if (gFindBar._browser)
+								gFindBar._browser.removeEventListener(RegExp.$1, gFindBar, RegExp.$2 == 'true');
+						}
+						catch(e) {
+						}
+						return '';
+					}
+				)
+			);
+			gFindBar.__defineSetter__('browser', setter);
+			gFindBar.__defineGetter__('browser', getter);
+*/
 		}
 		else { // Firefox 3.0.x, 2,0.0.x
 			var highlightDocFunc = ('_highlightDoc' in gFindBar) ? '_highlightDoc' : // Fx 3
