@@ -57,7 +57,7 @@ function testClickOnScreen()
 	yield wait;
 	field.focus();
 
-	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NORMAL;
+	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 
 	action.inputTextToField(field, 'text field');
 	yield 1500;
