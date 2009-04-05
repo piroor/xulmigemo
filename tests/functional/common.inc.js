@@ -35,6 +35,7 @@ function commonSetUp(aURI)
 
 	XMigemoUI = win.XMigemoUI;
 	XMigemoUI.modeCirculation = XMigemoUI.CIRCULATE_MODE_NONE;
+	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 	XMigemoUI.forcedFindMode = -1;
 	XMigemoUI.highlightCheckedAlways = false;
 	XMigemoUI.caseSensitiveCheckedAlways = false;
