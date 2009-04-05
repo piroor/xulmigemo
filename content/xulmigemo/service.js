@@ -174,13 +174,13 @@ var XMigemoService = {
 		var keyCode = keys[keys.length-1].replace(/ /g, '_').toUpperCase();
 		var key     = keyCode;
 
-		keyCode = (keyCode.length == 1 || keyCode == 'SPACE' || !keyCode) ? '' : 'VK_'+keyCode ;
-		key = keyCode ? '' : keyCode ;
+		var keyCodeName = (keyCode.length == 1 || keyCode == 'SPACE' || !keyCode) ? '' : 'VK_'+keyCode ;
+		key = keyCodeName ? '' : keyCode ;
 
 		return {
 			key      : key,
 			charCode : (key ? key.charCodeAt(0) : '' ),
-			keyCode  : keyCode,
+			keyCode  : keyCodeName,
 			altKey   : /alt/i.test(aShortcut),
 			ctrlKey  : /ctrl|control/i.test(aShortcut),
 			metaKey  : /meta/i.test(aShortcut),
