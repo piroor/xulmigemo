@@ -26,3 +26,5 @@ locale	xulmigemo-platform	ja-JP	locale/en-US/xulmigemo/	os=Linux
 locale	xulmigemo-platform	ja-JP	jar:platform/Darwin/chrome/xulmigemo.jar!/locale/ja-JP/xulmigemo/ os=Darwin
 
 skin	xulmigemo	classic/1.0	skin/classic/xulmigemo/
+
+resource xulmigemo-modules modules/
