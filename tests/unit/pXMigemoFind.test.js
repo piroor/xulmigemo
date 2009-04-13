@@ -90,31 +90,22 @@ function assertFindInMultipleFrames()
 
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('日本語', firstDoc);
-yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('にほんご', firstDoc);
-yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('ニホンゴ', firstDoc);
-yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('nihongo', firstDoc);
-yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('日本語', secondDoc);
-yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('にほんご', secondDoc);
-yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('ニホンゴ', secondDoc);
-yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('nihongo', secondDoc);
-yield 400;
 	findModule.find(false, 'nihongo', false);
 	assertFoundInDocument('日本語', firstDoc);
-yield 400;
 
 	findModule.find(true, 'nihongo', false);
 	assertFoundInDocument('nihongo', secondDoc);
