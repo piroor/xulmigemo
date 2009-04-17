@@ -691,7 +691,7 @@ var XMigemoPlaces = {
 	},
 //	_db : null,
   
-	startProgressiveLoad : function(aBaseQuery, aOptions, aTree, aSourceSQL) 
+	startProgressiveLoad : function(aBaseQuery, aOptions, aTree, aSourceSQL, aSaveCommand) 
 	{
 		this.stopProgressiveLoad();
 		if (!aBaseQuery || !aOptions || !aTree || !aSourceSQL) return;
@@ -701,6 +701,8 @@ var XMigemoPlaces = {
 		blankQuery.maxVisits = 0;
 		blankQuery.minVisits = 1;
 		aTree.load([blankQuery], aOptions);
+
+		if (aSaveCommand) aSaveCommand.setAttribute('disabled', true);
 
 		this.lastFindRegExp = null;
 		this.lastTermsRegExp = null;
@@ -733,6 +735,7 @@ var XMigemoPlaces = {
 			if (aSelf.updateQuery(aBaseQuery, aSourceSQL, current, aSelf.chunk)) {
 				if (aSelf.lastQueries.length != lastQueriesCount) {
 					aTree.load(aSelf.lastQueries, aOptions);
+					if (aSaveCommand) aSaveCommand.removeAttribute('disabled');
 					lastQueriesCount = aSelf.lastQueries.length;
 				}
 				current += aSelf.chunk;

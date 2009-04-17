@@ -24,17 +24,27 @@ var XMigemoOrganizerOverlay = {
 				'this.load([query], options);',
 				<![CDATA[
 					if (XMigemoService.getPref('xulmigemo.places.organizer') &&
-						XMigemoPlaces.isValidInput(query.searchTerms))
+						XMigemoPlaces.isValidInput(query.searchTerms)) {
 						XMigemoPlaces.startProgressiveLoad(query, options, this,
 							options.queryType == Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY ?
 								XMigemoPlaces.historyInRangeSQL :
-								XMigemoPlaces.bookmarksInRangeSQL
+								XMigemoPlaces.bookmarksInRangeSQL,
+							XMigemoOrganizerOverlay.saveCommand
 						);
-					else
+					}
+					else {
+						if (XMigemoOrganizerOverlay.saveCommand)
+							XMigemoOrganizerOverlay.saveCommand.removeAttribute('disabled');
 						$&
+					}
 				]]>
 			)
 		);
+	},
+
+	get saveCommand()
+	{
+		return document.getElementById('OrganizerCommand_search:save');
 	}
  
 }; 
