@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Shift_JIS"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="chrome://xulmigemo/content/xulmigemo.css"?>
 <?xml-stylesheet href="chrome://xulmigemo/skin/xulmigemo.css"?>
 <!DOCTYPE overlay [
@@ -58,9 +58,9 @@
 				onclick="XMigemoUI.onClickMode(event);"/>
 		</radiogroup>
 		<!--
-			Firefox 3‚Å‚ÍA‰º‚Ì•û–@‚Å’u‚¢‚½Progressmeter‚Ìƒ[ƒ^[•”•ª‚ª
-			ƒAƒjƒ[ƒVƒ‡ƒ“‚µ‚È‚¢‚Æ‚¢‚¤–â‘è‚ª‹N‚±‚é‚Ì‚ÅA‘ã‚í‚è‚É‚±‚¿‚ç‚ðŽg‚¤B
-			i‚±‚¿‚ç‚Í‹t‚ÉAFirefox 2‚Ü‚Å‚Å‚ÍƒAƒjƒ[ƒVƒ‡ƒ“‚µ‚Ä‚­‚ê‚È‚¢j
+			Firefox 3ã§ã¯ã€ä¸‹ã®æ–¹æ³•ã§ç½®ã„ãŸProgressmeterã®ãƒ¡ãƒ¼ã‚¿ãƒ¼éƒ¨åˆ†ãŒ
+			ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã—ãªã„ã¨ã„ã†å•é¡ŒãŒèµ·ã“ã‚‹ã®ã§ã€ä»£ã‚ã‚Šã«ã“ã¡ã‚‰ã‚’ä½¿ã†ã€‚
+			ï¼ˆã“ã¡ã‚‰ã¯é€†ã«ã€Firefox 2ã¾ã§ã§ã¯ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã—ã¦ãã‚Œãªã„ï¼‰
 		-->
 		<progressmeter id="migemo-timeout-indicator2"
 			style="position: fixed; /*z-index: 64000;*/ bottom: 0; right: 0;"
