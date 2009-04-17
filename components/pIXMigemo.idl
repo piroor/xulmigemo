@@ -292,6 +292,8 @@ interface pIXMigemoFind : nsIObserver
 
 	void scrollSelectionToCenter(in nsIDOMWindow frame);
 
+	nsIDOMNode getParentLinkFromRange(in nsIDOMRange range);
+
 	void clear(in boolean focusToFoundTarget);
 	void exitFind(in boolean focusToFoundTarget);
 };

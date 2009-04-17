@@ -398,7 +398,7 @@ var XMigemoUI = {
  
 	get lastFoundTerm() 
 	{
-		return (this.lastFindMode == this.FIND_MODE_NATIVE) ? this.findTerm : XMigemoFind.lastFoundWord;
+		return ((this.lastFindMode == this.FIND_MODE_NATIVE) ? this.findTerm : XMigemoFind.lastFoundWord ) || '';
 	},
  
 	get lastFoundRange() 
@@ -410,9 +410,14 @@ var XMigemoUI = {
 		var range = this.textUtils.getFoundRange(aFrame);
 		if (!range) {
 			var sel = aFrame.getSelection();
-			if (sel &&
+			if (
+				sel &&
 				sel.rangeCount &&
-				sel.toString() == XMigemoUI.lastFoundTerm)
+				(!this.caseSensitiveCheck.disabled && this.caseSensitiveCheck.checked ?
+					sel.toString() == XMigemoUI.lastFoundTerm :
+					sel.toString().toLowerCase() == XMigemoUI.lastFoundTerm.toLowerCase()
+				)
+				)
 				range = sel.getRangeAt(0);
 		}
 		if (range) return range;
@@ -2347,6 +2352,9 @@ var XMigemoUI = {
 			XMigemoFind.exitFind(true);
 			document.commandDispatcher.suppressFocusScroll = scrollSuppressed;
 		}
+
+		var link = XMigemoFind.getParentLinkFromRange(this.lastFoundRange);
+		if (link) link.focus();
 	},
   
 /* highlight */ 
