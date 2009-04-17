@@ -46,6 +46,7 @@ var XMigemoMarker = {
 		bar.addEventListener('XMigemoFindBarToggleHighlight', this, false);
 		bar.addEventListener('XMigemoFindBarUpdateHighlight', this, false);
 		document.addEventListener('XMigemoFindAgain', this, false);
+		document.addEventListener('SubBrowserFocusMoved', this, false);
 
 		XMigemoUI.registerHighlightUtility(this);
 		if ('XMigemoHighlight' in window)
@@ -100,6 +101,7 @@ var XMigemoMarker = {
 		bar.removeEventListener('XMigemoFindBarToggleHighlight', this, false);
 		bar.removeEventListener('XMigemoFindBarUpdateHighlight', this, false);
 		document.removeEventListener('XMigemoFindAgain', this, false);
+		document.removeEventListener('SubBrowserFocusMoved', this, false);
 
 		XMigemoUI.unregisterHighlightUtility(this);
 		if ('XMigemoHighlight' in window)
@@ -181,6 +183,10 @@ var XMigemoMarker = {
 
 			case 'resize':
 				this.redrawMarkersWithDelay(true, true);
+				break;
+
+			case 'SubBrowserFocusMoved':
+				this.destroyMarkers(aEvent.lastFocused.browser);
 				break;
 		}
 	},
@@ -462,20 +468,30 @@ var XMigemoMarker = {
 		);
 	},
   
-	destroyMarkers : function(aFrame) 
+	destroyMarkers : function(aBrowser) 
 	{
-		if (!aFrame)
-			aFrame = XMigemoUI.activeBrowser.contentWindow;
-
-		if (aFrame.frames && aFrame.frames.length) {
-			Array.slice(aFrame.frames).forEach(arguments.callee, this);
+		var b = aBrowser || XMigemoUI.activeBrowser;
+		var frames;
+		if (b.localName == 'tabbrowser') {
+			frames = Array.slice(b.mTabContainer.childNodes)
+					.map(function(aTab) {
+						return aTab.linkedBrowser.contentWindow;
+					});
 		}
+		else {
+			frames = [b.contentWindow];
+		}
+		frames.forEach(function(aFrame) {
+			if (aFrame.frames && aFrame.frames.length) {
+				Array.slice(aFrame.frames).forEach(arguments.callee, this);
+			}
 
-		var canvas = aFrame.document.getElementById(this.kCANVAS);
-		if (canvas)
-			canvas.parentNode.removeChild(canvas);
+			var canvas = aFrame.document.getElementById(this.kCANVAS);
+			if (canvas)
+				canvas.parentNode.removeChild(canvas);
 
-		aFrame.document.documentElement.removeAttribute(this.kCANVAS);
+			aFrame.document.documentElement.removeAttribute(this.kCANVAS);
+		}, this);
 	},
  
 	toggleMarkers : function(aShow, aFrame) 
