@@ -696,6 +696,12 @@ var XMigemoPlaces = {
 		this.stopProgressiveLoad();
 		if (!aBaseQuery || !aOptions || !aTree || !aSourceSQL) return;
 
+		// clear now
+		var blankQuery = aBaseQuery.clone();
+		blankQuery.maxVisits = 0;
+		blankQuery.minVisits = 1;
+		aTree.load([blankQuery], aOptions);
+
 		this.lastFindRegExp = null;
 		this.lastTermsRegExp = null;
 		this.lastExceptionsRegExp = null;
