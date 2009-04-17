@@ -1,5 +1,5 @@
 //var profile = '../res/profile-ja/';
-//var options = ['-console', '-jsconsole'];
+//var options = ['-console', '-jsconsole'/*, '-uxu-do-not-quit'*/];
 
 var XMigemoUI,
 	XMigemoHighlight,

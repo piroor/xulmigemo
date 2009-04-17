@@ -90,6 +90,7 @@ var XMigemoHighlight = {
 		bar.addEventListener('XMigemoFindBarClose', this, false);
 		bar.addEventListener('XMigemoFindBarToggleHighlight', this, false);
 		document.addEventListener('XMigemoFindAgain', this, false);
+		document.addEventListener('SubBrowserFocusMoved', this, false);
 
 		window.addEventListener('unload', this, false);
 
@@ -108,6 +109,7 @@ var XMigemoHighlight = {
 		bar.removeEventListener('XMigemoFindBarClose', this, false);
 		bar.removeEventListener('XMigemoFindBarToggleHighlight', this, false);
 		document.removeEventListener('XMigemoFindAgain', this, false);
+		document.removeEventListener('SubBrowserFocusMoved', this, false);
 
 		window.removeEventListener('unload', this, false);
 	},
@@ -206,6 +208,10 @@ var XMigemoHighlight = {
 				if (this.animationStyle == this.STYLE_ZOOM)
 					this.clearAnimationStyleIn(XMigemoUI.activeBrowser.contentWindow, true);
 				this.clearAnimationStyle()
+				break;
+
+			case 'SubBrowserFocusMoved':
+				this.destroyHighlightScreen(aEvent.lastFocused.browser);
 				break;
 		}
 	},
@@ -466,18 +472,28 @@ var XMigemoHighlight = {
 		objBody.insertBefore(screen, objBody.firstChild);
 	},
   
-	destroyHighlightScreen : function(aFrame) 
+	destroyHighlightScreen : function(aBrowser) 
 	{
-		if (!aFrame)
-			aFrame = XMigemoUI.activeBrowser.contentWindow;
-
-		if (aFrame.frames && aFrame.frames.length) {
-			Array.slice(aFrame.frames).forEach(arguments.callee, this);
+		var b = aBrowser || XMigemoUI.activeBrowser;
+		if (b.localName == 'tabbrowser') {
+			b = Array.slice(b.mTabContainer.childNodes)
+					.map(function(aTab) {
+						return aTab.linkedBrowser;
+					});
 		}
+		else {
+			b = [b];
+		}
+		b.forEach(function(aBrowser) {
+			var frame = aBrowser.contentWindow;
+			if (frame.frames && frame.frames.length) {
+				Array.slice(frame.frames).forEach(arguments.callee, this);
+			}
 
-		if (!(aFrame.document instanceof HTMLDocument)) return;
+			if (!(frame.document instanceof HTMLDocument)) return;
 
-		aFrame.document.documentElement.removeAttribute(this.kSCREEN);
+			frame.document.documentElement.removeAttribute(this.kSCREEN);
+		}, this);
 	},
  
 	toggleHighlightScreen : function(aHighlight, aFrame) 
