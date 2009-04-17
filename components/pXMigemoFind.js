@@ -391,10 +391,8 @@ mydump("findInDocument ==========================================");
 				else {
 					doc.foundEditable = null;
 				}
-				if (aForceFocus) {
-					doc.defaultView.focus();
-					if (rangeFindResult.flag & this.FOUND_IN_LINK) this.focusToLink(aForceFocus);
-				}
+				if (aForceFocus) doc.defaultView.focus();
+				if (rangeFindResult.flag & this.FOUND_IN_LINK) this.focusToLink(aForceFocus);
 				this.setSelectionAndScroll(this.foundRange, aRangeSet.range.startContainer.ownerDocument);
 				rangeFindResult.flag |= this.FINISH_FIND;
 				if (aFindFlag & this.FIND_WRAP)
@@ -469,7 +467,7 @@ mydump("findInRange");
 		if (result.foundEditable = this.getParentEditableFromRange(result.range)) {
 			result.flag |= this.FOUND_IN_EDITABLE;
 		}
-		if (result.foundLink = this.findLinkFromRange(result.range)) {
+		if (result.foundLink = this.getParentLinkFromRange(result.range)) {
 			result.flag |= this.FOUND_IN_LINK;
 		}
 
@@ -478,7 +476,7 @@ mydump("findInRange");
 	 
 	focusToLink : function(aForceFocus) 
 	{
-		var link = this.findLinkFromRange(this.foundRange);
+		var link = this.getParentLinkFromRange(this.foundRange);
 		if (link && aForceFocus) {
 			try{
 				Components.lookupMethod(link, 'focus').call(link);
@@ -491,11 +489,11 @@ mydump("findInRange");
 		return link;
 	},
    
-	findLinkFromRange : function(aRange) 
+	getParentLinkFromRange : function(aRange) 
 	{
-mydump("findLinkFromRange");
+mydump("getParentLinkFromRange");
 		//後でXLinkを考慮したコードに直す
-
+		if (!aRange) return null;
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
 		{
@@ -1109,7 +1107,7 @@ mydump("setSelectionAndScroll");
 
 		var range = this.getFoundRange(aFrame);
 		if (range) {
-			var foundLink = this.findLinkFromRange(range);
+			var foundLink = this.getParentLinkFromRange(range);
 			var foundEditable = this.getParentEditableFromRange(range);
 			var target = foundLink || foundEditable;
 			if (target) {

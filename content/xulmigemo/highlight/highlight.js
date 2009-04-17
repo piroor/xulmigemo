@@ -486,6 +486,8 @@ var XMigemoHighlight = {
 			frames = [b.contentWindow];
 		}
 		frames.forEach(function(aFrame) {
+			if (!aFrame) return;
+
 			if (aFrame.frames && aFrame.frames.length) {
 				Array.slice(aFrame.frames).forEach(arguments.callee, this);
 			}
