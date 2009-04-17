@@ -475,24 +475,24 @@ var XMigemoHighlight = {
 	destroyHighlightScreen : function(aBrowser) 
 	{
 		var b = aBrowser || XMigemoUI.activeBrowser;
+		var frames;
 		if (b.localName == 'tabbrowser') {
-			b = Array.slice(b.mTabContainer.childNodes)
+			frames = Array.slice(b.mTabContainer.childNodes)
 					.map(function(aTab) {
-						return aTab.linkedBrowser;
+						return aTab.linkedBrowser.contentWindow;
 					});
 		}
 		else {
-			b = [b];
+			frames = [b.contentWindow];
 		}
-		b.forEach(function(aBrowser) {
-			var frame = aBrowser.contentWindow;
-			if (frame.frames && frame.frames.length) {
-				Array.slice(frame.frames).forEach(arguments.callee, this);
+		frames.forEach(function(aFrame) {
+			if (aFrame.frames && aFrame.frames.length) {
+				Array.slice(aFrame.frames).forEach(arguments.callee, this);
 			}
 
-			if (!(frame.document instanceof HTMLDocument)) return;
+			if (!(aFrame.document instanceof HTMLDocument)) return;
 
-			frame.document.documentElement.removeAttribute(this.kSCREEN);
+			aFrame.document.documentElement.removeAttribute(this.kSCREEN);
 		}, this);
 	},
  
