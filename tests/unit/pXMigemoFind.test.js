@@ -190,3 +190,24 @@ function testFindFirstVisibleNode()
 	assertScrollAndFind('p10', findModule.FIND_BACK);
 	assertScrollAndFind('p21', findModule.FIND_BACK);
 }
+
+
+testGetParentLinkFromRange.setUp = function()
+{
+	yield Do(utils.loadURI(baseURL+'../res/keyEventTest.html'));
+};
+function testGetParentLinkFromRange()
+{
+	var range = content.document.createRange();
+	var textNode = $('first', content).getElementsByTagName('A')[0].firstChild;
+	range.setStart(textNode, 1);
+	range.setEnd(textNode, 3);
+	assert.equals('am', range.toString());
+	assert.equals(textNode.parentNode, findModule.getParentLinkFromRange(range));
+
+	textNode = $('first', content).firstChild;
+	range.setStart(textNode, 1);
+	range.setEnd(textNode, 3);
+	assert.equals('hi', range.toString());
+	assert.isNull(findModule.getParentLinkFromRange(range));
+}
