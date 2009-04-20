@@ -32,6 +32,34 @@ function testProperties()
 }
 
 
+function testGetEditableNodes()
+{
+	function assertGetEditableNodes()
+	{
+		var nodes = [$('single-row1', content), $('multi-row', content), $('single-row2', content), $('single-row3', content), $('single-row4', content), $('single-row5', content), $('single-row6', content), $('single-row7', content), $('single-row8', content), $('single-row9', content)];
+
+		var result = XMigemoUI.getEditableNodes(content.document);
+		assert.equals(nodes.length, result.snapshotLength);
+		nodes.forEach(function(aNode, aIndex) {
+			assert.isNotNull(aNode);
+			assert.equals(aNode, result.snapshotItem(aIndex), aIndex);
+		});
+	}
+
+	yield Do(utils.loadURI(baseURL+'../res/keyEventTest.html'));
+	assertGetEditableNodes();
+	yield Do(utils.loadURI(baseURL+'../res/keyEventTest.xml'));
+	assertGetEditableNodes();
+}
+
+function testGetDocumentBody()
+{
+	yield Do(utils.loadURI(baseURL+'../res/keyEventTest.html'));
+	assert.equals(content.document.body, XMigemoUI.getDocumentBody(content.document));
+	yield Do(utils.loadURI(baseURL+'../res/keyEventTest.xml'));
+	assert.equals(content.document.getElementsByTagName('body')[0], XMigemoUI.getDocumentBody(content.document));
+}
+
 testDoProcessForAllFrames.setUp = function()
 {
 	yield Do(utils.loadURI(baseURL+'../res/frameTest.html'));
