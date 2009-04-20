@@ -860,8 +860,13 @@ var XMigemoUI = {
 
 			case 'resize':
 			case 'TreeStyleTabAutoHideStateChange':
+				if (this.updatingFindBar) return;
+				this.updatingFindBar = true;
 				this.updateFloatingFindBarAppearance(aEvent);
 				this.onChangeFindBarSize(aEvent);
+				window.setTimeout(function(aSelf) {
+					aSelf.updatingFindBar = false;
+				}, 10, this);
 				return;
 
 			case 'SubBrowserContentExpanded':
