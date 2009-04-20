@@ -6,12 +6,13 @@
 var XMigemoFind;
  
 var XMigemoUI = { 
-	 
+	
 /* constants */ 
 
 	kFINDBAR_POSITION : '_moz-xmigemo-position',
-	kTARGET : '_moz-xmigemo-target',
-	kLAST_HIGHLIGHT : '_moz-xmigemo-last-highlight',
+	kTARGET           : '_moz-xmigemo-target',
+	kLAST_HIGHLIGHT   : '_moz-xmigemo-last-highlight',
+	kFOCUSED          : '_moz-xmigemo-focused',
 
 	kDISABLE_IME    : '_moz-xmigemo-disable-ime',
 	kINACTIVATE_IME    : '_moz-xmigemo-inactivate-ime',
@@ -39,7 +40,7 @@ var XMigemoUI = {
 	_textUtils : null,
   
 /* internal status */ 
-	 
+	
 	FIND_MODE_NATIVE : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE, 
 	FIND_MODE_MIGEMO : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
 	FIND_MODE_REGEXP : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP,
@@ -49,7 +50,7 @@ var XMigemoUI = {
 	backupFindMode   : -1,
 
 	isModeChanged : false,
-	 
+	
 	findModeVersion : 2, 
 	findModeFrom1To2 : {
 		'0' : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
@@ -75,7 +76,7 @@ var XMigemoUI = {
 
 		XMigemoService.setPref('xulmigemo.findMode.version', this.findModeVersion);
 	},
- 	 
+  
 	autoStartQuickFind       : false, 
 	autoExitQuickFindInherit : true,
 	autoExitQuickFind        : true,
@@ -92,7 +93,7 @@ var XMigemoUI = {
  
 	caseSensitiveCheckedAlways : false, 
  
-	_modeCirculation : 0,
+	_modeCirculation : 0, 
 	get modeCirculation()
 	{
 		return this._modeCirculation;
@@ -609,7 +610,46 @@ var XMigemoUI = {
 		}
 		return null;
 	},
-  
+ 
+	clearFocusRing : function() 
+	{
+		this.doProcessForAllFrames(function(aFrame) {
+			var nodes = aFrame.document.evaluate(
+					'/descendant::*[@'+this.kFOCUSED+'="true"]',
+					aFrame.document,
+					null,
+					XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+					null
+				);
+			for (var i = nodes.snapshotLength-1; i > -1; i--)
+			{
+				nodes.snapshotItem(i).removeAttribute(this.kFOCUSED);
+			}
+		}, this);
+	},
+	
+	doProcessForAllFrames : function(aProcess, aScope, aBrowser) 
+	{
+		var b = aBrowser || this.activeBrowser;
+		var frames;
+		if (b.localName == 'tabbrowser') {
+			frames = Array.slice(b.mTabContainer.childNodes)
+					.map(function(aTab) {
+						return aTab.linkedBrowser.contentWindow;
+					});
+		}
+		else {
+			frames = [b.contentWindow];
+		}
+		frames.forEach(function(aFrame) {
+			if (!aFrame) return;
+			if (aFrame.frames && aFrame.frames.length) {
+				Array.slice(aFrame.frames).forEach(arguments.callee, this);
+			}
+			aProcess.call(aScope || this, aFrame);
+		}, this);
+	},
+   
 /* preferences observer */ 
 	
 	domain  : 'xulmigemo', 
@@ -1104,7 +1144,7 @@ var XMigemoUI = {
 		var selection = aFrame.getSelection();
 		if (selection && selection.rangeCount) {
 			var range = selection.getRangeAt(0);
-			var foundLink = this.findParentLink(range);
+			var foundLink = XMigemoFind.getParentLinkFromRange(range);
 			if (foundLink) {
 				var event = aFrame.document.createEvent('KeyEvents');
 				event.initKeyEvent(
@@ -1124,18 +1164,6 @@ var XMigemoUI = {
 			}
 		}
 		return false;
-	},
-	findParentLink : function(aRange)
-	{
-		var node = aRange.commonAncestorContainer;
-		while (node && node.parentNode)
-		{
-			if (String(node.localName).toLowerCase() == 'a') {
-				return node;
-			}
-			node = node.parentNode;
-		}
-		return null;
 	},
  
 	processKeyEvent : function(aEvent, aFromFindField) 
@@ -1256,6 +1284,12 @@ var XMigemoUI = {
 			this.lastHighlightedKeyword = aEvent.findTerm;
 			if (found && this.highlightCheck.checked)
 				gFindBar.setHighlightTimeout();
+		}
+
+		if (this.isQuickFind) {
+			this.clearFocusRing();
+			var link = XMigemoFind.getParentLinkFromRange(this.lastFoundRange);
+			if (link) link.setAttribute(this.kFOCUSED, true);
 		}
 
 		gFindBar.updateStatus(statusRes, !(aEvent.findFlag & XMigemoFind.FIND_BACK));
@@ -2328,7 +2362,7 @@ var XMigemoUI = {
 			aSelf.delayedCloseFindBar();
 		}, 0, XMigemoUI);
 	},
-	 
+	
 	delayedCloseFindBar : function() 
 	{
 		if (this.hidden) {
@@ -2358,12 +2392,13 @@ var XMigemoUI = {
 			document.commandDispatcher.suppressFocusScroll = scrollSuppressed;
 		}
 
+		this.clearFocusRing();
 		var link = XMigemoFind.getParentLinkFromRange(this.lastFoundRange);
 		if (link) link.focus();
 	},
   
 /* highlight */ 
-	 
+	
 	toggleHighlight : function(aHighlight, aAutoChecked) 
 	{
 		var event = document.createEvent('Events');
@@ -2581,7 +2616,7 @@ var XMigemoUI = {
 
 		return ranges.length ? true : false ;
 	},
-	 
+	
 	createNewHighlight : function(aDocument) 
 	{
 		var node = aDocument.createElementNS('http://www.w3.org/1999/xhtml', 'span');
@@ -2885,7 +2920,7 @@ var XMigemoUI = {
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 	},
-	 
+	
 	delayedInit : function() { 
 		window.setTimeout("XMigemoUI.field.addEventListener('blur', this, false);", 0);
 

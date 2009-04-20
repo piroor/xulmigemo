@@ -1,5 +1,5 @@
 var XMigemoService = { 
-	 
+	
 	DEBUG : true, 
  
 	get ObserverService() 
@@ -51,7 +51,7 @@ var XMigemoService = {
 	_XULAppInfo : null,
  
 /* Prefs */ 
-	 
+	
 	get Prefs() 
 	{
 		if (!this._Prefs) {
@@ -82,7 +82,7 @@ var XMigemoService = {
 
 		return null;
 	},
- 	
+ 
 	setPref : function(aPrefstring, aNewValue, aPrefObj) 
 	{
 		var pref = aPrefObj || this.Prefs ;
@@ -285,7 +285,7 @@ var XMigemoService = {
 	},
  
 /* event handling */ 
-	 
+	
 	isEventFiredInInputField : function(aEvent) 
 	{
 		try { // in rich-textarea (ex. Gmail)
