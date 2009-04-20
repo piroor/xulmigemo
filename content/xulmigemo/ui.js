@@ -1360,7 +1360,10 @@ var XMigemoUI = {
 	{
 		this.clearTimer();
 		var highlighted = this.highlightCheck.checked;
-		gFindBar.toggleHighlight(false);
+		if (highlighted) {
+			gFindBar.toggleHighlight(false);
+			this.clearHighlight(this.activeBrowser.contentDocument, true);
+		}
 		if (!this.hidden && !this.inCancelingProcess) {
 			if (this.isQuickFind || this.findMode == this.FIND_MODE_NATIVE) {
 				this.cancel(true);
