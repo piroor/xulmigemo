@@ -13,8 +13,8 @@ assert.autoStart = function(aTerm) {
 	}
 }
 
-assert.manualStart = function(aTerm) {
-	var key = { charCode : '/'.charCodeAt(0) };
+assert.manualStart = function(aTerm, aKey) {
+	var key = { charCode : (aKey || '/').charCodeAt(0) };
 	action.fireKeyEventOnElement(content.document.documentElement, key);
 	yield wait;
 	assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
