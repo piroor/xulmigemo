@@ -236,3 +236,33 @@ function testFillWithSelection()
 	yield Do(assert.prefill('FIND_MODE_MIGEMO', false));
 	yield Do(assert.prefill('FIND_MODE_MIGEMO', true));
 }
+
+function assertLinkFind(aMode)
+{
+	var link = content.document.links[0];
+	gFindBar.openFindBar();
+	yield wait;
+	XMigemoUI.findMode = XMigemoUI[aMode];
+	yield wait;
+	yield Do(assert.find_found(aMode, 'sample', 'sample'));
+	assert.contained($('first', content), XMigemoUI.lastFoundRange);
+	assert.notContained(link, XMigemoUI.lastFoundRange);
+	XMigemoUI.findNext();
+	assert.contained(link, XMigemoUI.lastFoundRange);
+	assert.isFalse(link.hasAttribute(XMigemoUI.kFOCUSED));
+	XMigemoUI.findNext();
+	assert.contained($('first', content), XMigemoUI.lastFoundRange);
+	assert.notContained(link, XMigemoUI.lastFoundRange);
+}
+
+testLinkFindRegExp.description = 'リンクにもヒットする検索：正規表現検索'
+function testLinkFindRegExp()
+{
+	yield Do(assertLinkFind('FIND_MODE_REGEXP'));
+}
+
+testLinkFindMigemo.description = 'リンクにもヒットする検索：Migemo検索'
+function testLinkFindMigemo()
+{
+	yield Do(assertLinkFind('FIND_MODE_MIGEMO'));
+}

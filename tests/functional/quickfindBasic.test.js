@@ -119,10 +119,10 @@ function testAutoStartLinksOnly()
 {
 	var link = content.document.links[0];
 	yield Do(assert.manualStart('sample'));
-	assert.contains(XMigemoUI.lastFoundRange, $('first', content).firstChild);
+	assert.contained($('first', content).firstChild, XMigemoUI.lastFoundRange);
 	assert.isFalse(link.hasAttribute(XMigemoUI.kFOCUSED));
 	XMigemoUI.findNext();
-	assert.contains(XMigemoUI.lastFoundRange, content.document.links[0]);
+	assert.contained(link, XMigemoUI.lastFoundRange);
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	XMigemoUI.findNext();
 	assert.isFalse(link.hasAttribute(XMigemoUI.kFOCUSED));
@@ -148,9 +148,10 @@ function testAutoStartLinksOnly()
 {
 	var link = content.document.links[0];
 	yield Do(assert.autoStart('sample'));
-	assert.contains(XMigemoUI.lastFoundRange, content.document.links[0]);
+	assert.contained(link, XMigemoUI.lastFoundRange);
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	XMigemoUI.findNext();
+	assert.contained(link, XMigemoUI.lastFoundRange);
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	assert.notEquals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
 	XMigemoUI.closeFindBar();
@@ -163,9 +164,10 @@ function testManualStartLinksOnly()
 {
 	var link = content.document.links[0];
 	yield Do(assert.manualStart('sample', '\\'));
-	assert.contains(XMigemoUI.lastFoundRange, content.document.links[0]);
+	assert.contained(link, XMigemoUI.lastFoundRange);
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	XMigemoUI.findNext();
+	assert.contained(link, XMigemoUI.lastFoundRange);
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	assert.notEquals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
 	XMigemoUI.closeFindBar();
