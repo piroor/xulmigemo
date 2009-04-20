@@ -470,30 +470,11 @@ var XMigemoMarker = {
   
 	destroyMarkers : function(aBrowser) 
 	{
-		var b = aBrowser || XMigemoUI.activeBrowser;
-		var frames;
-		if (b.localName == 'tabbrowser') {
-			frames = Array.slice(b.mTabContainer.childNodes)
-					.map(function(aTab) {
-						return aTab.linkedBrowser.contentWindow;
-					});
-		}
-		else {
-			frames = [b.contentWindow];
-		}
-		frames.forEach(function(aFrame) {
-			if (!aFrame) return;
-
-			if (aFrame.frames && aFrame.frames.length) {
-				Array.slice(aFrame.frames).forEach(arguments.callee, this);
-			}
-
+		XMigemoUI.doProcessForAllFrames(function(aFrame) {
 			var canvas = aFrame.document.getElementById(this.kCANVAS);
-			if (canvas)
-				canvas.parentNode.removeChild(canvas);
-
+			if (canvas) canvas.parentNode.removeChild(canvas);
 			aFrame.document.documentElement.removeAttribute(this.kCANVAS);
-		}, this);
+		}, this, aBrowser);
 	},
  
 	toggleMarkers : function(aShow, aFrame) 
