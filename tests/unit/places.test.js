@@ -1,4 +1,4 @@
-if (utils.checkAppVersion('3.0') < 0) var priority = 'never';
+var shouldSkip = utils.checkAppVersion('3.0') < 0;
 
 var orig = {};
 function warmUp()
