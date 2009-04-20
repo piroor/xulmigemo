@@ -32,6 +32,72 @@ function testProperties()
 }
 
 
+function getFindFieldFromContent()
+{
+	var field = XMigemoUI.field;
+	assert.isNotNull(field);
+	assert.isTrue(field instanceof Ci.nsIDOMNode);
+
+	assert.equals(field, XMigemoUI.getFindFieldFromContent(field));
+	assert.equals(field, XMigemoUI.getFindFieldFromContent(field.ownerDocument.getAnonymousNodes(field)[0]));
+	assert.isNull(XMigemoUI.getFindFieldFromContent(gBrowser));
+}
+
+function testShouldHighlightAll()
+{
+	var field = XMigemoUI.field;
+
+	function assertFound(aTerm, aExpected)
+	{
+		field.value = aTerm;
+		if (aExpected)
+			assert.isTrue(XMigemoUI.shouldHighlightAll);
+		else
+			assert.isFalse(XMigemoUI.shouldHighlightAll);
+	}
+
+	XMigemoUI.highlightCheckedAlways = false;
+	XMigemoUI.highlightCheckedAlwaysMinLength = 3;
+	assertFound('', false);
+	assertFound('f', true);
+	assertFound('foo', true);
+	assertFound('foobar', true);
+	assertFound('w', true);
+	assertFound('wor', true);
+	assertFound('word', true);
+
+	XMigemoUI.highlightCheckedAlways = true;
+	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
+	assertFound('', false);
+	assertFound('f', false);
+	assertFound('foo', false);
+	assertFound('foobar', false);
+	assertFound('w', false);
+	assertFound('wor', true);
+	assertFound('word', true);
+
+	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
+	assertFound('', false);
+	assertFound('f', false);
+	assertFound('foo', false);
+	assertFound('foobar', false);
+	assertFound('w', false);
+	assertFound('wor', true);
+	assertFound('word', true);
+
+	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
+	assertFound('', false);
+	assertFound('f', false);
+	assertFound('foo', false);
+	assertFound('foobar', false);
+	assertFound('w', false);
+	assertFound('wor', true);
+	assertFound('word', true);
+	assertFound('n', false);
+	assertFound('nih', true);
+	assertFound('nihongo', true);
+}
+
 function testGetEditableNodes()
 {
 	function assertGetEditableNodes()
