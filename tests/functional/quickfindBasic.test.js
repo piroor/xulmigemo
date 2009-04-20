@@ -112,3 +112,36 @@ function testAutoStartInQuickFind()
 	yield wait;
 	assert.isTrue(XMigemoUI.hidden);
 }
+
+
+testAutoStartLinksOnly.description = '手動開始：リンクにもヒットする検索';
+function testAutoStartLinksOnly()
+{
+	yield Do(assert.manualStart('sample'));
+	assert.contains(XMigemoUI.lastFoundRange, $('first', content).firstChild);
+	assert.isFalse(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+	XMigemoUI.findNext();
+	assert.contains(XMigemoUI.lastFoundRange, content.document.links[0]);
+	assert.isTrue(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+	XMigemoUI.findNext();
+	assert.isFalse(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+}
+
+testAutoStartLinksOnly.description = '自動開始：リンクのみ検索';
+testAutoStartLinksOnly.setUp = function()
+{
+	XMigemoUI.autoStartQuickFind = true;
+	utils.setPref('xulmigemo.linksonly', true);
+};
+testAutoStartLinksOnly.tearDown = function()
+{
+	utils.clearPref('xulmigemo.linksonly');
+};
+function testAutoStartLinksOnly()
+{
+	yield Do(assert.autoStart('sample'));
+	assert.contains(XMigemoUI.lastFoundRange, content.document.links[0]);
+	assert.isTrue(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+	XMigemoUI.findNext();
+	assert.isTrue(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+}
