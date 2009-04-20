@@ -117,19 +117,21 @@ function testAutoStartInQuickFind()
 testAutoStartLinksOnly.description = '手動開始：リンクにもヒットする検索';
 function testAutoStartLinksOnly()
 {
+	var link = content.document.links[0];
 	yield Do(assert.manualStart('sample'));
 	assert.contains(XMigemoUI.lastFoundRange, $('first', content).firstChild);
-	assert.isFalse(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+	assert.isFalse(link.hasAttribute(XMigemoUI.kFOCUSED));
 	XMigemoUI.findNext();
 	assert.contains(XMigemoUI.lastFoundRange, content.document.links[0]);
-	assert.isTrue(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	XMigemoUI.findNext();
-	assert.isFalse(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+	assert.isFalse(link.hasAttribute(XMigemoUI.kFOCUSED));
 	XMigemoUI.findNext();
-	assert.isTrue(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
+	assert.notEquals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
 	XMigemoUI.closeFindBar();
 	yield wait;
-	assert.equals(content.document.links[0], gBrowser.ownerDocument.commandDispatcher.focusedElement);
+	assert.equals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
 }
 
 testAutoStartLinksOnly.description = '自動開始：リンクのみ検索';
@@ -144,25 +146,29 @@ testAutoStartLinksOnly.tearDown = function()
 };
 function testAutoStartLinksOnly()
 {
+	var link = content.document.links[0];
 	yield Do(assert.autoStart('sample'));
 	assert.contains(XMigemoUI.lastFoundRange, content.document.links[0]);
-	assert.isTrue(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	XMigemoUI.findNext();
-	assert.isTrue(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
+	assert.notEquals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
 	XMigemoUI.closeFindBar();
 	yield wait;
-	assert.equals(content.document.links[0], gBrowser.ownerDocument.commandDispatcher.focusedElement);
+	assert.equals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
 }
 
 testManualStartLinksOnly.description = '手動開始：リンクのみ検索';
 function testManualStartLinksOnly()
 {
+	var link = content.document.links[0];
 	yield Do(assert.manualStart('sample', '\\'));
 	assert.contains(XMigemoUI.lastFoundRange, content.document.links[0]);
-	assert.isTrue(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	XMigemoUI.findNext();
-	assert.isTrue(content.document.links[0].hasAttribute(XMigemoUI.kFOCUSED));
+	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
+	assert.notEquals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
 	XMigemoUI.closeFindBar();
 	yield wait;
-	assert.equals(content.document.links[0], gBrowser.ownerDocument.commandDispatcher.focusedElement);
+	assert.equals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
 }
