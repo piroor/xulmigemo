@@ -906,7 +906,7 @@ var XMigemoUI = {
 				this.onChangeFindBarSize(aEvent);
 				window.setTimeout(function(aSelf) {
 					aSelf.updatingFindBar = false;
-				}, 10, this);
+				}, 100, this);
 				return;
 
 			case 'SubBrowserContentExpanded':
