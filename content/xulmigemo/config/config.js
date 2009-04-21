@@ -121,16 +121,41 @@ function writeModeCirculationPref(aCheckbox)
 }
 
 
-function opener()
+function initCombinationPane()
 {
-	return XMigemoService.WindowManager.getMostRecentWindow('navigator:browser');
-}
+	const XULAppInfo = Components.classes['@mozilla.org/xre/app-info;1']
+			.getService(Components.interfaces.nsIXULAppInfo);
+	const comparator = Components.classes['@mozilla.org/xpcom/version-comparator;1']
+						.getService(Components.interfaces.nsIVersionComparator);
+	const ExtensionManager = Components.classes['@mozilla.org/extensions/manager;1']
+				.getService(Components.interfaces.nsIExtensionManager);
 
-function loadURI(uri)
-{
-	if (opener())
-		opener().loadURI(uri);
+	const kID_FIREFOX = '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}';
+	const kID_THUNDERBIRD = '{3550f703-e582-4d05-9a08-453d09bdfdc6}';
+
+	var placesBox = document.getElementById('combination-places');
+	if (XULAppInfo.ID == kID_FIREFOX &&
+		comparator.compare(XULAppInfo.version, '3.0') >= 0)
+		placesBox.removeAttribute('collapsed');
 	else
-		window.open(uri);
-}
+		placesBox.setAttribute('collapsed', true);
 
+	var ctrlTabBox = document.getElementById('xulmigemo.ctrlTab.enabled-check');
+	if (XULAppInfo.ID == kID_FIREFOX &&
+		comparator.compare(XULAppInfo.version, '3.6a1pre') >= 0)
+		ctrlTabBox.removeAttribute('collapsed');
+	else
+		ctrlTabBox.setAttribute('collapsed', true);
+
+	var thunderbirdBox = document.getElementById('combination-thunderbird');
+	if (XULAppInfo.ID == kID_THUNDERBIRD)
+		thunderbirdBox.removeAttribute('collapsed');
+	else
+		thunderbirdBox.setAttribute('collapsed', true);
+
+	var autocompletemanagerBox = document.getElementById('xulmigemo.combination.autocompletemanager-check');
+	if (ExtensionManager.getInstallLocation('acmanager@ucla'))
+		autocompletemanagerBox.removeAttribute('collapsed');
+	else
+		autocompletemanagerBox.setAttribute('collapsed', true);
+}
