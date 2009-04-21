@@ -628,11 +628,14 @@ var XMigemoUI = {
 		}, this);
 	},
 	
-	doProcessForAllFrames : function(aProcess, aScope, aBrowser) 
+	doProcessForAllFrames : function(aProcess, aScope, aBrowserOrFrame) 
 	{
-		var b = aBrowser || this.activeBrowser;
+		var b = aBrowserOrFrame || this.activeBrowser;
 		var frames;
-		if (b.localName == 'tabbrowser') {
+		if (b instanceof Ci.nsIDOMWindow) {
+			frames = [b];
+		}
+		else if (b.localName == 'tabbrowser') {
 			frames = Array.slice(b.mTabContainer.childNodes)
 					.map(function(aTab) {
 						return aTab.linkedBrowser.contentWindow;

@@ -468,13 +468,13 @@ var XMigemoMarker = {
 		);
 	},
   
-	destroyMarkers : function(aBrowser) 
+	destroyMarkers : function(aBrowserOrFrame) 
 	{
 		XMigemoUI.doProcessForAllFrames(function(aFrame) {
 			var canvas = aFrame.document.getElementById(this.kCANVAS);
 			if (canvas) canvas.parentNode.removeChild(canvas);
 			aFrame.document.documentElement.removeAttribute(this.kCANVAS);
-		}, this, aBrowser);
+		}, this, aBrowserOrFrame);
 	},
  
 	toggleMarkers : function(aShow, aFrame) 
