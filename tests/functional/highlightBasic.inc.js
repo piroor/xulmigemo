@@ -143,3 +143,21 @@ function testAutoHighlightAndModeSwitch()
 	assert.equals(2, getHighlightCount());
 }
 
+
+function testMarker()
+{
+	XMigemoMarker.enabled = true;
+
+	gFindBar.openFindBar();
+	yield wait;
+	field.focus();
+
+	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
+	yield Do(assert.markerStateForFind('text field', true));
+	yield Do(assert.markerStateForFind('', false));
+	yield Do(assert.markerStateForFind('t', false));
+	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
+	yield Do(assert.markerStateForFind('nihongo', true));
+	yield Do(assert.markerStateForFind('', false));
+	yield Do(assert.markerStateForFind('n', false));
+}

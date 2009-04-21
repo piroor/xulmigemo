@@ -3,6 +3,7 @@
 
 var XMigemoUI,
 	XMigemoHighlight,
+	XMigemoMarker,
 	win,
 	browser,
 	content,
@@ -66,6 +67,9 @@ function commonSetUp(aURI)
 			metaKey  : false
 		}
 	];
+
+	XMigemoMarker = win.XMigemoMarker;
+	XMigemoMarker.enabled = false;
 
 	findCommand = 'with (win) {'+
 		win.document.getElementById('cmd_find').getAttribute('oncommand')+
