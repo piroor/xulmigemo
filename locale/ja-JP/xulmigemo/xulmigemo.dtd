@@ -125,13 +125,13 @@
 <!ENTITY config.combination.description "対応するアプリケーションやアドオンの各機能で、XUL/Migemoによる辞書アシスト検索（ローマ字入力での日本語検索など）を利用できます。">
 <!ENTITY config.combination.description.maxwidth "40em">
 
-<!ENTITY config.caption.places        "履歴とブックマークの検索で有効にする（Firefox 3以降でのみ有効）">
+<!ENTITY config.caption.places        "履歴とブックマークの検索で有効にする">
 <!ENTITY config.places.locationBar    "ロケーションバー">
 <!ENTITY config.places.bookmarksPanel "ブックマークサイドバー">
 <!ENTITY config.places.historyPanel   "履歴サイドバー">
 <!ENTITY config.places.organizer      "履歴とブックマークの管理">
 
-<!ENTITY config.ctrlTab.enabled "タブのプレビューの検索で有効にする（Firefox 3.1以降でのみ有効）">
+<!ENTITY config.ctrlTab.enabled "タブのプレビューの検索で有効にする">
 
 <!ENTITY config.caption.mailnews        "Thunderbird">
 <!ENTITY config.mailnews.threadsearch.enabled "メールのクイック検索で有効にする">

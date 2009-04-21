@@ -556,7 +556,8 @@
 </prefpane>
 
 
-<prefpane id="prefpane-combination" label="&config.tab.combination;" flex="1">
+<prefpane id="prefpane-combination" label="&config.tab.combination;" flex="1"
+	onpaneload="initCombinationPane();">
 	<preferences>
 		<preference id="xulmigemo.places.locationBar"
 			name="xulmigemo.places.locationBar"
@@ -589,7 +590,7 @@
 	<description flex="1" style="max-width: &config.combination.description.maxwidth;">&config.combination.description;</description>
 
 	<vbox flex="100">
-	<groupbox>
+	<groupbox id="combination-places">
 		<caption label="&config.caption.places;"/>
 		<hbox>
 		<vbox>
@@ -614,7 +615,7 @@
 		label="&config.ctrlTab.enabled;"
 		preference="xulmigemo.ctrlTab.enabled"/>
 
-	<groupbox>
+	<groupbox id="combination-thunderbird">
 		<caption label="&config.caption.mailnews;"/>
 		<checkbox id="xulmigemo.mailnews.threadsearch.enabled-check" flex="1"
 			label="&config.mailnews.threadsearch.enabled;"
