@@ -1,4 +1,5 @@
 /* This depends on: 
+	pIXMigemoDatabase
 	pIXMigemoFileAccess
 	pIXMigemoTextUtils
 	pIXMigemoTextTransform
@@ -9,7 +10,7 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
  
 var ObserverService = Cc['@mozilla.org/observer-service;1'] 
-			.getService(Ci.nsIObserverService);;
+			.getService(Ci.nsIObserverService);
 
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
@@ -22,6 +23,9 @@ function pXMigemoDictionary() {
 
 pXMigemoDictionary.prototype = {
 	lang : '',
+
+	kSYSTEM_DIC_TABLE : 'dictionary_',
+	kUSER_DIC_TABLE   : 'user_dictionary_',
 
 	get contractID() {
 		return '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*';
@@ -40,6 +44,21 @@ pXMigemoDictionary.prototype = {
 	// pIXMigemoDictionary 
 	 
 	initialized : false, 
+ 
+	get database()
+	{
+		if (!this._database) {
+			if (TEST && pXMigemoDatabase) {
+				this._database = new pXMigemoDatabase();
+			}
+			else {
+				this._database = Cc['@piro.sakura.ne.jp/xmigemo/database;1']
+						.getService(Ci.pIXMigemoDatabase);
+			}
+		}
+		return this._database;
+	},
+	_database : null,
  
 	get textUtils() 
 	{
@@ -70,7 +89,7 @@ pXMigemoDictionary.prototype = {
 		return this._textTransform;
 	},
 	_textTransform : null,
- 	
+ 
 	get fileUtils() 
 	{
 		if (!this._fileUtils) {
@@ -94,7 +113,7 @@ pXMigemoDictionary.prototype = {
 	RESULT_ERROR_INVALID_OPERATION : pIXMigemoDictionary.RESULT_ERROR_INVALID_OPERATION,
  
 /* File I/O */ 
-	 
+	
 	get dicpath() 
 	{
 		var fullPath = this.fileUtils.getExistingPath(
@@ -113,10 +132,22 @@ pXMigemoDictionary.prototype = {
 	{
 		if (!this.lang) return false;
 
+		var systemTable = this.kSYSTEM_DIC_TABLE+this.lang;
+		var userTable = this.kUSER_DIC_TABLE+this.lang;
+		if (
+			this.database.tableExists(systemTable) &&
+			this.database.tableExists(userTable)
+			) {
+			this.initialized = true;
+			return true;
+		}
+
+		// migration
+
 		var file;
 		var dicDir = this.dicpath;
-
 		var error = false;
+		var SQLStatements = [];
 
 		if (dicDir) {
 			file = Cc['@mozilla.org/file/local;1']
@@ -125,12 +156,15 @@ pXMigemoDictionary.prototype = {
 			file.append(this.lang+'.txt');
 		}
 		if (file && file.exists()) {
-//			dump('system dic loaded from '+file.path+'\n');
-			this.list['system'] = this.fileUtils.readFrom(file, 'UTF-8');
+			this.database.initTermsTable(systemTable);
+			SQLStatements.push(
+				this.textUtils.trim(this.fileUtils.readFrom(file, 'UTF-8'))
+					.replace(/'/g, "''")
+					.replace(/^([^\t]+)\t/gm, "INSERT INTO "+systemTable+" (key, terms) VALUES('$1', '")
+					.replace(/(.)$/gm, "$1');")
+			);
 		}
 		else {
-//			dump('system dic not found at '+file.path+'\n');
-			this.list['system'] = '';
 			error = true;
 		}
 
@@ -142,185 +176,144 @@ pXMigemoDictionary.prototype = {
 			file.append(this.lang+'.user.txt');
 		}
 		if (file && file.exists()) {
-//			dump('user dic loaded from '+file.path+'\n');
-			this.list['user'] = this.fileUtils.readFrom(file, 'UTF-8');
-		}
-		else {
-//			dump('user dic not found at '+file.path+'\n');
-			this.list['user'] = '';
+			this.database.initTermsTable(userTable);
+			SQLStatements.push(
+				this.textUtils.trim(this.fileUtils.readFrom(file, 'UTF-8'))
+					.replace(/'/g, "''")
+					.replace(/^([^\t]+)\t/gm, "INSERT INTO "+userTable+" (key, terms) VALUES('$1', '")
+					.replace(/(.)$/gm, "$1');")
+			);
 		}
 
+		if (error) {
+			this.database.dropTable(systemTable);
+			this.database.dropTable(userTable);
+		}
+		else {
+			var connection = this.database.DBConnection;
+			if (connection.transactionInProgress)
+				connection.commitTransaction();
+			if (!connection.transactionInProgress)
+				connection.beginTransaction();
+			connection.executeSimpleSQL(SQLStatements.join('\n'));
+			if (connection.transactionInProgress)
+				connection.commitTransaction();
+		}
 
 		this.initialized = true;
 		mydump('pIXMigemoDictionary: loaded');
 
 		return !error;
 	},
- 
-	reload : function() 
-	{
-		this.load();
-	},
- 
-	saveUserDic : function() 
-	{
-		if (!('user' in this.list)) return;
-
-		var file;
-		var dicDir = this.dicpath;
-		if (!dicDir) return;
-
-		file = Cc["@mozilla.org/file/local;1"]
-				.createInstance(Ci.nsILocalFile);
-		file.initWithPath(dicDir);
-		file.append(this.lang+'.user.txt');
-
-		this.fileUtils.writeTo(file, (this.list['user'] || ''), 'UTF-8');
-	},
   
 	addTerm : function(aInput, aTerm) 
 	{
-		return this.modifyDic(
-			{
-				input : String(arguments[0]),
-				term  : String(arguments[1])
-			},
-			'add'
-		);
-	},
- 
-	removeTerm : function(aInput, aTerm) 
-	{
-		return this.modifyDic(
-			{
-				input : String(arguments[0]),
-				term  : (arguments[1] ? String(arguments[1]) : null )
-			},
-			'remove'
-		);
-	},
- 
-	getDic : function() 
-	{
-		return this.list['system'];
-	},
- 
-	getUserDic : function() 
-	{
-		return this.list['user'];
-	},
-  
-	// internal 
-	 
-	list : [], 
- 
-	modifyDic : function(aTermSet, aOperation) 
-	{
-		if (
-			!aOperation ||
-			(aOperation != 'add' && aOperation != 'remove')
-			)
-			return this.RESULT_ERROR_INVALID_OPERATION;
-
-		var input = aTermSet.input ? String(aTermSet.input) : '' ;
-		var term  = aTermSet.term ? String(aTermSet.term) : '' ;
-		if (!input || !this.textTransform.isValidInput(input))
+		if (!aInput || !this.textTransform.isValidInput(aInput))
 			return this.RESULT_ERROR_INVALID_INPUT;
 
-		input = this.textTransform.normalizeInput(input);
-		if (aTermSet) aTermSet.input = input;
-
-		if (aOperation == 'add' && !term) {
+		aTerm = this.textUtils.trim(aTerm);
+		if (!aTerm)
 			return this.RESULT_ERROR_NO_TARGET;
-		}
 
-		var systemDic = this.list['system'];
-		var userDic   = this.list['user'];
+		aInput = this.textTransform.normalizeInput(aInput);
 
-		var regexp = new RegExp();
+		var table = this.kSYSTEM_DIC_TABLE+this.lang;
+		var terms = this.database.getTermsForKey(table, aInput);
+		if (terms.indexOf(aTerm) > -1)
+			return this.RESULT_ERROR_ALREADY_EXIST;
 
-		if (aOperation == 'add') {
-			// デフォルトの辞書に入っている単語は追加しない
-			regexp.compile('^'+input+'\t(.+)$', 'm');
-			if (regexp.test(systemDic)) {
-				var terms = RegExp.$1.split('\t').join('\n');
-				regexp.compile('^'+this.textUtils.sanitize(term)+'$', 'm');
-				if (regexp.test(terms))
-					return this.RESULT_ERROR_ALREADY_EXIST;
-			}
-		}
+		table = this.kUSER_DIC_TABLE+this.lang;
+		terms = this.database.getTermsForKey(table, aInput);
+		if (terms.indexOf(aTerm) > -1)
+			return this.RESULT_ERROR_ALREADY_EXIST;
 
-		regexp.compile('^'+input+'\t(.+)$', 'm');
-		if (regexp.test(userDic)) {
-			var terms = RegExp.$1.split('\t').join('\n');
-			regexp.compile('^'+this.textUtils.sanitize(term)+'$', 'm');
-			if ((aOperation == 'remove' && !term) || regexp.test(terms)) {
-				// ユーザ辞書にすでに登録済みである場合
-				switch (aOperation)
-				{
-					case 'add':
-						return this.RESULT_ERROR_ALREADY_EXIST;
+		terms.push(aTerm);
+		this.database.setTermsForKey(table, aInput, terms);
 
-					case 'remove':
-						if (term) {
-							terms = terms.replace(regexp, '').replace(/\n\n+/g, '\n').split('\n').join('\t');
-							mydump('terms:'+terms.replace(/\t/g, ' / '));
-							if (terms) {
-								regexp.compile('^('+input+'\t.+)$', 'm');
-								regexp.test(userDic);
-								entry = input + '\t' + terms.replace(/(^\t|\t$)/, '');
-								this.list[key+'-user'] = userDic.replace(regexp, entry);
-								break;
-							}
-						}
-
-						regexp.compile('\n?^('+input+'\t.+)\n?', 'm');
-						entry = input + '\t';
-						this.list[key+'-user'] = userDic.replace(regexp, '');
-						break;
-				}
-			}
-			else {
-				// ユーザ辞書にエントリはあるが、その語句は登録されていない場合
-				switch (aOperation)
-				{
-					case 'add':
-						regexp.compile('^('+input+'\t.+)$', 'm');
-						regexp.test(userDic);
-						entry = RegExp.$1 + '\t' + term;
-						this.list[key+'-user'] = userDic.replace(regexp, entry);
-						break;
-
-					case 'remove':
-						return this.RESULT_ERROR_NOT_EXIST;
-				}
-			}
-		}
-		else {
-			// ユーザ辞書に未登録の場合
-			switch (aOperation)
-			{
-				case 'add':
-					entry = input + '\t' + term;
-					this.list[key+'-user'] = [userDic, entry, '\n'].join('');
-					break;
-
-				case 'remove':
-					return this.RESULT_ERROR_NOT_EXIST;
-			}
-		}
-
-		this.saveUserDic();
-
-		mydump('XMigemo:dictionaryModified('+aOperation+') '+entry);
+		var entry = aInput+'\t'+terms.join('\t');
+		mydump('XMigemo:dictionaryModified(add) '+entry);
 		ObserverService.notifyObservers(this, 'XMigemo:dictionaryModified',
 			[
-				key,
-				aOperation + '\t' + input + '\t' + term,
+				'add\t' + aInput + '\t' + aTerm,
 				entry
 			].join('\n'));
 
 		return this.RESULT_OK;
+	},
+ 
+	removeTerm : function(aInput, aTerm) 
+	{
+		if (!aInput || !this.textTransform.isValidInput(aInput))
+			return this.RESULT_ERROR_INVALID_INPUT;
+
+		if (aTerm) aTerm = this.textUtils.trim(aTerm);
+
+		aInput = this.textTransform.normalizeInput(aInput);
+
+		var table = this.kUSER_DIC_TABLE+this.lang;
+		var terms = this.database.getTermsForKey(table, aInput);
+		if (!terms.length)
+			return this.RESULT_ERROR_NOT_EXIST;
+
+		if (aTerm) {
+			var index = terms.indexOf(aTerm);
+			if (index > -1) {
+				terms = terms.splice(index, 1);
+			}
+			else {
+				return this.RESULT_ERROR_NOT_EXIST;
+			}
+			this.database.setTermsForKey(table, aInput, terms);
+		}
+		else {
+			terms = [];
+			this.database.clearTermsForKey(table, aInput);
+		}
+
+		var entry = aInput+'\t'+terms.join('\t');
+		mydump('XMigemo:dictionaryModified(remove) '+entry);
+		ObserverService.notifyObservers(this, 'XMigemo:dictionaryModified',
+			[
+				'remove\t' + aInput + '\t' + (aTerm || ''),
+				entry
+			].join('\n'));
+
+		return this.RESULT_OK;
+	},
+ 
+	_getEntriesFor : function(aTable, aKey) 
+	{
+		var statement = this.database.createStatement(
+				'SELECT GROUP_CONCAT(key || ?1 || terms, ?2)'+
+				'  FROM (SELECT key, terms'+
+				'          FROM '+aTable+
+				'         WHERE key LIKE ?3'+
+				'         ORDER BY key DESC)'
+			);
+		statement.bindStringParameter(0, '\t');
+		statement.bindStringParameter(1, '\n');
+		statement.bindStringParameter(2, aKey+'%');
+		var entries = '';
+		try {
+			while(statement.executeStep())
+			{
+				entries = statement.getString(0);
+			}
+		}
+		finally {
+			statement.reset();
+		}
+		return entries.split('\n');
+	},
+ 
+	getEntriesFor : function(aKey) 
+	{
+		return this._getEntriesFor(this.kSYSTEM_DIC_TABLE+this.lang, aKey);
+	},
+ 	
+	getUserEntriesFor : function(aKey) 
+	{
+		return this._getEntriesFor(this.kUSER_DIC_TABLE+this.lang, aKey);
 	},
   
 	QueryInterface : function(aIID) 

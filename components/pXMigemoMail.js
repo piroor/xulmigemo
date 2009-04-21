@@ -1,4 +1,4 @@
-var TEST = false;
+var TEST = false; 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 var gXMigemoMail;
@@ -33,9 +33,7 @@ pXMigemoMail.prototype = {
 	 
 // summary 
 	 
-	kDATABASE : 'xulmigemo.sqlite', 
-
-	kTABLE   : 'summaries',
+	kTABLE   : 'summaries', 
 
 	kKEY       : 'key',
 	kID        : 'messageId',
@@ -55,52 +53,31 @@ pXMigemoMail.prototype = {
 	kBODY_INDEX      : 6,
 	kDATE_INDEX      : 7,
  
-	get summariesDB() 
+	get DBConnection() 
 	{
-		if (!this.mSummariesDB) {
-			const DirectoryService = Cc['@mozilla.org/file/directory_service;1']
-					.getService(Ci.nsIProperties);
-			var file = DirectoryService.get('ProfD', Ci.nsIFile);
-			file.append(this.kDATABASE);
-
-			var storageService = Cc['@mozilla.org/storage/service;1']
-					.getService(Ci.mozIStorageService);
-			this.mSummariesDB = storageService.openDatabase(file);
-
-			if (!this.mSummariesDB.tableExists(this.kTABLE)) {
-				this.mSummariesDB.createTable(this.kTABLE,
-					[
-						this.kKEY+' TEXT PRIMARY KEY',
-						this.kID+' TEXT',
-						this.kAUTHOR+' TEXT',
-						this.kSUBJECT+' TEXT',
-						this.kRECIPIENT+' TEXT',
-						this.kCC+' TEXT',
-						this.kBODY+' TEXT',
-						this.kDATE+' DATETIME'
-					].join(', ')
-				);
+		return this.database.DBConnection;
+	},
+	 
+	get database() 
+	{
+		if (!this._database) {
+			if (TEST && pXMigemoDatabase) {
+				this._database = new pXMigemoDatabase();
+			}
+			else {
+				this._database = Cc['@piro.sakura.ne.jp/xmigemo/database;1']
+						.getService(Ci.pIXMigemoDatabase);
 			}
 		}
-		return this.mSummariesDB;
+		return this._database;
 	},
-	mSummariesDB : null,
- 
-	_getStatement : function(aName, aSQL) 
-	{
-		if (!(aName in this._statements)) {
-			this._statements[aName] = this.summariesDB.createStatement(aSQL);
-		}
-		return this._statements[aName];
-	},
-	_statements : {},
- 
+	_database : null,
+ 	 
 	loadSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc, aBodies) 
 	{
 //dump('pIXMigemoMail::loadSummaryCache('+aFolder.URI+')\n');
 
-		var statement = this._getStatement(
-				'loadSummaryCacheStatement',
+		var statement = this.database.createStatement(
 				'SELECT * FROM '+this.kTABLE+' WHERE '+this.kKEY+' = ?1'
 			);
 		statement.bindStringParameter(0, aFolder.URI);
@@ -126,8 +103,7 @@ pXMigemoMail.prototype = {
  
 	saveSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc, aBodies) 
 	{
-		var statement = this._getStatement(
-				'saveSummaryCacheStatement',
+		var statement = this.database.createStatement(
 				'INSERT OR REPLACE INTO '+this.kTABLE+
 				' VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)'
 			);
@@ -154,8 +130,7 @@ pXMigemoMail.prototype = {
 	{
 //dump('pIXMigemoMail::clearSummaryCache('+aFolder.URI+')\n');
 
-		var statement = this._getStatement(
-				'clearSummaryCacheStatement',
+		var statement = this.database.createStatement(
 				'DELETE FROM '+this.kTABLE+' WHERE '+this.kKEY+' = ?1'
 			);
 		statement.bindStringParameter(0, aFolder.URI);
@@ -322,6 +297,20 @@ pXMigemoMail.prototype = {
 		if (this.initialized) return;
 
 		this.initialized = true;
+
+		this.database.createTable(
+			this.kTABLE,
+			[
+				this.kKEY+' TEXT PRIMARY KEY',
+				this.kID+' TEXT',
+				this.kAUTHOR+' TEXT',
+				this.kSUBJECT+' TEXT',
+				this.kRECIPIENT+' TEXT',
+				this.kCC+' TEXT',
+				this.kBODY+' TEXT',
+				this.kDATE+' DATETIME'
+			].join(', ')
+		);
 
 		MailSession = Cc['@mozilla.org/messenger/services/session;1']
 					.getService(Ci.nsIMsgMailSession);
@@ -687,7 +676,7 @@ FolderSummary.prototype = {
 	},
 	MIMEHeaderParam : Cc['@mozilla.org/network/mime-hdrparam;1']
 		.getService(Ci.nsIMIMEHeaderParam),
- 	 
+  
 	removeItem : function(aMsgHdr) 
 	{
 		var index = this.mIds.indexOf(aMsgHdr.messageId);

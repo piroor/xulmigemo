@@ -167,30 +167,15 @@ pXMigemoEngine.prototype = {
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
 			str = this.textTransform.addLatinModifiers(str);
 
-		var tmp = '^(' + str + ').+$';
-		var exp = new RegExp(tmp, 'img');
+//		var tmp = '^(' + str + ').+$';
+//		var exp = new RegExp(tmp, 'img');
 
 		var lines = [];
 
-		const XMigemoDic = this.dictionary;
-
-		var mydicU = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserDic() : null ;
-		var mydic  = (aTargetDic & this.SYSTEM_DIC)   ? XMigemoDic.getDic() : null ;
-
-		if (mydicU) {
-			var lineU = mydicU.match(exp);
-			if (lineU) {
-				lines = lines.concat(lineU);
-				mydump(' found '+lineU.length+' terms');
-			}
-		}
-		if (mydic) {
-			var line = mydic.match(exp);//アルファベットの辞書を検索
-			if (line) {
-				lines = lines.concat(line);
-				mydump(' found '+line.length+' terms');
-			}
-		}
+		if (aTargetDic & this.USER_DIC)
+			lines = lines.concat(this.dictionary.getUserEntriesFor(str));
+		if (aTargetDic & this.SYSTEM_DIC)
+			lines = lines.concat(this.dictionary.getEntriesFor(str));
 
 		return lines;
 	},

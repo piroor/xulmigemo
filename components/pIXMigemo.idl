@@ -6,9 +6,28 @@
 #include "nsIDOMRange.idl"
 #include "nsIDOMNode.idl"
 #include "nsIVariant.idl"
+#include "mozIStorageConnection.idl"
+#include "mozIStorageStatement.idl"
 
 
 /* Utilities: You can use them for your language without additional implementation. */
+
+[scriptable, uuid(1751c0f0-2e87-11de-8c30-0800200c9a66)]
+interface pIXMigemoDatabase : nsISupports
+{
+	readonly attribute mozIStorageConnection DBConnection;
+
+	boolean tableExists(in AString aTableName);
+	void createTable(in AString aTableName, in AString aTableDefinitions);
+	void dropTable(in AString aTableName);
+	mozIStorageStatement createStatement(in AString aSQL);
+
+	void initTermsTable(in AString aTableName);
+	nsIVariant getTermsForKey(in AString aTableName, in AString aKey);
+	void setTermsForKey(in AString aTableName, in AString aKey, in nsIVariant aTerms);
+	void addTermsForKey(in AString aTableName, in AString aKey, in nsIVariant aTerms);
+	void clearTermsForKey(in AString aTableName, in AString aKey);
+};
 
 [scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
 interface pIXMigemoFileAccess : nsISupports
@@ -104,9 +123,8 @@ interface pIXMigemoTextTransform : nsISupports
 [scriptable, uuid(5a51a982-1dde-11dc-8314-0800200c9a66)]
 interface pIXMigemoDictionary : nsISupports
 {
-	AString getDic();
-	AString getUserDic();
-	void saveUserDic();
+	nsIVariant getEntriesFor(in AString key);
+	nsIVariant getUserEntriesFor(in AString key);
 
 	const unsigned short RESULT_OK                      = 1;
 	const unsigned short RESULT_ERROR_INVALID_INPUT     = 2;
@@ -121,7 +139,6 @@ interface pIXMigemoDictionary : nsISupports
 	readonly attribute boolean initialized;
 
 	boolean load();
-	void reload();
 };
 
 [scriptable, uuid(7d78f05c-36f8-11dc-8314-0800200c9a66)]
@@ -326,19 +343,4 @@ interface pIXMigemoTextTransformJa : pIXMigemoTextTransform
 
 	AString expand(in AString roman);
 	AString expand2(in AString roman, in unsigned short kanaFlag);
-};
-
-
-[scriptable, uuid(6f19900a-ce33-11db-8314-0800200c9a66)]
-interface pIXMigemoDictionaryJa : pIXMigemoDictionary
-{
-	AString getDicFor(in ACString key);
-	AString getUserDicFor(in ACString key);
-
-	AString getAlphaDic();
-	AString getUserAlphaDic();
-
-	AString getDicForTerm(in AString input);
-
-	void saveUserDicFor(in ACString key);
 };

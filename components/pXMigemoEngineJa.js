@@ -44,7 +44,7 @@ pXMigemoEngineJa.prototype = {
 			else {
 				this._dictionary = Cc['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang]
 					.getService(Ci.pIXMigemoDictionary)
-					.QueryInterface(Ci.pIXMigemoDictionaryJa);
+					.QueryInterface(Ci.pIXMigemoDictionary);
 			}
 		}
 		return this._dictionary;
@@ -213,7 +213,6 @@ pXMigemoEngineJa.prototype = {
 		}
 
 		var transform = this.textTransform;
-
 		var hira = transform.expand(
 					this.textUtils.sanitize(
 						transform.roman2kana(
@@ -226,57 +225,19 @@ pXMigemoEngineJa.prototype = {
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
 			str = transform.addLatinModifiers(str);
 
-		var tmp  = '^' + hira + '.+$'; //日本語
-		var tmpA = '^(' + str + ').+$'; //アルファベット
-		var exp  = new RegExp(tmp, 'mg');
-		var expA = new RegExp(tmpA, 'mg');
-
-		var firstlet = '';
-		firstlet = aInput.charAt(0);//最初の文字
-		mydump(firstlet+' dic loaded');
-
 		var lines = [];
-
-		const XMigemoDic = this.dictionary;
-
-		var mydicAU = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserAlphaDic() : null ;
-		var mydicA  = (aTargetDic & this.SYSTEM_DIC)   ? XMigemoDic.getAlphaDic() : null ;
-		var mydicU  = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserDicFor(firstlet) : null ;
-		var mydic   = (aTargetDic & this.SYSTEM_DIC)   ? XMigemoDic.getDicFor(firstlet) : null ;
-
-		if (mydicAU) {
-			var lineAU = mydicAU.match(expA);
-			mydump('searchEnDic (user)');
-			if (lineAU) {
-				lines = lines.concat(lineAU);
-				mydump(' found '+lineAU.length+' terms');
-			}
+		if (aTargetDic & this.USER_DIC) {
+			lines = lines.concat(
+				this.dictionary.getUserEntriesFor(str),
+				this.dictionary.getUserEntriesFor(hira)
+			);
 		}
-		if (mydicA) {
-			var lineA = mydicA.match(expA);//アルファベットの辞書を検索
-			mydump('searchEnDic');
-			if (lineA) {
-				lines = lines.concat(lineA);
-				mydump(' found '+lineA.length+' terms');
-			}
+		if (aTargetDic & this.SYSTEM_DIC) {
+			lines = lines.concat(
+				this.dictionary.getEntriesFor(str),
+				this.dictionary.getEntriesFor(hira)
+			);
 		}
-		if (mydicU) {
-			var lineU = mydicU.match(exp);
-			mydump('searchJpnDic (user)');
-			if (lineU) {
-				lines = lines.concat(lineU);
-				mydump(' found '+lineU.length+' terms');
-			}
-		}
-		if (mydic) {
-			var line = mydic.match(exp);//日本語の辞書を検索
-			mydump('searchJpnDic');
-			if (line) {
-				lines = lines.concat(line);
-				mydump(' found '+line.length+' terms');
-			}
-		}
-
 		return lines;
 	},
  
