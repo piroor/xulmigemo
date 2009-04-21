@@ -1,5 +1,6 @@
 var kSCREEN = '__moz_xmigemo-find-highlight-screen';
 var kHIGHLIGHTS = 'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search" or @class="__mozilla-findbar-animation"]';
+var kMARKER_CANVAS = '__moz_xmigemo-found-marker-canvas';
 
 assert.highlightCheck = function(aDisabled, aChecked, aMessage) {
 	var check = XMigemoUI.highlightCheck;
@@ -102,5 +103,20 @@ assert.screenStateForFind = function(aTerm, aShown) {
 		assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 		assert.isFalse(box.width);
 		assert.isFalse(box.height);
+	}
+}
+
+assert.markerStateForFind = function(aTerm, aShown) {
+	action.inputTextToField(field, aTerm);
+	yield 1500;
+	var canvas = content.document.getElementById(kMARKER_CANVAS);
+	if (aShown) {
+		assert.isTrue(canvas);
+		var box = utils.getBoxObjectFor(canvas);
+		assert.isTrue(box.width);
+		assert.isTrue(box.height);
+	}
+	else {
+		assert.isNull(canvas);
 	}
 }

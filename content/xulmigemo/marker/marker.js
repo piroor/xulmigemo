@@ -470,11 +470,12 @@ var XMigemoMarker = {
   
 	destroyMarkers : function(aBrowserOrFrame) 
 	{
-		XMigemoUI.doProcessForAllFrames(function(aFrame) {
-			var canvas = aFrame.document.getElementById(this.kCANVAS);
-			if (canvas) canvas.parentNode.removeChild(canvas);
-			aFrame.document.documentElement.removeAttribute(this.kCANVAS);
-		}, this, aBrowserOrFrame);
+		XMigemoUI.doProcessForAllFrames(this.destroyMarkersInFrame, this, aBrowserOrFrame);
+	},
+	destroyMarkersInFrame : function(aFrame) 
+	{
+		var canvas = aFrame.document.getElementById(this.kCANVAS);
+		if (canvas) canvas.parentNode.removeChild(canvas);
 	},
  
 	toggleMarkers : function(aShow, aFrame) 
@@ -491,7 +492,7 @@ var XMigemoMarker = {
 		if (aShow)
 			this.initializeMarkers(aFrame, true);
 		else
-			this.destroyMarkers(aFrame);
+			this.destroyMarkersInFrame(aFrame);
 
 		XMigemoUI.repaintHighlightSelectionWithDelay();
 	},
