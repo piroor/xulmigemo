@@ -148,6 +148,7 @@ pXMigemoDictionaryJa.prototype = {
 		//consonant(‰pŒê:"Žq‰¹")
 		this.cList.forEach(function(aConstant) {
 			var file;
+			var self = this;
 
 			if (dicDir) {
 				file = Cc['@mozilla.org/file/local;1']
@@ -160,7 +161,12 @@ pXMigemoDictionaryJa.prototype = {
 				SQLStatements.push(
 					this.textUtils.trim(this.fileUtils.readFrom(file, 'Shift_JIS'))
 						.replace(/'/g, "''")
-						.replace(/^([^\t]+)\t/gm, "INSERT OR REPLACE INTO "+this.kSYSTEM_DIC_TABLE+" (key, terms) VALUES('$1', '")
+						.replace(/^([^\t]+)\t/gm, function(aMatch) {
+							aMatch = self.textUtils.trim(aMatch);
+							var roman = self.textTransform.hira2roman(aMatch);
+							return "INSERT INTO "+self.kSYSTEM_DIC_TABLE+
+									" VALUES('"+aMatch+"', '"+roman+"', '";
+						})
 						.replace(/(.)$/gm, "$1');")
 				);
 			}
@@ -180,7 +186,12 @@ pXMigemoDictionaryJa.prototype = {
 				SQLStatements.push(
 					this.textUtils.trim(this.fileUtils.readFrom(file, 'Shift_JIS'))
 						.replace(/'/g, "''")
-						.replace(/^([^\t]+)\t/gm, "INSERT OR REPLACE INTO "+this.kUSER_DIC_TABLE+" (key, terms) VALUES('$1', '")
+						.replace(/^([^\t]+)\t/gm, function(aMatch) {
+							aMatch = self.textUtils.trim(aMatch);
+							var roman = self.textTransform.hira2roman(aMatch);
+							return "INSERT INTO "+self.kUSER_DIC_TABLE+
+									" VALUES('"+aMatch+"', '"+roman+"', '";
+						})
 						.replace(/(.)$/gm, "$1');")
 				);
 			}
@@ -219,24 +230,26 @@ pXMigemoDictionaryJa.prototype = {
 			return this.RESULT_ERROR_NO_TARGET;
 
 		aInput = this.textTransform.normalizeForYomi(aInput);
+		var roman = this.textTransform.hira2roman(aInput);
 
 		var table = this.kSYSTEM_DIC_TABLE;
-		var terms = this.database.getTermsForKey(table, aInput);
+		var terms = this.database.getTermsForKey(table, aInput, roman);
 		if (terms.indexOf(aTerm) > -1)
 			return this.RESULT_ERROR_ALREADY_EXIST;
 
 		table = this.kUSER_DIC_TABLE;
-		terms = this.database.getTermsForKey(table, aInput);
+		terms = this.database.getTermsForKey(table, aInput, roman);
 		if (terms.indexOf(aTerm) > -1)
 			return this.RESULT_ERROR_ALREADY_EXIST;
 
 		terms.push(aTerm);
-		this.database.setTermsForKey(table, aInput, terms);
+		this.database.setTermsForKey(table, aInput, roman, terms);
 
 		var entry = aInput+'\t'+terms.join('\t');
 		mydump('XMigemo:dictionaryModified(add) '+entry);
 		ObserverService.notifyObservers(this, 'XMigemo:dictionaryModified',
 			[
+				'',
 				'add\t' + aInput + '\t' + aTerm,
 				entry
 			].join('\n'));
@@ -252,9 +265,10 @@ pXMigemoDictionaryJa.prototype = {
 		if (aTerm) aTerm = this.textUtils.trim(aTerm);
 
 		aInput = this.textTransform.normalizeForYomi(aInput);
+		var roman = this.textTransform.hira2roman(aInput);
 
 		var table = this.kUSER_DIC_TABLE;
-		var terms = this.database.getTermsForKey(table, aInput);
+		var terms = this.database.getTermsForKey(table, aInput, roman);
 		if (!terms.length)
 			return this.RESULT_ERROR_NOT_EXIST;
 
@@ -266,17 +280,18 @@ pXMigemoDictionaryJa.prototype = {
 			else {
 				return this.RESULT_ERROR_NOT_EXIST;
 			}
-			this.database.setTermsForKey(table, aInput, terms);
+			this.database.setTermsForKey(table, aInput, roman, terms);
 		}
 		else {
 			terms = [];
-			this.database.clearTermsForKey(table, aInput);
+			this.database.clearTermsForKey(table, aInput, roman);
 		}
 
 		var entry = aInput+'\t'+terms.join('\t');
 		mydump('XMigemo:dictionaryModified(remove) '+entry);
 		ObserverService.notifyObservers(this, 'XMigemo:dictionaryModified',
 			[
+				'',
 				'remove\t' + aInput + '\t' + (aTerm || ''),
 				entry
 			].join('\n'));
@@ -284,13 +299,14 @@ pXMigemoDictionaryJa.prototype = {
 		return this.RESULT_OK;
 	},
  
-	_getEntriesFor : function(aTable, aKeyPattern) 
+	_getEntriesFor : function(aTable, aKeyPattern, aDecomposedKey) 
 	{
 		var allKeysStatement = this.database.createStatement(
 				'SELECT GROUP_CONCAT(key, ?1)'+
-				'  FROM (SELECT key FROM '+aTable+')'
+				'  FROM (SELECT key FROM '+aTable+' WHERE decomposed_key LIKE ?2)'
 			);
 		allKeysStatement.bindStringParameter(0, '\n');
+		allKeysStatement.bindStringParameter(1, aDecomposedKey+'%');
 		var allKeys = '';
 		try {
 			while(allKeysStatement.executeStep())
@@ -308,16 +324,17 @@ pXMigemoDictionaryJa.prototype = {
 		var statement = this.database.createStatement(
 				'SELECT GROUP_CONCAT(key || ?1 || terms, ?2)'+
 				'  FROM (SELECT key, terms'+
-				'          FROM '+aTable+
+				'          FROM (SELECT * FROM '+aTable+' WHERE decomposed_key LIKE ?3)'+
 				'         WHERE '+keys.map(function(aKey, aIndex) {
-				                    return 'key LIKE ?'+(aIndex+3);
+				                    return 'key LIKE ?'+(aIndex+4);
 				                  }).join(' OR ')+
 				'         ORDER BY key DESC)'
 			);
 		statement.bindStringParameter(0, '\t');
 		statement.bindStringParameter(1, '\n');
+		statement.bindStringParameter(2, aDecomposedKey+'%');
 		keys.forEach(function(aKey, aIndex) {
-			statement.bindStringParameter(aIndex+2, aKey+'%');
+			statement.bindStringParameter(aIndex+3, aKey+'%');
 		}, this);
 		var entries = '';
 		try {
@@ -332,14 +349,14 @@ pXMigemoDictionaryJa.prototype = {
 		return entries.split('\n');
 	},
  
-	getEntriesFor : function(aKeyPattern) 
+	getEntriesFor : function(aKeyPattern, aDecomposedKey) 
 	{
-		return this._getEntriesFor(this.kSYSTEM_DIC_TABLE, aKeyPattern);
+		return this._getEntriesFor(this.kSYSTEM_DIC_TABLE, aKeyPattern, aDecomposedKey);
 	},
  
-	getUserEntriesFor : function(aKeyPattern) 
+	getUserEntriesFor : function(aKeyPattern, aDecomposedKey) 
 	{
-		return this._getEntriesFor(this.kUSER_DIC_TABLE, aKeyPattern);
+		return this._getEntriesFor(this.kUSER_DIC_TABLE, aKeyPattern, aDecomposedKey);
 	},
   
 	QueryInterface : function(aIID) 

@@ -213,13 +213,14 @@ pXMigemoEngineJa.prototype = {
 		}
 
 		var transform = this.textTransform;
-		var hira = transform.expand(
-					this.textUtils.sanitize(
-						transform.roman2kana(
-							transform.kata2hira(aInput)
-						)
+
+		var hira = this.textUtils.sanitize(
+					transform.roman2kana(
+						transform.kata2hira(aInput)
 					)
 				);
+		var roman = this.textTransform.hira2roman(hira);
+		hira = transform.expand(hira);
 
 		var str = this.textUtils.sanitize(aInput);
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
@@ -228,14 +229,14 @@ pXMigemoEngineJa.prototype = {
 		var lines = [];
 		if (aTargetDic & this.USER_DIC) {
 			lines = lines.concat(
-				this.dictionary.getUserEntriesFor(str),
-				this.dictionary.getUserEntriesFor(hira)
+				this.dictionary.getUserEntriesFor(str, aInput),
+				this.dictionary.getUserEntriesFor(hira, roman)
 			);
 		}
 		if (aTargetDic & this.SYSTEM_DIC) {
 			lines = lines.concat(
-				this.dictionary.getEntriesFor(str),
-				this.dictionary.getEntriesFor(hira)
+				this.dictionary.getEntriesFor(str, aInput),
+				this.dictionary.getEntriesFor(hira, roman)
 			);
 		}
 		return lines;

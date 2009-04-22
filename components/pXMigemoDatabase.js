@@ -82,14 +82,18 @@ pXMigemoDatabase.prototype = {
  
 	initTermsTable : function(aTable)
 	{
-		this.createTable(aTable, 'key TEXT PRIMARY KEY, terms TEXT');
+		this.createTable(aTable, 'key TEXT PRIMARY KEY, decomposed_key TEXT, terms TEXT');
 	},
  
-	getTermsForKey : function(aTable, aKey)
+	getTermsForKey : function(aTable, aKey, aDecomposedKey)
 	{
 		try {
-			var statement = this.createStatement('SELECT terms FROM '+aTable+' WHERE key = ?1');
-			statement.bindStringParameter(0, aKey);
+			var statement = this.createStatement(
+					aKey ?
+						'SELECT terms FROM '+aTable+' WHERE key = ?1' :
+						'SELECT terms FROM '+aTable+' WHERE decomposed_key = ?1'
+				);
+			statement.bindStringParameter(0, aKey || aDecomposedKey);
 			var terms = '';
 			try {
 				while(statement.executeStep())
@@ -109,12 +113,17 @@ pXMigemoDatabase.prototype = {
 		}
 	},
  
-	setTermsForKey : function(aTable, aKey, aTerms)
+	setTermsForKey : function(aTable, aKey, aDecomposedKey, aTerms)
 	{
 		try {
-			var statement = this.createStatement('INSERT OR REPLACE INTO '+aTable+' (key, terms) VALUES(?1, ?2)');
+			var statement = this.createStatement(
+					'INSERT OR REPLACE INTO '+aTable+
+					' (key, decomposed_key, terms)'+
+					' VALUES(?1, ?2, ?3)'
+				);
 			statement.bindStringParameter(0, aKey);
-			statement.bindStringParameter(1, this.textUtils.brushUpTerms(aTerms).join('\t'));
+			statement.bindStringParameter(1, aDecomposedKey);
+			statement.bindStringParameter(2, this.textUtils.brushUpTerms(aTerms).join('\t'));
 			try {
 				while(statement.executeStep()) {}
 			}
@@ -128,16 +137,20 @@ pXMigemoDatabase.prototype = {
 		}
 	},
  
-	addTermsForKey : function(aTable, aKey, aTerms)
+	addTermsForKey : function(aTable, aKey, aDecomposedKey, aTerms)
 	{
-		var oldTerms = this.getTermsForKey(aTable, aKey);
-		this.setTermsForKey(aTable, aKey, aTerms.concat(oldTerms));
+		var oldTerms = this.getTermsForKey(aTable, aKey, aDecomposedKey);
+		this.setTermsForKey(aTable, aKey, aDecomposedKey, aTerms.concat(oldTerms));
 	},
  
-	clearTermsForKey : function(aTable, aKey)
+	clearTermsForKey : function(aTable, aKey, aDecomposedKey)
 	{
 		try {
-			var statement = this.createStatement('DELETE FROM '+aTable+' WHERE key = ?1');
+			var statement = this.createStatement(
+					aKey ?
+						'DELETE FROM '+aTable+' WHERE key = ?1' :
+						'DELETE FROM '+aTable+' WHERE decomposed_key = ?1'
+				);
 			statement.bindStringParameter(0, aKey);
 			try {
 				while(statement.executeStep()) {}

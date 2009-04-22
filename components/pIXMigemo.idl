@@ -22,10 +22,10 @@ interface pIXMigemoDatabase : nsISupports
 	mozIStorageStatement createStatement(in AString aSQL);
 
 	void initTermsTable(in AString aTableName);
-	nsIVariant getTermsForKey(in AString aTableName, in AString aKey);
-	void setTermsForKey(in AString aTableName, in AString aKey, in nsIVariant aTerms);
-	void addTermsForKey(in AString aTableName, in AString aKey, in nsIVariant aTerms);
-	void clearTermsForKey(in AString aTableName, in AString aKey);
+	nsIVariant getTermsForKey(in AString aTableName, in AString aKey, in AString aDecomposedKey);
+	void setTermsForKey(in AString aTableName, in AString aKey, in AString aDecomposedKey, in nsIVariant aTerms);
+	void addTermsForKey(in AString aTableName, in AString aKey, in AString aDecomposedKey, in nsIVariant aTerms);
+	void clearTermsForKey(in AString aTableName, in AString aKey, in AString aDecomposedKey);
 };
 
 [scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
@@ -122,8 +122,8 @@ interface pIXMigemoTextTransform : nsISupports
 [scriptable, uuid(5a51a982-1dde-11dc-8314-0800200c9a66)]
 interface pIXMigemoDictionary : nsISupports
 {
-	nsIVariant getEntriesFor(in AString key);
-	nsIVariant getUserEntriesFor(in AString key);
+	nsIVariant getEntriesFor(in AString aKey, in AString aDecomposedKey);
+	nsIVariant getUserEntriesFor(in AString aKey, in AString aDecomposedKey);
 
 	const unsigned short RESULT_OK                      = 1;
 	const unsigned short RESULT_ERROR_INVALID_INPUT     = 2;

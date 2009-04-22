@@ -160,7 +160,7 @@ pXMigemoDictionary.prototype = {
 			SQLStatements.push(
 				this.textUtils.trim(this.fileUtils.readFrom(file, 'UTF-8'))
 					.replace(/'/g, "''")
-					.replace(/^([^\t]+)\t/gm, "INSERT INTO "+systemTable+" (key, terms) VALUES('$1', '")
+					.replace(/^([^\t]+)\t/gm, "INSERT INTO "+systemTable+" VALUES('$1', NULL, '")
 					.replace(/(.)$/gm, "$1');")
 			);
 		}
@@ -180,7 +180,7 @@ pXMigemoDictionary.prototype = {
 			SQLStatements.push(
 				this.textUtils.trim(this.fileUtils.readFrom(file, 'UTF-8'))
 					.replace(/'/g, "''")
-					.replace(/^([^\t]+)\t/gm, "INSERT INTO "+userTable+" (key, terms) VALUES('$1', '")
+					.replace(/^([^\t]+)\t/gm, "INSERT INTO "+userTable+" VALUES('$1', NULL, '")
 					.replace(/(.)$/gm, "$1');")
 			);
 		}
@@ -219,17 +219,17 @@ pXMigemoDictionary.prototype = {
 		aInput = this.textTransform.normalizeInput(aInput);
 
 		var table = this.kSYSTEM_DIC_TABLE+this.lang;
-		var terms = this.database.getTermsForKey(table, aInput);
+		var terms = this.database.getTermsForKey(table, aInput, null);
 		if (terms.indexOf(aTerm) > -1)
 			return this.RESULT_ERROR_ALREADY_EXIST;
 
 		table = this.kUSER_DIC_TABLE+this.lang;
-		terms = this.database.getTermsForKey(table, aInput);
+		terms = this.database.getTermsForKey(table, aInput, null);
 		if (terms.indexOf(aTerm) > -1)
 			return this.RESULT_ERROR_ALREADY_EXIST;
 
 		terms.push(aTerm);
-		this.database.setTermsForKey(table, aInput, terms);
+		this.database.setTermsForKey(table, aInput, null, terms);
 
 		var entry = aInput+'\t'+terms.join('\t');
 		mydump('XMigemo:dictionaryModified(add) '+entry);
@@ -252,7 +252,7 @@ pXMigemoDictionary.prototype = {
 		aInput = this.textTransform.normalizeInput(aInput);
 
 		var table = this.kUSER_DIC_TABLE+this.lang;
-		var terms = this.database.getTermsForKey(table, aInput);
+		var terms = this.database.getTermsForKey(table, aInput, null);
 		if (!terms.length)
 			return this.RESULT_ERROR_NOT_EXIST;
 
@@ -264,11 +264,11 @@ pXMigemoDictionary.prototype = {
 			else {
 				return this.RESULT_ERROR_NOT_EXIST;
 			}
-			this.database.setTermsForKey(table, aInput, terms);
+			this.database.setTermsForKey(table, aInput, null, terms);
 		}
 		else {
 			terms = [];
-			this.database.clearTermsForKey(table, aInput);
+			this.database.clearTermsForKey(table, aInput, null);
 		}
 
 		var entry = aInput+'\t'+terms.join('\t');
@@ -307,12 +307,12 @@ pXMigemoDictionary.prototype = {
 		return entries.split('\n');
 	},
  
-	getEntriesFor : function(aKey) 
+	getEntriesFor : function(aKey, aDecomposedKey) 
 	{
 		return this._getEntriesFor(this.kSYSTEM_DIC_TABLE+this.lang, aKey);
 	},
  	
-	getUserEntriesFor : function(aKey) 
+	getUserEntriesFor : function(aKey, aDecomposedKey) 
 	{
 		return this._getEntriesFor(this.kUSER_DIC_TABLE+this.lang, aKey);
 	},

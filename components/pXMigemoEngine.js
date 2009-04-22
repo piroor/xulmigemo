@@ -173,9 +173,9 @@ pXMigemoEngine.prototype = {
 		var lines = [];
 
 		if (aTargetDic & this.USER_DIC)
-			lines = lines.concat(this.dictionary.getUserEntriesFor(str));
+			lines = lines.concat(this.dictionary.getUserEntriesFor(str, null));
 		if (aTargetDic & this.SYSTEM_DIC)
-			lines = lines.concat(this.dictionary.getEntriesFor(str));
+			lines = lines.concat(this.dictionary.getEntriesFor(str, null));
 
 		return lines;
 	},
