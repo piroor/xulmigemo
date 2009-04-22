@@ -269,14 +269,14 @@ pXMigemoDictionary.prototype = {
 								regexp.compile('^('+input+'\t.+)$', 'm');
 								regexp.test(userDic);
 								entry = input + '\t' + terms.replace(/(^\t|\t$)/, '');
-								this.list[key+'-user'] = userDic.replace(regexp, entry);
+								this.list['user'] = userDic.replace(regexp, entry);
 								break;
 							}
 						}
 
 						regexp.compile('\n?^('+input+'\t.+)\n?', 'm');
 						entry = input + '\t';
-						this.list[key+'-user'] = userDic.replace(regexp, '');
+						this.list['user'] = userDic.replace(regexp, '');
 						break;
 				}
 			}
@@ -288,7 +288,7 @@ pXMigemoDictionary.prototype = {
 						regexp.compile('^('+input+'\t.+)$', 'm');
 						regexp.test(userDic);
 						entry = RegExp.$1 + '\t' + term;
-						this.list[key+'-user'] = userDic.replace(regexp, entry);
+						this.list['user'] = userDic.replace(regexp, entry);
 						break;
 
 					case 'remove':
@@ -302,7 +302,7 @@ pXMigemoDictionary.prototype = {
 			{
 				case 'add':
 					entry = input + '\t' + term;
-					this.list[key+'-user'] = [userDic, entry, '\n'].join('');
+					this.list['user'] = [userDic, entry, '\n'].join('');
 					break;
 
 				case 'remove':
@@ -315,7 +315,7 @@ pXMigemoDictionary.prototype = {
 		mydump('XMigemo:dictionaryModified('+aOperation+') '+entry);
 		ObserverService.notifyObservers(this, 'XMigemo:dictionaryModified',
 			[
-				key,
+				'',
 				aOperation + '\t' + input + '\t' + term,
 				entry
 			].join('\n'));
