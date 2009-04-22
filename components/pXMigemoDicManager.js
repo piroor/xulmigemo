@@ -35,8 +35,6 @@ pXMigemoDicManager.prototype = {
 		return this;
 	},
 	 
-	kDATABASE : 'xulmigemo.sqlite', 
- 	
 	domain : 'xulmigemo', 
  
 	observe : function(aSubject, aTopic, aData) 
@@ -88,22 +86,6 @@ pXMigemoDicManager.prototype = {
 		}
 	},
 	isUpdating : false,
- 
-	get DBConnection() 
-	{
-		if (!this._DBConnection) {
-			const DirectoryService = Cc['@mozilla.org/file/directory_service;1']
-					.getService(Ci.nsIProperties);
-			var file = DirectoryService.get('ProfD', Ci.nsIFile);
-			file.append(this.kDATABASE);
-
-			var storageService = Cc['@mozilla.org/storage/service;1']
-					.getService(Ci.mozIStorageService);
-			this._DBConnection= storageService.openDatabase(file);
-		}
-		return this._DBConnection;
-	},
-	_DBConnection : null,
  
 	get dicpath() 
 	{

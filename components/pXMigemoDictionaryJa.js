@@ -191,7 +191,8 @@ pXMigemoDictionaryJa.prototype = {
 			this.database.dropTable(userTable);
 		}
 		else {
-			var connection = this.database.DBConnection;
+			var connection = this.database.DBConnection
+								.QueryInterface(Ci.mozIStorageConnection);
 			if (connection.transactionInProgress)
 				connection.commitTransaction();
 			if (!connection.transactionInProgress)

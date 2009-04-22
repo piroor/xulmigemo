@@ -6,7 +6,6 @@
 #include "nsIDOMRange.idl"
 #include "nsIDOMNode.idl"
 #include "nsIVariant.idl"
-#include "mozIStorageConnection.idl"
 #include "mozIStorageStatement.idl"
 
 
@@ -15,7 +14,7 @@
 [scriptable, uuid(1751c0f0-2e87-11de-8c30-0800200c9a66)]
 interface pIXMigemoDatabase : nsISupports
 {
-	readonly attribute mozIStorageConnection DBConnection;
+	readonly attribute nsISupports DBConnection;
 
 	boolean tableExists(in AString aTableName);
 	void createTable(in AString aTableName, in AString aTableDefinitions);
