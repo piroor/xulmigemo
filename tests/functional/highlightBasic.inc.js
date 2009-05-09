@@ -4,6 +4,7 @@ function setUp()
 	assert.isTrue(XMigemoUI.hidden);
 	XMigemoUI.highlightCheckedAlways = true;
 	XMigemoUI.highlightCheckedAlwaysMinLength = 5;
+	XMigemoUI.highlightSelectionAvailable = false;
 }
 
 function tearDown()

@@ -162,8 +162,17 @@ var XMigemoUI = {
 
 	get highlightSelectionAvailable()
 	{
-		return 'SELECTION_FIND' in Components.interfaces.nsISelectionController;
+		return (
+				this._highlightSelectionAvailable &&
+				'SELECTION_FIND' in Components.interfaces.nsISelectionController
+			);
 	},
+	set highlightSelectionAvailable(aValue)
+	{
+		this._highlightSelectionAvailable = aValue;
+		return aValue;
+	},
+	_highlightSelectionAvailable : true,
   
 /* elements */ 
 	
@@ -527,6 +536,11 @@ var XMigemoUI = {
 		return aValue;
 	},
 	_isScrolling : false,
+ 
+	get shouldCaseSensitive() 
+	{
+		return this.findMode != this.FIND_MODE_MIGEMO && this.caseSensitiveCheck.checked;
+	},
   
 /* utilities */ 
 	
@@ -1701,7 +1715,7 @@ var XMigemoUI = {
 	find : function() 
 	{
 		XMigemoFind.findMode = this.findMode;
-		XMigemoFind.caseSensitive = this.caseSensitiveCheck.checked;
+		XMigemoFind.caseSensitive = this.shouldCaseSensitive;
 		XMigemoFind.find(false, XMigemoFind.lastKeyword, false);
 	},
  
@@ -2614,9 +2628,9 @@ var XMigemoUI = {
 		if (!this.highlightSelectionOnly && !aBaseNode)
 			aBaseNode = this.createNewHighlight(doc);
 
-		var flags = (this.findMode == this.FIND_MODE_MIGEMO || !this.caseSensitiveCheck.checked) ? 'i' : '' ;
+		var flags = this.shouldCaseSensitive ? 'i' : '' ;
 		var ranges = !aDoHighlight ?
-				[XMigemoFind.core.regExpFind(regexp, '', aRange, null, null, false)] :
+				[XMigemoFind.core.regExpFind(regexp, flags, aRange, null, null, false)] :
 			this.highlightSelectionAvailable ?
 				XMigemoFind.core.regExpHighlightTextWithSelection(regexp, flags, aRange, aBaseNode) :
 				XMigemoFind.core.regExpHighlightText(regexp, flags, aRange, aBaseNode) ;
@@ -2764,7 +2778,7 @@ var XMigemoUI = {
 				XMigemoUI.isModeChanged = false;
 				return;
 			}
-			XMigemoFind.findNext(XMigemoUI.hidden ? true : false );
+			XMigemoFind.findNext(XMigemoUI.hidden);
 			if (XMigemoUI.cancelTimer)
 				XMigemoUI.startTimer();
 			if (!XMigemoUI.hidden && XMigemoUI.isQuickFind)
@@ -2794,7 +2808,7 @@ var XMigemoUI = {
 				XMigemoUI.isModeChanged = false;
 				return;
 			}
-			XMigemoFind.findPrevious(XMigemoUI.hidden ? true : false );
+			XMigemoFind.findPrevious(XMigemoUI.hidden);
 			if (XMigemoUI.cancelTimer)
 				XMigemoUI.startTimer();
 			if (!XMigemoUI.hidden && XMigemoUI.isQuickFind)
