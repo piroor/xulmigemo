@@ -263,10 +263,10 @@ mydump("find");
 			return;
 		}
 
-		//XMigemoCache.dump();
-		var findFlag = (this.previousKeyword == aKeyword) ?
-				(aBackward ? this.FIND_BACK : this.FIND_FORWARD ) :
-				this.FIND_DEFAULT;
+		var findFlag = 0;
+		if (this.previousKeyword != aKeyword) findFlag |= this.FIND_DEFAULT;
+
+		findFlag |= aBackward ? this.FIND_BACK : this.FIND_FORWARD ;
 
 		if (this.isLinksOnly)
 			findFlag |= this.FIND_IN_LINK;
@@ -421,7 +421,7 @@ mydump("findInDocument ==========================================");
 		if (this.findMode != this.FIND_MODE_NATIVE) {
 			if (aText.match(aTerm)) {
 				result.foundTerm = RegExp.lastMatch;
-				result.restText = (aFindFlag & this.FIND_BACK) ? RegExp.leftContext : result.restText = RegExp.rightContext ;
+				result.restText = (aFindFlag & this.FIND_BACK) ? RegExp.leftContext : RegExp.rightContext ;
 			}
 		}
 		else if (aFindFlag & this.FIND_BACK) {
@@ -606,7 +606,27 @@ mydump("count:"+count);
 		var node;
 		var offset;
 
-		if (aFindFlag & this.FIND_DEFAULT || count == 0) {
+		if (!(aFindFlag & this.FIND_DEFAULT) && count != 0) {
+			if (aFindFlag & this.FIND_FORWARD) {
+				range = selection.getRangeAt(count-1);
+				node = range.endContainer;
+				offset = range.endOffset;
+				findRange.setStart(node, offset);
+				startPt.setStart(node, offset);
+				startPt.setEnd(node, offset);
+				endPt.collapse(false);
+			}
+			else if (aFindFlag & this.FIND_BACK) {
+				range = selection.getRangeAt(0);
+				node = range.startContainer;
+				offset = range.startOffset;
+				findRange.setEnd(node, offset);
+				startPt.setStart(node, offset);
+				startPt.setEnd(node, offset);
+				endPt.collapse(true);
+			}
+		}
+		else {
 			if (
 				aFindFlag & this.FIND_WRAP ||
 				String(aRangeParent.localName).toLowerCase() != 'body' ||
@@ -641,24 +661,6 @@ mydump("count:"+count);
 					endPt.collapse(false);
 				}
 			}
-		}
-		else if (aFindFlag & this.FIND_FORWARD) {
-			range = selection.getRangeAt(count-1);
-			node = range.endContainer;
-			offset = range.endOffset;
-			findRange.setStart(node, offset);
-			startPt.setStart(node, offset);
-			startPt.setEnd(node, offset);
-			endPt.collapse(false);
-		}
-		else if (aFindFlag & this.FIND_BACK) {
-			range = selection.getRangeAt(0);
-			node = range.startContainer;
-			offset = range.startOffset;
-			findRange.setEnd(node, offset);
-			startPt.setStart(node, offset);
-			startPt.setEnd(node, offset);
-			endPt.collapse(true);
 		}
 
 		var ret = {
