@@ -28,7 +28,7 @@ function test_manualSwitch_API()
 	yield Do(assert.modeAPI('FIND_MODE_NATIVE'));
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
 	yield Do(assert.modeAPI('FIND_MODE_REGEXP'));
-	assert.isTrue(XMigemoUI.caseSensitiveCheck.disabled);
+	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
 	yield Do(assert.modeAPI('FIND_MODE_MIGEMO'));
 	assert.isTrue(XMigemoUI.caseSensitiveCheck.disabled);
 }
@@ -47,7 +47,7 @@ function test_manualSwitch_buttonClick()
 	assert.isFalse(XMigemoUI.hidden);
 
 	yield Do(assert.buttonClick('FIND_MODE_REGEXP', 1));
-	assert.isTrue(XMigemoUI.caseSensitiveCheck.disabled);
+	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
 	yield Do(assert.buttonClick('FIND_MODE_MIGEMO', 2));
 	assert.isTrue(XMigemoUI.caseSensitiveCheck.disabled);
 	yield Do(assert.buttonClick('FIND_MODE_NATIVE', 0));
