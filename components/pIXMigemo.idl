@@ -282,10 +282,14 @@ interface pIXMigemoFind : nsIObserver
 	const unsigned short FOUND_IN_EDITABLE = 8;
 	const unsigned short FINISH_FIND       = 16; /* for internal purpose */
 
+	/* find from document edge */
 	const unsigned short FIND_DEFAULT     = 1;
+	/* find directions */
 	const unsigned short FIND_BACK        = 2;
 	const unsigned short FIND_FORWARD     = 4;
+	/* status */
 	const unsigned short FIND_WRAP        = 8;
+	/* filtering */
 	const unsigned short FIND_IN_LINK     = 128;
 	const unsigned short FIND_IN_EDITABLE = 256;
 
