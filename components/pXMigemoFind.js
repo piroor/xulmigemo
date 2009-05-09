@@ -235,8 +235,7 @@ pXMigemoFind.prototype = {
 			throw Components.results.NS_ERROR_NOT_INITIALIZED;
 
 mydump("find");
-		var roman = aKeyword;
-		if (!roman) return;
+		if (!aKeyword) return;
 
 		this.viewportStartPoint = null;
 		this.viewportEndPoint   = null;
@@ -245,25 +244,27 @@ mydump("find");
 		switch (this.findMode)
 		{
 			case this.FIND_MODE_MIGEMO:
-				myExp = this.core.getRegExp(roman);
+				myExp = this.core.getRegExp(aKeyword);
 				break;
 
 			case this.FIND_MODE_REGEXP:
-				myExp = this.textUtils.extractRegExpSource(roman);
+				if (this.textUtils.isRegExp(aKeyword))
+					this.caseSensitive = !/\/[^\/]*i[^\/]*$/.test(aKeyword);
+				myExp = this.textUtils.extractRegExpSource(aKeyword);
 				break;
 
 			default:
-				myExp = roman;
+				myExp = aKeyword;
 				break;
 		}
 
 		if (!myExp) {
-			this.previousKeyword = roman;
+			this.previousKeyword = aKeyword;
 			return;
 		}
 
 		//XMigemoCache.dump();
-		var findFlag = (this.previousKeyword == roman) ?
+		var findFlag = (this.previousKeyword == aKeyword) ?
 				(aBackward ? this.FIND_BACK : this.FIND_FORWARD ) :
 				this.FIND_DEFAULT;
 
@@ -282,7 +283,7 @@ mydump("find");
 		var iterator = new DocShellIterator(win, findFlag & this.FIND_BACK ? true : false );
 		var result = this.findInDocument(findFlag, myExp, iterator, aForceFocus);
 		iterator.destroy();
-		this.previousKeyword = roman;
+		this.previousKeyword = aKeyword;
 	},
 	 
 	findInDocument : function(aFindFlag, aFindTerm, aDocShellIterator, aForceFocus) 
