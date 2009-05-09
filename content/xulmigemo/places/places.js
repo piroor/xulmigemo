@@ -714,8 +714,10 @@ var XMigemoPlaces = {
 			this.autoStartRegExpFind &&
 			this.TextUtils.isRegExp(aBaseQuery.searchTerms)
 			) {
+			var flags = 'gm';
+			if (/\/[^\/]*i[^\/]*$/.test(aBaseQuery.searchTerms)) flags += 'i';
 			this.lastFindRegExp =
-				this.lastTermsRegExp = new RegExp(this.TextUtils.extractRegExpSource(aQuery.searchTerms), 'gim');
+				this.lastTermsRegExp = new RegExp(this.TextUtils.extractRegExpSource(aQuery.searchTerms), flags);
 		}
 		else {
 			var termsRegExp = {};
