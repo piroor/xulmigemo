@@ -2873,13 +2873,19 @@ var XMigemoUI = {
 			caseSensitive.xmigemoOriginalChecked = caseSensitive.checked;
 			caseSensitive.checked  = false;
 			caseSensitive.disabled = true;
+			return;
 		}
-		else {
-			caseSensitive.disabled = false;
-			if ('xmigemoOriginalChecked' in caseSensitive) {
-				caseSensitive.checked  = caseSensitive.xmigemoOriginalChecked;
-				delete caseSensitive.xmigemoOriginalChecked;
-			}
+
+		caseSensitive.disabled = false;
+
+		if (this.textUtils.isRegExp(this.findTerm) &&
+			this.findMode == this.FIND_MODE_REGEXP) {
+			caseSensitive.xmigemoOriginalChecked = caseSensitive.checked;
+			caseSensitive.checked = !/\/[^\/]*i[^\/]*$/.test(this.findTerm);
+		}
+		else if ('xmigemoOriginalChecked' in caseSensitive) {
+			caseSensitive.checked  = caseSensitive.xmigemoOriginalChecked;
+			delete caseSensitive.xmigemoOriginalChecked;
 		}
 	},
   
