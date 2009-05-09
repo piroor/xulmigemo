@@ -44,9 +44,11 @@ var XMigemoPlaces = {
 		var findInput = info.input;
 		if (this.autoStartRegExpFind &&
 			this.TextUtils.isRegExp(findInput)) {
+			var flags = 'gm';
+			if (/\/[^\/]*i[^\/]*$/.test(findInput)) flags += 'i';
 			var source = this.TextUtils.extractRegExpSource(findInput);
 			info.findRegExp =
-				info.termsRegExp = new RegExp(source, 'gim');
+				info.termsRegExp = new RegExp(source, flags);
 			info.findMode = Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP;
 		}
 		else {
