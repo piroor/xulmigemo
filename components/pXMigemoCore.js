@@ -569,11 +569,9 @@ dump('STEP 2: '+array.toSource()+'\n');
 					var startOffset    = foundRange.startOffset;
 					var endOffset      = foundRange.endOffset;
 					var docfrag        = foundRange.extractContents();
-					var before         = startContainer.splitText(startOffset);
-					var parent         = before.parentNode;
 					var firstChild     = docfrag.firstChild;
 					nodeSurround.appendChild(docfrag);
-					parent.insertBefore(nodeSurround, before);
+					foundRange.insertNode(nodeSurround);
 
 					if (isOverlap)
 						this.textUtils.delayedSelect(firstChild, foundLength, true);
@@ -583,14 +581,14 @@ dump('STEP 2: '+array.toSource()+'\n');
 					arrResults.push(foundRange);
 
 					findRange.selectNodeContents(this.getDocumentBody(doc));
-					findRange.setStartBefore(before);
+					findRange.setStartAfter(nodeSurround);
 					try {
 						findRange.setEnd(aEndPoint.startContainer, aEndPoint.startOffset);
 					}
 					catch(e) {
 					}
 					startPoint.selectNodeContents(this.getDocumentBody(doc));
-					startPoint.setStartBefore(before);
+					startPoint.setStartAfter(nodeSurround);
 					startPoint.collapse(true);
 				}
 				else {
