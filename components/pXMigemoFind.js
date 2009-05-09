@@ -202,6 +202,17 @@ pXMigemoFind.prototype = {
 	},
 	_mFind : null,
  
+	get caseSensitive() 
+	{
+		return this._caseSensitive && this.findMode != this.FIND_MODE_MIGEMO;
+	},
+	set caseSensitive(aValue) 
+	{
+		this._caseSensitive = aValue;
+		return aValue;
+	},
+	_caseSensitive : false,
+ 
 	findNext : function(aForceFocus) 
 	{
 		if (!this.target)
@@ -286,12 +297,10 @@ mydump("findInDocument ==========================================");
 		var editableInOut  = false;
 
 		if (this.findMode != this.FIND_MODE_NATIVE) {
-			if (aFindFlag & this.FIND_BACK) {
-				aFindTerm = new RegExp(aFindTerm, 'gim');
-			}
-			else {
-				aFindTerm = new RegExp(aFindTerm, 'im');
-			}
+			var flags = 'm';
+			if (!this.caseSensitive) flags += 'i';
+			if (aFindFlag & this.FIND_BACK) flags += 'g';
+			aFindTerm = new RegExp(aFindTerm, flags);
 		}
 
 		while (true)
@@ -456,6 +465,7 @@ mydump("findInRange");
 		}
 
 		this.mFind.findBackwards = Boolean(aFindFlag & this.FIND_BACK);
+		this.mFind.caseSensitive = true;
 
 		result.range = this.mFind.Find(aTerm, aRangeSet.range, aRangeSet.start, aRangeSet.end) || null ;
 		if (!result.range) {

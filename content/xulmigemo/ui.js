@@ -483,7 +483,7 @@ var XMigemoUI = {
 		var termLength = term.length;
 		if (termLength) {
 			var flags = 'gm';
-			if (this.findMode != this.FIND_MODE_NATIVE ||
+			if (this.findMode == this.FIND_MODE_MIGEMO ||
 				!this.caseSensitiveCheck.checked)
 				flags += 'i';
 			termLength = Math.max.apply(
@@ -1463,7 +1463,7 @@ var XMigemoUI = {
 			this.lastWindowWidth = window.innerWidth;
 		}
 
-		this.toggleMode();
+		this.updateCaseSensitiveCheck();
 
 		this.findBarInitialShow();
 
@@ -1656,7 +1656,7 @@ var XMigemoUI = {
 		}
 		else {
 			this.updateFindUI();
-			this.toggleMode();
+			this.updateCaseSensitiveCheck();
 		}
 
 		if (this.findTerm != XMigemoFind.lastKeyword)
@@ -1678,7 +1678,7 @@ var XMigemoUI = {
 		if (!aSilently || this.isQuickFind)
 			gFindBar.closeFindBar();
 		else
-			this.toggleMode();
+			this.updateCaseSensitiveCheck();
 
 		if (this.isQuickFind) {
 			this.findMode = this.backupFindMode;
@@ -1701,6 +1701,7 @@ var XMigemoUI = {
 	find : function() 
 	{
 		XMigemoFind.findMode = this.findMode;
+		XMigemoFind.caseSensitive = this.caseSensitiveCheck.checked;
 		XMigemoFind.find(false, XMigemoFind.lastKeyword, false);
 	},
  
@@ -2382,7 +2383,7 @@ var XMigemoUI = {
 
 		this.isActive = false;
 
-		this.toggleMode();
+		this.updateCaseSensitiveCheck();
 
 		this.clearHighlight(this.activeBrowser.contentDocument, true);
 		this.lastHighlightedKeyword = null;
@@ -2613,7 +2614,7 @@ var XMigemoUI = {
 		if (!this.highlightSelectionOnly && !aBaseNode)
 			aBaseNode = this.createNewHighlight(doc);
 
-		var flags = (this.findMode != this.FIND_MODE_NATIVE || !this.caseSensitiveCheck.checked) ? 'i' : '' ;
+		var flags = (this.findMode == this.FIND_MODE_MIGEMO || !this.caseSensitiveCheck.checked) ? 'i' : '' ;
 		var ranges = !aDoHighlight ?
 				[XMigemoFind.core.regExpFind(regexp, '', aRange, null, null, false)] :
 			this.highlightSelectionAvailable ?
@@ -2865,18 +2866,20 @@ var XMigemoUI = {
 	},
 	updateHighlightCheckTimer : null,
  
-	toggleMode : function(aSilently) 
+	updateCaseSensitiveCheck : function(aSilently) 
 	{
-		if (this.isActive) {
-			var caseSensitive = this.caseSensitiveCheck;
+		var caseSensitive = this.caseSensitiveCheck;
+		if (this.isActive && this.findMode == this.FIND_MODE_MIGEMO) {
 			caseSensitive.xmigemoOriginalChecked = caseSensitive.checked;
 			caseSensitive.checked  = false;
 			caseSensitive.disabled = true;
 		}
-		else  {
-			var caseSensitive = this.caseSensitiveCheck;
+		else {
 			caseSensitive.disabled = false;
-			caseSensitive.checked  = caseSensitive.xmigemoOriginalChecked;
+			if ('xmigemoOriginalChecked' in caseSensitive) {
+				caseSensitive.checked  = caseSensitive.xmigemoOriginalChecked;
+				delete caseSensitive.xmigemoOriginalChecked;
+			}
 		}
 	},
   

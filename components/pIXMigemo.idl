@@ -254,6 +254,7 @@ interface pIXMigemoFind : nsIObserver
 
 	attribute boolean isLinksOnly;
 	attribute boolean isQuickFind;
+	attribute boolean caseSensitive;
 
 	attribute unsigned short findMode;
 
