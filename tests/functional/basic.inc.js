@@ -239,7 +239,7 @@ function testFillWithSelection()
 
 function assertLinkFind(aMode)
 {
-	var link = content.document.links[0];
+	var link = content.document.getElementsByTagName('a')[0];
 	gFindBar.openFindBar();
 	yield wait;
 	XMigemoUI.findMode = XMigemoUI[aMode];

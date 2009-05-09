@@ -29,10 +29,10 @@ function init()
 </script>
 
 
-<p>This is a sample text and a <a href="#link">sample link</a>.</p>
-<p>single-row field
+<p id="first">This is a sample text and a <a href="#link">sample link</a>.</p>
+<p id="single-row">single-row field
 <br /><input type="text" size="50" value="text in input field" id="single-row1"/>
-<br /><input type="password" size="50" value="text in password field"/></p>
+<br /><input type="password" size="50" value="text in password field" id="password"/></p>
 <p>multirow field</p>
 
 <textarea rows="5" cols="50" id="multi-row">text in textarea</textarea>
@@ -65,7 +65,7 @@ function init()
 
 <div style="position: fixed; bottom: 0; right: 0; height: 15em; width: 50%; margin: 0; padding: 0; background: #BFBFBF; opacity: 0.5; font-size: small;">
 Pressed:
-<ul id="indicator" style="height: 8em; overflow: auto;">
+<ul id="indicator" style="height: 15em; overflow: auto;">
 </ul>
 </div>
 
