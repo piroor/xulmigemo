@@ -666,7 +666,14 @@ var XMigemoUI = {
 			aProcess.call(aScope || this, aFrame);
 		}, this);
 	},
-   
+  
+	fireFindToolbarUpdateRequestEvent : function(aTarget) 
+	{
+		var event = document.createEvent('Events');
+		event.initEvent('XMigemoFindBarUpdateRequest', true, true);
+		(aTarget || document).dispatchEvent(event);
+	},
+  
 /* preferences observer */ 
 	
 	domain  : 'xulmigemo', 
@@ -894,6 +901,11 @@ var XMigemoUI = {
 				this.onBlur(aEvent);
 				return;
 
+			case 'DOMContentLoaded':
+				this.overrideExtensionsPreInit();
+				window.removeEventListener('DOMContentLoaded', this, false);
+				return;
+
 			case 'load':
 				this.init();
 				return;
@@ -917,6 +929,7 @@ var XMigemoUI = {
 
 			case 'resize':
 			case 'TreeStyleTabAutoHideStateChange':
+			case 'XMigemoFindBarUpdateRequest':
 				if (this.updatingFindBar) return;
 				this.updatingFindBar = true;
 				this.updateFloatingFindBarAppearance(aEvent);
@@ -956,6 +969,7 @@ var XMigemoUI = {
 		this.listening = true;
 
 		window.addEventListener('resize', this, false);
+		window.addEventListener('XMigemoFindBarUpdateRequest', this, false);
 
 		var target = document.getElementById('appcontent') || this.browser;
 		if (target) {
@@ -983,6 +997,7 @@ var XMigemoUI = {
 		this.listening = false;
 
 		window.removeEventListener('resize', this, false);
+		window.removeEventListener('XMigemoFindBarUpdateRequest', this, false);
 
 		var target = document.getElementById('appcontent') || this.browser;
 		if (target) {
@@ -1369,8 +1384,7 @@ var XMigemoUI = {
 				this.showHideLabels(true);
 			}
 		}
-		if (shouldUpdatePosition)
-			this.updateModeSelectorPosition();
+		this.updateModeSelectorPosition(shouldUpdatePosition);
 	},
  
 	onChangeMode : function() 
@@ -1471,7 +1485,7 @@ var XMigemoUI = {
 	{
 		this.updateItemOrder();
 		this.updateFindBarAppearance();
-		this.updateModeSelectorPosition();
+		this.updateModeSelectorPosition(true);
 		if (this.lastWindowWidth != window.innerWidth) {
 			this.onChangeFindBarSize();
 			this.lastWindowWidth = window.innerWidth;
@@ -1836,15 +1850,23 @@ var XMigemoUI = {
 		});
 	},
  
-	updateModeSelectorPosition : function() 
+	updateModeSelectorPosition : function(aForceUpdate) 
 	{
 		var box = this.findModeSelectorBox;
+		var findBarBox = this.findBar.boxObject;
+		var baseState = {
+				height : findBarBox.height,
+				width  : findBarBox.width,
+				x      : findBarBox.x,
+				y      : findBarBox.y
+			}.toSource();
+		if (!aForceUpdate && box.lastBaseState == baseState) return;
 		box.removeAttribute('hidden');
-		box.style.height = this.findBar.boxObject.height+'px';
+		box.style.height = findBarBox.height+'px';
 		box.style.right = (
 				document.documentElement.boxObject.width
-				- this.findBar.boxObject.x
-				- this.findBar.boxObject.width
+				- findBarBox.x
+				- findBarBox.width
 				+ (
 					(this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_RIGHTMOST) ?
 						this.closeButton.boxObject.width + this.rightMostOffset :
@@ -1857,10 +1879,11 @@ var XMigemoUI = {
 		box.style.bottom = (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_CONTENT) ?
 			(
 				document.documentElement.boxObject.height
-				- this.findBar.boxObject.y
-				- this.findBar.boxObject.height
+				- findBarBox.y
+				- findBarBox.height
 			)+'px' :
 			'auto' ;
+		box.lastBaseState = baseState;
 	},
 	rightMostOffset : 5,
  
@@ -2913,6 +2936,7 @@ var XMigemoUI = {
 			.parent) // in subframe
 			return;
 
+		this.overrideExtensionsOnInitBefore(); // hacks.js
 
 		this.lastFindMode = this.FIND_MODE_NATIVE;
 		this.findBar.setAttribute(this.kTARGET, this.activeBrowser.id);
@@ -2948,6 +2972,8 @@ var XMigemoUI = {
 
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
+
+		this.overrideExtensionsOnInitAfter(); // hacks.js
 	},
 	
 	delayedInit : function() { 
@@ -2991,6 +3017,7 @@ var XMigemoUI = {
 }; 
   
 window.addEventListener('load', XMigemoUI, false); 
+window.removeEventListener('DOMContentLoaded', XMigemoUI, false);
  
 //obsolete 
 function xmFind(){
