@@ -175,6 +175,8 @@ function testAutoSwitch()
 	yield wait;
 	assert.notEquals('notfound', field.getAttribute('status'));
 	assert.matches('text field', XMigemoUI.lastFoundRange.toString());
+	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
+	assert.isFalse(XMigemoUI.caseSensitiveCheck.checked);
 
 	action.inputTextToField(field, '');
 	yield wait;
@@ -183,6 +185,18 @@ function testAutoSwitch()
 	assert.equals(XMigemoUI.FIND_MODE_REGEXP, XMigemoUI.findMode);
 	assert.notEquals('notfound', field.getAttribute('status'));
 	assert.matches('single-row field', XMigemoUI.lastFoundRange.toString());
+	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
+	assert.isTrue(XMigemoUI.caseSensitiveCheck.checked);
+
+	action.inputTextToField(field, '');
+	yield wait;
+	action.inputTextToField(field, '/(single-row|multirow) field/i');
+	yield wait;
+	assert.equals(XMigemoUI.FIND_MODE_REGEXP, XMigemoUI.findMode);
+	assert.notEquals('notfound', field.getAttribute('status'));
+	assert.matches('single-row field', XMigemoUI.lastFoundRange.toString());
+	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
+	assert.isFalse(XMigemoUI.caseSensitiveCheck.checked);
 
 	var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
 	action.fireKeyEventOnElement(field, key);
