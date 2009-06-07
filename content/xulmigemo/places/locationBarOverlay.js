@@ -1103,7 +1103,7 @@ XMIgemoAutoCompletePopupController.prototype = {
 			(
 				aKey == nsIDOMKeyEvent.DOM_VK_LEFT ||
 				aKey == nsIDOMKeyEvent.DOM_VK_RIGHT ||
-				(isMac && aKey == nsIDOMKeyEvent.DOM_VK_HOME)
+				(!isMac && aKey == nsIDOMKeyEvent.DOM_VK_HOME)
 			)
 			) {
 			if (popup.popupOpen) {
