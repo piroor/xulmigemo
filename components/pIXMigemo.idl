@@ -187,6 +187,11 @@ interface pIXMigemo : pIXMigemoEngine
 		out AString termsRegExp,
 		out AString exceptionsRegExp
 	);
+	nsIVariant getRegExpsFunctional(
+		in AString input,
+		out AString termsRegExp,
+		out AString exceptionsRegExp
+	);
 	attribute boolean andFindAvailable;
 	attribute boolean notFindAvailable;
 	boolean isValidFunctionalInput(in AString input);

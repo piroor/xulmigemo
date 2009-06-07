@@ -48,6 +48,8 @@ var XMigemoLocationBarOverlay = {
 	kITEM_ACCEPT  : 1,
 	kITEM_SKIP    : 2,
 	kITEM_DEFERED : 3,
+
+	MAX_TERMS_COUNT : 100,
  
 	sourcesOrder : [
 		'KEYWORD_SEARCH',
@@ -489,18 +491,39 @@ var XMigemoLocationBarOverlay = {
 			return result;
 		}
 
-		var regexp = aFindInfo.findRegExp;
-		var terms = aSource.termsGetter ?
-				aSource.termsGetter(aFindInfo.input, sources) :
-				sources.match(regexp) ;
-		if (!terms) return result;
-
+		var MAX_TERMS_COUNT = this.MAX_TERMS_COUNT;
 		var utils = this.TextUtils;
-
-		terms = this.TextUtils.brushUpTerms(terms)
-			.filter(function(aTerm) {
-				return utils.trim(aTerm);
-			});
+		var terms = aSource.termsGetter ?
+					(function() {
+						let terms = aSource.termsGetter(aFindInfo.input, sources);
+						return terms ?
+							utils.brushUpTerms(terms)
+								.filter(function(aTerm) {
+									return utils.trim(aTerm);
+								})
+								.slice(0, MAX_TERMS_COUNT) :
+							terms ;
+					})() :
+				aFindInfo.findRegExps.length ?
+					(function() {
+						let terms = [];
+						return aFindInfo.findRegExps
+								.some(function(aRegExp) {
+									let match = sources.match(aRegExp);
+									if (match) {
+										terms.push(
+											utils.brushUpTerms(match)
+												.filter(function(aTerm) {
+													return utils.trim(aTerm);
+												})
+												.slice(0, MAX_TERMS_COUNT)
+										);
+									}
+									return !match;
+								}) ? null : terms.slice(0, MAX_TERMS_COUNT) ;
+					})() :
+					null ;
+		if (!terms) return result;
 
 		var exceptions = [];
 		if (aSource.exceptionsGetter) {
@@ -508,7 +531,7 @@ var XMigemoLocationBarOverlay = {
 		}
 		else if (aFindInfo.exceptionsRegExp) {
 			exceptions = sources.match(aFindInfo.exceptionsRegExp) || [];
-			exceptions = this.TextUtils.brushUpTerms(exceptions)
+			exceptions = utils.brushUpTerms(exceptions)
 				.filter(function(aTerm) {
 					return utils.trim(aTerm);
 				});
@@ -529,6 +552,9 @@ var XMigemoLocationBarOverlay = {
 	
 	findItemsFromRangeByTerms : function(aFindInfo, aSource, aStart, aRange, aTerms, aExceptions) 
 	{
+		if (aTerms && aTerms.length && typeof aTerms[0] == 'string')
+			aTerms = [aTerms];
+
 		var result = {
 				items        : [],
 				deferedItems : []
@@ -538,7 +564,7 @@ var XMigemoLocationBarOverlay = {
 
 		if (!aTerms.length && !aExceptions.length) return result;
 
-		aTerms = aTerms.slice(0, Math.min(100, aTerms.length));
+		aTerms = aTerms.slice(0, this.MAX_TERMS_COUNT);
 
 		/* output of the SQL must be:
 			SELECT place_title, place_uri, favicon_uri, bookmark_title, tags, findkey
@@ -548,17 +574,24 @@ var XMigemoLocationBarOverlay = {
 		var bindings = aSource.getItemsBindingFor(aFindInfo.input);
 		var offset   = bindings.length;
 
-		var termsCount      = aTerms.length;
+		var termsCount = 0;
 		var exceptionsCount = aExceptions.length;
 		if (/%TERMS_RULES%/i.test(sql)) {
 			sql = sql.replace(
 					'%TERMS_RULES%',
 					(aTerms.length ?
 						'('+
-						aTerms.map(function(aTerm, aIndex) {
-							return 'findkey LIKE ?%d%'
-									.replace(/%d%/g, aIndex+offset+1);
-						}).join(' OR ')+
+						(function() {
+							let count = 0;
+							return aTerms.map(function(aSubTerms) {
+									termsCount += aSubTerms.length;
+									return '('+
+										aSubTerms.map(function(aSubTerms, aIndex) {
+											return 'findkey LIKE ?'+((count++)+offset+1);
+										}).join(' OR ')+
+										')';
+								}).join(' AND ');
+						})()+
 						')' :
 						''
 					)+
@@ -611,8 +644,11 @@ var XMigemoLocationBarOverlay = {
 					statement.bindStringParameter(aIndex, aValue);
 			});
 			if (termsCount) {
-				aTerms.forEach(function(aTerm, aIndex) {
-					statement.bindStringParameter(aIndex+offset, '%'+aTerm+'%');
+				let count = 0;
+				aTerms.forEach(function(aSubTerms) {
+					aSubTerms.forEach(function(aTerm) {
+						statement.bindStringParameter((count++)+offset, '%'+aTerm+'%');
+					});
 				});
 			}
 			if (exceptionsCount) {

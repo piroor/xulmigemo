@@ -383,11 +383,8 @@ dump('STEP 2: '+array.toSource()+'\n');
 	andFindAvailable : true, 
 	notFindAvailable : true,
  
-	getRegExpFunctional : function(aInput, aTermsRegExp, aExceptionRegExp) 
+	getRegExpFunctionalInternal : function(aInput, aTermsRegExp, aExceptionRegExp) 
 	{
-		if (!aTermsRegExp) aTermsRegExp = {};
-		if (!aExceptionRegExp) aExceptionRegExp = {};
-
 		aExceptionRegExp.value = '';
 		if (this.notFindAvailable) {
 			var exceptions = {};
@@ -395,15 +392,27 @@ dump('STEP 2: '+array.toSource()+'\n');
 			if (exceptions.value.length)
 				aExceptionRegExp.value = this.textUtils.getORFindRegExpFromTerms(this.getRegExps(exceptions.value.join(' ')));
 		}
-
 		var regexps = this.getRegExps(aInput);
-		var result = this.andFindAvailable ?
+		aTermsRegExp.value = this.textUtils.getORFindRegExpFromTerms(regexps);
+		return regexps;
+	},
+	getRegExpFunctional : function(aInput, aTermsRegExp, aExceptionRegExp) 
+	{
+		if (!aTermsRegExp) aTermsRegExp = {};
+		if (!aExceptionRegExp) aExceptionRegExp = {};
+		var regexps = this.getRegExpFunctionalInternal(aInput, aTermsRegExp, aExceptionRegExp);
+		return this.andFindAvailable ?
 				this.textUtils.getANDFindRegExpFromTerms(regexps) :
 				this.getRegExp(aInput) ;
-
-		aTermsRegExp.value = this.textUtils.getORFindRegExpFromTerms(regexps);
-
-		return result;
+	},
+	getRegExpsFunctional : function(aInput, aTermsRegExp, aExceptionRegExp) 
+	{
+		if (!aTermsRegExp) aTermsRegExp = {};
+		if (!aExceptionRegExp) aExceptionRegExp = {};
+		var regexps = this.getRegExpFunctionalInternal(aInput, aTermsRegExp, aExceptionRegExp);
+		return this.andFindAvailable ?
+				regexps :
+				[this.getRegExp(aInput)] ;
 	},
 	 
 	siftExceptions : function(aInput, aExceptions) 
