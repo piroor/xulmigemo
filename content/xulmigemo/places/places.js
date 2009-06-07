@@ -32,7 +32,7 @@ var XMigemoPlaces = {
 				input            : aInput,
 				findFlag         : 0,
 				findMode         : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
-				findRegExp       : null,
+				findRegExps      : [],
 				termsRegExp      : null,
 				exceptionsRegExp : null
 			};
@@ -47,17 +47,17 @@ var XMigemoPlaces = {
 			var flags = 'gm';
 			if (/\/[^\/]*i[^\/]*$/.test(findInput)) flags += 'i';
 			var source = this.TextUtils.extractRegExpSource(findInput);
-			info.findRegExp =
-				info.termsRegExp = new RegExp(source, flags);
+			info.termsRegExp = new RegExp(source, flags);
+			info.findRegExps = [info.termsRegExp];
 			info.findMode = Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP;
 		}
 		else {
 			var termsRegExp = {};
 			var exceptionsRegExp = {};
-			info.findRegExp = new RegExp(
-				XMigemoCore.getRegExpFunctional(findInput, termsRegExp, exceptionsRegExp),
-				'gim'
-			);
+			info.findRegExps = XMigemoCore.getRegExpsFunctional(findInput, termsRegExp, exceptionsRegExp)
+								.map(function(aRegExp) {
+									return new RegExp(aRegExp, 'gim');
+								});
 			info.termsRegExp = new RegExp(termsRegExp.value, 'gim');
 			if (exceptionsRegExp.value)
 				info.exceptionsRegExp = new RegExp(exceptionsRegExp.value, 'gim');
