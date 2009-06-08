@@ -54,7 +54,8 @@ function test_parseInput()
 	assert.equals('nihongo', info.input);
 	assert.equals(0, info.findFlag);
 	assert.equals(pIMigemoFind.FIND_MODE_MIGEMO, info.findMode);
-	assert.pattern('にほんご', info.findRegExp);
+	assert.equals(1, info.findRegExps.length);
+	assert.pattern('にほんご', info.findRegExps[0]);
 	assert.pattern('にほんご', info.termsRegExp);
 	assert.isNull(info.exceptionsRegExp);
 
@@ -62,7 +63,8 @@ function test_parseInput()
 	assert.equals('nihongo -eigo', info.input);
 	assert.equals(0, info.findFlag);
 	assert.equals(pIMigemoFind.FIND_MODE_MIGEMO, info.findMode);
-	assert.pattern('にほんご', info.findRegExp);
+	assert.equals(1, info.findRegExps.length);
+	assert.pattern('にほんご', info.findRegExps[0]);
 	assert.pattern('にほんご', info.termsRegExp);
 	assert.pattern('えいご', info.exceptionsRegExp);
 
@@ -71,8 +73,9 @@ function test_parseInput()
 	assert.equals('/reg(ular )?exp?(ression)?/', info.input);
 	assert.equals(0, info.findFlag);
 	assert.equals(pIMigemoFind.FIND_MODE_REGEXP, info.findMode);
-	assert.pattern('regexp', info.findRegExp);
-	assert.pattern('regular expression', info.findRegExp);
+	assert.equals(1, info.findRegExps.length);
+	assert.pattern('regexp', info.findRegExps[0]);
+	assert.pattern('regular expression', info.findRegExps[0]);
 	assert.pattern('regexp', info.termsRegExp);
 	assert.pattern('regular expression', info.termsRegExp);
 	assert.isNull(info.exceptionsRegExp);
