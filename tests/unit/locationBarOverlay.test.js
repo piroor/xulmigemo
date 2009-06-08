@@ -384,7 +384,7 @@ function getResults(aFindInfo, aSource)
 			aSource,
 			0,
 			1000,
-			sources.match(aFindInfo.findRegExp) || [],
+			service.getMatchedTermsFromRegExps(aFindInfo.findRegExps, sources) || [],
 			sources.match(aFindInfo.exceptionsRegExp) || []
 		);
 }
