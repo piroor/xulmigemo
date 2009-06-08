@@ -1348,9 +1348,9 @@ var XMigemoUI = {
 		}
 
 		if (this.findMode != this.FIND_MODE_NATIVE) {
-			this.start(true);
 			aEvent.stopPropagation();
 			aEvent.preventDefault();
+			this.start(true);
 			this.delayedFind();
 		}
 		else {
