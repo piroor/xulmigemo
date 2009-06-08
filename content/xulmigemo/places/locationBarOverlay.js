@@ -491,39 +491,14 @@ var XMigemoLocationBarOverlay = {
 			return result;
 		}
 
-		var MAX_TERMS_COUNT = this.MAX_TERMS_COUNT;
-		var utils = this.TextUtils;
 		var terms = aSource.termsGetter ?
-					(function() {
-						let terms = aSource.termsGetter(aFindInfo.input, sources);
-						return terms ?
-							utils.brushUpTerms(terms)
-								.filter(function(aTerm) {
-									return utils.trim(aTerm);
-								})
-								.slice(0, MAX_TERMS_COUNT) :
-							terms ;
-					})() :
-				aFindInfo.findRegExps.length ?
-					(function() {
-						let terms = [];
-						return aFindInfo.findRegExps
-								.some(function(aRegExp) {
-									let match = sources.match(aRegExp);
-									if (match) {
-										terms.push(
-											utils.brushUpTerms(match)
-												.filter(function(aTerm) {
-													return utils.trim(aTerm);
-												})
-												.slice(0, MAX_TERMS_COUNT)
-										);
-									}
-									return !match;
-								}) ? null : terms.slice(0, MAX_TERMS_COUNT) ;
-					})() :
-					null ;
-		if (!terms) return result;
+					this.TextUtils.brushUpTerms(aSource.termsGetter(aFindInfo.input, sources) || [])
+						.filter(function(aTerm) {
+							return this.TextUtils.trim(aTerm);
+						}, this)
+						.slice(0, MAX_TERMS_COUNT) :
+					this.getMatchedTermsFromRegExps(aFindInfo.findRegExps, sources);
+		if (!terms || !terms.length) return result;
 
 		var exceptions = [];
 		if (aSource.exceptionsGetter) {
@@ -531,10 +506,10 @@ var XMigemoLocationBarOverlay = {
 		}
 		else if (aFindInfo.exceptionsRegExp) {
 			exceptions = sources.match(aFindInfo.exceptionsRegExp) || [];
-			exceptions = utils.brushUpTerms(exceptions)
+			exceptions = this.TextUtils.brushUpTerms(exceptions)
 				.filter(function(aTerm) {
-					return utils.trim(aTerm);
-				});
+					return this.TextUtils.trim(aTerm);
+				}, this);
 		}
 
 		var foundItems = this.findItemsFromRangeByTerms(
@@ -548,6 +523,27 @@ var XMigemoLocationBarOverlay = {
 		result.items = foundItems.items;
 		result.deferedItems = foundItems.deferedItems;
 		return result;
+	},
+	getMatchedTermsFromRegExps : function(aRegExps, aSources)
+	{
+		if (!aRegExps || !aRegExps.length || !aSources) return null;
+		var MAX_TERMS_COUNT = this.MAX_TERMS_COUNT;
+		var utils = this.TextUtils;
+		var terms = [];
+		return aRegExps
+				.some(function(aRegExp) {
+					let match = aSources.match(aRegExp);
+					if (match) {
+						terms.push(
+							utils.brushUpTerms(match)
+								.filter(function(aTerm) {
+									return utils.trim(aTerm);
+								})
+								.slice(0, MAX_TERMS_COUNT)
+						);
+					}
+					return !match;
+				}) ? null : terms.slice(0, MAX_TERMS_COUNT) ;
 	},
 	
 	findItemsFromRangeByTerms : function(aFindInfo, aSource, aStart, aRange, aTerms, aExceptions) 
