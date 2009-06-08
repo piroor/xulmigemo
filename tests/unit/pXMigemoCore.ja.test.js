@@ -130,38 +130,38 @@ function test_getRegExpFunctional()
 
 	terms = {};
 	exceptions = {};
-	result = core.getRegExpFunctional('nihongo japan', terms, exceptions);
+	result = core.getRegExpFunctional('nihongo eigo', terms, exceptions);
 	assert.isString(result);
 	regexp = new RegExp(result);
-	assert.pattern('日本語はジャパンの言葉', regexp);
-	assert.pattern('ジャパンの言葉は日本語', regexp);
+	assert.pattern('日本語と英語', regexp);
+	assert.pattern('英語と日本語', regexp);
 	assert.notPattern('日本語', regexp);
-	assert.notPattern('ジャパン', regexp);
+	assert.notPattern('英語', regexp);
 	assert.isDefined(terms.value);
 	regexp = new RegExp(terms.value);
 	assert.pattern('日本語', regexp);
-	assert.pattern('ジャパン', regexp);
+	assert.pattern('英語', regexp);
 	assert.isDefined(exceptions.value);
 	assert.equals("", exceptions.value);
 
 	terms = {};
 	exceptions = {};
-	result = core.getRegExpFunctional('nihongo japan -eigo', terms, exceptions);
+	result = core.getRegExpFunctional('nihongo eigo -mozira', terms, exceptions);
 	assert.isString(result);
 	regexp = new RegExp(result);
-	assert.pattern('日本語はジャパンの言葉', regexp);
-	assert.pattern('ジャパンの言葉は日本語', regexp);
-	assert.pattern('英語と日本語とジャパン', regexp);
+	assert.pattern('日本語と英語', regexp);
+	assert.pattern('英語と日本語', regexp);
+	assert.pattern('英語と日本語もモジラ', regexp);
 	assert.notPattern('日本語', regexp);
-	assert.notPattern('ジャパン', regexp);
 	assert.notPattern('英語', regexp);
+	assert.notPattern('モジラ', regexp);
 	assert.isDefined(terms.value);
 	regexp = new RegExp(terms.value);
 	assert.pattern('日本語', regexp);
-	assert.pattern('ジャパン', regexp);
+	assert.pattern('英語', regexp);
 	assert.isDefined(exceptions.value);
 	regexp = new RegExp(exceptions.value);
-	assert.pattern('英語', regexp);
+	assert.pattern('モジラ', regexp);
 }
 
 function test_getRegExpsFunctional()
@@ -181,30 +181,38 @@ function test_getRegExpsFunctional()
 
 	terms = {};
 	exceptions = {};
-	result = core.getRegExpsFunctional('nihongo japan', terms, exceptions);
+	result = core.getRegExpsFunctional('nihongo eigo', terms, exceptions);
 	assert.isNotString(result);
 	assert.equals(2, result.length);
-	assert.pattern('日本語', new RegExp(result[0]));
-	assert.pattern('ジャパン', new RegExp(result[1]));
+	regexp = new RegExp(result[0]);
+	assert.pattern('日本語', regexp);
+	assert.notPattern('英語', regexp);
+	regexp = new RegExp(result[1]);
+	assert.pattern('英語', regexp);
+	assert.notPattern('日本語', regexp);
 	assert.isDefined(terms.value);
 	regexp = new RegExp(terms.value);
 	assert.pattern('日本語', regexp);
-	assert.pattern('ジャパン', regexp);
+	assert.pattern('英語', regexp);
 	assert.isDefined(exceptions.value);
 	assert.equals("", exceptions.value);
 
 	terms = {};
 	exceptions = {};
-	result = core.getRegExpsFunctional('nihongo japan -eigo', terms, exceptions);
+	result = core.getRegExpsFunctional('nihongo eigo -mozira', terms, exceptions);
 	assert.isNotString(result);
 	assert.equals(2, result.length);
-	assert.pattern('日本語', new RegExp(result[0]));
-	assert.pattern('ジャパン', new RegExp(result[1]));
+	regexp = new RegExp(result[0]);
+	assert.pattern('日本語', regexp);
+	assert.notPattern('英語', regexp);
+	regexp = new RegExp(result[1]);
+	assert.pattern('英語', regexp);
+	assert.notPattern('日本語', regexp);
 	assert.isDefined(terms.value);
 	regexp = new RegExp(terms.value);
 	assert.pattern('日本語', regexp);
-	assert.pattern('ジャパン', regexp);
+	assert.pattern('英語', regexp);
 	assert.isDefined(exceptions.value);
 	regexp = new RegExp(exceptions.value);
-	assert.pattern('英語', regexp);
+	assert.pattern('モジラ', regexp);
 }
