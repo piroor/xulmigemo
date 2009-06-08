@@ -112,23 +112,23 @@ function testGetEditableNodes()
 		});
 	}
 
-	yield Do(utils.loadURI(baseURL+'../res/keyEventTest.html'));
+	yield Do(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
 	assertGetEditableNodes();
-	yield Do(utils.loadURI(baseURL+'../res/keyEventTest.xml'));
+	yield Do(utils.loadURI(baseURL+'../fixtures/keyEventTest.xml'));
 	assertGetEditableNodes();
 }
 
 function testGetDocumentBody()
 {
-	yield Do(utils.loadURI(baseURL+'../res/keyEventTest.html'));
+	yield Do(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
 	assert.equals(content.document.body, XMigemoUI.getDocumentBody(content.document));
-	yield Do(utils.loadURI(baseURL+'../res/keyEventTest.xml'));
+	yield Do(utils.loadURI(baseURL+'../fixtures/keyEventTest.xml'));
 	assert.equals(content.document.getElementsByTagName('body')[0], XMigemoUI.getDocumentBody(content.document));
 }
 
 testDoProcessForAllFrames.setUp = function()
 {
-	yield Do(utils.loadURI(baseURL+'../res/frameTest.html'));
+	yield Do(utils.loadURI(baseURL+'../fixtures/frameTest.html'));
 };
 function testDoProcessForAllFrames()
 {
@@ -156,7 +156,7 @@ function testDoProcessForAllFrames()
 
 testClearFocusRingForSingleFrame.setUp = function()
 {
-	yield Do(utils.loadURI(baseURL+'../res/keyEventTest.html'));
+	yield Do(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
 	Array.slice(content.document.links).forEach(function(aLink) {
 		aLink.setAttribute(XMigemoUI.kFOCUSED, true);
 	});
@@ -172,7 +172,7 @@ function testClearFocusRingForSingleFrame()
 
 testClearFocusRingForMultipleFrames.setUp = function()
 {
-	yield Do(utils.loadURI(baseURL+'../res/frameTest.html'));
+	yield Do(utils.loadURI(baseURL+'../fixtures/frameTest.html'));
 	Array.slice($('frame1', content).contentDocument.links).forEach(function(aLink) {
 		aLink.setAttribute(XMigemoUI.kFOCUSED, true);
 	});

@@ -48,7 +48,7 @@ assert.focus = function(aIterator, aFrame) {
 
 function setUp()
 {
-	yield Do(utils.loadURI('../res/frameTest.html'));
+	yield Do(utils.loadURI('../fixtures/frameTest.html'));
 }
 
 function tearDown()

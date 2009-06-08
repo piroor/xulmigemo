@@ -17,7 +17,7 @@ function setUp()
 
 	service = {};
 	service.__proto__ = XMigemoPlaces;
-	service.db = baseURL+'../res/places.sqlite';
+	service.db = baseURL+'../fixtures/places.sqlite';
 
 	service.findHistoryKey = '^';
 	service.findBookmarksKey = '*';

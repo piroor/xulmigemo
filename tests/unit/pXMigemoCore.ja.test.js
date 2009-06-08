@@ -53,7 +53,7 @@ function test_getRegExpFor()
 
 function test_regExpFind_forHiddenTargets()
 {
-	yield Do(utils.loadURI('../res/containsHiddenMatchTarget.html'));
+	yield Do(utils.loadURI('../fixtures/containsHiddenMatchTarget.html'));
 
 	var range = content.document.createRange();
 	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
@@ -68,7 +68,7 @@ function test_regExpFind_forHiddenTargets()
 
 function test_regExpFindArr_forHiddenTargets()
 {
-	yield Do(utils.loadURI('../res/containsHiddenMatchTarget.html'));
+	yield Do(utils.loadURI('../fixtures/containsHiddenMatchTarget.html'));
 
 	var range = content.document.createRange();
 	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
@@ -87,7 +87,7 @@ function test_regExpFindArr_forHiddenTargets()
 test_regExpHighlightTextWithSelection.description = 'Firefox 3.1以降での選択範囲によるハイライト表示';
 function test_regExpHighlightTextWithSelection()
 {
-	yield Do(utils.loadURI('../res/keyEventTest.html'));
+	yield Do(utils.loadURI('../fixtures/keyEventTest.html'));
 
 	var range = content.document.createRange();
 	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
