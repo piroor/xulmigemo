@@ -113,3 +113,98 @@ function test_regExpHighlightTextWithSelection()
 if (!('SELECTION_FIND' in Components.interfaces.nsISelectionController)) {
 	test_regExpHighlightTextWithSelection.priority = 'never';
 }
+
+function test_getRegExpFunctional()
+{
+	var terms, exceptions, result, regexp;
+
+	terms = {};
+	exceptions = {};
+	result = core.getRegExpFunctional('nihongo', terms, exceptions);
+	assert.isString(result);
+	assert.pattern('日本語', new RegExp(result));
+	assert.isDefined(terms.value);
+	assert.pattern('日本語', new RegExp(terms.value));
+	assert.isDefined(exceptions.value);
+	assert.equals("", exceptions.value);
+
+	terms = {};
+	exceptions = {};
+	result = core.getRegExpFunctional('nihongo japan', terms, exceptions);
+	assert.isString(result);
+	regexp = new RegExp(result);
+	assert.pattern('日本語はジャパンの言葉', regexp);
+	assert.pattern('ジャパンの言葉は日本語', regexp);
+	assert.notPattern('日本語', regexp);
+	assert.notPattern('ジャパン', regexp);
+	assert.isDefined(terms.value);
+	regexp = new RegExp(terms.value);
+	assert.pattern('日本語', regexp);
+	assert.pattern('ジャパン', regexp);
+	assert.isDefined(exceptions.value);
+	assert.equals("", exceptions.value);
+
+	terms = {};
+	exceptions = {};
+	result = core.getRegExpFunctional('nihongo japan -eigo', terms, exceptions);
+	assert.isString(result);
+	regexp = new RegExp(result);
+	assert.pattern('日本語はジャパンの言葉', regexp);
+	assert.pattern('ジャパンの言葉は日本語', regexp);
+	assert.pattern('英語と日本語とジャパン', regexp);
+	assert.notPattern('日本語', regexp);
+	assert.notPattern('ジャパン', regexp);
+	assert.notPattern('英語', regexp);
+	assert.isDefined(terms.value);
+	regexp = new RegExp(terms.value);
+	assert.pattern('日本語', regexp);
+	assert.pattern('ジャパン', regexp);
+	assert.isDefined(exceptions.value);
+	regexp = new RegExp(exceptions.value);
+	assert.pattern('英語', regexp);
+}
+
+function test_getRegExpsFunctional()
+{
+	var terms, exceptions, result, regexp;
+
+	terms = {};
+	exceptions = {};
+	result = core.getRegExpsFunctional('nihongo', terms, exceptions);
+	assert.isNotString(result);
+	assert.equals(1, result.length);
+	assert.pattern('日本語', new RegExp(result[0]));
+	assert.isDefined(terms.value);
+	assert.pattern('日本語', new RegExp(terms.value));
+	assert.isDefined(exceptions.value);
+	assert.equals("", exceptions.value);
+
+	terms = {};
+	exceptions = {};
+	result = core.getRegExpsFunctional('nihongo japan', terms, exceptions);
+	assert.isNotString(result);
+	assert.equals(2, result.length);
+	assert.pattern('日本語', new RegExp(result[0]));
+	assert.pattern('ジャパン', new RegExp(result[1]));
+	assert.isDefined(terms.value);
+	regexp = new RegExp(terms.value);
+	assert.pattern('日本語', regexp);
+	assert.pattern('ジャパン', regexp);
+	assert.isDefined(exceptions.value);
+	assert.equals("", exceptions.value);
+
+	terms = {};
+	exceptions = {};
+	result = core.getRegExpsFunctional('nihongo japan -eigo', terms, exceptions);
+	assert.isNotString(result);
+	assert.equals(2, result.length);
+	assert.pattern('日本語', new RegExp(result[0]));
+	assert.pattern('ジャパン', new RegExp(result[1]));
+	assert.isDefined(terms.value);
+	regexp = new RegExp(terms.value);
+	assert.pattern('日本語', regexp);
+	assert.pattern('ジャパン', regexp);
+	assert.isDefined(exceptions.value);
+	regexp = new RegExp(exceptions.value);
+	assert.pattern('英語', regexp);
+}
