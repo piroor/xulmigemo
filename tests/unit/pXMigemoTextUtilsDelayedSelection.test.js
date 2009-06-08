@@ -7,7 +7,7 @@ var textUtils;
 function setUp()
 {
 	textUtils = new pXMigemoTextUtils();
-	yield Do(utils.loadURI('../res/highlighted.html'));
+	yield Do(utils.loadURI('../fixtures/highlighted.html'));
 }
 
 function tearDown()

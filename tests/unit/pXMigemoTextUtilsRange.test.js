@@ -8,7 +8,7 @@ var textUtils;
 function setUp()
 {
 	textUtils = new pXMigemoTextUtils();
-	yield Do(utils.loadURI('../res/keyEventTest.html'));
+	yield Do(utils.loadURI('../fixtures/keyEventTest.html'));
 }
 
 function tearDown()

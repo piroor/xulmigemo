@@ -21,7 +21,7 @@ function tearDown()
 
 testFindInFrame.description = 'フレーム内の検索';
 testFindInFrame.setUp = function() {
-	yield Do(commonSetUp(baseURL+'../res/frameTest.html'));
+	yield Do(commonSetUp(baseURL+'../fixtures/frameTest.html'));
 
 	gFindBar.openFindBar();
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
@@ -63,7 +63,7 @@ function testFindInFrame()
 
 testNotFound.description = '検索語句を含まないフレームがある場合の検索';
 testNotFound.setUp = function() {
-	yield Do(commonSetUp(baseURL+'../res/frameTest2.html'));
+	yield Do(commonSetUp(baseURL+'../fixtures/frameTest2.html'));
 
 	gFindBar.openFindBar();
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;

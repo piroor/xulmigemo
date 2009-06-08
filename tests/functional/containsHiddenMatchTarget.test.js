@@ -2,7 +2,7 @@ var description = '非表示の要素の内容として正規表現検索にマ�
 
 utils.include('common.inc.js');
 
-var gTestPageURI = '../res/containsHiddenMatchTarget.html';
+var gTestPageURI = '../fixtures/containsHiddenMatchTarget.html';
 
 function setUp()
 {

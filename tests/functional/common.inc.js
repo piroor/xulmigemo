@@ -1,4 +1,4 @@
-//var profile = '../res/profile-ja/';
+//var profile = '../fixtures/profile-ja/';
 //var options = ['-console', '-jsconsole'/*, '-uxu-do-not-quit'*/];
 
 var XMigemoUI,
@@ -11,8 +11,8 @@ var XMigemoUI,
 	gFindBar,
 	field,
 	inputElem;
-var keyEventTest = baseURL+'../res/keyEventTest.html';
-var keyEventTestXML = baseURL+'../res/keyEventTest.xml';
+var keyEventTest = baseURL+'../fixtures/keyEventTest.html';
+var keyEventTestXML = baseURL+'../fixtures/keyEventTest.xml';
 var wait = 500;
 
 function commonSetUp(aURI)
