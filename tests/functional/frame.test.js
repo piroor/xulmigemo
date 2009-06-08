@@ -24,6 +24,7 @@ testFindInFrame.setUp = function() {
 	yield Do(commonSetUp(baseURL+'../fixtures/frameTest.html'));
 
 	gFindBar.openFindBar();
+	yield wait;
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 	yield wait;
 };

@@ -90,6 +90,7 @@ function testNoInput()
 	yield Do(assert.autoStart(findTerm));
 	for (var i = 0, maxi = findTerm.length; i < maxi; i++)
 	{
+		yield wait;
 		assert.highlightCheck(false, true);
 		action.fireKeyEventOnElement(field, key_BS);
 		yield wait;
