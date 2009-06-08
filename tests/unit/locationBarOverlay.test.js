@@ -389,6 +389,20 @@ function getResults(aFindInfo, aSource)
 		);
 }
 
+function test_getMatchedTermsFromRegExps()
+{
+	assert.equals(
+		[
+			['日本', '日本人', '日本語'],
+			['英', '英語']
+		],
+		service.getMatchedTermsFromRegExps(
+			[/日本[人語]?/gim, /英語?/gim],
+			'日本、日本人、日本語、英国、英語'
+		);
+	);
+}
+
 function test_findItemsFromRangeByTerms()
 {
 	var result;
