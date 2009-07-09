@@ -160,7 +160,6 @@
 <!ENTITY config.quickfind.advanced.button  "Advanced...">
 <!ENTITY config.quickfind.advanced.title   "Advanced Configuration of Quick Migemo Find">
 
-<!ENTITY config.override_findtoolbar    "Override the Find Toolbar">
 <!ENTITY config.enabletimeout.indicator "Indicate remaining time for timeout of Quick Migemo Find">
 <!ENTITY config.appearance.indicator.height.before "Height of the remaining time indicator:">
 <!ENTITY config.appearance.indicator.height.after "pixel (0=system default)">
