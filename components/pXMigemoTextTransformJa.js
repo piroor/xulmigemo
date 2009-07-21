@@ -544,7 +544,6 @@ pXMigemoTextTransformJa.prototype = {
 	to_hepburn : function(aString) 
 	{
 /*
-		var self = this;
 		return this.normalize_double_n(String(aString).toLowerCase())
 			.replace(/\G((?:#{HEPPAT})*?)(#{KUNPAT})/, function(aChar) {
 				return $1 + TO_HEPBURN[$2];
@@ -560,7 +559,6 @@ pXMigemoTextTransformJa.prototype = {
 	to_kunrei : function(aString) 
 	{
 /*
-		var self = this;
 		return this.normalize_double_n(String(aString).toLowerCase())
 			.replace(/\G((?:#{KUNPAT})*?)(#{HEPPAT})/, function(aChar) {
 				return $1 + TO_KUNREI[$2];

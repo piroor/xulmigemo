@@ -185,12 +185,11 @@ pXMigemoCore.prototype = {
   
 	getRegExps : function(aInput) 
 	{
-		var self = this;
 		return this.textUtils.trim(aInput)
 			.split(/\s+/)
 			.map(function(aInput) {
-				return self.getRegExp(aInput);
-			});
+				return this.getRegExp(aInput);
+			}, this);
 	},
  
 	getRegExpFor : function(aInput) 
@@ -308,9 +307,8 @@ dump('STEP 2: '+array.toSource()+'\n');
  
 	expandTermsFromArray : function(aArray) 
 	{
-		var self = this;
 		while (
-			(function(aArray)
+			(function(aArray, aSelf)
 			{
 				var shouldContinue = false;
 				for (var i = 0, maxi = aArray.length; i < maxi; i++)
@@ -323,14 +321,14 @@ dump('STEP 2: '+array.toSource()+'\n');
 									typeof aItem[0] != 'string'
 								);
 						})) {
-						arguments.callee(aArray[i]);
+						arguments.callee(aArray[i], aSelf);
 						shouldContinue = true;
 						continue;
 					}
-					aArray[i] = self.expandTerms(aArray[i]);
+					aArray[i] = aSelf.expandTerms(aArray[i]);
 				}
 				return shouldContinue;
-			})(aArray)
+			})(aArray, this)
 		) {};
 		return this.expandTerms(aArray);
 	},

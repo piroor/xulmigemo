@@ -676,13 +676,14 @@ FolderSummary.prototype = {
 	decode : function(aInput) 
 	{
 		var encoded = aInput.match(/=\?[-_a-z0-9]+\?.\?[^?]+\?=/gi);
-		var self = this;
-		encoded.sort().forEach(function(aPart) {
-			aInput = aInput.replace(
-				aPart,
-				self.MIMEHeaderParam.getParameter(aPart, '', '', false, {})
-			);
-		});
+		if (encoded) {
+			encoded.sort().forEach(function(aPart) {
+				aInput = aInput.replace(
+					aPart,
+					this.MIMEHeaderParam.getParameter(aPart, '', '', false, {})
+				);
+			}, this);
+		}
 		return aInput;
 	},
 	MIMEHeaderParam : Cc['@mozilla.org/network/mime-hdrparam;1']
