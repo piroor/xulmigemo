@@ -496,7 +496,7 @@ var XMigemoLocationBarOverlay = {
 						.filter(function(aTerm) {
 							return this.TextUtils.trim(aTerm);
 						}, this)
-						.slice(0, MAX_TERMS_COUNT) :
+						.slice(0, this.MAX_TERMS_COUNT) :
 					this.getMatchedTermsFromRegExps(aFindInfo.findRegExps, sources);
 		if (!terms || !terms.length) return result;
 
@@ -527,7 +527,6 @@ var XMigemoLocationBarOverlay = {
 	getMatchedTermsFromRegExps : function(aRegExps, aSources)
 	{
 		if (!aRegExps || !aRegExps.length || !aSources) return null;
-		var MAX_TERMS_COUNT = this.MAX_TERMS_COUNT;
 		var utils = this.TextUtils;
 		var terms = [];
 		return aRegExps
@@ -539,11 +538,11 @@ var XMigemoLocationBarOverlay = {
 								.filter(function(aTerm) {
 									return utils.trim(aTerm);
 								})
-								.slice(0, MAX_TERMS_COUNT)
+								.slice(0, this.MAX_TERMS_COUNT)
 						);
 					}
 					return !match;
-				}) ? null : terms.slice(0, MAX_TERMS_COUNT) ;
+				}, this) ? null : terms.slice(0, this.MAX_TERMS_COUNT) ;
 	},
 	
 	findItemsFromRangeByTerms : function(aFindInfo, aSource, aStart, aRange, aTerms, aExceptions) 
