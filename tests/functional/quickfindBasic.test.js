@@ -121,17 +121,20 @@ function testAutoStartLinksOnly()
 	yield Do(assert.manualStart('sample'));
 	assert.contained($('first', content).firstChild, XMigemoUI.lastFoundRange);
 	assert.isFalse(link.hasAttribute(XMigemoUI.kFOCUSED));
+	assert.notEquals('1', link.getAttribute('focus-count'));
 	XMigemoUI.findNext();
 	assert.contained(link, XMigemoUI.lastFoundRange);
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
+	assert.notEquals('1', link.getAttribute('focus-count'));
 	XMigemoUI.findNext();
 	assert.isFalse(link.hasAttribute(XMigemoUI.kFOCUSED));
+	assert.notEquals('1', link.getAttribute('focus-count'));
 	XMigemoUI.findNext();
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
-	assert.notEquals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
+	assert.notEquals('1', link.getAttribute('focus-count'));
 	XMigemoUI.closeFindBar();
 	yield wait;
-	assert.equals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
+	assert.equals('1', link.getAttribute('focus-count'));
 }
 
 testAutoStartLinksOnly.description = '自動開始：リンクのみ検索';
@@ -150,13 +153,14 @@ function testAutoStartLinksOnly()
 	yield Do(assert.autoStart('sample'));
 	assert.contained(link, XMigemoUI.lastFoundRange);
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
+	assert.notEquals('1', link.getAttribute('focus-count'));
 	XMigemoUI.findNext();
 	assert.contained(link, XMigemoUI.lastFoundRange);
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
-	assert.notEquals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
+	assert.notEquals('1', link.getAttribute('focus-count'));
 	XMigemoUI.closeFindBar();
 	yield wait;
-	assert.equals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
+	assert.equals('1', link.getAttribute('focus-count'));
 }
 
 testManualStartLinksOnly.description = '手動開始：リンクのみ検索';
@@ -166,11 +170,12 @@ function testManualStartLinksOnly()
 	yield Do(assert.manualStart('sample', '\\'));
 	assert.contained(link, XMigemoUI.lastFoundRange);
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
+	assert.notEquals('1', link.getAttribute('focus-count'));
 	XMigemoUI.findNext();
 	assert.contained(link, XMigemoUI.lastFoundRange);
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
-	assert.notEquals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
+	assert.notEquals('1', link.getAttribute('focus-count'));
 	XMigemoUI.closeFindBar();
 	yield wait;
-	assert.equals(link, gBrowser.ownerDocument.commandDispatcher.focusedElement);
+	assert.equals('1', link.getAttribute('focus-count'));
 }
