@@ -394,6 +394,7 @@ var XMigemoMarker = {
 
 		var availHeight = viewHeight - (topOffset * 2);
 		var focusedRange = this.textUtils.getFoundRange(aDocument.defaultView);
+		if (focusedRange) focusedRange = focusedRange.QueryInterface(Components.interfaces.nsIDOMRange);
 
 		try {
 			var ctx = canvas.getContext('2d');

@@ -519,6 +519,7 @@ mydump("getParentLinkFromRange");
 	getParentEditableFromRange : function(aRange) 
 	{
 mydump('getParentEditableFromRange');
+		if (aRange) aRange = aRange.QueryInterface(Ci.nsIDOMRange);
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
 		{
@@ -866,6 +867,7 @@ mydump("resetFindRangeSet");
  
 	setSelectionLook : function(aDocument, aChangeColor) 
 	{
+		if (aDocument) aDocument = aDocument.QueryInterface(Ci.nsIDOMDocument);
 		if (aDocument.foundEditable)
 			this.textUtils.setSelectionLookForNode(aDocument.foundEditable, aChangeColor);
 		this.textUtils.setSelectionLookForDocument(aDocument, aChangeColor);
@@ -907,6 +909,8 @@ mydump("setSelectionAndScroll");
 	scrollSelectionToCenter : function(aFrame) 
 	{
 		if (!Prefs.getBoolPref('xulmigemo.scrollSelectionToCenter')) return;
+
+		if (aFrame) aFrame = aFrame.QueryInterface(Ci.nsIDOMWindow);
 
 		var frame = aFrame;
 		if (!frame) {
@@ -1125,6 +1129,7 @@ mydump("setSelectionAndScroll");
 
 		var range = this.getFoundRange(aFrame);
 		if (range) {
+			range = range.QueryInterface(Ci.nsIDOMRange);
 			var foundLink = this.getParentLinkFromRange(range);
 			var foundEditable = this.getParentEditableFromRange(range);
 			var target = foundLink || foundEditable;

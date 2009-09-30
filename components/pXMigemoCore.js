@@ -461,6 +461,10 @@ dump('STEP 2: '+array.toSource()+'\n');
  
 	regExpFind : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
 	{
+		if (aFindRange) aFindRange = aFindRange.QueryInterface(Ci.nsIDOMRange);
+		if (aStartPoint) aStartPoint = aStartPoint.QueryInterface(Ci.nsIDOMRange);
+		if (aEndPoint) aEndPoint = aEndPoint.QueryInterface(Ci.nsIDOMRange);
+
 		if (!aStartPoint) {
 			aStartPoint = aFindRange.startContainer.ownerDocument.createRange();
 			aStartPoint.setStartBefore(aFindRange.startContainer);
@@ -503,6 +507,11 @@ dump('STEP 2: '+array.toSource()+'\n');
 	 
 	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aUseSelection) 
 	{
+		if (aFindRange) aFindRange = aFindRange.QueryInterface(Ci.nsIDOMRange);
+		if (aStartPoint) aStartPoint = aStartPoint.QueryInterface(Ci.nsIDOMRange);
+		if (aEndPoint) aEndPoint = aEndPoint.QueryInterface(Ci.nsIDOMRange);
+		if (aSurroundNode) aSurroundNode = aSurroundNode.QueryInterface(Ci.nsIDOMNode);
+
 		var findRange = aFindRange.cloneRange();
 
 		var startPoint = aStartPoint;
@@ -521,6 +530,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 
 		var doc = findRange.startContainer.ownerDocument;
 		var selRange = this.textUtils.getFoundRange(doc.defaultView);
+		if (selRange) selRange = selRange.QueryInterface(Ci.nsIDOMRange);
 		var shouldRebuildSelection = selRange && Prefs.getBoolPref('xulmigemo.rebuild_selection');
 		var arrResults = [];
 		var rightContext;
