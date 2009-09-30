@@ -1,11 +1,15 @@
 #include "nsISupports.idl"
+#include "domstubs.idl"
 #include "nsIObserver.idl"
 #include "nsIFile.idl"
-#include "nsIDOMWindow.idl"
-#include "nsIDOMDocument.idl"
-#include "nsIDOMRange.idl"
-#include "nsIDOMNode.idl"
 #include "nsIVariant.idl"
+#include "nsIDOMNSRange.idl"
+#include "nsIDOMNode.idl"
+
+interface nsIFile;
+interface nsIVariant;
+interface nsIDOMNSRange;
+interface nsIDOMNode;
 
 
 /* Utilities: You can use them for your language without additional implementation. */
@@ -28,8 +32,8 @@ interface pIXMigemoTextUtils : nsISupports
 	nsIVariant brushUpTermsWithCase(in nsIVariant termsArray);
 	nsIVariant splitByBoundaries(in AString input);
 
-	AString range2Text(in nsIDOMRange range);
-	AString lazyRange2Text(in nsIDOMRange range); // possibly returns text including "hidden" elemens
+	AString range2Text(in nsISupports /* nsIDOMRange */ range);
+	AString lazyRange2Text(in nsISupports /* nsIDOMRange */ range); // possibly returns text including "hidden" elemens
 
 	AString sanitize(in AString regexpPattern);
 	AString sanitizeForTransformInput(in AString regexpPattern);
@@ -44,18 +48,18 @@ interface pIXMigemoTextUtils : nsISupports
 
 	AString reverseRegExp(in AString regexpPattern); /* obsolete */
 
-	nsIDOMRange getFoundRange(in nsIDOMWindow frame);
-	boolean isRangeOverlap(in nsIDOMRange baseRange, in nsIDOMRange targetRange);
-	unsigned short compareRangePosition(in nsIDOMRange baseRange, in nsIDOMRange targetRange);
-	void delayedSelect(in nsIDOMNode anchorNode, in unsigned long length, in boolean isHighlight);
+	nsIDOMNSRange getFoundRange(in nsISupports /* nsIDOMWindow */ frame);
+	boolean isRangeOverlap(in nsISupports /* nsIDOMRange */ baseRange, in nsISupports /* nsIDOMRange */ targetRange);
+	unsigned short compareRangePosition(in nsISupports /* nsIDOMRange */ baseRange, in nsISupports /* nsIDOMRange */ targetRange);
+	void delayedSelect(in nsISupports /* nsIDOMNode */ anchorNode, in unsigned long length, in boolean isHighlight);
 
-	void selectContent(in nsIDOMNode parentNode, in unsigned long startOffset, in unsigned long length, in boolean isHighlight);
-	void selectContentWithDelay(in nsIDOMNode parentNode, in unsigned long startOffset, in unsigned long length, in boolean isHighlight);
+	void selectContent(in nsISupports /* nsIDOMNode */ parentNode, in unsigned long startOffset, in unsigned long length, in boolean isHighlight);
+	void selectContentWithDelay(in nsISupports /* nsIDOMNode */ parentNode, in unsigned long startOffset, in unsigned long length, in boolean isHighlight);
 
-	void setSelectionLook(in nsIDOMDocument document, in boolean changeColor);
-	void setSelectionLookForDocument(in nsIDOMDocument document, in boolean changeColor);
-	void setSelectionLookForNode(in nsIDOMNode selectionContainer, in boolean changeColor);
-	void setSelectionLookForRange(in nsIDOMRange selectionRange, in boolean changeColor);
+	void setSelectionLook(in nsISupports /* nsIDOMDocument */ document, in boolean changeColor);
+	void setSelectionLookForDocument(in nsISupports /* nsIDOMDocument */ document, in boolean changeColor);
+	void setSelectionLookForNode(in nsISupports /* nsIDOMNode */ selectionContainer, in boolean changeColor);
+	void setSelectionLookForRange(in nsISupports /* nsIDOMRange */ selectionRange, in boolean changeColor);
 };
 
 [scriptable, uuid(159add54-cdf2-11db-8314-0800200c9a66)]
@@ -199,35 +203,35 @@ interface pIXMigemo : pIXMigemoEngine
 	AString trimFunctionalInput(in AString input);
 
 	/* find by regular expression, and return the first item of found terms as DOM2 Range. */
-	nsIDOMRange regExpFind(
+	nsIDOMNSRange regExpFind(
 		in AString regExpSource,
 		in AString regExpFlags,
-		in nsIDOMRange findRange,
-		in nsIDOMRange startPoint,
-		in nsIDOMRange endPoint,
+		in nsISupports /* nsIDOMRange */ findRange,
+		in nsISupports /* nsIDOMRange */ startPoint,
+		in nsISupports /* nsIDOMRange */ endPoint,
 		in boolean findBackwards
 	);
 	/* this returns all of found terms as an array. */
 	nsIVariant regExpFindArr(
 		in AString regExpSource,
 		in AString regExpFlags,
-		in nsIDOMRange findRange,
-		in nsIDOMRange startPoint,
-		in nsIDOMRange endPoint
+		in nsISupports /* nsIDOMRange */ findRange,
+		in nsISupports /* nsIDOMRange */ startPoint,
+		in nsISupports /* nsIDOMRange */ endPoint
 	);
 
 	nsIVariant regExpHighlightText(
 		in AString regExpSource,
 		in AString regExpFlags,
-		in nsIDOMRange findRange,
-		in nsIDOMNode surroundNode
+		in nsISupports /* nsIDOMRange */ findRange,
+		in nsISupports /* nsIDOMNode */ surroundNode
 	);
 
 	nsIVariant regExpHighlightTextWithSelection(
 		in AString regExpSource,
 		in AString regExpFlags,
-		in nsIDOMRange findRange,
-		in nsIDOMNode surroundNode
+		in nsISupports /* nsIDOMRange */ findRange,
+		in nsISupports /* nsIDOMNode */ surroundNode
 	);
 
 	nsIVariant flattenRegExp(
@@ -299,11 +303,11 @@ interface pIXMigemoFind : nsIObserver
 	const unsigned short FIND_IN_LINK     = 128;
 	const unsigned short FIND_IN_EDITABLE = 256;
 
-	void setSelectionLook(in nsIDOMDocument document, in boolean changeColor);
+	void setSelectionLook(in nsISupports /* nsIDOMDocument */ document, in boolean changeColor);
 
-	void scrollSelectionToCenter(in nsIDOMWindow frame);
+	void scrollSelectionToCenter(in nsISupports /* nsIDOMWindow */ frame);
 
-	nsIDOMNode getParentLinkFromRange(in nsIDOMRange range);
+	nsIDOMNode getParentLinkFromRange(in nsISupports /* nsIDOMRange */ range);
 
 	void clear(in boolean focusToFoundTarget);
 	void exitFind(in boolean focusToFoundTarget);

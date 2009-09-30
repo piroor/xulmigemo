@@ -538,6 +538,7 @@ var XMigemoHighlight = {
 
 		var range = XMigemoUI.textUtils.getFoundRange(aFrame) ||
 					XMigemoUI.lastFoundRange;
+		if (range) range = range.QueryInterface(Components.interfaces.nsIDOMRange);
 		if (range && !this.findParentEditable(range)) {
 			var node  = range.startContainer;
 			try {

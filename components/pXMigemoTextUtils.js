@@ -102,6 +102,7 @@ pXMigemoTextUtils.prototype = {
  
 	range2TextInternal : function(aRange, aLazy) 
 	{
+		aRange = aRange.QueryInterface(Ci.nsIDOMRange);
 		var doc = aRange.startContainer;
 		if (doc.ownerDocument) doc = doc.ownerDocument;
 
@@ -395,6 +396,7 @@ pXMigemoTextUtils.prototype = {
   
 	setSelectionLook : function(aDocument, aChangeColor) 
 	{
+		aDocument = aDocument.QueryInterface(Ci.nsIDOMDocument);
 		var range = this.getFoundRange(aDocument.defaultView);
 		if (range) this.setSelectionLookForRange(range, aChangeColor);
 		this.setSelectionLookForDocument(aDocument, aChangeColor);
@@ -419,11 +421,13 @@ pXMigemoTextUtils.prototype = {
  
 	setSelectionLookForDocument : function(aDocument, aChangeColor) 
 	{
+		aDocument = aDocument.QueryInterface(Ci.nsIDOMDocument);
 		this.setSelectionLookInternal(this.getSelectionController(aDocument.defaultView), aChangeColor);
 	},
  
 	setSelectionLookForNode : function(aNode, aChangeColor) 
 	{
+		aNode = aNode.QueryInterface(Ci.nsIDOMNode);
 		try {
 			var editor;
 			var node = aNode;
@@ -448,6 +452,7 @@ pXMigemoTextUtils.prototype = {
  
 	setSelectionLookForRange : function(aRange, aChangeColor) 
 	{
+		aRange = aRange.QueryInterface(Ci.nsIDOMRange);
 		this.setSelectionLookForNode(aRange.startContainer, aChangeColor);
 	},
   
@@ -456,6 +461,7 @@ pXMigemoTextUtils.prototype = {
 	getFoundRange : function(aFrame) 
 	{
 		if (!aFrame) return null;
+		aFrame = aFrame.QueryInterface(Ci.nsIDOMWindow);
 		try {
 			var selCon = this.getSelectionController(aFrame);
 			if (selCon.getDisplaySelection() == selCon.SELECTION_ATTENTION) {
@@ -504,11 +510,12 @@ pXMigemoTextUtils.prototype = {
  
 	isRangeOverlap : function(aBaseRange, aTargetRange) 
 	{
-		if (
-			!aBaseRange ||
-			!aTargetRange ||
-			aBaseRange.startContainer.ownerDocument != aTargetRange.startContainer.ownerDocument
-			)
+		if (!aBaseRange || !aTargetRange)
+			return false;
+
+		aBaseRange = aBaseRange.QueryInterface(Ci.nsIDOMRange);
+		aTargetRange = aTargetRange.QueryInterface(Ci.nsIDOMRange);
+		if (aBaseRange.startContainer.ownerDocument != aTargetRange.startContainer.ownerDocument)
 			return false;
 
 		try {
@@ -528,12 +535,13 @@ pXMigemoTextUtils.prototype = {
 	// for sorting
 	compareRangePosition : function(aBaseRange, aTargetRange) 
 	{
-		if (
-			!aBaseRange ||
-			!aTargetRange ||
-			aBaseRange.startContainer.ownerDocument != aTargetRange.startContainer.ownerDocument
-			)
-			return 0;
+		if (!aBaseRange || !aTargetRange)
+			return false;
+
+		aBaseRange = aBaseRange.QueryInterface(Ci.nsIDOMRange);
+		aTargetRange = aTargetRange.QueryInterface(Ci.nsIDOMRange);
+		if (aBaseRange.startContainer.ownerDocument != aTargetRange.startContainer.ownerDocument)
+			return false;
 
 		try {
 			if (aBaseRange.compareBoundaryPoints(aBaseRange.START_TO_END, aTargetRange) < 0)
@@ -548,6 +556,8 @@ pXMigemoTextUtils.prototype = {
  
 	delayedSelect : function(aNode, aSelectLength, aIsHighlight) 
 	{
+		aNode = aNode.QueryInterface(Ci.nsIDOMNode);
+
 		/*
 			現在の選択範囲の始点が、normalize()後のテキストノードの中で
 			何文字目になるかを求める
@@ -591,6 +601,8 @@ pXMigemoTextUtils.prototype = {
 	
 	selectContent : function(aParent, aStartOffset, aLength, aHighlight) 
 	{
+		aParent = aParent.QueryInterface(Ci.nsIDOMNode);
+
 		var doc = aParent.ownerDocument;
 
 		// 始点の位置まで移動して、始点を設定
@@ -634,6 +646,7 @@ pXMigemoTextUtils.prototype = {
 	
 	selectContentWithDelay : function(aParent, aStartOffset, aSelectLength, aIsHighlight) 
 	{
+		aParent = aParent.QueryInterface(Ci.nsIDOMNode);
 		if (this.selectContentWithDelayTask)
 			this.selectContentWithDelayTask.cancel();
 		this.selectContentWithDelayTask = new DelayedTask(

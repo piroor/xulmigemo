@@ -190,7 +190,8 @@ var XMigemoUI = {
   
 	get target() 
 	{
-		return XMigemoFind.target;
+		var target = XMigemoFind.target;
+		return target ? target.QueryInterface(Components.interfaces.nsIDOMNode) : null ;
 	},
 	
 	get targetBox() 
@@ -430,7 +431,7 @@ var XMigemoUI = {
 				)
 				range = sel.getRangeAt(0);
 		}
-		if (range) return range;
+		if (range) return range.QueryInterface(Components.interfaces.nsIDOMRange);
 
 		Array.slice(aFrame.frames)
 			.some(function(aFrame) {
@@ -1178,6 +1179,7 @@ var XMigemoUI = {
 			var range = selection.getRangeAt(0);
 			var foundLink = XMigemoFind.getParentLinkFromRange(range);
 			if (foundLink) {
+				foundLink = foundLink.QueryInterface(Components.interfaces.nsIDOMNode);
 				var event = aFrame.document.createEvent('KeyEvents');
 				event.initKeyEvent(
 					aEvent.type,
@@ -1321,7 +1323,10 @@ var XMigemoUI = {
 		if (this.isQuickFind) {
 			this.clearFocusRing();
 			var link = XMigemoFind.getParentLinkFromRange(this.lastFoundRange);
-			if (link) link.setAttribute(this.kFOCUSED, true);
+			if (link) {
+				link = link.QueryInterface(Components.interfaces.nsIDOMNode);
+				link.setAttribute(this.kFOCUSED, true);
+			}
 		}
 
 		gFindBar.updateStatus(statusRes, !(aEvent.findFlag & XMigemoFind.FIND_BACK));
@@ -2229,6 +2234,7 @@ var XMigemoUI = {
 					<![CDATA[
 					{
 						var foundRange = XMigemoUI.shouldRebuildSelection ? XMigemoUI.textUtils.getFoundRange(arguments[0].startContainer.ownerDocument.defaultView) : null ;
+						if (foundRange) foundRange = foundRange.QueryInterface(Components.interfaces.nsIDOMRange);
 						var foundLength = (XMigemoUI.shouldRebuildSelection && XMigemoUI.textUtils.isRangeOverlap(foundRange, arguments[0])) ? foundRange.toString().length : 0 ;
 					]]>
 				).replace(
@@ -2438,7 +2444,10 @@ var XMigemoUI = {
 
 		this.clearFocusRing();
 		var link = XMigemoFind.getParentLinkFromRange(this.lastFoundRange);
-		if (link) link.focus();
+		if (link) {
+			link = link.QueryInterface(Components.interfaces.nsIDOMNode);
+			link.focus();
+		}
 	},
   
 /* highlight */ 
@@ -2514,7 +2523,7 @@ var XMigemoUI = {
 						(selection.rangeCount ? selection.getRangeAt(0) : null )
 					) :
 					null ;
-				foundLength = foundRange ? foundRange.toString().length : 0 ;
+				foundLength = foundRange ? foundRange.QueryInterface(Components.interfaces.nsIDOMRange).toString().length : 0 ;
 			}
 
 			if (node.getAttribute('class') == '__mozilla-findbar-animation') {
