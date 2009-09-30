@@ -1,17 +1,28 @@
 utils.include('pXMigemoClasses.inc.js');
 
 var core;
+var range;
+function destroyRange()
+{
+	if (range) {
+		range.detach();
+		range = null;
+	}
+}
 
 function setUp()
 {
 	core = new pXMigemoCore();
 	core.init('ja');
+	range = null;
 }
 
 function tearDown()
 {
 	core.destroy();
 	core = null;
+
+	destroyRange();
 }
 
 function test_getRegExpFor()
@@ -55,7 +66,7 @@ function test_regExpFind_forHiddenTargets()
 {
 	yield Do(utils.loadURI('../fixtures/containsHiddenMatchTarget.html'));
 
-	var range = content.document.createRange();
+	range = content.document.createRange();
 	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
 	var foundRange = core.regExpFind('a|b|c', 'gi', range, null, null, false);
 	assert.equals('a', foundRange.toString());
@@ -64,13 +75,15 @@ function test_regExpFind_forHiddenTargets()
 	yield 100;
 	foundRange = core.regExpFind('a|b|c', 'gi', range, null, null, false);
 	assert.equals('b', foundRange.toString());
+
+	destroyRange();
 }
 
 function test_regExpFindArr_forHiddenTargets()
 {
 	yield Do(utils.loadURI('../fixtures/containsHiddenMatchTarget.html'));
 
-	var range = content.document.createRange();
+	range = content.document.createRange();
 	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
 	var array = core.regExpFindArr('a|b|c', 'gi', range, null, null);
 	assert.equals(4, array.length);
@@ -81,34 +94,93 @@ function test_regExpFindArr_forHiddenTargets()
 	array = core.regExpFindArr('a|b|c', 'gi', range, null, null);
 	assert.equals(5, array.length);
 	assert.equals(['b', 'a', 'b', 'a', 'c'], array.map(function(aRange) { return aRange.toString(); }));
+
+	destroyRange();
 }
 
+function test_regExpHighlightText()
+{
+	function assertMatchCount(aTerm, aFlags, aCount, aRoot)
+	{
+		var surroundNode = content.document.createElement('span');
+		surroundNode.setAttribute('class', 'highlight');
+		surroundNode.setAttribute('style', 'background: blue;');
+
+		var expression = 'count(descendant::*[@class="highlight"])';
+
+		range = content.document.createRange();
+		range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
+		core.regExpHighlightText(aTerm, aFlags, range, surroundNode);
+		assert.equals(aCount, $X(expression, aRoot || content.document, XPathResult.NUMBER_TYPE));
+
+		destroyRange();
+	}
+
+	yield Do(utils.loadURI('../fixtures/caseSensitive.html'));
+	assertMatchCount('firefox', '', 3);
+
+	yield Do(utils.loadURI('../fixtures/caseSensitive.html'));
+	assertMatchCount('firefox', 'i', 9);
+
+	yield Do(utils.loadURI('../fixtures/keyEventTest.html'));
+	var input = content.document.getElementsByTagName('input')[0];
+	assertMatchCount('Text', '', 0,
+		input.QueryInterface(Ci.nsIDOMNSEditableElement)
+			.editor
+			.rootElement);
+
+	yield Do(utils.loadURI('../fixtures/keyEventTest.html'));
+	input = content.document.getElementsByTagName('input')[0];
+	assertMatchCount('Text', 'i', 1,
+		input.QueryInterface(Ci.nsIDOMNSEditableElement)
+			.editor
+			.rootElement);
+
+	destroyRange();
+}
 
 test_regExpHighlightTextWithSelection.description = 'Firefox 3.1以降での選択範囲によるハイライト表示';
 function test_regExpHighlightTextWithSelection()
 {
+	function assertMatchCount(aTerm, aFlags, aCount, aSelCon)
+	{
+		range = content.document.createRange();
+		range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
+		core.regExpHighlightTextWithSelection(aTerm, aFlags, range, null);
+
+		var selCon = aSelCon || content.QueryInterface(Ci.nsIInterfaceRequestor)
+							.getInterface(Ci.nsIWebNavigation)
+							.QueryInterface(Ci.nsIDocShell)
+							.QueryInterface(Ci.nsIInterfaceRequestor)
+							.getInterface(Ci.nsISelectionDisplay)
+							.QueryInterface(Ci.nsISelectionController);
+		var selection = selCon.getSelection(selCon.SELECTION_FIND);
+		assert.equals(aCount, selection.rangeCount);
+
+		destroyRange();
+	}
+
+	yield Do(utils.loadURI('../fixtures/caseSensitive.html'));
+	assertMatchCount('firefox', '', 3);
+
+	yield Do(utils.loadURI('../fixtures/caseSensitive.html'));
+	assertMatchCount('firefox', 'i', 9);
+
 	yield Do(utils.loadURI('../fixtures/keyEventTest.html'));
-
-	var range = content.document.createRange();
-	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
-	core.regExpHighlightTextWithSelection('text', '', range, null);
-
-	var selCon = content.QueryInterface(Ci.nsIInterfaceRequestor)
-						.getInterface(Ci.nsIWebNavigation)
-						.QueryInterface(Ci.nsIDocShell)
-						.QueryInterface(Ci.nsIInterfaceRequestor)
-						.getInterface(Ci.nsISelectionDisplay)
-						.QueryInterface(Ci.nsISelectionController);
-
-	var selection = selCon.getSelection(selCon.SELECTION_FIND);
-	assert.notEquals(0, selection.rangeCount);
-
 	var input = content.document.getElementsByTagName('input')[0];
+	var selCon = input.QueryInterface(Ci.nsIDOMNSEditableElement)
+				.editor
+				.selectionController;
+	assertMatchCount('Text', '', 0, selCon);
+
+	yield Do(utils.loadURI('../fixtures/keyEventTest.html'));
+	input = content.document.getElementsByTagName('input')[0];
 	selCon = input.QueryInterface(Ci.nsIDOMNSEditableElement)
 				.editor
 				.selectionController;
-	selection = selCon.getSelection(selCon.SELECTION_FIND);
-	assert.notEquals(0, selection.rangeCount);
+	assertMatchCount('Text', 'i', 1, selCon);
+
+	destroyRange();
 }
 if (!('SELECTION_FIND' in Components.interfaces.nsISelectionController)) {
 	test_regExpHighlightTextWithSelection.priority = 'never';
