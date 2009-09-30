@@ -69,8 +69,7 @@ var XMigemoCore = {
 		if (aRegExp.multiline) flags.push('m');
 		flags = flags.join('');
 
-		var range = this.XMigemo.regExpFind(aRegExp.source, flags, aFindRange, aStartPoint, aEndPoint, (aFindBackwards ? true : false ));
-		return range ? range.QueryInterface(Components.interfaces.nsIDOMRange) : null ;
+		return this.XMigemo.regExpFind(aRegExp.source, flags, aFindRange, aStartPoint, aEndPoint, (aFindBackwards ? true : false ));
 	},
  
 	regExpFindArr : function(aRegExp, aFindRange, aStartPoint, aEndPoint) 
