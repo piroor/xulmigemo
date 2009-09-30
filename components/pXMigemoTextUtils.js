@@ -51,7 +51,7 @@ pXMigemoTextUtils.prototype = {
  
 	brushUpTerms : function(aTerms) 
 	{
-		return (aTerms || [])
+		return Array.slice(aTerms || [])
 				.sort()
 				.join('\n')
 				.toLowerCase()
@@ -61,7 +61,7 @@ pXMigemoTextUtils.prototype = {
 	kBRUSH_UP_PATTERN : /^(.+)(\n\1$)+/gim,
 	brushUpTermsWithCase : function(aTerms)
 	{
-		return (aTerms || [])
+		return Array.slice(aTerms || [])
 				.sort()
 				.join('\n')
 				.replace(this.kBRUSH_UP_PATTERN_CASE_SENSITIVE, '$1')
@@ -455,6 +455,7 @@ pXMigemoTextUtils.prototype = {
 	
 	getFoundRange : function(aFrame) 
 	{
+		if (!aFrame) return null;
 		try {
 			var selCon = this.getSelectionController(aFrame);
 			if (selCon.getDisplaySelection() == selCon.SELECTION_ATTENTION) {
