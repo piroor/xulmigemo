@@ -2651,7 +2651,7 @@ var XMigemoUI = {
 		if (!this.highlightSelectionOnly && !aBaseNode)
 			aBaseNode = this.createNewHighlight(doc);
 
-		var flags = this.shouldCaseSensitive ? 'i' : '' ;
+		var flags = this.shouldCaseSensitive ? '' : 'i' ;
 		var ranges = !aDoHighlight ?
 				[XMigemoFind.core.regExpFind(regexp, flags, aRange, null, null, false)] :
 			this.highlightSelectionAvailable ?

@@ -541,9 +541,13 @@ dump('STEP 2: '+array.toSource()+'\n');
 			return arrResults;
 		}
 
-		var terms = this.textUtils.brushUpTerms(text.match(regExp));
+		var terms = text.match(regExp);
+		terms = regExp.ignoreCase ?
+				this.textUtils.brushUpTerms(terms) :
+				this.textUtils.brushUpTermsWithCase(terms) ;
 
 		this.mFind.findBackwards = false;
+		this.mFind.caseSensitive = !regExp.ignoreCase;
 
 		var selCon = (aUseSelection && 'SELECTION_FIND' in Ci.nsISelectionController) ?
 						doc.defaultView
