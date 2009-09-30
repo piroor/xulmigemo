@@ -399,7 +399,7 @@ function test_getMatchedTermsFromRegExps()
 		service.getMatchedTermsFromRegExps(
 			[/日本[人語]?/gim, /英語?/gim],
 			'日本、日本人、日本語、英国、英語'
-		);
+		)
 	);
 }
 
