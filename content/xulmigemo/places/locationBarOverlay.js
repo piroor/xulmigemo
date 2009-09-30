@@ -533,8 +533,11 @@ var XMigemoLocationBarOverlay = {
 				.some(function(aRegExp) {
 					let match = aSources.match(aRegExp);
 					if (match) {
+						let matchedTerms = aRegExp.ignoreCase ?
+								utils.brushUpTerms(match) :
+								utils.brushUpTermsWithCase(match) ;
 						terms.push(
-							utils.brushUpTerms(match)
+							matchedTerms
 								.filter(function(aTerm) {
 									return utils.trim(aTerm);
 								})
