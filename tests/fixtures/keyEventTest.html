@@ -29,7 +29,7 @@ function init()
 </script>
 
 
-<p id="first">This is a sample text and a <a href="#link">sample link</a>.</p>
+<p id="first">This is a sample text and a <a href="#link" onfocus="this.setAttribute('focus-count', parseInt(this.getAttribute('focus-count') || 0)+1);">sample link</a>.</p>
 <p id="single-row">single-row field
 <br /><input type="text" size="50" value="text in input field" id="single-row1"/>
 <br /><input type="password" size="50" value="text in password field" id="password"/></p>
