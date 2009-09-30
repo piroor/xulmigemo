@@ -25,6 +25,7 @@ interface pIXMigemoTextUtils : nsISupports
 {
 	AString trim(in AString input);
 	nsIVariant brushUpTerms(in nsIVariant termsArray);
+	nsIVariant brushUpTermsWithCase(in nsIVariant termsArray);
 	nsIVariant splitByBoundaries(in AString input);
 
 	AString range2Text(in nsIDOMRange range);

@@ -908,9 +908,13 @@ mydump("setSelectionAndScroll");
 	{
 		if (!Prefs.getBoolPref('xulmigemo.scrollSelectionToCenter')) return;
 
-		var frame = aFrame ||
-					this.getSelectionFrame(this.document.commandDispatcher.focusedWindow ||
-					this.window._content);
+		var frame = aFrame;
+		if (!frame) {
+			frame = this.document.commandDispatcher.focusedWindow;
+			if (!frame || frame.top == this.document.defaultView)
+				frame = this.window._content;
+			frame = this.getSelectionFrame(frame);
+		}
 		if (!frame) return;
 
 		var selection = frame.getSelection();

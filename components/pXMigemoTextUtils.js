@@ -59,6 +59,15 @@ pXMigemoTextUtils.prototype = {
 				.split('\n');
 	},
 	kBRUSH_UP_PATTERN : /^(.+)(\n\1$)+/gim,
+	brushUpTermsWithCase : function(aTerms)
+	{
+		return (aTerms || [])
+				.sort()
+				.join('\n')
+				.replace(this.kBRUSH_UP_PATTERN_CASE_SENSITIVE, '$1')
+				.split('\n');
+	},
+	kBRUSH_UP_PATTERN_CASE_SENSITIVE : /^(.+)(\n\1$)+/gm,
  
 	splitByBoundaries : function(aString) 
 	{
@@ -213,9 +222,10 @@ pXMigemoTextUtils.prototype = {
 	getMatchedTermsFromSource : function(aRegExp, aSource) 
 	{
 		var regexp;
+		var flags = '';
 		if (this.isRegExp(aRegExp)) {
 			var source = this.extractRegExpSource(aRegExp);
-			var flags = aRegExp.match(/[^\/]+$/);
+			flags = aRegExp.match(/[^\/]+$/);
 			if (flags && flags.indexOf('g') < 0)
 				flags += 'g';
 			regexp = new RegExp(source, flags || 'gim');
@@ -224,7 +234,9 @@ pXMigemoTextUtils.prototype = {
 			regexp = new RegExp(aRegExp, 'gim');
 		}
 		var result = (aSource || '').match(regexp) || [];
-		return this.brushUpTerms(result);
+		return flags.indexOf('i') < 0 ?
+				this.brushUpTermsWithCase(result) :
+				this.brushUpTerms(result) ;
 	},
  
 	getORFindRegExpFromTerms : function(aTerms) 
