@@ -914,6 +914,7 @@ mydump("setSelectionAndScroll");
 		if (!frame) return;
 
 		var selection = frame.getSelection();
+		if (!selection || !selection.rangeCount) return;
 		var elem;
 
 		var padding = Math.max(0, Math.min(100, Prefs.getIntPref('xulmigemo.scrollSelectionToCenter.padding')));
