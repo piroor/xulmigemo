@@ -41,9 +41,9 @@ var XMigemoLocationBarOverlay = {
 	delay     : 250,
 	useThread : false,
 
-	FIND_MODE_NATIVE : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
-	FIND_MODE_MIGEMO : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
-	FIND_MODE_REGEXP : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP,
+	FIND_MODE_NATIVE : Components.interfaces.xmIXMigemoFind.FIND_MODE_NATIVE,
+	FIND_MODE_MIGEMO : Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO,
+	FIND_MODE_REGEXP : Components.interfaces.xmIXMigemoFind.FIND_MODE_REGEXP,
 
 	kITEM_ACCEPT  : 1,
 	kITEM_SKIP    : 2,
@@ -193,7 +193,7 @@ var XMigemoLocationBarOverlay = {
 			.getService(Components.interfaces.nsIThreadManager),
 	TextUtils : Components
 			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-			.getService(Components.interfaces.pIXMigemoTextUtils),
+			.getService(Components.interfaces.xmIXMigemoTextUtils),
 
 	kXULNS : 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
  

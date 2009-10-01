@@ -113,7 +113,7 @@ var XMigemoCore = {
 			try {
 				this._XMigemo = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/factory;1']
-					.getService(Components.interfaces.pIXMigemoFactory)
+					.getService(Components.interfaces.xmIXMigemoFactory)
 					.getService('ja');
 			}
 			catch(e) {
@@ -129,7 +129,7 @@ var XMigemoCore = {
 			try {
 				this._TextUtils = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-					.getService(Components.interfaces.pIXMigemoTextUtils);
+					.getService(Components.interfaces.xmIXMigemoTextUtils);
 			}
 			catch(e) {
 				throw e;

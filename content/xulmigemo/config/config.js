@@ -28,8 +28,8 @@ function initDisableIMECheck()
 	var quickFind = parseInt(gQuickFind.value);
 
 	gDisableIME.checked = (
-		(normalFind & Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO) &&
-		(quickFind & Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO)
+		(normalFind & Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO) &&
+		(quickFind & Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO)
 	) ? true : false ;
 }
 

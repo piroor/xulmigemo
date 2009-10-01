@@ -1,7 +1,7 @@
 /* This depends on: 
-	pIXMigemoFileAccess
-	pIXMigemoTextUtils
-	pIXMigemoTextTransform
+	xmIXMigemoFileAccess
+	xmIXMigemoTextUtils
+	xmIXMigemoTextTransform
 */
 var DEBUG = false;
 var TEST = false;
@@ -14,13 +14,13 @@ var ObserverService = Cc['@mozilla.org/observer-service;1']
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
 
-var pIXMigemoDictionary = Ci.pIXMigemoDictionary;
+var xmIXMigemoDictionary = Ci.xmIXMigemoDictionary;
  
-function pXMigemoDictionary() { 
-	mydump('create instance pIXMigemoDictionary(lang=*)');
+function xmXMigemoDictionary() { 
+	mydump('create instance xmIXMigemoDictionary(lang=*)');
 }
 
-pXMigemoDictionary.prototype = {
+xmXMigemoDictionary.prototype = {
 	lang : '',
 
 	get contractID() {
@@ -37,19 +37,19 @@ pXMigemoDictionary.prototype = {
 		return this;
 	},
 	 
-	// pIXMigemoDictionary 
+	// xmIXMigemoDictionary 
 	 
 	initialized : false, 
  
 	get textUtils() 
 	{
 		if (!this._textUtils) {
-			if (TEST && pXMigemoTextUtils) {
-				this._textUtils = new pXMigemoTextUtils();
+			if (TEST && xmXMigemoTextUtils) {
+				this._textUtils = new xmXMigemoTextUtils();
 			}
 			else {
 				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.pIXMigemoTextUtils);
+						.getService(Ci.xmIXMigemoTextUtils);
 			}
 		}
 		return this._textUtils;
@@ -59,12 +59,12 @@ pXMigemoDictionary.prototype = {
 	get textTransform() 
 	{
 		if (!this._textTransform) {
-			if (TEST && pXMigemoTextTransform) {
-				this._textTransform = new pXMigemoTextTransform();
+			if (TEST && xmXMigemoTextTransform) {
+				this._textTransform = new xmXMigemoTextTransform();
 			}
 			else {
 				this._textTransform = Cc['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*']
-						.getService(Ci.pIXMigemoTextTransform);
+						.getService(Ci.xmIXMigemoTextTransform);
 			}
 		}
 		return this._textTransform;
@@ -74,24 +74,24 @@ pXMigemoDictionary.prototype = {
 	get fileUtils() 
 	{
 		if (!this._fileUtils) {
-			if (TEST && pXMigemoFileAccess) {
-				this._fileUtils = new pXMigemoFileAccess();
+			if (TEST && xmXMigemoFileAccess) {
+				this._fileUtils = new xmXMigemoFileAccess();
 			}
 			else {
 				this._fileUtils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
-						.getService(Ci.pIXMigemoFileAccess);
+						.getService(Ci.xmIXMigemoFileAccess);
 			}
 		}
 		return this._fileUtils;
 	},
 	_fileUtils : null,
  
-	RESULT_OK                      : pIXMigemoDictionary.RESULT_OK, 
-	RESULT_ERROR_INVALID_INPUT     : pIXMigemoDictionary.RESULT_ERROR_INVALID_INPUT,
-	RESULT_ERROR_ALREADY_EXIST     : pIXMigemoDictionary.RESULT_ERROR_ALREADY_EXIST,
-	RESULT_ERROR_NOT_EXIST         : pIXMigemoDictionary.RESULT_ERROR_NOT_EXIST,
-	RESULT_ERROR_NO_TARGET         : pIXMigemoDictionary.RESULT_ERROR_NO_TARGET,
-	RESULT_ERROR_INVALID_OPERATION : pIXMigemoDictionary.RESULT_ERROR_INVALID_OPERATION,
+	RESULT_OK                      : xmIXMigemoDictionary.RESULT_OK, 
+	RESULT_ERROR_INVALID_INPUT     : xmIXMigemoDictionary.RESULT_ERROR_INVALID_INPUT,
+	RESULT_ERROR_ALREADY_EXIST     : xmIXMigemoDictionary.RESULT_ERROR_ALREADY_EXIST,
+	RESULT_ERROR_NOT_EXIST         : xmIXMigemoDictionary.RESULT_ERROR_NOT_EXIST,
+	RESULT_ERROR_NO_TARGET         : xmIXMigemoDictionary.RESULT_ERROR_NO_TARGET,
+	RESULT_ERROR_INVALID_OPERATION : xmIXMigemoDictionary.RESULT_ERROR_INVALID_OPERATION,
  
 /* File I/O */ 
 	 
@@ -152,7 +152,7 @@ pXMigemoDictionary.prototype = {
 
 
 		this.initialized = true;
-		mydump('pIXMigemoDictionary: loaded');
+		mydump('xmIXMigemoDictionary: loaded');
 
 		return !error;
 	},
@@ -325,7 +325,9 @@ pXMigemoDictionary.prototype = {
   
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(pIXMigemoDictionary) &&
+		if (!aIID.equals(xmIXMigemoDictionary) &&
+			!aIID.equals(Ci.xmIXMigemoDictionaryUniversal) &&
+			!aIID.equals(Ci.pIXMigemoDictionary) &&
 			!aIID.equals(Ci.pIXMigemoDictionaryUniversal) &&
 			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
@@ -342,7 +344,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
+		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -364,15 +366,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoDictionary.prototype.classID,
-			contractID : pXMigemoDictionary.prototype.contractID,
-			className  : pXMigemoDictionary.prototype.classDescription,
+			CID        : xmXMigemoDictionary.prototype.classID,
+			contractID : xmXMigemoDictionary.prototype.contractID,
+			className  : xmXMigemoDictionary.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoDictionary()).QueryInterface(aIID);
+					return (new xmXMigemoDictionary()).QueryInterface(aIID);
 				}
 			}
 		}

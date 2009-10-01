@@ -1,4 +1,4 @@
-utils.include('pXMigemoClasses.inc.js');
+utils.include('xmXMigemoClasses.inc.js');
 
 var core;
 var range;
@@ -12,7 +12,7 @@ function destroyRange()
 
 function setUp()
 {
-	core = new pXMigemoCore();
+	core = new xmXMigemoCore();
 	core.init('ja');
 	range = null;
 }

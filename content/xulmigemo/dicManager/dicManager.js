@@ -4,7 +4,7 @@ const Prefs = Components
 
 const XMigemo = Components
 	.classes['@piro.sakura.ne.jp/xmigemo/engine;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-	.getService(Components.interfaces.pIXMigemoEngine);
+	.getService(Components.interfaces.xmIXMigemoEngine);
 
 const XMigemoDic = XMigemo.dictionary;
 
@@ -364,7 +364,7 @@ function removeTermList(aAll)
 
 				const XMigemoTextUtils = Components
 						.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Components.interfaces.pIXMigemoTextUtils);
+						.getService(Components.interfaces.xmIXMigemoTextUtils);
 
 				gListKeys.selectedItem.value = gListKeys.selectedItem.value.replace(new RegExp('^'+XMigemoTextUtils.sanitize(term)+'$', 'm'), '');
 			}

@@ -1,11 +1,11 @@
-utils.include('pXMigemoClasses.inc.js');
+utils.include('xmXMigemoClasses.inc.js');
 
 var findModule;
 
 function setUp()
 {
 	yield utils.setUpTestWindow();
-	findModule = new pXMigemoFind();
+	findModule = new xmXMigemoFind();
 	findModule.target = utils.getTestWindow().gBrowser;
 	findModule.findMode = findModule.FIND_MODE_MIGEMO;
 }

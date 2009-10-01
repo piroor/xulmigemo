@@ -11,7 +11,7 @@ var XMigemoPlaces = {
  
 	TextUtils : Components 
 			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-			.getService(Components.interfaces.pIXMigemoTextUtils),
+			.getService(Components.interfaces.xmIXMigemoTextUtils),
  
 	isValidInput : function(aInput) 
 	{
@@ -31,7 +31,7 @@ var XMigemoPlaces = {
 		var info = {
 				input            : aInput,
 				findFlag         : 0,
-				findMode         : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
+				findMode         : Components.interfaces.xmIXMigemoFind.FIND_MODE_NATIVE,
 				findRegExps      : [],
 				termsRegExp      : null,
 				exceptionsRegExp : null
@@ -49,7 +49,7 @@ var XMigemoPlaces = {
 			var source = this.TextUtils.extractRegExpSource(findInput);
 			info.termsRegExp = new RegExp(source, flags);
 			info.findRegExps = [info.termsRegExp];
-			info.findMode = Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP;
+			info.findMode = Components.interfaces.xmIXMigemoFind.FIND_MODE_REGEXP;
 		}
 		else {
 			var termsRegExp = {};
@@ -61,7 +61,7 @@ var XMigemoPlaces = {
 			info.termsRegExp = new RegExp(termsRegExp.value, 'gim');
 			if (exceptionsRegExp.value)
 				info.exceptionsRegExp = new RegExp(exceptionsRegExp.value, 'gim');
-			info.findMode = Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO;
+			info.findMode = Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO;
 		}
 
 		return info;

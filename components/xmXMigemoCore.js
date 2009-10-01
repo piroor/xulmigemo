@@ -1,8 +1,8 @@
 /* This depends on: 
-	pIXMigemoEngine
-	pIXMigemoCache
-	pIXMigemoDicManager
-	pIXMigemoTextUtils
+	xmIXMigemoEngine
+	xmIXMigemoCache
+	xmIXMigemoDicManager
+	xmIXMigemoTextUtils
 */
 var DEBUG = false;
 var TEST = false;
@@ -15,11 +15,11 @@ var ObserverService = Cc['@mozilla.org/observer-service;1']
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
-function pXMigemoCore() { 
-	mydump('create instance pIXMigemo');
+function xmXMigemoCore() { 
+	mydump('create instance xmIXMigemo');
 }
 
-pXMigemoCore.prototype = {
+xmXMigemoCore.prototype = {
 	get contractID() {
 		return '@piro.sakura.ne.jp/xmigemo/core;1';
 	},
@@ -41,12 +41,12 @@ pXMigemoCore.prototype = {
 	get dictionaryManager() 
 	{
 		if (!this._dictionaryManager) {
-			if (TEST && pXMigemoDicManager) {
-				this._dictionaryManager = new pXMigemoDicManager();
+			if (TEST && xmXMigemoDicManager) {
+				this._dictionaryManager = new xmXMigemoDicManager();
 			}
 			else {
 				this._dictionaryManager = Cc['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-						.createInstance(Ci.pIXMigemoDicManager);
+						.createInstance(Ci.xmIXMigemoDicManager);
 			}
 		}
 		return this._dictionaryManager;
@@ -56,12 +56,12 @@ pXMigemoCore.prototype = {
 	get textUtils() 
 	{
 		if (!this._textUtils) {
-			if (TEST && pXMigemoTextUtils) {
-				this._textUtils = new pXMigemoTextUtils();
+			if (TEST && xmXMigemoTextUtils) {
+				this._textUtils = new xmXMigemoTextUtils();
 			}
 			else {
 				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.pIXMigemoTextUtils);
+						.getService(Ci.xmIXMigemoTextUtils);
 			}
 		}
 		return this._textUtils;
@@ -72,12 +72,12 @@ pXMigemoCore.prototype = {
 	{
 		if (!this._cache) {
 			var cache;
-			if (TEST && pXMigemoCache) {
-				cache = new pXMigemoCache();
+			if (TEST && xmXMigemoCache) {
+				cache = new xmXMigemoCache();
 			}
 			else {
 				cache = Cc['@piro.sakura.ne.jp/xmigemo/cache;1']
-						.createInstance(Ci.pIXMigemoCache);
+						.createInstance(Ci.xmIXMigemoCache);
 			}
 			var override;
 			try {
@@ -784,7 +784,7 @@ dump('STEP 2: '+array.toSource()+'\n');
 		var lang = aLang || Prefs.getCharPref('xulmigemo.lang');
 		var constructor;
 		if (TEST) {
-			eval('constructor = pXMigemoEngine'+
+			eval('constructor = xmXMigemoEngine'+
 					lang.replace(/^./, function(aChar) {
 						return aChar.toUpperCase();
 					})
@@ -797,12 +797,12 @@ dump('STEP 2: '+array.toSource()+'\n');
 			var id = '@piro.sakura.ne.jp/xmigemo/engine;1?lang='+lang;
 			if (id in Cc) {
 				this.engine = Cc[id]
-					.getService(Ci.pIXMigemoEngine);
+					.getService(Ci.xmIXMigemoEngine);
 			}
 			else {
 				this.engine = Cc['@piro.sakura.ne.jp/xmigemo/engine;1?lang=*']
-					.createInstance(Ci.pIXMigemoEngine)
-					.QueryInterface(Ci.pIXMigemoEngineUniversal);
+					.createInstance(Ci.xmIXMigemoEngine)
+					.QueryInterface(Ci.xmIXMigemoEngineUniversal);
 				this.engine.lang = aLang || Prefs.getCharPref('xulmigemo.lang');
 			}
 		}
@@ -827,8 +827,8 @@ dump('STEP 2: '+array.toSource()+'\n');
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Ci.pIXMigemo) &&
-			!aIID.equals(Ci.pIXMigemoEngine) &&
+		if(!aIID.equals(Ci.xmIXMigemo) &&
+			!aIID.equals(Ci.xmIXMigemoEngine) &&
 			!aIID.equals(Ci.nsIObserver) &&
 			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
@@ -836,11 +836,11 @@ dump('STEP 2: '+array.toSource()+'\n');
 	}
 };
   
-function pXMigemoFactory() { 
-	mydump('create instance pIXMigemoFactory');
+function xmXMigemoFactory() { 
+	mydump('create instance xmIXMigemoFactory');
 }
 
-pXMigemoFactory.prototype = {
+xmXMigemoFactory.prototype = {
 	get contractID() {
 		return '@piro.sakura.ne.jp/xmigemo/factory;1';
 	},
@@ -861,7 +861,7 @@ pXMigemoFactory.prototype = {
 	{
 		if (!(aLang in this.services)) {
 			this.services[aLang] = Cc['@piro.sakura.ne.jp/xmigemo/core;1']
-				.createInstance(Ci.pIXMigemo);
+				.createInstance(Ci.xmIXMigemo);
 			this.services[aLang].init(aLang);
 		}
 		return this.services[aLang];
@@ -869,7 +869,8 @@ pXMigemoFactory.prototype = {
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Ci.pIXMigemoFactory) &&
+		if (!aIID.equals(Ci.xmIXMigemoFactory) &&
+			!aIID.equals(Ci.pIXMigemoFactory) &&
 			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
@@ -885,7 +886,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
+		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -907,28 +908,28 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoCore.prototype.classID,
-			contractID : pXMigemoCore.prototype.contractID,
-			className  : pXMigemoCore.prototype.classDescription,
+			CID        : xmXMigemoCore.prototype.classID,
+			contractID : xmXMigemoCore.prototype.contractID,
+			className  : xmXMigemoCore.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoCore()).QueryInterface(aIID);
+					return (new xmXMigemoCore()).QueryInterface(aIID);
 				}
 			}
 		},
 		managerForFactory : {
-			CID        : pXMigemoFactory.prototype.classID,
-			contractID : pXMigemoFactory.prototype.contractID,
-			className  : pXMigemoFactory.prototype.classDescription,
+			CID        : xmXMigemoFactory.prototype.classID,
+			contractID : xmXMigemoFactory.prototype.contractID,
+			className  : xmXMigemoFactory.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoFactory()).QueryInterface(aIID);
+					return (new xmXMigemoFactory()).QueryInterface(aIID);
 				}
 			}
 		}

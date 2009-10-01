@@ -1,6 +1,6 @@
 /* This depends on: 
-	pIXMigemoDictionary
-	pIXMigemoCache
+	xmIXMigemoDictionary
+	xmIXMigemoCache
 */
 var DEBUG = false;
 var TEST = false;
@@ -16,11 +16,11 @@ var Prefs = Cc['@mozilla.org/preferences;1']
 var WindowManager = Cc['@mozilla.org/appshell/window-mediator;1']
 		.getService(Ci.nsIWindowMediator);
  
-function pXMigemoDicManager() { 
-	mydump('create instance pIXMigemoDicManager');
+function xmXMigemoDicManager() { 
+	mydump('create instance xmIXMigemoDicManager');
 }
 
-pXMigemoDicManager.prototype = {
+xmXMigemoDicManager.prototype = {
 	get contractID() {
 		return '@piro.sakura.ne.jp/xmigemo/dictionary-manager;1';
 	},
@@ -66,13 +66,13 @@ pXMigemoDicManager.prototype = {
 
 				var lang = Prefs.getCharPref('xulmigemo.lang')
 				var core;
-				if (TEST && pXMigemoCore) {
-					core = new pXMigemoCore();
+				if (TEST && xmXMigemoCore) {
+					core = new xmXMigemoCore();
 					core.init(lang);
 				}
 				else {
 					core = Cc['@piro.sakura.ne.jp/xmigemo/factory;1']
-						.getService(Ci.pIXMigemoFactory)
+						.getService(Ci.xmIXMigemoFactory)
 						.getService(lang);
 				}
 				this.cache.clearCacheForAllPatterns(core.textTransform.normalizeKeyInput(input));
@@ -107,12 +107,12 @@ pXMigemoDicManager.prototype = {
 	get fileUtils() 
 	{
 		if (!this._fileUtils) {
-			if (TEST && pXMigemoFileAccess) {
-				this._fileUtils = new pXMigemoFileAccess();
+			if (TEST && xmXMigemoFileAccess) {
+				this._fileUtils = new xmXMigemoFileAccess();
 			}
 			else {
 				this._fileUtils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
-						.getService(Ci.pIXMigemoFileAccess);
+						.getService(Ci.xmIXMigemoFileAccess);
 			}
 		}
 		return this._fileUtils;
@@ -130,7 +130,7 @@ pXMigemoDicManager.prototype = {
 			var lang = Prefs.getCharPref('xulmigemo.lang');
 			var constructor;
 			if (TEST) {
-				eval('constructor = pXMigemoDictionary'+
+				eval('constructor = xmXMigemoDictionary'+
 						lang.replace(/^./, function(aChar) {
 							return aChar.toUpperCase();
 						})
@@ -143,12 +143,12 @@ pXMigemoDicManager.prototype = {
 				var id = '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+lang;
 				if (id in Cc) {
 					this._dictionary = Cc[id]
-						.getService(Ci.pIXMigemoDictionary);
+						.getService(Ci.xmIXMigemoDictionary);
 				}
 				else {
 					this._dictionary = Cc['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*']
-						.createInstance(Ci.pIXMigemoDictionary)
-						.QueryInterface(Ci.pIXMigemoDictionaryUniversal);
+						.createInstance(Ci.xmIXMigemoDictionary)
+						.QueryInterface(Ci.xmIXMigemoDictionaryUniversal);
 					this._dictionary.lang = Prefs.getCharPref('xulmigemo.lang');
 				}
 			}
@@ -165,12 +165,12 @@ pXMigemoDicManager.prototype = {
 	get cache()
 	{
 		if (!this._cache) { // default cache; can be overridden.
-			if (TEST && pXMigemoCache) {
-				this._cache = new pXMigemoCache();
+			if (TEST && xmXMigemoCache) {
+				this._cache = new xmXMigemoCache();
 			}
 			else {
 				this._cache = Cc['@piro.sakura.ne.jp/xmigemo/cache;1']
-					.getService(Ci.pIXMigemoCache);
+					.getService(Ci.xmIXMigemoCache);
 			}
 		}
 		return this._cache;
@@ -293,7 +293,8 @@ pXMigemoDicManager.prototype = {
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Ci.pIXMigemoDicManager) &&
+		if (!aIID.equals(Ci.xmIXMigemoDicManager) &&
+			!aIID.equals(Ci.pIXMigemoDicManager) &&
 			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
@@ -357,15 +358,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoDicManager.prototype.classID,
-			contractID : pXMigemoDicManager.prototype.contractID,
-			className  : pXMigemoDicManager.prototype.classDescription,
+			CID        : xmXMigemoDicManager.prototype.classID,
+			contractID : xmXMigemoDicManager.prototype.contractID,
+			className  : xmXMigemoDicManager.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoDicManager()).QueryInterface(aIID);
+					return (new xmXMigemoDicManager()).QueryInterface(aIID);
 				}
 			}
 		}

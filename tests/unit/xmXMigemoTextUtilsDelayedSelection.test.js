@@ -1,12 +1,12 @@
 var description = 'XMigemoTextUtilsのテスト（遅延選択関連）';
 
-utils.include('pXMigemoClasses.inc.js');
+utils.include('xmXMigemoClasses.inc.js');
 
 var textUtils;
 
 function setUp()
 {
-	textUtils = new pXMigemoTextUtils();
+	textUtils = new xmXMigemoTextUtils();
 	yield Do(utils.loadURI('../fixtures/highlighted.html'));
 }
 

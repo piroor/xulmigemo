@@ -1,12 +1,12 @@
 var description = 'XMigemoTextUtilsのテスト（基本）';
 
-utils.include('pXMigemoClasses.inc.js');
+utils.include('xmXMigemoClasses.inc.js');
 
 var textUtils;
 
 function setUp()
 {
-	textUtils = new pXMigemoTextUtils();
+	textUtils = new xmXMigemoTextUtils();
 }
 
 function tearDown()

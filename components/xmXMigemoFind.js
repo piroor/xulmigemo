@@ -1,6 +1,6 @@
 /* This depends on: 
-	pIXMigemo
-	pIXMigemoTextUtils
+	xmIXMigemo
+	xmIXMigemoTextUtils
 */
 var DEBUG = false;
 var TEST = false;
@@ -10,7 +10,7 @@ var Ci = Components.interfaces;
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
 
-var pIXMigemoFind = Ci.pIXMigemoFind;
+var xmIXMigemoFind = Ci.xmIXMigemoFind;
 
 // for Firefox 3.6 or later
 var boxObjectModule = {};
@@ -31,11 +31,11 @@ function getBoxObjectFor(aNode)
 			.getBoxObjectFor(aNode);
 }
  
-function pXMigemoFind() { 
-	mydump('create instance pIXMigemoFind');
+function xmXMigemoFind() { 
+	mydump('create instance xmIXMigemoFind');
 }
 
-pXMigemoFind.prototype = {
+xmXMigemoFind.prototype = {
 	get contractID() {
 		return '@piro.sakura.ne.jp/xmigemo/find;1';
 	},
@@ -104,25 +104,25 @@ pXMigemoFind.prototype = {
 
 	startFromViewport : false,
  
-	NOTFOUND          : pIXMigemoFind.NOTFOUND, 
-	FOUND             : pIXMigemoFind.FOUND,
-	WRAPPED           : pIXMigemoFind.WRAPPED,
-	FOUND_IN_LINK     : pIXMigemoFind.FOUND_IN_LINK,
-	FOUND_IN_EDITABLE : pIXMigemoFind.FOUND_IN_EDITABLE,
-	FINISH_FIND       : pIXMigemoFind.FINISH_FIND,
+	NOTFOUND          : xmIXMigemoFind.NOTFOUND, 
+	FOUND             : xmIXMigemoFind.FOUND,
+	WRAPPED           : xmIXMigemoFind.WRAPPED,
+	FOUND_IN_LINK     : xmIXMigemoFind.FOUND_IN_LINK,
+	FOUND_IN_EDITABLE : xmIXMigemoFind.FOUND_IN_EDITABLE,
+	FINISH_FIND       : xmIXMigemoFind.FINISH_FIND,
  
-	FIND_DEFAULT     : pIXMigemoFind.FIND_DEFAULT, 
-	FIND_BACK        : pIXMigemoFind.FIND_BACK,
-	FIND_FORWARD     : pIXMigemoFind.FIND_FORWARD,
-	FIND_WRAP        : pIXMigemoFind.FIND_WRAP,
-	FIND_IN_LINK     : pIXMigemoFind.FIND_IN_LINK,
-	FIND_IN_EDITABLE : pIXMigemoFind.FIND_IN_EDITABLE,
+	FIND_DEFAULT     : xmIXMigemoFind.FIND_DEFAULT, 
+	FIND_BACK        : xmIXMigemoFind.FIND_BACK,
+	FIND_FORWARD     : xmIXMigemoFind.FIND_FORWARD,
+	FIND_WRAP        : xmIXMigemoFind.FIND_WRAP,
+	FIND_IN_LINK     : xmIXMigemoFind.FIND_IN_LINK,
+	FIND_IN_EDITABLE : xmIXMigemoFind.FIND_IN_EDITABLE,
  
-	findMode : pIXMigemoFind.FIND_MODE_MIGEMO, 
+	findMode : xmIXMigemoFind.FIND_MODE_MIGEMO, 
 
-	FIND_MODE_NATIVE : pIXMigemoFind.FIND_MODE_NATIVE,
-	FIND_MODE_MIGEMO : pIXMigemoFind.FIND_MODE_MIGEMO,
-	FIND_MODE_REGEXP : pIXMigemoFind.FIND_MODE_REGEXP,
+	FIND_MODE_NATIVE : xmIXMigemoFind.FIND_MODE_NATIVE,
+	FIND_MODE_MIGEMO : xmIXMigemoFind.FIND_MODE_MIGEMO,
+	FIND_MODE_REGEXP : xmIXMigemoFind.FIND_MODE_REGEXP,
  
 	set target(val) 
 	{
@@ -162,13 +162,13 @@ pXMigemoFind.prototype = {
 	{
 		if (!this._core) {
 			var lang = Prefs.getCharPref('xulmigemo.lang');
-			if (TEST && pXMigemoCore) {
-				this._core = new pXMigemoCore();
+			if (TEST && xmXMigemoCore) {
+				this._core = new xmXMigemoCore();
 				this._core.init(lang);
 			}
 			else {
 				this._core = Cc['@piro.sakura.ne.jp/xmigemo/factory;1']
-					.getService(Ci.pIXMigemoFactory)
+					.getService(Ci.xmIXMigemoFactory)
 					.getService(lang);
 			}
 		}
@@ -179,12 +179,12 @@ pXMigemoFind.prototype = {
 	get textUtils() 
 	{
 		if (!this._textUtils) {
-			if (TEST && pXMigemoTextUtils) {
-				this._textUtils = new pXMigemoTextUtils();
+			if (TEST && xmXMigemoTextUtils) {
+				this._textUtils = new xmXMigemoTextUtils();
 			}
 			else {
 				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.pIXMigemoTextUtils);
+						.getService(Ci.xmIXMigemoTextUtils);
 			}
 		}
 		return this._textUtils;
@@ -1261,7 +1261,8 @@ mydump("setSelectionAndScroll");
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(pIXMigemoFind) &&
+		if (!aIID.equals(xmIXMigemoFind) &&
+			!aIID.equals(Ci.pIXMigemoFind) &&
 			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
@@ -1529,15 +1530,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoFind.prototype.classID,
-			contractID : pXMigemoFind.prototype.contractID,
-			className  : pXMigemoFind.prototype.classDescription,
+			CID        : xmXMigemoFind.prototype.classID,
+			contractID : xmXMigemoFind.prototype.contractID,
+			className  : xmXMigemoFind.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoFind()).QueryInterface(aIID);
+					return (new xmXMigemoFind()).QueryInterface(aIID);
 				}
 			}
 		}

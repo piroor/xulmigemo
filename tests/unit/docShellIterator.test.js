@@ -1,6 +1,6 @@
 var description = 'DocShellIteratorのユニットテスト';
 
-utils.include('../../components/pXMigemoFind.js', null, 'Shift_JIS');
+utils.include('../../components/xmXMigemoFind.js', null, 'Shift_JIS');
 
 var win, browser, iterator;
 

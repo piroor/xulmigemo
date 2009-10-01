@@ -14,9 +14,9 @@ var PLATFORM = Cc['@mozilla.org/network/protocol;1?name=http']
 		.getService(Ci.nsIHttpProtocolHandler)
 		.oscpu;
 
-function pXMigemoFileAccess() {}
+function xmXMigemoFileAccess() {}
 
-pXMigemoFileAccess.prototype = {
+xmXMigemoFileAccess.prototype = {
 	get contractID() {
 		return '@piro.sakura.ne.jp/xmigemo/file-access;1';
 	},
@@ -200,7 +200,8 @@ pXMigemoFileAccess.prototype = {
 
 	QueryInterface : function(aIID)
 	{
-		if(!aIID.equals(Ci.pIXMigemoFileAccess) &&
+		if (!aIID.equals(Ci.xmIXMigemoFileAccess) &&
+			!aIID.equals(Ci.pIXMigemoFileAccess) &&
 			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
@@ -219,7 +220,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
+		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -241,15 +242,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoFileAccess.prototype.classID,
-			contractID : pXMigemoFileAccess.prototype.contractID,
-			className  : pXMigemoFileAccess.prototype.classDescription,
+			CID        : xmXMigemoFileAccess.prototype.classID,
+			contractID : xmXMigemoFileAccess.prototype.contractID,
+			className  : xmXMigemoFileAccess.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoFileAccess()).QueryInterface(aIID);
+					return (new xmXMigemoFileAccess()).QueryInterface(aIID);
 				}
 			}
 		}
