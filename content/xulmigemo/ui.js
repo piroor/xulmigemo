@@ -33,7 +33,7 @@ var XMigemoUI = {
 		if (!this._textUtils) {
 			this._textUtils = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
+				.getService(Components.interfaces.xmIXMigemoTextUtils);
 		}
 		return this._textUtils;
 	},
@@ -41,9 +41,9 @@ var XMigemoUI = {
   
 /* internal status */ 
 	
-	FIND_MODE_NATIVE : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE, 
-	FIND_MODE_MIGEMO : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
-	FIND_MODE_REGEXP : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP,
+	FIND_MODE_NATIVE : Components.interfaces.xmIXMigemoFind.FIND_MODE_NATIVE, 
+	FIND_MODE_MIGEMO : Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO,
+	FIND_MODE_REGEXP : Components.interfaces.xmIXMigemoFind.FIND_MODE_REGEXP,
 
 	forcedFindMode   : -1,
 	lastFindMode     : -1,
@@ -53,9 +53,9 @@ var XMigemoUI = {
 	
 	findModeVersion : 2, 
 	findModeFrom1To2 : {
-		'0' : Components.interfaces.pIXMigemoFind.FIND_MODE_NATIVE,
-		'1' : Components.interfaces.pIXMigemoFind.FIND_MODE_MIGEMO,
-		'2' : Components.interfaces.pIXMigemoFind.FIND_MODE_REGEXP
+		'0' : Components.interfaces.xmIXMigemoFind.FIND_MODE_NATIVE,
+		'1' : Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO,
+		'2' : Components.interfaces.xmIXMigemoFind.FIND_MODE_REGEXP
 	},
 	upgradeFindModePrefs : function()
 	{
@@ -2950,7 +2950,7 @@ var XMigemoUI = {
 		if (browser) {
 			XMigemoFind = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/find;1']
-				.createInstance(Components.interfaces.pIXMigemoFind);
+				.createInstance(Components.interfaces.xmIXMigemoFind);
 			XMigemoFind.target = browser;
 
 			if (browser.getAttribute('onkeypress'))

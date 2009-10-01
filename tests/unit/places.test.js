@@ -48,7 +48,7 @@ function test_isValidInput()
 function test_parseInput()
 {
 	var info;
-	const pIMigemoFind = Components.interfaces.pIXMigemoFind;
+	const pIMigemoFind = Components.interfaces.xmIXMigemoFind;
 
 	info = service.parseInput('nihongo');
 	assert.equals('nihongo', info.input);

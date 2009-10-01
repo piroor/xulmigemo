@@ -23,7 +23,7 @@ var XMigemoService = {
 			try {
 				this._TextUtils = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-					.getService(Components.interfaces.pIXMigemoTextUtils);
+					.getService(Components.interfaces.xmIXMigemoTextUtils);
 			}
 			catch(e) {
 				throw e;

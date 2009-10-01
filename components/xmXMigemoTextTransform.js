@@ -3,11 +3,11 @@ var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
  
-function pXMigemoTextTransform() { 
+function xmXMigemoTextTransform() { 
 	this.init();
 }
 
-pXMigemoTextTransform.prototype = {
+xmXMigemoTextTransform.prototype = {
 	get contractID() {
 		return '@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*';
 	},
@@ -25,12 +25,12 @@ pXMigemoTextTransform.prototype = {
 	get textUtils() 
 	{
 		if (!this._textUtils) {
-			if (TEST && pXMigemoTextUtils) {
-				this._textUtils = new pXMigemoTextUtils();
+			if (TEST && xmXMigemoTextUtils) {
+				this._textUtils = new xmXMigemoTextUtils();
 			}
 			else {
 				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.pIXMigemoTextUtils);
+						.getService(Ci.xmIXMigemoTextUtils);
 			}
 		}
 		return this._textUtils;
@@ -142,7 +142,8 @@ pXMigemoTextTransform.prototype = {
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Ci.pIXMigemoTextTransform) &&
+		if(!aIID.equals(Ci.xmIXMigemoTextTransform) &&
+			!aIID.equals(Ci.pIXMigemoTextTransform) &&
 			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
@@ -158,7 +159,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
+		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -180,15 +181,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoTextTransform.prototype.classID,
-			contractID : pXMigemoTextTransform.prototype.contractID,
-			className  : pXMigemoTextTransform.prototype.classDescription,
+			CID        : xmXMigemoTextTransform.prototype.classID,
+			contractID : xmXMigemoTextTransform.prototype.contractID,
+			className  : xmXMigemoTextTransform.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoTextTransform()).QueryInterface(aIID);
+					return (new xmXMigemoTextTransform()).QueryInterface(aIID);
 				}
 			}
 		}

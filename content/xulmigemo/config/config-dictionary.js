@@ -4,12 +4,12 @@ const Prefs = Components
 
 const XMigemo = Components
 	.classes['@piro.sakura.ne.jp/xmigemo/factory;1']
-	.getService(Components.interfaces.pIXMigemoFactory)
+	.getService(Components.interfaces.xmIXMigemoFactory)
 	.getService(Prefs.getCharPref('xulmigemo.lang'));
 
 const util = Components
 	.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-	.getService(Components.interfaces.pIXMigemoFileAccess);
+	.getService(Components.interfaces.xmIXMigemoFileAccess);
 
 var gAbsolutePath;
 var gRelativePath;

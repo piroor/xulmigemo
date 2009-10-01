@@ -5,7 +5,7 @@ var Ci = Components.interfaces;
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
-function pXMigemoTextUtils() { 
+function xmXMigemoTextUtils() { 
 
 	var excludeNodesCondition = 'contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " "))';
 	this._lazyExceptionsExpression = [
@@ -25,7 +25,7 @@ function pXMigemoTextUtils() {
 
 }
 
-pXMigemoTextUtils.prototype = {
+xmXMigemoTextUtils.prototype = {
 	get contractID() {
 		return '@piro.sakura.ne.jp/xmigemo/text-utility;1';
 	},
@@ -723,7 +723,8 @@ pXMigemoTextUtils.prototype = {
    
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Ci.pIXMigemoTextUtils) &&
+		if (!aIID.equals(Ci.xmIXMigemoTextUtils) &&
+			!aIID.equals(Ci.pIXMigemoTextUtils) &&
 			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
@@ -782,7 +783,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
+		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -804,15 +805,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoTextUtils.prototype.classID,
-			contractID : pXMigemoTextUtils.prototype.contractID,
-			className  : pXMigemoTextUtils.prototype.classDescription,
+			CID        : xmXMigemoTextUtils.prototype.classID,
+			contractID : xmXMigemoTextUtils.prototype.contractID,
+			className  : xmXMigemoTextUtils.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoTextUtils()).QueryInterface(aIID);
+					return (new xmXMigemoTextUtils()).QueryInterface(aIID);
 				}
 			}
 		}

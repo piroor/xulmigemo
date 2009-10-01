@@ -4,7 +4,7 @@ var XMigemoMail = {
 	{
 		if (!this.mService) {
 			this.mService = Components.classes['@piro.sakura.ne.jp/xmigemo/mail;1']
-							.getService(Components.interfaces.pIXMigemoMail);
+							.getService(Components.interfaces.xmIXMigemoMail);
 		}
 		return this.mService;
 	},

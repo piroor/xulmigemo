@@ -1,13 +1,13 @@
 var description = 'XMigemoTextUtilsのテスト（DOM Range関連）';
 var isAsync = true;
 
-utils.include('pXMigemoClasses.inc.js');
+utils.include('xmXMigemoClasses.inc.js');
 
 var textUtils;
 
 function setUp()
 {
-	textUtils = new pXMigemoTextUtils();
+	textUtils = new xmXMigemoTextUtils();
 	yield Do(utils.loadURI('../fixtures/keyEventTest.html'));
 }
 

@@ -5,13 +5,13 @@ var Ci = Components.interfaces;
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
 
-var pIXMigemoTextTransformJa = Ci.pIXMigemoTextTransformJa;
+var xmIXMigemoTextTransformJa = Ci.xmIXMigemoTextTransformJa;
  
-function pXMigemoTextTransformJa() { 
+function xmXMigemoTextTransformJa() { 
 	this.init();
 }
 
-pXMigemoTextTransformJa.prototype = {
+xmXMigemoTextTransformJa.prototype = {
 	lang : 'ja',
 
 	get contractID() {
@@ -31,12 +31,12 @@ pXMigemoTextTransformJa.prototype = {
 	get textUtils() 
 	{
 		if (!this._textUtils) {
-			if (TEST && pXMigemoTextUtils) {
-				this._textUtils = new pXMigemoTextUtils();
+			if (TEST && xmXMigemoTextUtils) {
+				this._textUtils = new xmXMigemoTextUtils();
 			}
 			else {
 				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.pIXMigemoTextUtils);
+						.getService(Ci.xmIXMigemoTextUtils);
 			}
 		}
 		return this._textUtils;
@@ -46,19 +46,19 @@ pXMigemoTextTransformJa.prototype = {
 	get textTransform() 
 	{
 		if (!this._textTransform) {
-			if (TEST && pXMigemoTextTransform) {
-				this._textTransform = new pXMigemoTextTransform();
+			if (TEST && xmXMigemoTextTransform) {
+				this._textTransform = new xmXMigemoTextTransform();
 			}
 			else {
 				this._textTransform = Cc['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*']
-						.getService(Ci.pIXMigemoTextTransform);
+						.getService(Ci.xmIXMigemoTextTransform);
 			}
 		}
 		return this._textTransform;
 	},
 	_textTransform : null,
  
-	// pIXMigemoTextTransform 
+	// xmIXMigemoTextTransform 
 	isValidInput : function(aInput)
 	{
 		return this.isYomi(aInput);
@@ -88,9 +88,9 @@ pXMigemoTextTransformJa.prototype = {
 		return this.textTransform.removeLatinModifiers(aInput);
 	},
  	
-	KANA_HIRA : pIXMigemoTextTransformJa.KANA_HIRA, 
-	KANA_KATA : pIXMigemoTextTransformJa.KANA_KATA,
-	KANA_ALL  : pIXMigemoTextTransformJa.KANA_ALL,
+	KANA_HIRA : xmIXMigemoTextTransformJa.KANA_HIRA, 
+	KANA_KATA : xmIXMigemoTextTransformJa.KANA_KATA,
+	KANA_ALL  : xmIXMigemoTextTransformJa.KANA_ALL,
  
 	normalizeForYomi : function(aStr) 
 	{
@@ -839,8 +839,10 @@ pXMigemoTextTransformJa.prototype = {
    
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Ci.pIXMigemoTextTransform) &&
-			!aIID.equals(pIXMigemoTextTransformJa) &&
+		if(!aIID.equals(Ci.xmIXMigemoTextTransform) &&
+			!aIID.equals(xmIXMigemoTextTransformJa) &&
+			!aIID.equals(Ci.pIXMigemoTextTransform) &&
+			!aIID.equals(Ci.pIXMigemoTextTransformJa) &&
 			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
@@ -881,7 +883,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
+		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -903,15 +905,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoTextTransformJa.prototype.classID,
-			contractID : pXMigemoTextTransformJa.prototype.contractID,
-			className  : pXMigemoTextTransformJa.prototype.classDescription,
+			CID        : xmXMigemoTextTransformJa.prototype.classID,
+			contractID : xmXMigemoTextTransformJa.prototype.contractID,
+			className  : xmXMigemoTextTransformJa.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoTextTransformJa()).QueryInterface(aIID);
+					return (new xmXMigemoTextTransformJa()).QueryInterface(aIID);
 				}
 			}
 		}

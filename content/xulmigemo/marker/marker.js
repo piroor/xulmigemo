@@ -19,7 +19,7 @@ var XMigemoMarker = {
 		if (!this._textUtils) {
 			this._textUtils = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.pIXMigemoTextUtils);
+				.getService(Components.interfaces.xmIXMigemoTextUtils);
 		}
 		return this._textUtils;
 	},

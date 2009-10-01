@@ -1,10 +1,10 @@
-utils.include('pXMigemoClasses.inc.js');
+utils.include('xmXMigemoClasses.inc.js');
 
 var engine;
 
 function setUp()
 {
-	engine = new pXMigemoEngineJa();
+	engine = new xmXMigemoEngineJa();
 	engine.dictionary.load();
 }
 

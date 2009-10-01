@@ -81,7 +81,7 @@ var XMigemoFileDownloader = {
 
 		var utils = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-				.getService(Components.interfaces.pIXMigemoFileAccess);
+				.getService(Components.interfaces.xmIXMigemoFileAccess);
 
 		XMigemoService.setPref('xulmigemo.dicpath', '');
 		XMigemoService.setPref('xulmigemo.dicpath-relative', '');

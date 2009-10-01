@@ -89,7 +89,7 @@ function chooseFolder()
 {
 	var XMigemoDicManager = Components
 				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-				.getService(Components.interfaces.pIXMigemoDicManager);
+				.getService(Components.interfaces.xmIXMigemoDicManager);
 
 	var path = XMigemoDicManager.showDirectoryPicker(null);
 	if (path) {
@@ -102,7 +102,7 @@ function saveChosenFolder()
 {
 	var utils = Components
 			.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-			.getService(Components.interfaces.pIXMigemoFileAccess);
+			.getService(Components.interfaces.xmIXMigemoFileAccess);
 
 	XMigemoService.setPref('xulmigemo.dicpath', '');
 	XMigemoService.setPref('xulmigemo.dicpath-relative', '');

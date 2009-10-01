@@ -1,6 +1,6 @@
 /* This depends on: 
-	pIXMigemoDictionaryJa
-	pIXMigemoTextTransformJa
+	xmIXMigemoDictionaryJa
+	xmIXMigemoTextTransformJa
 */
 var DEBUG = false;
 var TEST = false;
@@ -10,11 +10,11 @@ var Ci = Components.interfaces;
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
-function pXMigemoEngineJa() { 
-	mydump('create instance pIXMigemoEngine(lang=ja)');
+function xmXMigemoEngineJa() { 
+	mydump('create instance xmIXMigemoEngine(lang=ja)');
 }
 
-pXMigemoEngineJa.prototype = {
+xmXMigemoEngineJa.prototype = {
 	lang : 'ja',
 
 	get contractID() {
@@ -38,13 +38,13 @@ pXMigemoEngineJa.prototype = {
 	get dictionary() 
 	{
 		if (!this._dictionary) {
-			if (TEST && pXMigemoDictionaryJa) {
-				this._dictionary = new pXMigemoDictionaryJa();
+			if (TEST && xmXMigemoDictionaryJa) {
+				this._dictionary = new xmXMigemoDictionaryJa();
 			}
 			else {
 				this._dictionary = Cc['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang]
-					.getService(Ci.pIXMigemoDictionary)
-					.QueryInterface(Ci.pIXMigemoDictionaryJa);
+					.getService(Ci.xmIXMigemoDictionary)
+					.QueryInterface(Ci.xmIXMigemoDictionaryJa);
 			}
 		}
 		return this._dictionary;
@@ -54,12 +54,12 @@ pXMigemoEngineJa.prototype = {
 	get textUtils() 
 	{
 		if (!this._textUtils) {
-			if (TEST && pXMigemoTextUtils) {
-				this._textUtils = new pXMigemoTextUtils();
+			if (TEST && xmXMigemoTextUtils) {
+				this._textUtils = new xmXMigemoTextUtils();
 			}
 			else {
 				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.pIXMigemoTextUtils);
+						.getService(Ci.xmIXMigemoTextUtils);
 			}
 		}
 		return this._textUtils;
@@ -69,13 +69,13 @@ pXMigemoEngineJa.prototype = {
 	get textTransform() 
 	{
 		if (!this._textTransform) {
-			if (TEST && pXMigemoTextTransformJa) {
-				this._textTransform = new pXMigemoTextTransformJa();
+			if (TEST && xmXMigemoTextTransformJa) {
+				this._textTransform = new xmXMigemoTextTransformJa();
 			}
 			else {
 				this._textTransform = Cc['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang='+this.lang]
-					.getService(Ci.pIXMigemoTextTransform)
-					.QueryInterface(Ci.pIXMigemoTextTransformJa);
+					.getService(Ci.xmIXMigemoTextTransform)
+					.QueryInterface(Ci.xmIXMigemoTextTransformJa);
 			}
 		}
 		return this._textTransform;
@@ -286,7 +286,8 @@ pXMigemoEngineJa.prototype = {
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Ci.pIXMigemoEngine) &&
+		if (!aIID.equals(Ci.xmIXMigemoEngine) &&
+			!aIID.equals(Ci.pIXMigemoEngine) &&
 			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		return this;
@@ -302,7 +303,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
+		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -324,15 +325,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoEngineJa.prototype.classID,
-			contractID : pXMigemoEngineJa.prototype.contractID,
-			className  : pXMigemoEngineJa.prototype.classDescription,
+			CID        : xmXMigemoEngineJa.prototype.classID,
+			contractID : xmXMigemoEngineJa.prototype.contractID,
+			className  : xmXMigemoEngineJa.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new pXMigemoEngineJa()).QueryInterface(aIID);
+					return (new xmXMigemoEngineJa()).QueryInterface(aIID);
 				}
 			}
 		}

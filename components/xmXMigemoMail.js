@@ -11,12 +11,12 @@ var Prefs = Cc['@mozilla.org/preferences;1']
 
 var MailSession;
  
-function pXMigemoMail() { 
-//	dump('create instance pIXMigemoMail\n');
+function xmXMigemoMail() { 
+//	dump('create instance xmIXMigemoMail\n');
 	this.init();
 }
 
-pXMigemoMail.prototype = {
+xmXMigemoMail.prototype = {
 	get contractID() {
 		return '@piro.sakura.ne.jp/xmigemo/mail;1';
 	},
@@ -97,7 +97,7 @@ pXMigemoMail.prototype = {
  
 	loadSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc, aBodies) 
 	{
-//dump('pIXMigemoMail::loadSummaryCache('+aFolder.URI+')\n');
+//dump('xmIXMigemoMail::loadSummaryCache('+aFolder.URI+')\n');
 		aFolder.QueryInterface(Ci.nsIMsgFolder);
 
 		var statement = this._getStatement(
@@ -145,16 +145,16 @@ pXMigemoMail.prototype = {
 			statement.executeStep();
 		}
 		catch(e) {
-			dump('error on pIXMigemoMail::saveSummaryCache / '+aFolder.URI+'\n'+e+'\n');
+			dump('error on xmIXMigemoMail::saveSummaryCache / '+aFolder.URI+'\n'+e+'\n');
 		}
 		statement.reset();
 
-//dump('pIXMigemoMail::saveSummaryCache('+aFolder.URI+')\n');
+//dump('xmIXMigemoMail::saveSummaryCache('+aFolder.URI+')\n');
 	},
  
 	clearSummaryCache : function(aFolder) 
 	{
-//dump('pIXMigemoMail::clearSummaryCache('+aFolder.URI+')\n');
+//dump('xmIXMigemoMail::clearSummaryCache('+aFolder.URI+')\n');
 		aFolder.QueryInterface(Ci.nsIMsgFolder);
 
 		var statement = this._getStatement(
@@ -186,7 +186,7 @@ pXMigemoMail.prototype = {
 		if (uri in this.summaries)
 			return this.summaries[uri];
 
-//dump('pIXMigemoMail::create new summary for '+uri+'\n');
+//dump('xmIXMigemoMail::create new summary for '+uri+'\n');
 
 		this.summaries[uri] = new FolderSummary(aFolder);
 		return this.summaries[uri];
@@ -204,13 +204,13 @@ pXMigemoMail.prototype = {
 	{
 		if (!this._core) {
 			var lang = Prefs.getCharPref('xulmigemo.lang');
-			if (TEST && pXMigemoCore) {
-				this._core = new pXMigemoCore();
+			if (TEST && xmXMigemoCore) {
+				this._core = new xmXMigemoCore();
 				this._core.init(lang);
 			}
 			else {
 				this._core = Cc['@piro.sakura.ne.jp/xmigemo/factory;1']
-					.getService(Ci.pIXMigemoFactory)
+					.getService(Ci.xmIXMigemoFactory)
 					.getService(lang);
 			}
 		}
@@ -221,12 +221,12 @@ pXMigemoMail.prototype = {
 	get textUtils() 
 	{
 		if (!this._textUtils) {
-			if (TEST && pXMigemoTextUtils) {
-				this._textUtils = new pXMigemoTextUtils();
+			if (TEST && xmXMigemoTextUtils) {
+				this._textUtils = new xmXMigemoTextUtils();
 			}
 			else {
 				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.pIXMigemoTextUtils);
+						.getService(Ci.xmIXMigemoTextUtils);
 			}
 		}
 		return this._textUtils;
@@ -310,7 +310,7 @@ pXMigemoMail.prototype = {
 	OnItemPropertyFlagChanged : function(aItem, aProperty, aOld, aNew) {},
 	OnItemEvent : function(aItem, aEvent)
 	{
-//dump('pIXMigemo::OnItemEvent '+aEvent.toString()+'\n');
+//dump('xmIXMigemo::OnItemEvent '+aEvent.toString()+'\n');
 		switch (aEvent.toString())
 		{
 			case 'CompactCompleted':
@@ -338,7 +338,7 @@ pXMigemoMail.prototype = {
 		ObserverService.addObserver(this, 'quit-application', false);
 		ObserverService.addObserver(this, 'XMigemo:compactFolderRequested', false);
 
-//dump('pIXMigemoMail::initialize done\n');
+//dump('xmIXMigemoMail::initialize done\n');
 	},
  
 	destroy : function() 
@@ -364,7 +364,7 @@ pXMigemoMail.prototype = {
 		{
 			this.summaries[i].destroy();
 		}
-//dump('pIXMigemoMail::destroy done\n');
+//dump('xmIXMigemoMail::destroy done\n');
 	},
  
 	observe : function(aSubject, aTopic, aData) 
@@ -385,7 +385,8 @@ pXMigemoMail.prototype = {
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Ci.pIXMigemoMail) &&
+		if (!aIID.equals(Ci.xmIXMigemoMail) &&
+			!aIID.equals(Ci.pIXMigemoMail) &&
 			!aIID.equals(Ci.nsIFolderListener) &&
 			!aIID.equals(Ci.nsIObserver) &&
 			!aIID.equals(Ci.nsISupports))
@@ -469,7 +470,7 @@ FolderSummary.prototype = {
 
 		var sv = gXMigemoMail ||
 				Cc['@piro.sakura.ne.jp/xmigemo/mail;1']
-					.getService(Ci.pIXMigemoMail);
+					.getService(Ci.xmIXMigemoMail);
 		sv.loadSummaryCache(this.mFolder, ids, authors, subjects, recipients, cc, bodies);
 		if (!ids.value) {
 			this.buildProgressively();
@@ -545,7 +546,7 @@ FolderSummary.prototype = {
 	{
 		var sv = gXMigemoMail ||
 				Cc['@piro.sakura.ne.jp/xmigemo/mail;1']
-					.getService(Ci.pIXMigemoMail);
+					.getService(Ci.xmIXMigemoMail);
 		sv.saveSummaryCache(
 			this.mFolder,
 			this.mIds.join('\n'),
@@ -737,7 +738,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
+		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
@@ -759,15 +760,15 @@ var gModule = {
 
 	_objects : {
 		manager : {
-			CID        : pXMigemoMail.prototype.classID,
-			contractID : pXMigemoMail.prototype.contractID,
-			className  : pXMigemoMail.prototype.classDescription,
+			CID        : xmXMigemoMail.prototype.classID,
+			contractID : xmXMigemoMail.prototype.contractID,
+			className  : xmXMigemoMail.prototype.classDescription,
 			factory    : {
 				createInstance : function (aOuter, aIID)
 				{
 					if (aOuter != null)
 						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					gXMigemoMail = new pXMigemoMail();
+					gXMigemoMail = new xmXMigemoMail();
 					return gXMigemoMail.QueryInterface(aIID);
 				}
 			}

@@ -1,10 +1,10 @@
-utils.include('pXMigemoClasses.inc.js');
+utils.include('xmXMigemoClasses.inc.js');
 
 var transform;
 
 function setUp()
 {
-	transform = new pXMigemoTextTransformJa();
+	transform = new xmXMigemoTextTransformJa();
 }
 
 function tearDown()
