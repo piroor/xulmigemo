@@ -98,6 +98,7 @@ pXMigemoMail.prototype = {
 	loadSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc, aBodies) 
 	{
 //dump('pIXMigemoMail::loadSummaryCache('+aFolder.URI+')\n');
+		aFolder.QueryInterface(Ci.nsIMsgFolder);
 
 		var statement = this._getStatement(
 				'loadSummaryCacheStatement',
@@ -126,6 +127,7 @@ pXMigemoMail.prototype = {
  
 	saveSummaryCache : function(aFolder, aIds, aAuthors, aSubjects, aRecipients, aCc, aBodies) 
 	{
+		aFolder.QueryInterface(Ci.nsIMsgFolder);
 		var statement = this._getStatement(
 				'saveSummaryCacheStatement',
 				'INSERT OR REPLACE INTO '+this.kTABLE+
@@ -153,6 +155,7 @@ pXMigemoMail.prototype = {
 	clearSummaryCache : function(aFolder) 
 	{
 //dump('pIXMigemoMail::clearSummaryCache('+aFolder.URI+')\n');
+		aFolder.QueryInterface(Ci.nsIMsgFolder);
 
 		var statement = this._getStatement(
 				'clearSummaryCacheStatement',
@@ -169,6 +172,7 @@ pXMigemoMail.prototype = {
  
 	refreshSummaryCache : function(aFolder) 
 	{
+		aFolder.QueryInterface(Ci.nsIMsgFolder);
 		this.clearSummaryCache(aFolder);
 		this.getSummary(aFolder).buildProgressively();
 	},
@@ -177,6 +181,7 @@ pXMigemoMail.prototype = {
  
 	getSummary : function(aFolder) 
 	{
+		aFolder.QueryInterface(Ci.nsIMsgFolder);
 		var uri = aFolder.URI;
 		if (uri in this.summaries)
 			return this.summaries[uri];
@@ -230,6 +235,7 @@ pXMigemoMail.prototype = {
  
 	getTermsList : function(aInput, aSearchMode, aFolder) 
 	{
+		aFolder.QueryInterface(Ci.nsIMsgFolder);
 		var terms = [];
 		try {
 			var summaries = this.getSummary(aFolder);

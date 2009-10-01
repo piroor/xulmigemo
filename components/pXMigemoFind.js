@@ -519,7 +519,7 @@ mydump("getParentLinkFromRange");
 	getParentEditableFromRange : function(aRange) 
 	{
 mydump('getParentEditableFromRange');
-		if (aRange) aRange = aRange.QueryInterface(Ci.nsIDOMRange);
+		if (aRange) aRange.QueryInterface(Ci.nsIDOMRange);
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
 		{
@@ -867,7 +867,7 @@ mydump("resetFindRangeSet");
  
 	setSelectionLook : function(aDocument, aChangeColor) 
 	{
-		if (aDocument) aDocument = aDocument.QueryInterface(Ci.nsIDOMDocument);
+		if (aDocument) aDocument.QueryInterface(Ci.nsIDOMDocument);
 		if (aDocument.foundEditable)
 			this.textUtils.setSelectionLookForNode(aDocument.foundEditable, aChangeColor);
 		this.textUtils.setSelectionLookForDocument(aDocument, aChangeColor);
@@ -910,7 +910,7 @@ mydump("setSelectionAndScroll");
 	{
 		if (!Prefs.getBoolPref('xulmigemo.scrollSelectionToCenter')) return;
 
-		if (aFrame) aFrame = aFrame.QueryInterface(Ci.nsIDOMWindow);
+		if (aFrame) aFrame.QueryInterface(Ci.nsIDOMWindow);
 
 		var frame = aFrame;
 		if (!frame) {
@@ -1129,7 +1129,7 @@ mydump("setSelectionAndScroll");
 
 		var range = this.getFoundRange(aFrame);
 		if (range) {
-			range = range.QueryInterface(Ci.nsIDOMRange);
+			range.QueryInterface(Ci.nsIDOMRange);
 			var foundLink = this.getParentLinkFromRange(range);
 			var foundEditable = this.getParentEditableFromRange(range);
 			var target = foundLink || foundEditable;
@@ -1379,7 +1379,7 @@ DocShellIterator.prototype = {
 	 
 	getNextDocShell : function(aNode) 
 	{
-		aNode = aNode.QueryInterface(Ci.nsIDocShellTreeNode);
+		aNode.QueryInterface(Ci.nsIDocShellTreeNode);
 		// 子がある場合、最初の子を返す
 		if (aNode.childCount) return aNode.getChildAt(0);
 		var curNode = aNode;
@@ -1408,7 +1408,7 @@ DocShellIterator.prototype = {
  
 	getPrevDocShell : function(aNode) 
 	{
-		aNode = aNode.QueryInterface(Ci.nsIDocShellTreeNode);
+		aNode.QueryInterface(Ci.nsIDocShellTreeNode);
 		var curNode = aNode;
 		var curItem = curNode.QueryInterface(Ci.nsIDocShellTreeItem);
 		// このノードが最上位（一番最初）である場合、検索終了
@@ -1432,12 +1432,12 @@ DocShellIterator.prototype = {
  
 	getChildOffsetFromDocShellNode : function(aNode) 
 	{
-		aNode = aNode.QueryInterface(Ci.nsIDocShellTreeItem);
+		aNode.QueryInterface(Ci.nsIDocShellTreeItem);
 		var parent = aNode.sameTypeParent;
 		if (!parent) return -1;
 
 		// nextSiblingに相当するノードを取得して返す
-		parent = parent.QueryInterface(Ci.nsIDocShellTreeNode);
+		parent.QueryInterface(Ci.nsIDocShellTreeNode);
 		if ('childOffset' in aNode) { // Firefox 2
 			return aNode.childOffset;
 		}
@@ -1507,7 +1507,7 @@ var gModule = {
 			this._firstTime = false;
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
-		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
+		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
 		for (var key in this._objects) {
 			var obj = this._objects[key];
 			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
