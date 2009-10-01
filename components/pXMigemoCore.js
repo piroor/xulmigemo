@@ -461,9 +461,9 @@ dump('STEP 2: '+array.toSource()+'\n');
  
 	regExpFind : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
 	{
-		if (aFindRange) aFindRange = aFindRange.QueryInterface(Ci.nsIDOMRange);
-		if (aStartPoint) aStartPoint = aStartPoint.QueryInterface(Ci.nsIDOMRange);
-		if (aEndPoint) aEndPoint = aEndPoint.QueryInterface(Ci.nsIDOMRange);
+		aFindRange.QueryInterface(Ci.nsIDOMRange);
+		if (aStartPoint) aStartPoint.QueryInterface(Ci.nsIDOMRange);
+		if (aEndPoint) aEndPoint.QueryInterface(Ci.nsIDOMRange);
 
 		if (!aStartPoint) {
 			aStartPoint = aFindRange.startContainer.ownerDocument.createRange();
@@ -507,8 +507,8 @@ dump('STEP 2: '+array.toSource()+'\n');
 	 
 	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aUseSelection) 
 	{
-		if (aFindRange) aFindRange = aFindRange.QueryInterface(Ci.nsIDOMRange);
-		if (aStartPoint) aStartPoint = aStartPoint.QueryInterface(Ci.nsIDOMRange);
+		if (aFindRange) aFindRange.QueryInterface(Ci.nsIDOMRange);
+		if (aStartPoint) aStartPoint.QueryInterface(Ci.nsIDOMRange);
 		if (aEndPoint) aEndPoint = aEndPoint.QueryInterface(Ci.nsIDOMRange);
 		if (aSurroundNode) aSurroundNode = aSurroundNode.QueryInterface(Ci.nsIDOMNode);
 
