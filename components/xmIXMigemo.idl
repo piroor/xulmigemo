@@ -14,8 +14,8 @@ interface nsIDOMNode;
 
 /* Utilities: You can use them for your language without additional implementation. */
 
-[scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
-interface pIXMigemoFileAccess : nsISupports
+[scriptable, uuid(4aca3120-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoFileAccess : nsISupports
 {
 	AString getAbsolutePath(in AString filePath);
 	AString getRelativePath(in AString filePath);
@@ -24,8 +24,8 @@ interface pIXMigemoFileAccess : nsISupports
 	nsIFile writeTo(in nsIFile file, in AString content, in ACString encoding);
 };
 
-[scriptable, uuid(79ccb624-1dd4-11dc-8314-0800200c9a66)]
-interface pIXMigemoTextUtils : nsISupports
+[scriptable, uuid(50188780-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoTextUtils : nsISupports
 {
 	AString trim(in AString input);
 	nsIVariant brushUpTerms(in nsIVariant termsArray);
@@ -62,8 +62,8 @@ interface pIXMigemoTextUtils : nsISupports
 	void setSelectionLookForRange(in nsISupports /* nsIDOMRange */ selectionRange, in boolean changeColor);
 };
 
-[scriptable, uuid(159add54-cdf2-11db-8314-0800200c9a66)]
-interface pIXMigemoCache : nsISupports
+[scriptable, uuid(554bdbd0-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoCache : nsISupports
 {
 	AString getCacheFor(in AString roman);
 
@@ -95,8 +95,8 @@ interface pIXMigemoCache : nsISupports
 
 /* Common Interfaces: You have to implement these interfaces for your language. */
 
-[scriptable, uuid(451dc43c-1dd5-11dc-8314-0800200c9a66)]
-interface pIXMigemoTextTransform : nsISupports
+[scriptable, uuid(59da64a0-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoTextTransform : nsISupports
 {
 	boolean isValidInput(in AString input);
 	AString normalizeInput(in AString input);
@@ -106,8 +106,8 @@ interface pIXMigemoTextTransform : nsISupports
 	AString removeLatinModifiers(in AString latinLettersWithModifiers);
 };
 
-[scriptable, uuid(5a51a982-1dde-11dc-8314-0800200c9a66)]
-interface pIXMigemoDictionary : nsISupports
+[scriptable, uuid(5d4ea3d0-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoDictionary : nsISupports
 {
 	AString getDic();
 	AString getUserDic();
@@ -129,14 +129,14 @@ interface pIXMigemoDictionary : nsISupports
 	void reload();
 };
 
-[scriptable, uuid(7d78f05c-36f8-11dc-8314-0800200c9a66)]
-interface pIXMigemoDictionaryUniversal : pIXMigemoDictionary
+[scriptable, uuid(628b1fe0-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoDictionaryUniversal : xmIXMigemoDictionary
 {
 	attribute ACString lang;
 };
 
-[scriptable, uuid(1a2493f2-1f31-11dc-8314-0800200c9a66)]
-interface pIXMigemoEngine : nsIObserver
+[scriptable, uuid(67027730-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoEngine : nsIObserver
 {
 	/* create regular expressions from roman letters. */
 	AString getRegExpFor(in AString input);
@@ -152,36 +152,36 @@ interface pIXMigemoEngine : nsIObserver
 	const unsigned short USER_DIC   = 2;
 	const unsigned short ALL_DIC    = 3; /* SYSTEM_DIC + USER_DIC */
 
-	readonly attribute pIXMigemoDictionary dictionary;
-	readonly attribute pIXMigemoTextTransform textTransform;
+	readonly attribute xmIXMigemoDictionary dictionary;
+	readonly attribute xmIXMigemoTextTransform textTransform;
 };
 
-[scriptable, uuid(0cfd00c2-36fb-11dc-8314-0800200c9a66)]
-interface pIXMigemoEngineUniversal : pIXMigemoEngine
+[scriptable, uuid(6b8910c0-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoEngineUniversal : xmIXMigemoEngine
 {
 	attribute ACString lang;
 };
 
 
 
-[scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
-interface pIXMigemoDicManager : nsIObserver
+[scriptable, uuid(6f54e5d0-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoDicManager : nsIObserver
 {
 	void reload();
 
-	readonly attribute pIXMigemoDictionary dictionary;
-	readonly attribute pIXMigemoCache cache;
+	readonly attribute xmIXMigemoDictionary dictionary;
+	readonly attribute xmIXMigemoCache cache;
 
-	void init(in pIXMigemoDictionary dictionary, in pIXMigemoCache cache);
+	void init(in xmIXMigemoDictionary dictionary, in xmIXMigemoCache cache);
 
 	AString showDirectoryPicker(in AString defaultDirectoryPath);
 };
 
 
-[scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
-interface pIXMigemo : pIXMigemoEngine
+[scriptable, uuid(73ce6000-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemo : xmIXMigemoEngine
 {
-	readonly attribute pIXMigemoEngine engine;
+	readonly attribute xmIXMigemoEngine engine;
 
 	/* create regular expressions from roman letters. */
 	AString getRegExp(in AString input);
@@ -239,25 +239,25 @@ interface pIXMigemo : pIXMigemoEngine
 	);
 
 	attribute double createCacheTimeOverride;
-	readonly attribute pIXMigemoCache cache;
-	readonly attribute pIXMigemoDicManager dictionaryManager;
+	readonly attribute xmIXMigemoCache cache;
+	readonly attribute xmIXMigemoDicManager dictionaryManager;
 
 	void init(in ACString language);
 };
 
 
-[scriptable, uuid(63a6c07c-1f48-11dc-8314-0800200c9a66)]
-interface pIXMigemoFactory : nsISupports
+[scriptable, uuid(781a6190-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoFactory : nsISupports
 {
-	pIXMigemo getService(in ACString lang);
+	xmIXMigemo getService(in ACString lang);
 };
 
 
 
-[scriptable, uuid(54606802-ce50-11db-8314-0800200c9a66)]
-interface pIXMigemoFind : nsIObserver
+[scriptable, uuid(7c7cd150-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoFind : nsIObserver
 {
-	attribute pIXMigemo core;
+	attribute xmIXMigemo core;
 
 	/* target node; <xul:browser/>, <xul:tabbrowser/> or <xul:iframe/> */
 	attribute nsIDOMNode target;
@@ -317,8 +317,8 @@ interface pIXMigemoFind : nsIObserver
 
 /* Japanese Interfaces: Special Subclasses for Japanese language. */
 
-[scriptable, uuid(749f4faa-cdf6-11db-8314-0800200c9a66)]
-interface pIXMigemoTextTransformJa : pIXMigemoTextTransform
+[scriptable, uuid(807d4af0-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoTextTransformJa : xmIXMigemoTextTransform
 {
 	AString roman2kana(in AString roman);
 	AString roman2kana2(in AString roman, in unsigned short kanaFlag);
@@ -344,8 +344,8 @@ interface pIXMigemoTextTransformJa : pIXMigemoTextTransform
 };
 
 
-[scriptable, uuid(6f19900a-ce33-11db-8314-0800200c9a66)]
-interface pIXMigemoDictionaryJa : pIXMigemoDictionary
+[scriptable, uuid(84db9c00-ae38-11de-8a39-0800200c9a66)]
+interface xmIXMigemoDictionaryJa : xmIXMigemoDictionary
 {
 	AString getDicFor(in ACString key);
 	AString getUserDicFor(in ACString key);
@@ -357,3 +357,35 @@ interface pIXMigemoDictionaryJa : pIXMigemoDictionary
 
 	void saveUserDicFor(in ACString key);
 };
+
+
+// backward compatibility
+[scriptable, uuid(4341d5c8-cde6-11db-8314-0800200c9a66)]
+interface pIXMigemoFileAccess : xmIXMigemoFileAccess {};
+[scriptable, uuid(79ccb624-1dd4-11dc-8314-0800200c9a66)]
+interface pIXMigemoTextUtils : xmIXMigemoTextUtils {};
+[scriptable, uuid(159add54-cdf2-11db-8314-0800200c9a66)]
+interface pIXMigemoCache : xmIXMigemoCache {};
+[scriptable, uuid(451dc43c-1dd5-11dc-8314-0800200c9a66)]
+interface pIXMigemoTextTransform : xmIXMigemoTextTransform {};
+[scriptable, uuid(5a51a982-1dde-11dc-8314-0800200c9a66)]
+interface pIXMigemoDictionary : xmIXMigemoDictionary {};
+[scriptable, uuid(7d78f05c-36f8-11dc-8314-0800200c9a66)]
+interface pIXMigemoDictionaryUniversal : xmIXMigemoDictionaryUniversal {};
+[scriptable, uuid(1a2493f2-1f31-11dc-8314-0800200c9a66)]
+interface pIXMigemoEngine : xmIXMigemoEngine {};
+[scriptable, uuid(0cfd00c2-36fb-11dc-8314-0800200c9a66)]
+interface pIXMigemoEngineUniversal : xmIXMigemoEngineUniversal {};
+[scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
+interface pIXMigemoDicManager : xmIXMigemoDicManager {};
+[scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
+interface pIXMigemo : xmIXMigemo {};
+[scriptable, uuid(63a6c07c-1f48-11dc-8314-0800200c9a66)]
+interface pIXMigemoFactory : xmIXMigemoFactory {};
+[scriptable, uuid(54606802-ce50-11db-8314-0800200c9a66)]
+interface pIXMigemoFind : xmIXMigemoFind {};
+[scriptable, uuid(749f4faa-cdf6-11db-8314-0800200c9a66)]
+interface pIXMigemoTextTransformJa : xmIXMigemoTextTransformJa {};
+[scriptable, uuid(6f19900a-ce33-11db-8314-0800200c9a66)]
+interface pIXMigemoDictionaryJa : xmIXMigemoDictionaryJa {};
+

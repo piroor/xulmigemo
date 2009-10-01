@@ -1,0 +1,37 @@
+#include "nsISupports.idl"
+#include "nsIVariant.idl"
+
+
+[scriptable, uuid(15885a40-ae39-11de-8a39-0800200c9a66)]
+interface xmIXMigemoMail : nsISupports
+{
+	nsIVariant getTermsList(
+		in AString input,
+		in unsigned long searchMode,
+		in nsISupports /* nsIMsgFolder */ folder
+	);
+
+	void loadSummaryCache(
+		in nsISupports /* nsIMsgFolder */ folder,
+		out wstring messageIds,
+		out wstring authors,
+		out wstring subjects,
+		out wstring recipients,
+		out wstring cc,
+		out wstring body
+	);
+	void saveSummaryCache(
+		in nsISupports /* nsIMsgFolder */ folder,
+		in AString messageIds,
+		in AString authors,
+		in AString subjects,
+		in AString recipients,
+		in AString cc,
+		in AString body
+	);
+	void clearSummaryCache(in nsISupports /* nsIMsgFolder */ folder);
+	void refreshSummaryCache(in nsISupports /* nsIMsgFolder */ folder);
+};
+
+[scriptable, uuid(0cc43330-d388-11dc-95ff-0800200c9a66)]
+interface pIXMigemoMail : xmIXMigemoMail {};
