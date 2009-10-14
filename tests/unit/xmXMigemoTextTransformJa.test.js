@@ -13,257 +13,319 @@ function tearDown()
 }
 
 
-function test_optimizeRegExp()
+test_optimizeRegExp.parameters = {
+	singleCharacters            : ['[abc]', '(a|b|c)'],
+	singleCharactersWithBlank   : ['[abc]', '(a|||b|||c)'],
+	multipleCharacters          : ['(a|b|cd)', '(a|b|cd)'],
+	multipleCharactersWithBlank : ['(a|b|cd)', '(a|||b|||cd)'],
+	includesOpenParen           : ['(\\()', '(\\()'],
+	includesCloseParen          : ['(\\))', '(\\))'],
+	includesParen               : ['(\\(\\))', '(\\(\\))'],
+	includesFullWidthOpenParen  : ['(\\(|（)', '(\\(|（)'],
+	includesFullWidthCloseParen : ['(\\)|）)', '(\\)|）)'],
+	includesFullWidthParen      : ['((\\(|（)(\\)|）))', '((\\(|（)(\\)|）))'],
+	includesOpenBracket         : ['(\\[)', '(\\[)'],
+	includesCloseBracket        : ['(\\])', '(\\])'],
+	includesBracket             : ['(\\[\\])', '(\\[\\])'],
+	includesFullWidthOpenBracket : ['(\\[|［)', '(\\[|［)'],
+	includesFullWidthCloseBracket : ['(\\]|］)', '(\\]|］)'],
+	includesFullWidthBracketAndParen : ['((\\[|［)(\\]|］))', '((\\[|［)(\\]|］))']
+};
+function test_optimizeRegExp(aParameter)
 {
-	function assertOptimizeRegExp(aExpected, aInput) {
-		assert.equals(aExpected, transform.optimizeRegExp(aInput));
-	}
-	assertOptimizeRegExp('[abc]', '(a|b|c)');
-	assertOptimizeRegExp('[abc]', '(a|||b|||c)');
-	assertOptimizeRegExp('(a|b|cd)', '(a|b|cd)');
-	assertOptimizeRegExp('(a|b|cd)', '(a|||b|||cd)');
-	assertOptimizeRegExp('(\\()', '(\\()');
-	assertOptimizeRegExp('(\\))', '(\\))');
-	assertOptimizeRegExp('(\\(\\))', '(\\(\\))');
-	assertOptimizeRegExp('(\\(|（)', '(\\(|（)');
-	assertOptimizeRegExp('(\\)|）)', '(\\)|）)');
-	assertOptimizeRegExp('((\\(|（)(\\)|）))', '((\\(|（)(\\)|）))');
-	assertOptimizeRegExp('(\\[)', '(\\[)');
-	assertOptimizeRegExp('(\\])', '(\\])');
-	assertOptimizeRegExp('(\\[\\])', '(\\[\\])');
-	assertOptimizeRegExp('(\\[|［)', '(\\[|［)');
-	assertOptimizeRegExp('(\\]|］)', '(\\]|］)');
-	assertOptimizeRegExp('((\\[|［)(\\]|］))', '((\\[|［)(\\]|］))');
+	assert.equals(aParameter[0], transform.optimizeRegExp(aParameter[1]));
 }
 
 
-function test_normalizeInput()
+test_normalizeInput.parameters = {
+	alphabets          : ['aiueo', 'aiueo'],
+	fullWidthAlphabets : ['aiueo', 'ａｉｕｅｏ'],
+	hiragana           : ['あいうえお', 'あいうえお'],
+	katakana           : ['あいうえお', 'アイウエオ'],
+	halfWidthKatakana  : ['あいうえお', 'ｱｲｳｴｵ'],
+	'濁音付き半角カナ' : ['がぎぐげご', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ'],
+	includesHyphen     : ['po-to', 'po-to'],
+	kanji              : ['日本語', '日本語'],
+	specialCharacters  : ['()[]|', '()[]|'],
+	openParen          : ['([', '(['],
+	closeParen         : [')]', ')]'],
+	pipe               : ['|', '|'],
+	JSCode             : ['window.open();', 'window.open();'],
+	JSCodeWithParams   : ['window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");']
+};
+function test_normalizeInput(aParameter)
 {
-	function assertNormalizeInput(aExpected, aInput) {
-		assert.equals(aExpected, transform.normalizeInput(aInput));
-	}
-	assertNormalizeInput('aiueo', 'aiueo');
-	assertNormalizeInput('aiueo', 'ａｉｕｅｏ');
-	assertNormalizeInput('あいうえお', 'あいうえお');
-	assertNormalizeInput('あいうえお', 'アイウエオ');
-	assertNormalizeInput('あいうえお', 'ｱｲｳｴｵ');
-	assertNormalizeInput('がぎぐげご', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ');
-	assertNormalizeInput('po-to', 'po-to');
-	assertNormalizeInput('日本語', '日本語');
-	assertNormalizeInput('()[]|', '()[]|');
-	assertNormalizeInput('([', '([');
-	assertNormalizeInput(')]', ')]');
-	assertNormalizeInput('|', '|');
-	assertNormalizeInput('window.open();', 'window.open();');
-	assertNormalizeInput('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
+	assert.equals(aParameter[0], transform.normalizeInput(aParameter[1]));
 }
 
-function test_normalizeKeyInput()
+test_normalizeKeyInput.parameters = {
+	alphabets          : ['aiueo', 'aiueo'],
+	fullWidthAlphabets : ['aiueo', 'ａｉｕｅｏ'],
+	hiragana           : ['aiueo', 'あいうえお'],
+	katakana           : ['aiueo', 'アイウエオ'],
+	halfWidthKatakana  : ['aiueo', 'ｱｲｳｴｵ'],
+	'濁音付き半角カナ' : ['gagigugego', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ'],
+	includesHyphen     : ['po-to', 'po-to'],
+	kanji              : ['日本語', '日本語'],
+	specialCharacters  : ['()[]|', '()[]|'],
+	openParen          : ['([', '(['],
+	closeParen         : [')]', ')]'],
+	pipe               : ['|', '|'],
+	JSCode             : ['window.open();', 'window.open();'],
+	JSCodeWithParams   : ['window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");']
+};
+function test_normalizeKeyInput(aParameter)
 {
-	function assertNormalizeKeyInput(aExpected, aInput) {
-		assert.equals(aExpected, transform.normalizeKeyInput(aInput));
-	}
-	assertNormalizeKeyInput('aiueo', 'aiueo');
-	assertNormalizeKeyInput('aiueo', 'ａｉｕｅｏ');
-	assertNormalizeKeyInput('aiueo', 'あいうえお');
-	assertNormalizeKeyInput('aiueo', 'アイウエオ');
-	assertNormalizeKeyInput('aiueo', 'ｱｲｳｴｵ');
-	assertNormalizeKeyInput('gagigugego', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ');
-	assertNormalizeKeyInput('po-to', 'po-to');
-	assertNormalizeKeyInput('日本語', '日本語');
-	assertNormalizeKeyInput('()[]|', '()[]|');
-	assertNormalizeKeyInput('([', '([');
-	assertNormalizeKeyInput(')]', ')]');
-	assertNormalizeKeyInput('|', '|');
-	assertNormalizeKeyInput('window.open();', 'window.open();');
-	assertNormalizeKeyInput('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
+	assert.equals(aParameter[0], transform.normalizeKeyInput(aParameter[1]));
 }
 
 
+var roman2kanaRawPatterns = {
+	// [input, hiragana, katakana, mixed]
+	'濁点無し'         : ['aiueo',
+	                      'あいうえお',
+	                      '[アｱ][イｲ][ウｳ][エｴ][オｵ]',
+	                      '[あアｱ][いイｲ][うウｳ][えエｴ][おオｵ]'],
+	'濁点有り'         : ['gagigugego',
+	                      'がぎぐげご',
+	                      '(ガ|ｶﾞ)(ギ|ｷﾞ)(グ|ｸﾞ)(ゲ|ｹﾞ)(ゴ|ｺﾞ)',
+	                      '(が|ガ|ｶﾞ)(ぎ|ギ|ｷﾞ)(ぐ|グ|ｸﾞ)(げ|ゲ|ｹﾞ)(ご|ゴ|ｺﾞ)'],
+	'濁点混じり'       : ['nihongo',
+	                      'にほんご',
+	                      '[ニﾆ][ホﾎ][ンﾝ](ゴ|ｺﾞ)',
+	                      '[にニﾆ][ほホﾎ][んンﾝ](ご|ゴ|ｺﾞ)'],
+	includesHyphen     : ['po-to',
+	                      'ぽーと',
+	                      '(ポ|ﾎﾟ)[ーｰ-][トﾄ]',
+	                      '(ぽ|ポ|ﾎﾟ)[ーｰ-][とトﾄ]'],
+	'拗音・撥音'       : ['kyakkya',
+	                      'きゃっきゃ',
+	                      '[キｷ][ャｬ][ッｯ][キｷ][ャｬ]',
+	                      '[きキｷ][ゃャｬ][っッｯ][きキｷ][ゃャｬ]'],
+	yayoi              : ['uwwu-',
+	                      'うっうー',
+	                      '[ウｳ][ッｯ][ウｳ][ーｰ-]',
+	                      '[うウｳ][っッｯ][うウｳ][ーｰ-]'],
+	fullWidthAlphabets : ['ａｉｕｅｏ',
+	                      'ａｉｕｅｏ',
+	                      'ａｉｕｅｏ',
+	                      'ａｉｕｅｏ'],
+	paren              : ['\\(\\)\\[\\]\\|',
+	                      '\\(\\)\\[\\]\\|',
+	                      '\\(\\)\\[\\]\\|',
+	                      '\\(\\)\\[\\]\\|'],
+	openParen          : ['\\(\\[',
+	                      '\\(\\[',
+	                      '\\(\\[',
+	                      '\\(\\['],
+	closeParen         : ['\\)\\]',
+	                      '\\)\\]',
+	                      '\\)\\]',
+	                      '\\)\\]'],
+	pipe               : ['\\|',
+	                      '\\|',
+	                      '\\|',
+	                      '\\|'],
+};
 
-function test_roman2kana()
+var roman2kanaMatchingPatterns = {
+	// [roman-input,
+	//  expected-hiragana(s), unexpected-hiragana(s),
+	//  expected-katakana(s), unexpected-katakana(s),
+	//  expected-mixed(s), unexpected-mixed(s)]
+	'N1個で「ん」'           : ['kantoku',
+	                            ['かんとく'], ['カントク'],
+	                            ['カントク', 'ｶﾝﾄｸ'], ['かんとく'],
+	                            ['かンとく'], []],
+	'N2個で「ん」'           : ['kanntoku',
+	                            ['かんとく'], ['カントク'],
+	                            ['カントク', 'ｶﾝﾄｸ'], ['かんとく'],
+	                            ['かンとく'], []],
+//	'な行の後にN1個で「ん」' : ['nannin',
+//	                            ['なんにん'], ['ナンニン'],
+//	                            ['ナンニン', 'ﾅﾝﾆﾝ'], ['なんにん'],
+//	                            ['なんニン', 'ナンニん'], []],
+	'な行の後にN2個で「ん」' : ['nannnin',
+	                            ['なんにん'], ['ナンニン'],
+	                            ['ナンニン', 'ﾅﾝﾆﾝ'], ['なんにん'],
+	                            ['なんニン', 'ナンニん'], []],
+	WE                       : ['werukamu',
+	                            ['うぇるかむ'], ['ウェルカム'],
+	                            ['ウェルカム', 'ｳｪﾙｶﾑ'], ['うぇるかむ'],
+	                            ['ウぇるカむ', 'ゑるカム'], []],
+	VE                       : ['vekuta-',
+	                            ['う゛ぇくたー'], ['ヴェクター'],
+	                            ['ヴェクター', 'ｳﾞｪｸﾀｰ'], ['う゛ぇくたー'],
+	                            [], []],
+	VEandDHI                 : ['verudhi',
+	                            ['う゛ぇるでぃ'], ['ヴェルディ'],
+	                            ['ヴェルディ', 'ｳﾞｪﾙﾃﾞｨ'], ['う゛ぇるでぃ'],
+	                            [], []]
+};
+
+test_roman2kana.parameters = roman2kanaRawPatterns;
+function test_roman2kana(aParameter)
 {
-	function assertRoman2Kana(aExpected, aInput) {
-		assert.equals(aExpected, transform.roman2kana(aInput));
-	}
-	assertRoman2Kana('あいうえお', 'aiueo');
-	assertRoman2Kana('ａｉｕｅｏ', 'ａｉｕｅｏ');
-	assertRoman2Kana('がぎぐげご', 'gagigugego');
-	assertRoman2Kana('にほんご', 'nihongo');
-	assertRoman2Kana('ぽーと', 'po-to');
-	assertRoman2Kana('きゃっきゃ', 'kyakkya');
-	assertRoman2Kana('うっうー', 'uwwu-');
-	assertRoman2Kana('\\(\\)\\[\\]\\|', '\\(\\)\\[\\]\\|');
-	assertRoman2Kana('\\(\\[', '\\(\\[');
-	assertRoman2Kana('\\)\\]', '\\)\\]');
-	assertRoman2Kana('\\|', '\\|');
+	assert.equals(aParameter[1], transform.roman2kana(aParameter[0]));
+}
 
-	function assertRoman2KanaPattern(aExpected, aInput) {
-		var regexp = transform.roman2kana(aInput);
-		regexp = new RegExp(regexp, 'i');
+test_roman2kana_patterns.parameters = roman2kanaMatchingPatterns;
+function test_roman2kana_patterns(aParameter)
+{
+	var regexp = transform.roman2kana(aParameter[0]);
+	regexp = new RegExp(regexp, 'i');
+	aParameter[1].forEach(function(aExpected) {
 		assert.pattern(aExpected, regexp);
-	}
-	assertRoman2KanaPattern('かんとく', 'kantoku');
-	assertRoman2KanaPattern('かんとく', 'kanntoku');
-//	assertRoman2KanaPattern('なんにん', 'nannin');
-	assertRoman2KanaPattern('なんにん', 'nannnin');
-	assertRoman2KanaPattern('うぇるかむ', 'werukamu');
+	});
 }
 
-function test_roman2kana2()
+test_roman2kana2.parameters = roman2kanaRawPatterns;
+function test_roman2kana2(aParameter)
 {
-	function assertRoman2Kana2(aExpected, aInput, aType) {
-		assert.equals(aExpected, transform.roman2kana2(aInput, aType));
-	}
-	function assertRoman2Kana2Pattern(aExpected, aUnexpected, aInput, aType) {
-		var regexp = transform.roman2kana2(aInput, aType);
-		regexp = new RegExp(regexp, 'i');
+	assert.equals(aParameter[1], transform.roman2kana2(aParameter[0], transform.KANA_HIRA));
+	assert.equals(aParameter[2], transform.roman2kana2(aParameter[0], transform.KANA_KATA));
+	assert.equals(aParameter[3], transform.roman2kana2(aParameter[0], transform.KANA_ALL));
+}
+
+test_roman2kana2_patterns.parameters = roman2kanaMatchingPatterns;
+function test_roman2kana2_patterns(aParameter)
+{
+	var regexp = transform.roman2kana2(aParameter[0], transform.KANA_HIRA);
+	regexp = new RegExp(regexp, 'i');
+	aParameter[1].forEach(function(aExpected) {
 		assert.pattern(aExpected, regexp);
-		if (aUnexpected)
-			assert.notPattern(aUnexpected, regexp);
-	}
-	assertRoman2Kana2('あいうえお', 'aiueo', transform.KANA_HIRA);
-	assertRoman2Kana2('がぎぐげご', 'gagigugego', transform.KANA_HIRA);
-	assertRoman2Kana2('にほんご', 'nihongo', transform.KANA_HIRA);
-	assertRoman2Kana2('ぽーと', 'po-to', transform.KANA_HIRA);
-	assertRoman2Kana2('きゃっきゃ', 'kyakkya', transform.KANA_HIRA);
-	assertRoman2Kana2('うっうー', 'uwwu-', transform.KANA_HIRA);
-	assertRoman2Kana2('ａｉｕｅｏ', 'ａｉｕｅｏ', transform.KANA_HIRA);
-	assertRoman2Kana2('\\(\\)\\[\\]\\|', '\\(\\)\\[\\]\\|', transform.KANA_HIRA);
-	assertRoman2Kana2('\\(\\[', '\\(\\[', transform.KANA_HIRA);
-	assertRoman2Kana2('\\)\\]', '\\)\\]', transform.KANA_HIRA);
-	assertRoman2Kana2('\\|', '\\|', transform.KANA_HIRA);
-	assertRoman2Kana2Pattern('かんとく', 'カントク', 'kantoku', transform.KANA_HIRA);
-	assertRoman2Kana2Pattern('かんとく', 'カントク', 'kanntoku', transform.KANA_HIRA);
-//	assertRoman2Kana2Pattern('なんにん', 'ナンニン', 'nannin', transform.KANA_HIRA);
-	assertRoman2Kana2Pattern('なんにん', 'ナンニン', 'nannnin', transform.KANA_HIRA);
-	assertRoman2Kana2Pattern('うぇるかむ', 'ウェルカム', 'werukamu', transform.KANA_HIRA);
+	});
+	aParameter[2].forEach(function(aUnexpected) {
+		assert.notPattern(aUnexpected, regexp);
+	});
 
-	assertRoman2Kana2('[アｱ][イｲ][ウｳ][エｴ][オｵ]', 'aiueo', transform.KANA_KATA);
-	assertRoman2Kana2('(ガ|ｶﾞ)(ギ|ｷﾞ)(グ|ｸﾞ)(ゲ|ｹﾞ)(ゴ|ｺﾞ)', 'gagigugego', transform.KANA_KATA);
-	assertRoman2Kana2('[ニﾆ][ホﾎ][ンﾝ](ゴ|ｺﾞ)', 'nihongo', transform.KANA_KATA);
-	assertRoman2Kana2('(ポ|ﾎﾟ)[ーｰ-][トﾄ]', 'po-to', transform.KANA_KATA);
-	assertRoman2Kana2('[キｷ][ャｬ][ッｯ][キｷ][ャｬ]', 'kyakkya', transform.KANA_KATA);
-	assertRoman2Kana2('[ウｳ][ッｯ][ウｳ][ーｰ-]', 'uwwu-', transform.KANA_KATA);
-	assertRoman2Kana2('ａｉｕｅｏ', 'ａｉｕｅｏ', transform.KANA_KATA);
-	assertRoman2Kana2('\\(\\)\\[\\]\\|', '\\(\\)\\[\\]\\|', transform.KANA_KATA);
-	assertRoman2Kana2('\\(\\[', '\\(\\[', transform.KANA_KATA);
-	assertRoman2Kana2('\\)\\]', '\\)\\]', transform.KANA_KATA);
-	assertRoman2Kana2('\\|', '\\|', transform.KANA_KATA);
-	assertRoman2Kana2Pattern('カントク', 'かんとく', 'kantoku', transform.KANA_KATA);
-	assertRoman2Kana2Pattern('カントク', 'かんとく', 'kanntoku', transform.KANA_KATA);
-	assertRoman2Kana2Pattern('ｶﾝﾄｸ', 'かんとく', 'kantoku', transform.KANA_KATA);
-	assertRoman2Kana2Pattern('ｶﾝﾄｸ', 'かんとく', 'kanntoku', transform.KANA_KATA);
-//	assertRoman2Kana2Pattern('ナンニン', 'なんにん', 'nannin', transform.KANA_KATA);
-	assertRoman2Kana2Pattern('ナンニン', 'なんにん', 'nannnin', transform.KANA_KATA);
-	assertRoman2Kana2Pattern('ウェルカム', 'うぇるかむ', 'werukamu', transform.KANA_KATA);
+	regexp = transform.roman2kana2(aParameter[0], transform.KANA_KATA);
+	regexp = new RegExp(regexp, 'i');
+	aParameter[3].forEach(function(aExpected) {
+		assert.pattern(aExpected, regexp);
+	});
+	aParameter[4].forEach(function(aUnexpected) {
+		assert.notPattern(aUnexpected, regexp);
+	});
 
-	assertRoman2Kana2('[あアｱ][いイｲ][うウｳ][えエｴ][おオｵ]', 'aiueo', transform.KANA_ALL);
-	assertRoman2Kana2('(が|ガ|ｶﾞ)(ぎ|ギ|ｷﾞ)(ぐ|グ|ｸﾞ)(げ|ゲ|ｹﾞ)(ご|ゴ|ｺﾞ)', 'gagigugego', transform.KANA_ALL);
-	assertRoman2Kana2('[にニﾆ][ほホﾎ][んンﾝ](ご|ゴ|ｺﾞ)', 'nihongo', transform.KANA_ALL);
-	assertRoman2Kana2('(ぽ|ポ|ﾎﾟ)[ーｰ-][とトﾄ]', 'po-to', transform.KANA_ALL);
-	assertRoman2Kana2('[きキｷ][ゃャｬ][っッｯ][きキｷ][ゃャｬ]', 'kyakkya', transform.KANA_ALL);
-	assertRoman2Kana2('[うウｳ][っッｯ][うウｳ][ーｰ-]', 'uwwu-', transform.KANA_ALL);
-	assertRoman2Kana2('ａｉｕｅｏ', 'ａｉｕｅｏ', transform.KANA_ALL);
-	assertRoman2Kana2('\\(\\)\\[\\]\\|', '\\(\\)\\[\\]\\|', transform.KANA_ALL);
-	assertRoman2Kana2('\\(\\[', '\\(\\[', transform.KANA_ALL);
-	assertRoman2Kana2('\\)\\]', '\\)\\]', transform.KANA_ALL);
-	assertRoman2Kana2('\\|', '\\|', transform.KANA_ALL);
-	assertRoman2Kana2Pattern('カントク', null, 'kantoku', transform.KANA_ALL);
-	assertRoman2Kana2Pattern('かンとく', null, 'kanntoku', transform.KANA_ALL);
-	assertRoman2Kana2Pattern('ｶﾝﾄｸ', null, 'kantoku', transform.KANA_ALL);
-	assertRoman2Kana2Pattern('なんニン', null, 'nannnin', transform.KANA_ALL);
-	assertRoman2Kana2Pattern('ナンニん', null, 'nannnin', transform.KANA_ALL);
-	assertRoman2Kana2Pattern('ウぇるカむ', null, 'werukamu', transform.KANA_ALL);
-	assertRoman2Kana2Pattern('ゑるカム', null, 'werukamu', transform.KANA_ALL);
-	assertRoman2Kana2Pattern('う゛ぇくたー', null, 'vekuta-', transform.KANA_ALL);
-	assertRoman2Kana2Pattern('ヴェルディ', null, 'verudhi', transform.KANA_ALL);
+	regexp = transform.roman2kana2(aParameter[0], transform.KANA_ALL);
+	regexp = new RegExp(regexp, 'i');
+	[].concat(aParameter[1], aParameter[3], aParameter[5]).forEach(function(aExpected) {
+		assert.pattern(aExpected, regexp);
+	});
+	aParameter[6].forEach(function(aUnexpected) {
+		assert.notPattern(aUnexpected, regexp);
+	});
 }
 
-function test_hira2roman()
+
+var convertFromHiraganaRawPatterns = {
+	// [input-hiragana, output-roman, output-katakana, output-katakana-pattern]
+	alphabets          : ['aiueo',
+	                      'aiueo',
+	                      'aiueo',
+	                      'aiueo'],
+	fullWidthAlphabets : ['ａｉｕｅｏ',
+	                      'ａｉｕｅｏ',
+	                      'ａｉｕｅｏ',
+	                      'ａｉｕｅｏ'],
+	hriagana           : ['あいうえお',
+	                      'aiueo',
+	                      'アイウエオ',
+	                      '(ア|ｱ)(イ|ｲ)(ウ|ｳ)(エ|ｴ)(オ|ｵ)'],
+	katakana           : ['アイウエオ',
+	                      'アイウエオ',
+	                      'アイウエオ',
+	                      'アイウエオ'],
+	halfWidthKatakana  : ['ｱｲｳｴｵ',
+	                      'ｱｲｳｴｵ',
+	                      'ｱｲｳｴｵ',
+	                      'ｱｲｳｴｵ'],
+	'濁点付き半角カナ' : ['ｶﾞｷﾞｸﾞｹﾞｺﾞ',
+	                      'ｶﾞｷﾞｸﾞｹﾞｺﾞ',
+	                      'ガギグゲゴ',
+	                      'ガギグゲゴ'],
+	VU                 : ['う゛',
+	                      'vu',
+	                      'ヴ',
+	                      '(ヴ|ｳﾞ)'],
+	includesHyphen     : ['po-to',
+	                      'po-to',
+	                      'po-to',
+	                      'po-to'],
+	'音引き'           : ['ぽーと',
+	                      'po-to',
+	                      'ポート',
+	                      '(ポ|ﾎﾟ)(ー|ｰ|-)(ト|ﾄ)'],
+	kanji              : ['日本語',
+	                      '日本語',
+	                      '日本語',
+	                      '日本語'],
+	paren              : ['()[]|',
+	                      '()[]|',
+	                      '()[]|',
+	                      '()[]|'],
+	openParen          : ['([',
+	                      '([',
+	                      '([',
+	                      '(['],
+	closeParen         : [')]',
+	                      ')]',
+	                      ')]',
+	                      ')]'],
+	pipe               : ['|',
+	                      '|',
+	                      '|',
+	                      '|'],
+	JSCode             : ['window.open();',
+	                      'window.open();',
+	                      'window.open();',
+	                      'window.open();'],
+	JSCodeWithParams   : ['window.open("about:blank", "_blank", "all");',
+	                      'window.open("about:blank", "_blank", "all");',
+	                      'window.open("about:blank", "_blank", "all");',
+	                      'window.open("about:blank", "_blank", "all");']
+};
+
+test_hira2roman.parameters = convertFromHiraganaRawPatterns;
+function test_hira2roman(aParameter)
 {
-	function assertHira2Roman(aExpected, aInput) {
-		assert.equals(aExpected, transform.hira2roman(aInput));
-	}
-	assertHira2Roman('aiueo', 'aiueo');
-	assertHira2Roman('ａｉｕｅｏ', 'ａｉｕｅｏ');
-	assertHira2Roman('aiueo', 'あいうえお');
-	assertHira2Roman('アイウエオ', 'アイウエオ');
-	assertHira2Roman('ｱｲｳｴｵ', 'ｱｲｳｴｵ');
-	assertHira2Roman('ｶﾞｷﾞｸﾞｹﾞｺﾞ', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ');
-	assertHira2Roman('po-to', 'po-to');
-	assertHira2Roman('日本語', '日本語');
-	assertHira2Roman('()[]|', '()[]|');
-	assertHira2Roman('([', '([');
-	assertHira2Roman(')]', ')]');
-	assertHira2Roman('|', '|');
-	assertHira2Roman('window.open();', 'window.open();');
-	assertHira2Roman('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
+	assert.equals(aParameter[1], transform.hira2roman(aParameter[0]));
 }
 
-function test_hira2kata()
+test_hira2kata.parameters = convertFromHiraganaRawPatterns;
+function test_hira2kata(aParameter)
 {
-	function assertHira2Kata(aExpected, aInput) {
-		assert.equals(aExpected, transform.hira2kata(aInput));
-	}
-	assertHira2Kata('aiueo', 'aiueo');
-	assertHira2Kata('ａｉｕｅｏ', 'ａｉｕｅｏ');
-	assertHira2Kata('アイウエオ', 'あいうえお');
-	assertHira2Kata('アイウエオ', 'アイウエオ');
-	assertHira2Kata('ヴ', 'う゛');
-	assertHira2Kata('ｱｲｳｴｵ', 'ｱｲｳｴｵ');
-	assertHira2Kata('ガギグゲゴ', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ');
-	assertHira2Kata('po-to', 'po-to');
-	assertHira2Kata('ポート', 'ぽーと');
-	assertHira2Kata('日本語', '日本語');
-	assertHira2Kata('()[]|', '()[]|');
-	assertHira2Kata('([', '([');
-	assertHira2Kata(')]', ')]');
-	assertHira2Kata('|', '|');
-	assertHira2Kata('window.open();', 'window.open();');
-	assertHira2Kata('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
-
-	function assertHira2KataPattern(aExpected, aInput) {
-		assert.equals(aExpected, transform.hira2kataPattern(aInput));
-	}
-
-	assertHira2KataPattern('aiueo', 'aiueo');
-	assertHira2KataPattern('ａｉｕｅｏ', 'ａｉｕｅｏ');
-	assertHira2KataPattern('(ア|ｱ)(イ|ｲ)(ウ|ｳ)(エ|ｴ)(オ|ｵ)', 'あいうえお');
-	assertHira2KataPattern('アイウエオ', 'アイウエオ');
-	assertHira2KataPattern('(ヴ|ｳﾞ)', 'う゛');
-	assertHira2KataPattern('ｱｲｳｴｵ', 'ｱｲｳｴｵ');
-	assertHira2KataPattern('ガギグゲゴ', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ');
-	assertHira2KataPattern('po-to', 'po-to');
-	assertHira2KataPattern('(ポ|ﾎﾟ)(ー|ｰ|-)(ト|ﾄ)', 'ぽーと');
-	assertHira2KataPattern('日本語', '日本語');
-	assertHira2KataPattern('\\(\\)\\[\\]\\|', '\\(\\)\\[\\]\\|');
-	assertHira2KataPattern('\\(\\[', '\\(\\[');
-	assertHira2KataPattern('\\)\\]', '\\)\\]');
-	assertHira2KataPattern('\\|', '\\|');
-	assertHira2KataPattern('window.open();', 'window.open();');
-	assertHira2KataPattern('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
+	assert.equals(aParameter[2], transform.hira2kata(aParameter[0]));
 }
 
-function test_kata2hira()
+test_hira2kataPattern.parameters = convertFromHiraganaRawPatterns;
+function test_hira2kataPattern(aParameter)
 {
-	function assertKata2Hira(aExpected, aInput) {
-		assert.equals(aExpected, transform.kata2hira(aInput));
-	}
-	assertKata2Hira('aiueo', 'aiueo');
-	assertKata2Hira('ａｉｕｅｏ', 'ａｉｕｅｏ');
-	assertKata2Hira('あいうえお', 'あいうえお');
-	assertKata2Hira('あいうえお', 'アイウエオ');
-	assertKata2Hira('あいうえお', 'ｱｲｳｴｵ');
-	assertKata2Hira('がぎぐげご', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ');
-	assertKata2Hira('po-to', 'po-to');
-	assertKata2Hira('日本語', '日本語');
-	assertKata2Hira('()[]|', '()[]|');
-	assertKata2Hira('([', '([');
-	assertKata2Hira(')]', ')]');
-	assertKata2Hira('|', '|');
-	assertKata2Hira('window.open();', 'window.open();');
-	assertKata2Hira('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
+	assert.equals(aParameter[3], transform.hira2kataPattern(aParameter[0]));
+}
+
+
+test_kata2hira.parameters = {
+	alphabets          : ['aiueo', 'aiueo'],
+	fullWidthAlphabets : ['ａｉｕｅｏ', 'ａｉｕｅｏ'],
+	hiragana           : ['あいうえお', 'あいうえお'],
+	katakana           : ['アイウエオ', 'あいうえお'],
+	halfWidthKatakana  : ['ｱｲｳｴｵ', 'あいうえお'],
+	'濁点付き半角カナ' : ['ｶﾞｷﾞｸﾞｹﾞｺﾞ', 'がぎぐげご'],
+	includesHyphen     : ['po-to', 'po-to'],
+	kanji              : ['日本語', '日本語'],
+	paren              : ['()[]|', '()[]|'],
+	openParen          : ['([', '(['],
+	closeParen         : [')]', ')]'],
+	pipe               : ['|', '|'],
+	JSCode             : ['window.open();', 'window.open();'],
+	JSCodeWithParams   : ['window.open("about:blank", "_blank", "all");',
+	                      'window.open("about:blank", "_blank", "all");']
+};
+function test_kata2hira(aParameter)
+{
+	assert.equals(aParameter[1], transform.kata2hira(aParameter[0]));
 }
 
 function test_zenkaku2hankaku()
