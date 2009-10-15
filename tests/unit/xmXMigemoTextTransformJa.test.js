@@ -14,36 +14,36 @@ function tearDown()
 
 
 test_optimizeRegExp.parameters = {
-	singleCharacters            : ['[abc]', '(a|b|c)'],
-	singleCharactersWithBlank   : ['[abc]', '(a|||b|||c)'],
-	multipleCharacters          : ['(a|b|cd)', '(a|b|cd)'],
-	multipleCharactersWithBlank : ['(a|b|cd)', '(a|||b|||cd)'],
-	includesOpenParen           : ['(\\()', '(\\()'],
-	includesCloseParen          : ['(\\))', '(\\))'],
-	includesParen               : ['(\\(\\))', '(\\(\\))'],
-	includesFullWidthOpenParen  : ['(\\(|（)', '(\\(|（)'],
-	includesFullWidthCloseParen : ['(\\)|）)', '(\\)|）)'],
-	includesFullWidthParen      : ['((\\(|（)(\\)|）))', '((\\(|（)(\\)|）))'],
-	includesOpenBracket         : ['(\\[)', '(\\[)'],
-	includesCloseBracket        : ['(\\])', '(\\])'],
-	includesBracket             : ['(\\[\\])', '(\\[\\])'],
-	includesFullWidthOpenBracket : ['(\\[|［)', '(\\[|［)'],
-	includesFullWidthCloseBracket : ['(\\]|］)', '(\\]|］)'],
+	singleCharacters                 : ['(a|b|c)', '[abc]'],
+	singleCharactersWithBlank        : ['(a|||b|||c)', '[abc]'],
+	multipleCharacters               : ['(a|b|cd)', '(a|b|cd)'],
+	multipleCharactersWithBlank      : ['(a|||b|||cd)', '(a|b|cd)'],
+	includesOpenParen                : ['(\\()', '(\\()'],
+	includesCloseParen               : ['(\\))', '(\\))'],
+	includesParen                    : ['(\\(\\))', '(\\(\\))'],
+	includesFullWidthOpenParen       : ['(\\(|（)', '(\\(|（)'],
+	includesFullWidthCloseParen      : ['(\\)|）)', '(\\)|）)'],
+	includesFullWidthParen           : ['((\\(|（)(\\)|）))', '((\\(|（)(\\)|）))'],
+	includesOpenBracket              : ['(\\[)', '(\\[)'],
+	includesCloseBracket             : ['(\\])', '(\\])'],
+	includesBracket                  : ['(\\[\\])', '(\\[\\])'],
+	includesFullWidthOpenBracket     : ['(\\[|［)', '(\\[|［)'],
+	includesFullWidthCloseBracket    : ['(\\]|］)', '(\\]|］)'],
 	includesFullWidthBracketAndParen : ['((\\[|［)(\\]|］))', '((\\[|［)(\\]|］))']
 };
 function test_optimizeRegExp(aParameter)
 {
-	assert.equals(aParameter[0], transform.optimizeRegExp(aParameter[1]));
+	assert.equals(aParameter[1], transform.optimizeRegExp(aParameter[0]));
 }
 
 
 test_normalizeInput.parameters = {
 	alphabets          : ['aiueo', 'aiueo'],
-	fullWidthAlphabets : ['aiueo', 'ａｉｕｅｏ'],
+	fullWidthAlphabets : ['ａｉｕｅｏ', 'aiueo'],
 	hiragana           : ['あいうえお', 'あいうえお'],
-	katakana           : ['あいうえお', 'アイウエオ'],
-	halfWidthKatakana  : ['あいうえお', 'ｱｲｳｴｵ'],
-	'濁音付き半角カナ' : ['がぎぐげご', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ'],
+	katakana           : ['アイウエオ', 'あいうえお'],
+	halfWidthKatakana  : ['ｱｲｳｴｵ', 'あいうえお'],
+	'濁音付き半角カナ' : ['ｶﾞｷﾞｸﾞｹﾞｺﾞ', 'がぎぐげご'],
 	includesHyphen     : ['po-to', 'po-to'],
 	kanji              : ['日本語', '日本語'],
 	specialCharacters  : ['()[]|', '()[]|'],
@@ -55,16 +55,16 @@ test_normalizeInput.parameters = {
 };
 function test_normalizeInput(aParameter)
 {
-	assert.equals(aParameter[0], transform.normalizeInput(aParameter[1]));
+	assert.equals(aParameter[1], transform.normalizeInput(aParameter[0]));
 }
 
 test_normalizeKeyInput.parameters = {
 	alphabets          : ['aiueo', 'aiueo'],
-	fullWidthAlphabets : ['aiueo', 'ａｉｕｅｏ'],
-	hiragana           : ['aiueo', 'あいうえお'],
-	katakana           : ['aiueo', 'アイウエオ'],
-	halfWidthKatakana  : ['aiueo', 'ｱｲｳｴｵ'],
-	'濁音付き半角カナ' : ['gagigugego', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ'],
+	fullWidthAlphabets : ['ａｉｕｅｏ', 'aiueo'],
+	hiragana           : ['あいうえお', 'aiueo'],
+	katakana           : ['アイウエオ', 'aiueo'],
+	halfWidthKatakana  : ['ｱｲｳｴｵ', 'aiueo'],
+	'濁音付き半角カナ' : ['ｶﾞｷﾞｸﾞｹﾞｺﾞ', 'gagigugego'],
 	includesHyphen     : ['po-to', 'po-to'],
 	kanji              : ['日本語', '日本語'],
 	specialCharacters  : ['()[]|', '()[]|'],
@@ -76,7 +76,7 @@ test_normalizeKeyInput.parameters = {
 };
 function test_normalizeKeyInput(aParameter)
 {
-	assert.equals(aParameter[0], transform.normalizeKeyInput(aParameter[1]));
+	assert.equals(aParameter[1], transform.normalizeKeyInput(aParameter[0]));
 }
 
 
@@ -219,171 +219,197 @@ function test_roman2kana2_patterns(aParameter)
 }
 
 
-var convertFromHiraganaRawPatterns = {
-	// [input-hiragana, output-roman, output-katakana, output-katakana-pattern]
+var convertRawPatterns = {
+	// [input,
+	//  output-roman, output-hiragana, output-katakana, output-katakana-pattern,
+	//  output-hankaku, output-zenkaku-roman, output-zenkaku,
+	//  normalized-for-yomi]
 	alphabets          : ['aiueo',
 	                      'aiueo',
 	                      'aiueo',
+	                      'aiueo',
+	                      'aiueo',
+	                      'aiueo',
+	                      'ａｉｕｅｏ',
+	                      'ａｉｕｅｏ',
 	                      'aiueo'],
 	fullWidthAlphabets : ['ａｉｕｅｏ',
 	                      'ａｉｕｅｏ',
 	                      'ａｉｕｅｏ',
-	                      'ａｉｕｅｏ'],
+	                      'ａｉｕｅｏ',
+	                      'ａｉｕｅｏ',
+	                      'aiueo',
+	                      'ａｉｕｅｏ',
+	                      'ａｉｕｅｏ',
+	                      'aiueo'],
 	hriagana           : ['あいうえお',
 	                      'aiueo',
+	                      'あいうえお',
 	                      'アイウエオ',
-	                      '(ア|ｱ)(イ|ｲ)(ウ|ｳ)(エ|ｴ)(オ|ｵ)'],
+	                      '(ア|ｱ)(イ|ｲ)(ウ|ｳ)(エ|ｴ)(オ|ｵ)',
+	                      'あいうえお',
+	                      'あいうえお',
+	                      'あいうえお',
+	                      'あいうえお'],
 	katakana           : ['アイウエオ',
 	                      'アイウエオ',
+	                      'あいうえお',
 	                      'アイウエオ',
-	                      'アイウエオ'],
+	                      'アイウエオ',
+	                      'アイウエオ',
+	                      'アイウエオ',
+	                      'アイウエオ',
+	                      'あいうえお'],
 	halfWidthKatakana  : ['ｱｲｳｴｵ',
 	                      'ｱｲｳｴｵ',
+	                      'あいうえお',
 	                      'ｱｲｳｴｵ',
-	                      'ｱｲｳｴｵ'],
+	                      'ｱｲｳｴｵ',
+	                      'ｱｲｳｴｵ',
+	                      'ｱｲｳｴｵ',
+	                      'アイウエオ',
+	                      'あいうえお'],
 	'濁点付き半角カナ' : ['ｶﾞｷﾞｸﾞｹﾞｺﾞ',
 	                      'ｶﾞｷﾞｸﾞｹﾞｺﾞ',
+	                      'がぎぐげご',
 	                      'ガギグゲゴ',
-	                      'ガギグゲゴ'],
+	                      'ガギグゲゴ',
+	                      'ｶﾞｷﾞｸﾞｹﾞｺﾞ',
+	                      'ｶﾞｷﾞｸﾞｹﾞｺﾞ',
+	                      'ガギグゲゴ',
+	                      'がぎぐげご'],
 	VU                 : ['う゛',
 	                      'vu',
+	                      'う゛',
 	                      'ヴ',
-	                      '(ヴ|ｳﾞ)'],
+	                      '(ヴ|ｳﾞ)',
+	                      'う゛',
+	                      'う゛',
+	                      'う゛',
+	                      'う゛'],
 	includesHyphen     : ['po-to',
 	                      'po-to',
 	                      'po-to',
+	                      'po-to',
+	                      'po-to',
+	                      'po-to',
+	                      'ｐｏ－ｔｏ',
+	                      'ｐｏ－ｔｏ',
 	                      'po-to'],
 	'音引き'           : ['ぽーと',
 	                      'po-to',
+	                      'ぽーと',
 	                      'ポート',
-	                      '(ポ|ﾎﾟ)(ー|ｰ|-)(ト|ﾄ)'],
+	                      '(ポ|ﾎﾟ)(ー|ｰ|-)(ト|ﾄ)',
+	                      'ぽーと',
+	                      'ぽーと',
+	                      'ぽーと',
+	                      'ぽーと'],
 	kanji              : ['日本語',
+	                      '日本語',
+	                      '日本語',
+	                      '日本語',
+	                      '日本語',
+	                      '日本語',
 	                      '日本語',
 	                      '日本語',
 	                      '日本語'],
 	paren              : ['()[]|',
 	                      '()[]|',
 	                      '()[]|',
+	                      '()[]|',
+	                      '()[]|',
+	                      '()[]|',
+	                      '（）［］｜',
+	                      '（）［］｜',
 	                      '()[]|'],
 	openParen          : ['([',
 	                      '([',
 	                      '([',
+	                      '([',
+	                      '([',
+	                      '([',
+	                      '（［',
+	                      '（［',
 	                      '(['],
 	closeParen         : [')]',
 	                      ')]',
 	                      ')]',
+	                      ')]',
+	                      ')]',
+	                      ')]',
+	                      '）］',
+	                      '）］',
 	                      ')]'],
 	pipe               : ['|',
 	                      '|',
 	                      '|',
+	                      '|',
+	                      '|',
+	                      '|',
+	                      '｜',
+	                      '｜',
 	                      '|'],
 	JSCode             : ['window.open();',
 	                      'window.open();',
 	                      'window.open();',
+	                      'window.open();',
+	                      'window.open();',
+	                      'window.open();',
+	                      'ｗｉｎｄｏｗ．ｏｐｅｎ（）；',
+	                      'ｗｉｎｄｏｗ．ｏｐｅｎ（）；',
 	                      'window.open();'],
 	JSCodeWithParams   : ['window.open("about:blank", "_blank", "all");',
 	                      'window.open("about:blank", "_blank", "all");',
 	                      'window.open("about:blank", "_blank", "all");',
+	                      'window.open("about:blank", "_blank", "all");',
+	                      'window.open("about:blank", "_blank", "all");',
+	                      'window.open("about:blank", "_blank", "all");',
+	                      'ｗｉｎｄｏｗ．ｏｐｅｎ（＂ａｂｏｕｔ：ｂｌａｎｋ＂， ＂＿ｂｌａｎｋ＂， ＂ａｌｌ＂）；',
+	                      'ｗｉｎｄｏｗ．ｏｐｅｎ（＂ａｂｏｕｔ：ｂｌａｎｋ＂， ＂＿ｂｌａｎｋ＂， ＂ａｌｌ＂）；',
 	                      'window.open("about:blank", "_blank", "all");']
 };
 
-test_hira2roman.parameters = convertFromHiraganaRawPatterns;
+test_hira2roman.parameters = convertRawPatterns;
 function test_hira2roman(aParameter)
 {
 	assert.equals(aParameter[1], transform.hira2roman(aParameter[0]));
 }
 
-test_hira2kata.parameters = convertFromHiraganaRawPatterns;
+test_hira2kata.parameters = convertRawPatterns;
 function test_hira2kata(aParameter)
 {
-	assert.equals(aParameter[2], transform.hira2kata(aParameter[0]));
+	assert.equals(aParameter[3], transform.hira2kata(aParameter[0]));
 }
 
-test_hira2kataPattern.parameters = convertFromHiraganaRawPatterns;
+test_hira2kataPattern.parameters = convertRawPatterns;
 function test_hira2kataPattern(aParameter)
 {
-	assert.equals(aParameter[3], transform.hira2kataPattern(aParameter[0]));
+	assert.equals(aParameter[4], transform.hira2kataPattern(aParameter[0]));
 }
 
-
-test_kata2hira.parameters = {
-	alphabets          : ['aiueo', 'aiueo'],
-	fullWidthAlphabets : ['ａｉｕｅｏ', 'ａｉｕｅｏ'],
-	hiragana           : ['あいうえお', 'あいうえお'],
-	katakana           : ['アイウエオ', 'あいうえお'],
-	halfWidthKatakana  : ['ｱｲｳｴｵ', 'あいうえお'],
-	'濁点付き半角カナ' : ['ｶﾞｷﾞｸﾞｹﾞｺﾞ', 'がぎぐげご'],
-	includesHyphen     : ['po-to', 'po-to'],
-	kanji              : ['日本語', '日本語'],
-	paren              : ['()[]|', '()[]|'],
-	openParen          : ['([', '(['],
-	closeParen         : [')]', ')]'],
-	pipe               : ['|', '|'],
-	JSCode             : ['window.open();', 'window.open();'],
-	JSCodeWithParams   : ['window.open("about:blank", "_blank", "all");',
-	                      'window.open("about:blank", "_blank", "all");']
-};
+test_kata2hira.parameters = convertRawPatterns;
 function test_kata2hira(aParameter)
 {
-	assert.equals(aParameter[1], transform.kata2hira(aParameter[0]));
+	assert.equals(aParameter[2], transform.kata2hira(aParameter[0]));
 }
 
-function test_zenkaku2hankaku()
+test_zenkaku2hankaku.parameters = convertRawPatterns;
+function test_zenkaku2hankaku(aParameter)
 {
-	function assertZenkaku2Hankaku(aExpected, aInput) {
-		assert.equals(aExpected, transform.zenkaku2hankaku(aInput));
-	}
-	assertZenkaku2Hankaku('aiueo', 'aiueo');
-	assertZenkaku2Hankaku('aiueo', 'ａｉｕｅｏ');
-	assertZenkaku2Hankaku('あいうえお', 'あいうえお');
-	assertZenkaku2Hankaku('アイウエオ', 'アイウエオ');
-	assertZenkaku2Hankaku('ｱｲｳｴｵ', 'ｱｲｳｴｵ');
-	assertZenkaku2Hankaku('ｶﾞｷﾞｸﾞｹﾞｺﾞ', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ');
-	assertZenkaku2Hankaku('po-to', 'po-to');
-	assertZenkaku2Hankaku('日本語', '日本語');
-	assertZenkaku2Hankaku('()[]|', '()[]|');
-	assertZenkaku2Hankaku('([', '([');
-	assertZenkaku2Hankaku(')]', ')]');
-	assertZenkaku2Hankaku('|', '|');
-	assertZenkaku2Hankaku('window.open();', 'window.open();');
-	assertZenkaku2Hankaku('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
+	assert.equals(aParameter[5], transform.zenkaku2hankaku(aParameter[0]));
 }
 
-function test_roman2zen()
+test_roman2zen.parameters = convertRawPatterns;
+function test_roman2zen(aParameter)
 {
-	function assertRoman2Zen(aExpected, aInput) {
-		assert.equals(aExpected, transform.roman2zen(aInput));
-	}
-	assertRoman2Zen('ａｉｕｅｏ', 'aiueo');
-	assertRoman2Zen('ａｉｕｅｏ', 'ａｉｕｅｏ');
-	assertRoman2Zen('あいうえお', 'あいうえお');
-	assertRoman2Zen('アイウエオ', 'アイウエオ');
-	assertRoman2Zen('ｱｲｳｴｵ', 'ｱｲｳｴｵ');
-	assertRoman2Zen('ｶﾞｷﾞｸﾞｹﾞｺﾞ', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ');
-	assertRoman2Zen('ｐｏ－ｔｏ', 'po-to');
-	assertRoman2Zen('日本語', '日本語');
-	assertRoman2Zen('（）［］｜', '()[]|');
-	assertRoman2Zen('（［', '([');
-	assertRoman2Zen('）］', ')]');
-	assertRoman2Zen('｜', '|');
+	assert.equals(aParameter[6],transform.roman2zen(aParameter[0]));
 }
 
-function test_normalizeForYomi()
+test_normalizeForYomi.parameters = convertRawPatterns;
+function test_normalizeForYomi(aParameter)
 {
-	function assertNormalizeForYomi(aExpected, aInput) {
-		assert.equals(aExpected, transform.normalizeForYomi(aInput));
-	}
-	assertNormalizeForYomi('aiueo', 'aiueo');
-	assertNormalizeForYomi('あいうえお', 'あいうえお');
-	assertNormalizeForYomi('あいうえお', 'アイウエオ');
-	assertNormalizeForYomi('あいうえお', 'ｱｲｳｴｵ');
-	assertNormalizeForYomi('がぎぐげご', 'ｶﾞｷﾞｸﾞｹﾞｺﾞ');
-	assertNormalizeForYomi('po-to', 'po-to');
-	assertNormalizeForYomi('日本語', '日本語');
-	assertNormalizeForYomi('()[]|', '()[]|');
-	assertNormalizeForYomi('([', '([');
-	assertNormalizeForYomi(')]', ')]');
-	assertNormalizeForYomi('|', '|');
+	assert.equals(aParameter[8], transform.normalizeForYomi(aParameter[0]));
 }
 
 function test_isYomi()
