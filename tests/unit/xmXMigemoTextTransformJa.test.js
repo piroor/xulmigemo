@@ -13,6 +13,8 @@ function tearDown()
 }
 
 
+var convertPatterns = utils.readParametersFromCSV("xmMigemoTextTransformJa_convertPatterns.csv", "UTF-8");
+
 test_optimizeRegExp.parameters = {
 	singleCharacters                 : ['(a|b|c)', '[abc]'],
 	singleCharactersWithBlank        : ['(a|||b|||c)', '[abc]'],
@@ -37,46 +39,16 @@ function test_optimizeRegExp(aParameter)
 }
 
 
-test_normalizeInput.parameters = {
-	alphabets          : ['aiueo', 'aiueo'],
-	fullWidthAlphabets : ['ａｉｕｅｏ', 'aiueo'],
-	hiragana           : ['あいうえお', 'あいうえお'],
-	katakana           : ['アイウエオ', 'あいうえお'],
-	halfWidthKatakana  : ['ｱｲｳｴｵ', 'あいうえお'],
-	'濁音付き半角カナ' : ['ｶﾞｷﾞｸﾞｹﾞｺﾞ', 'がぎぐげご'],
-	includesHyphen     : ['po-to', 'po-to'],
-	kanji              : ['日本語', '日本語'],
-	specialCharacters  : ['()[]|', '()[]|'],
-	openParen          : ['([', '(['],
-	closeParen         : [')]', ')]'],
-	pipe               : ['|', '|'],
-	JSCode             : ['window.open();', 'window.open();'],
-	JSCodeWithParams   : ['window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");']
-};
+test_normalizeInput.parameters = convertPatterns;
 function test_normalizeInput(aParameter)
 {
-	assert.equals(aParameter[1], transform.normalizeInput(aParameter[0]));
+	assert.equals(aParameter.toNormalizedInput, transform.normalizeInput(aParameter.input));
 }
 
-test_normalizeKeyInput.parameters = {
-	alphabets          : ['aiueo', 'aiueo'],
-	fullWidthAlphabets : ['ａｉｕｅｏ', 'aiueo'],
-	hiragana           : ['あいうえお', 'aiueo'],
-	katakana           : ['アイウエオ', 'aiueo'],
-	halfWidthKatakana  : ['ｱｲｳｴｵ', 'aiueo'],
-	'濁音付き半角カナ' : ['ｶﾞｷﾞｸﾞｹﾞｺﾞ', 'gagigugego'],
-	includesHyphen     : ['po-to', 'po-to'],
-	kanji              : ['日本語', '日本語'],
-	specialCharacters  : ['()[]|', '()[]|'],
-	openParen          : ['([', '(['],
-	closeParen         : [')]', ')]'],
-	pipe               : ['|', '|'],
-	JSCode             : ['window.open();', 'window.open();'],
-	JSCodeWithParams   : ['window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");']
-};
+test_normalizeKeyInput.parameters = convertPatterns;
 function test_normalizeKeyInput(aParameter)
 {
-	assert.equals(aParameter[1], transform.normalizeKeyInput(aParameter[0]));
+	assert.equals(aParameter.toNormalizedKeyInput, transform.normalizeKeyInput(aParameter.input));
 }
 
 
@@ -219,48 +191,46 @@ function test_roman2kana2_patterns(aParameter)
 }
 
 
-var convertRawPatterns = utils.readParametersFromCSV("xmMigemoTextTransformJaConvertRawPatterns.csv", "UTF-8");
-
-test_hira2roman.parameters = convertRawPatterns;
+test_hira2roman.parameters = convertPatterns;
 function test_hira2roman(aParameter)
 {
-	assert.equals(aParameter[1], transform.hira2roman(aParameter[0]));
+	assert.equals(aParameter.toRoman, transform.hira2roman(aParameter.input));
 }
 
-test_hira2kata.parameters = convertRawPatterns;
+test_hira2kata.parameters = convertPatterns;
 function test_hira2kata(aParameter)
 {
-	assert.equals(aParameter[3], transform.hira2kata(aParameter[0]));
+	assert.equals(aParameter.toKatakana, transform.hira2kata(aParameter.input));
 }
 
-test_hira2kataPattern.parameters = convertRawPatterns;
+test_hira2kataPattern.parameters = convertPatterns;
 function test_hira2kataPattern(aParameter)
 {
-	assert.equals(aParameter[4], transform.hira2kataPattern(aParameter[0]));
+	assert.equals(aParameter.toKatakanaPattern, transform.hira2kataPattern(aParameter.input));
 }
 
-test_kata2hira.parameters = convertRawPatterns;
+test_kata2hira.parameters = convertPatterns;
 function test_kata2hira(aParameter)
 {
-	assert.equals(aParameter[2], transform.kata2hira(aParameter[0]));
+	assert.equals(aParameter.toHiragana, transform.kata2hira(aParameter.input));
 }
 
-test_zenkaku2hankaku.parameters = convertRawPatterns;
+test_zenkaku2hankaku.parameters = convertPatterns;
 function test_zenkaku2hankaku(aParameter)
 {
-	assert.equals(aParameter[5], transform.zenkaku2hankaku(aParameter[0]));
+	assert.equals(aParameter.toHankaku, transform.zenkaku2hankaku(aParameter.input));
 }
 
-test_roman2zen.parameters = convertRawPatterns;
+test_roman2zen.parameters = convertPatterns;
 function test_roman2zen(aParameter)
 {
-	assert.equals(aParameter[6],transform.roman2zen(aParameter[0]));
+	assert.equals(aParameter.toRomanZenkaku, transform.roman2zen(aParameter.input));
 }
 
-test_normalizeForYomi.parameters = convertRawPatterns;
+test_normalizeForYomi.parameters = convertPatterns;
 function test_normalizeForYomi(aParameter)
 {
-	assert.equals(aParameter[8], transform.normalizeForYomi(aParameter[0]));
+	assert.equals(aParameter.toYomi, transform.normalizeForYomi(aParameter.input));
 }
 
 function test_isYomi()
