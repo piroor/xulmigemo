@@ -25,41 +25,14 @@ function tearDown()
 	destroyRange();
 }
 
-function test_getRegExpFor()
+test_getRegExpFor.parameters = utils.readJSON('xmXMigemoEngineJa_regExpPatterns.json', 'UTF-8');
+function test_getRegExpFor(aParameter)
 {
-	assert.equals('\\(|（', core.getRegExpFor('('));
-	assert.equals('\\)|）', core.getRegExpFor(')'));
-	assert.equals('\\[|［', core.getRegExpFor('['));
-	assert.equals('\\]|］', core.getRegExpFor(']'));
-
-	function assertRegExpFor(aExpected, aInput) {
-		var regexp = core.getRegExpFor(aInput);
-		regexp = new RegExp(regexp, 'i');
-		assert.pattern(aExpected, regexp);
-	}
-	assertRegExpFor('かかく', 'kak');
-	assertRegExpFor('かこ', 'kak');
-	assertRegExpFor('かっか', 'kak');
-	assertRegExpFor('カントク', 'kantoku');
-	assertRegExpFor('かンとく', 'kanntoku');
-	assertRegExpFor('ｶﾝﾄｸ', 'kantoku');
-	assertRegExpFor('なんニン', 'nannnin');
-	assertRegExpFor('ナンニん', 'nannnin');
-	assertRegExpFor('ウぇるカむ', 'werukam');
-	assertRegExpFor('ウぇるカも', 'werukam');
-	assertRegExpFor('ゑるカム', 'werukam');
-	assertRegExpFor('ゑるカみ', 'werukam');
-	assertRegExpFor('werukam', 'werukam');
-	assertRegExpFor('Dão', 'dao');
-	assertRegExpFor('おー', 'o-');
-	assertRegExpFor('ｵｰ', 'o-');
-	assertRegExpFor('オー', 'o-');
-	assertRegExpFor('おｰ', 'o-');
-	assertRegExpFor('お-', 'o-');
-	assertRegExpFor('日本語', 'nihongo');
-	assertRegExpFor('ハロー', 'hello');
-	assertRegExpFor('window.open();', 'window.open();');
-	assertRegExpFor('window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");');
+	var regexp = core.getRegExpFor(aParameter.input);
+	regexp = new RegExp(regexp, 'i');
+	aParameter.terms.forEach(function(aTerm) {
+		assert.pattern(aTerm, regexp);
+	});
 }
 
 function test_regExpFind_forHiddenTargets()
