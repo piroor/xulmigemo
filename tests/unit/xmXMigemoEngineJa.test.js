@@ -13,37 +13,35 @@ function tearDown()
 	engine = null;
 }
 
-function test_getRegExpFor()
+test_getRegExpFor.parameters = {
+	'展開'     : { input : 'kak',
+	               terms : ['かかく', 'かこ', 'かっか'] },
+	'N1個'     : { input : 'kantoku',
+	               terms : ['カントク', 'かんとく', 'ｶﾝﾄｸ'] },
+	'N2個'     : { input : 'kanntoku',
+	               terms : ['カントク', 'かんとく', 'ｶﾝﾄｸ'] },
+	'N3個'     : { input : 'nannnin',
+	               terms : ['なんニン', 'ナンニん'] },
+	WE         : { input : 'werukam',
+	               terms : ['ウぇるカむ', 'ウぇるカも', 'ゑるカム', 'ゑるカみ', 'werukam'] },
+	'発音記号' : { input : 'dao',
+	               terms : ['Dão'] },
+	'音引き'   : { input : 'o-',
+	               terms : ['おー', 'ｵｰ', 'オー', 'おｰ', 'お-'] },
+	'漢字'     : { input : 'nihongo',
+	               terms : ['日本語'] },
+	'英単語'   : { input : 'hello',
+	               terms : ['ハロー'] },
+	openParen  : { input : '(', terms : ['(', '（'] },
+	closeParen : { input : ')', terms : [')', '）'] },
+	openBracket  : { input : '[', terms : ['[', '［'] },
+	closeBracket : { input : ']', terms : [']', '］'] }
+};
+function test_getRegExpFor(aParameter)
 {
-	assert.equals('\\(|（', engine.getRegExpFor('('));
-	assert.equals('\\)|）', engine.getRegExpFor(')'));
-	assert.equals('\\[|［', engine.getRegExpFor('['));
-	assert.equals('\\]|］', engine.getRegExpFor(']'));
-
-	function assertRegExpFor(aExpected, aInput) {
-		var regexp = engine.getRegExpFor(aInput);
-		regexp = new RegExp(regexp, 'i');
-		assert.pattern(aExpected, regexp);
-	}
-	assertRegExpFor('かかく', 'kak');
-	assertRegExpFor('かこ', 'kak');
-	assertRegExpFor('かっか', 'kak');
-	assertRegExpFor('カントク', 'kantoku');
-	assertRegExpFor('かンとく', 'kanntoku');
-	assertRegExpFor('ｶﾝﾄｸ', 'kantoku');
-	assertRegExpFor('なんニン', 'nannnin');
-	assertRegExpFor('ナンニん', 'nannnin');
-	assertRegExpFor('ウぇるカむ', 'werukam');
-	assertRegExpFor('ウぇるカも', 'werukam');
-	assertRegExpFor('ゑるカム', 'werukam');
-	assertRegExpFor('ゑるカみ', 'werukam');
-	assertRegExpFor('werukam', 'werukam');
-	assertRegExpFor('Dão', 'dao');
-	assertRegExpFor('おー', 'o-');
-	assertRegExpFor('ｵｰ', 'o-');
-	assertRegExpFor('オー', 'o-');
-	assertRegExpFor('おｰ', 'o-');
-	assertRegExpFor('お-', 'o-');
-	assertRegExpFor('日本語', 'nihongo');
-	assertRegExpFor('ハロー', 'hello');
+	var regexp = engine.getRegExpFor(aParameter.input);
+	regexp = new RegExp(regexp, 'i');
+	aParameter.terms.forEach(function(aTerm) {
+		assert.pattern(aTerm, regexp);
+	});
 }
