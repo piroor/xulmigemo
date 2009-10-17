@@ -4,6 +4,7 @@ var findModule;
 
 function setUp()
 {
+	utils.setPref('xulmigemo.lang', 'ja');
 	yield utils.setUpTestWindow();
 	findModule = new xmXMigemoFind();
 	findModule.target = utils.getTestWindow().gBrowser;
