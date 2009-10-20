@@ -6,6 +6,7 @@
 #include "nsIDOMWindow.idl"
 #include "nsIDOMDocument.idl"
 #include "nsIDOMRange.idl"
+#include "nsIDOMElement.idl"
 #include "nsIDOMNode.idl"
 
 interface nsIFile;
@@ -13,6 +14,7 @@ interface nsIVariant;
 interface nsIDOMWindow;
 interface nsIDOMDocument;
 interface nsIDOMRange;
+interface nsIDOMElement;
 interface nsIDOMNode;
 
 
@@ -230,14 +232,14 @@ interface xmIXMigemo : xmIXMigemoEngine
 		in AString regExpSource,
 		in AString regExpFlags,
 		in nsIDOMRange findRange,
-		in nsIDOMNode surroundNode
+		in nsIDOMElement surroundNode
 	);
 
 	nsIVariant regExpHighlightTextWithSelection(
 		in AString regExpSource,
 		in AString regExpFlags,
 		in nsIDOMRange findRange,
-		in nsIDOMNode surroundNode
+		in nsIDOMElement surroundNode
 	);
 
 	nsIVariant flattenRegExp(
@@ -266,7 +268,7 @@ interface xmIXMigemoFind : nsIObserver
 	attribute xmIXMigemo core;
 
 	/* target node; <xul:browser/>, <xul:tabbrowser/> or <xul:iframe/> */
-	attribute nsIDOMNode target;
+	attribute nsIDOMElement target;
 
 	attribute boolean isLinksOnly;
 	attribute boolean isQuickFind;
@@ -313,7 +315,7 @@ interface xmIXMigemoFind : nsIObserver
 
 	void scrollSelectionToCenter(in nsIDOMWindow frame);
 
-	nsIDOMNode getParentLinkFromRange(in nsIDOMRange range);
+	nsIDOMElement getParentLinkFromRange(in nsIDOMRange range);
 
 	void clear(in boolean focusToFoundTarget);
 	void exitFind(in boolean focusToFoundTarget);
@@ -393,22 +395,22 @@ interface xmIXMigemoAPI : nsISupports
 	nsIDOMRange regExpFind(
 		in nsIVariant regExp,
 		in nsIDOMRange findRange,
-		in nsIDOMRange startPoint,
-		in nsIDOMRange endPoint,
-		in boolean findBackwards
+		[optional] in nsIDOMRange startPoint,
+		[optional] in nsIDOMRange endPoint,
+		[optional] in boolean findBackwards
 	);
 
 	nsIVariant regExpFindArr(
 		in nsIVariant regExp,
 		in nsIDOMRange findRange,
-		in nsIDOMRange startPoint,
-		in nsIDOMRange endPoint
+		[optional] in nsIDOMRange startPoint,
+		[optional] in nsIDOMRange endPoint
 	);
 
 	nsIVariant regExpHighlightText(
 		in nsIVariant regExp,
 		in nsIDOMRange findRange,
-		in nsIDOMNode surroundNode
+		in nsIDOMElement surroundNode
 	);
 
 	boolean isValidFunctionalInput(in AString input);
