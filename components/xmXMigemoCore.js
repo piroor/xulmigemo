@@ -465,12 +465,14 @@ dump('STEP 2: '+array.toSource()+'\n');
 		if (aStartPoint) aStartPoint.QueryInterface(Ci.nsIDOMRange);
 		if (aEndPoint) aEndPoint.QueryInterface(Ci.nsIDOMRange);
 
+		var doc = aFindRange.startContainer.ownerDocument || aFindRange.startContainer;
+
 		if (!aStartPoint) {
-			aStartPoint = aFindRange.startContainer.ownerDocument.createRange();
+			aStartPoint = doc.createRange();
 			aStartPoint.setStartBefore(aFindRange.startContainer);
 		}
 		if (!aEndPoint) {
-			aEndPoint = aFindRange.endContainer.ownerDocument.createRange();
+			aEndPoint = doc.createRange();
 			aEndPoint.setEndAfter(aFindRange.endContainer);
 		}
 
@@ -513,22 +515,22 @@ dump('STEP 2: '+array.toSource()+'\n');
 		if (aSurroundNode) aSurroundNode = aSurroundNode.QueryInterface(Ci.nsIDOMNode);
 
 		var findRange = aFindRange.cloneRange();
+		var doc = findRange.startContainer.ownerDocument || findRange.startContainer;
 
 		var startPoint = aStartPoint;
 		if (startPoint) {
 			startPoint = startPoint.cloneRange();
 		}
 		else {
-			startPoint = findRange.startContainer.ownerDocument.createRange();
+			startPoint = doc.createRange();
 			startPoint.setStart(findRange.startContainer, findRange.startOffset);
 		}
 
 		if (!aEndPoint) {
-			aEndPoint = findRange.endContainer.ownerDocument.createRange();
+			aEndPoint = doc.createRange();
 			aEndPoint.setStart(findRange.endContainer, findRange.endOffset);
 		}
 
-		var doc = findRange.startContainer.ownerDocument;
 		var selRange = this.textUtils.getFoundRange(doc.defaultView);
 		if (selRange) selRange = selRange.QueryInterface(Ci.nsIDOMRange);
 		var shouldRebuildSelection = selRange && Prefs.getBoolPref('xulmigemo.rebuild_selection');
@@ -642,7 +644,8 @@ dump('STEP 2: '+array.toSource()+'\n');
 	},
 	getEditorSelConFromRange : function(aRange)
 	{
-		var editorElement = aRange.startContainer.ownerDocument.evaluate(
+		var doc = aRange.startContainer.ownerDocument || aRange.startContainer;
+		var editorElement = doc.evaluate(
 				'ancestor::*[contains(" INPUT input TEXTAREA textarea textbox ", concat(" ", local-name(), " "))][last()]',
 				aRange.startContainer,
 				null,
