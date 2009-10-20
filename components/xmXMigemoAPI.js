@@ -158,7 +158,14 @@ xmXMigemoAPI.prototype = {
 		if (aRegExp.multiline) flags.push('m');
 		flags = flags.join('');
 
-		var result = this.XMigemo.regExpFind(aRegExp.source, flags, aFindRange, aStartPoint, aEndPoint, (aFindBackwards ? true : false ));
+		var result = this.XMigemo.regExpFind(
+						aRegExp.source,
+						flags,
+						aFindRange,
+						aStartPoint,
+						aEndPoint,
+						(aFindBackwards ? true : false )
+					);
 		return result;
 	},
  
@@ -170,7 +177,13 @@ xmXMigemoAPI.prototype = {
 		if (aRegExp.multiline) flags.push('m');
 		flags = flags.join('');
 
-		var result = this.XMigemo.regExpFindArr(aRegExp.source, flags, aFindRange, aStartPoint, aEndPoint);
+		var result = this.XMigemo.regExpFindArr(
+						aRegExp.source,
+						flags,
+						aFindRange,
+						aStartPoint,
+						aEndPoint
+					);
 		return result;
 	},
  
@@ -182,7 +195,12 @@ xmXMigemoAPI.prototype = {
 		if (aRegExp.multiline) flags.push('m');
 		flags = flags.join('');
 
-		var result = this.XMigemo.regExpHighlightText(aRegExp.source, flags, aFindRange, aSurrountNode);
+		var result = this.XMigemo.regExpHighlightText(
+						aRegExp.source,
+						flags,
+						aFindRange,
+						aSurrountNode
+					);
 		return result;
 	},
  

@@ -468,12 +468,12 @@ dump('STEP 2: '+array.toSource()+'\n');
 		var doc = aFindRange.startContainer.ownerDocument || aFindRange.startContainer;
 
 		if (!aStartPoint) {
-			aStartPoint = doc.createRange();
-			aStartPoint.setStartBefore(aFindRange.startContainer);
+			aStartPoint = aFindRange.cloneRange();
+			aStartPoint.collapse(true);
 		}
 		if (!aEndPoint) {
-			aEndPoint = doc.createRange();
-			aEndPoint.setEndAfter(aFindRange.endContainer);
+			aEndPoint = aFindRange.cloneRange();
+			aEndPoint.collapse(false);
 		}
 
 		if (aRegExpFlags == 'null' ||
@@ -522,13 +522,13 @@ dump('STEP 2: '+array.toSource()+'\n');
 			startPoint = startPoint.cloneRange();
 		}
 		else {
-			startPoint = doc.createRange();
-			startPoint.setStart(findRange.startContainer, findRange.startOffset);
+			startPoint = findRange.cloneRange();
+			startPoint.collapse(true);
 		}
 
 		if (!aEndPoint) {
-			aEndPoint = doc.createRange();
-			aEndPoint.setStart(findRange.endContainer, findRange.endOffset);
+			aEndPoint = findRange.cloneRange();
+			aEndPoint.collapse(false);
 		}
 
 		var selRange = this.textUtils.getFoundRange(doc.defaultView);
