@@ -41,8 +41,8 @@ xmXMigemoAPI.prototype = {
 		this._getRegExps_cacheArray = [];
 		this._getRegExpFunctional_cache = {};
 		this._getRegExpFunctional_cacheArray = [];
-		this._getRegsExpFunctional_cache = {};
-		this._getRegsExpFunctional_cacheArray = [];
+		this._getRegExpsFunctional_cache = {};
+		this._getRegExpsFunctional_cacheArray = [];
 	},
  
 	get version() 
