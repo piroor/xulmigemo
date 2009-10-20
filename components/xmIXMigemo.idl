@@ -113,6 +113,8 @@ interface xmIXMigemoTextTransform : nsISupports
 [scriptable, uuid(5d4ea3d0-ae38-11de-8a39-0800200c9a66)]
 interface xmIXMigemoDictionary : nsISupports
 {
+	attribute ACString lang;
+
 	AString getDic();
 	AString getUserDic();
 	void saveUserDic();
@@ -136,12 +138,13 @@ interface xmIXMigemoDictionary : nsISupports
 [scriptable, uuid(628b1fe0-ae38-11de-8a39-0800200c9a66)]
 interface xmIXMigemoDictionaryUniversal : xmIXMigemoDictionary
 {
-	attribute ACString lang;
 };
 
 [scriptable, uuid(67027730-ae38-11de-8a39-0800200c9a66)]
 interface xmIXMigemoEngine : nsIObserver
 {
+	attribute ACString lang;
+
 	/* create regular expressions from roman letters. */
 	AString getRegExpFor(in AString input);
 
@@ -163,7 +166,6 @@ interface xmIXMigemoEngine : nsIObserver
 [scriptable, uuid(6b8910c0-ae38-11de-8a39-0800200c9a66)]
 interface xmIXMigemoEngineUniversal : xmIXMigemoEngine
 {
-	attribute ACString lang;
 };
 
 
@@ -360,6 +362,57 @@ interface xmIXMigemoDictionaryJa : xmIXMigemoDictionary
 	AString getDicForTerm(in AString input);
 
 	void saveUserDicFor(in ACString key);
+};
+
+
+[scriptable, uuid(066d0a50-bd7b-11de-8a39-0800200c9a66)]
+interface xmIXMigemoAPI : nsISupports
+{
+	readonly attribute AString version;
+	readonly attribute AString lang;
+	readonly attribute boolean andFindAvailable;
+	readonly attribute boolean notFindAvailable;
+
+	nsIVariant getRegExp(
+		in AString input,
+		[optional] in AString flags
+	);
+	nsIVariant getRegExps(
+		in AString input,
+		[optional] in AString flags
+	);
+	nsIVariant getRegExpFunctional(
+		in AString input,
+		[optional] in AString flags
+	);
+	nsIVariant getRegExpsFunctional(
+		in AString input,
+		[optional] in AString flags
+	);
+
+	nsIDOMRange regExpFind(
+		in nsIVariant regExp,
+		in nsIDOMRange findRange,
+		in nsIDOMRange startPoint,
+		in nsIDOMRange endPoint,
+		in boolean findBackwards
+	);
+
+	nsIVariant regExpFindArr(
+		in nsIVariant regExp,
+		in nsIDOMRange findRange,
+		in nsIDOMRange startPoint,
+		in nsIDOMRange endPoint
+	);
+
+	nsIVariant regExpHighlightText(
+		in nsIVariant regExp,
+		in nsIDOMRange findRange,
+		in nsIDOMNode surroundNode
+	);
+
+	boolean isValidFunctionalInput(in AString input);
+	AString trimFunctionalInput(in AString input);
 };
 
 

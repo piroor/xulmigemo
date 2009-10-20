@@ -24,7 +24,7 @@ var XMigemoTabPreviews = {
 			<![CDATA[
 				if (this.searchField.value &&
 					XMigemoTabPreviews.enabled &&
-					XMigemoCore.isValidFunctionalInput(this.searchField.value)) {
+					migemo.isValidFunctionalInput(this.searchField.value)) {
 					list = XMigemoTabPreviews.filterListFromInput(list, this.searchField.value);
 				}
 				else $&
@@ -42,18 +42,9 @@ var XMigemoTabPreviews = {
  
 	filterListFromInput : function(aTabs, aInput) 
 	{
-		var termsRegExp = {};
-		var exceptionRegExp = {};
-		var filterRegExp = new RegExp(
-			XMigemoCore.getRegExpFunctional(
-				XMigemoCore.trimFunctionalInput(aInput),
-				termsRegExp,
-				exceptionRegExp
-			),
-			'gim'
-		);
-		exceptionRegExp = exceptionRegExp.value ?
-			new RegExp(exceptionRegExp.value, 'gim') : null ;
+		var filterRegExp = migemo.getRegExpFunctional(migemo.trimFunctionalInput(aInput), 'gim');
+		var termsRegExp = filterRegExp.terms;
+		var exceptionRegExp = filterRegExp.exceptions;
 
 		return aTabs.filter(function(aTab) {
 			var uri = aTab.linkedBrowser.currentURI.spec;

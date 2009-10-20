@@ -22,7 +22,7 @@ var XMigemoPlaces = {
 				!/^\w+:\/\//.test(aInput)
 			) &&
 			this.minLength <= aInput.length &&
-			XMigemoCore.isValidFunctionalInput(aInput)
+			migemo.isValidFunctionalInput(aInput)
 			);
 	},
  
@@ -52,15 +52,10 @@ var XMigemoPlaces = {
 			info.findMode = Components.interfaces.xmIXMigemoFind.FIND_MODE_REGEXP;
 		}
 		else {
-			var termsRegExp = {};
-			var exceptionsRegExp = {};
-			info.findRegExps = XMigemoCore.getRegExpsFunctional(findInput, termsRegExp, exceptionsRegExp)
-								.map(function(aRegExp) {
-									return new RegExp(aRegExp, 'gim');
-								});
-			info.termsRegExp = new RegExp(termsRegExp.value, 'gim');
-			if (exceptionsRegExp.value)
-				info.exceptionsRegExp = new RegExp(exceptionsRegExp.value, 'gim');
+			var result = migemo.getRegExpsFunctional(findInput, 'gim');
+			info.findRegExps = result.regexps;
+			info.termsRegExp = result.terms;
+			info.exceptionsRegExp = result.exceptions;
 			info.findMode = Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO;
 		}
 
@@ -720,15 +715,9 @@ var XMigemoPlaces = {
 				this.lastTermsRegExp = new RegExp(this.TextUtils.extractRegExpSource(aQuery.searchTerms), flags);
 		}
 		else {
-			var termsRegExp = {};
-			var exceptionRegExp = {};
-			this.lastFindRegExp = new RegExp(
-				XMigemoCore.getRegExpFunctional(aBaseQuery.searchTerms, termsRegExp, exceptionRegExp),
-				'gim'
-			);
-			this.lastTermsRegExp = new RegExp(termsRegExp.value, 'gim');
-//			if (exceptionRegExp.value)
-//				this.lastExceptionsRegExp = new RegExp('^(?:'+exceptionRegExp.value+')$', 'gim');
+			this.lastFindRegExp = migemo.getRegExpFunctional(aBaseQuery.searchTerms, 'gim');
+			this.lastTermsRegExp = this.lastFindRegExp.terms;
+//			this.lastExceptionsRegExp = this.lastFindRegExp.exceptions;
 		}
 		this.lastTermSets = [];
 		this.lastQueries = [];
