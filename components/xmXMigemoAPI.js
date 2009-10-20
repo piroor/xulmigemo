@@ -36,13 +36,13 @@ xmXMigemoAPI.prototype = {
 	initCache : function() 
 	{
 		this._getRegExp_cache = {};
-		this._getRegExp_cacheCount = 0;
+		this._getRegExp_cacheArray = [];
 		this._getRegExps_cache = {};
-		this._getRegExps_cacheCount = 0;
+		this._getRegExps_cacheArray = [];
 		this._getRegExpFunctional_cache = {};
-		this._getRegExpFunctional_cacheCount = 0;
+		this._getRegExpFunctional_cacheArray = [];
 		this._getRegsExpFunctional_cache = {};
-		this._getRegsExpFunctional_cacheCount = 0;
+		this._getRegsExpFunctional_cacheArray = [];
 	},
  
 	get version() 
@@ -75,14 +75,14 @@ xmXMigemoAPI.prototype = {
 	getRegExp : function(aInput, aFlags) 
 	{
 		if (!aFlags) aFlags = 'im';
-		if (++this._getRegExp_cacheCount > MAX_CACHE_COUNT) {
-			this._getRegExp_cache = {};
-			this._getRegExp_cacheCount = 0;
+		while (this._getRegExp_cacheArray.length >= MAX_CACHE_COUNT)
+		{
+			delete this._getRegExp_cache[this._getRegExp_cacheArray.shift()];
 		}
 		var key = aInput+'-'+aFlags;
 		if (!(key in this._getRegExp_cache)) {
 			this._getRegExp_cache[key] = new RegExp(this.XMigemo.getRegExp(aInput), aFlags);
-			this._getRegExp_cacheCount++;
+			this._getRegExp_cacheArray.push(this._getRegExp_cache[key]);
 		}
 		return this._getRegExp_cache[key];
 	},
@@ -90,16 +90,16 @@ xmXMigemoAPI.prototype = {
 	getRegExps : function(aInput, aFlags) 
 	{
 		if (!aFlags) aFlags = 'im';
-		if (++this._getRegExps_cacheCount > MAX_CACHE_COUNT) {
-			this._getRegExps_cache = {};
-			this._getRegExps_cacheCount = 0;
+		while (this._getRegExps_cacheArray.length >= MAX_CACHE_COUNT)
+		{
+			delete this._getRegExps_cache[this._getRegExps_cacheArray.shift()];
 		}
 		var key = aInput+'-'+aFlags;
 		if (!(key in this._getRegExps_cache)) {
 			this._getRegExps_cache[key] = this.XMigemo.getRegExps(aInput).map(function(aSource) {
 				return new RegExp(aSource, aFlags);
 			});
-			this._getRegExps_cacheCount++;
+			this._getRegExps_cacheArray.push(this._getRegExps_cache[key]);
 		}
 		return this._getRegExps_cache[key];
 	},
@@ -107,9 +107,9 @@ xmXMigemoAPI.prototype = {
 	getRegExpFunctional : function(aInput, aFlags) 
 	{
 		if (!aFlags) aFlags = 'im';
-		if (++this._getRegExpFunctional_cacheCount > MAX_CACHE_COUNT) {
-			this._getRegExpFunctional_cache = {};
-			this._getRegExpFunctional_cacheCount = 0;
+		while (this._getRegExpFunctional_cacheArray.length >= MAX_CACHE_COUNT)
+		{
+			delete this._getRegExpFunctional_cache[this._getRegExpFunctional_cache.shift()];
 		}
 		var key = aInput+'-'+aFlags;
 		if (!(key in this._getRegExpFunctional_cache)) {
@@ -120,7 +120,7 @@ xmXMigemoAPI.prototype = {
 			regexp.terms = new RegExp(terms.value, 'gim');
 			regexp.exceptions = exceptions.value ? new RegExp(exceptions.value, 'im') : null ;
 			this._getRegExpFunctional_cache[key] = regexp;
-			this._getRegExpFunctional_cacheCount++;
+			this._getRegExpFunctional_cacheArray.push(regexp);
 		}
 		return this._getRegExpFunctional_cache[key];
 	},
@@ -128,9 +128,9 @@ xmXMigemoAPI.prototype = {
 	getRegExpsFunctional : function(aInput, aFlags) 
 	{
 		if (!aFlags) aFlags = 'im';
-		if (++this._getRegExpsFunctional_cacheCount > MAX_CACHE_COUNT) {
-			this._getRegExpsFunctional_cache = {};
-			this._getRegExpsFunctional_cacheCount = 0;
+		while (this._getRegExpsFunctional_cacheArray.length >= MAX_CACHE_COUNT)
+		{
+			delete this._getRegExpsFunctional_cache[this._getRegExpsFunctional_cache.shift()];
 		}
 		var key = aInput+'-'+aFlags;
 		if (!(key in this._getRegExpsFunctional_cache)) {
@@ -145,7 +145,7 @@ xmXMigemoAPI.prototype = {
 				terms : new RegExp(terms.value, 'gim'),
 				exceptions : exceptions.value ? new RegExp(exceptions.value, 'gim') : null
 			};
-			this._getRegExpsFunctional_cacheCount++;
+			this._getRegExpsFunctional_cacheArray.push(this._getRegExpsFunctional_cache[key]);
 		}
 		return this._getRegExpsFunctional_cache[key];
 	},
