@@ -158,7 +158,8 @@ xmXMigemoAPI.prototype = {
 		if (aRegExp.multiline) flags.push('m');
 		flags = flags.join('');
 
-		return this.XMigemo.regExpFind(aRegExp.source, flags, aFindRange, aStartPoint, aEndPoint, (aFindBackwards ? true : false ));
+		var result = this.XMigemo.regExpFind(aRegExp.source, flags, aFindRange, aStartPoint, aEndPoint, (aFindBackwards ? true : false ));
+		return result;
 	},
  
 	regExpFindArr : function(aRegExp, aFindRange, aStartPoint, aEndPoint) 
@@ -169,7 +170,8 @@ xmXMigemoAPI.prototype = {
 		if (aRegExp.multiline) flags.push('m');
 		flags = flags.join('');
 
-		return this.XMigemo.regExpFindArr(aRegExp.source, flags, aFindRange, aStartPoint, aEndPoint);
+		var result = this.XMigemo.regExpFindArr(aRegExp.source, flags, aFindRange, aStartPoint, aEndPoint);
+		return result;
 	},
  
 	regExpHighlightText : function(aRegExp, aFindRange, aSurrountNode) 
@@ -180,7 +182,8 @@ xmXMigemoAPI.prototype = {
 		if (aRegExp.multiline) flags.push('m');
 		flags = flags.join('');
 
-		return this.XMigemo.regExpHighlightText(aRegExp.source, flags, aFindRange, aSurrountNode);
+		var result = this.XMigemo.regExpHighlightText(aRegExp.source, flags, aFindRange, aSurrountNode);
+		return result;
 	},
  
 	isValidFunctionalInput : function(aInput) 
@@ -289,6 +292,7 @@ xmXMigemoAPI.prototype = {
   
 var categoryManager = Cc['@mozilla.org/categorymanager;1'] 
 						.getService(Ci.nsICategoryManager);
+var JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY = 'JavaScript global property';
 
 var gModule = {
 	_firstTime: true,
@@ -318,7 +322,7 @@ var gModule = {
 				true
 			);
 			categoryManager.addCategoryEntry(
-				'JavaScript global property',
+				JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY,
 				obj.accessorName,
 				obj.contractID,
 				true,
