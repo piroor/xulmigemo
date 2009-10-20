@@ -20,7 +20,7 @@ var XMigemoCombinationService = {
 				/var (titleMatchPos) = (candidate.strippedTitle.indexOf\([^)]+\));/,
 				<><![CDATA[
 					var $1 = XMigemoService.getPref('xulmigemo.combination.autocompletemanager') ?
-						candidate.title.search(XMigemoCore.getCachedRegExp(acm_typedPrefix)) :
+						candidate.title.search(migemo.getRegExp(acm_typedPrefix, 'i')) :
 						$2;
 				]]></>
 			)

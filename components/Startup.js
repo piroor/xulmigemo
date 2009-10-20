@@ -50,6 +50,8 @@ XMigemoStartupService.prototype = {
 				null
 			);
 		}
+
+		ObserverService.notifyObservers(null, 'XMigemo:initialized', null);
 	},
  
 	updateGlobalStyleSheets : function() 

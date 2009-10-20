@@ -495,21 +495,24 @@ var XMigemoUI = {
 			if (this.findMode == this.FIND_MODE_MIGEMO ||
 				!this.caseSensitiveCheck.checked)
 				flags += 'i';
+			var regexp;
+			switch (this.findMode)
+			{
+				case this.FIND_MODE_REGEXP:
+					regexp = new RegExp(this.textUtils.extractRegExpSource(term), flags);
+					break;
+				case this.FIND_MODE_MIGEMO:
+					regexp = migemo.getRegExp(term, flags);
+					break
+				default:
+					regexp = new RegExp(this.textUtils.sanitize(term), flags);
+					break;
+			}
 			termLength = Math.max.apply(
 				null,
-				XMigemoCore.regExpFindArrRecursively(
-					new RegExp(
-						(
-							this.findMode == this.FIND_MODE_REGEXP ?
-								this.textUtils.extractRegExpSource(term) :
-							this.findMode == this.FIND_MODE_MIGEMO ?
-								XMigemoCore.getRegExp(term) :
-								this.textUtils.sanitize(term)
-						),
-						flags
-					),
-					this.activeBrowser.contentWindow,
-					true
+				migemo.getMatchedTerms(
+					regexp,
+					this.activeBrowser.contentWindow
 				).map(function(aItem) {
 					return (aItem || '').length;
 				})
@@ -518,6 +521,25 @@ var XMigemoUI = {
 		}
 
 		return minLength <= termLength;
+	},
+	getMatchedTerms : function(aRegExp, aWindow) 
+	{
+		var results = [];
+		var frames = aWindow.frames;
+		for (var i = 0, maxi = frames.length; i < maxi; i++)
+		{
+			results = results.concat(this.getMatchedTerms(aRegExp, frames[i]));
+		}
+
+		var doc = aWindow.document;
+		var range = doc.createRange();
+		range.selectNodeContents(doc.documentElement);
+
+		var arrTerms = this.textUtils.range2Text(range).match(aRegExp);
+		if (arrTerms)
+			results = results.concat(arrTerms);
+
+		return results;
 	},
  
 	get isScrolling() 
