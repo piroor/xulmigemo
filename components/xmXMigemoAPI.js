@@ -280,19 +280,19 @@ xmXMigemoAPI.prototype = {
 	// nsISecurityCheckedComponent 
 	canCreateWrapper : function(aIID)
 	{
-		return 'allAccess';
+		return 'AllAccess';
 	},
 	canCallMehthod : function(aIID, aName)
 	{
-		return 'allAccess';
+		return 'AllAccess';
 	},
 	canGetProperty : function(aIID, aName)
 	{
-		return 'allAccess';
+		return 'AllAccess';
 	},
 	canSetProperty : function(aIID, aName)
 	{
-		return 'allAccess';
+		return 'AllAccess';
 	},
  
 	QueryInterface : function(aIID) 
@@ -310,8 +310,8 @@ xmXMigemoAPI.prototype = {
   
 var categoryManager = Cc['@mozilla.org/categorymanager;1'] 
 						.getService(Ci.nsICategoryManager);
-// var JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY = 'JavaScript global property';
-var JAVASCRIPT_GLOBAL_PRIVILEGED_PROPERTY_CATEGORY = 'JavaScript global privileged property';
+var JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY = 'JavaScript global property';
+// var JAVASCRIPT_GLOBAL_PRIVILEGED_PROPERTY_CATEGORY = 'JavaScript global privileged property';
 
 var gModule = {
 	_firstTime: true,
@@ -341,8 +341,8 @@ var gModule = {
 				true
 			);
 			categoryManager.addCategoryEntry(
-				// JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY,
-				JAVASCRIPT_GLOBAL_PRIVILEGED_PROPERTY_CATEGORY,
+				JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY,
+				// JAVASCRIPT_GLOBAL_PRIVILEGED_PROPERTY_CATEGORY,
 				obj.accessorName,
 				obj.contractID,
 				true,
