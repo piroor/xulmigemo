@@ -393,7 +393,9 @@ mydump("findInDocument ==========================================");
 				}
 				this.foundRange = rangeFindResult.range;
 				this.lastFoundWord = this.foundRange.toString();
-				doc = this.foundRange.commonAncestorContainer.parentNode.ownerDocument;
+				doc = this.foundRange.commonAncestorContainer;
+				if (doc.parentNode) doc = doc.parentNode;
+				if (doc.ownerDocument) doc = doc.ownerDocument;
 				if (rangeFindResult.flag & this.FOUND_IN_EDITABLE) {
 					doc.foundEditable = rangeFindResult.foundEditable;
 					doc.lastFoundEditable = doc.foundEditable;
@@ -403,7 +405,7 @@ mydump("findInDocument ==========================================");
 				}
 				if (aForceFocus) doc.defaultView.focus();
 				if (rangeFindResult.flag & this.FOUND_IN_LINK) this.focusToLink(aForceFocus);
-				this.setSelectionAndScroll(this.foundRange, aRangeSet.range.startContainer.ownerDocument);
+				this.setSelectionAndScroll(this.foundRange, aRangeSet.range.startContainer.ownerDocument || aRangeSet.range.startContainer);
 				rangeFindResult.flag |= this.FINISH_FIND;
 				if (aFindFlag & this.FIND_WRAP)
 					rangeFindResult.flag |= this.WRAPPED;
@@ -879,7 +881,7 @@ mydump("setSelectionAndScroll");
 		if (!aRange && !aDocument) return;
 
 		if (!aDocument)
-			aDocument = aRange.startContainer.ownerDocument;
+			aDocument = aRange.startContainer.ownerDocument || aRange.startContainer;
 
 		// clear old range
 		[
