@@ -367,6 +367,7 @@ interface xmIXMigemoDictionaryJa : xmIXMigemoDictionary
 };
 
 
+// easy API for JavaScript
 [scriptable, uuid(066d0a50-bd7b-11de-8a39-0800200c9a66)]
 interface xmIXMigemoAPI : nsISupports
 {
