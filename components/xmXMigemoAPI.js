@@ -109,7 +109,7 @@ xmXMigemoAPI.prototype = {
 		if (!aFlags) aFlags = 'im';
 		while (this._getRegExpFunctional_cacheArray.length >= MAX_CACHE_COUNT)
 		{
-			delete this._getRegExpFunctional_cache[this._getRegExpFunctional_cache.shift()];
+			delete this._getRegExpFunctional_cache[this._getRegExpFunctional_cacheArray.shift()];
 		}
 		var key = aInput+'-'+aFlags;
 		if (!(key in this._getRegExpFunctional_cache)) {
@@ -130,7 +130,7 @@ xmXMigemoAPI.prototype = {
 		if (!aFlags) aFlags = 'im';
 		while (this._getRegExpsFunctional_cacheArray.length >= MAX_CACHE_COUNT)
 		{
-			delete this._getRegExpsFunctional_cache[this._getRegExpsFunctional_cache.shift()];
+			delete this._getRegExpsFunctional_cache[this._getRegExpsFunctional_cacheArray.shift()];
 		}
 		var key = aInput+'-'+aFlags;
 		if (!(key in this._getRegExpsFunctional_cache)) {
@@ -272,7 +272,7 @@ xmXMigemoAPI.prototype = {
 		aCount.value = interfaces.length;
 		return interfaces;
 	},
-	getHelperForLanguage : function(aCount)
+	getHelperForLanguage : function(aLanguage)
 	{
 		return null;
 	},
