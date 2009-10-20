@@ -297,7 +297,7 @@ xmXMigemoAPI.prototype = {
  
 	QueryInterface : function(aIID) 
 	{
-		if(!aIID.equals(Ci.xmIXMigemoAPI) &&
+		if (!aIID.equals(Ci.xmIXMigemoAPI) &&
 			!aIID.equals(Ci.nsIClassInfo) &&
 			!aIID.equals(Ci.nsISecurityCheckedComponent) &&
 			!aIID.equals(Ci.nsIObserver) &&
