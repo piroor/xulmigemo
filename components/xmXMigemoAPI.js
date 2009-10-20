@@ -45,19 +45,17 @@ xmXMigemoAPI.prototype = {
 		this._getRegsExpFunctional_cacheCount = 0;
 	},
  
-	initVersion : function() 
+	get version() 
 	{
-		this._version = Cc['@mozilla.org/extensions/manager;1']
-						.getService(Ci.nsIExtensionManager)
-						.getItemForID('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}')
-						.version;
-	},
- 
-	_version : '', 
-	get version()
-	{
+		if (!this._version) {
+			this._version = Cc['@mozilla.org/extensions/manager;1']
+							.getService(Ci.nsIExtensionManager)
+							.getItemForID('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}')
+							.version;
+		}
 		return this._version;
 	},
+	_version : '',
  
 	get lang() 
 	{
@@ -223,7 +221,6 @@ xmXMigemoAPI.prototype = {
 
 			case 'XMigemo:initialized':
 				ObserverService.removeObserver(this, 'XMigemo:initialized');
-				this.initVersion();
 				Prefs.QueryInterface(Ci.nsIPrefBranchInternal)
 					.addObserver('xulmigemo.', this, false);
 				return;
