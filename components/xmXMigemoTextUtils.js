@@ -515,7 +515,7 @@ xmXMigemoTextUtils.prototype = {
 
 		aBaseRange.QueryInterface(Ci.nsIDOMRange);
 		aTargetRange.QueryInterface(Ci.nsIDOMRange);
-		if (aBaseRange.startContainer.ownerDocument != aTargetRange.startContainer.ownerDocument)
+		if ((aBaseRange.startContainer.ownerDocument || aBaseRange.startContainer) != (aTargetRange.startContainer.ownerDocument || aTargetRange.startContainer))
 			return false;
 
 		try {
@@ -540,7 +540,7 @@ xmXMigemoTextUtils.prototype = {
 
 		aBaseRange.QueryInterface(Ci.nsIDOMRange);
 		aTargetRange.QueryInterface(Ci.nsIDOMRange);
-		if (aBaseRange.startContainer.ownerDocument != aTargetRange.startContainer.ownerDocument)
+		if ((aBaseRange.startContainer.ownerDocument || aBaseRange.startContainer) != (aTargetRange.startContainer.ownerDocument || aTargetRange.startContainer))
 			return false;
 
 		try {
