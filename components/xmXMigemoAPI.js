@@ -95,6 +95,10 @@ xmXMigemoAPI.prototype = {
  
 	getRegExpFunctional : function(aInput, aFlags) 
 	{
+		aInput = this.trimFunctionalInput(aInput);
+		if (!this.isValidFunctionalInput(aInput))
+			throw 'xmXMigemoAPI::getRegExpFunctional() Error: "'+aInput+'" is not a valid input.';
+
 		if (aFlags === void(0)) aFlags = 'im';
 		while (this._getRegExpFunctional_cacheArray.length >= MAX_CACHE_COUNT)
 		{
@@ -116,6 +120,10 @@ xmXMigemoAPI.prototype = {
  
 	getRegExpsFunctional : function(aInput, aFlags) 
 	{
+		aInput = this.trimFunctionalInput(aInput);
+		if (!this.isValidFunctionalInput(aInput))
+			throw 'xmXMigemoAPI::getRegExpsFunctional() Error: "'+aInput+'" is not a valid input.';
+
 		if (aFlags === void(0)) aFlags = 'im';
 		while (this._getRegExpsFunctional_cacheArray.length >= MAX_CACHE_COUNT)
 		{
