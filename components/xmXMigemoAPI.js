@@ -45,23 +45,6 @@ xmXMigemoAPI.prototype = {
 		this._getRegExpsFunctional_cacheArray = [];
 	},
  
-	get version() 
-	{
-		if (!this._version) {
-			this._version = Cc['@mozilla.org/extensions/manager;1']
-							.getService(Ci.nsIExtensionManager)
-							.getItemForID('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}')
-							.version;
-		}
-		return this._version;
-	},
-	_version : '',
- 
-	get lang() 
-	{
-		return this.XMigemo.lang;
-	},
- 
 	getRegExp : function(aInput, aFlags) 
 	{
 		if (!aFlags) aFlags = 'im';
@@ -236,6 +219,11 @@ xmXMigemoAPI.prototype = {
 
 			case 'XMigemo:initialized':
 				ObserverService.removeObserver(this, 'XMigemo:initialized');
+				this.__proto__.version = Cc['@mozilla.org/extensions/manager;1']
+							.getService(Ci.nsIExtensionManager)
+							.getItemForID('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}')
+							.version,
+				this.__proto__.lang = this.XMigemo.lang;
 				Prefs.QueryInterface(Ci.nsIPrefBranchInternal)
 					.addObserver('xulmigemo.', this, false);
 				return;
@@ -247,6 +235,7 @@ xmXMigemoAPI.prototype = {
 						this._lang = '';
 						this._XMigemo = null;
 						this.initCache();
+						this.__proto__.lang = this.XMigemo.lang;
 						return;
 				}
 		}
@@ -262,7 +251,6 @@ xmXMigemoAPI.prototype = {
 				// hide interfaces unrelated to Migemo feature
 				/* ,
 				Ci.nsIClassInfo,
-				Ci.nsISecurityCheckedComponent,
 				Ci.nsIObserver
 				*/
 			];
@@ -274,45 +262,10 @@ xmXMigemoAPI.prototype = {
 		return null;
 	},
  
-	// nsISecurityCheckedComponent 
-	canCreateWrapper : function(aIID)
-	{
-		return 'AllAccess';
-	},
-	canCallMehthod : function(aIID, aName)
-	{
-		return this._getPermissionOfFeature(aName);
-	},
-	canGetProperty : function(aIID, aName)
-	{
-		return this._getPermissionOfFeature(aName);
-	},
-	canSetProperty : function(aIID, aName)
-	{
-		return this._getPermissionOfFeature(aName);
-	},
-	_getPermissionOfFeature : function(aName)
-	{
-		switch (aName)
-		{
-			case 'version':
-			case 'lang':
-			case 'regExpFind':
-			case 'regExpFindArr':
-			case 'regExpFindArray':
-			case 'regExpHighlightText':
-				return 'UniversalXPConnect';
-
-			default:
-				return 'AllAccess';
-		}
-	},
- 
 	QueryInterface : function(aIID) 
 	{
 		if (!aIID.equals(Ci.xmIXMigemoAPI) &&
 			!aIID.equals(Ci.nsIClassInfo) &&
-			!aIID.equals(Ci.nsISecurityCheckedComponent) &&
 			!aIID.equals(Ci.nsIObserver) &&
 			!aIID.equals(Ci.nsISupports))
 			throw Components.results.NS_ERROR_NO_INTERFACE;
