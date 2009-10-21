@@ -177,9 +177,9 @@ xmXMigemoAPI.prototype = {
 		return result;
 	},
  
-	regExpHighlightWithSelection : function(aRegExp, aFindRange, aSurrountNode) 
+	regExpHighlightSelection : function(aRegExp, aFindRange, aSurrountNode) 
 	{
-		var result = this.XMigemo.regExpHighlightWithSelection(
+		var result = this.XMigemo.regExpHighlightSelection(
 						aRegExp.source,
 						this.getFlagsFromRegExp(aRegExp),
 						aFindRange,
@@ -195,6 +195,21 @@ xmXMigemoAPI.prototype = {
 		if (aRegExp.global) flags.push('g');
 		if (aRegExp.multiline) flags.push('m');
 		return flags.join('');
+	},
+ 
+	clearHighlight : function(aDocument, aRecursively, aSelectionOnly, aKeepFoundHighlighted) 
+	{
+		this.XMigemo.clearHighlight(aDocument, aRecursively, aSelectionOnly, aKeepFoundHighlighted);
+	},
+ 
+	getHighlights : function(aDocument, aRecursively) 
+	{
+		return this.XMigemo.getHighlights(aDocument, aRecursively);
+	},
+ 
+	repaintHighlights : function(aDocument, aRecursively, aHighlighted) 
+	{
+		this.XMigemo.repaintHighlights(aDocument, aRecursively, aHighlighted);
 	},
   
 	get XMigemo() { 

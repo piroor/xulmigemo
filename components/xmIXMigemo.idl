@@ -78,10 +78,28 @@ interface xmIXMigemoRangeFindAPI : xmIXMigemoAPI
 		in nsIDOMElement surroundNode
 	);
 
-	nsIVariant regExpHighlightWithSelection(
+	nsIVariant regExpHighlightSelection(
 		in nsIVariant regExp,
 		in nsIDOMRange findRange,
 		[optional] in nsIDOMElement surroundNode
+	);
+
+	void clearHighlight(
+		in nsIDOMDocument document,
+		[optional] in boolean recursively,
+		[optional] in boolean selectionOnly,
+		[optional] in boolean keepFoundHighlighted
+	);
+
+	nsIVariant getHighlights(
+		in nsIDOMDocument document,
+		[optional] in boolean recursively
+	);
+
+	void repaintHighlights(
+		in nsIDOMDocument document,
+		[optional] in boolean recursively,
+		[optional] in boolean highlighted
 	);
 };
 
@@ -288,8 +306,17 @@ interface xmIXMigemo : xmIXMigemoEngine
 		[optional] in nsIDOMRange endPoint,
 		[optional] in boolean findBackwards
 	);
+
 	/* this returns all of found terms as an array. */
 	nsIVariant regExpFindArray(
+		in AString regExpSource,
+		in AString regExpFlags,
+		in nsIDOMRange findRange,
+		[optional] in nsIDOMRange startPoint,
+		[optional] in nsIDOMRange endPoint
+	);
+	/* for backward compatibility */
+	nsIVariant regExpFindArr(
 		in AString regExpSource,
 		in AString regExpFlags,
 		in nsIDOMRange findRange,
@@ -304,11 +331,27 @@ interface xmIXMigemo : xmIXMigemoEngine
 		in nsIDOMElement surroundNode
 	);
 
-	nsIVariant regExpHighlightWithSelection(
+	nsIVariant regExpHighlightSelection(
 		in AString regExpSource,
 		in AString regExpFlags,
 		in nsIDOMRange findRange,
 		[optional] in nsIDOMElement surroundNode
+	);
+
+	void clearHighlight(
+		in nsIDOMDocument document,
+		[optional] in boolean recursively,
+		[optional] in boolean selectionOnly,
+		[optional] in boolean keepFoundHighlighted
+	);
+	nsIVariant getHighlights(
+		in nsIDOMDocument document,
+		[optional] in boolean recursively
+	);
+	void repaintHighlights(
+		in nsIDOMDocument document,
+		[optional] in boolean recursively,
+		[optional] in boolean highlighted
 	);
 
 	nsIVariant flattenRegExp(
@@ -320,15 +363,6 @@ interface xmIXMigemo : xmIXMigemoEngine
 	readonly attribute xmIXMigemoDicManager dictionaryManager;
 
 	void init(in ACString language);
-
-	/* for backward compatibility */
-	nsIVariant regExpFindArr(
-		in AString regExpSource,
-		in AString regExpFlags,
-		in nsIDOMRange findRange,
-		[optional] in nsIDOMRange startPoint,
-		[optional] in nsIDOMRange endPoint
-	);
 };
 
 
@@ -466,7 +500,22 @@ interface pIXMigemoEngineUniversal : xmIXMigemoEngineUniversal {};
 [scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
 interface pIXMigemoDicManager : xmIXMigemoDicManager {};
 [scriptable, uuid(2eacdfe0-be0c-11de-8a39-0800200c9a66)]
-interface pIXMigemo : xmIXMigemo {};
+interface pIXMigemo : xmIXMigemo
+{
+	nsIVariant regExpHighlightText(
+		in AString regExpSource,
+		in AString regExpFlags,
+		in nsIDOMRange findRange,
+		in nsIDOMElement surroundNode
+	);
+
+	nsIVariant regExpHighlightTextWithSelection(
+		in AString regExpSource,
+		in AString regExpFlags,
+		in nsIDOMRange findRange,
+		in nsIDOMElement surroundNode
+	);
+};
 [scriptable, uuid(63a6c07c-1f48-11dc-8314-0800200c9a66)]
 interface pIXMigemoFactory : xmIXMigemoFactory {};
 [scriptable, uuid(47113a90-be0c-11de-8a39-0800200c9a66)]
