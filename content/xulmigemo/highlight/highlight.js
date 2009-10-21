@@ -506,7 +506,7 @@ var XMigemoHighlight = {
 		else
 			doc.documentElement.removeAttribute(this.kSCREEN);
 
-		XMigemoUI.repaintHighlightSelectionWithDelay(!aHighlight);
+		migemo.repaintHighlights(doc, true, !aHighlight);
 	},
  	
 	isDocumentHighlightable : function(aDocument) 
@@ -727,7 +727,7 @@ var XMigemoHighlight = {
 
 				// DOM modification breaks higlight selections
 				if (doc.documentElement.getAttribute(this.kSCREEN) != 'on')
-					XMigemoUI.repaintHighlightSelectionWithDelay(true);
+					migemo.repaintHighlights(doc, false, true);
 
 				range.selectNodeContents(focusedNode);
 				var selection = doc.defaultView.getSelection();

@@ -116,8 +116,7 @@ var XMigemoUI = {
 	CIRCULATE_MODE_NONE : 0,
 	CIRCULATE_MODE_EXIT : 256,
  
-	shouldRebuildSelection : false, 
-	prefillWithSelection   : false,
+	prefillWithSelection   : false, 
 	workForAnyXMLDocuments : true,
  
 	kLABELS_SHOW : 0, 
@@ -510,7 +509,7 @@ var XMigemoUI = {
 			}
 			termLength = Math.max.apply(
 				null,
-				migemo.getMatchedTerms(
+				this.getMatchedTerms(
 					regexp,
 					this.activeBrowser.contentWindow
 				).map(function(aItem) {
@@ -728,7 +727,6 @@ var XMigemoUI = {
 		xulmigemo.appearance.closeButtonPosition
 		xulmigemo.disableIME.quickFindFor
 		xulmigemo.disableIME.normalFindFor
-		xulmigemo.rebuild_selection
 		xulmigemo.find_delay
 		xulmigemo.ignore_find_links_only_behavior
 		xulmigemo.prefillwithselection
@@ -859,10 +857,6 @@ var XMigemoUI = {
 
 			case 'xulmigemo.disableIME.normalFindFor':
 				this.disableIMEOnNormalFindFor = value;
-				return;
-
-			case 'xulmigemo.rebuild_selection':
-				this.shouldRebuildSelection = value;
 				return;
 
 			case 'xulmigemo.find_delay':
@@ -2250,8 +2244,8 @@ var XMigemoUI = {
 					'{',
 					<![CDATA[
 					{
-						var foundRange = XMigemoUI.shouldRebuildSelection ? XMigemoUI.textUtils.getFoundRange(arguments[0].startContainer.ownerDocument.defaultView) : null ;
-						var foundLength = (XMigemoUI.shouldRebuildSelection && XMigemoUI.textUtils.isRangeOverlap(foundRange, arguments[0])) ? foundRange.toString().length : 0 ;
+						var foundRange = XMigemoUI.textUtils.getFoundRange(arguments[0].startContainer.ownerDocument.defaultView);
+						var foundLength = XMigemoUI.textUtils.isRangeOverlap(foundRange, arguments[0]) ? foundRange.toString().length : 0 ;
 					]]>
 				).replace(
 					'return',
@@ -2507,160 +2501,10 @@ var XMigemoUI = {
  
 	clearHighlight : function(aDocument, aRecursively) 
 	{
-		var selCons = [];
-		var highlights = this.collectHighlights(aDocument, aRecursively, selCons);
-
-		if (this.highlightSelectionAvailable) { // Firefox 3.1
-			selCons.forEach(function(aSelCon) {
-				var selection = aSelCon.getSelection(aSelCon.SELECTION_FIND);
-				selection.removeAllRanges();
-				aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
-			});
-			if (this.highlightSelectionOnly) return;
-		}
-
-		// old implementation for Firefox 3.0.x, 2.0.0.x
-		highlights.reverse();
-		var doc, range, foundRange, foundLength;
-		var highlighted = !this.highlightCheck.disabled && this.highlightCheck.checked;
-		highlights.forEach(function(aHighlight) {
-			var node = aHighlight.node;
-			if (!doc || doc != node.ownerDocument) {
-				if (range) range.detach();
-				doc = node.ownerDocument;
-				range = doc.createRange();
-				var selection = doc.defaultView.getSelection();
-				foundRange = this.shouldRebuildSelection ?
-					(
-						this.textUtils.getFoundRange(doc.defaultView) ||
-						(selection.rangeCount ? selection.getRangeAt(0) : null )
-					) :
-					null ;
-				foundLength = foundRange ? foundRange.toString().length : 0 ;
-			}
-
-			if (node.getAttribute('class') == '__mozilla-findbar-animation') {
-				range.selectNode(node);
-				range.deleteContents();
-				range.detach();
-				return;
-			}
-
-			var hasSelection = false;
-			if (this.shouldRebuildSelection && foundRange && foundRange.toString().length) {
-				range.selectNodeContents(node.parentNode);
-				hasSelection = this.textUtils.isRangeOverlap(foundRange, range);
-			}
-
-			range.selectNodeContents(node);
-
-			var child   = null;
-			var docfrag = doc.createDocumentFragment();
-			var next    = node.nextSibling;
-			var parent  = node.parentNode;
-			while ((child = node.firstChild))
-			{
-				docfrag.appendChild(child);
-			}
-			var isOverlap = this.shouldRebuildSelection ?
-					this.textUtils.isRangeOverlap(foundRange, range) :
-					false ;
-			var firstChild  = docfrag.firstChild;
-
-			parent.removeChild(node);
-			parent.insertBefore(docfrag, next);
-			if (isOverlap) {
-				this.textUtils.delayedSelect(firstChild, foundLength, highlighted);
-			}
-			else if (hasSelection) {
-				range = foundRange.cloneRange();
-				range.collapse(true);
-				range.setStartBefore(parent.firstChild);
-				this.textUtils.selectContentWithDelay(parent, range.toString().length, foundLength, highlighted);
-			}
-
-			parent.normalize();
-		}, this);
-		if (range) range.detach();
+		var keepFoundHighlighted = !this.highlightCheck.disabled && this.highlightCheck.checked;
+		migemo.clearHighlight(aDocument, aRecursively, this.highlightSelectionOnly, keepFoundHighlighted);
 	},
-	
-	collectHighlights : function(aDocument, aRecursively, aSelCons) 
-	{
-		var highlights = [];
-		if (!aSelCons) aSelCons = [];
-
-		var nodes;
-		var selCon;
-
-		try {
-			var xpathResult = XMigemoUI.getEditableNodes(aDocument);
-			var editable, editor;
-			for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
-			{
-				editable = xpathResult.snapshotItem(i);
-				editor = editable
-						.QueryInterface(XMigemoUI.nsIDOMNSEditableElement)
-						.editor;
-				selCon = editor.selectionController;
-				nodes = this.collectHighlightNodes(aDocument, editor.rootElement);
-				highlights = highlights.concat(nodes.map(function(aNode) {
-					return {
-						node : aNode,
-						selectionController : selCon
-					};
-				}));;
-				aSelCons.push(selCon);
-			}
-		}
-		catch(e) {
-		}
-
-		try {
-			selCon = aDocument.defaultView
-				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-				.getInterface(Components.interfaces.nsIWebNavigation)
-				.QueryInterface(Components.interfaces.nsIDocShell)
-				.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-				.getInterface(Components.interfaces.nsISelectionDisplay)
-				.QueryInterface(Components.interfaces.nsISelectionController);
-			aSelCons.push(selCon);
-		}
-		catch(e) {
-			selCon = null;
-		}
-		nodes = this.collectHighlightNodes(aDocument, aDocument);
-		highlights = highlights.concat(nodes.map(function(aNode) {
-			return {
-				node : aNode,
-				selectionController : selCon
-			};
-		}));
-
-		if (aRecursively)
-			Array.slice(aDocument.defaultView.frames)
-				.forEach(function(aFrame) {
-					highlights = highlights.concat(this.collectHighlights(aFrame.document, aRecursively, aSelCons));
-				}, this);
-
-		return highlights;
-	},
-	collectHighlightNodes : function(aDocument, aTarget)
-	{
-		var xpathResult = aDocument.evaluate(
-				'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search"]',
-				aTarget,
-				null,
-				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-				null
-			);
-		var nodes = [];
-		for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
-		{
-			nodes.push(xpathResult.snapshotItem(i));
-		}
-		return nodes;
-	},
-  
+ 
 	highlightText : function(aDoHighlight, aWord, aBaseNode, aRange) 
 	{
 		var flags = this.shouldCaseSensitive ? '' : 'i' ;
@@ -2677,7 +2521,7 @@ var XMigemoUI = {
 		var ranges = !aDoHighlight ?
 				[migemo.regExpFind(regexp, aRange)] :
 			this.highlightSelectionAvailable ?
-				migemo.regExpHighlightWithSelection(regexp, aRange, aBaseNode) :
+				migemo.regExpHighlightSelection(regexp, aRange, aBaseNode) :
 				migemo.regExpHighlight(regexp, aRange, aBaseNode) ;
 
 		return ranges.length ? true : false ;
@@ -2732,61 +2576,7 @@ var XMigemoUI = {
 		alert(aEvent.target);
 		alert(aEvent.originalTarget);
 	},
-  
-	repaintHighlightSelectionWithDelay : function(aSelection) 
-	{
-		if (!this.highlightSelectionAvailable) return;
-
-		if (this.repaintHighlightTimer)
-			window.clearTimeout(this.repaintHighlightTimer);
-
-		if (aSelection !== void(0))
-			this.nextHighlightSelectionState = aSelection;
-
-		this.repaintHighlightTimer = window.setTimeout(this.repaintHighlightSelection, 1, this);
-	},
-	nextHighlightSelectionState : void(0),
-	repaintHighlightSelection : function(aSelf)
-	{
-		if (!aSelf) aSelf = this;
-
-		aSelf.repaintHighlightTimer = null;
-		var selCons = [];
-		var highlights = aSelf.collectHighlights(aSelf.activeBrowser.contentDocument, true, selCons);
-		if (aSelf.nextHighlightSelectionState === void(0)) {
-			selCons.forEach(function(aSelCon) {
-				aSelCon.repaintSelection(aSelCon.SELECTION_FIND);
-			});
-		}
-		else if (aSelf.nextHighlightSelectionState) {
-			var lastSelCon, selection;
-			highlights.forEach(function(aHighlight) {
-				var selCon = aHighlight.selectionController;
-				if (!selCon) return;
-
-				if (selCon != lastSelCon) {
-					if (lastSelCon)
-						lastSelCon.repaintSelection(lastSelCon.SELECTION_FIND);
-					selection = selCon.getSelection(selCon.SELECTION_FIND);
-				}
-				lastSelCon = selCon;
-
-				var range = aHighlight.node.ownerDocument.createRange();
-				range.selectNodeContents(aHighlight.node);
-				selection.addRange(range);
-			}, this);
-			if (lastSelCon)
-				lastSelCon.repaintSelection(lastSelCon.SELECTION_FIND);
-		}
-		else {
-			selCons.forEach(function(aSelCon) {
-				var selection = aSelCon.getSelection(aSelCon.SELECTION_FIND);
-				selection.removeAllRanges();
-			});
-		}
-		aSelf.nextHighlightSelectionState = void(0);
-	},
-  
+   
 	updateStatus : function(aStatusText) 
 	{
 		var bar = this.findBar;
