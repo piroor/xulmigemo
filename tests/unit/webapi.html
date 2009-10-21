@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html>
+<head>
+<title>API test</title>
+</head>
+<body>
+<p id="migemo"></p>
+<p id="migemo.provider"></p>
+<p id="migemo.version"></p>
+<p id="migemo.lang"></p>
+<p id="getRegExp"></p>
+<p id="getRegExps"></p>
+<p id="getRegExpFunctional"></p>
+<p id="getRegExpsFunctional"></p>
+
+<script type="application/x-javascript; version=1.7">// <![CDATA[
+
+function serializeRegExp(aRegExp)
+{
+	if (aRegExp && 'map' in aRegExp)
+		return aRegExp.map(arguments.callee);
+
+	if (!aRegExp) return null;
+	var flags = [];
+	if (aRegExp.ignoreCase) flags.push('i');
+	if (aRegExp.global) flags.push('g');
+	if (aRegExp.multiline) flags.push('m');
+	return {
+		source : aRegExp.source,
+		flags : flags.join('')
+	};
+}
+
+function testProperties()
+{
+	var properties = ['migemo', 'migemo.provider', 'migemo.version', 'migemo.lang'];
+	properties.forEach(function(aProperty) {
+		var place = document.getElementById(aProperty);
+		try {
+			eval('place.textContent = '+aProperty);
+		}
+		catch(e) {
+		}
+	});
+}
+
+function testGetRegExp()
+{
+	var result = {
+			simple : serializeRegExp(migemo.getRegExp('nihongo')),
+			flags  : serializeRegExp(migemo.getRegExp('nihongo', 'gm'))
+		};
+	var place = document.getElementById('getRegExp');
+	place.textContent = result.toSource();
+}
+
+function testGetRegExps()
+{
+	var result = {
+			single : serializeRegExp(migemo.getRegExps('nihongo')),
+			double : serializeRegExp(migemo.getRegExps('nihongo eigo')),
+			singleWithFlags : serializeRegExp(migemo.getRegExps('nihongo', 'gm')),
+			doubleWithFlags : serializeRegExp(migemo.getRegExps('nihongo eigo', 'gm'))
+		};
+	var place = document.getElementById('getRegExps');
+	place.textContent = result.toSource();
+}
+
+
+testProperties();
+testGetRegExp();
+testGetRegExps();
+
+// ]]></script>
+</body>
+</html>
