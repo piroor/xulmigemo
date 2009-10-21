@@ -63,7 +63,7 @@ xmXMigemoAPI.prototype = {
 	
 	getRegExp : function(aInput, aFlags) 
 	{
-		if (aFlags === void(0)) aFlags = 'im';
+		if (!aFlags && aFlags !== '') aFlags = 'im';
 		while (this._getRegExp_cacheArray.length >= MAX_CACHE_COUNT)
 		{
 			delete this._getRegExp_cache[this._getRegExp_cacheArray.shift()];
@@ -78,7 +78,7 @@ xmXMigemoAPI.prototype = {
  
 	getRegExps : function(aInput, aFlags) 
 	{
-		if (aFlags === void(0)) aFlags = 'im';
+		if (!aFlags && aFlags !== '') aFlags = 'im';
 		while (this._getRegExps_cacheArray.length >= MAX_CACHE_COUNT)
 		{
 			delete this._getRegExps_cache[this._getRegExps_cacheArray.shift()];
@@ -99,7 +99,7 @@ xmXMigemoAPI.prototype = {
 		if (!this.isValidFunctionalInput(aInput))
 			throw 'xmXMigemoAPI::getRegExpFunctional() Error: "'+aInput+'" is not a valid input.';
 
-		if (aFlags === void(0)) aFlags = 'im';
+		if (!aFlags && aFlags !== '') aFlags = 'im';
 		while (this._getRegExpFunctional_cacheArray.length >= MAX_CACHE_COUNT)
 		{
 			delete this._getRegExpFunctional_cache[this._getRegExpFunctional_cacheArray.shift()];
@@ -124,7 +124,7 @@ xmXMigemoAPI.prototype = {
 		if (!this.isValidFunctionalInput(aInput))
 			throw 'xmXMigemoAPI::getRegExpsFunctional() Error: "'+aInput+'" is not a valid input.';
 
-		if (aFlags === void(0)) aFlags = 'im';
+		if (!aFlags && aFlags !== '') aFlags = 'im';
 		while (this._getRegExpsFunctional_cacheArray.length >= MAX_CACHE_COUNT)
 		{
 			delete this._getRegExpsFunctional_cache[this._getRegExpsFunctional_cacheArray.shift()];
