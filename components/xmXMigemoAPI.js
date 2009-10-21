@@ -166,9 +166,9 @@ xmXMigemoAPI.prototype = {
 		return this.regExpFindArray(aRegExp, aFindRange, aStartPoint, aEndPoint);
 	},
  
-	regExpHighlightText : function(aRegExp, aFindRange, aSurrountNode) 
+	regExpHighlight : function(aRegExp, aFindRange, aSurrountNode) 
 	{
-		var result = this.XMigemo.regExpHighlightText(
+		var result = this.XMigemo.regExpHighlight(
 						aRegExp.source,
 						this.getFlagsFromRegExp(aRegExp),
 						aFindRange,
@@ -177,9 +177,9 @@ xmXMigemoAPI.prototype = {
 		return result;
 	},
  
-	regExpHighlightTextWithSelection : function(aRegExp, aFindRange, aSurrountNode) 
+	regExpHighlightWithSelection : function(aRegExp, aFindRange, aSurrountNode) 
 	{
-		var result = this.XMigemo.regExpHighlightTextWithSelection(
+		var result = this.XMigemo.regExpHighlightWithSelection(
 						aRegExp.source,
 						this.getFlagsFromRegExp(aRegExp),
 						aFindRange,

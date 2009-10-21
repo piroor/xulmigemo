@@ -72,7 +72,7 @@ function test_regExpFindArr_forHiddenTargets()
 	destroyRange();
 }
 
-function test_regExpHighlightText()
+function test_regExpHighlight()
 {
 	function assertMatchCount(aTerm, aFlags, aCount, aRoot)
 	{
@@ -84,7 +84,7 @@ function test_regExpHighlightText()
 
 		range = content.document.createRange();
 		range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
-		core.regExpHighlightText(aTerm, aFlags, range, surroundNode);
+		core.regExpHighlight(aTerm, aFlags, range, surroundNode);
 		assert.equals(aCount, $X(expression, aRoot || content.document, XPathResult.NUMBER_TYPE));
 
 		destroyRange();
@@ -113,14 +113,14 @@ function test_regExpHighlightText()
 	destroyRange();
 }
 
-test_regExpHighlightTextWithSelection.description = 'Firefox 3.1以降での選択範囲によるハイライト表示';
-function test_regExpHighlightTextWithSelection()
+test_regExpHighlightWithSelection.description = 'Firefox 3.1以降での選択範囲によるハイライト表示';
+function test_regExpHighlightWithSelection()
 {
 	function assertMatchCount(aTerm, aFlags, aCount, aSelCon)
 	{
 		range = content.document.createRange();
 		range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
-		core.regExpHighlightTextWithSelection(aTerm, aFlags, range, null);
+		core.regExpHighlightWithSelection(aTerm, aFlags, range, null);
 
 		var selCon = aSelCon || content.QueryInterface(Ci.nsIInterfaceRequestor)
 							.getInterface(Ci.nsIWebNavigation)
@@ -157,7 +157,7 @@ function test_regExpHighlightTextWithSelection()
 	destroyRange();
 }
 if (!('SELECTION_FIND' in Components.interfaces.nsISelectionController)) {
-	test_regExpHighlightTextWithSelection.priority = 'never';
+	test_regExpHighlightWithSelection.priority = 'never';
 }
 
 var getRegExpPatterns = {

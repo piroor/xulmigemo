@@ -692,18 +692,10 @@ xmXMigemoCore.prototype = {
 		}
 		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode);
 	},
-	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode)
-	{
-		return this.regExpHighlight(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
-	},
  
 	regExpHighlightWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
 	{
 		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, true);
-	},
-	regExpHighlightTextWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode)
-	{
-		return this.regExpHighlightWithSelection(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
 	},
  
 	getDocShellForFrame : function(aFrame) 
