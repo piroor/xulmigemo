@@ -18,7 +18,7 @@ interface nsIDOMElement;
 interface nsIDOMNode;
 
 
-// API for JavaScript
+// easy API for JavaScript
 [scriptable, uuid(066d0a50-bd7b-11de-8a39-0800200c9a66)]
 interface xmIXMigemoAPI : nsISupports
 {
@@ -91,15 +91,19 @@ interface xmIXMigemoRangeFindAPI : xmIXMigemoAPI
 		[optional] in boolean keepFoundHighlighted
 	);
 
-	nsIVariant getHighlights(
-		in nsIDOMDocument document,
-		[optional] in boolean recursively
-	);
-
 	void repaintHighlights(
 		in nsIDOMDocument document,
 		[optional] in boolean recursively,
 		[optional] in boolean highlighted
+	);
+
+	/* returned values: an array of JS obejct which have following properties:
+		node                : element node of the "highlight" style
+		selectionController : nsISelectionController for the owner document of the highlight
+	*/
+	nsIVariant getHighlights(
+		in nsIDOMDocument document,
+		[optional] in boolean recursively
 	);
 };
 
@@ -344,14 +348,18 @@ interface xmIXMigemo : xmIXMigemoEngine
 		[optional] in boolean selectionOnly,
 		[optional] in boolean keepFoundHighlighted
 	);
-	nsIVariant getHighlights(
-		in nsIDOMDocument document,
-		[optional] in boolean recursively
-	);
 	void repaintHighlights(
 		in nsIDOMDocument document,
 		[optional] in boolean recursively,
 		[optional] in boolean highlighted
+	);
+	/* returned values: an array of JS obejct which have following properties:
+		node                : element node of the "highlight" style
+		selectionController : nsISelectionController for the owner document of the highlight
+	*/
+	nsIVariant getHighlights(
+		in nsIDOMDocument document,
+		[optional] in boolean recursively
 	);
 
 	nsIVariant flattenRegExp(
