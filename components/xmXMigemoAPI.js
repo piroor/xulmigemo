@@ -166,6 +166,17 @@ xmXMigemoAPI.prototype = {
 		return this.regExpFindArray(aRegExp, aFindRange, aStartPoint, aEndPoint);
 	},
  
+	getFlagsFromRegExp : function(aRegExp) 
+	{
+		var flags = [];
+		if (aRegExp.ignoreCase) flags.push('i');
+		if (aRegExp.global) flags.push('g');
+		if (aRegExp.multiline) flags.push('m');
+		return flags.join('');
+	},
+  
+	// xmIXMigemoHighlightAPI 
+	
 	regExpHighlight : function(aRegExp, aFindRange, aSurrountNode) 
 	{
 		var result = this.XMigemo.regExpHighlight(
@@ -188,28 +199,19 @@ xmXMigemoAPI.prototype = {
 		return result;
 	},
  
-	getFlagsFromRegExp : function(aRegExp) 
-	{
-		var flags = [];
-		if (aRegExp.ignoreCase) flags.push('i');
-		if (aRegExp.global) flags.push('g');
-		if (aRegExp.multiline) flags.push('m');
-		return flags.join('');
-	},
- 
 	clearHighlight : function(aDocument, aRecursively, aSelectionOnly, aKeepFoundHighlighted) 
 	{
 		this.XMigemo.clearHighlight(aDocument, aRecursively, aSelectionOnly, aKeepFoundHighlighted);
 	},
  
-	getHighlights : function(aDocument, aRecursively) 
-	{
-		return this.XMigemo.getHighlights(aDocument, aRecursively);
-	},
- 
 	repaintHighlights : function(aDocument, aRecursively, aHighlighted) 
 	{
 		this.XMigemo.repaintHighlights(aDocument, aRecursively, aHighlighted);
+	},
+ 
+	getHighlights : function(aDocument, aRecursively) 
+	{
+		return this.XMigemo.getHighlights(aDocument, aRecursively);
 	},
   
 	get XMigemo() { 
@@ -269,7 +271,8 @@ xmXMigemoAPI.prototype = {
 	{
 		var interfaces = [
 				Ci.xmIXMigemoAPI,
-				Ci.xmIXMigemoRangeFindAPI
+				Ci.xmIXMigemoRangeFindAPI,
+				Ci.xmIXMigemoHighlightAPI
 				// hide interfaces unrelated to Migemo feature
 				/* ,
 				Ci.nsIClassInfo,
@@ -288,6 +291,7 @@ xmXMigemoAPI.prototype = {
 	{
 		if (!aIID.equals(Ci.xmIXMigemoAPI) &&
 			!aIID.equals(Ci.xmIXMigemoRangeFindAPI) &&
+			!aIID.equals(Ci.xmIXMigemoHighlightAPI) &&
 			!aIID.equals(Ci.nsIClassInfo) &&
 			!aIID.equals(Ci.nsIObserver) &&
 			!aIID.equals(Ci.nsISupports))
