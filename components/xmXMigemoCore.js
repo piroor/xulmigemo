@@ -9,7 +9,7 @@ var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
  
-var ObserverService = Cc['@mozilla.org/observer-service;1']
+var ObserverService = Cc['@mozilla.org/observer-service;1'] 
 			.getService(Ci.nsIObserverService);;
 
 var Prefs = Cc['@mozilla.org/preferences;1']
@@ -33,7 +33,7 @@ xmXMigemoCore.prototype = {
 	get wrappedJSObject() {
 		return this;
 	},
-	 
+	
 	SYSTEM_DIC : 1, 
 	USER_DIC   : 2,
 	ALL_DIC    : 3,
@@ -332,7 +332,7 @@ xmXMigemoCore.prototype = {
 		) {};
 		return this.expandTerms(aArray);
 	},
-	 
+	
 	expandTerms : function(aArray) 
 	{
 		var final = '';
@@ -377,7 +377,7 @@ xmXMigemoCore.prototype = {
 	},
    
 /* AND/NOT find */ 
-	 
+	
 	andFindAvailable : true, 
 	notFindAvailable : true,
  
@@ -394,7 +394,7 @@ xmXMigemoCore.prototype = {
 		aTermsRegExp.value = this.textUtils.getORFindRegExpFromTerms(regexps);
 		return regexps;
 	},
-	getRegExpFunctional : function(aInput, aTermsRegExp, aExceptionRegExp) 
+	getRegExpFunctional : function(aInput, aTermsRegExp, aExceptionRegExp)
 	{
 		if (!aTermsRegExp) aTermsRegExp = {};
 		if (!aExceptionRegExp) aExceptionRegExp = {};
@@ -403,7 +403,7 @@ xmXMigemoCore.prototype = {
 				this.textUtils.getANDFindRegExpFromTerms(regexps) :
 				this.getRegExp(aInput) ;
 	},
-	getRegExpsFunctional : function(aInput, aTermsRegExp, aExceptionRegExp) 
+	getRegExpsFunctional : function(aInput, aTermsRegExp, aExceptionRegExp)
 	{
 		if (!aTermsRegExp) aTermsRegExp = {};
 		if (!aExceptionRegExp) aExceptionRegExp = {};
@@ -412,7 +412,7 @@ xmXMigemoCore.prototype = {
 				regexps :
 				[this.getRegExp(aInput)] ;
 	},
-	 
+	
 	siftExceptions : function(aInput, aExceptions) 
 	{
 		if (!aExceptions) aExceptions = {};
@@ -426,7 +426,7 @@ xmXMigemoCore.prototype = {
 		}).join(' ');
 		return findInput;
 	},
-   	
+   
 	isValidFunctionalInput : function(aInput) 
 	{
 		var converted = aInput.replace(/\s+/g, '\n');
@@ -506,11 +506,11 @@ xmXMigemoCore.prototype = {
 	{
 		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, null);
 	},
-	regExpFindArr : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint) 
+	regExpFindArr : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint)
 	{
 		return this.regExpFindArray(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint);
 	},
-	 
+	
 	regExpFindArrayInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aUseSelection) 
 	{
 		if (aFindRange) aFindRange.QueryInterface(Ci.nsIDOMRange);
@@ -646,7 +646,8 @@ xmXMigemoCore.prototype = {
 
 		return arrResults;
 	},
-	getEditorSelConFromRange : function(aRange)
+	
+	getEditorSelConFromRange : function(aRange) 
 	{
 		var doc = aRange.startContainer.ownerDocument || aRange.startContainer;
 		var editorElement = doc.evaluate(
@@ -663,7 +664,7 @@ xmXMigemoCore.prototype = {
 				.selectionController :
 			null ;
 	},
-	 
+ 
 	getDocumentBody : function(aDocument) 
 	{
 		if (aDocument instanceof Ci.nsIDOMHTMLDocument)
@@ -684,17 +685,25 @@ xmXMigemoCore.prototype = {
 		return null;
 	},
    
-	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
+	regExpHighlight : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
 	{
 		if (!aSurrountNode) {
 			return [];
 		}
 		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode);
 	},
+	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode)
+	{
+		return this.regExpHighlight(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
+	},
  
-	regExpHighlightTextWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
+	regExpHighlightWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
 	{
 		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, true);
+	},
+	regExpHighlightTextWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode)
+	{
+		return this.regExpHighlightWithSelection(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
 	},
  
 	getDocShellForFrame : function(aFrame) 
