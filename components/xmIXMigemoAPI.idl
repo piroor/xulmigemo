@@ -15,6 +15,8 @@ interface nsIDOMElement;
 [scriptable, uuid(066d0a50-bd7b-11de-8a39-0800200c9a66)]
 interface xmIXMigemoAPI : nsISupports
 {
+	readonly attribute AString provider;
+
 	readonly attribute AString version;
 	readonly attribute AString lang;
 
