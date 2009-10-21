@@ -45,6 +45,20 @@ xmXMigemoAPI.prototype = {
 		this._getRegExpsFunctional_cacheArray = [];
 	},
  
+	initProperties : function() 
+	{
+		var prototype = this.__proto__;
+
+		if (!prototype.version)
+			prototype.version = Cc['@mozilla.org/extensions/manager;1']
+					.getService(Ci.nsIExtensionManager)
+					.getItemForID('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}')
+					.version,
+
+		prototype.lang = this.XMigemo.lang;
+		prototype.provider = 'XUL/Migemo '+prototype.version+' ('+prototype.lang+')';
+	},
+ 
 	// xmIXMigemoAPI 
 	
 	getRegExp : function(aInput, aFlags) 
@@ -242,11 +256,7 @@ xmXMigemoAPI.prototype = {
 
 			case 'XMigemo:initialized':
 				ObserverService.removeObserver(this, 'XMigemo:initialized');
-				this.__proto__.version = Cc['@mozilla.org/extensions/manager;1']
-							.getService(Ci.nsIExtensionManager)
-							.getItemForID('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}')
-							.version,
-				this.__proto__.lang = this.XMigemo.lang;
+				this.initProperties();
 				Prefs.QueryInterface(Ci.nsIPrefBranchInternal)
 					.addObserver('xulmigemo.', this, false);
 				return;
@@ -258,7 +268,7 @@ xmXMigemoAPI.prototype = {
 						this._lang = '';
 						this._XMigemo = null;
 						this.initCache();
-						this.__proto__.lang = this.XMigemo.lang;
+						this.initProperties();
 						return;
 				}
 		}
