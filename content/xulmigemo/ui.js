@@ -2663,22 +2663,22 @@ var XMigemoUI = {
   
 	highlightText : function(aDoHighlight, aWord, aBaseNode, aRange) 
 	{
+		var flags = this.shouldCaseSensitive ? '' : 'i' ;
 		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
-					this.textUtils.extractRegExpSource(aWord) :
+					new RegExp(this.textUtils.extractRegExpSource(aWord), flags) :
 				this.findMode == this.FIND_MODE_MIGEMO ?
-					XMigemoFind.core.getRegExp(aWord) :
-					this.textUtils.sanitize(aWord) ;
+					migemo.getRegExp(aWord, flags) :
+					new RegExp(this.textUtils.sanitize(aWord), flags) ;
 
 		var doc = aRange.startContainer.ownerDocument || aRange.startContainer;
 		if (!this.highlightSelectionOnly && !aBaseNode)
 			aBaseNode = this.createNewHighlight(doc);
 
-		var flags = this.shouldCaseSensitive ? '' : 'i' ;
 		var ranges = !aDoHighlight ?
-				[XMigemoFind.core.regExpFind(regexp, flags, aRange, null, null, false)] :
+				[migemo.regExpFind(regexp, aRange)] :
 			this.highlightSelectionAvailable ?
-				XMigemoFind.core.regExpHighlightTextWithSelection(regexp, flags, aRange, aBaseNode) :
-				XMigemoFind.core.regExpHighlightText(regexp, flags, aRange, aBaseNode) ;
+				migemo.regExpHighlightTextWithSelection(regexp, aRange, aBaseNode) :
+				migemo.regExpHighlightText(regexp, aRange, aBaseNode) ;
 
 		return ranges.length ? true : false ;
 	},

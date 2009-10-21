@@ -123,17 +123,21 @@ xmXMigemoAPI.prototype = {
 		return this._getRegExpsFunctional_cache[key];
 	},
  
+	isValidFunctionalInput : function(aInput) 
+	{
+		return this.XMigemo.isValidFunctionalInput(aInput);
+	},
+ 
+	trimFunctionalInput : function(aInput) 
+	{
+		return this.XMigemo.trimFunctionalInput(aInput);
+	},
+ 
 	regExpFind : function(aRegExp, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
 	{
-		var flags = [];
-		if (aRegExp.ignoreCase) flags.push('i');
-		if (aRegExp.global) flags.push('g');
-		if (aRegExp.multiline) flags.push('m');
-		flags = flags.join('');
-
 		var result = this.XMigemo.regExpFind(
 						aRegExp.source,
-						flags,
+						this.getFlagsFromRegExp(aRegExp),
 						aFindRange,
 						aStartPoint,
 						aEndPoint,
@@ -144,15 +148,9 @@ xmXMigemoAPI.prototype = {
  
 	regExpFindArray : function(aRegExp, aFindRange, aStartPoint, aEndPoint) 
 	{
-		var flags = [];
-		if (aRegExp.ignoreCase) flags.push('i');
-		if (aRegExp.global) flags.push('g');
-		if (aRegExp.multiline) flags.push('m');
-		flags = flags.join('');
-
 		var result = this.XMigemo.regExpFindArray(
 						aRegExp.source,
-						flags,
+						this.getFlagsFromRegExp(aRegExp),
 						aFindRange,
 						aStartPoint,
 						aEndPoint
@@ -166,29 +164,33 @@ xmXMigemoAPI.prototype = {
  
 	regExpHighlightText : function(aRegExp, aFindRange, aSurrountNode) 
 	{
-		var flags = [];
-		if (aRegExp.ignoreCase) flags.push('i');
-		if (aRegExp.global) flags.push('g');
-		if (aRegExp.multiline) flags.push('m');
-		flags = flags.join('');
-
 		var result = this.XMigemo.regExpHighlightText(
 						aRegExp.source,
-						flags,
+						this.getFlagsFromRegExp(aRegExp),
 						aFindRange,
 						aSurrountNode
 					);
 		return result;
 	},
  
-	isValidFunctionalInput : function(aInput) 
+	regExpHighlightTextWithSelection : function(aRegExp, aFindRange, aSurrountNode) 
 	{
-		return this.XMigemo.isValidFunctionalInput(aInput);
+		var result = this.XMigemo.regExpHighlightTextWithSelection(
+						aRegExp.source,
+						this.getFlagsFromRegExp(aRegExp),
+						aFindRange,
+						aSurrountNode
+					);
+		return result;
 	},
  
-	trimFunctionalInput : function(aInput) 
+	getFlagsFromRegExp : function(aRegExp) 
 	{
-		return this.XMigemo.trimFunctionalInput(aInput);
+		var flags = [];
+		if (aRegExp.ignoreCase) flags.push('i');
+		if (aRegExp.global) flags.push('g');
+		if (aRegExp.multiline) flags.push('m');
+		return flags.join('');
 	},
  
 	get XMigemo() { 

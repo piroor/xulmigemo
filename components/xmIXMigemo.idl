@@ -429,6 +429,12 @@ interface xmIXMigemoAPI : nsISupports
 		in nsIDOMRange findRange,
 		in nsIDOMElement surroundNode
 	);
+
+	nsIVariant regExpHighlightTextWithSelection(
+		in nsIVariant regExp,
+		in nsIDOMRange findRange,
+		[optional] in nsIDOMElement surroundNode
+	);
 };
 
 
