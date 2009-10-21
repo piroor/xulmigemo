@@ -45,7 +45,7 @@ interface xmIXMigemoAPI : nsISupports
 	);
 	boolean isValidFunctionalInput(in AString input);
 	AString trimFunctionalInput(in AString input);
-}
+};
 
 [scriptable, uuid(df8b8ec0-be06-11de-8a39-0800200c9a66)]
 interface xmIXMigemoRangeFindAPI : xmIXMigemoAPI
@@ -73,12 +73,6 @@ interface xmIXMigemoRangeFindAPI : xmIXMigemoAPI
 	);
 
 	nsIVariant regExpHighlight(
-		in nsIVariant regExp,
-		in nsIDOMRange findRange,
-		in nsIDOMElement surroundNode
-	);
-	/* for backward compatibility */
-	nsIVariant regExpHighlightText(
 		in nsIVariant regExp,
 		in nsIDOMRange findRange,
 		in nsIDOMElement surroundNode
@@ -335,18 +329,6 @@ interface xmIXMigemo : xmIXMigemoEngine
 		[optional] in nsIDOMRange startPoint,
 		[optional] in nsIDOMRange endPoint
 	);
-	nsIVariant regExpHighlightText(
-		in AString regExpSource,
-		in AString regExpFlags,
-		in nsIDOMRange findRange,
-		in nsIDOMElement surroundNode
-	);
-	nsIVariant regExpHighlightTextWithSelection(
-		in AString regExpSource,
-		in AString regExpFlags,
-		in nsIDOMRange findRange,
-		[optional] in nsIDOMElement surroundNode
-	);
 };
 
 
@@ -473,21 +455,21 @@ interface pIXMigemoTextUtils : xmIXMigemoTextUtils {};
 interface pIXMigemoCache : xmIXMigemoCache {};
 [scriptable, uuid(451dc43c-1dd5-11dc-8314-0800200c9a66)]
 interface pIXMigemoTextTransform : xmIXMigemoTextTransform {};
-[scriptable, uuid(5a51a982-1dde-11dc-8314-0800200c9a66)]
+[scriptable, uuid(078eaf10-be0c-11de-8a39-0800200c9a66)]
 interface pIXMigemoDictionary : xmIXMigemoDictionary {};
-[scriptable, uuid(7d78f05c-36f8-11dc-8314-0800200c9a66)]
+[scriptable, uuid(1e9b41f0-be0c-11de-8a39-0800200c9a66)]
 interface pIXMigemoDictionaryUniversal : xmIXMigemoDictionaryUniversal {};
-[scriptable, uuid(1a2493f2-1f31-11dc-8314-0800200c9a66)]
+[scriptable, uuid(23daa430-be0c-11de-8a39-0800200c9a66)]
 interface pIXMigemoEngine : xmIXMigemoEngine {};
-[scriptable, uuid(0cfd00c2-36fb-11dc-8314-0800200c9a66)]
+[scriptable, uuid(27e81620-be0c-11de-8a39-0800200c9a66)]
 interface pIXMigemoEngineUniversal : xmIXMigemoEngineUniversal {};
 [scriptable, uuid(4ec63ba8-ce38-11db-8314-0800200c9a66)]
 interface pIXMigemoDicManager : xmIXMigemoDicManager {};
-[scriptable, uuid(181378ba-ce43-11db-8314-0800200c9a66)]
+[scriptable, uuid(2eacdfe0-be0c-11de-8a39-0800200c9a66)]
 interface pIXMigemo : xmIXMigemo {};
 [scriptable, uuid(63a6c07c-1f48-11dc-8314-0800200c9a66)]
 interface pIXMigemoFactory : xmIXMigemoFactory {};
-[scriptable, uuid(54606802-ce50-11db-8314-0800200c9a66)]
+[scriptable, uuid(47113a90-be0c-11de-8a39-0800200c9a66)]
 interface pIXMigemoFind : xmIXMigemoFind {};
 [scriptable, uuid(749f4faa-cdf6-11db-8314-0800200c9a66)]
 interface pIXMigemoTextTransformJa : xmIXMigemoTextTransformJa {};

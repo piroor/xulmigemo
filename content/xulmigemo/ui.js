@@ -2677,8 +2677,8 @@ var XMigemoUI = {
 		var ranges = !aDoHighlight ?
 				[migemo.regExpFind(regexp, aRange)] :
 			this.highlightSelectionAvailable ?
-				migemo.regExpHighlightTextWithSelection(regexp, aRange, aBaseNode) :
-				migemo.regExpHighlightText(regexp, aRange, aBaseNode) ;
+				migemo.regExpHighlightWithSelection(regexp, aRange, aBaseNode) :
+				migemo.regExpHighlight(regexp, aRange, aBaseNode) ;
 
 		return ranges.length ? true : false ;
 	},
