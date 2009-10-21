@@ -72,13 +72,19 @@ interface xmIXMigemoRangeFindAPI : xmIXMigemoAPI
 		[optional] in nsIDOMRange endPoint
 	);
 
+	nsIVariant regExpHighlight(
+		in nsIVariant regExp,
+		in nsIDOMRange findRange,
+		in nsIDOMElement surroundNode
+	);
+	/* for backward compatibility */
 	nsIVariant regExpHighlightText(
 		in nsIVariant regExp,
 		in nsIDOMRange findRange,
 		in nsIDOMElement surroundNode
 	);
 
-	nsIVariant regExpHighlightTextWithSelection(
+	nsIVariant regExpHighlightWithSelection(
 		in nsIVariant regExp,
 		in nsIDOMRange findRange,
 		[optional] in nsIDOMElement surroundNode
@@ -297,14 +303,14 @@ interface xmIXMigemo : xmIXMigemoEngine
 		[optional] in nsIDOMRange endPoint
 	);
 
-	nsIVariant regExpHighlightText(
+	nsIVariant regExpHighlight(
 		in AString regExpSource,
 		in AString regExpFlags,
 		in nsIDOMRange findRange,
 		in nsIDOMElement surroundNode
 	);
 
-	nsIVariant regExpHighlightTextWithSelection(
+	nsIVariant regExpHighlightWithSelection(
 		in AString regExpSource,
 		in AString regExpFlags,
 		in nsIDOMRange findRange,
@@ -328,6 +334,18 @@ interface xmIXMigemo : xmIXMigemoEngine
 		in nsIDOMRange findRange,
 		[optional] in nsIDOMRange startPoint,
 		[optional] in nsIDOMRange endPoint
+	);
+	nsIVariant regExpHighlightText(
+		in AString regExpSource,
+		in AString regExpFlags,
+		in nsIDOMRange findRange,
+		in nsIDOMElement surroundNode
+	);
+	nsIVariant regExpHighlightTextWithSelection(
+		in AString regExpSource,
+		in AString regExpFlags,
+		in nsIDOMRange findRange,
+		[optional] in nsIDOMElement surroundNode
 	);
 };
 

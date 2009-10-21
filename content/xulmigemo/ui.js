@@ -522,7 +522,7 @@ var XMigemoUI = {
 
 		return minLength <= termLength;
 	},
-	getMatchedTerms : function(aRegExp, aWindow) 
+	getMatchedTerms : function(aRegExp, aWindow)
 	{
 		var results = [];
 		var frames = aWindow.frames;
