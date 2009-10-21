@@ -63,7 +63,7 @@ xmXMigemoAPI.prototype = {
 	
 	getRegExp : function(aInput, aFlags) 
 	{
-		if (!aFlags) aFlags = 'im';
+		if (aFlags === void(0)) aFlags = 'im';
 		while (this._getRegExp_cacheArray.length >= MAX_CACHE_COUNT)
 		{
 			delete this._getRegExp_cache[this._getRegExp_cacheArray.shift()];
@@ -78,7 +78,7 @@ xmXMigemoAPI.prototype = {
  
 	getRegExps : function(aInput, aFlags) 
 	{
-		if (!aFlags) aFlags = 'im';
+		if (aFlags === void(0)) aFlags = 'im';
 		while (this._getRegExps_cacheArray.length >= MAX_CACHE_COUNT)
 		{
 			delete this._getRegExps_cache[this._getRegExps_cacheArray.shift()];
@@ -95,7 +95,7 @@ xmXMigemoAPI.prototype = {
  
 	getRegExpFunctional : function(aInput, aFlags) 
 	{
-		if (!aFlags) aFlags = 'im';
+		if (aFlags === void(0)) aFlags = 'im';
 		while (this._getRegExpFunctional_cacheArray.length >= MAX_CACHE_COUNT)
 		{
 			delete this._getRegExpFunctional_cache[this._getRegExpFunctional_cacheArray.shift()];
@@ -116,7 +116,7 @@ xmXMigemoAPI.prototype = {
  
 	getRegExpsFunctional : function(aInput, aFlags) 
 	{
-		if (!aFlags) aFlags = 'im';
+		if (aFlags === void(0)) aFlags = 'im';
 		while (this._getRegExpsFunctional_cacheArray.length >= MAX_CACHE_COUNT)
 		{
 			delete this._getRegExpsFunctional_cache[this._getRegExpsFunctional_cacheArray.shift()];
