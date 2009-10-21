@@ -45,6 +45,8 @@ xmXMigemoAPI.prototype = {
 		this._getRegExpsFunctional_cacheArray = [];
 	},
  
+	// xmIXMigemoAPI 
+	
 	getRegExp : function(aInput, aFlags) 
 	{
 		if (!aFlags) aFlags = 'im';
@@ -132,7 +134,9 @@ xmXMigemoAPI.prototype = {
 	{
 		return this.XMigemo.trimFunctionalInput(aInput);
 	},
- 
+  
+	// xmIXMigemoRangeFindAPI 
+	
 	regExpFind : function(aRegExp, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
 	{
 		var result = this.XMigemo.regExpFind(
@@ -192,7 +196,7 @@ xmXMigemoAPI.prototype = {
 		if (aRegExp.multiline) flags.push('m');
 		return flags.join('');
 	},
- 
+  
 	get XMigemo() { 
 		if (!this._XMigemo) {
 			this._lang = '';
@@ -249,7 +253,8 @@ xmXMigemoAPI.prototype = {
 	getInterfaces : function(aCount)
 	{
 		var interfaces = [
-				Ci.xmIXMigemoAPI
+				Ci.xmIXMigemoAPI,
+				Ci.xmIXMigemoRangeFindAPI
 				// hide interfaces unrelated to Migemo feature
 				/* ,
 				Ci.nsIClassInfo,
@@ -267,6 +272,7 @@ xmXMigemoAPI.prototype = {
 	QueryInterface : function(aIID) 
 	{
 		if (!aIID.equals(Ci.xmIXMigemoAPI) &&
+			!aIID.equals(Ci.xmIXMigemoRangeFindAPI) &&
 			!aIID.equals(Ci.nsIClassInfo) &&
 			!aIID.equals(Ci.nsIObserver) &&
 			!aIID.equals(Ci.nsISupports))
