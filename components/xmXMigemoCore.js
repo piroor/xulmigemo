@@ -255,9 +255,9 @@ xmXMigemoCore.prototype = {
 			.replace(/\|\|+/g, '|');
 
 		var array = this.expandParensToArray(source);
-dump('STEP 1: '+array.toSource()+'\n');
+//dump('STEP 1: '+array.toSource()+'\n');
 		array = this.expandTermsFromArray(array);
-dump('STEP 2: '+array.toSource()+'\n');
+//dump('STEP 2: '+array.toSource()+'\n');
 
 		array = (typeof array == 'string' ? array : array[0])
 				.replace(/\n\n+/g, '\n').split('\n');
@@ -502,12 +502,16 @@ dump('STEP 2: '+array.toSource()+'\n');
 		return foundRange;
 	},
  
+	regExpFindArray : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint) 
+	{
+		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, null);
+	},
 	regExpFindArr : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint) 
 	{
-		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, null);
+		return this.regExpFindArray(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint);
 	},
 	 
-	regExpFindArrInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aUseSelection) 
+	regExpFindArrayInternal : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aSurroundNode, aUseSelection) 
 	{
 		if (aFindRange) aFindRange.QueryInterface(Ci.nsIDOMRange);
 		if (aStartPoint) aStartPoint.QueryInterface(Ci.nsIDOMRange);
@@ -685,12 +689,12 @@ dump('STEP 2: '+array.toSource()+'\n');
 		if (!aSurrountNode) {
 			return [];
 		}
-		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode);
+		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode);
 	},
  
 	regExpHighlightTextWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
 	{
-		return this.regExpFindArrInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, true);
+		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, true);
 	},
  
 	getDocShellForFrame : function(aFrame) 

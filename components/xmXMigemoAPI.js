@@ -62,16 +62,6 @@ xmXMigemoAPI.prototype = {
 		return this.XMigemo.lang;
 	},
  
-	get andFindAvailable() 
-	{
-		return this.XMigemo.andFindAvailable;
-	},
- 
-	get notFindAvailable() 
-	{
-		return this.XMigemo.notFindAvailable;
-	},
- 
 	getRegExp : function(aInput, aFlags) 
 	{
 		if (!aFlags) aFlags = 'im';
@@ -169,7 +159,7 @@ xmXMigemoAPI.prototype = {
 		return result;
 	},
  
-	regExpFindArr : function(aRegExp, aFindRange, aStartPoint, aEndPoint) 
+	regExpFindArray : function(aRegExp, aFindRange, aStartPoint, aEndPoint) 
 	{
 		var flags = [];
 		if (aRegExp.ignoreCase) flags.push('i');
@@ -177,7 +167,7 @@ xmXMigemoAPI.prototype = {
 		if (aRegExp.multiline) flags.push('m');
 		flags = flags.join('');
 
-		var result = this.XMigemo.regExpFindArr(
+		var result = this.XMigemo.regExpFindArray(
 						aRegExp.source,
 						flags,
 						aFindRange,
@@ -185,6 +175,10 @@ xmXMigemoAPI.prototype = {
 						aEndPoint
 					);
 		return result;
+	},
+	regExpFindArr : function(aRegExp, aFindRange, aStartPoint, aEndPoint)
+	{
+		return this.regExpFindArray(aRegExp, aFindRange, aStartPoint, aEndPoint);
 	},
  
 	regExpHighlightText : function(aRegExp, aFindRange, aSurrountNode) 
@@ -264,10 +258,13 @@ xmXMigemoAPI.prototype = {
 	getInterfaces : function(aCount)
 	{
 		var interfaces = [
-				Ci.xmIXMigemoAPI,
+				Ci.xmIXMigemoAPI
+				// hide interfaces unrelated to Migemo feature
+				/* ,
 				Ci.nsIClassInfo,
 				Ci.nsISecurityCheckedComponent,
 				Ci.nsIObserver
+				*/
 			];
 		aCount.value = interfaces.length;
 		return interfaces;
@@ -284,15 +281,31 @@ xmXMigemoAPI.prototype = {
 	},
 	canCallMehthod : function(aIID, aName)
 	{
-		return 'AllAccess';
+		return this._getPermissionOfFeature(aName);
 	},
 	canGetProperty : function(aIID, aName)
 	{
-		return 'AllAccess';
+		return this._getPermissionOfFeature(aName);
 	},
 	canSetProperty : function(aIID, aName)
 	{
-		return 'AllAccess';
+		return this._getPermissionOfFeature(aName);
+	},
+	_getPermissionOfFeature : function(aName)
+	{
+		switch (aName)
+		{
+			case 'version':
+			case 'lang':
+			case 'regExpFind':
+			case 'regExpFindArr':
+			case 'regExpFindArray':
+			case 'regExpHighlightText':
+				return 'UniversalXPConnect';
+
+			default:
+				return 'AllAccess';
+		}
 	},
  
 	QueryInterface : function(aIID) 
