@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html>
+<head>
+<title>Migemo test</title>
+</head>
+<body>
+<p>次世代のWebアプリケーションに向けて</p>
+<p>上の例をご覧いただいても分かるとおり、このアドオンは、Webアプリケーション（Webページ上のスクリプト）から各種ハードウェアデバイスへアクセスする技術のデモンストレーションとして開発されています。</p>
+<p>Webカメラとの連動によるAR（拡張現実）や、指紋認証、Felica認証といった特殊なハードウェアを必要とする認証技術など、この技術を応用することにより今までのWebアプリケーションではできなかった様々なことが可能となります。</p>
+<p><input type="text" size="80" value="クリアコードでは、このようにWebとハードウェアを直結する技術の開発に取り組んでおります。" /></p>
+<p><input type="text" size="80" value="特殊なデバイスを搭載したハードウェアへのWebブラウザエンジンの組み込みや、特殊なデバイスの利用を前提としたWebベースのシステム開発など、ご用命がございましたらぜひinfo@clear-code.comまでお問い合わせください" /></p>
+<script type="application/x-javascript; version=1.7">// <![CDATA[
+
+document.write('<hr />');
+
+document.write('<pre>'+
+  'migemo,migemo.observe,migemo.regExpFindArr,migemo.lang,migemo.version'
+    .split(',')
+    .map(function(aName) {
+      try {
+        var value;
+        eval('value = '+aName);
+        return aName+' = '+value;
+      } catch(e) {
+        return aName+' = '+e;
+      }
+    })
+    .join('\n----------\n')
++'</pre>');
+
+document.write('<hr />');
+
+
+var result = window.migemo.getRegExp('jikkou');
+document.write('<p>'+result+'</p>');
+document.write('<p>result.test("じっこう") => '+result.test('じっこう')+'</p>');
+
+document.write('<hr />');
+
+
+var range =  document.createRange();
+range.selectNodeContents(document);
+try {
+var result = window.migemo.regExpFindArray(/[実行]/, range)
+document.write('<p>RANGE : '+result[0].toString()+'</p>');
+}
+catch(e) {
+document.write('<pre>'+String(e).replace(/</g, '&lt;').replace(/>/g, '&gt;')+'</pre>');
+}
+
+document.write('<hr />');
+
+
+try {
+var node = document.createElement('span');
+node.setAttribute('style', 'background:yellow;font-weight:bold;');
+var result = window.migemo.regExpHighlight(/アプリケーション|クリアコード/, range, node);
+document.write('<p>RANGE : '+result[0].toString()+'</p>');
+}
+catch(e) {
+document.write('<pre>'+String(e).replace(/</g, '&lt;').replace(/>/g, '&gt;')+'</pre>');
+}
+
+try {
+var node = document.createElement('span');
+node.setAttribute('style', 'background:yellow;font-weight:bold;');
+var result = window.migemo.regExpHighlightSelection(/認証|技術/, range);
+window.setTimeout('window.migemo.clearHighlight(document);', 3000);
+document.write('<p>RANGE : '+result[0].toString()+'</p>');
+}
+catch(e) {
+document.write('<pre>'+String(e).replace(/</g, '&lt;').replace(/>/g, '&gt;')+'</pre>');
+}
+
+// ]]></script>
+</body>
+</html>
