@@ -901,7 +901,7 @@ var XMigemoLocationBarOverlay = {
 		if (!bar || bar.__xmigemo__mController) return;
 
 		bar.__xmigemo__mController = bar.mController;
-		bar.mController = new XMIgemoAutoCompletePopupController(bar.__xmigemo__mController);
+		bar.mController = new XMigemoAutoCompletePopupController(bar.__xmigemo__mController);
 	},
   
 	destroy : function() 
@@ -929,12 +929,12 @@ var XMigemoLocationBarOverlay = {
  
 window.addEventListener('load', XMigemoLocationBarOverlay, false); 
   
-function XMIgemoAutoCompletePopupController(aBaseController) 
+function XMigemoAutoCompletePopupController(aBaseController) 
 {
 	this.init(aBaseController);
 }
 
-XMIgemoAutoCompletePopupController.prototype = {
+XMigemoAutoCompletePopupController.prototype = {
 	
 	searchStringOverride : '', 
 	matchCountOverride   : 0,
@@ -1053,13 +1053,14 @@ XMIgemoAutoCompletePopupController.prototype = {
 	handleEscape : function() 
 	{
 		this.service.clear();
-		var retval = this.controller.handleEscape();
-		if (retval &&
-			this.input.textValue == this.searchString &&
-			this.searchStringOverride) {
+		var isPopupOpen = this.controller.handleEscape();
+		if (isPopupOpen) { // back to input
 			this.input.textValue = this.searchStringOverride;
 		}
-		return retval;
+		else { // exit
+			this.searchStringOverride = '';
+		}
+		return isPopupOpen;
 	},
  
 	handleStartComposition : function() 
