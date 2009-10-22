@@ -58,6 +58,20 @@ xmXMigemoAPI.prototype = {
 		prototype.lang = this.XMigemo.lang;
 		prototype.provider = 'XUL/Migemo '+prototype.version+' ('+prototype.lang+')';
 	},
+/*
+	get provider() {
+		return 'XUL/Migemo '+this.version+' ('+this.lang+')';;
+	},
+	get version() {
+		return Cc['@mozilla.org/extensions/manager;1']
+					.getService(Ci.nsIExtensionManager)
+					.getItemForID('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}')
+					.version;
+	},
+	get lang() {
+		return this.XMigemo.lang;
+	},
+*/
  
 	// xmIXMigemoAPI 
 	
