@@ -35,6 +35,13 @@ xmXMigemoAPI.prototype = {
  
 	initCache : function() 
 	{
+		this._queries_cache = {};
+		this._queries_cacheArray = [];
+		this._queryFunctional_cache = {};
+		this._queryFunctional_cacheArray = [];
+		this._queriesFunctional_cache = {};
+		this._queriesFunctional_cacheArray = [];
+
 		this._getRegExp_cache = {};
 		this._getRegExp_cacheArray = [];
 		this._getRegExps_cache = {};
@@ -78,14 +85,14 @@ xmXMigemoAPI.prototype = {
 	getRegExp : function(aInput, aFlags) 
 	{
 		if (!aFlags && aFlags !== '') aFlags = 'im';
-		while (this._getRegExp_cacheArray.length >= MAX_CACHE_COUNT)
-		{
-			delete this._getRegExp_cache[this._getRegExp_cacheArray.shift()];
-		}
 		var key = aInput+'-'+aFlags;
 		if (!(key in this._getRegExp_cache)) {
 			this._getRegExp_cache[key] = new RegExp(this.XMigemo.getRegExp(aInput), aFlags);
 			this._getRegExp_cacheArray.push(this._getRegExp_cache[key]);
+		}
+		while (this._getRegExp_cacheArray.length > MAX_CACHE_COUNT)
+		{
+			delete this._getRegExp_cache[this._getRegExp_cacheArray.shift()];
 		}
 		return this._getRegExp_cache[key];
 	},
@@ -93,16 +100,16 @@ xmXMigemoAPI.prototype = {
 	getRegExps : function(aInput, aFlags) 
 	{
 		if (!aFlags && aFlags !== '') aFlags = 'im';
-		while (this._getRegExps_cacheArray.length >= MAX_CACHE_COUNT)
-		{
-			delete this._getRegExps_cache[this._getRegExps_cacheArray.shift()];
-		}
 		var key = aInput+'-'+aFlags;
 		if (!(key in this._getRegExps_cache)) {
 			this._getRegExps_cache[key] = this.XMigemo.getRegExps(aInput).map(function(aSource) {
 				return new RegExp(aSource, aFlags);
 			});
 			this._getRegExps_cacheArray.push(this._getRegExps_cache[key]);
+		}
+		while (this._getRegExps_cacheArray.length > MAX_CACHE_COUNT)
+		{
+			delete this._getRegExps_cache[this._getRegExps_cacheArray.shift()];
 		}
 		return this._getRegExps_cache[key];
 	},
@@ -114,10 +121,6 @@ xmXMigemoAPI.prototype = {
 			throw 'xmXMigemoAPI::getRegExpFunctional() Error: "'+aInput+'" is not a valid input.';
 
 		if (!aFlags && aFlags !== '') aFlags = 'im';
-		while (this._getRegExpFunctional_cacheArray.length >= MAX_CACHE_COUNT)
-		{
-			delete this._getRegExpFunctional_cache[this._getRegExpFunctional_cacheArray.shift()];
-		}
 		var key = aInput+'-'+aFlags;
 		if (!(key in this._getRegExpFunctional_cache)) {
 			var terms = {};
@@ -129,6 +132,10 @@ xmXMigemoAPI.prototype = {
 			this._getRegExpFunctional_cache[key] = regexp;
 			this._getRegExpFunctional_cacheArray.push(regexp);
 		}
+		while (this._getRegExpFunctional_cacheArray.length > MAX_CACHE_COUNT)
+		{
+			delete this._getRegExpFunctional_cache[this._getRegExpFunctional_cacheArray.shift()];
+		}
 		return this._getRegExpFunctional_cache[key];
 	},
  
@@ -139,10 +146,6 @@ xmXMigemoAPI.prototype = {
 			throw 'xmXMigemoAPI::getRegExpsFunctional() Error: "'+aInput+'" is not a valid input.';
 
 		if (!aFlags && aFlags !== '') aFlags = 'im';
-		while (this._getRegExpsFunctional_cacheArray.length >= MAX_CACHE_COUNT)
-		{
-			delete this._getRegExpsFunctional_cache[this._getRegExpsFunctional_cacheArray.shift()];
-		}
 		var key = aInput+'-'+aFlags;
 		if (!(key in this._getRegExpsFunctional_cache)) {
 			var terms = {};
@@ -158,6 +161,10 @@ xmXMigemoAPI.prototype = {
 			};
 			this._getRegExpsFunctional_cacheArray.push(this._getRegExpsFunctional_cache[key]);
 		}
+		while (this._getRegExpsFunctional_cacheArray.length > MAX_CACHE_COUNT)
+		{
+			delete this._getRegExpsFunctional_cache[this._getRegExpsFunctional_cacheArray.shift()];
+		}
 		return this._getRegExpsFunctional_cache[key];
 	},
  
@@ -169,6 +176,74 @@ xmXMigemoAPI.prototype = {
 	trimFunctionalInput : function(aInput) 
 	{
 		return this.XMigemo.trimFunctionalInput(aInput);
+	},
+  
+	// xmIXMigemoQueryAPI 
+	
+	query : function(aInput) 
+	{
+		return this.XMigemo.getRegExp(aInput);
+	},
+ 
+	queries : function(aInput) 
+	{
+		if (!(aInput in this._queries_cache)) {
+			this._queries_cache[aInput] = this.XMigemo.getRegExps(aInput);
+			this._queries_cacheArray.push(this._queries_cache[key]);
+		}
+		while (this._queries_cacheArray.length > MAX_CACHE_COUNT)
+		{
+			delete this._queries_cache[this._queries_cacheArray.shift()];
+		}
+		return this._queries_cache[aInput];
+	},
+ 
+	queryFunctional : function(aInput) 
+	{
+		aInput = this.trimFunctionalInput(aInput);
+		if (!this.isValidFunctionalInput(aInput))
+			throw 'xmXMigemoQueryAPI::queryFunctional() Error: "'+aInput+'" is not a valid input.';
+
+		if (!(aInput in this._queryFunctional_cache)) {
+			var terms = {};
+			var exceptions = {};
+			var regexp = this.XMigemo.getRegExpFunctional(aInput, terms, exceptions);
+			this._queryFunctional_cache[aInput] = {
+				regexp : regexp,
+				terms : terms.value,
+				exceptions : exceptions.value || ''
+			};
+			this._queryFunctional_cacheArray.push(this._queryFunctional_cache[aInput]);
+		}
+		while (this._queryFunctional_cacheArray.length > MAX_CACHE_COUNT)
+		{
+			delete this._queryFunctional_cache[this._queryFunctional_cacheArray.shift()];
+		}
+		return this._queryFunctional_cache[key];
+	},
+ 
+	queriesFunctional : function(aInput) 
+	{
+		aInput = this.trimFunctionalInput(aInput);
+		if (!this.isValidFunctionalInput(aInput))
+			throw 'xmXMigemoQueryAPI::queriesFunctional() Error: "'+aInput+'" is not a valid input.';
+
+		if (!(aInput in this._queriesFunctional_cache)) {
+			var terms = {};
+			var exceptions = {};
+			var regexps = this.XMigemo.getRegExpsFunctional(aInput, terms, exceptions);
+			this._queriesFunctional_cache[aInput] = {
+				regexps : regexps,
+				terms : terms.value,
+				exceptions : exceptions.value || ''
+			};
+			this._queriesFunctional_cacheArray.push(this._queriesFunctional_cache[aInput]);
+		}
+		while (this._queriesFunctional_cacheArray.length > MAX_CACHE_COUNT)
+		{
+			delete this._queriesFunctional_cache[this._queriesFunctional_cacheArray.shift()];
+		}
+		return this._queriesFunctional_cache[key];
 	},
   
 	// xmIXMigemoRangeFindAPI 
@@ -303,6 +378,7 @@ xmXMigemoAPI.prototype = {
 	{
 		var interfaces = [
 				Ci.xmIXMigemoAPI,
+				Ci.xmIXMigemoQueryAPI,
 				Ci.xmIXMigemoRangeFindAPI,
 				Ci.xmIXMigemoHighlightAPI
 				// hide interfaces unrelated to Migemo feature
@@ -322,6 +398,7 @@ xmXMigemoAPI.prototype = {
 	QueryInterface : function(aIID) 
 	{
 		if (!aIID.equals(Ci.xmIXMigemoAPI) &&
+			!aIID.equals(Ci.xmIXMigemoQueryAPI) &&
 			!aIID.equals(Ci.xmIXMigemoRangeFindAPI) &&
 			!aIID.equals(Ci.xmIXMigemoHighlightAPI) &&
 			!aIID.equals(Ci.nsIClassInfo) &&
