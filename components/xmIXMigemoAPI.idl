@@ -12,7 +12,7 @@ interface nsIDOMElement;
 
 
 // easy API for JavaScript
-[scriptable, uuid(066d0a50-bd7b-11de-8a39-0800200c9a66)]
+[scriptable, uuid(fe3289f0-bfbe-11de-8a39-0800200c9a66)]
 interface xmIXMigemoAPI : nsISupports
 {
 	readonly attribute AString provider;
@@ -20,39 +20,30 @@ interface xmIXMigemoAPI : nsISupports
 	readonly attribute AString version;
 	readonly attribute AString lang;
 
-	/* create a regular expression from roman letters.
-	   returned value: RegExp object */
-	nsIVariant getRegExp(
-		in AString input,
-		[optional] in AString flags
-	);
+	/* create a regular expression from roman letters. */
+	AString query(in AString input);
+	/* create a regular expressions from roman letters split by whitespace characters. */
+	nsIVariant queries(in AString input);
 
-	/* create a regular expressions from roman letters split by whitespace characters.
-	   returned value: array of RegExp objects */
-	nsIVariant getRegExps(
-		in AString input,
-		[optional] in AString flags
-	);
+	nsIVariant queryFunctional(in AString input);
+	nsIVariant queriesFunctional(in AString input);
 
-	nsIVariant getRegExpFunctional(
-		in AString input,
-		[optional] in AString flags
-	);
-	nsIVariant getRegExpsFunctional(
-		in AString input,
-		[optional] in AString flags
-	);
 	boolean isValidFunctionalInput(in AString input);
 	AString trimFunctionalInput(in AString input);
 };
 
 [scriptable, uuid(47ca4a10-bfbc-11de-8a39-0800200c9a66)]
-interface xmIXMigemoQueryAPI : nsISupports
+interface xmIXMigemoCoreAPI : nsISupports
 {
-	AString query(in AString input);
-	nsIVariant queries(in AString input);
-	nsIVariant queryFunctional(in AString input);
-	nsIVariant queriesFunctional(in AString input);
+	/* create a regular expression from roman letters.
+	   returned value: RegExp object */
+	nsIVariant getRegExp(in AString input, [optional] in AString flags);
+	/* create a regular expressions from roman letters split by whitespace characters.
+	   returned value: array of RegExp objects */
+	nsIVariant getRegExps(in AString input, [optional] in AString flags);
+
+	nsIVariant getRegExpFunctional(in AString input, [optional] in AString flags);
+	nsIVariant getRegExpsFunctional(in AString input, [optional] in AString flags);
 };
 
 [scriptable, uuid(df8b8ec0-be06-11de-8a39-0800200c9a66)]
