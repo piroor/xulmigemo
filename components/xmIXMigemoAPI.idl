@@ -46,6 +46,15 @@ interface xmIXMigemoAPI : nsISupports
 	AString trimFunctionalInput(in AString input);
 };
 
+[scriptable, uuid(47ca4a10-bfbc-11de-8a39-0800200c9a66)]
+interface xmIXMigemoQueryAPI : nsISupports
+{
+	AString query(in AString input);
+	nsIVariant queries(in AString input);
+	nsIVariant queryFunctional(in AString input);
+	nsIVariant queriesFunctional(in AString input);
+};
+
 [scriptable, uuid(df8b8ec0-be06-11de-8a39-0800200c9a66)]
 interface xmIXMigemoRangeFindAPI : nsISupports
 {

@@ -14,7 +14,7 @@
 document.write('<hr />');
 
 document.write('<pre>'+
-  'migemo,migemo.provider,migemo.observe,migemo.regExpFindArr,migemo.lang,migemo.version'
+  'migemo,migemo.provider,migemo.observe'
     .split(',')
     .map(function(aName) {
       try {
@@ -31,7 +31,11 @@ document.write('<pre>'+
 document.write('<hr />');
 
 
+document.write('<p>0</p>');
 var result = window.migemo.getRegExp('jikkou');
+document.write('<p>1</p>');
+document.write('<p>'+(typeof result)+'</p>');
+document.write('<p>'+(result instanceof RegExp)+'</p>');
 document.write('<p>'+result+'</p>');
 document.write('<p>result.test("じっこう") => '+result.test('じっこう')+'</p>');
 
