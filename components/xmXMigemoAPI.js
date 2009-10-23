@@ -2,6 +2,8 @@ var DEBUG = false;
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
+var JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY = 'JavaScript global property';
+var JAVASCRIPT_GLOBAL_PRIVILEGED_PROPERTY_CATEGORY = 'JavaScript global privileged property';
 
 var MAX_CACHE_COUNT = 100;
 
@@ -32,6 +34,7 @@ xmXMigemoAPI.prototype = {
 	},
  
 	accessorName : 'migemo', 
+	category : JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY,
  
 	initCache : function() 
 	{
@@ -378,7 +381,7 @@ xmXMigemoAPI.prototype = {
 	{
 		var interfaces = [
 				Ci.xmIXMigemoAPI,
-				Ci.xmIXMigemoQueryAPI,
+				Ci.xmIXMigemoCoreAPI,
 				Ci.xmIXMigemoRangeFindAPI,
 				Ci.xmIXMigemoHighlightAPI
 				// hide interfaces unrelated to Migemo feature
@@ -398,7 +401,7 @@ xmXMigemoAPI.prototype = {
 	QueryInterface : function(aIID) 
 	{
 		if (!aIID.equals(Ci.xmIXMigemoAPI) &&
-			!aIID.equals(Ci.xmIXMigemoQueryAPI) &&
+			!aIID.equals(Ci.xmIXMigemoCoreAPI) &&
 			!aIID.equals(Ci.xmIXMigemoRangeFindAPI) &&
 			!aIID.equals(Ci.xmIXMigemoHighlightAPI) &&
 			!aIID.equals(Ci.nsIClassInfo) &&
@@ -412,8 +415,6 @@ xmXMigemoAPI.prototype = {
   
 var categoryManager = Cc['@mozilla.org/categorymanager;1'] 
 						.getService(Ci.nsICategoryManager);
-var JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY = 'JavaScript global property';
-// var JAVASCRIPT_GLOBAL_PRIVILEGED_PROPERTY_CATEGORY = 'JavaScript global privileged property';
 
 var gModule = {
 	_firstTime: true,
@@ -425,32 +426,30 @@ var gModule = {
 			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
 		}
 		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		for (var key in this._objects) {
-			var obj = this._objects[key];
+		this._objects.forEach(function(aObject) {
 			aComponentManager.registerFactoryLocation(
-				obj.CID,
-				obj.className,
-				obj.contractID,
+				aObject.CID,
+				aObject.className,
+				aObject.contractID,
 				aFileSpec,
 				aLocation,
 				aType
 			);
 			categoryManager.addCategoryEntry(
 				'app-startup',
-				obj.className,
-				obj.contractID,
+				aObject.className,
+				aObject.contractID,
 				true,
 				true
 			);
 			categoryManager.addCategoryEntry(
-				JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY,
-				// JAVASCRIPT_GLOBAL_PRIVILEGED_PROPERTY_CATEGORY,
-				obj.accessorName,
-				obj.contractID,
+				aObject.category,
+				aObject.accessorName,
+				aObject.contractID,
 				true,
 				true
 			);
-		}
+		}, this);
 	},
 
 	getClassObject : function (aComponentManager, aCID, aIID)
@@ -466,12 +465,13 @@ var gModule = {
 		throw Components.results.NS_ERROR_NO_INTERFACE;
 	},
 
-	_objects : {
-		manager : {
+	_objects : [
+		{
 			CID          : xmXMigemoAPI.prototype.classID,
 			contractID   : xmXMigemoAPI.prototype.contractID,
 			className    : xmXMigemoAPI.prototype.classDescription,
 			accessorName : xmXMigemoAPI.prototype.accessorName,
+			category     : xmXMigemoAPI.prototype.category,
 			factory      : {
 				createInstance : function (aOuter, aIID)
 				{
@@ -481,7 +481,7 @@ var gModule = {
 				}
 			}
 		}
-	},
+	],
 
 	canUnload : function (aComponentManager)
 	{
