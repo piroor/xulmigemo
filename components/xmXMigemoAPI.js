@@ -130,6 +130,7 @@ xmXMigemoAPI.prototype = {
 			var exceptions = {};
 			var regexp = this.XMigemo.getRegExpFunctional(aInput, terms, exceptions);
 			regexp = new RegExp(regexp, aFlags);
+			regexp.regexp = regexp;
 			regexp.terms = new RegExp(terms.value, 'gim');
 			regexp.exceptions = exceptions.value ? new RegExp(exceptions.value, 'im') : null ;
 			this._getRegExpFunctional_cache[key] = regexp;
