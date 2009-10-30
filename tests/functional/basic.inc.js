@@ -110,7 +110,7 @@ function testRegExpFind()
 	yield Do(assert.find_again(mode, key, 1, 'single'));
 	yield Do(assert.find_again(mode, key, 1, 'field'));
 	yield Do(assert.find_again(mode, key, 3, 'field'));
-	key.shiftKey = true;
+	key = ['return', { shiftKey : true }];
 	yield Do(assert.find_again(mode, key, 3, 'field'));
 	yield Do(assert.find_again(mode, key, 1, 'single'));
 	yield Do(assert.find_again(mode, key, 1, 'text'));
