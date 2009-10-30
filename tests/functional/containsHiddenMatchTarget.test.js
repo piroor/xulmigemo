@@ -22,7 +22,7 @@ function testRegExpFind()
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 	field.focus();
 
-	action.inputTextToField(field, 'a|b', false, true);
+	action.inputTo(field, 'a|b');
 	yield wait;
 
 	assert.isNotNull(XMigemoUI.lastFoundRange);

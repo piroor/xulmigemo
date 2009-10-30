@@ -96,13 +96,13 @@ var key_input_a = {
 		charCode : 'a'.charCodeAt(0)
 	};
 var key_RETURN = {
-		keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN
+		keyCode : Ci.nsIDOMKeyEvent.DOM_VK_RETURN
 	};
 var key_BS = {
-		keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE
+		keyCode : Ci.nsIDOMKeyEvent.DOM_VK_BACK_SPACE
 	};
 var key_DEL = {
-		keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_DELETE
+		keyCode : Ci.nsIDOMKeyEvent.DOM_VK_DELETE
 	};
 
 function fireKeyEvents(aTarget, aKey, aTimes)

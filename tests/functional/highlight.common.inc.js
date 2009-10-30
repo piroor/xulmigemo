@@ -15,13 +15,13 @@ assert.highlightCheck = function(aDisabled, aChecked, aMessage) {
 }
 
 assert.find_found = function(aTerm, aMessage) {
-	action.inputTextToField(field, aTerm);
+	action.inputTo(field, aTerm);
 	yield 1500;
 	assert.notEquals('notfound', field.getAttribute('status'), aMessage);
 }
 
 assert.find_notFound = function(aTerm, aMessage) {
-	action.inputTextToField(field, aTerm);
+	action.inputTo(field, aTerm);
 	yield 1500;
 	assert.equals('notfound', field.getAttribute('status'), aMessage);
 }
@@ -84,7 +84,7 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 }
 
 assert.screenStateForFind = function(aTerm, aShown) {
-	action.inputTextToField(field, aTerm);
+	action.inputTo(field, aTerm);
 	yield 1500;
 	var screen = content.document.getElementById(kSCREEN);
 	assert.isTrue(screen);
@@ -107,7 +107,7 @@ assert.screenStateForFind = function(aTerm, aShown) {
 }
 
 assert.markerStateForFind = function(aTerm, aShown) {
-	action.inputTextToField(field, aTerm);
+	action.inputTo(field, aTerm);
 	yield 1500;
 	var canvas = content.document.getElementById(kMARKER_CANVAS);
 	if (aShown) {

@@ -19,11 +19,11 @@ function testBS()
 	var mode;
 	function doTest() {
 		yield wait;
-		action.inputTextToField(inputElem, 'text');
+		action.inputTo(inputElem, 'text');
 		yield wait;
-		action.fireKeyEventOnElement(inputElem, key_Ctrl_A);
+		action.keypressOn(inputElem, 'a', { ctrlKey : true });
 		yield wait;
-		action.fireKeyEventOnElement(inputElem, key_BS);
+		action.keypressOn(inputElem, Ci.nsIDOMKeyEvent.DOM_VK_BACK_SPACE);
 		yield wait;
 		assert.equals('', XMigemoUI.findTerm, 'mode is '+mode);
 	}
@@ -49,11 +49,11 @@ function testDel()
 	var mode;
 	function doTest() {
 		yield wait;
-		action.inputTextToField(inputElem, 'text');
+		action.inputTo(inputElem, 'text');
 		yield wait;
-		action.fireKeyEventOnElement(inputElem, key_Ctrl_A);
+		action.keypressOn(inputElem, 'a', { ctrlKey : true });
 		yield wait;
-		action.fireKeyEventOnElement(inputElem, key_DEL);
+		action.keypressOn(inputElem, Ci.nsIDOMKeyEvent.DOM_VK_DELETE);
 		yield wait;
 		assert.equals('', XMigemoUI.findTerm, 'mode is '+mode);
 	}
@@ -79,11 +79,11 @@ function testInput()
 	var mode;
 	function doTest() {
 		yield wait;
-		action.inputTextToField(inputElem, 'text');
+		action.inputTo(inputElem, 'text');
 		yield wait;
-		action.fireKeyEventOnElement(inputElem, key_Ctrl_A);
+		action.keypressOn(inputElem, 'a', { ctrlKey : true });
 		yield wait;
-		action.fireKeyEventOnElement(inputElem, key_input_a);
+		action.keypressOn(inputElem, 'a');
 		yield wait;
 		assert.equals('a', XMigemoUI.findTerm, 'mode is '+mode);
 	}

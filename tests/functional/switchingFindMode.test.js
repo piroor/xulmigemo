@@ -34,7 +34,7 @@ function test_manualSwitch_API()
 }
 
 assert.buttonClick = function(aMode, aIndex) {
-	action.fireMouseEventOnElement(XMigemoUI.findModeSelector.childNodes[aIndex]);
+	action.clickOn(XMigemoUI.findModeSelector.childNodes[aIndex]);
 	yield wait;
 	assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
 }
@@ -55,7 +55,7 @@ function test_manualSwitch_buttonClick()
 }
 
 assert.flipBack = function(aMode, aIndex, aNext) {
-	action.fireMouseEventOnElement(XMigemoUI.findModeSelector.childNodes[aIndex]);
+	action.clickOn(XMigemoUI.findModeSelector.childNodes[aIndex]);
 	yield wait;
 	assert.equals(XMigemoUI[aNext], XMigemoUI.findMode, aMode);
 }
@@ -171,16 +171,16 @@ function testAutoSwitch()
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 	yield wait;
 
-	action.inputTextToField(field, 'text field');
+	action.inputTo(field, 'text field');
 	yield wait;
 	assert.notEquals('notfound', field.getAttribute('status'));
 	assert.matches('text field', XMigemoUI.lastFoundRange.toString());
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.checked);
 
-	action.inputTextToField(field, '');
+	action.inputTo(field, '');
 	yield wait;
-	action.inputTextToField(field, '/(single-row|multirow) field/');
+	action.inputTo(field, '/(single-row|multirow) field/');
 	yield wait;
 	assert.equals(XMigemoUI.FIND_MODE_REGEXP, XMigemoUI.findMode);
 	assert.notEquals('notfound', field.getAttribute('status'));
@@ -188,9 +188,9 @@ function testAutoSwitch()
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
 	assert.isTrue(XMigemoUI.caseSensitiveCheck.checked);
 
-	action.inputTextToField(field, '');
+	action.inputTo(field, '');
 	yield wait;
-	action.inputTextToField(field, '/(single-row|multirow) field/i');
+	action.inputTo(field, '/(single-row|multirow) field/i');
 	yield wait;
 	assert.equals(XMigemoUI.FIND_MODE_REGEXP, XMigemoUI.findMode);
 	assert.notEquals('notfound', field.getAttribute('status'));
@@ -198,14 +198,13 @@ function testAutoSwitch()
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.checked);
 
-	var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
-	action.fireKeyEventOnElement(field, key);
+	action.keypressOn(field, Ci.nsIDOMKeyEvent.DOM_VK_F3);
 	yield wait;
 	assert.equals('multirow field', XMigemoUI.lastFoundRange.toString());
 
-	action.inputTextToField(field, '');
+	action.inputTo(field, '');
 	yield wait;
-	action.inputTextToField(field, '(single-row|multirow) field');
+	action.inputTo(field, '(single-row|multirow) field');
 	yield wait;
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	assert.equals('notfound', field.getAttribute('status'));

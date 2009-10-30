@@ -33,7 +33,7 @@ function testFindInFrame()
 	var firstDoc = $('frame1', content).contentDocument;
 	var secondDoc = $('frame2', content).contentDocument;
 
-	action.inputTextToField(field, 'nihongo');
+	action.inputTo(field, 'nihongo');
 	yield wait;
 	assert.found('日本語', firstDoc);
 
@@ -75,7 +75,7 @@ function testNotFound()
 	var rootDoc = content.document;
 	var frameDoc = content.frames[0].document;
 
-	action.inputTextToField(field, 'nihongo');
+	action.inputTo(field, 'nihongo');
 	yield wait;
 	assert.found('日本語', rootDoc);
 
