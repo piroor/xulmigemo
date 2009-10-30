@@ -15,8 +15,8 @@ assert.find_notFound = function(aMode, aTerm) {
 	assert.equals('notfound', field.getAttribute('status'), aMode);
 }
 
-assert.find_again = function(aMode, aKey, aTimes, aFound) {
-	yield Do(fireKeyEvents(field, aKey, aTimes));
+assert.find_again = function(aMode, aKeyOptions, aTimes, aFound) {
+	yield Do(keypressMultiply([field].concat(aKeyOptions), aTimes));
 	if (aFound)
 		assert.equals(aFound, XMigemoUI.lastFoundRange.toString(), aMode);
 	else
@@ -55,7 +55,7 @@ function testNormalFind()
 
 
 	// Enterキーでの再検索
-	var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN };
+	var key = ['return'];
 	yield Do(assert.find_found(mode, findTerm, findTerm));
 	var lastFoundRange = XMigemoUI.lastFoundRange;
 	assert.isTrue(lastFoundRange);
@@ -65,7 +65,7 @@ function testNormalFind()
 	assert.notEquals(lastFoundRange.startContainer, foundRange.startContainer);
 	lastFoundRange = foundRange;
 
-	key.shiftKey = true;
+	key = ['return', { shiftKey : true }];
 	yield Do(assert.find_again(mode, key, 4));
 	foundRange = XMigemoUI.lastFoundRange;
 	assert.notEquals(lastFoundRange.startContainer, foundRange.startContainer);
@@ -73,13 +73,13 @@ function testNormalFind()
 
 
 	// F3キーでの再検索
-	key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
+	key = ['F3'];
 	yield Do(assert.find_again(mode, key, 4));
 	foundRange = XMigemoUI.lastFoundRange;
 	assert.notEquals(lastFoundRange.startContainer, foundRange.startContainer);
 	lastFoundRange = foundRange;
 
-	key.shiftKey = true;
+	key = ['F3', { shiftKey : true }];
 	yield Do(assert.find_again(mode, key, 4));
 	foundRange = XMigemoUI.lastFoundRange;
 	assert.notEquals(lastFoundRange.startContainer, foundRange.startContainer);
@@ -106,7 +106,7 @@ function testRegExpFind()
 
 	// Enterキーでの再検索
 	yield Do(assert.find_found(mode, findTerm, 'text'));
-	var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN };
+	var key = ['return'];
 	yield Do(assert.find_again(mode, key, 1, 'single'));
 	yield Do(assert.find_again(mode, key, 1, 'field'));
 	yield Do(assert.find_again(mode, key, 3, 'field'));
@@ -117,11 +117,11 @@ function testRegExpFind()
 
 
 	// F3キーでの再検索
-	key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
+	key = ['F3'];
 	yield Do(assert.find_again(mode, key, 1, 'single'));
 	yield Do(assert.find_again(mode, key, 1, 'field'));
 
-	key.shiftKey = true;
+	key = ['F3', { shiftKey : true }];
 	yield Do(assert.find_again(mode, key, 1, 'single'));
 	yield Do(assert.find_again(mode, key, 1, 'text'));
 }
@@ -147,18 +147,18 @@ function testMigemoFind()
 
 	// Enterキーでの再検索
 	yield Do(assert.find_found(mode, findTerm, '日本語'));
-	var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN };
+	var key = ['return'];
 	yield Do(assert.find_again(mode, key, 3, 'nihongo'));
 	yield Do(assert.find_again(mode, key, 2, 'にほんご'));
-	key.shiftKey = true;
+	key = ['return', { shiftKey : true }];
 	yield Do(assert.find_again(mode, key, 1, '日本語'));
 	yield Do(assert.find_again(mode, key, 2, 'ニホンゴ'));
 
 
 	// F3キーでの再検索
-	key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
+	key = ['F3'];
 	yield Do(assert.find_again(mode, key, 2, '日本語'));
-	key.shiftKey = true;
+	key = ['F3', { shiftKey : true }];
 	yield Do(assert.find_again(mode, key, 2, 'ニホンゴ'));
 }
 
@@ -179,7 +179,7 @@ function testDynamicSwitch()
 	yield wait;
 	yield Do(assert.find_found('FIND_MODE_MIGEMO', 'nihongo', '日本語'));
 
-	var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
+	var key = ['F3'];
 	yield Do(assert.find_again('FIND_MODE_MIGEMO', key, 1, 'にほんご'));
 
 	action.inputTo(field, '');
@@ -190,7 +190,6 @@ function testDynamicSwitch()
 	yield wait;
 	yield Do(assert.find_found('FIND_MODE_NATIVE', 'link', 'link'));
 
-	var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
 	yield Do(assert.find_again('FIND_MODE_NATIVE', key, 1, 'link'));
 }
 
