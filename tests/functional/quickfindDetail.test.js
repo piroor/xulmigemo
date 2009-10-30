@@ -45,8 +45,7 @@ function testResetTimerOnInput()
 	var key;
 	for (var i = 1, maxi = findTerm.length+1; i < maxi; i++)
 	{
-		key = { charCode : findTerm.charCodeAt(i) };
-		action.fireKeyEventOnElement(field, key);
+		action.keypressOn(field, findTerm.charAt(i));
 		yield wait;
 		assert.equals(lastInput+findTerm.charAt(i), XMigemoUI.findTerm);
 		lastInput = XMigemoUI.findTerm;
@@ -54,23 +53,22 @@ function testResetTimerOnInput()
 	}
 	assert.isQuickMigemoFindActive();
 
-	action.inputTextToField(field, findTerm);
+	action.inputTo(field, findTerm);
 	yield wait;
 
 	startAt = (new Date()).getTime();
 	while (((new Date()).getTime() - startAt) < XMigemoUI.timeout)
 	{
 		assert.isQuickMigemoFindActive();
-		action.fireKeyEventOnElement(field, key_RETURN);
+		action.keypressOn(field, Ci.nsIDOMKeyEvent.DOM_VK_RETURN);
 		yield wait;
 	}
 
 	startAt = (new Date()).getTime();
 	lastInput = XMigemoUI.findTerm;
-	key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE };
 	for (var i = findTerm.length; i > 0; i--)
 	{
-		action.fireKeyEventOnElement(field, key_BS);
+		action.keypressOn(field, Ci.nsIDOMKeyEvent.DOM_VK_BACK_SPACE);
 		yield wait;
 		assert.equals(lastInput.substring(0, lastInput.length-1), XMigemoUI.findTerm);
 		lastInput = XMigemoUI.findTerm;
@@ -89,13 +87,13 @@ function testFocusToInputFieldWhileQuickMigemoFind()
 
 	var input = content.document.getElementsByTagName('input')[0];
 	input.focus();
-	action.fireMouseEventOnElement(input);
+	action.clickOn(input);
 	yield wait;
 	assert.isTrue(XMigemoUI.hidden);
 
 	var originalValue = input.value;
 	var focused = win.document.commandDispatcher.focusedElement;
-	action.fireKeyEventOnElement(focused, key_input_a);
+	action.keypressOn(focused, 'a');
 	yield wait;
 	assert.equals(originalValue+'a', focused.value);
 }

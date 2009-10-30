@@ -110,7 +110,7 @@ function testAutoHighlightAndModeSwitch()
 	yield wait;
 	assert.highlightCheck(false, true);
 
-	action.inputTextToField(field, '');
+	action.inputTo(field, '');
 	yield wait;
 	gFindBar.closeFindBar();
 	yield wait;

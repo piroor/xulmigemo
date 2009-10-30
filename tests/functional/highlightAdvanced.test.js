@@ -7,16 +7,12 @@ utils.include('highlight.common.inc.js');
 
 function fireClickEventOn(aNode, aButton) {
 	var box = utils.getBoxObjectFor(aNode);
-	action.fireMouseEventOnElement(
-		content.document.getElementById(kSCREEN),
-		{
-			button  : aButton,
-			x       : box.x + 10,
-			y       : box.y + 5,
-			screenX : box.screenX + 10,
-			screenY : box.screenY + 5
-		}
-	);
+	switch (aButton)
+	{
+		case 0: action.clickAt(content, box.x+10, box.y+5); break;
+		case 1: action.middleClickAt(content, box.x+10, box.y+5); break;
+		case 2: action.rightClickAt(content, box.x+10, box.y+5); break;
+	}
 	yield 1500;
 }
 
@@ -92,7 +88,7 @@ function testNoInput()
 	{
 		yield wait;
 		assert.highlightCheck(false, true);
-		action.fireKeyEventOnElement(field, key_BS);
+		action.keypressOn(field, Ci.nsIDOMKeyEvent.DOM_VK_BACK_SPACE);
 		yield wait;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isFalse(XMigemoUI.hidden);

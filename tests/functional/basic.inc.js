@@ -1,6 +1,6 @@
 
 assert.find_found = function(aMode, aTerm, aFound) {
-	action.inputTextToField(field, aTerm);
+	action.inputTo(field, aTerm);
 	yield wait;
 	assert.notEquals('notfound', field.getAttribute('status'), aMode);
 	if (typeof aFound == 'string')
@@ -10,7 +10,7 @@ assert.find_found = function(aMode, aTerm, aFound) {
 }
 
 assert.find_notFound = function(aMode, aTerm) {
-	action.inputTextToField(field, aTerm);
+	action.inputTo(field, aTerm);
 	yield wait;
 	assert.equals('notfound', field.getAttribute('status'), aMode);
 }
@@ -172,21 +172,21 @@ function testDynamicSwitch()
 
 	yield Do(assert.find_found('FIND_MODE_NATIVE', 'text field', 'text field'));
 
-	action.inputTextToField(field, '');
+	action.inputTo(field, '');
 	yield wait;
 
-	action.fireMouseEventOnElement(XMigemoUI.findModeSelector.childNodes[2]);
+	action.clickOn(XMigemoUI.findModeSelector.childNodes[2]);
 	yield wait;
 	yield Do(assert.find_found('FIND_MODE_MIGEMO', 'nihongo', '日本語'));
 
 	var key = { keyCode : Components.interfaces.nsIDOMKeyEvent.DOM_VK_F3 };
 	yield Do(assert.find_again('FIND_MODE_MIGEMO', key, 1, 'にほんご'));
 
-	action.inputTextToField(field, '');
+	action.inputTo(field, '');
 	yield wait;
 
 
-	action.fireMouseEventOnElement(XMigemoUI.findModeSelector.childNodes[0]);
+	action.clickOn(XMigemoUI.findModeSelector.childNodes[0]);
 	yield wait;
 	yield Do(assert.find_found('FIND_MODE_NATIVE', 'link', 'link'));
 
@@ -215,7 +215,7 @@ function testFillWithSelection()
 		yield wait;
 		if (aPreFill) {
 			assert.equals(selectedTerm, XMigemoUI.findTerm, aMode);
-			action.inputTextToField(field, '');
+			action.inputTo(field, '');
 		}
 		else {
 			assert.equals('', XMigemoUI.findTerm, aMode);

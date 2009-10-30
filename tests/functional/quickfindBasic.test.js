@@ -107,8 +107,7 @@ function testManulStartManualExitByClick()
 testAutoStartInQuickFind.description = '手動開始の時に自動開始を試みた場合';
 function testAutoStartInQuickFind()
 {
-	var key = { charCode : 'n'.charCodeAt(0) };
-	action.fireKeyEventOnElement(content.document.documentElement, key);
+	action.keypressOn(content.document.documentElement, 'n');
 	yield wait;
 	assert.isTrue(XMigemoUI.hidden);
 }
