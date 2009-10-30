@@ -55,7 +55,7 @@ function testClickOnScreen()
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 
-	action.inputTextToField(field, 'text field');
+	action.inputTo(field, 'text field');
 	yield 1500;
 	assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
 	yield Do(fireClickEventOn(browser.selectedBrowser, 0));

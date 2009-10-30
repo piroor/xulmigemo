@@ -105,11 +105,11 @@ var key_DEL = {
 		keyCode : Ci.nsIDOMKeyEvent.DOM_VK_DELETE
 	};
 
-function fireKeyEvents(aTarget, aKey, aTimes)
+function keypressMultiply(aKeyOptions, aTimes)
 {
 	for (var i = 0; i < aTimes; i++)
 	{
-		action.fireKeyEventOnElement(aTarget, aKey);
+		action.keypressOn.apply(action, aKeyOptions);
 	}
 	yield wait;
 }
