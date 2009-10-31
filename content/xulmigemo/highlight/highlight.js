@@ -50,14 +50,11 @@ var XMigemoHighlight = {
 		}
 
 		if ('gSearchWPOverlay' in window) { // SearchWP
-			eval(
-				'gSearchWPOverlay.toggleHighlight = '+
-				gSearchWPOverlay.toggleHighlight.toSource().replace(
-					'gSearchWPHighlighting.toggleHighlight',
-					'if (XMigemoHighlight.strongHighlight) XMigemoHighlight.toggleHighlightScreen(aHighlight);'+
-					'gSearchWPHighlighting.toggleHighlight'
-				)
-			);
+			eval('gSearchWPOverlay.toggleHighlight = '+gSearchWPOverlay.toggleHighlight.toSource().replace(
+				'gSearchWPHighlighting.toggleHighlight',
+				'if (XMigemoHighlight.strongHighlight) XMigemoHighlight.toggleHighlightScreen(aHighlight);'+
+				'gSearchWPHighlighting.toggleHighlight'
+			));
 		}
 		else if ('gSearchWP' in window && 'Highlighting' in gSearchWP) {
 			eval('gSearchWP.Highlighting.toggleHighlight = '+gSearchWP.Highlighting.toggleHighlight.toSource().replace(
@@ -70,14 +67,14 @@ var XMigemoHighlight = {
 		}
 
 		if (typeof GBL_Listener != 'undefined') { // Googlebar Lite
-			eval(
-				'window.GBL_ToggleHighlighting = '+
-				window.GBL_ToggleHighlighting.toSource().replace(
-					'var hb = document.getElementById("GBL-TB-Highlighter");',
-					'var hb = document.getElementById("GBL-TB-Highlighter");'+
-					'if (XMigemoHighlight.strongHighlight) XMigemoHighlight.toggleHighlightScreen(!hb.checked);'
-				)
-			);
+			eval('window.GBL_ToggleHighlighting = '+window.GBL_ToggleHighlighting.toSource().replace(
+				'var hb = document.getElementById("GBL-TB-Highlighter");',
+				<![CDATA[
+					var hb = document.getElementById("GBL-TB-Highlighter");
+					if (XMigemoHighlight.strongHighlight)
+						XMigemoHighlight.toggleHighlightScreen(!hb.checked);
+				]]>
+			));
 		}
 
 
