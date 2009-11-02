@@ -16,7 +16,7 @@
    - The Original Code is the Key Detecter.
    -
    - The Initial Developer of the Original Code is SHIMODA Hiroshi.
-   - Portions created by the Initial Developer are Copyright (C) 2002-2004
+   - Portions created by the Initial Developer are Copyright (C) 2002-2009
    - the Initial Developer. All Rights Reserved.
    -
    - Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
@@ -42,7 +42,7 @@
 	window.openDialog(
 		'chrome://***/content/keyDetecter.xul',
 		'',
-		'chrome,modal,resizable=no,titlebar=no,centerscreen',
+		'chrome,modal,centerscreen',
 		keyData,
 		descriptionLabel,
 		cancelButtonLabel
@@ -56,6 +56,8 @@
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 		orient="vertical"
+		hidechrome="true"
+		style="border: 1px solid ThreeDShadow;"
 		onkeypress="onKeyPress(event);">
 
 <script type="application/x-javascript"><![CDATA[

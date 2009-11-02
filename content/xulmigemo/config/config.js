@@ -69,7 +69,7 @@ function setShortcut(aNode)
 		window.openDialog(
 			'keyDetecter.xul',
 			'_blank',
-			'chrome,modal,resizable=no,titlebar=no,centerscreen',
+			'chrome,modal,centerscreen,dialog=no',
 			aNode.keyData,
 			aNode.getAttribute('dialogMessage'),
 			aNode.getAttribute('dialogButton')
