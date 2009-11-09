@@ -228,7 +228,7 @@ var XMigemoService = {
 	{
 		return (
 				(aShortcut.keyCode && aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent['DOM_'+aShortcut.keyCode]) ||
-				(aShortcut.charCode && aEvent.charCode == aShortcut.charCode)
+				(aEvent.type != 'keyup' && aShortcut.charCode && aEvent.charCode == aShortcut.charCode)
 			) &&
 			aShortcut.shiftKey == aEvent.shiftKey &&
 			aShortcut.altKey == aEvent.altKey &&
