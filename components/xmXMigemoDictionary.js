@@ -9,7 +9,7 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
  
 var ObserverService = Cc['@mozilla.org/observer-service;1'] 
-			.getService(Ci.nsIObserverService);;
+			.getService(Ci.nsIObserverService);
 
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
