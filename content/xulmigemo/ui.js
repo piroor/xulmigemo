@@ -691,7 +691,7 @@ var XMigemoUI = {
 	fireFindToolbarUpdateRequestEvent : function(aTarget) 
 	{
 		var event = document.createEvent('UIEvents');
-		event.initEvent('XMigemoFindBarUpdateRequest', true, true, window, 0);
+		event.initUIEvent('XMigemoFindBarUpdateRequest', true, true, window, 0);
 		(aTarget || document).dispatchEvent(event);
 	},
   
