@@ -690,8 +690,8 @@ var XMigemoUI = {
   
 	fireFindToolbarUpdateRequestEvent : function(aTarget) 
 	{
-		var event = document.createEvent('Events');
-		event.initEvent('XMigemoFindBarUpdateRequest', true, true);
+		var event = document.createEvent('UIEvents');
+		event.initEvent('XMigemoFindBarUpdateRequest', true, true, window, 0);
 		(aTarget || document).dispatchEvent(event);
 	},
   
@@ -2378,7 +2378,7 @@ var XMigemoUI = {
 		ui.findMigemoBar.removeAttribute('collapsed');
 
 		var event = document.createEvent('Events');
-		event.initEvent('XMigemoFindBarOpen', true, true);
+		event.initEvent('XMigemoFindBarOpen', true, false);
 		event.isQuickFind = aShowMinimalUI;
 		ui.findBar.dispatchEvent(event);
 	},
@@ -2415,7 +2415,7 @@ var XMigemoUI = {
 		XMigemoUI.cleanUpOnFindBarHidden();
 
 		var event = document.createEvent('Events');
-		event.initEvent('XMigemoFindBarClose', true, true);
+		event.initEvent('XMigemoFindBarClose', true, false);
 		XMigemoUI.findBar.dispatchEvent(event);
 
 		window.setTimeout(function(aSelf) {
@@ -2462,7 +2462,7 @@ var XMigemoUI = {
 	toggleHighlight : function(aHighlight, aAutoChecked) 
 	{
 		var event = document.createEvent('Events');
-		event.initEvent('XMigemoFindBarUpdateHighlight', true, true);
+		event.initEvent('XMigemoFindBarUpdateHighlight', true, false);
 		event.targetHighlight = aHighlight;
 		XMigemoUI.findBar.dispatchEvent(event);
 
@@ -2480,7 +2480,7 @@ var XMigemoUI = {
 		}
 
 		event = document.createEvent('Events');
-		event.initEvent('XMigemoFindBarToggleHighlight', true, true);
+		event.initEvent('XMigemoFindBarToggleHighlight', true, false);
 		event.targetHighlight = aHighlight;
 		XMigemoUI.findBar.dispatchEvent(event);
 
@@ -2602,7 +2602,7 @@ var XMigemoUI = {
 	findNext : function() 
 	{
 		var event = document.createEvent('Events');
-		event.initEvent('XMigemoFindAgain', true, true);
+		event.initEvent('XMigemoFindAgain', true, false);
 		event.direction = XMigemoFind.FIND_FORWARD;
 		document.dispatchEvent(event);
 
@@ -2632,7 +2632,7 @@ var XMigemoUI = {
 	findPrevious : function() 
 	{
 		var event = document.createEvent('Events');
-		event.initEvent('XMigemoFindAgain', true, true);
+		event.initEvent('XMigemoFindAgain', true, false);
 		event.direction = XMigemoFind.FIND_BACK;
 		document.dispatchEvent(event);
 
@@ -2683,7 +2683,7 @@ var XMigemoUI = {
 		}
 
 		var event = document.createEvent('Events');
-		event.initEvent('XMigemoFindBarUpdate', true, true);
+		event.initEvent('XMigemoFindBarUpdate', true, false);
 		XMigemoUI.findBar.dispatchEvent(event);
 	},
 	highlightCheckFirst : true,
