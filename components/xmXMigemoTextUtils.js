@@ -736,7 +736,7 @@ function DelayedTask(aSubject, aMethod, aArgs, aDelay)
 	this.subject = aSubject;
 	this.method = aMethod;
 	this.args = aArgs;
-	this.init();
+	this.init(aDelay);
 }
 DelayedTask.prototype = {
 	subject : null,
