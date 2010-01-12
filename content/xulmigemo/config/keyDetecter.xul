@@ -60,7 +60,7 @@
 		style="border: 1px solid ThreeDShadow;"
 		onkeypress="onKeyPress(event);">
 
-<script type="application/x-javascript"><![CDATA[
+<script type="application/javascript"><![CDATA[
 
 function onKeyPress(event)
 {
@@ -124,7 +124,7 @@ function keyboardShortcutToString(keyData)
 <box orient="horizontal">
 	<spacer flex="1"/>
 	<description id="description"/>
-	<script type="application/x-javascript"><![CDATA[
+	<script type="application/javascript"><![CDATA[
 		document.getElementById('description').setAttribute('value', window.arguments[1] || '');
 	]]></script>
 	<spacer flex="1"/>
@@ -132,7 +132,7 @@ function keyboardShortcutToString(keyData)
 <box orient="horizontal">
 	<spacer flex="1"/>
 	<button id="cancelButton" oncommand="window.close();"/>
-	<script type="application/x-javascript"><![CDATA[
+	<script type="application/javascript"><![CDATA[
 		document.getElementById('cancelButton').setAttribute('label', window.arguments[2] || '');
 	]]></script>
 	<spacer flex="1"/>
