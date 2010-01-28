@@ -20,11 +20,11 @@ function testStartQuickMigemoFindFromMigemoFind()
 	XMigemoUI.autoStartQuickFind = true;
 
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-	yield wait;
+	yield WAIT;
 	gFindBar.closeFindBar();
-	yield wait;
+	yield WAIT;
 
 	var findTerm = 'nihongo';
 	yield Do(assert.autoStart('nihongo'));
@@ -46,7 +46,7 @@ function testResetTimerOnInput()
 	for (var i = 1, maxi = findTerm.length+1; i < maxi; i++)
 	{
 		action.keypressOn(field, findTerm.charAt(i));
-		yield wait;
+		yield WAIT;
 		assert.equals(lastInput+findTerm.charAt(i), XMigemoUI.findTerm);
 		lastInput = XMigemoUI.findTerm;
 		if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
@@ -54,14 +54,14 @@ function testResetTimerOnInput()
 	assert.isQuickMigemoFindActive();
 
 	action.inputTo(field, findTerm);
-	yield wait;
+	yield WAIT;
 
 	startAt = (new Date()).getTime();
 	while (((new Date()).getTime() - startAt) < XMigemoUI.timeout)
 	{
 		assert.isQuickMigemoFindActive();
 		action.keypressOn(field, Ci.nsIDOMKeyEvent.DOM_VK_RETURN);
-		yield wait;
+		yield WAIT;
 	}
 
 	startAt = (new Date()).getTime();
@@ -69,7 +69,7 @@ function testResetTimerOnInput()
 	for (var i = findTerm.length; i > 0; i--)
 	{
 		action.keypressOn(field, Ci.nsIDOMKeyEvent.DOM_VK_BACK_SPACE);
-		yield wait;
+		yield WAIT;
 		assert.equals(lastInput.substring(0, lastInput.length-1), XMigemoUI.findTerm);
 		lastInput = XMigemoUI.findTerm;
 		if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
@@ -88,13 +88,13 @@ function testFocusToInputFieldWhileQuickMigemoFind()
 	var input = content.document.getElementsByTagName('input')[0];
 	input.focus();
 	action.clickOn(input);
-	yield wait;
+	yield WAIT;
 	assert.isTrue(XMigemoUI.hidden);
 
 	var originalValue = input.value;
 	var focused = win.document.commandDispatcher.focusedElement;
 	action.keypressOn(focused, 'a');
-	yield wait;
+	yield WAIT;
 	assert.equals(originalValue+'a', focused.value);
 }
 

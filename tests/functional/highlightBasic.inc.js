@@ -16,7 +16,7 @@ testAutoHighlightNormal.description = '通常の検索で自動ハイライト�
 function testAutoHighlightNormal()
 {
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	yield Do(autoHighlightTest(
 		'FIND_MODE_NATIVE',
 		'text',
@@ -31,7 +31,7 @@ testAutoHighlightRegExp.description = '正規表現検索で自動ハイライ�
 function testAutoHighlightRegExp()
 {
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	yield Do(autoHighlightTest(
 		'FIND_MODE_REGEXP',
 		'tex',
@@ -46,7 +46,7 @@ testAutoHighlightMigemo.description = 'Migemo検索で自動ハイライトが�
 function testAutoHighlightMigemo()
 {
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	yield Do(autoHighlightTest(
 		'FIND_MODE_MIGEMO',
 		'niho',
@@ -63,7 +63,7 @@ function testSafariHighlight()
 	XMigemoHighlight.strongHighlight = true;
 
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	field.focus();
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
@@ -90,56 +90,56 @@ testAutoHighlightAndModeSwitch.description = 'ハイライト表示したまま�
 function testAutoHighlightAndModeSwitch()
 {
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	field.focus();
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	assert.highlightCheck(true, false);
 	yield Do(assert.find_found('sample'));
-	yield wait;
+	yield WAIT;
 	assert.highlightCheck(false, true);
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
-	yield wait;
+	yield WAIT;
 	assert.highlightCheck(false, true);
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-	yield wait;
+	yield WAIT;
 	assert.highlightCheck(false, true);
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
-	yield wait;
+	yield WAIT;
 	assert.highlightCheck(false, true);
 
 	action.inputTo(field, '');
-	yield wait;
+	yield WAIT;
 	gFindBar.closeFindBar();
-	yield wait;
+	yield WAIT;
 
 	content.getSelection().removeAllRanges();
 	XMigemoHighlight.strongHighlight = true;
 
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	field.focus();
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	assert.highlightCheck(true, false);
 	yield Do(assert.find_found('sample'));
-	yield wait;
+	yield WAIT;
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
-	yield wait;
+	yield WAIT;
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-	yield wait;
+	yield WAIT;
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
-	yield wait;
+	yield WAIT;
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 }
@@ -150,7 +150,7 @@ function testMarker()
 	XMigemoMarker.enabled = true;
 
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	field.focus();
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;

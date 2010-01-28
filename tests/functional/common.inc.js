@@ -13,7 +13,7 @@ var XMigemoUI,
 	inputElem;
 var keyEventTest = baseURL+'../fixtures/keyEventTest.html';
 var keyEventTestXML = baseURL+'../fixtures/keyEventTest.xml';
-var wait = 500;
+var WAIT = 500;
 
 function commonSetUp(aURI)
 {
@@ -80,7 +80,7 @@ function commonSetUp(aURI)
 
 	gFindBar.closeFindBar();
 
-	yield wait;
+	yield WAIT;
 }
 
 function commonTearDown()
@@ -111,7 +111,7 @@ function keypressMultiply(aKeyOptions, aTimes)
 	{
 		action.keypressOn.apply(action, aKeyOptions);
 	}
-	yield wait;
+	yield WAIT;
 }
 
 // initialize prefs

@@ -67,18 +67,18 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 	assert.highlightCheck(false, false, message);
 
 	gFindBar.closeFindBar();
-	yield wait;
+	yield WAIT;
 	var selection = selectTextInPage();
 	var lastFindTerm = selection.toString();
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	assert.highlightCheck(false, true);
 
 	gFindBar.closeFindBar();
-	yield wait;
+	yield WAIT;
 	selection.removeAllRanges();
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	assert.equals(lastFindTerm, field.value);
 	assert.highlightCheck(false, false);
 }

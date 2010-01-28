@@ -18,13 +18,13 @@ function testBS()
 
 	var mode;
 	function doTest() {
-		yield wait;
+		yield WAIT;
 		action.inputTo(inputElem, 'text');
-		yield wait;
+		yield WAIT;
 		action.keypressOn(inputElem, 'a', { ctrlKey : true });
-		yield wait;
+		yield WAIT;
 		action.keypressOn(inputElem, Ci.nsIDOMKeyEvent.DOM_VK_BACK_SPACE);
-		yield wait;
+		yield WAIT;
 		assert.equals('', XMigemoUI.findTerm, 'mode is '+mode);
 	}
 
@@ -48,13 +48,13 @@ function testDel()
 
 	var mode;
 	function doTest() {
-		yield wait;
+		yield WAIT;
 		action.inputTo(inputElem, 'text');
-		yield wait;
+		yield WAIT;
 		action.keypressOn(inputElem, 'a', { ctrlKey : true });
-		yield wait;
+		yield WAIT;
 		action.keypressOn(inputElem, Ci.nsIDOMKeyEvent.DOM_VK_DELETE);
-		yield wait;
+		yield WAIT;
 		assert.equals('', XMigemoUI.findTerm, 'mode is '+mode);
 	}
 
@@ -78,13 +78,13 @@ function testInput()
 
 	var mode;
 	function doTest() {
-		yield wait;
+		yield WAIT;
 		action.inputTo(inputElem, 'text');
-		yield wait;
+		yield WAIT;
 		action.keypressOn(inputElem, 'a', { ctrlKey : true });
-		yield wait;
+		yield WAIT;
 		action.keypressOn(inputElem, 'a');
-		yield wait;
+		yield WAIT;
 		assert.equals('a', XMigemoUI.findTerm, 'mode is '+mode);
 	}
 

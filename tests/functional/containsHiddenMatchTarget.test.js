@@ -18,12 +18,12 @@ function tearDown()
 function testRegExpFind()
 {
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 	field.focus();
 
 	action.inputTo(field, 'a|b');
-	yield wait;
+	yield WAIT;
 
 	assert.isNotNull(XMigemoUI.lastFoundRange);
 	assert.equals('a', XMigemoUI.lastFoundRange.toString());

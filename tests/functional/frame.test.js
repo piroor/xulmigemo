@@ -24,9 +24,9 @@ testFindInFrame.setUp = function() {
 	yield Do(commonSetUp(baseURL+'../fixtures/frameTest.html'));
 
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-	yield wait;
+	yield WAIT;
 };
 function testFindInFrame()
 {
@@ -34,7 +34,7 @@ function testFindInFrame()
 	var secondDoc = $('frame2', content).contentDocument;
 
 	action.inputTo(field, 'nihongo');
-	yield wait;
+	yield WAIT;
 	assert.found('日本語', firstDoc);
 
 	var key = ['return'];
@@ -66,7 +66,7 @@ testNotFound.setUp = function() {
 
 	gFindBar.openFindBar();
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-	yield wait;
+	yield WAIT;
 };
 function testNotFound()
 {
@@ -74,7 +74,7 @@ function testNotFound()
 	var frameDoc = content.frames[0].document;
 
 	action.inputTo(field, 'nihongo');
-	yield wait;
+	yield WAIT;
 	assert.found('日本語', rootDoc);
 
 	var key = ['return'];
