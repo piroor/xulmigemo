@@ -30,7 +30,7 @@ function normalSetUp(aURI)
 	field = XMigemoUI.field;
 	inputElem = field.inputField;
 
-	yield wait;
+	yield WAIT;
 }
 
 

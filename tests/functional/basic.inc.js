@@ -1,7 +1,7 @@
 
 assert.find_found = function(aMode, aTerm, aFound) {
 	action.inputTo(field, aTerm);
-	yield wait;
+	yield WAIT;
 	assert.notEquals('notfound', field.getAttribute('status'), aMode);
 	if (typeof aFound == 'string')
 		assert.equals(aFound, XMigemoUI.lastFoundRange.toString(), aMode);
@@ -11,7 +11,7 @@ assert.find_found = function(aMode, aTerm, aFound) {
 
 assert.find_notFound = function(aMode, aTerm) {
 	action.inputTo(field, aTerm);
-	yield wait;
+	yield WAIT;
 	assert.equals('notfound', field.getAttribute('status'), aMode);
 }
 
@@ -38,7 +38,7 @@ testNormalFind.description = '通常の検索';
 function testNormalFind()
 {
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 
 	var mode = 'FIND_MODE_REGEXP';
 	XMigemoUI.findMode = XMigemoUI[mode];
@@ -89,7 +89,7 @@ testRegExpFind.description = '正規表現検索';
 function testRegExpFind()
 {
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 
 	var mode = 'FIND_MODE_REGEXP';
 	XMigemoUI.findMode = XMigemoUI[mode];
@@ -130,7 +130,7 @@ testMigemoFind.description = 'Migemo検索';
 function testMigemoFind()
 {
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 
 	var mode = 'FIND_MODE_MIGEMO';
 	XMigemoUI.findMode = XMigemoUI[mode];
@@ -166,28 +166,28 @@ testDynamicSwitch.description = '複数のモードを切り替えながらの�
 function testDynamicSwitch()
 {
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
-	yield wait;
+	yield WAIT;
 
 	yield Do(assert.find_found('FIND_MODE_NATIVE', 'text field', 'text field'));
 
 	action.inputTo(field, '');
-	yield wait;
+	yield WAIT;
 
 	action.clickOn(XMigemoUI.findModeSelector.childNodes[2]);
-	yield wait;
+	yield WAIT;
 	yield Do(assert.find_found('FIND_MODE_MIGEMO', 'nihongo', '日本語'));
 
 	var key = ['F3'];
 	yield Do(assert.find_again('FIND_MODE_MIGEMO', key, 1, 'にほんご'));
 
 	action.inputTo(field, '');
-	yield wait;
+	yield WAIT;
 
 
 	action.clickOn(XMigemoUI.findModeSelector.childNodes[0]);
-	yield wait;
+	yield WAIT;
 	yield Do(assert.find_found('FIND_MODE_NATIVE', 'link', 'link'));
 
 	yield Do(assert.find_again('FIND_MODE_NATIVE', key, 1, 'link'));
@@ -211,7 +211,7 @@ function testFillWithSelection()
 		XMigemoUI.prefillWithSelection = aPreFill;
 		var selectedTerm = selectInContent();
 		gFindBar.openFindBar();
-		yield wait;
+		yield WAIT;
 		if (aPreFill) {
 			assert.equals(selectedTerm, XMigemoUI.findTerm, aMode);
 			action.inputTo(field, '');
@@ -220,7 +220,7 @@ function testFillWithSelection()
 			assert.equals('', XMigemoUI.findTerm, aMode);
 		}
 		gFindBar.closeFindBar();
-		yield wait;
+		yield WAIT;
 	}
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
@@ -240,9 +240,9 @@ function assertLinkFind(aMode)
 {
 	var link = content.document.getElementsByTagName('a')[0];
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	XMigemoUI.findMode = XMigemoUI[aMode];
-	yield wait;
+	yield WAIT;
 	yield Do(assert.find_found(aMode, 'sample', 'sample'));
 	assert.contained($('first', content), XMigemoUI.lastFoundRange);
 	assert.notContained(link, XMigemoUI.lastFoundRange);

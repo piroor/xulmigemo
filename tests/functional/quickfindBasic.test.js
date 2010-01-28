@@ -108,7 +108,7 @@ testAutoStartInQuickFind.description = '手動開始の時に自動開始を試�
 function testAutoStartInQuickFind()
 {
 	action.keypressOn(content.document.documentElement, 'n');
-	yield wait;
+	yield WAIT;
 	assert.isTrue(XMigemoUI.hidden);
 }
 
@@ -132,7 +132,7 @@ function testAutoStartLinksOnly()
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	assert.notEquals('1', link.getAttribute('focus-count'));
 	XMigemoUI.closeFindBar();
-	yield wait;
+	yield WAIT;
 	assert.equals('1', link.getAttribute('focus-count'));
 }
 
@@ -158,7 +158,7 @@ function testAutoStartLinksOnly()
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	assert.notEquals('1', link.getAttribute('focus-count'));
 	XMigemoUI.closeFindBar();
-	yield wait;
+	yield WAIT;
 	assert.equals('1', link.getAttribute('focus-count'));
 }
 
@@ -175,6 +175,6 @@ function testManualStartLinksOnly()
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	assert.notEquals('1', link.getAttribute('focus-count'));
 	XMigemoUI.closeFindBar();
-	yield wait;
+	yield WAIT;
 	assert.equals('1', link.getAttribute('focus-count'));
 }

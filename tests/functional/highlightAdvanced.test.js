@@ -50,7 +50,7 @@ function testClickOnScreen()
 	XMigemoUI.highlightCheckedAlwaysMinLength = 5;
 
 	gFindBar.openFindBar();
-	yield wait;
+	yield WAIT;
 	field.focus();
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
@@ -63,7 +63,7 @@ function testClickOnScreen()
 
 	XMigemoHighlight.toggleHighlightScreen(true);
 	content.scrollTo(0, 0);
-	yield wait;
+	yield WAIT;
 
 	var link = content.document.getElementsByTagName('a')[0];
 	var tabNum = getTabs(browser).length;
@@ -86,13 +86,13 @@ function testNoInput()
 	yield Do(assert.autoStart(findTerm));
 	for (var i = 0, maxi = findTerm.length; i < maxi; i++)
 	{
-		yield wait;
+		yield WAIT;
 		assert.highlightCheck(false, true);
 		action.keypressOn(field, Ci.nsIDOMKeyEvent.DOM_VK_BACK_SPACE);
-		yield wait;
+		yield WAIT;
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isFalse(XMigemoUI.hidden);
 	}
-	yield wait;
+	yield WAIT;
 	assert.isTrue(XMigemoUI.highlightCheck.disabled);
 }
