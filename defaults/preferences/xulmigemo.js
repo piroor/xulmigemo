@@ -87,6 +87,7 @@ pref("xulmigemo.dicpath-relative",              "");
 
 pref("xulmigemo.cache.update.time",             500);
 pref("xulmigemo.cache.override.ja",             "migemocache.txt");
+pref("xulmigemo.cache.override.ja.encoding",    "Shift_JIS");
 pref("xulmigemo.find_delay",                    50);
 
 

@@ -79,13 +79,22 @@ xmXMigemoCore.prototype = {
 				cache = Cc['@piro.sakura.ne.jp/xmigemo/cache;1']
 						.createInstance(Ci.xmIXMigemoCache);
 			}
-			var override;
+			var fileNameOverride;
 			try {
-				override = Prefs.getCharPref('xulmigemo.cache.override.'+this.lang);
+				fileNameOverride = Prefs.getCharPref('xulmigemo.cache.override.'+this.lang);
 			}
 			catch(e) {
 			}
-			cache.initWithFileName(override || this.engine.lang+'.cache.txt');
+			var encodingOverride;
+			try {
+				encodingOverride = Prefs.getCharPref('xulmigemo.cache.override.'+this.lang+'.encoding');
+			}
+			catch(e) {
+			}
+			cache.init(
+				fileNameOverride || this.engine.lang+'.cache.txt',
+				encodingOverride || 'UTF-8'
+			);
 			this._cache = cache;
 		}
 		return this._cache;

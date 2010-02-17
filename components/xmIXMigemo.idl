@@ -107,16 +107,19 @@ interface xmIXMigemoCache : nsISupports
 		[optional] in unsigned short targetDictionary
 	);
 
-	attribute nsIFile cacheFile;
+	nsIFile getCacheFile([optional] in unsigned short targetDictionary);
+	void setCacheFile(in nsIFile file, [optional] in unsigned short targetDictionary);
 	attribute nsIFile cacheDir;
+	/* for backward compatibility: this equals to "getCacheFile()" */
+	attribute nsIFile cacheFile;
 
 	readonly attribute boolean initialized;
 
-	boolean load();
-	void reload();
-	void save();
+	boolean load([optional] in unsigned short targetDictionary);
+	void reload([optional] in unsigned short targetDictionary);
+	void save([optional] in unsigned short targetDictionary);
 
-	void initWithFileName(in AString fileName);
+	void init(in AString fileName, in AString encoding);
 };
 
 
