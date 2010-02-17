@@ -67,7 +67,7 @@ xmXMigemoCache.prototype = {
 	memCache       : '', 
 	diskCacheClone : '',
  
-	getCacheFor : function (aRoman) 
+	getCacheFor : function (aRoman, aTargetDic) 
 	{
 		var miexp = new RegExp('(^'+this.textUtils.sanitize(aRoman)+'\t.+\n)', 'im');
 		if (this.memCache.match(miexp)) {
@@ -81,28 +81,28 @@ xmXMigemoCache.prototype = {
 		return '';
 	},
  
-	clearCacheForAllPatterns : function (aRoman) 
+	clearCacheForAllPatterns : function (aRoman, aTargetDic) 
 	{
 		var patterns = [];
 		for (var i = aRoman.length-1; i > 0; i--)
 		{
 			var key = aRoman.substring(0, i);
 			patterns.push(key);
-			this.clearCacheSilentlyFor(key);
+			this.clearCacheSilentlyFor(key, aTargetDic);
 		}
 		this.save();
 		ObserverService.notifyObservers(null, 'XMigemo:cacheCleared', patterns.join('\n'));
 	},
  
-	clearCacheFor : function (aRoman) 
+	clearCacheFor : function (aRoman, aTargetDic) 
 	{
-		this.clearCacheSilentlyFor(aRoman);
+		this.clearCacheSilentlyFor(aRoman, aTargetDic);
 
 		this.save();
 		ObserverService.notifyObservers(null, 'XMigemo:cacheCleared', aRoman);
 	},
  
-	clearCacheSilentlyFor : function (aRoman) 
+	clearCacheSilentlyFor : function (aRoman, aTargetDic) 
 	{
 		var miexp = new RegExp('(^'+aRoman+'\t.+\n)', 'im');
 		this.memCache = this.memCache.replace(miexp, '');
@@ -111,14 +111,14 @@ xmXMigemoCache.prototype = {
 		if (RegExp.$1) mydump('update diskCache for "'+aRoman+'"');
 	},
  
-	clearAll : function(aDisk) 
+	clearAll : function(aDisk, aTargetDic) 
 	{
 		this.memCache = '';
 		if (aDisk)
 			this.diskCacheClone = '';
 	},
  
-	setMemCache : function(aRoman, aRegExp) 
+	setMemCache : function(aRoman, aRegExp, aTargetDic) 
 	{
 		var tmpexp = new RegExp('(^'+this.textUtils.sanitize(aRoman)+'\t.+\n)', 'im');
 		if (this.memCache.match(tmpexp)) {
@@ -134,7 +134,7 @@ xmXMigemoCache.prototype = {
 		}
 	},
  
-	setDiskCache : function (aRoman, aMyRegExp) 
+	setDiskCache : function (aRoman, aMyRegExp, aTargetDic) 
 	{
 		var file = this.cacheFile;
 		if (!file) return;

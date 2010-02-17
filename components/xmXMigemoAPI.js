@@ -36,6 +36,8 @@ xmXMigemoAPI.prototype = {
 	accessorName : 'migemo', 
 	category : JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY,
  
+	dictionaries : Ci.xmIXMigemoEngine.SYSTEM_DIC, 
+ 
 	initCache : function() 
 	{
 		this._queries_cache = {};
@@ -90,7 +92,7 @@ xmXMigemoAPI.prototype = {
 		if (!aFlags && aFlags !== '') aFlags = 'im';
 		var key = aInput+'-'+aFlags;
 		if (!(key in this._getRegExp_cache)) {
-			this._getRegExp_cache[key] = new RegExp(this.XMigemo.getRegExp(aInput), aFlags);
+			this._getRegExp_cache[key] = new RegExp(this.XMigemo.getRegExp(aInput, this.dictionaries), aFlags);
 			this._getRegExp_cacheArray.push(this._getRegExp_cache[key]);
 		}
 		while (this._getRegExp_cacheArray.length > MAX_CACHE_COUNT)
@@ -105,7 +107,7 @@ xmXMigemoAPI.prototype = {
 		if (!aFlags && aFlags !== '') aFlags = 'im';
 		var key = aInput+'-'+aFlags;
 		if (!(key in this._getRegExps_cache)) {
-			this._getRegExps_cache[key] = this.XMigemo.getRegExps(aInput).map(function(aSource) {
+			this._getRegExps_cache[key] = this.XMigemo.getRegExps(aInput, this.dictionaries).map(function(aSource) {
 				return new RegExp(aSource, aFlags);
 			});
 			this._getRegExps_cacheArray.push(this._getRegExps_cache[key]);
@@ -128,7 +130,7 @@ xmXMigemoAPI.prototype = {
 		if (!(key in this._getRegExpFunctional_cache)) {
 			var terms = {};
 			var exceptions = {};
-			var regexp = this.XMigemo.getRegExpFunctional(aInput, terms, exceptions);
+			var regexp = this.XMigemo.getRegExpFunctional(aInput, terms, exceptions, this.dictionaries);
 			regexp = new RegExp(regexp, aFlags);
 			regexp.regexp = regexp;
 			regexp.terms = new RegExp(terms.value, 'gim');
@@ -154,7 +156,7 @@ xmXMigemoAPI.prototype = {
 		if (!(key in this._getRegExpsFunctional_cache)) {
 			var terms = {};
 			var exceptions = {};
-			var regexps = this.XMigemo.getRegExpsFunctional(aInput, terms, exceptions);
+			var regexps = this.XMigemo.getRegExpsFunctional(aInput, terms, exceptions, this.dictionaries);
 			regexps = regexps.map(function(aSource) {
 				return new RegExp(aSource, aFlags);
 			});
@@ -186,13 +188,13 @@ xmXMigemoAPI.prototype = {
 	
 	query : function(aInput) 
 	{
-		return this.XMigemo.getRegExp(aInput);
+		return this.XMigemo.getRegExp(aInput, this.dictionaries);
 	},
  
 	queries : function(aInput) 
 	{
 		if (!(aInput in this._queries_cache)) {
-			this._queries_cache[aInput] = this.XMigemo.getRegExps(aInput);
+			this._queries_cache[aInput] = this.XMigemo.getRegExps(aInput, this.dictionaries);
 			this._queries_cacheArray.push(this._queries_cache[key]);
 		}
 		while (this._queries_cacheArray.length > MAX_CACHE_COUNT)
@@ -211,7 +213,7 @@ xmXMigemoAPI.prototype = {
 		if (!(aInput in this._queryFunctional_cache)) {
 			var terms = {};
 			var exceptions = {};
-			var regexp = this.XMigemo.getRegExpFunctional(aInput, terms, exceptions);
+			var regexp = this.XMigemo.getRegExpFunctional(aInput, terms, exceptions, this.dictionaries);
 			this._queryFunctional_cache[aInput] = {
 				regexp : regexp,
 				terms : terms.value,
@@ -235,7 +237,7 @@ xmXMigemoAPI.prototype = {
 		if (!(aInput in this._queriesFunctional_cache)) {
 			var terms = {};
 			var exceptions = {};
-			var regexps = this.XMigemo.getRegExpsFunctional(aInput, terms, exceptions);
+			var regexps = this.XMigemo.getRegExpsFunctional(aInput, terms, exceptions, this.dictionaries);
 			this._queriesFunctional_cache[aInput] = {
 				regexps : regexps,
 				terms : terms.value,
