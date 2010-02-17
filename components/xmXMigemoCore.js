@@ -993,8 +993,10 @@ xmXMigemoCore.prototype = {
 					}
 					return;
 				}
-				if (this.patterns[0])
-					this.core.getRegExpFor(this.patterns[0]);
+				if (this.patterns[0]) {
+					this.core.getRegExpFor(this.patterns[0], this.core.USER_DIC);
+					this.core.getRegExpFor(this.patterns[0], this.core.ALL_DIC);
+				}
 				this.patterns.splice(0, 1);
 			}
 		});
