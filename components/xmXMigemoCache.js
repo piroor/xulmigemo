@@ -199,11 +199,13 @@ xmXMigemoCache.prototype = {
 		var file = this.getCacheFile(aTargetDic);
 		if (!file) return;
 
-		var newCache = this.diskCacheClone[aTargetDic] || '';
+		var oldCache = this.diskCacheClone[aTargetDic] || '' ;
+		var newCache = oldCache;
 		var tmpexp = new RegExp('(^' + this.textUtils.sanitize(aRoman) + '\t.+\n)', 'im');
-		newCache = [newCache.replace(tmpexp, ''), aRoman, '\t', aMyRegExp, '\n'].join('');
+		newCache = newCache.replace(tmpexp, '')+aRoman+'\t'+aMyRegExp+'\n';
 
-		if (newCache != this.fileUtils.readFrom(file, this.encoding))
+		this.diskCacheClone[aTargetDic] = newCache;
+		if (newCache != oldCache)
 			this.save(aTargetDic);
 	},
  

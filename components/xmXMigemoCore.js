@@ -222,7 +222,7 @@ xmXMigemoCore.prototype = {
 		mydump('created:'+encodeURIComponent(regexpPattern));
 
 		var date2 = new Date();
-		if (date2.getTime() - date1.getTime() > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Prefs.getIntPref('xulmigemo.cache.update.time'))) {
+		if ((date2.getTime() - date1.getTime()) > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Prefs.getIntPref('xulmigemo.cache.update.time'))) {
 			// ’x‚©‚Á‚½‚çƒLƒƒƒbƒVƒ…‚µ‚Ü‚·
 			cache.setDiskCache(aInput, regexpPattern, aTargetDic);
 			cache.setMemCache(aInput, regexpPattern, aTargetDic);
