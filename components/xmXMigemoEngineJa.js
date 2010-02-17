@@ -82,7 +82,7 @@ xmXMigemoEngineJa.prototype = {
 	},
 	_textTransform : null,
  
-	getRegExpFor : function(aInput) 
+	getRegExpFor : function(aInput, aTargetDic) 
 	{
 		if (!aInput) return null;
 
@@ -131,7 +131,7 @@ xmXMigemoEngineJa.prototype = {
 		var zen = transform.roman2zen(aInput); // aInput ?
 		mydump('zen: '+encodeURIComponent(zen));
 
-		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC);
+		var lines = this.gatherEntriesFor(aInput, aTargetDic);
 
 		var original = this.textUtils.sanitize(aInput);
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
@@ -211,6 +211,7 @@ xmXMigemoEngineJa.prototype = {
 		if (!aInput) {
 			return [];
 		}
+		aTargetDic = aTargetDic || this.ALL_DIC;
 
 		var transform = this.textTransform;
 

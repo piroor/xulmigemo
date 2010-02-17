@@ -71,18 +71,41 @@ interface xmIXMigemoTextUtils : nsISupports
 [scriptable, uuid(554bdbd0-ae38-11de-8a39-0800200c9a66)]
 interface xmIXMigemoCache : nsISupports
 {
-	AString getCacheFor(in AString roman);
+	AString getCacheFor(
+		in AString roman,
+		[optional] in unsigned short targetDictionary
+	);
 
 	/* these two methods saves the file cache automatically. if you don't want to be updated the file, use "clearCacheSilentlyFor". */
-	void clearCacheForAllPatterns(in AString roman);
-	void clearCacheFor(in AString roman);
+	void clearCacheForAllPatterns(
+		in AString roman,
+		[optional] in unsigned short targetDictionary
+	);
+	void clearCacheFor(
+		in AString roman,
+		[optional] in unsigned short targetDictionary
+	);
 
-	void clearCacheSilentlyFor(in AString roman);
+	void clearCacheSilentlyFor(
+		in AString roman,
+		[optional] in unsigned short targetDictionary
+	);
 
-	void clearAll(in boolean clearDiskCache);
+	void clearAll(
+		in boolean clearDiskCache,
+		[optional] in unsigned short targetDictionary
+	);
 
-	void setMemCache(in AString roman, in AString regExpPattern);
-	void setDiskCache(in AString roman, in AString regExpPattern);
+	void setMemCache(
+		in AString roman,
+		in AString regExpPattern,
+		[optional] in unsigned short targetDictionary
+	);
+	void setDiskCache(
+		in AString roman,
+		in AString regExpPattern,
+		[optional] in unsigned short targetDictionary
+	);
 
 	attribute nsIFile cacheFile;
 	attribute nsIFile cacheDir;
@@ -148,14 +171,17 @@ interface xmIXMigemoEngine : nsIObserver
 	attribute ACString lang;
 
 	/* create regular expressions from roman letters. */
-	AString getRegExpFor(in AString input);
+	AString getRegExpFor(
+		in AString input,
+		[optional] in unsigned short targetDictionary
+	);
 
 	nsIVariant splitInput(in AString input);
 
 	/* get entries of words in the dictionary. */
 	nsIVariant gatherEntriesFor(
 		in AString input,
-		in unsigned short targetDictionaryType
+		[optional] in unsigned short targetDictionary
 	);
 	const unsigned short SYSTEM_DIC = 1;
 	const unsigned short USER_DIC   = 2;
@@ -192,18 +218,27 @@ interface xmIXMigemo : xmIXMigemoEngine
 	readonly attribute xmIXMigemoEngine engine;
 
 	/* create regular expressions from roman letters. */
-	AString getRegExp(in AString input);
-	nsIVariant getRegExps(in AString input); /* for input split by whitespace characters */
+	AString getRegExp(
+		in AString input,
+		[optional] in unsigned short targetDictionary
+	);
+	/* for input split by whitespace characters */
+	nsIVariant getRegExps(
+		in AString input,
+		[optional] in unsigned short targetDictionary
+	);
 
 	AString getRegExpFunctional(
 		in AString input,
 		out AString termsRegExp,
-		out AString exceptionsRegExp
+		out AString exceptionsRegExp,
+		[optional] in unsigned short targetDictionary
 	);
 	nsIVariant getRegExpsFunctional(
 		in AString input,
 		out AString termsRegExp,
-		out AString exceptionsRegExp
+		out AString exceptionsRegExp,
+		[optional] in unsigned short targetDictionary
 	);
 	boolean isValidFunctionalInput(in AString input);
 	AString trimFunctionalInput(in AString input);

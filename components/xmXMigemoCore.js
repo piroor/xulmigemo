@@ -120,12 +120,12 @@ xmXMigemoCore.prototype = {
  
 	createCacheTimeOverride : -1, 
  
-	getRegExp : function(aInput) 
+	getRegExp : function(aInput, aTargetDic) 
 	{
-		return !this.engine ? '' : this.getRegExpInternal(aInput, void(0)) ;
+		return !this.engine ? '' : this.getRegExpInternal(aInput, aTargetDic, void(0)) ;
 	},
 	
-	getRegExpInternal : function(aInput, aEnableAutoSplit) 
+	getRegExpInternal : function(aInput, aTargetDic, aEnableAutoSplit) 
 	{
 		var myExp = [];
 
@@ -141,7 +141,7 @@ xmXMigemoCore.prototype = {
 		{
 			romanTerm = romanTerms[i].toLowerCase();
 
-			pattern = this.getRegExpFor(romanTerm);
+			pattern = this.getRegExpFor(romanTerm, aTargetDic);
 			if (!pattern) continue;
 			myExp.push(pattern);
 
@@ -152,14 +152,14 @@ xmXMigemoCore.prototype = {
 			while (romanTermPart.length > 1)
 			{
 				romanTermPart = romanTermPart.substring(0, romanTermPart.length-1);
-				pattern = this.getRegExpFor(romanTermPart, true);
+				pattern = this.getRegExpFor(romanTermPart, aTargetDic, true);
 				if (!this.simplePartOnlyPattern.test(pattern.replace(/\\\|/g, ''))) {
 					myExp[myExp.length-1] = [
 						myExp[myExp.length-1],
 						'|(',
 						pattern,
 						')(',
-						this.getRegExp(romanTerm.substring(romanTermPart.length, romanTerm.length)),
+						this.getRegExp(romanTerm.substring(romanTermPart.length, romanTerm.length), aTargetDic),
 						')'
 					].join('').replace(/\n/g, '');
 					break;
@@ -183,16 +183,16 @@ xmXMigemoCore.prototype = {
  
 	simplePartOnlyPattern : /^([^\|]+)\|([^\|]+)\|([^\|]+)\|([^\|]+)$/i, 
   
-	getRegExps : function(aInput) 
+	getRegExps : function(aInput, aTargetDic) 
 	{
 		return this.textUtils.trim(aInput)
 			.split(/\s+/)
 			.map(function(aInput) {
-				return this.getRegExp(aInput);
+				return this.getRegExp(aInput, aTargetDic);
 			}, this);
 	},
  
-	getRegExpFor : function(aInput) 
+	getRegExpFor : function(aInput, aTargetDic) 
 	{
 		if (!aInput) return null;
 		if (!this.engine) return null;
@@ -200,7 +200,7 @@ xmXMigemoCore.prototype = {
 		aInput = aInput.toLowerCase();
 
 		var cache = this.dictionaryManager.cache;
-		var cacheText = cache.getCacheFor(aInput);
+		var cacheText = cache.getCacheFor(aInput, aTargetDic);
 		if (cacheText) {
 			mydump('cache:'+encodeURIComponent(cacheText));
 			return cacheText.replace(/\n/g, '');
@@ -208,19 +208,19 @@ xmXMigemoCore.prototype = {
 
 		var date1 = new Date();
 
-		var regexpPattern = this.engine.getRegExpFor(aInput);
+		var regexpPattern = this.engine.getRegExpFor(aInput, aTargetDic);
 
 		mydump('created:'+encodeURIComponent(regexpPattern));
 
 		var date2 = new Date();
 		if (date2.getTime() - date1.getTime() > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Prefs.getIntPref('xulmigemo.cache.update.time'))) {
 			// 遅かったらキャッシュします
-			cache.setDiskCache(aInput, regexpPattern);
-			cache.setMemCache(aInput, regexpPattern);
+			cache.setDiskCache(aInput, regexpPattern, aTargetDic);
+			cache.setMemCache(aInput, regexpPattern, aTargetDic);
 			mydump('CacheWasSaved');
 		}
 		else{
-			cache.setMemCache(aInput, regexpPattern);//メモリキャッシュ
+			cache.setMemCache(aInput, regexpPattern, aTargetDic);//メモリキャッシュ
 			mydump('memCacheWasSaved');
 		}
 		mydump(date2.getTime() - date1.getTime());
@@ -381,36 +381,36 @@ xmXMigemoCore.prototype = {
 	andFindAvailable : true, 
 	notFindAvailable : true,
  
-	getRegExpFunctionalInternal : function(aInput, aTermsRegExp, aExceptionRegExp) 
+	getRegExpFunctionalInternal : function(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic) 
 	{
 		aExceptionRegExp.value = '';
 		if (this.notFindAvailable) {
 			var exceptions = {};
 			aInput = this.siftExceptions(aInput, exceptions);
 			if (exceptions.value.length)
-				aExceptionRegExp.value = this.textUtils.getORFindRegExpFromTerms(this.getRegExps(exceptions.value.join(' ')));
+				aExceptionRegExp.value = this.textUtils.getORFindRegExpFromTerms(this.getRegExps(exceptions.value.join(' '), aTargetDic));
 		}
-		var regexps = this.getRegExps(aInput);
+		var regexps = this.getRegExps(aInput, aTargetDic);
 		aTermsRegExp.value = this.textUtils.getORFindRegExpFromTerms(regexps);
 		return regexps;
 	},
-	getRegExpFunctional : function(aInput, aTermsRegExp, aExceptionRegExp)
+	getRegExpFunctional : function(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic)
 	{
 		if (!aTermsRegExp) aTermsRegExp = {};
 		if (!aExceptionRegExp) aExceptionRegExp = {};
-		var regexps = this.getRegExpFunctionalInternal(aInput, aTermsRegExp, aExceptionRegExp);
+		var regexps = this.getRegExpFunctionalInternal(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic);
 		return this.andFindAvailable ?
 				this.textUtils.getANDFindRegExpFromTerms(regexps) :
-				this.getRegExp(aInput) ;
+				this.getRegExp(aInput, aTargetDic) ;
 	},
-	getRegExpsFunctional : function(aInput, aTermsRegExp, aExceptionRegExp)
+	getRegExpsFunctional : function(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic)
 	{
 		if (!aTermsRegExp) aTermsRegExp = {};
 		if (!aExceptionRegExp) aExceptionRegExp = {};
-		var regexps = this.getRegExpFunctionalInternal(aInput, aTermsRegExp, aExceptionRegExp);
+		var regexps = this.getRegExpFunctionalInternal(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic);
 		return this.andFindAvailable ?
 				regexps :
-				[this.getRegExp(aInput)] ;
+				[this.getRegExp(aInput, aTargetDic)] ;
 	},
 	
 	siftExceptions : function(aInput, aExceptions) 

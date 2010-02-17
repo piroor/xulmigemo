@@ -99,7 +99,7 @@ xmXMigemoEngine.prototype = {
 	},
 	_textTransform : null,
  
-	getRegExpFor : function(aInput) 
+	getRegExpFor : function(aInput, aTargetDic) 
 	{
 		if (!aInput || !this.lang) return null;
 
@@ -111,7 +111,7 @@ xmXMigemoEngine.prototype = {
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
 			str = this.textTransform.addLatinModifiers(str);
 
-		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC);
+		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, aTargetDic);
 
 		var pattern = '';
 		if (lines.length) {
@@ -162,6 +162,7 @@ xmXMigemoEngine.prototype = {
 		if (!aInput || !this.lang) {
 			return [];
 		}
+		aTargetDic = aTargetDic || this.ALL_DIC;
 
 		var str = this.textUtils.sanitize(aInput);
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
@@ -175,7 +176,7 @@ xmXMigemoEngine.prototype = {
 		const XMigemoDic = this.dictionary;
 
 		var mydicU = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserDic() : null ;
-		var mydic  = (aTargetDic & this.SYSTEM_DIC)   ? XMigemoDic.getDic() : null ;
+		var mydic  = (aTargetDic & this.SYSTEM_DIC) ? XMigemoDic.getDic() : null ;
 
 		if (mydicU) {
 			var lineU = mydicU.match(exp);
