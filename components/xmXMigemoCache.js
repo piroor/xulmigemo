@@ -200,10 +200,8 @@ xmXMigemoCache.prototype = {
 		if (!file) return;
 
 		var oldCache = this.diskCacheClone[aTargetDic] || '' ;
-		var newCache = oldCache;
-		var tmpexp = new RegExp('(^' + this.textUtils.sanitize(aRoman) + '\t.+\n)', 'im');
-		newCache = newCache.replace(tmpexp, '')+aRoman+'\t'+aMyRegExp+'\n';
-
+		var tmpexp = new RegExp('^' + this.textUtils.sanitize(aRoman) + '\t.+\n', 'im');
+		var newCache = oldCache.replace(tmpexp, '')+aRoman+'\t'+aMyRegExp+'\n';
 		this.diskCacheClone[aTargetDic] = newCache;
 		if (newCache != oldCache)
 			this.save(aTargetDic);
