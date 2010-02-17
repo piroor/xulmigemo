@@ -76,26 +76,6 @@ interface xmIXMigemoCache : nsISupports
 		[optional] in unsigned short targetDictionary
 	);
 
-	/* these two methods saves the file cache automatically. if you don't want to be updated the file, use "clearCacheSilentlyFor". */
-	void clearCacheForAllPatterns(
-		in AString roman,
-		[optional] in unsigned short targetDictionary
-	);
-	void clearCacheFor(
-		in AString roman,
-		[optional] in unsigned short targetDictionary
-	);
-
-	void clearCacheSilentlyFor(
-		in AString roman,
-		[optional] in unsigned short targetDictionary
-	);
-
-	void clearAll(
-		in boolean clearDiskCache,
-		[optional] in unsigned short targetDictionary
-	);
-
 	void setMemCache(
 		in AString roman,
 		in AString regExpPattern,
@@ -107,11 +87,16 @@ interface xmIXMigemoCache : nsISupports
 		[optional] in unsigned short targetDictionary
 	);
 
-	nsIFile getCacheFile([optional] in unsigned short targetDictionary);
-	void setCacheFile(in nsIFile file, [optional] in unsigned short targetDictionary);
-	attribute nsIFile cacheDir;
-	/* for backward compatibility: this equals to "getCacheFile()" */
-	attribute nsIFile cacheFile;
+	/* these two methods saves the file cache automatically. if you don't want to be updated the file, use "clearCacheSilentlyFor". */
+	void clearCacheForAllPatterns(in AString roman);
+	void clearCacheFor(in AString roman);
+
+	void clearCacheSilentlyFor(in AString roman);
+
+	void clearAll(
+		in boolean clearDiskCache,
+		[optional] in unsigned short targetDictionary
+	);
 
 	readonly attribute boolean initialized;
 
@@ -119,7 +104,15 @@ interface xmIXMigemoCache : nsISupports
 	void reload([optional] in unsigned short targetDictionary);
 	void save([optional] in unsigned short targetDictionary);
 
+	nsIFile getCacheFile([optional] in unsigned short targetDictionary);
+	void setCacheFile(in nsIFile file, [optional] in unsigned short targetDictionary);
+	attribute nsIFile cacheDir;
+	/* for backward compatibility: this equals to "getCacheFile()" */
+	attribute nsIFile cacheFile;
+
 	void init(in AString fileName, in AString encoding);
+	/* for backward compatibility */
+	void initWithFileName(in AString fileName);
 };
 
 
