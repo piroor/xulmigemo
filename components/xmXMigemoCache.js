@@ -66,12 +66,46 @@ xmXMigemoCache.prototype = {
  	
 	memCache       : {}, 
 	diskCacheClone : {},
-	DICTIONARY_TYPES : [
+	DICTIONARIES_ALL : [
 		Ci.xmIXMigemoEngine.SYSTEM_DIC,
 		Ci.xmIXMigemoEngine.USER_DIC,
 		Ci.xmIXMigemoEngine.ALL_DIC
 	],
+	DICTIONARIES_CHANGABLE : [
+		Ci.xmIXMigemoEngine.USER_DIC,
+		Ci.xmIXMigemoEngine.ALL_DIC
+	],
 	encoding : 'UTF-8',
+ 
+	init : function(aFileName, aEncoding) 
+	{
+		if (!aFileName)
+			return;
+
+		if (aEncoding)
+			this.encoding = aEncoding;
+
+		this.DICTIONARIES_ALL.forEach(function(aType) {
+			this.memCache[aType] = '';
+			this.diskCacheClone[aType] = '';
+
+			var fileName = aFileName + (aType != Ci.xmIXMigemoEngine.ALL_DIC ? '-'+aType : '' );
+			try {
+				var file = Cc['@mozilla.org/file/local;1']
+						.createInstance(Ci.nsILocalFile);
+				file.initWithPath(this.dicpath);
+				file.append(fileName);
+				this.setCacheFile(file, aType);
+			}
+			catch(e) {
+				this.setCacheFile(null, aType);
+			}
+		}, this);
+	},
+	initWithFileName : function(aFileName)
+	{
+		this.init(aFileName);
+	},
  
 	getCacheFor : function (aRoman, aTargetDic) 
 	{
@@ -95,40 +129,50 @@ xmXMigemoCache.prototype = {
 		{
 			var key = aRoman.substring(0, i);
 			patterns.push(key);
-			this.clearCacheSilentlyFor(key, aTargetDic);
+			this.clearCacheSilentlyFor(key);
 		}
 		this.save();
 		ObserverService.notifyObservers(null, 'XMigemo:cacheCleared', patterns.join('\n'));
 	},
  
-	clearCacheFor : function (aRoman, aTargetDic) 
+	clearCacheFor : function (aRoman) 
 	{
-		this.clearCacheSilentlyFor(aRoman, aTargetDic);
+		this.clearCacheSilentlyFor(aRoman);
 
 		this.save();
 		ObserverService.notifyObservers(null, 'XMigemo:cacheCleared', aRoman);
 	},
  
-	clearCacheSilentlyFor : function (aRoman, aTargetDic) 
+	clearCacheSilentlyFor : function (aRoman) 
 	{
-		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
 		var miexp = new RegExp('(^'+aRoman+'\t.+\n)', 'im');
+		this.DICTIONARIES_CHANGABLE.forEach(function(aType) {
+			var cache = this.memCache[aType] || '';
+			this.memCache[aType] = cache.replace(miexp, '');
+			if (RegExp.$1) mydump('update memCache for "'+aRoman+'"');
 
-		var cache = this.memCache[aTargetDic] || '';
-		this.memCache[aTargetDic] = cache.replace(miexp, '');
-		if (RegExp.$1) mydump('update memCache for "'+aRoman+'"');
-
-		cache = this.diskCacheClone[aTargetDic] || '';
-		this.diskCacheClone[aTargetDic] = cache.replace(miexp, '');
-		if (RegExp.$1) mydump('update diskCache for "'+aRoman+'"');
+			cache = this.diskCacheClone[aType] || '';
+			this.diskCacheClone[aType] = cache.replace(miexp, '');
+			if (RegExp.$1) mydump('update diskCache for "'+aRoman+'"');
+		}, this);
 	},
  
 	clearAll : function(aDisk, aTargetDic) 
 	{
-		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
+		if (aTargetDic)
+			this.clearAllFor(aTargetDic);
+		else
+			this.DICTIONARIES_ALL.forEach(this.clearAllFor, this);
+	},
+	clearAllFor : function (aTargetDic)
+	{
 		this.memCache[aTargetDic] = '';
-		if (aDisk)
+		if (aDisk) {
+			var file = this.getCacheFile(aTargetDic);
+			if (file)
+				this.fileUtils.writeTo(file, '', this.encoding);
 			this.diskCacheClone[aTargetDic] = '';
+		}
 	},
  
 	setMemCache : function(aRoman, aRegExp, aTargetDic) 
@@ -140,7 +184,7 @@ xmXMigemoCache.prototype = {
 			return;
 		}
 		else {
-			this.memCache[aTargetDic] += aRoman + '\t' + aRegExp + '\n';
+			this.memCache[aTargetDic] = cache + aRoman + '\t' + aRegExp + '\n';
 			//mydump(this.memCache);
 
 			ObserverService.notifyObservers(null, 'XMigemo:memCacheAdded', aRoman+'\n'+aRegExp);
@@ -159,11 +203,8 @@ xmXMigemoCache.prototype = {
 		var tmpexp = new RegExp('(^' + this.textUtils.sanitize(aRoman) + '\t.+\n)', 'im');
 		newCache = [newCache.replace(tmpexp, ''), aRoman, '\t', aMyRegExp, '\n'].join('');
 
-		var oldCache = this.fileUtils.readFrom(file, this.encoding);
-
-		if (newCache != oldCache) {
+		if (newCache != this.fileUtils.readFrom(file, this.encoding))
 			this.save(aTargetDic);
-		}
 	},
  
 /* File I/O */ 
@@ -171,15 +212,16 @@ xmXMigemoCache.prototype = {
 	getCacheFile : function(aTargetDic) 
 	{
 		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
-		return this.cacheFileHolders[aTargetDic];
+		return aTargetDic in this.cacheFileHolders ?
+				this.cacheFileHolders[aTargetDic] :
+				null ;
 	},
 	setCacheFile : function(aFile, aTargetDic) 
 	{
 		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
 		this.cacheFileHolders[aTargetDic] = aFile;
 	},
- 
-	get cacheFile() 
+	get cacheFile()
 	{
 		return this.getCacheFile();
 	},
@@ -189,31 +231,6 @@ xmXMigemoCache.prototype = {
 		return this.cacheFile;
 	},
 	cacheFileHolders : {},
-	init : function(aFileName, aEncoding)
-	{
-		if (!aFileName)
-			return;
-
-		if (aEncoding)
-			this.encoding = aEncoding;
-
-		this.DICTIONARY_TYPES.forEach(function(aType) {
-			this.memCache[aType] = '';
-			this.diskCacheClone[aType] = '';
-
-			var fileName = aFileName + (aType != Ci.xmIXMigemoEngine.ALL_DIC ? '-'+aType : '' );
-			try {
-				var file = Cc['@mozilla.org/file/local;1']
-						.createInstance(Ci.nsILocalFile);
-				file.initWithPath(this.dicpath);
-				file.append(fileName);
-				this.setCacheFile(file, aType);
-			}
-			catch(e) {
-				this.setCacheFile(null, aType);
-			}
-		}, this);
-	},
 	 
 	get dicpath() 
 	{
@@ -229,17 +246,17 @@ xmXMigemoCache.prototype = {
 		return fullPath || relPath;
 	},
   
-	load : function(aTargetType) 
+	load : function(aTargetDic) 
 	{
-		if (aTargetType) {
-			if (!this.loadFor(aTargetType))
+		if (aTargetDic) {
+			if (!this.loadFor(aTargetDic))
 				return false;
 		}
 		else {
 			var failedCount = 0;
-			this.DICTIONARY_TYPES.forEach(this.loadFor, this);
+			this.DICTIONARIES_ALL.forEach(this.loadFor, this);
 		}
-		this.initialized = this.DICTIONARY_TYPES.every(this.getCacheFile, this);
+		this.initialized = this.DICTIONARIES_ALL.every(this.getCacheFile, this);
 		if (this.initialized) {
 			mydump('xmIXMigemoCache: loaded');
 			return true;
@@ -248,9 +265,9 @@ xmXMigemoCache.prototype = {
 			return false;
 		}
 	},
-	loadFor : function(aTargetType) 
+	loadFor : function(aTargetDic) 
 	{
-		var file = this.getCacheFile(aTargetType);
+		var file = this.getCacheFile(aTargetDic);
 		if (!file)
 			return false;
 
@@ -258,31 +275,31 @@ xmXMigemoCache.prototype = {
 			this.fileUtils.writeTo(file, '', this.encoding);
 		}
 		else {
-			this.diskCacheClone[aTargetType] = this.fileUtils.readFrom(file, this.encoding);
+			this.diskCacheClone[aTargetDic] = this.fileUtils.readFrom(file, this.encoding);
 		}
 		return true;
 	},
  
-	reload : function(aTargetType) 
+	reload : function(aTargetDic) 
 	{
-		this.load(aTargetType);
+		this.load(aTargetDic);
 	},
  
-	save : function (aTargetType) 
+	save : function (aTargetDic) 
 	{
-		if (aTargetType)
-			this.saveFor(aTargetType);
+		if (aTargetDic)
+			this.saveFor(aTargetDic);
 		else
-			this.DICTIONARY_TYPES.forEach(this.saveFor, this);
+			this.DICTIONARIES_ALL.forEach(this.saveFor, this);
 	},
-	saveFor : function (aTargetType)
+	saveFor : function (aTargetDic)
 	{
-		var file = this.getCacheFile(aTargetType);
+		var file = this.getCacheFile(aTargetDic);
 		if (!file)
 			return false;
 
 		var cache = this.fileUtils.readFrom(file, this.encoding);
-		var clone = this.diskCacheClone[aTargetType];
+		var clone = this.diskCacheClone[aTargetDic];
 		if (cache != clone)
 			this.fileUtils.writeTo(file, clone, this.encoding);
 

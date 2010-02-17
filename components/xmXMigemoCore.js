@@ -974,6 +974,9 @@ xmXMigemoCore.prototype = {
 			this.updateCacheTimers[key] = null;
 		}
 
+		this.cache.clearAll(true, this.core.USER_DIC);
+		this.cache.clearAll(true, this.core.ALL_DIC);
+
 		this.updateCacheTimers[key] = Cc['@mozilla.org/timer;1']
 			.createInstance(Ci.nsITimer);
         this.updateCacheTimers[key].init(
@@ -1002,9 +1005,16 @@ xmXMigemoCore.prototype = {
 					}
 					return;
 				}
-				if (this.patterns[0]) {
-					this.core.getRegExpFor(this.patterns[0], this.core.USER_DIC);
-					this.core.getRegExpFor(this.patterns[0], this.core.ALL_DIC);
+				var input = this.patterns[0];
+				if (input) {
+					[
+						this.core.USER_DIC,
+						this.core.ALL_DIC
+					].forEach(function(aType) {
+						var regexp = this.core.getRegExpFor(input, aType);
+						this.core.cache.setDiskCache(input, regexp, aType);
+						this.core.cache.setMemCache(input, regexp, aType);
+					}, this);
 				}
 				this.patterns.splice(0, 1);
 			}
