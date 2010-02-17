@@ -64,17 +64,24 @@ xmXMigemoCache.prototype = {
 	},
 	_fileUtils : null,
  	
-	memCache       : '', 
-	diskCacheClone : '',
+	memCache       : {}, 
+	diskCacheClone : {},
+	DICTIONARY_TYPES : [
+		Ci.xmIXMigemoEngine.SYSTEM_DIC,
+		Ci.xmIXMigemoEngine.USER_DIC,
+		Ci.xmIXMigemoEngine.ALL_DIC
+	],
+	encoding : 'UTF-8',
  
 	getCacheFor : function (aRoman, aTargetDic) 
 	{
+		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
 		var miexp = new RegExp('(^'+this.textUtils.sanitize(aRoman)+'\t.+\n)', 'im');
-		if (this.memCache.match(miexp)) {
+		if (this.memCache[aTargetDic].match(miexp)) {
 			mydump('use memCache');
 			return RegExp.$1.split('\t')[1];
 		}
-		else if (this.diskCacheClone.match(miexp)) {
+		else if (this.diskCacheClone[aTargetDic].match(miexp)) {
 			mydump('use diskCacheClone');
 			return RegExp.$1.split('\t')[1];
 		}
@@ -104,28 +111,36 @@ xmXMigemoCache.prototype = {
  
 	clearCacheSilentlyFor : function (aRoman, aTargetDic) 
 	{
+		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
 		var miexp = new RegExp('(^'+aRoman+'\t.+\n)', 'im');
-		this.memCache = this.memCache.replace(miexp, '');
+
+		var cache = this.memCache[aTargetDic] || '';
+		this.memCache[aTargetDic] = cache.replace(miexp, '');
 		if (RegExp.$1) mydump('update memCache for "'+aRoman+'"');
-		this.diskCacheClone = this.diskCacheClone.replace(miexp, '');
+
+		cache = this.diskCacheClone[aTargetDic] || '';
+		this.diskCacheClone[aTargetDic] = cache.replace(miexp, '');
 		if (RegExp.$1) mydump('update diskCache for "'+aRoman+'"');
 	},
  
 	clearAll : function(aDisk, aTargetDic) 
 	{
-		this.memCache = '';
+		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
+		this.memCache[aTargetDic] = '';
 		if (aDisk)
-			this.diskCacheClone = '';
+			this.diskCacheClone[aTargetDic] = '';
 	},
  
 	setMemCache : function(aRoman, aRegExp, aTargetDic) 
 	{
+		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
+		var cache = this.memCache[aTargetDic] || '';
 		var tmpexp = new RegExp('(^'+this.textUtils.sanitize(aRoman)+'\t.+\n)', 'im');
-		if (this.memCache.match(tmpexp)) {
+		if (cache.match(tmpexp)) {
 			return;
 		}
 		else {
-			this.memCache += aRoman + '\t' + aRegExp + '\n';
+			this.memCache[aTargetDic] += aRoman + '\t' + aRegExp + '\n';
 			//mydump(this.memCache);
 
 			ObserverService.notifyObservers(null, 'XMigemo:memCacheAdded', aRoman+'\n'+aRegExp);
@@ -136,46 +151,68 @@ xmXMigemoCache.prototype = {
  
 	setDiskCache : function (aRoman, aMyRegExp, aTargetDic) 
 	{
-		var file = this.cacheFile;
+		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
+		var file = this.getCacheFile(aTargetDic);
 		if (!file) return;
 
-		var newCache = this.diskCacheClone;
+		var newCache = this.diskCacheClone[aTargetDic] || '';
 		var tmpexp = new RegExp('(^' + this.textUtils.sanitize(aRoman) + '\t.+\n)', 'im');
 		newCache = [newCache.replace(tmpexp, ''), aRoman, '\t', aMyRegExp, '\n'].join('');
 
-		var oldCache = this.fileUtils.readFrom(file, 'Shift_JIS');
+		var oldCache = this.fileUtils.readFrom(file, this.encoding);
 
 		if (newCache != oldCache) {
-			this.save();
+			this.save(aTargetDic);
 		}
 	},
  
 /* File I/O */ 
 	 
+	getCacheFile : function(aTargetDic) 
+	{
+		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
+		return this.cacheFileHolders[aTargetDic];
+	},
+	setCacheFile : function(aFile, aTargetDic) 
+	{
+		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
+		this.cacheFileHolders[aTargetDic] = aFile;
+	},
+ 
 	get cacheFile() 
 	{
-		return this.cacheFileHolder;
+		return this.getCacheFile();
 	},
 	set cacheFile(val)
 	{
-		this.cacheFileHolder = val;
+		this.setCacheFile(val);
 		return this.cacheFile;
 	},
-	cacheFileHolder : null,
-	initWithFileName : function(aFileName)
+	cacheFileHolders : {},
+	init : function(aFileName, aEncoding)
 	{
 		if (!aFileName)
 			return;
 
-		try {
-			this.cacheFile = Cc['@mozilla.org/file/local;1']
-					.createInstance(Ci.nsILocalFile);
-			this.cacheFile.initWithPath(this.dicpath);
-			this.cacheFile.append(aFileName);
-		}
-		catch(e) {
-			this.cacheFile = null;
-		}
+		if (aEncoding)
+			this.encoding = aEncoding;
+
+		this.DICTIONARY_TYPES.forEach(function(aType) {
+			this.memCache[aType] = '';
+			this.diskCacheClone[aType] = '';
+
+			var fileName = aFileName + (aType != Ci.xmIXMigemoEngine.ALL_DIC ? '-'+aType : '' );
+			try {
+				var file = Cc['@mozilla.org/file/local;1']
+						.createInstance(Ci.nsILocalFile);
+				file.initWithPath(this.dicpath);
+				file.append(fileName);
+				this.setCacheFile(file, aType);
+			}
+			catch(e) {
+				this.setCacheFile(null, aType);
+			}
+		}, this);
 	},
 	 
 	get dicpath() 
@@ -192,37 +229,64 @@ xmXMigemoCache.prototype = {
 		return fullPath || relPath;
 	},
   
-	load : function() 
+	load : function(aTargetType) 
 	{
-		var file = this.cacheFile;
-		if (!file) return false;
-
-		if (!file.exists()) {
-			this.fileUtils.writeTo(file, '', 'Shift_JIS');
-			this.initialized = true;
+		if (aTargetType) {
+			if (!this.loadFor(aTargetType))
+				return false;
+		}
+		else {
+			var failedCount = 0;
+			this.DICTIONARY_TYPES.forEach(this.loadFor, this);
+		}
+		this.initialized = this.DICTIONARY_TYPES.every(this.getCacheFile, this);
+		if (this.initialized) {
+			mydump('xmIXMigemoCache: loaded');
 			return true;
 		}
+		else {
+			return false;
+		}
+	},
+	loadFor : function(aTargetType) 
+	{
+		var file = this.getCacheFile(aTargetType);
+		if (!file)
+			return false;
 
-		this.diskCacheClone = this.fileUtils.readFrom(file, 'Shift_JIS');
-
-		mydump('xmIXMigemoCache: loaded');
-		this.initialized = true;
+		if (!file.exists()) {
+			this.fileUtils.writeTo(file, '', this.encoding);
+		}
+		else {
+			this.diskCacheClone[aTargetType] = this.fileUtils.readFrom(file, this.encoding);
+		}
 		return true;
 	},
  
-	reload : function() 
+	reload : function(aTargetType) 
 	{
-		this.load();
+		this.load(aTargetType);
 	},
  
-	save : function () 
+	save : function (aTargetType) 
 	{
-		var file = this.cacheFile;
-		if (!file) return;
+		if (aTargetType)
+			this.saveFor(aTargetType);
+		else
+			this.DICTIONARY_TYPES.forEach(this.saveFor, this);
+	},
+	saveFor : function (aTargetType)
+	{
+		var file = this.getCacheFile(aTargetType);
+		if (!file)
+			return false;
 
-		var cache = this.fileUtils.readFrom(file, 'Shift_JIS');
-		if (cache != this.diskCacheClone)
-			this.fileUtils.writeTo(file, this.diskCacheClone, 'Shift_JIS');
+		var cache = this.fileUtils.readFrom(file, this.encoding);
+		var clone = this.diskCacheClone[aTargetType];
+		if (cache != clone)
+			this.fileUtils.writeTo(file, clone, this.encoding);
+
+		return true;
 	},
   
 	QueryInterface : function(aIID) 
