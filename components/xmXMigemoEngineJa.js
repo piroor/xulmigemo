@@ -151,7 +151,12 @@ xmXMigemoEngineJa.prototype = {
 			if (/[\[\(]/.test(hiraAndKana)) pattern += (pattern ? '|' : '') + hiraAndKana;
 
 			// 一文字だけの項目だけは、抜き出して文字クラスにまとめる
-			var ichimoji = searchterm.replace(/^..+$\n?/mg, '').split('\n').sort().join('');
+			var ichimoji = searchterm
+							.replace(/^..+$\n?/mg, '')
+							.split('\n')
+							.sort()
+							.join('')
+							.replace(/(.)\1+/g, '$1');
 			if (ichimoji) {
 				pattern += (pattern ? '|' : '') + '[' + ichimoji + ']';
 			}
