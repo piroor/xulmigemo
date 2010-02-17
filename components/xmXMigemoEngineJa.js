@@ -286,10 +286,6 @@ xmXMigemoEngineJa.prototype = {
 		return lines;
 	},
  
-	observe : function(aSubject, aTopic, aData) 
-	{
-	},
- 
 	QueryInterface : function(aIID) 
 	{
 		if (!aIID.equals(Ci.xmIXMigemoEngine) &&

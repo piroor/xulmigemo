@@ -1046,6 +1046,11 @@ xmXMigemoCore.prototype = {
 					case 'xulmigemo.NOTFind.enabled':
 						this.notFindAvailable = Prefs.getBoolPref(aData);
 						return;
+
+					case 'xulmigemo.ignoreHiraKata':
+					case 'xulmigemo.ignoreLatinModifiers':
+						this.cache.clearAll(true);
+						return;
 				}
 		}
 	},
