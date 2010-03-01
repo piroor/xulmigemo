@@ -2789,7 +2789,7 @@ var XMigemoUI = {
 	},
 	
 	delayedInit : function() { 
-		window.setTimeout("XMigemoUI.field.addEventListener('blur', this, false);", 0);
+		window.setTimeout("XMigemoUI.field.addEventListener('blur', XMigemoUI, false);", 0);
 
 		if (XMigemoService.getPref('xulmigemo.findMode.default') > -1)
 			this.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
