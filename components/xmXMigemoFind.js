@@ -337,7 +337,6 @@ mydump("findInDocument ==========================================");
 
 			if (aDocShellIterator.wrapped) {
 				if (!(aFindFlag & this.FIND_WRAP)) {
-					this.document.commandDispatcher.focusedWindow = aDocShellIterator.view;
 					if (
 						!editableInOut ||
 						!rangeSet ||
