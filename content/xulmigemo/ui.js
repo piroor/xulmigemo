@@ -1038,7 +1038,7 @@ var XMigemoUI = {
 	onKeyPress : function(aEvent, aFromFindField) 
 	{
 		if (
-			this.processFunctionalKeyEvent(aEvent, aFromFindField) || // XUL/Migemo‚ÌI—¹‚»‚Ì‘¼‚Ìƒ`ƒFƒbƒN
+			this.processFunctionalKeyEvent(aEvent, aFromFindField) || // XUL/Migemoã®çµ‚äº†ãã®ä»–ã®ãƒã‚§ãƒƒã‚¯
 			this.processFunctionalShortcuts(aEvent, aFromFindField) ||
 			this.processKeyEvent(aEvent, aFromFindField)
 			)
@@ -1167,7 +1167,7 @@ var XMigemoUI = {
 					}
 				}
 				this.cancel();
-				this.clearTimer(); // ‚±‚±‚Åƒ^ƒCƒ}[‚ğE‚³‚È‚¢‚Æ‚¢‚¶‚ç‚ê‚Ä‚µ‚Ü‚¤
+				this.clearTimer(); // ã“ã“ã§ã‚¿ã‚¤ãƒãƒ¼ã‚’æ®ºã•ãªã„ã¨ã„ã˜ã‚‰ã‚Œã¦ã—ã¾ã†
 				return true;
 
 			default:
@@ -1229,7 +1229,7 @@ var XMigemoUI = {
 				!aEvent.ctrlKey &&
 				!aEvent.altKey &&
 				!aEvent.metaKey
-				) { //•’ÊBƒtƒbƒN‚·‚éB
+				) { //æ™®é€šã€‚ãƒ•ãƒƒã‚¯ã™ã‚‹ã€‚
 				XMigemoFind.appendKeyword(String.fromCharCode(aEvent.charCode));
 				this.updateStatus(XMigemoFind.lastKeyword);
 				this.field.focus();
@@ -1302,7 +1302,7 @@ var XMigemoUI = {
 		}
 
 		this.cancel();
-		this.clearTimer();//‚±‚±‚Åƒ^ƒCƒ}[‚ğE‚³‚È‚¢‚Æ‚¢‚¶‚ç‚ê‚Ä‚µ‚Ü‚¤Bƒ^ƒCƒ}[•|‚¢B
+		this.clearTimer();//ã“ã“ã§ã‚¿ã‚¤ãƒãƒ¼ã‚’æ®ºã•ãªã„ã¨ã„ã˜ã‚‰ã‚Œã¦ã—ã¾ã†ã€‚ã‚¿ã‚¤ãƒãƒ¼æ€–ã„ã€‚
 	},
  
 	onScroll : function() 
@@ -1787,7 +1787,7 @@ var XMigemoUI = {
 	commandExit : function(aEvent) 
 	{
 		this.cancel();
-		this.clearTimer(); // ‚±‚±‚Åƒ^ƒCƒ}[‚ğE‚³‚È‚¢‚Æ‚¢‚¶‚ç‚ê‚Ä‚µ‚Ü‚¤
+		this.clearTimer(); // ã“ã“ã§ã‚¿ã‚¤ãƒãƒ¼ã‚’æ®ºã•ãªã„ã¨ã„ã˜ã‚‰ã‚Œã¦ã—ã¾ã†
 		var win = document.commandDispatcher.focusedWindow;
 		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.activeBrowser.contentDocument;
 		this.textUtils.setSelectionLook(doc, false);
@@ -2021,9 +2021,9 @@ var XMigemoUI = {
 	replaceFindBarMethods : function()
 	{
 		/*
-			Šî–{ƒ|ƒŠƒV[F
-			Firefox 2.0`3.0‚ÌŠÔ‚Åƒƒ\ƒbƒh–¼‚È‚Ç‚ªˆÙ‚È‚éê‡‚ÍA
-			‚·‚×‚ÄFirefox 2.0‚É‡‚í‚¹‚éB
+			åŸºæœ¬ãƒãƒªã‚·ãƒ¼ï¼š
+			Firefox 2.0ï½3.0ã®é–“ã§ãƒ¡ã‚½ãƒƒãƒ‰åãªã©ãŒç•°ãªã‚‹å ´åˆã¯ã€
+			ã™ã¹ã¦Firefox 2.0ã«åˆã‚ã›ã‚‹ã€‚
 		*/
 		if (this.findBar.localName == 'findbar') window.gFindBar = this.findBar;
 
@@ -2346,10 +2346,10 @@ var XMigemoUI = {
 			aString = this.findTerm;
 
 		/*
-			accessibility.typeaheadfind.linksonly‚ªtrue‚Ì‚É
-			ŒŸõƒoƒbƒtƒ@‚ª‹ó‚Ì‚Ü‚ÜnsITypeAheadFind.find‚ğÀs‚·‚é‚ÆA
-			í‚ÉƒŠƒ“ƒN‚Ì‚İ‚ÌŒŸõ‚É‚È‚Á‚Ä‚µ‚Ü‚¤B
-			‰½‚©1•¶š‚¾‚¯‚Å‚àŒŸõ‚·‚ê‚ÎA³í‚ÉŒŸõ‚Å‚«‚éB
+			accessibility.typeaheadfind.linksonlyãŒtrueã®æ™‚ã«
+			æ¤œç´¢ãƒãƒƒãƒ•ã‚¡ãŒç©ºã®ã¾ã¾nsITypeAheadFind.findã‚’å®Ÿè¡Œã™ã‚‹ã¨ã€
+			å¸¸ã«ãƒªãƒ³ã‚¯ã®ã¿ã®æ¤œç´¢ã«ãªã£ã¦ã—ã¾ã†ã€‚
+			ä½•ã‹1æ–‡å­—ã ã‘ã§ã‚‚æ¤œç´¢ã™ã‚Œã°ã€æ­£å¸¸ã«æ¤œç´¢ã§ãã‚‹ã€‚
 		*/
 		try {
 			var fastFind = getBrowser().fastFind;

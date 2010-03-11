@@ -130,7 +130,7 @@ xmXMigemoEngine.prototype = {
 			pattern = pattern.replace(/\n/g, '');
 			mydump('pattern:'+pattern);
 		}
-		else { // «‘‚Éˆø‚Á‚©‚©‚ç‚È‚©‚Á‚½–Í—l‚È‚Ì‚Å©‘O‚Ì•¶š—ñ‚¾‚¯
+		else { // è¾æ›¸ã«å¼•ã£ã‹ã‹ã‚‰ãªã‹ã£ãŸæ¨¡æ§˜ãªã®ã§è‡ªå‰ã®æ–‡å­—åˆ—ã ã‘
 			pattern = str;
 			mydump('pattern:'+pattern);
 		}
@@ -186,7 +186,7 @@ xmXMigemoEngine.prototype = {
 			}
 		}
 		if (mydic) {
-			var line = mydic.match(exp);//ƒAƒ‹ƒtƒ@ƒxƒbƒg‚Ì«‘‚ğŒŸõ
+			var line = mydic.match(exp);//ã‚¢ãƒ«ãƒ•ã‚¡ãƒ™ãƒƒãƒˆã®è¾æ›¸ã‚’æ¤œç´¢
 			if (line) {
 				lines = lines.concat(line);
 				mydump(' found '+line.length+' terms');

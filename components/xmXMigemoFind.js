@@ -491,12 +491,7 @@ mydump("findInRange");
 	{
 		var link = this.getParentLinkFromRange(this.foundRange);
 		if (link && aForceFocus) {
-			try{
-				Components.lookupMethod(link, 'focus').call(link);
-			}
-			catch(e){
-				link.focus();
-			}
+			link.focus();
 		}
 		this.updateStatusBarWithDelay(link);
 		return link;
@@ -505,7 +500,7 @@ mydump("findInRange");
 	getParentLinkFromRange : function(aRange) 
 	{
 mydump("getParentLinkFromRange");
-		//Œã‚ÅXLink‚ðl—¶‚µ‚½ƒR[ƒh‚É’¼‚·
+		//å¾Œã§XLinkã‚’è€ƒæ…®ã—ãŸã‚³ãƒ¼ãƒ‰ã«ç›´ã™
 		if (!aRange) return null;
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
@@ -818,7 +813,7 @@ mydump("count:"+count);
 mydump("resetFindRangeSet");
 		var win = this.document.commandDispatcher.focusedWindow;
 		var theDoc = (win && win.top != this.window.top) ?
-					Components.lookupMethod(win, 'document').call(win) :
+					win.document :
 					aDocument ;
 
 		var root = DocShellIterator.prototype.getDocumentBody(theDoc);
@@ -1091,7 +1086,8 @@ mydump("setSelectionAndScroll");
 		this.lastFoundWord      = '';
 
 		var win = this.document.commandDispatcher.focusedWindow;
-		var doc = (win != this.window) ? Components.lookupMethod(win, 'document').call(win) :
+		var doc = (win != this.window) ?
+					win.document :
 					this.target.contentDocument;
 
 		this.exitFind(aFocusToFoundTarget);
@@ -1106,7 +1102,8 @@ mydump("setSelectionAndScroll");
 			throw Components.results.NS_ERROR_NOT_INITIALIZED;
 
 		var win = this.document.commandDispatcher.focusedWindow;
-		var doc = (win != this.window) ? Components.lookupMethod(win, 'document').call(win) :
+		var doc = (win != this.window) ?
+					win.document :
 					this.target.contentDocument;
 
 		this.setSelectionLook(doc, false);
@@ -1117,9 +1114,9 @@ mydump("setSelectionAndScroll");
 				.getService(Ci.nsIWindowWatcher);
 		if (this.window != WindowWatcher.activeWindow) return;
 
-		win = Components.lookupMethod(doc, 'defaultView').call(doc);
+		win = doc.defaultView;
 		if (!this.focusToFound(win))
-			Components.lookupMethod(win, 'focus').call(win);
+			win.focus();
 	},
 	
 	focusToFound : function(aFrame) 
@@ -1136,13 +1133,8 @@ mydump("setSelectionAndScroll");
 			var foundEditable = this.getParentEditableFromRange(range);
 			var target = foundLink || foundEditable;
 			if (target) {
-				try {
-					Components.lookupMethod(target, 'focus').call(target);
-				}
-				catch(e) {
-					if ('focus' in target)
-						target.focus();
-				}
+				if ('focus' in target)
+					target.focus();
 				if (!foundLink) {
 					var selCon = this.getSelectionController(foundEditable);
 					var selection = selCon.getSelection(selCon.SELECTION_NORMAL);
@@ -1151,7 +1143,7 @@ mydump("setSelectionAndScroll");
 				}
 				return true;
 			}
-			Components.lookupMethod(aFrame, 'focus').call(aFrame);
+			aFrame.focus();
 			return true;
 		}
 		return false;
@@ -1383,7 +1375,7 @@ DocShellIterator.prototype = {
 	getNextDocShell : function(aNode) 
 	{
 		aNode.QueryInterface(Ci.nsIDocShellTreeNode);
-		// Žq‚ª‚ ‚éê‡AÅ‰‚ÌŽq‚ð•Ô‚·
+		// å­ãŒã‚ã‚‹å ´åˆã€æœ€åˆã®å­ã‚’è¿”ã™
 		if (aNode.childCount) return aNode.getChildAt(0);
 		var curNode = aNode;
 		var curItem;
@@ -1392,19 +1384,19 @@ DocShellIterator.prototype = {
 		var childOffset;
 		while (curNode)
 		{
-			// ‚±‚Ìƒm[ƒh‚ªÅãˆÊ‚Å‚ ‚éê‡AŒŸõI—¹
+			// ã“ã®ãƒŽãƒ¼ãƒ‰ãŒæœ€ä¸Šä½ã§ã‚ã‚‹å ´åˆã€æ¤œç´¢çµ‚äº†
 			curItem = curNode.QueryInterface(Ci.nsIDocShellTreeItem);
 			var parentItem = curItem.sameTypeParent;
 			if (!parentItem) return null;
 
-			// nextSibling‚É‘Š“–‚·‚éƒm[ƒh‚ðŽæ“¾‚µ‚Ä•Ô‚·
+			// nextSiblingã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ã‚’å–å¾—ã—ã¦è¿”ã™
 			childOffset = this.getChildOffsetFromDocShellNode(curNode);
 			parentNode = parentItem.QueryInterface(Ci.nsIDocShellTreeNode);
 			if (childOffset > -1 && childOffset < parentNode.childCount-1)
 				return parentNode.getChildAt(childOffset+1);
 
-			// nextSibling‚É‘Š“–‚·‚éƒm[ƒh‚ª–³‚¢‚Ì‚ÅA
-			// ‚Ð‚Æ‚ÂãˆÊ‚Ìƒm[ƒh‚ÉƒtƒH[ƒJƒX‚ðˆÚ‚µ‚ÄÄŒŸõ
+			// nextSiblingã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ãŒç„¡ã„ã®ã§ã€
+			// ã²ã¨ã¤ä¸Šä½ã®ãƒŽãƒ¼ãƒ‰ã«ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’ç§»ã—ã¦å†æ¤œç´¢
 			curNode = parentItem;
 		}
 	},
@@ -1414,20 +1406,20 @@ DocShellIterator.prototype = {
 		aNode.QueryInterface(Ci.nsIDocShellTreeNode);
 		var curNode = aNode;
 		var curItem = curNode.QueryInterface(Ci.nsIDocShellTreeItem);
-		// ‚±‚Ìƒm[ƒh‚ªÅãˆÊiˆê”ÔÅ‰j‚Å‚ ‚éê‡AŒŸõI—¹
+		// ã“ã®ãƒŽãƒ¼ãƒ‰ãŒæœ€ä¸Šä½ï¼ˆä¸€ç•ªæœ€åˆï¼‰ã§ã‚ã‚‹å ´åˆã€æ¤œç´¢çµ‚äº†
 		var parentNode;
 		var parentItem = curItem.sameTypeParent;
 		if (!parentItem) return null;
 
-		// previousSibling‚É‘Š“–‚·‚éƒm[ƒh‚ª–³‚¢ê‡A
-		// parentNode‚É‘Š“–‚·‚éƒm[ƒh‚ð•Ô‚·
+		// previousSiblingã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ãŒç„¡ã„å ´åˆã€
+		// parentNodeã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ã‚’è¿”ã™
 		var childOffset = this.getChildOffsetFromDocShellNode(curNode);
 		if (childOffset < 0) return null;
 		if (!childOffset) return parentItem;
 
-		// previousSibling‚É‘Š“–‚·‚éƒm[ƒh‚ªŽq‚ðŽ‚Á‚Ä‚¢‚éê‡A
-		// ÅŒã‚ÌŽq‚ð•Ô‚·B
-		// Žq‚ª–³‚¯‚ê‚ÎApreviousSibling‚É‘Š“–‚·‚éƒm[ƒh‚»‚êŽ©‘Ì‚ð•Ô‚·B
+		// previousSiblingã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ãŒå­ã‚’æŒã£ã¦ã„ã‚‹å ´åˆã€
+		// æœ€å¾Œã®å­ã‚’è¿”ã™ã€‚
+		// å­ãŒç„¡ã‘ã‚Œã°ã€previousSiblingã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ãã‚Œè‡ªä½“ã‚’è¿”ã™ã€‚
 		parentNode = parentItem.QueryInterface(Ci.nsIDocShellTreeNode);
 		curItem = parentNode.getChildAt(childOffset-1);
 		return this.getLastChildDocShell(curItem) || curItem;
@@ -1439,7 +1431,7 @@ DocShellIterator.prototype = {
 		var parent = aNode.sameTypeParent;
 		if (!parent) return -1;
 
-		// nextSibling‚É‘Š“–‚·‚éƒm[ƒh‚ðŽæ“¾‚µ‚Ä•Ô‚·
+		// nextSiblingã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ã‚’å–å¾—ã—ã¦è¿”ã™
 		parent.QueryInterface(Ci.nsIDocShellTreeNode);
 		if ('childOffset' in aNode) { // Firefox 2
 			return aNode.childOffset;
