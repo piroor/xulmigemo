@@ -365,10 +365,10 @@ var XMigemoService = {
 			const UConvID = '@mozilla.org/intl/scriptableunicodeconverter';
 			const UConvIF  = Components.interfaces.nsIScriptableUnicodeConverter;
 			const UConv = Components.classes[UConvID].getService(UConvIF);
-			// UTF-8 ‚©‚ç Shift_JIS ‚É•ÏŠ·‚·‚é
+			// UTF-8 ã‹ã‚‰ Shift_JIS ã«å¤‰æ›ã™ã‚‹
 			UConv.charset = 'Shift_JIS';
 			sjis_str = UConv.ConvertFromUnicode(str);
-			//“ú–{Œê‚ª‚¤‚Ü‚­o‚È‚¢I‚È‚º‚¾I_ƒnƒƒŒƒ’Œ©Ìƒeƒ^ƒ‚ƒEƒ^ƒJ
+			//æ—¥æœ¬èªãŒã†ã¾ãå‡ºãªã„ï¼ãªãœã ï¼ç¥ãƒãƒ¯ãƒ¬ãƒ²è¦‹æ¨ãƒ†ã‚¿ãƒ¢ã‚¦ã‚¿ã‚«
 			dump(sjis_str+"\n");
 			return;
 		}else{
