@@ -1,13 +1,16 @@
 setlocal
 
+set sdkdirname=%1
+if "%sdkdirname%"=="" set sdkdirname=xulrunner-sdk
+
 del /Q components\*.xpt
 del /Q *.xpt
 
-if exist ..\xulrunner-sdk (
-	set sdkroot=..\xulrunner-sdk
+if exist ..\%sdkdirname% (
+	set sdkroot=..\%sdkdirname%
 )
-if exist ..\..\xulrunner-sdk (
-	set sdkroot=..\..\xulrunner-sdk
+if exist ..\..\%sdkdirname% (
+	set sdkroot=..\..\%sdkdirname%
 )
 
 
