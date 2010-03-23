@@ -1789,7 +1789,7 @@ var XMigemoUI = {
 		this.cancel();
 		this.clearTimer(); // ここでタイマーを殺さないといじられてしまう
 		var win = document.commandDispatcher.focusedWindow;
-		var doc = (win != window) ? Components.lookupMethod(win, 'document').call(win) : this.activeBrowser.contentDocument;
+		var doc = (win != window) ? win.document : this.activeBrowser.contentDocument;
 		this.textUtils.setSelectionLook(doc, false);
 	},
  

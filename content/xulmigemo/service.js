@@ -289,23 +289,16 @@ var XMigemoService = {
 	isEventFiredInInputField : function(aEvent) 
 	{
 		try { // in rich-textarea (ex. Gmail)
-			var doc = Components.lookupMethod(aEvent.originalTarget, 'ownerDocument').call(aEvent.originalTarget);
-			if (Components.lookupMethod(doc, 'designMode').call(doc) == 'on')
+			var doc = aEvent.originalTarget.ownerDocument || aEvent.originalTarget;
+			if (doc.designMode == 'on')
 				return true;
 
-			var win = Components.lookupMethod(doc, 'defaultView').call(doc);;
+			var win = doc.defaultView;
 			var editingSession = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 								.getInterface(Components.interfaces.nsIWebNavigation)
 								.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 								.getInterface(Components.interfaces.nsIEditingSession);
-			if (editingSession.windowIsEditable(win)) return true;
-		}
-		catch(e) {
-		}
-
-		try { // in rich-textarea (ex. Gmail)
-			var doc = Components.lookupMethod(aEvent.originalTarget, 'ownerDocument').call(aEvent.originalTarget);
-			if (Components.lookupMethod(doc, 'designMode').call(doc) == 'on')
+			if (editingSession.windowIsEditable(win))
 				return true;
 		}
 		catch(e) {
@@ -316,9 +309,8 @@ var XMigemoService = {
  
 	isEventFiredInFindableDocument : function(aEvent) 
 	{
-		var doc = Components.lookupMethod(aEvent.originalTarget, 'ownerDocument').call(aEvent.originalTarget);
-		var contentType = Components.lookupMethod(doc, 'contentType').call(doc);
-		return /^text\/|\+xml$|^application\/((x-)?javascript|xml)$/.test(contentType);
+		var doc = aEvent.originalTarget.ownerDocument || aEvent.originalTarget;
+		return /^text\/|\+xml$|^application\/((x-)?javascript|xml)$/.test(doc.contentType);
 	},
  
 	isEventFiredOnScrollBar : function(aEvent) 
