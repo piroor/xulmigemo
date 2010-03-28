@@ -4,9 +4,6 @@ then
 	sdkdirname=xulrunner-sdk
 fi
 
-rm -f components/*.xpt
-rm -f .xpt
-
 if [ -d ../$sdkdirname ]
 then
 	sdkroot=../$sdkdirname
@@ -17,9 +14,14 @@ then
 	sdkroot=../../$sdkdirname
 fi
 
-for filename in components/*.idl
-do
-	${sdkroot}/bin/xpidl -m typelib -w -v -I ${sdkroot}/idl $filename
-done
+if [ -f ${sdkroot}/bin/xpidl ]
+	rm -f components/*.xpt
+	rm -f .xpt
 
-mv *.xpt components/
+	for filename in components/*.idl
+	do
+		${sdkroot}/bin/xpidl -m typelib -w -v -I ${sdkroot}/idl $filename
+	done
+
+	mv *.xpt components/
+fi
