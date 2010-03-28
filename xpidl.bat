@@ -15,7 +15,7 @@ if exist ..\..\%sdkdirname% (
 
 
 for %%f in (components\*.idl) do (
-	%sdkroot%\bin\xpidl.exe -m typelib -I %sdkroot%\idl %%f
+	%sdkroot%\bin\xpidl.exe -m typelib -w -v -I %sdkroot%\idl %%f
 )
 
 move *.xpt components\

@@ -1,6 +1,6 @@
 #include "nsISupports.idl"
-#include "nsIVariant.idl"
 
+interface nsIVariant;
 
 [scriptable, uuid(15885a40-ae39-11de-8a39-0800200c9a66)]
 interface xmIXMigemoMail : nsISupports

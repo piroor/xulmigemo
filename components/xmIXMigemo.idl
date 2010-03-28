@@ -1,14 +1,7 @@
 #include "nsISupports.idl"
-#include "domstubs.idl"
 #include "nsIObserver.idl"
-#include "nsIFile.idl"
-#include "nsIVariant.idl"
-#include "nsIDOMWindow.idl"
-#include "nsIDOMDocument.idl"
-#include "nsIDOMRange.idl"
-#include "nsIDOMElement.idl"
-#include "nsIDOMNode.idl"
 
+interface nsIObserver;
 interface nsIFile;
 interface nsIVariant;
 interface nsIDOMWindow;
