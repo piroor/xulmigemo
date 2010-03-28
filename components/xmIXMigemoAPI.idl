@@ -1,9 +1,4 @@
 #include "nsISupports.idl"
-#include "domstubs.idl"
-#include "nsIVariant.idl"
-#include "nsIDOMDocument.idl"
-#include "nsIDOMRange.idl"
-#include "nsIDOMElement.idl"
 
 interface nsIVariant;
 interface nsIDOMDocument;

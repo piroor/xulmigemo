@@ -19,7 +19,7 @@ fi
 
 for filename in components/*.idl
 do
-	${sdkroot}/bin/xpidl -m typelib -I ${sdkroot}/idl $filename
+	${sdkroot}/bin/xpidl -m typelib -w -v -I ${sdkroot}/idl $filename
 done
 
 mv *.xpt components/
