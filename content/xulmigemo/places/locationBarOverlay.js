@@ -773,6 +773,8 @@ var XMigemoLocationBarOverlay = {
 		this.panel.adjustHeight();
 		this.bar.openPopup();
 		this.builtCount = this.foundItems.length;
+
+		controller.doCompleteDefaultIndex();
 	},
  
 	stopProgressiveBuild : function() 
@@ -954,7 +956,7 @@ XMigemoAutoCompletePopupController.prototype = {
 		return this.service.isActive && this.resultsOverride.length;
 	},
  
-	get completeDefaultIndex()
+	get defaultIndexForComplete()
 	{
 		let term = (this.searchStringOverride || this.searchString || '').toLowerCase().replace(/^\w+:\/\//, '');
 		if (this.resultsOverride.length &&
@@ -967,10 +969,22 @@ XMigemoAutoCompletePopupController.prototype = {
 	init : function(aBaseController) 
 	{
 		this.mController = aBaseController;
+		if (this.input) {
+			try {
+				this.input.popup.removeEventListener('popupshowing', this, false);
+			}
+			catch(e) {
+			}
+		}
 	},
  
 	destroy : function() 
 	{
+		try {
+			this.input.popup.removeEventListener('popupshowing', this, false);
+		}
+		catch(e) {
+		}
 		this.stopSearch();
 		delete this.searchStringOverride;
 		delete this.matchCountOverride;
@@ -985,6 +999,37 @@ XMigemoAutoCompletePopupController.prototype = {
 		this.resultsOverride      = [];
 	},
  
+	handleEvent : function(aEvent) 
+	{
+		switch (aEvent.type)
+		{
+			case 'popupshowing':
+				return this.doCompleteDefaultIndex();
+		}
+	},
+ 
+	doCompleteDefaultIndex : function() 
+	{
+		var input = this.input;
+		if (!this.isMigemoResult || !input.completeDefaultIndex)
+			return;
+
+		var index = this.defaultIndexForComplete;
+		if (index < 0)
+			return;
+
+		var term = (this.searchStringOverride || this.searchString || '');
+		var uri = this.resultsOverride[index].uri;
+
+		var termForMatching = term.toLowerCase().replace(/^\w+:\/\//, '');
+		var uriForMatching = uri.toLowerCase().replace(/^\w+:\/\//, '');
+
+		var rest = uri.substring(uri.length - uriForMatching.length + termForMatching.length);
+
+		input.textValue = term + rest;
+		input.selectTextRange(term.length, input.textValue.length);
+	},
+ 
 	STATUS_NONE              : Components.interfaces.nsIAutoCompleteController.STATUS_NONE, 
 	STATUS_SEARCHING         : Components.interfaces.nsIAutoCompleteController.STATUS_SEARCHING,
 	STATUS_COMPLETE_NO_MATCH : Components.interfaces.nsIAutoCompleteController.STATUS_COMPLETE_NO_MATCH,
@@ -996,6 +1041,14 @@ XMigemoAutoCompletePopupController.prototype = {
 	},
 	set input(aValue)
 	{
+		if (this.controller.input) {
+			try {
+				this.controller.input.popup.removeEventListener('popupshowing', this, false);
+			}
+			catch(e) {
+			}
+		}
+		aValue.popup.addEventListener('popupshowing', this, false);
 		return this.controller.input = aValue;
 	},
  
@@ -1153,7 +1206,7 @@ XMigemoAutoCompletePopupController.prototype = {
 			if (popup.popupOpen) {
 				let selectedIndex = popup.selectedIndex;
 				if (selectedIndex < 0 && input.completeDefaultIndex)
-					selectedIndex = this.completeDefaultIndex;
+					selectedIndex = this.defaultIndexForComplete;
 
 				if (selectedIndex >= 0) {
 					input.textValue = this.resultsOverride[selectedIndex].uri;
