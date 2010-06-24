@@ -954,6 +954,16 @@ XMigemoAutoCompletePopupController.prototype = {
 		return this.service.isActive && this.resultsOverride.length;
 	},
  
+	get completeDefaultIndex()
+	{
+		let term = (this.searchStringOverride || this.searchString || '').toLowerCase().replace(/^\w+:\/\//, '');
+		if (this.resultsOverride.length &&
+			this.resultsOverride[0].uri.replace(/^\w+:\/\//, '').indexOf(term) == 0)
+			return 0;
+
+		return -1;
+	},
+ 
 	init : function(aBaseController) 
 	{
 		this.mController = aBaseController;
@@ -1094,11 +1104,10 @@ XMigemoAutoCompletePopupController.prototype = {
 			)
 			) {
 			if (popup.popupOpen) {
-				var reverse = (aKey == nsIDOMKeyEvent.DOM_VK_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP);
-				var page = (aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN);
-				var completeSelection = input.completeSelectedIndex;
+				let reverse = (aKey == nsIDOMKeyEvent.DOM_VK_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP);
+				let page = (aKey == nsIDOMKeyEvent.DOM_VK_PAGE_UP || aKey == nsIDOMKeyEvent.DOM_VK_PAGE_DOWN);
 				popup.selectBy(reverse, page);
-				if (completeSelection) {
+				if (input.completeSelectedIndex) {
 					var selectedIndex = popup.selectedIndex;
 					if (selectedIndex >= 0) {
 						input.textValue = this.resultsOverride[selectedIndex].uri;
@@ -1142,7 +1151,10 @@ XMigemoAutoCompletePopupController.prototype = {
 			)
 			) {
 			if (popup.popupOpen) {
-				var selectedIndex = popup.selectedIndex;
+				let selectedIndex = popup.selectedIndex;
+				if (selectedIndex < 0 && input.completeDefaultIndex)
+					selectedIndex = this.completeDefaultIndex;
+
 				if (selectedIndex >= 0) {
 					input.textValue = this.resultsOverride[selectedIndex].uri;
 					input.selectTextRange(input.textValue.length, input.textValue.length);
