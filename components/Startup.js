@@ -19,7 +19,7 @@ XMigemoStartupService.prototype = {
 	contractID : '@piro.sakura.ne.jp/xmigemo/startup;1',
 	classID : Components.ID('{28a475d0-1c24-11dd-bd0b-0800200c9a66}'),
 
-	_xpcom_categories : [{ category : 'final-ui-startup', service : true }],
+	_xpcom_categories : [{ category : 'app-startup', service : true }],
 
 	QueryInterface : XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
 	
@@ -27,7 +27,12 @@ XMigemoStartupService.prototype = {
 	{
 		switch (aTopic)
 		{
-			case 'final-ui-startup':
+			case 'app-startup':
+				ObserverService.addObserver(this, 'profile-after-change', false);
+				return;
+
+			case 'profile-after-change':
+				ObserverService.addObserver(this, 'profile-after-change', false);
 				this.init();
 				return;
 		}

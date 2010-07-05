@@ -29,7 +29,7 @@ xmXMigemoAPI.prototype = {
 	_xpcom_categories : [
 		{ category : 'JavaScript global property', entry : 'migemo' }, // -Firefox 3.6
 		{ category : 'JavaScript-global-property', entry : 'migemo' }, // Firefox 4.0-
-		{ category : 'profile-after-change', service : true }
+		{ category : 'app-startup', service : true }
 	],
 
 	QueryInterface : XPCOMUtils.generateQI([
@@ -358,7 +358,7 @@ xmXMigemoAPI.prototype = {
 	{
 		switch (aTopic)
 		{
-			case 'profile-after-change':
+			case 'app-startup':
 				ObserverService.addObserver(this, 'XMigemo:initialized', false);
 				return;
 
