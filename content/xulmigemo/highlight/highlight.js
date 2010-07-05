@@ -33,21 +33,12 @@ var XMigemoHighlight = {
 			return;
 
 
-		eval('gFindBar.updateStatus = '+gFindBar.updateStatus.toSource()
+		eval('gFindBar._updateStatusUI = '+gFindBar._updateStatusUI.toSource()
 			.replace(
 				'{',
 				'{ if (arguments[0] != Components.interfaces.nsITypeAheadFind.FIND_NOTFOUND && XMigemoHighlight.strongHighlight) { XMigemoHighlight.highlightFocusedFound(); };'
 			)
 		);
-		if (
-			gFindBar.updateStatus == gFindBar.updateStatusBar || // old
-			'_updateStatusUI' in gFindBar // Firefox 3.0
-			) {
-			if ('updateStatusBar' in gFindBar) // old
-				gFindBar.updateStatusBar = gFindBar.updateStatus;
-			else if ('_updateStatusUI' in gFindBar) // Firefox 3.0
-				gFindBar._updateStatusUI = gFindBar.updateStatus;
-		}
 
 		if ('gSearchWPOverlay' in window) { // SearchWP
 			eval('gSearchWPOverlay.toggleHighlight = '+gSearchWPOverlay.toggleHighlight.toSource().replace(
