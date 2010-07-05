@@ -2,26 +2,27 @@
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
+
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
  
 function xmXMigemoTextTransform() { 
 	this.init();
 }
 
 xmXMigemoTextTransform.prototype = {
-	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*';
-	},
-	get classDescription() {
-		return 'This is a text transformation service for XUL/Migemo.';
-	},
-	get classID() {
-		return Components.ID('{323b8fbe-1deb-11dc-8314-0800200c9a66}');
-	},
+	classDescription : 'XUL/Migemo Universal Text Transform Service',
+	contractID : '@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*',
+	classID : Components.ID('{323b8fbe-1deb-11dc-8314-0800200c9a66}'),
+
+	QueryInterface : XPCOMUtils.generateQI([
+		Ci.xmIXMigemoTextTransform,
+		Ci.pIXMigemoTextTransform
+	]),
 
 	get wrappedJSObject() {
 		return this;
 	},
-	 
+	
 	get textUtils() 
 	{
 		if (!this._textUtils) {
@@ -99,7 +100,7 @@ xmXMigemoTextTransform.prototype = {
 		}).join('|');
 		this.MODPAT = new RegExp('('+this.MODPAT+')', 'ig');
 	},
- 	
+ 
 	isValidInput : function(aInput) 
 	{
 		return this.normalizeInput(aInput) ? true : false ;
@@ -138,71 +139,12 @@ xmXMigemoTextTransform.prototype = {
 				}
 				return aChar;
 			});
-	},
+	}
  
-	QueryInterface : function(aIID) 
-	{
-		if(!aIID.equals(Ci.xmIXMigemoTextTransform) &&
-			!aIID.equals(Ci.pIXMigemoTextTransform) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
-	}
-};
+}; 
   
-var gModule = { 
-	_firstTime: true,
-
-	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
-	{
-		if (this._firstTime) {
-			this._firstTime = false;
-			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-		}
-		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		for (var key in this._objects) {
-			var obj = this._objects[key];
-			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
-		}
-	},
-
-	getClassObject : function (aComponentManager, aCID, aIID)
-	{
-		if (!aIID.equals(Ci.nsIFactory))
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-		for (var key in this._objects) {
-			if (aCID.equals(this._objects[key].CID))
-				return this._objects[key].factory;
-		}
-
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
-
-	_objects : {
-		manager : {
-			CID        : xmXMigemoTextTransform.prototype.classID,
-			contractID : xmXMigemoTextTransform.prototype.contractID,
-			className  : xmXMigemoTextTransform.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new xmXMigemoTextTransform()).QueryInterface(aIID);
-				}
-			}
-		}
-	},
-
-	canUnload : function (aComponentManager)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(compMgr, fileSpec)
-{
-	return gModule;
-}
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoTextTransform]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoTextTransform]);
  

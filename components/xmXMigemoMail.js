@@ -1,7 +1,9 @@
-var TEST = false;
+var TEST = false; 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 var gXMigemoMail;
+
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 var ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);
@@ -17,22 +19,23 @@ function xmXMigemoMail() {
 }
 
 xmXMigemoMail.prototype = {
-	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/mail;1';
-	},
-	get classDescription() {
-		return 'This is a Migemo mail service itself.';
-	},
-	get classID() {
-		return Components.ID('{15b05450-d389-11dc-95ff-0800200c9a66}');
-	},
+	classDescription : 'XUL/Migemo Mail Service',
+	contractID : '@piro.sakura.ne.jp/xmigemo/mail;1',
+	classID : Components.ID('{15b05450-d389-11dc-95ff-0800200c9a66}'),
+
+	QueryInterface : XPCOMUtils.generateQI([
+		Ci.xmIXMigemoMail,
+		Ci.pIXMigemoMail,
+		Ci.nsIFolderListener,
+		Ci.nsIObserver
+	]),
 
 	get wrappedJSObject() {
 		return this;
 	},
-	 
+	
 // summary 
-	 
+	
 	kDATABASE : 'xulmigemo.sqlite', 
 
 	kTABLE   : 'summaries',
@@ -381,19 +384,9 @@ xmXMigemoMail.prototype = {
 					this.refreshSummaryCache(folder);
 				return;
 		}
-	},
- 
-	QueryInterface : function(aIID) 
-	{
-		if (!aIID.equals(Ci.xmIXMigemoMail) &&
-			!aIID.equals(Ci.pIXMigemoMail) &&
-			!aIID.equals(Ci.nsIFolderListener) &&
-			!aIID.equals(Ci.nsIObserver) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
 	}
-};
+ 
+}; 
   
 function FolderSummary(aFolder) 
 {
@@ -402,7 +395,7 @@ function FolderSummary(aFolder)
 }
 FolderSummary.prototype = {
 	delay : 10,
-	 
+	
 	get authors() 
 	{
 		if (!this.mAuthors.length) {
@@ -561,7 +554,7 @@ FolderSummary.prototype = {
 	},
    
 // parse 
-	 
+	
 	parseOneMessage : function() 
 	{
 		if (!this.mMessages.hasMoreElements()) {
@@ -575,7 +568,7 @@ FolderSummary.prototype = {
 
 		return true;
 	},
-	 
+	
 	addItem : function(aMsgHdr) 
 	{
 		this.mIds.push((aMsgHdr.messageId || '').replace(/[\r\n]+/g, '\t'));
@@ -586,7 +579,7 @@ FolderSummary.prototype = {
 		this.mBodies.push(this.summarize(this.readBody(aMsgHdr)).replace(/[\r\n]+/g, '\t'));
 //dump('parse: '+this.mFolder.URI+' / '+aMsgHdr.mime2DecodedAuthor+'\n');
 	},
-	 
+	
 	readBody : function(aMsgHdr) 
 	{
 		if (!Prefs.getBoolPref('xulmigemo.mailnews.threadsearch.body')) return '';
@@ -695,7 +688,7 @@ FolderSummary.prototype = {
 	},
 	MIMEHeaderParam : Cc['@mozilla.org/network/mime-hdrparam;1']
 		.getService(Ci.nsIMIMEHeaderParam),
- 	 
+  
 	removeItem : function(aMsgHdr) 
 	{
 		var index = this.mIds.indexOf(aMsgHdr.messageId);
@@ -729,60 +722,8 @@ FolderSummary.prototype = {
  
 }; 
   
-var gModule = { 
-	_firstTime: true,
-
-	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
-	{
-		if (this._firstTime) {
-			this._firstTime = false;
-			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-		}
-		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		for (var key in this._objects) {
-			var obj = this._objects[key];
-			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
-		}
-	},
-
-	getClassObject : function (aComponentManager, aCID, aIID)
-	{
-		if (!aIID.equals(Ci.nsIFactory))
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-		for (var key in this._objects) {
-			if (aCID.equals(this._objects[key].CID))
-				return this._objects[key].factory;
-		}
-
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
-
-	_objects : {
-		manager : {
-			CID        : xmXMigemoMail.prototype.classID,
-			contractID : xmXMigemoMail.prototype.contractID,
-			className  : xmXMigemoMail.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					gXMigemoMail = new xmXMigemoMail();
-					return gXMigemoMail.QueryInterface(aIID);
-				}
-			}
-		}
-	},
-
-	canUnload : function (aComponentManager)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(compMgr, fileSpec)
-{
-	return gModule;
-}
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoMail]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoMail]);
  

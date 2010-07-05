@@ -7,12 +7,13 @@ var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
  
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
 
 var xmIXMigemoFind = Ci.xmIXMigemoFind;
 
-// for Firefox 3.6 or later
 var boxObjectModule = {};
 function getBoxObjectFor(aNode)
 {
@@ -35,20 +36,19 @@ function xmXMigemoFind() {
 }
 
 xmXMigemoFind.prototype = {
-	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/find;1';
-	},
-	get classDescription() {
-		return 'This is a find service for XUL/Migemo.';
-	},
-	get classID() {
-		return Components.ID('{147824f6-cef4-11db-8314-0800200c9a66}');
-	},
+	classDescription : 'XUL/Migemo Find Service',
+	contractID : '@piro.sakura.ne.jp/xmigemo/find;1',
+	classID : Components.ID('{147824f6-cef4-11db-8314-0800200c9a66}'),
+
+	QueryInterface : XPCOMUtils.generateQI([
+		Ci.xmIXMigemoFind,
+		Ci.pIXMigemoFind
+	]),
 
 	get wrappedJSObject() {
 		return this;
 	},
-	 
+	
 	lastKeyword     : '', 
 	previousKeyword : '',
 	lastFoundWord   : '',
@@ -205,7 +205,7 @@ xmXMigemoFind.prototype = {
 	{
 		return this._caseSensitive && this.findMode != this.FIND_MODE_MIGEMO;
 	},
-	set caseSensitive(aValue) 
+	set caseSensitive(aValue)
 	{
 		this._caseSensitive = aValue;
 		return aValue;
@@ -284,7 +284,7 @@ mydump("find");
 		iterator.destroy();
 		this.previousKeyword = aKeyword;
 	},
-	 
+	
 	findInDocument : function(aFindFlag, aFindTerm, aDocShellIterator, aForceFocus) 
 	{
 mydump("findInDocument ==========================================");
@@ -359,7 +359,7 @@ mydump("findInDocument ==========================================");
 
 		return resultFlag;
 	},
-	 
+	
 	findInDocumentInternal : function(aFindFlag, aFindTerm, aRangeSet, aDocument, aForceFocus) 
 	{
 		var textFindResult;
@@ -484,7 +484,7 @@ mydump("findInRange");
 
 		return result;
 	},
-	 
+	
 	focusToLink : function(aForceFocus) 
 	{
 		var link = this.getParentLinkFromRange(this.foundRange);
@@ -498,7 +498,7 @@ mydump("findInRange");
 	getParentLinkFromRange : function(aRange) 
 	{
 mydump("getParentLinkFromRange");
-		//å¾Œã§XLinkã‚’è€ƒæ…®ã—ãŸã‚³ãƒ¼ãƒ‰ã«ç›´ã™
+		//Œã‚ÅXLink‚ðl—¶‚µ‚½ƒR[ƒh‚É’¼‚·
 		if (!aRange) return null;
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
@@ -531,7 +531,7 @@ mydump('getParentEditableFromRange');
 	},
   
 /* Range Manipulation */ 
-	 
+	
 	getFindRangeSet : function(aFindFlag, aDocShellIterator) 
 	{
 mydump("getFindRangeSet");
@@ -576,7 +576,7 @@ mydump("getFindRangeSet");
 
 		return this.getFindRangeSetIn(aFindFlag, aDocShellIterator, aDocShellIterator.body, docSelCon);
 	},
-	 
+	
 	getFindRangeSetIn : function(aFindFlag, aDocShellIterator, aRangeParent, aSelCon) 
 	{
 mydump("getFindRangeSetIn");
@@ -738,7 +738,7 @@ mydump("count:"+count);
 		this.visibleNodeFilter.clear();
 		return lastNode || doc.documentElement;
 	},
-	 
+	
 	visibleNodeFilter : { 
 		kSKIP   : Ci.nsIDOMNodeFilter.FILTER_SKIP,
 		kACCEPT : Ci.nsIDOMNodeFilter.FILTER_ACCEPT,
@@ -836,7 +836,7 @@ mydump("resetFindRangeSet");
 		}
 		return aRangeSet;
 	},
- 	 
+  
 /* Update Appearance */ 
 	
 	getSelectionController : function(aTarget) 
@@ -900,7 +900,7 @@ mydump("setSelectionAndScroll");
 				newSelCon.SELECTION_NORMAL,
 				newSelCon.SELECTION_FOCUS_REGION, true);
 	},
-	 
+	
 	scrollSelectionToCenter : function(aFrame) 
 	{
 		if (!Prefs.getBoolPref('xulmigemo.scrollSelectionToCenter')) return;
@@ -1249,17 +1249,9 @@ mydump("setSelectionAndScroll");
 		}
 		catch(e) {
 		}
-	},
- 
-	QueryInterface : function(aIID) 
-	{
-		if (!aIID.equals(xmIXMigemoFind) &&
-			!aIID.equals(Ci.pIXMigemoFind) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
 	}
-};
+ 
+}; 
   
 /* DocShell Traversal */ 
 function DocShellIterator(aFrame, aFromBack)
@@ -1279,7 +1271,7 @@ DocShellIterator.prototype = {
 	mFromBack : false,
 
 	wrapped : false,
-	 
+	
 	get current() 
 	{
 		return this.mCurrentDocShell;
@@ -1303,7 +1295,7 @@ DocShellIterator.prototype = {
 			.QueryInterface(Ci.nsIInterfaceRequestor)
 			.getInterface(Ci.nsIDOMWindow);
 	},
-	 
+	
 	getDocShellFromFrame : function(aFrame) 
 	{
 		return aFrame
@@ -1316,7 +1308,7 @@ DocShellIterator.prototype = {
 	{
 		return this.getDocumentBody(this.document);
 	},
-	 
+	
 	getDocumentBody : function(aDocument) 
 	{
 		if (aDocument instanceof Ci.nsIDOMHTMLDocument)
@@ -1369,11 +1361,11 @@ DocShellIterator.prototype = {
 		this.mCurrentDocShell = nextItem;
 		return nextItem;
 	},
-	 
+	
 	getNextDocShell : function(aNode) 
 	{
 		aNode.QueryInterface(Ci.nsIDocShellTreeNode);
-		// å­ãŒã‚ã‚‹å ´åˆã€æœ€åˆã®å­ã‚’è¿”ã™
+		// Žq‚ª‚ ‚éê‡AÅ‰‚ÌŽq‚ð•Ô‚·
 		if (aNode.childCount) return aNode.getChildAt(0);
 		var curNode = aNode;
 		var curItem;
@@ -1382,19 +1374,19 @@ DocShellIterator.prototype = {
 		var childOffset;
 		while (curNode)
 		{
-			// ã“ã®ãƒŽãƒ¼ãƒ‰ãŒæœ€ä¸Šä½ã§ã‚ã‚‹å ´åˆã€æ¤œç´¢çµ‚äº†
+			// ‚±‚Ìƒm[ƒh‚ªÅãˆÊ‚Å‚ ‚éê‡AŒŸõI—¹
 			curItem = curNode.QueryInterface(Ci.nsIDocShellTreeItem);
 			var parentItem = curItem.sameTypeParent;
 			if (!parentItem) return null;
 
-			// nextSiblingã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ã‚’å–å¾—ã—ã¦è¿”ã™
+			// nextSibling‚É‘Š“–‚·‚éƒm[ƒh‚ðŽæ“¾‚µ‚Ä•Ô‚·
 			childOffset = this.getChildOffsetFromDocShellNode(curNode);
 			parentNode = parentItem.QueryInterface(Ci.nsIDocShellTreeNode);
 			if (childOffset > -1 && childOffset < parentNode.childCount-1)
 				return parentNode.getChildAt(childOffset+1);
 
-			// nextSiblingã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ãŒç„¡ã„ã®ã§ã€
-			// ã²ã¨ã¤ä¸Šä½ã®ãƒŽãƒ¼ãƒ‰ã«ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’ç§»ã—ã¦å†æ¤œç´¢
+			// nextSibling‚É‘Š“–‚·‚éƒm[ƒh‚ª–³‚¢‚Ì‚ÅA
+			// ‚Ð‚Æ‚ÂãˆÊ‚Ìƒm[ƒh‚ÉƒtƒH[ƒJƒX‚ðˆÚ‚µ‚ÄÄŒŸõ
 			curNode = parentItem;
 		}
 	},
@@ -1404,20 +1396,20 @@ DocShellIterator.prototype = {
 		aNode.QueryInterface(Ci.nsIDocShellTreeNode);
 		var curNode = aNode;
 		var curItem = curNode.QueryInterface(Ci.nsIDocShellTreeItem);
-		// ã“ã®ãƒŽãƒ¼ãƒ‰ãŒæœ€ä¸Šä½ï¼ˆä¸€ç•ªæœ€åˆï¼‰ã§ã‚ã‚‹å ´åˆã€æ¤œç´¢çµ‚äº†
+		// ‚±‚Ìƒm[ƒh‚ªÅãˆÊiˆê”ÔÅ‰j‚Å‚ ‚éê‡AŒŸõI—¹
 		var parentNode;
 		var parentItem = curItem.sameTypeParent;
 		if (!parentItem) return null;
 
-		// previousSiblingã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ãŒç„¡ã„å ´åˆã€
-		// parentNodeã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ã‚’è¿”ã™
+		// previousSibling‚É‘Š“–‚·‚éƒm[ƒh‚ª–³‚¢ê‡A
+		// parentNode‚É‘Š“–‚·‚éƒm[ƒh‚ð•Ô‚·
 		var childOffset = this.getChildOffsetFromDocShellNode(curNode);
 		if (childOffset < 0) return null;
 		if (!childOffset) return parentItem;
 
-		// previousSiblingã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ãŒå­ã‚’æŒã£ã¦ã„ã‚‹å ´åˆã€
-		// æœ€å¾Œã®å­ã‚’è¿”ã™ã€‚
-		// å­ãŒç„¡ã‘ã‚Œã°ã€previousSiblingã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ãã‚Œè‡ªä½“ã‚’è¿”ã™ã€‚
+		// previousSibling‚É‘Š“–‚·‚éƒm[ƒh‚ªŽq‚ðŽ‚Á‚Ä‚¢‚éê‡A
+		// ÅŒã‚ÌŽq‚ð•Ô‚·B
+		// Žq‚ª–³‚¯‚ê‚ÎApreviousSibling‚É‘Š“–‚·‚éƒm[ƒh‚»‚êŽ©‘Ì‚ð•Ô‚·B
 		parentNode = parentItem.QueryInterface(Ci.nsIDocShellTreeNode);
 		curItem = parentNode.getChildAt(childOffset-1);
 		return this.getLastChildDocShell(curItem) || curItem;
@@ -1429,7 +1421,7 @@ DocShellIterator.prototype = {
 		var parent = aNode.sameTypeParent;
 		if (!parent) return -1;
 
-		// nextSiblingã«ç›¸å½“ã™ã‚‹ãƒŽãƒ¼ãƒ‰ã‚’å–å¾—ã—ã¦è¿”ã™
+		// nextSibling‚É‘Š“–‚·‚éƒm[ƒh‚ðŽæ“¾‚µ‚Ä•Ô‚·
 		parent.QueryInterface(Ci.nsIDocShellTreeNode);
 		if ('childOffset' in aNode) { // Firefox 2
 			return aNode.childOffset;
@@ -1491,61 +1483,10 @@ DocShellIterator.prototype = {
  
 }; 
   
-var gModule = { 
-	_firstTime: true,
-
-	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
-	{
-		if (this._firstTime) {
-			this._firstTime = false;
-			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-		}
-		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		for (var key in this._objects) {
-			var obj = this._objects[key];
-			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
-		}
-	},
-
-	getClassObject : function (aComponentManager, aCID, aIID)
-	{
-		if (!aIID.equals(Ci.nsIFactory))
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-		for (var key in this._objects) {
-			if (aCID.equals(this._objects[key].CID))
-				return this._objects[key].factory;
-		}
-
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
-
-	_objects : {
-		manager : {
-			CID        : xmXMigemoFind.prototype.classID,
-			contractID : xmXMigemoFind.prototype.contractID,
-			className  : xmXMigemoFind.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new xmXMigemoFind()).QueryInterface(aIID);
-				}
-			}
-		}
-	},
-
-	canUnload : function (aComponentManager)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(compMgr, fileSpec)
-{
-	return gModule;
-}
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoFind]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoFind]);
  
 function mydump(aString) 
 {
