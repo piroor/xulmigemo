@@ -12,7 +12,6 @@ var Ci = Components.interfaces;
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
 
 var timer = {};
-Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
 
 var ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);;
@@ -907,6 +906,9 @@ xmXMigemoCore.prototype = {
 	repaintHighlights : function(aDocument, aRecursively, aSelection) 
 	{
 		if (!this.highlightSelectionAvailable) return;
+
+		if (!('setTimeout' in timer))
+			Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
 
 		if (aDocument.__xulmigemo__repaintHighlightsTimer)
 			timer.clearTimeout(aDocument.__xulmigemo__repaintHighlightsTimer);

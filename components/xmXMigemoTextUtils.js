@@ -5,7 +5,6 @@ var Ci = Components.interfaces;
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 var timer = {};
-Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
 
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
@@ -651,8 +650,13 @@ xmXMigemoTextUtils.prototype = {
 	selectContentWithDelay : function(aParent, aStartOffset, aSelectLength, aIsHighlight) 
 	{
 		aParent.QueryInterface(Ci.nsIDOMNode);
+
+		if (!('setTimeout' in timer))
+			Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
+
 		if (this.selectContentWithDelayTimer)
 			timer.clearTimeout(this.selectContentWithDelayTimer);
+
 		this.selectContentWithDelayTimer = timer.setTimeout(function(aSelf) {
 			aSelf.selectContent(aParent, aStartOffset, aSelectLength, aIsHighlight);
 		}, 1, this);

@@ -9,9 +9,7 @@ var Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
 
-Components.utils.import('resource://xulmigemo-modules/stringBundle.js');
-Components.utils.import('resource://xulmigemo-modules/namespace.jsm');
-var window = getNamespaceFor('piro.sakura.ne.jp');
+var namespace = {};
 
 var ObserverService = Cc['@mozilla.org/observer-service;1']
 		.getService(Ci.nsIObserverService);;
@@ -290,6 +288,12 @@ xmXMigemoDicManager.prototype = {
  
 	get strbundle() 
 	{
+		if (!('getNamespaceFor' in namespace)) {
+			Components.utils.import('resource://xulmigemo-modules/stringBundle.js');
+			Components.utils.import('resource://xulmigemo-modules/namespace.jsm', namespace);
+			window = namespace.getNamespaceFor('piro.sakura.ne.jp');
+		}
+
 		return window['piro.sakura.ne.jp'].stringBundle
 				.get('chrome://xulmigemo/locale/xulmigemo.properties');
 	}
