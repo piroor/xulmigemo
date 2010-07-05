@@ -49,5 +49,13 @@ component	{650d509a-1f48-11dc-8314-0800200c9a66}	components/xmXMigemoCore.js
 contract	@piro.sakura.ne.jp/xmigemo/factory;1	{650d509a-1f48-11dc-8314-0800200c9a66}
 category	profile-after-change	XUL/Migemo Core Service Factory	@piro.sakura.ne.jp/xmigemo/factory;1
 
+component	{706170f0-36fb-11dc-8314-0800200c9a66}	components/xmXMigemoEngine.js
+contract	@piro.sakura.ne.jp/xmigemo/engine;1?lang=*	{706170f0-36fb-11dc-8314-0800200c9a66}
+category	profile-after-change	XUL/Migemo Universal Engine	@piro.sakura.ne.jp/xmigemo/engine;1?lang=*
+
+component	{792f3b58-cef4-11db-8314-0800200c9a66}	components/xmXMigemoEngineJa.js
+contract	@piro.sakura.ne.jp/xmigemo/engine;1?lang=ja	{792f3b58-cef4-11db-8314-0800200c9a66}
+category	profile-after-change	XUL/Migemo Japanese Engine	@piro.sakura.ne.jp/xmigemo/engine;1?lang=ja
+
 
 interfaces	components/xmIXMigemoMail.xpt	application={3550f703-e582-4d05-9a08-453d09bdfdc6}

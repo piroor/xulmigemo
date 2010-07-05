@@ -7,6 +7,8 @@ var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
  
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
 
@@ -19,20 +21,22 @@ function xmXMigemoEngine() {
 xmXMigemoEngine.prototype = {
 	lang : '',
 
-	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/engine;1?lang=*';
-	},
-	get classDescription() {
-		return 'This is a Migemo service itself, for Japanese language.';
-	},
-	get classID() {
-		return Components.ID('{706170f0-36fb-11dc-8314-0800200c9a66}');
-	},
+	classDescription : 'XUL/Migemo Universal Engine',
+	contractID : '@piro.sakura.ne.jp/xmigemo/engine;1?lang=*',
+	classID : Components.ID('{706170f0-36fb-11dc-8314-0800200c9a66}'),
+
+	QueryInterface : XPCOMUtils.generateQI([
+		xmIXMigemoEngine,
+		Ci.xmIXMigemoEngineUniversal,
+		Ci.pIXMigemoEngine,
+		Ci.pIXMigemoEngineUniversal,
+		Ci.nsIObserver
+	]),
 
 	get wrappedJSObject() {
 		return this;
 	},
-	 
+	
 	SYSTEM_DIC : xmIXMigemoEngine.SYSTEM_DIC, 
 	USER_DIC   : xmIXMigemoEngine.USER_DIC,
 	ALL_DIC    : xmIXMigemoEngine.ALL_DIC,
@@ -130,7 +134,7 @@ xmXMigemoEngine.prototype = {
 			pattern = pattern.replace(/\n/g, '');
 			mydump('pattern:'+pattern);
 		}
-		else { // è¾æ›¸ã«å¼•ã£ã‹ã‹ã‚‰ãªã‹ã£ãŸæ¨¡æ§˜ãªã®ã§è‡ªå‰ã®æ–‡å­—åˆ—ã ã‘
+		else { // «‘‚Éˆø‚Á‚©‚©‚ç‚È‚©‚Á‚½–Í—l‚È‚Ì‚Å©‘O‚Ì•¶š—ñ‚¾‚¯
 			pattern = str;
 			mydump('pattern:'+pattern);
 		}
@@ -186,7 +190,7 @@ xmXMigemoEngine.prototype = {
 			}
 		}
 		if (mydic) {
-			var line = mydic.match(exp);//ã‚¢ãƒ«ãƒ•ã‚¡ãƒ™ãƒƒãƒˆã®è¾æ›¸ã‚’æ¤œç´¢
+			var line = mydic.match(exp);//ƒAƒ‹ƒtƒ@ƒxƒbƒg‚Ì«‘‚ğŒŸõ
 			if (line) {
 				lines = lines.concat(line);
 				mydump(' found '+line.length+' terms');
@@ -198,76 +202,14 @@ xmXMigemoEngine.prototype = {
  
 	observe : function(aSubject, aTopic, aData) 
 	{
-	},
+	}
  
-	QueryInterface : function(aIID) 
-	{
-		if (!aIID.equals(xmIXMigemoEngine) &&
-			!aIID.equals(Ci.xmIXMigemoEngineUniversal) &&
-			!aIID.equals(Ci.pIXMigemoEngine) &&
-			!aIID.equals(Ci.pIXMigemoEngineUniversal) &&
-			!aIID.equals(Ci.nsIObserver) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
-	}
-};
- 	 
-var gModule = { 
-	_firstTime: true,
-
-	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
-	{
-		if (this._firstTime) {
-			this._firstTime = false;
-			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-		}
-		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		for (var key in this._objects) {
-			var obj = this._objects[key];
-			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
-		}
-	},
-
-	getClassObject : function (aComponentManager, aCID, aIID)
-	{
-		if (!aIID.equals(Ci.nsIFactory))
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-		for (var key in this._objects) {
-			if (aCID.equals(this._objects[key].CID))
-				return this._objects[key].factory;
-		}
-
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
-
-	_objects : {
-		manager : {
-			CID        : xmXMigemoEngine.prototype.classID,
-			contractID : xmXMigemoEngine.prototype.contractID,
-			className  : xmXMigemoEngine.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new xmXMigemoEngine()).QueryInterface(aIID);
-				}
-			}
-		}
-	},
-
-	canUnload : function (aComponentManager)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(compMgr, fileSpec)
-{
-	return gModule;
-}
+}; 
+  
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoEngine]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoEngine]);
  
 function mydump(aString) 
 {
