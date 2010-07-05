@@ -1,6 +1,4 @@
-const kCID  = Components.ID('{28a475d0-1c24-11dd-bd0b-0800200c9a66}'); 
-const kID   = '@piro.sakura.ne.jp/xmigemo/startup;1';
-const kNAME = "XUL/Migemo Startup Service";
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
 
 const ObserverService = Components
 		.classes['@mozilla.org/observer-service;1']
@@ -17,17 +15,19 @@ const Prefs = Components
 function XMigemoStartupService() { 
 }
 XMigemoStartupService.prototype = {
-	 
+	classDescription : 'XUL/Migemo Startup Service',
+	contractID : '@piro.sakura.ne.jp/xmigemo/startup;1',
+	classID : Components.ID('{28a475d0-1c24-11dd-bd0b-0800200c9a66}'),
+
+	_xpcom_categories : [{ category : 'final-ui-startup', service : true }],
+
+	QueryInterface : XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
+	
 	observe : function(aSubject, aTopic, aData) 
 	{
 		switch (aTopic)
 		{
-			case 'app-startup':
-				ObserverService.addObserver(this, 'final-ui-startup', false);
-				return;
-
 			case 'final-ui-startup':
-				ObserverService.removeObserver(this, 'final-ui-startup');
 				this.init();
 				return;
 		}
@@ -80,65 +80,13 @@ XMigemoStartupService.prototype = {
 				this._SSS = null;
 		}
 		return this._SSS;
-	},
+	}
 //	_SSS : null,
   
-	QueryInterface : function(aIID) 
-	{
-		if(!aIID.equals(Components.interfaces.nsIObserver) &&
-			!aIID.equals(Components.interfaces.nsISupports)) {
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		}
-		return this;
-	}
- 
 }; 
- 	 
-var gModule = { 
-	registerSelf : function(aCompMgr, aFileSpec, aLocation, aType)
-	{
-		aCompMgr = aCompMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-		aCompMgr.registerFactoryLocation(
-			kCID,
-			kNAME,
-			kID,
-			aFileSpec,
-			aLocation,
-			aType
-		);
-
-		var catMgr = Components.classes['@mozilla.org/categorymanager;1']
-					.getService(Components.interfaces.nsICategoryManager);
-		catMgr.addCategoryEntry('app-startup', kNAME, kID, true, true);
-	},
-
-	getClassObject : function(aCompMgr, aCID, aIID)
-	{
-		return this.factory;
-	},
-
-	factory : {
-		QueryInterface : function(aIID)
-		{
-			if (!aIID.equals(Components.interfaces.nsISupports) &&
-				!aIID.equals(Components.interfaces.nsIFactory)) {
-				throw Components.results.NS_ERROR_NO_INTERFACE;
-			}
-			return this;
-		},
-		createInstance : function(aOuter, aIID)
-		{
-			return new XMigemoStartupService();
-		}
-	},
-
-	canUnload : function(aCompMgr)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(aCompMgr, aFileSpec) {
-	return gModule;
-}
+  
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([XMigemoStartupService]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([XMigemoStartupService]);
  

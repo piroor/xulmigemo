@@ -2017,6 +2017,9 @@ var XMigemoUI = {
 			すべてFirefox 4.0に合わせる。
 		*/
 
+		// for View Source etc.
+		if ('gFindBar' in window) window.gFindBar = this.findBar;
+
 		gFindBar.xmigemoOriginalFindNext = function() {
 			gFindBar.xmigemoOriginalOnFindAgainCommand(false);
 		};
