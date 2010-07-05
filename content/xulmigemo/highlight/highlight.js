@@ -114,7 +114,6 @@ var XMigemoHighlight = {
 			);
 		}
 		return this._boxObjectModule
-					.window['piro.sakura.ne.jp']
 					.boxObject
 					.getBoxObjectFor(aNode);
 	},

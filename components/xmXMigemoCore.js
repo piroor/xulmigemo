@@ -9,7 +9,12 @@ var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
  
-var ObserverService = Cc['@mozilla.org/observer-service;1'] 
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+
+var timer = {};
+Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
+
+var ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);;
 
 var Prefs = Cc['@mozilla.org/preferences;1']
@@ -20,15 +25,16 @@ function xmXMigemoCore() {
 }
 
 xmXMigemoCore.prototype = {
-	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/core;1';
-	},
-	get classDescription() {
-		return 'This is a Migemo service itself.';
-	},
-	get classID() {
-		return Components.ID('{4a17fa2c-1de7-11dc-8314-0800200c9a66}');
-	},
+	contractID : '@piro.sakura.ne.jp/xmigemo/core;1',
+	classDescription : 'XUL/Migemo Core Service',
+	classID : Components.ID('{4a17fa2c-1de7-11dc-8314-0800200c9a66}'),
+
+	QueryInterface : XPCOMUtils.generateQI([
+		Ci.xmIXMigemo,
+		Ci.xmIXMigemoEngine,
+		Ci.nsIObserver,
+		Ci.nsIObserver
+	]),
 
 	get wrappedJSObject() {
 		return this;
@@ -140,7 +146,7 @@ xmXMigemoCore.prototype = {
 
 		var autoSplit = (aEnableAutoSplit === void(0)) ? Prefs.getBoolPref('xulmigemo.splitTermsAutomatically') : aEnableAutoSplit ;
 
-		// ÂÖ•Âäõ„ÇíÂàá„Å£„Å¶„ÄÅÊñáÁØÄ„Å®„Åó„Å¶ÂÄãÂà•„Å´Ê≠£Ë¶èË°®Áèæ„ÇíÁîüÊàê„Åô„Çã
+		// ì¸óÕÇêÿÇ¡ÇƒÅAï∂êﬂÇ∆ÇµÇƒå¬ï Ç…ê≥ãKï\åªÇê∂ê¨Ç∑ÇÈ
 		var romanTerm;
 		var romanTerms = this.engine.splitInput(aInput);
 		mydump('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n');
@@ -223,13 +229,13 @@ xmXMigemoCore.prototype = {
 
 		var date2 = new Date();
 		if ((date2.getTime() - date1.getTime()) > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Prefs.getIntPref('xulmigemo.cache.update.time'))) {
-			// ÈÅÖ„Åã„Å£„Åü„Çâ„Ç≠„É£„ÉÉ„Ç∑„É•„Åó„Åæ„Åô
+			// íxÇ©Ç¡ÇΩÇÁÉLÉÉÉbÉVÉÖÇµÇ‹Ç∑
 			cache.setDiskCache(aInput, regexpPattern, aTargetDic);
 			cache.setMemCache(aInput, regexpPattern, aTargetDic);
 			mydump('CacheWasSaved');
 		}
 		else{
-			cache.setMemCache(aInput, regexpPattern, aTargetDic);//„É°„É¢„É™„Ç≠„É£„ÉÉ„Ç∑„É•
+			cache.setMemCache(aInput, regexpPattern, aTargetDic);//ÉÅÉÇÉäÉLÉÉÉbÉVÉÖ
 			mydump('memCacheWasSaved');
 		}
 		mydump(date2.getTime() - date1.getTime());
@@ -452,7 +458,7 @@ xmXMigemoCore.prototype = {
 	{
 		var input = this.textUtils.trim(aInput);
 		if (this.notFindAvailable) {
-			// ÂÖ•Âäõ‰∏≠„ÅÆNOTÊ§úÁ¥¢Áî®ÊºîÁÆóÂ≠ê„ÇíÈô§Â§ñ
+			// ì¸óÕíÜÇÃNOTåüçıópââéZéqÇèúäO
 			input = input.replace(/\s+-$/, '');
 		}
 		return input;
@@ -701,7 +707,7 @@ xmXMigemoCore.prototype = {
 		}
 		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode);
 	},
-	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
+	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode)
 	{
 		return this.regExpHighlight(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
 	},
@@ -710,7 +716,7 @@ xmXMigemoCore.prototype = {
 	{
 		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, true);
 	},
-	regExpHighlightTextWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
+	regExpHighlightTextWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode)
 	{
 		return this.regExpHighlightSelection(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
 	},
@@ -902,18 +908,15 @@ xmXMigemoCore.prototype = {
 	{
 		if (!this.highlightSelectionAvailable) return;
 
-		if (aDocument.__xulmigemo__repaintHighlightsTask)
-			aDocument.__xulmigemo__repaintHighlightsTask.cancel();
+		if (aDocument.__xulmigemo__repaintHighlightsTimer)
+			timer.clearTimeout(aDocument.__xulmigemo__repaintHighlightsTimer);
 
 		if (aSelection !== void(0))
 			aDocument.__xulmigemo__nextHighlightSelectionState = aSelection;
 
-		aDocument.__xulmigemo__repaintHighlightsTask = new DelayedTask(
-			this,
-			this.repaintHighlightsNow,
-			[aDocument, aRecursively],
-			1
-		);
+		aDocument.__xulmigemo__repaintHighlightsTimer = timer.setTimeout(function(aSelf) {
+			aSelf.repaintHighlightsNow(aDocument, aRecursively);
+		}, 1, this);
 	},
 	repaintHighlightsTask : null,
 	
@@ -1105,33 +1108,24 @@ xmXMigemoCore.prototype = {
 
 		var pbi = Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
 		pbi.removeObserver(this.domain, this, false);
-	},
- 
-	QueryInterface : function(aIID) 
-	{
-		if(!aIID.equals(Ci.xmIXMigemo) &&
-			!aIID.equals(Ci.xmIXMigemoEngine) &&
-			!aIID.equals(Ci.nsIObserver) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
 	}
-};
+ 
+}; 
   
 function xmXMigemoFactory() { 
 	mydump('create instance xmIXMigemoFactory');
 }
 
 xmXMigemoFactory.prototype = {
-	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/factory;1';
-	},
-	get classDescription() {
-		return 'This is a factory of Migemo service itself.';
-	},
-	get classID() {
-		return Components.ID('{650d509a-1f48-11dc-8314-0800200c9a66}');
-	},
+	contractID : '@piro.sakura.ne.jp/xmigemo/factory;1',
+	classDescription : 'XUL/Migemo Core Service Factory',
+	classID : Components.ID('{650d509a-1f48-11dc-8314-0800200c9a66}'),
+
+	QueryInterface : XPCOMUtils.generateQI([
+		Ci.xmIXMigemoFactory,
+		Ci.pIXMigemoFactory,
+		Ci.nsIObserver
+	]),
 
 	get wrappedJSObject() {
 		return this;
@@ -1147,129 +1141,14 @@ xmXMigemoFactory.prototype = {
 			this.services[aLang].init(aLang);
 		}
 		return this.services[aLang];
-	},
+	}
  
-	QueryInterface : function(aIID) 
-	{
-		if (!aIID.equals(Ci.xmIXMigemoFactory) &&
-			!aIID.equals(Ci.pIXMigemoFactory) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
-	}
-};
+}; 
   
-function DelayedTask(aSubject, aMethod, aArgs, aDelay) 
-{
-	this.subject = aSubject;
-	this.method = aMethod;
-	this.args = aArgs;
-	this.init(aDelay);
-}
-DelayedTask.prototype = {
-	subject : null,
-	method : null,
-	args : null,
-	timer : null,
-	init : function(aDelay)
-	{
-		this.timer = Cc['@mozilla.org/timer;1']
-			.createInstance(Ci.nsITimer);
-		this.timer.init(this, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
-	},
-	cancel : function()
-	{
-		try {
-			this.timer.cancel();
-			this.timer = null;
-		}
-		catch(e) {
-		}
-		delete this.subject;
-		delete this.method;
-		delete this.args;
-	},
-	observe : function(aSubject, aTopic, aData)
-	{
-		if (aTopic != 'timer-callback') return;
-
-		if (typeof this.method == 'function')
-			this.method.apply(this.subject, this.args);
-		else
-			this.subject[this.method].apply(this.subject, this.args);
-
-		this.cancel();
-	}
-};
- 	
-var gModule = { 
-	_firstTime: true,
-
-	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
-	{
-		if (this._firstTime) {
-			this._firstTime = false;
-			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-		}
-		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		for (var key in this._objects) {
-			var obj = this._objects[key];
-			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
-		}
-	},
-
-	getClassObject : function (aComponentManager, aCID, aIID)
-	{
-		if (!aIID.equals(Ci.nsIFactory))
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-		for (var key in this._objects) {
-			if (aCID.equals(this._objects[key].CID))
-				return this._objects[key].factory;
-		}
-
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
-
-	_objects : {
-		manager : {
-			CID        : xmXMigemoCore.prototype.classID,
-			contractID : xmXMigemoCore.prototype.contractID,
-			className  : xmXMigemoCore.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new xmXMigemoCore()).QueryInterface(aIID);
-				}
-			}
-		},
-		managerForFactory : {
-			CID        : xmXMigemoFactory.prototype.classID,
-			contractID : xmXMigemoFactory.prototype.contractID,
-			className  : xmXMigemoFactory.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new xmXMigemoFactory()).QueryInterface(aIID);
-				}
-			}
-		}
-	},
-
-	canUnload : function (aComponentManager)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(compMgr, fileSpec)
-{
-	return gModule;
-}
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoCore, xmXMigemoFactory]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoCore, xmXMigemoFactory]);
  
 function mydump(aString) 
 {

@@ -19,14 +19,13 @@ function getBoxObjectFor(aNode)
 	if ('getBoxObjectFor' in aNode.ownerDocument)
 		return aNode.ownerDocument.getBoxObjectFor(aNode);
 
-	if (!('window' in boxObjectModule)) {
+	if (!('boxObject' in boxObjectModule)) {
 		Components.utils.import(
 			'resource://xulmigemo-modules/boxObject.js',
 			boxObjectModule
 		);
 	}
 	return boxObjectModule
-			.window['piro.sakura.ne.jp']
 			.boxObject
 			.getBoxObjectFor(aNode);
 }

@@ -10,7 +10,6 @@
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
 
-<script src="chrome://xulmigemo/content/res/boxObject.js" type="application/javascript"/>
 <script src="chrome://xulmigemo/content/core.js" type="application/javascript; e4x=1"/>
 <script src="chrome://xulmigemo/content/service.js" type="application/javascript; e4x=1"/>
 	<script src="chrome://xulmigemo/content/ui.js" type="application/javascript; e4x=1"/>

@@ -2,10 +2,10 @@ var DEBUG = false;
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
-var JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY = 'JavaScript global property';
-var JAVASCRIPT_GLOBAL_PRIVILEGED_PROPERTY_CATEGORY = 'JavaScript global privileged property';
 
 var MAX_CACHE_COUNT = 100;
+
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 var ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);
@@ -22,20 +22,25 @@ function xmXMigemoAPI() {
 }
 
 xmXMigemoAPI.prototype = {
+	contractID : '@piro.sakura.ne.jp/xmigemo/api;1',
+	classDescription : 'XUL/Migemo service API for JavaScript',
+	classID : Components.ID('{6c93a2b0-bd7d-11de-8a39-0800200c9a66}'),
+
+	_xpcom_categories : [
+		{ category : 'JavaScript global property', entry : 'migemo' }, // -Firefox 3.6
+		{ category : 'JavaScript-global-property', entry : 'migemo' }, // Firefox 4.0-
+		{ category : 'profile-after-change', service : true }
+	],
+
+	QueryInterface : XPCOMUtils.generateQI([
+		Ci.xmIXMigemoAPI,
+		Ci.xmIXMigemoCoreAPI,
+		Ci.xmIXMigemoRangeFindAPI,
+		Ci.xmIXMigemoHighlightAPI,
+		Ci.nsIClassInfo,
+		Ci.nsIObserver
+	]),
 	
-	get contractID() { 
-		return '@piro.sakura.ne.jp/xmigemo/api;1';
-	},
-	get classDescription() {
-		return 'This is a Migemo service API for JavaScript.';
-	},
-	get classID() {
-		return Components.ID('{6c93a2b0-bd7d-11de-8a39-0800200c9a66}');
-	},
- 
-	accessorName : 'migemo', 
-	category : JAVASCRIPT_GLOBAL_PROPERTY_CATEGORY,
- 
 	dictionaries : Ci.xmIXMigemoEngine.SYSTEM_DIC, 
  
 	initCache : function() 
@@ -353,7 +358,7 @@ xmXMigemoAPI.prototype = {
 	{
 		switch (aTopic)
 		{
-			case 'app-startup':
+			case 'profile-after-change':
 				ObserverService.addObserver(this, 'XMigemo:initialized', false);
 				return;
 
@@ -379,7 +384,6 @@ xmXMigemoAPI.prototype = {
  
 	// nsIClassInfo 
 	flags : Ci.nsIClassInfo.DOM_OBJECT | Ci.nsIClassInfo.SINGLETON,
-	classDescription : 'XMigemo',
 	getInterfaces : function(aCount)
 	{
 		var interfaces = [
@@ -399,105 +403,16 @@ xmXMigemoAPI.prototype = {
 	getHelperForLanguage : function(aLanguage)
 	{
 		return null;
-	},
- 
-	QueryInterface : function(aIID) 
-	{
-		if (!aIID.equals(Ci.xmIXMigemoAPI) &&
-			!aIID.equals(Ci.xmIXMigemoCoreAPI) &&
-			!aIID.equals(Ci.xmIXMigemoRangeFindAPI) &&
-			!aIID.equals(Ci.xmIXMigemoHighlightAPI) &&
-			!aIID.equals(Ci.nsIClassInfo) &&
-			!aIID.equals(Ci.nsIObserver) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
 	}
  
 }; 
   
-var categoryManager = Cc['@mozilla.org/categorymanager;1'] 
-						.getService(Ci.nsICategoryManager);
-
-var gModule = {
-	_firstTime: true,
-
-	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
-	{
-		if (this._firstTime) {
-			this._firstTime = false;
-			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-		}
-		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		this._objects.forEach(function(aObject) {
-			aComponentManager.registerFactoryLocation(
-				aObject.CID,
-				aObject.className,
-				aObject.contractID,
-				aFileSpec,
-				aLocation,
-				aType
-			);
-			categoryManager.addCategoryEntry(
-				'app-startup',
-				aObject.className,
-				aObject.contractID,
-				true,
-				true
-			);
-			categoryManager.addCategoryEntry(
-				aObject.category,
-				aObject.accessorName,
-				aObject.contractID,
-				true,
-				true
-			);
-		}, this);
-	},
-
-	getClassObject : function (aComponentManager, aCID, aIID)
-	{
-		if (!aIID.equals(Ci.nsIFactory))
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-		for (var key in this._objects) {
-			if (aCID.equals(this._objects[key].CID))
-				return this._objects[key].factory;
-		}
-
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
-
-	_objects : [
-		{
-			CID          : xmXMigemoAPI.prototype.classID,
-			contractID   : xmXMigemoAPI.prototype.contractID,
-			className    : xmXMigemoAPI.prototype.classDescription,
-			accessorName : xmXMigemoAPI.prototype.accessorName,
-			category     : xmXMigemoAPI.prototype.category,
-			factory      : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new xmXMigemoAPI()).QueryInterface(aIID);
-				}
-			}
-		}
-	],
-
-	canUnload : function (aComponentManager)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(compMgr, fileSpec)
-{
-	return gModule;
-}
-
-function mydump(aString)
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoAPI]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoAPI]);
+ 
+function mydump(aString) 
 {
 	if (DEBUG)
 		dump((aString.length > 1024 ? aString.substring(0, 1024) : aString )+'\n');

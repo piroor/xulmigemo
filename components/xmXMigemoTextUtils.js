@@ -2,6 +2,11 @@ var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+
+var timer = {};
+Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
+
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
@@ -26,15 +31,14 @@ function xmXMigemoTextUtils() {
 }
 
 xmXMigemoTextUtils.prototype = {
-	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/text-utility;1';
-	},
-	get classDescription() {
-		return 'This is a text utility service for XUL/Migemo.';
-	},
-	get classID() {
-		return Components.ID('{71715174-1dd4-11dc-8314-0800200c9a66}');
-	},
+	contractID : '@piro.sakura.ne.jp/xmigemo/text-utility;1',
+	classDescription : 'XUL/Migemo Text Utility Service',
+	classID : Components.ID('{71715174-1dd4-11dc-8314-0800200c9a66}'),
+
+	QueryInterface : XPCOMUtils.generateQI([
+		Ci.xmIXMigemoTextUtils,
+		Ci.pIXMigemoTextUtils
+	]),
 
 	get wrappedJSObject() {
 		return this;
@@ -162,7 +166,7 @@ xmXMigemoTextUtils.prototype = {
 				}
 				textRange.selectNode(node);
 				textRange.collapse(false);
-				//textRange.setStartAfter(node);ãªãœã‹ã‚¨ãƒ©ãƒ¼ãŒå‡ºã‚‹
+				//textRange.setStartAfter(node);‚È‚º‚©ƒGƒ‰[‚ªo‚é
 				found = true;
 			}
 		}
@@ -182,7 +186,7 @@ xmXMigemoTextUtils.prototype = {
 	
 	sanitize : function(str) 
 	{
-		//	[]^.+*?$|{}\(),  æ­£è¦è¡¨ç¾ã®ãƒ¡ã‚¿ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ã‚’ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—
+		//	[]^.+*?$|{}\(),  ³‹K•\Œ»‚Ìƒƒ^ƒLƒƒƒ‰ƒNƒ^‚ğƒGƒXƒP[ƒv
 		str = str.replace(this.kSANITIZE_PATTERN, "\\$1");
 		return str;
 	},
@@ -559,15 +563,15 @@ xmXMigemoTextUtils.prototype = {
 		aNode.QueryInterface(Ci.nsIDOMNode);
 
 		/*
-			ç¾åœ¨ã®é¸æŠç¯„å›²ã®å§‹ç‚¹ãŒã€normalize()å¾Œã®ãƒ†ã‚­ã‚¹ãƒˆãƒãƒ¼ãƒ‰ã®ä¸­ã§
-			ä½•æ–‡å­—ç›®ã«ãªã‚‹ã‹ã‚’æ±‚ã‚ã‚‹
+			Œ»İ‚Ì‘I‘ğ”ÍˆÍ‚Ìn“_‚ªAnormalize()Œã‚ÌƒeƒLƒXƒgƒm[ƒh‚Ì’†‚Å
+			‰½•¶š–Ú‚É‚È‚é‚©‚ğ‹‚ß‚é
 		*/
 		var startNodeInfo = this.countPreviousText(aNode.previousSibling);
 		var startOffset = startNodeInfo.count;
 
 		/*
-			normalize()å¾Œã®ãƒ†ã‚­ã‚¹ãƒˆãƒãƒ¼ãƒ‰ãŒã€è¦ªãƒãƒ¼ãƒ‰ã®ä½•ç•ªç›®ã®å­ãƒãƒ¼ãƒ‰ã«
-			ãªã‚‹ã‹ã‚’æ±‚ã‚ã‚‹ï¼ˆå¼·èª¿è¡¨ç¤ºãŒç„¡ã„çŠ¶æ…‹ã‚’æƒ³å®šï¼‰
+			normalize()Œã‚ÌƒeƒLƒXƒgƒm[ƒh‚ªAeƒm[ƒh‚Ì‰½”Ô–Ú‚Ìqƒm[ƒh‚É
+			‚È‚é‚©‚ğ‹‚ß‚éi‹­’²•\¦‚ª–³‚¢ó‘Ô‚ğ‘z’èj
 		*/
 		var childCount = 0;
 		this.countPreviousText(aNode);
@@ -579,8 +583,8 @@ xmXMigemoTextUtils.prototype = {
 
 		var parent = (aNode.nodeType == aNode.ELEMENT_NODE && !this.isTextNodeOrHighlight(aNode)) ? aNode : aNode.parentNode ;
 		if (startOffset || childCount || this.countNextText(aNode).lastNode != aNode) {
-			// normalize()ã«ã‚ˆã£ã¦é¸æŠç¯„å›²ã®å§‹ç‚¹ãƒ»çµ‚ç‚¹ãŒå¤‰ã‚ã‚‹å ´åˆã¯
-			// ãƒãƒ¼ãƒ‰ã®å†æ§‹ç¯‰ãŒçµ‚ã‚ã£ãŸå¾Œã§é¸æŠç¯„å›²ã‚’å¾©å…ƒã™ã‚‹
+			// normalize()‚É‚æ‚Á‚Ä‘I‘ğ”ÍˆÍ‚Ìn“_EI“_‚ª•Ï‚í‚éê‡‚Í
+			// ƒm[ƒh‚ÌÄ\’z‚ªI‚í‚Á‚½Œã‚Å‘I‘ğ”ÍˆÍ‚ğ•œŒ³‚·‚é
 			var range = aNode.ownerDocument.createRange();
 			range.selectNodeContents(aNode);
 			range.collapse(true);
@@ -605,7 +609,7 @@ xmXMigemoTextUtils.prototype = {
 
 		var doc = aParent.ownerDocument;
 
-		// å§‹ç‚¹ã®ä½ç½®ã¾ã§ç§»å‹•ã—ã¦ã€å§‹ç‚¹ã‚’è¨­å®š
+		// n“_‚ÌˆÊ’u‚Ü‚ÅˆÚ“®‚µ‚ÄAn“_‚ğİ’è
 		var node;
 		var startNode = aParent.firstChild;
 		if (startNode.nodeType != startNode.TEXT_NODE) startNode = this.getNextTextNode(startNode);
@@ -647,24 +651,21 @@ xmXMigemoTextUtils.prototype = {
 	selectContentWithDelay : function(aParent, aStartOffset, aSelectLength, aIsHighlight) 
 	{
 		aParent.QueryInterface(Ci.nsIDOMNode);
-		if (this.selectContentWithDelayTask)
-			this.selectContentWithDelayTask.cancel();
-		this.selectContentWithDelayTask = new DelayedTask(
-			this,
-			this.selectContent,
-			[aParent, aStartOffset, aSelectLength, aIsHighlight],
-			1
-		);
+		if (this.selectContentWithDelayTimer)
+			timer.clearTimeout(this.selectContentWithDelayTimer);
+		this.selectContentWithDelayTimer = timer.setTimeout(function(aSelf) {
+			aSelf.selectContent(aParent, aStartOffset, aSelectLength, aIsHighlight);
+		}, 1, this);
 	},
-	selectContentWithDelayTask : null,
+	selectContentWithDelayTimer : null,
   
 	/* 
-		å¼·èª¿è¡¨ç¤ºã®æœ‰ã‚‹ç„¡ã—ã‚’ç„¡è¦–ã—ã¦ã€çµ‚ç«¯ã«ã‚ã‚‹ãƒ†ã‚­ã‚¹ãƒˆãƒãƒ¼ãƒ‰ã¨ã€
-		ãã“ã¾ã§ã®ï¼ˆnormalize()ã«ã‚ˆã£ã¦çµåˆã•ã‚Œã‚‹ã§ã‚ã‚ã†ï¼‰ãƒ†ã‚­ã‚¹ãƒˆã®
-		é•·ã•ã®å’Œã‚’å¾—ã‚‹ã€‚
-		å¼·èª¿è¡¨ç¤ºç”¨ã®è¦ç´ ã¯å¸¸ã«ãƒ†ã‚­ã‚¹ãƒˆãƒãƒ¼ãƒ‰ã®ç›´ä¸Šã«ã—ã‹ç¾ã‚Œå¾—ãªã„ã®ã§ã€
-		ã€Œå¼·èª¿è¡¨ç¤ºç”¨ã®è¦ç´ ãŒã‚ã‚‹ï¼å¼·èª¿è¡¨ç¤ºãŒè§£é™¤ã•ã‚ŒãŸã‚‰ãã“ã¯ãƒ†ã‚­ã‚¹ãƒˆãƒãƒ¼ãƒ‰ã«ãªã‚‹ã€
-		ã¨åˆ¤æ–­ã™ã‚‹ã“ã¨ãŒã§ãã‚‹ã€‚
+		‹­’²•\¦‚Ì—L‚é–³‚µ‚ğ–³‹‚µ‚ÄAI’[‚É‚ ‚éƒeƒLƒXƒgƒm[ƒh‚ÆA
+		‚»‚±‚Ü‚Å‚Ìinormalize()‚É‚æ‚Á‚ÄŒ‹‡‚³‚ê‚é‚Å‚ ‚ë‚¤jƒeƒLƒXƒg‚Ì
+		’·‚³‚Ì˜a‚ğ“¾‚éB
+		‹­’²•\¦—p‚Ì—v‘f‚Íí‚ÉƒeƒLƒXƒgƒm[ƒh‚Ì’¼ã‚É‚µ‚©Œ»‚ê“¾‚È‚¢‚Ì‚ÅA
+		u‹­’²•\¦—p‚Ì—v‘f‚ª‚ ‚é‹­’²•\¦‚ª‰ğœ‚³‚ê‚½‚ç‚»‚±‚ÍƒeƒLƒXƒgƒm[ƒh‚É‚È‚év
+		‚Æ”»’f‚·‚é‚±‚Æ‚ª‚Å‚«‚éB
 	*/
 	countPreviousText : function(aNode)
 	{
@@ -719,114 +720,12 @@ xmXMigemoTextUtils.prototype = {
 			);
 		walker.currentNode = aNode;
 		return walker.nextNode();
-	},
+	}
    
-	QueryInterface : function(aIID) 
-	{
-		if (!aIID.equals(Ci.xmIXMigemoTextUtils) &&
-			!aIID.equals(Ci.pIXMigemoTextUtils) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
-	}
-};
+}; 
   
-function DelayedTask(aSubject, aMethod, aArgs, aDelay) 
-{
-	this.subject = aSubject;
-	this.method = aMethod;
-	this.args = aArgs;
-	this.init(aDelay);
-}
-DelayedTask.prototype = {
-	subject : null,
-	method : null,
-	args : null,
-	timer : null,
-	init : function(aDelay)
-	{
-		this.timer = Cc['@mozilla.org/timer;1']
-			.createInstance(Ci.nsITimer);
-		this.timer.init(this, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
-	},
-	cancel : function()
-	{
-		try {
-			this.timer.cancel();
-			this.timer = null;
-		}
-		catch(e) {
-		}
-		delete this.subject;
-		delete this.method;
-		delete this.args;
-	},
-	observe : function(aSubject, aTopic, aData)
-	{
-		if (aTopic != 'timer-callback') return;
-
-		if (typeof this.method == 'function')
-			this.method.apply(this.subject, this.args);
-		else
-			this.subject[this.method].apply(this.subject, this.args);
-
-		this.cancel();
-	}
-};
- 
-var gModule = { 
-	_firstTime: true,
-
-	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
-	{
-		if (this._firstTime) {
-			this._firstTime = false;
-			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-		}
-		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		for (var key in this._objects) {
-			var obj = this._objects[key];
-			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
-		}
-	},
-
-	getClassObject : function (aComponentManager, aCID, aIID)
-	{
-		if (!aIID.equals(Ci.nsIFactory))
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-		for (var key in this._objects) {
-			if (aCID.equals(this._objects[key].CID))
-				return this._objects[key].factory;
-		}
-
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
-
-	_objects : {
-		manager : {
-			CID        : xmXMigemoTextUtils.prototype.classID,
-			contractID : xmXMigemoTextUtils.prototype.contractID,
-			className  : xmXMigemoTextUtils.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new xmXMigemoTextUtils()).QueryInterface(aIID);
-				}
-			}
-		}
-	},
-
-	canUnload : function (aComponentManager)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(compMgr, fileSpec)
-{
-	return gModule;
-}
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoTextUtils]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoTextUtils]);
  
