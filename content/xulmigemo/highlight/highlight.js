@@ -107,7 +107,7 @@ var XMigemoHighlight = {
 		if ('getBoxObjectFor' in aNode.ownerDocument)
 			return aNode.ownerDocument.getBoxObjectFor(aNode);
 
-		if (!('window' in this._boxObjectModule)) {
+		if (!('boxObject' in this._boxObjectModule)) {
 			Components.utils.import(
 				'resource://xulmigemo-modules/boxObject.js',
 				this._boxObjectModule
