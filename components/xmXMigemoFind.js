@@ -1423,17 +1423,12 @@ DocShellIterator.prototype = {
 
 		// nextSibling‚É‘Š“–‚·‚éƒm[ƒh‚ğæ“¾‚µ‚Ä•Ô‚·
 		parent.QueryInterface(Ci.nsIDocShellTreeNode);
-		if ('childOffset' in aNode) { // Firefox 2
-			return aNode.childOffset;
+		var childOffset = 0;
+		while (parent.getChildAt(childOffset) != aNode)
+		{
+			childOffset++;
 		}
-		else { // Firefox 3
-			var childOffset = 0;
-			while (parent.getChildAt(childOffset) != aNode)
-			{
-				childOffset++;
-			}
-			return childOffset;
-		}
+		return childOffset;
 	},
  
 	getLastChildDocShell : function(aItem) 
