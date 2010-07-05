@@ -116,6 +116,3 @@ pref("xulmigemo.combination.autocompletemanager", true);
 pref("xulmigemo.dictionary.useInitializeWizard", true);
 pref("xulmigemo.dictionary.download.uri.ja",     "http://piro.sakura.ne.jp/xul/xpi/xulmigemodic.zip");
 pref("xulmigemo.dictionary.download.uri.en-US",  "http://piro.sakura.ne.jp/xul/xpi/xulmigemodic.en-US.zip");
-
-pref("extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.name", "chrome://xulmigemo/locale/xulmigemo.properties") ;
-pref("extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.description", "chrome://xulmigemo/locale/xulmigemo.properties") ;
