@@ -2,6 +2,8 @@ var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+
 var UConv = Cc['@mozilla.org/intl/scriptableunicodeconverter']
 		.getService(Ci.nsIScriptableUnicodeConverter);
 
@@ -17,15 +19,14 @@ var PLATFORM = Cc['@mozilla.org/network/protocol;1?name=http']
 function xmXMigemoFileAccess() {}
 
 xmXMigemoFileAccess.prototype = {
-	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/file-access;1';
-	},
-	get classDescription() {
-		return 'This is a utility service for XUL/Migemo.';
-	},
-	get classID() {
-		return Components.ID('{19c2aa1c-cef4-11db-8314-0800200c9a66}');
-	},
+	contractID : '@piro.sakura.ne.jp/xmigemo/file-access;1',
+	classDescription : 'XUL/Migemo File Access Utility Service',
+	classID : Components.ID('{19c2aa1c-cef4-11db-8314-0800200c9a66}'),
+
+	QueryInterface : XPCOMUtils.generateQI([
+		Ci.xmIXMigemoFileAccess,
+		Ci.pIXMigemoFileAccess
+	]),
 
 	get wrappedJSObject() {
 		return this;
@@ -196,73 +197,10 @@ xmXMigemoFileAccess.prototype = {
 		catch(e) {
 		}
 		return '';
-	},
-
-	QueryInterface : function(aIID)
-	{
-		if (!aIID.equals(Ci.xmIXMigemoFileAccess) &&
-			!aIID.equals(Ci.pIXMigemoFileAccess) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
 	}
 };
 
-
-
-
-var gModule = {
-	_firstTime: true,
-
-	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
-	{
-		if (this._firstTime) {
-			this._firstTime = false;
-			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-		}
-		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		for (var key in this._objects) {
-			var obj = this._objects[key];
-			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
-		}
-	},
-
-	getClassObject : function (aComponentManager, aCID, aIID)
-	{
-		if (!aIID.equals(Ci.nsIFactory))
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-		for (var key in this._objects) {
-			if (aCID.equals(this._objects[key].CID))
-				return this._objects[key].factory;
-		}
-
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
-
-	_objects : {
-		manager : {
-			CID        : xmXMigemoFileAccess.prototype.classID,
-			contractID : xmXMigemoFileAccess.prototype.contractID,
-			className  : xmXMigemoFileAccess.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new xmXMigemoFileAccess()).QueryInterface(aIID);
-				}
-			}
-		}
-	},
-
-	canUnload : function (aComponentManager)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(compMgr, fileSpec)
-{
-	return gModule;
-}
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoFileAccess]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoFileAccess]);
