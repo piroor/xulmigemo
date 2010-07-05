@@ -2018,7 +2018,7 @@ var XMigemoUI = {
 		*/
 
 		// for View Source etc.
-		if ('gFindBar' in window) window.gFindBar = this.findBar;
+		if (!('gFindBar' in window)) window.gFindBar = this.findBar;
 
 		gFindBar.xmigemoOriginalFindNext = function() {
 			gFindBar.xmigemoOriginalOnFindAgainCommand(false);
