@@ -7,6 +7,8 @@ var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
  
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
@@ -17,20 +19,19 @@ function xmXMigemoEngineJa() {
 xmXMigemoEngineJa.prototype = {
 	lang : 'ja',
 
-	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/engine;1?lang='+this.lang;
-	},
-	get classDescription() {
-		return 'This is a Migemo service itself, for Japanese language.';
-	},
-	get classID() {
-		return Components.ID('{792f3b58-cef4-11db-8314-0800200c9a66}');
-	},
+	classDescription : 'XUL/Migemo Japanese Engine',
+	contractID : '@piro.sakura.ne.jp/xmigemo/engine;1?lang=ja',
+	classID : Components.ID('{792f3b58-cef4-11db-8314-0800200c9a66}'),
+
+	QueryInterface : XPCOMUtils.generateQI([
+		Ci.xmIXMigemoEngine,
+		Ci.pIXMigemoEngine
+	]),
 
 	get wrappedJSObject() {
 		return this;
 	},
-	 
+	
 	SYSTEM_DIC : 1, 
 	USER_DIC   : 2,
 	ALL_DIC    : 3,
@@ -150,7 +151,7 @@ xmXMigemoEngineJa.prototype = {
 			if (/[\[\(]/.test(zen)) pattern += (pattern ? '|' : '') + zen;
 			if (/[\[\(]/.test(hiraAndKana)) pattern += (pattern ? '|' : '') + hiraAndKana;
 
-			// ä¸€æ–‡å­—ã ã‘ã®é …ç›®ã ã‘ã¯ã€æŠœãå‡ºã—ã¦æ–‡å­—ã‚¯ãƒ©ã‚¹ã«ã¾ã¨ã‚ã‚‹
+			// ˆê•¶š‚¾‚¯‚Ì€–Ú‚¾‚¯‚ÍA”²‚«o‚µ‚Ä•¶šƒNƒ‰ƒX‚É‚Ü‚Æ‚ß‚é
 			var ichimoji = searchterm
 							.replace(/^..+$\n?/mg, '')
 							.split('\n')
@@ -161,14 +162,14 @@ xmXMigemoEngineJa.prototype = {
 				pattern += (pattern ? '|' : '') + '[' + ichimoji + ']';
 			}
 
-			// foo, foobar, fooee... ã¨ã„ã£ãŸé¢¨ã«ã€åŒã˜æ–‡å­—åˆ—ã§å§‹ã¾ã‚‹è¤‡æ•°ã®å€™è£œãŒã‚ã‚‹å ´åˆã¯ã€
-			// æœ€ã‚‚çŸ­ã„å€™è£œï¼ˆã“ã®ä¾‹ãªã‚‰fooï¼‰ã ã‘ã«ã™ã‚‹
+			// foo, foobar, fooee... ‚Æ‚¢‚Á‚½•—‚ÉA“¯‚¶•¶š—ñ‚Ån‚Ü‚é•¡”‚ÌŒó•â‚ª‚ ‚éê‡‚ÍA
+			// Å‚à’Z‚¢Œó•âi‚±‚Ì—á‚È‚çfooj‚¾‚¯‚É‚·‚é
 			searchterm = searchterm
 				.split('\n')
 				.sort()
 				.join('\n')
 				.replace(/^(.+)$(\n\1.*$)+/img, '$1')
-				.replace(/^.$\n?/mg, ''); // ä¸€æ–‡å­—ã ã‘ã®é …ç›®ã¯ç”¨æ¸ˆã¿ãªã®ã§å‰Šé™¤
+				.replace(/^.$\n?/mg, ''); // ˆê•¶š‚¾‚¯‚Ì€–Ú‚Í—pÏ‚İ‚È‚Ì‚Åíœ
 			searchterm = this.textUtils.sanitize(searchterm)
 				.replace(/\n/g, '|');
 			pattern += (pattern ? '|' : '') + searchterm;//.substring(0, searchterm.length-1);
@@ -178,7 +179,7 @@ xmXMigemoEngineJa.prototype = {
 
 			mydump('pattern(from dic):'+encodeURIComponent(pattern));
 		}
-		else { // è¾æ›¸ã«å¼•ã£ã‹ã‹ã‚‰ãªã‹ã£ãŸæ¨¡æ§˜ãªã®ã§è‡ªå‰ã®æ–‡å­—åˆ—ã ã‘
+		else { // «‘‚Éˆø‚Á‚©‚©‚ç‚È‚©‚Á‚½–Í—l‚È‚Ì‚Å©‘O‚Ì•¶š—ñ‚¾‚¯
 			pattern = original;
 			if (original != zen) pattern += '|' + zen;
 			if (original != hiraAndKana) pattern += '|' + hiraAndKana;
@@ -195,7 +196,7 @@ xmXMigemoEngineJa.prototype = {
 	{
 		var terms = (
 					(/^[A-Z]{2,}/.test(aInput)) ?
-						aInput.replace(/([a-z])/g, '\t$1') : // CapsLockã•ã‚Œã¦ã‚‹å ´åˆã¯å°æ–‡å­—ã§åŒºåˆ‡ã‚‹
+						aInput.replace(/([a-z])/g, '\t$1') : // CapsLock‚³‚ê‚Ä‚éê‡‚Í¬•¶š‚Å‹æØ‚é
 						aInput.replace(/([A-Z])/g, '\t$1')
 				)
 				.replace(/([\uff66-\uff9fa-z])([0-9])/i, '$1\t$2')
@@ -232,13 +233,13 @@ xmXMigemoEngineJa.prototype = {
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
 			str = transform.addLatinModifiers(str);
 
-		var tmp  = '^' + hira + '.+$'; //æ—¥æœ¬èª
-		var tmpA = '^(' + str + ').+$'; //ã‚¢ãƒ«ãƒ•ã‚¡ãƒ™ãƒƒãƒˆ
+		var tmp  = '^' + hira + '.+$'; //“ú–{Œê
+		var tmpA = '^(' + str + ').+$'; //ƒAƒ‹ƒtƒ@ƒxƒbƒg
 		var exp  = new RegExp(tmp, 'mg');
 		var expA = new RegExp(tmpA, 'mg');
 
 		var firstlet = '';
-		firstlet = aInput.charAt(0);//æœ€åˆã®æ–‡å­—
+		firstlet = aInput.charAt(0);//Å‰‚Ì•¶š
 		mydump(firstlet+' dic loaded');
 
 		var lines = [];
@@ -259,7 +260,7 @@ xmXMigemoEngineJa.prototype = {
 			}
 		}
 		if (mydicA) {
-			var lineA = mydicA.match(expA);//ã‚¢ãƒ«ãƒ•ã‚¡ãƒ™ãƒƒãƒˆã®è¾æ›¸ã‚’æ¤œç´¢
+			var lineA = mydicA.match(expA);//ƒAƒ‹ƒtƒ@ƒxƒbƒg‚Ì«‘‚ğŒŸõ
 			mydump('searchEnDic');
 			if (lineA) {
 				lines = lines.concat(lineA);
@@ -275,7 +276,7 @@ xmXMigemoEngineJa.prototype = {
 			}
 		}
 		if (mydic) {
-			var line = mydic.match(exp);//æ—¥æœ¬èªã®è¾æ›¸ã‚’æ¤œç´¢
+			var line = mydic.match(exp);//“ú–{Œê‚Ì«‘‚ğŒŸõ
 			mydump('searchJpnDic');
 			if (line) {
 				lines = lines.concat(line);
@@ -284,73 +285,14 @@ xmXMigemoEngineJa.prototype = {
 		}
 
 		return lines;
-	},
+	}
  
-	QueryInterface : function(aIID) 
-	{
-		if (!aIID.equals(Ci.xmIXMigemoEngine) &&
-			!aIID.equals(Ci.pIXMigemoEngine) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
-	}
-};
- 	 
-var gModule = { 
-	_firstTime: true,
-
-	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
-	{
-		if (this._firstTime) {
-			this._firstTime = false;
-			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-		}
-		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		for (var key in this._objects) {
-			var obj = this._objects[key];
-			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
-		}
-	},
-
-	getClassObject : function (aComponentManager, aCID, aIID)
-	{
-		if (!aIID.equals(Ci.nsIFactory))
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-		for (var key in this._objects) {
-			if (aCID.equals(this._objects[key].CID))
-				return this._objects[key].factory;
-		}
-
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
-
-	_objects : {
-		manager : {
-			CID        : xmXMigemoEngineJa.prototype.classID,
-			contractID : xmXMigemoEngineJa.prototype.contractID,
-			className  : xmXMigemoEngineJa.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new xmXMigemoEngineJa()).QueryInterface(aIID);
-				}
-			}
-		}
-	},
-
-	canUnload : function (aComponentManager)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(compMgr, fileSpec)
-{
-	return gModule;
-}
+}; 
+  
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoEngineJa]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoEngineJa]);
  
 function mydump(aString) 
 {
