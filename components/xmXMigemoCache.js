@@ -7,7 +7,9 @@ var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
  
-var ObserverService = Cc['@mozilla.org/observer-service;1'] 
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+
+var ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);
 
 var Prefs = Cc['@mozilla.org/preferences;1']
@@ -18,20 +20,19 @@ function xmXMigemoCache() {
 }
 
 xmXMigemoCache.prototype = {
-	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/cache;1';
-	},
-	get classDescription() {
-		return 'This is a cache service for XUL/Migemo.';
-	},
-	get classID() {
-		return Components.ID('{0c6119e4-cef4-11db-8314-0800200c9a66}');
-	},
+	classDescription : 'XUL/Migemo Cache Service',
+	contractID : '@piro.sakura.ne.jp/xmigemo/cache;1',
+	classID : Components.ID('{0c6119e4-cef4-11db-8314-0800200c9a66}'),
+
+	QueryInterface : XPCOMUtils.generateQI([
+		Ci.xmIXMigemoCache,
+		Ci.pIXMigemoCache
+	]),
 
 	get wrappedJSObject() {
 		return this;
 	},
-	 
+	
 	initialized : false, 
  
 	get textUtils() 
@@ -63,7 +64,7 @@ xmXMigemoCache.prototype = {
 		return this._fileUtils;
 	},
 	_fileUtils : null,
- 	
+ 
 	memCache       : {}, 
 	diskCacheClone : {},
 	DICTIONARIES_ALL : [
@@ -208,7 +209,7 @@ xmXMigemoCache.prototype = {
 	},
  
 /* File I/O */ 
-	 
+	
 	getCacheFile : function(aTargetDic) 
 	{
 		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
@@ -216,7 +217,7 @@ xmXMigemoCache.prototype = {
 				this.cacheFileHolders[aTargetDic] :
 				null ;
 	},
-	setCacheFile : function(aFile, aTargetDic) 
+	setCacheFile : function(aFile, aTargetDic)
 	{
 		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
 		this.cacheFileHolders[aTargetDic] = aFile;
@@ -231,7 +232,7 @@ xmXMigemoCache.prototype = {
 		return this.cacheFile;
 	},
 	cacheFileHolders : {},
-	 
+	
 	get dicpath() 
 	{
 		var fullPath = this.fileUtils.getExistingPath(
@@ -265,7 +266,7 @@ xmXMigemoCache.prototype = {
 			return false;
 		}
 	},
-	loadFor : function(aTargetDic) 
+	loadFor : function(aTargetDic)
 	{
 		var file = this.getCacheFile(aTargetDic);
 		if (!file)
@@ -304,73 +305,14 @@ xmXMigemoCache.prototype = {
 			this.fileUtils.writeTo(file, clone, this.encoding);
 
 		return true;
-	},
-  
-	QueryInterface : function(aIID) 
-	{
-		if (!aIID.equals(Ci.xmIXMigemoCache) &&
-			!aIID.equals(Ci.pIXMigemoCache) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
 	}
-};
   
-var gModule = { 
-	_firstTime: true,
-
-	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
-	{
-		if (this._firstTime) {
-			this._firstTime = false;
-			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-		}
-		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		for (var key in this._objects) {
-			var obj = this._objects[key];
-			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
-		}
-	},
-
-	getClassObject : function (aComponentManager, aCID, aIID)
-	{
-		if (!aIID.equals(Ci.nsIFactory))
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-		for (var key in this._objects) {
-			if (aCID.equals(this._objects[key].CID))
-				return this._objects[key].factory;
-		}
-
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
-
-	_objects : {
-		manager : {
-			CID        : xmXMigemoCache.prototype.classID,
-			contractID : xmXMigemoCache.prototype.contractID,
-			className  : xmXMigemoCache.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new xmXMigemoCache()).QueryInterface(aIID);
-				}
-			}
-		}
-	},
-
-	canUnload : function (aComponentManager)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(compMgr, fileSpec)
-{
-	return gModule;
-}
+}; 
+  
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoCache]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoCache]);
  
 function mydump(aString) 
 {

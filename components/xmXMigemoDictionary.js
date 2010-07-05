@@ -8,7 +8,9 @@ var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
  
-var ObserverService = Cc['@mozilla.org/observer-service;1'] 
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+
+var ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);
 
 var Prefs = Cc['@mozilla.org/preferences;1']
@@ -23,22 +25,23 @@ function xmXMigemoDictionary() {
 xmXMigemoDictionary.prototype = {
 	lang : '',
 
-	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*';
-	},
-	get classDescription() {
-		return 'This is a dictionary service for XUL/Migemo.';
-	},
-	get classID() {
-		return Components.ID('{2bf35d7c-36f9-11dc-8314-0800200c9a66}');
-	},
+	classDescription : 'XUL/Migemo Universal Dictionary',
+	contractID : '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*',
+	classID : Components.ID('{2bf35d7c-36f9-11dc-8314-0800200c9a66}'),
+
+	QueryInterface : XPCOMUtils.generateQI([
+		Ci.xmIXMigemoDictionary,
+		Ci.xmIXMigemoDictionaryUniversal,
+		Ci.pIXMigemoDictionary,
+		Ci.pIXMigemoDictionaryUniversal
+	]),
 
 	get wrappedJSObject() {
 		return this;
 	},
-	 
+	
 	// xmIXMigemoDictionary 
-	 
+	
 	initialized : false, 
  
 	get textUtils() 
@@ -70,7 +73,7 @@ xmXMigemoDictionary.prototype = {
 		return this._textTransform;
 	},
 	_textTransform : null,
- 	
+ 
 	get fileUtils() 
 	{
 		if (!this._fileUtils) {
@@ -94,7 +97,7 @@ xmXMigemoDictionary.prototype = {
 	RESULT_ERROR_INVALID_OPERATION : xmIXMigemoDictionary.RESULT_ERROR_INVALID_OPERATION,
  
 /* File I/O */ 
-	 
+	
 	get dicpath() 
 	{
 		var fullPath = this.fileUtils.getExistingPath(
@@ -134,7 +137,7 @@ xmXMigemoDictionary.prototype = {
 			error = true;
 		}
 
-		// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¾æ›¸
+		// ƒ†[ƒU[«‘
 		if (dicDir) {
 			file = Cc["@mozilla.org/file/local;1"]
 				.createInstance(Ci.nsILocalFile);
@@ -211,7 +214,7 @@ xmXMigemoDictionary.prototype = {
 	},
   
 	// internal 
-	 
+	
 	list : [], 
  
 	modifyDic : function(aTermSet, aOperation) 
@@ -240,7 +243,7 @@ xmXMigemoDictionary.prototype = {
 		var regexp = new RegExp();
 
 		if (aOperation == 'add') {
-			// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®è¾æ›¸ã«å…¥ã£ã¦ã„ã‚‹å˜èªã¯è¿½åŠ ã—ãªã„
+			// ƒfƒtƒHƒ‹ƒg‚Ì«‘‚É“ü‚Á‚Ä‚¢‚é’PŒê‚Í’Ç‰Á‚µ‚È‚¢
 			regexp.compile('^'+input+'\t(.+)$', 'm');
 			if (regexp.test(systemDic)) {
 				var terms = RegExp.$1.split('\t').join('\n');
@@ -255,7 +258,7 @@ xmXMigemoDictionary.prototype = {
 			var terms = RegExp.$1.split('\t').join('\n');
 			regexp.compile('^'+this.textUtils.sanitize(term)+'$', 'm');
 			if ((aOperation == 'remove' && !term) || regexp.test(terms)) {
-				// ãƒ¦ãƒ¼ã‚¶è¾æ›¸ã«ã™ã§ã«ç™»éŒ²æ¸ˆã¿ã§ã‚ã‚‹å ´åˆ
+				// ƒ†[ƒU«‘‚É‚·‚Å‚É“o˜^Ï‚İ‚Å‚ ‚éê‡
 				switch (aOperation)
 				{
 					case 'add':
@@ -281,7 +284,7 @@ xmXMigemoDictionary.prototype = {
 				}
 			}
 			else {
-				// ãƒ¦ãƒ¼ã‚¶è¾æ›¸ã«ã‚¨ãƒ³ãƒˆãƒªã¯ã‚ã‚‹ãŒã€ãã®èªå¥ã¯ç™»éŒ²ã•ã‚Œã¦ã„ãªã„å ´åˆ
+				// ƒ†[ƒU«‘‚ÉƒGƒ“ƒgƒŠ‚Í‚ ‚é‚ªA‚»‚ÌŒê‹å‚Í“o˜^‚³‚ê‚Ä‚¢‚È‚¢ê‡
 				switch (aOperation)
 				{
 					case 'add':
@@ -297,7 +300,7 @@ xmXMigemoDictionary.prototype = {
 			}
 		}
 		else {
-			// ãƒ¦ãƒ¼ã‚¶è¾æ›¸ã«æœªç™»éŒ²ã®å ´åˆ
+			// ƒ†[ƒU«‘‚É–¢“o˜^‚Ìê‡
 			switch (aOperation)
 			{
 				case 'add':
@@ -321,75 +324,14 @@ xmXMigemoDictionary.prototype = {
 			].join('\n'));
 
 		return this.RESULT_OK;
-	},
-  
-	QueryInterface : function(aIID) 
-	{
-		if (!aIID.equals(xmIXMigemoDictionary) &&
-			!aIID.equals(Ci.xmIXMigemoDictionaryUniversal) &&
-			!aIID.equals(Ci.pIXMigemoDictionary) &&
-			!aIID.equals(Ci.pIXMigemoDictionaryUniversal) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
 	}
-};
   
-var gModule = { 
-	_firstTime: true,
-
-	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
-	{
-		if (this._firstTime) {
-			this._firstTime = false;
-			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-		}
-		aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		for (var key in this._objects) {
-			var obj = this._objects[key];
-			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
-		}
-	},
-
-	getClassObject : function (aComponentManager, aCID, aIID)
-	{
-		if (!aIID.equals(Ci.nsIFactory))
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-		for (var key in this._objects) {
-			if (aCID.equals(this._objects[key].CID))
-				return this._objects[key].factory;
-		}
-
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
-
-	_objects : {
-		manager : {
-			CID        : xmXMigemoDictionary.prototype.classID,
-			contractID : xmXMigemoDictionary.prototype.contractID,
-			className  : xmXMigemoDictionary.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new xmXMigemoDictionary()).QueryInterface(aIID);
-				}
-			}
-		}
-	},
-
-	canUnload : function (aComponentManager)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(compMgr, fileSpec)
-{
-	return gModule;
-}
+}; 
+  
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoDictionary]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoDictionary]);
  
 function mydump(aString) 
 {

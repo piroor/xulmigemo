@@ -7,6 +7,12 @@ var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
  
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+
+Components.utils.import('resource://xulmigemo-modules/stringBundle.js');
+Components.utils.import('resource://xulmigemo-modules/namespace.jsm');
+var window = getNamespaceFor('piro.sakura.ne.jp');
+
 var ObserverService = Cc['@mozilla.org/observer-service;1']
 		.getService(Ci.nsIObserverService);;
 
@@ -15,26 +21,25 @@ var Prefs = Cc['@mozilla.org/preferences;1']
 
 var WindowManager = Cc['@mozilla.org/appshell/window-mediator;1']
 		.getService(Ci.nsIWindowMediator);
- 
+ 	
 function xmXMigemoDicManager() { 
 	mydump('create instance xmIXMigemoDicManager');
 }
 
 xmXMigemoDicManager.prototype = {
-	get contractID() {
-		return '@piro.sakura.ne.jp/xmigemo/dictionary-manager;1';
-	},
-	get classDescription() {
-		return 'This is a dictionary management service for XUL/Migemo.';
-	},
-	get classID() {
-		return Components.ID('{25e5efa2-cef4-11db-8314-0800200c9a66}');
-	},
+	classDescription : 'XUL/Migemo Dictionary Manager Service',
+	contractID : '@piro.sakura.ne.jp/xmigemo/dictionary-manager;1',
+	classID : Components.ID('{25e5efa2-cef4-11db-8314-0800200c9a66}'),
+
+	QueryInterface : XPCOMUtils.generateQI([
+		Ci.xmIXMigemoDicManager,
+		Ci.pIXMigemoDicManager
+	]),
 
 	get wrappedJSObject() {
 		return this;
 	},
-	 
+	
 	domain : 'xulmigemo', 
  
 	observe : function(aSubject, aTopic, aData) 
@@ -103,7 +108,7 @@ xmXMigemoDicManager.prototype = {
 
 		return fullPath || relPath;
 	},
-	 
+	
 	get fileUtils() 
 	{
 		if (!this._fileUtils) {
@@ -118,7 +123,7 @@ xmXMigemoDicManager.prototype = {
 		return this._fileUtils;
 	},
 	_fileUtils : null,
-  	
+  
 	set dictionary(val) 
 	{
 		this._dictionary = val;
@@ -285,103 +290,16 @@ xmXMigemoDicManager.prototype = {
  
 	get strbundle() 
 	{
-		if (!this._strbundle)
-			this._strbundle = new XMigemoStringBundle('chrome://xulmigemo/locale/xulmigemo.properties');
-		return this._strbundle;
-	},
-	_strbundle : null,
- 
-	QueryInterface : function(aIID) 
-	{
-		if (!aIID.equals(Ci.xmIXMigemoDicManager) &&
-			!aIID.equals(Ci.pIXMigemoDicManager) &&
-			!aIID.equals(Ci.nsISupports))
-			throw Components.results.NS_ERROR_NO_INTERFACE;
-		return this;
+		return window['piro.sakura.ne.jp'].stringBundle
+				.get('chrome://xulmigemo/locale/xulmigemo.properties');
 	}
-};
+ 
+}; 
   
-function XMigemoStringBundle(aStringBundle) 
-{
-	this.strbundle = this.stringBundleService.createBundle(aStringBundle);
-}
-XMigemoStringBundle.prototype = {
-	get stringBundleService()
-	{
-		if (!this._stringBundleService) {
-			this._stringBundleService = Cc['@mozilla.org/intl/stringbundle;1']
-				.getService(Ci.nsIStringBundleService);
-		}
-		return this._stringBundleService;
-	},
-	_stringBundleService : null,
-	strbundle : null,
-	getString : function(aKey) {
-		try {
-			return this.strbundle.GetStringFromName(aKey);
-		}
-		catch(e) {
-			dump(e);
-		}
-		return '';
-	}
-};
- 
-var gModule = { 
-	_firstTime: true,
-
-	registerSelf : function (aComponentManager, aFileSpec, aLocation, aType)
-	{
-		if (this._firstTime) {
-			this._firstTime = false;
-			throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-		}
-		aComponentManager = aComponentManager.QueryInterface(Ci.nsIComponentRegistrar);
-		for (var key in this._objects) {
-			var obj = this._objects[key];
-			aComponentManager.registerFactoryLocation(obj.CID, obj.className, obj.contractID, aFileSpec, aLocation, aType);
-		}
-	},
-
-	getClassObject : function (aComponentManager, aCID, aIID)
-	{
-		if (!aIID.equals(Ci.nsIFactory))
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-
-		for (var key in this._objects) {
-			if (aCID.equals(this._objects[key].CID))
-				return this._objects[key].factory;
-		}
-
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
-
-	_objects : {
-		manager : {
-			CID        : xmXMigemoDicManager.prototype.classID,
-			contractID : xmXMigemoDicManager.prototype.contractID,
-			className  : xmXMigemoDicManager.prototype.classDescription,
-			factory    : {
-				createInstance : function (aOuter, aIID)
-				{
-					if (aOuter != null)
-						throw Components.results.NS_ERROR_NO_AGGREGATION;
-					return (new xmXMigemoDicManager()).QueryInterface(aIID);
-				}
-			}
-		}
-	},
-
-	canUnload : function (aComponentManager)
-	{
-		return true;
-	}
-};
-
-function NSGetModule(compMgr, fileSpec)
-{
-	return gModule;
-}
+if (XPCOMUtils.generateNSGetFactory) 
+	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoDicManager]);
+else
+	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoDicManager]);
  
 function mydump(aString) 
 {
