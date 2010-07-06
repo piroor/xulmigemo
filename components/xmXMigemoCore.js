@@ -576,7 +576,9 @@ xmXMigemoCore.prototype = {
 				this.textUtils.brushUpTerms(terms) :
 				this.textUtils.brushUpTermsWithCase(terms) ;
 
-		this.mFind.findBackwards = false;
+		// DOMツリーを変更すると前から後ろへの検索が機能しなくなる
+		// （Minefield 4.0b2pre）ので、その回避として後ろから検索する。
+		this.mFind.findBackwards = aSurroundNode ? true : false ;
 		this.mFind.caseSensitive = !regExp.ignoreCase;
 
 		var selCon = (aUseSelection && 'SELECTION_FIND' in Ci.nsISelectionController) ?
@@ -590,14 +592,16 @@ xmXMigemoCore.prototype = {
 						null ;
 		var frameSelection = selCon ? selCon.getSelection(selCon.SELECTION_FIND) : null ;
 
-		var originalFindRange = findRange;
+		var originalFindRange  = findRange;
 		var originalStartPoint = startPoint;
+		var originalEndPoint   = aEndPoint;
 		terms.forEach(function(aTerm) {
 			var foundRange;
-			var findRange = originalFindRange.cloneRange();
-			var startPoint = originalStartPoint.cloneRange();
+			var findRange  = originalFindRange.cloneRange();
+			var startPoint = (this.mFind.findBackwards ? originalEndPoint : originalStartPoint).cloneRange();
+			var endPoint   = (this.mFind.findBackwards ? originalStartPoint : originalEndPoint).cloneRange();
 			var subSelCon;
-			while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, aEndPoint))
+			while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, endPoint))
 			{
 				var foundLength = foundRange.toString().length;
 				if (aSurroundNode) {
@@ -608,6 +612,7 @@ xmXMigemoCore.prototype = {
 					var nodeSurround   = aSurroundNode.cloneNode(true);
 					var startContainer = foundRange.startContainer;
 					var startOffset    = foundRange.startOffset;
+					var endContainer   = foundRange.endContainer;
 					var endOffset      = foundRange.endOffset;
 					var docfrag        = foundRange.extractContents();
 					var firstChild     = docfrag.firstChild;
@@ -622,15 +627,15 @@ xmXMigemoCore.prototype = {
 					arrResults.push(foundRange);
 
 					findRange.selectNodeContents(this.getDocumentBody(doc));
-					findRange.setStartAfter(nodeSurround);
+					findRange.setEndBefore(nodeSurround);
 					try {
-						findRange.setEnd(aEndPoint.startContainer, aEndPoint.startOffset);
+						findRange.setStart(endPoint.startContainer, endPoint.startOffset);
 					}
 					catch(e) {
 					}
 					startPoint.selectNodeContents(this.getDocumentBody(doc));
-					startPoint.setStartAfter(nodeSurround);
-					startPoint.collapse(true);
+					startPoint.setEndBefore(nodeSurround);
+					startPoint.collapse(false);
 				}
 				else {
 					arrResults.push(foundRange);
