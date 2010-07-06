@@ -70,6 +70,7 @@ var XMigemoHighlight = {
 
 
 		XMigemoService.addPrefListener(this);
+		XMigemoService.firstListenPrefChange(this);
 
 		XMigemoService.ObserverService.addObserver(this, 'XMigemo:highlightNodeReaday', false);
 
@@ -474,7 +475,12 @@ var XMigemoHighlight = {
 
 		if (this.animationStyle == this.STYLE_ZOOM)
 			this.clearAnimationStyleIn(aFrame, true);
-		this.clearAnimationStyle();
+
+		if (aFrame.__xulmigemo__highlightAnimationTask) {
+			this.finishAnimation(aFrame.__xulmigemo__highlightAnimationTask.animationNode);
+			XMigemoService.animationManager.removeTask(aFrame.__xulmigemo__highlightAnimationTask);
+			aFrame.__xulmigemo__highlightAnimationTask = null;
+		}
 
 		Array.slice(aFrame.frames).forEach(function(aFrame) {
 			this.toggleHighlightScreen(aHighlight, aFrame);
@@ -586,35 +592,69 @@ var XMigemoHighlight = {
 	 
 	animateFoundNode : function(aNode) 
 	{
-		this.clearAnimationStyleIn(aNode.ownerDocument.defaultView);
-		if (this.animationTimer) {
-			this.clearAnimationStyle();
-			window.clearInterval(this.animationTimer);
-			this.animationTimer = null;
-			this.animationNode  = null;
+		var w = aNode.ownerDocument.defaultView;
+		this.clearAnimationStyleIn(w);
+		if (w.__xulmigemo__highlightAnimationTask) {
+			this.finishAnimation(w.__xulmigemo__highlightAnimationTask.animationNode);
+			XMigemoService.animationManager.removeTask(w.__xulmigemo__highlightAnimationTask);
+			w.__xulmigemo__highlightAnimationTask = null;
 		}
-		this.animationNode = aNode;
-		this.initAnimationStyle();
-		this.animationStart = (new Date()).getTime();
-		this.animationTimer = window.setInterval(this.animateFoundNodeCallback, 1, this);
+
+		var animationNode = this.initAnimation(aNode);
+
+		var self = this;
+		var updateAnimationStyle;
+		var radian = 90 * Math.PI / 180;
+
+		switch (this.animationStyle)
+		{
+			case this.STYLE_JUMP:
+				updateAnimationStyle = function(aTime, aBeginning, aChange, aDuration) {
+					var y = parseInt(self.animationSize[self.STYLE_JUMP] * Math.sin((aTime / aDuration) * 2 * radian));
+					self.setStylePropertyValue(animationNode, 'top', '-'+(y * self.animationUnit)+'px');
+				};
+				break;
+
+			case this.STYLE_ZOOM:
+				updateAnimationStyle = function(aTime, aBeginning, aChange, aDuration) {
+					if (animationNode.getAttribute('class') != self.kANIMATION_NODE)
+						return;
+					var unit = parseInt(self.animationSize[self.STYLE_ZOOM] * Math.sin((aTime / aDuration) * 2 * radian));
+					var padding = self.animationUnit / 6;
+					var vPos = (-(unit * 0.025 * self.animationUnit) - padding)+'px';
+					self.setStylePropertyValue(animationNode, 'top', vPos);
+					self.setStylePropertyValue(animationNode, 'bottom', vPos);
+					var hPos = (-(unit * 0.05 * self.animationUnit) - padding)+'px';
+					self.setStylePropertyValue(animationNode, 'left', hPos);
+					self.setStylePropertyValue(animationNode, 'right', hPos);
+					self.setStylePropertyValue(animationNode, 'font-size', Math.min(1.1, 1 + (unit * 0.02))+'em');
+				};
+				break
+
+			default:
+				updateAnimationStyle = function() {
+				};
+		}
+
+		w.__xulmigemo__highlightAnimationTask = function(aTime, aBeginning, aChange, aDuration) {
+			var finished;
+			updateAnimationStyle(aTime, aBeginning, aChange, aDuration);
+			if (aTime >= aDuration || !animationNode.parentNode) {
+				w.__xulmigemo__highlightAnimationTask = null;
+				finished = true;
+			}
+			else {
+				finished = false;
+			}
+			return finished;
+		};
+		w.__xulmigemo__highlightAnimationTask.animationNode = animationNode;
+		XMigemoService.animationManager.addTask(
+			w.__xulmigemo__highlightAnimationTask,
+			0, 0, this.animationDuration
+		);
 	},
-	animateFoundNodeCallback : function(aThis)
-	{
-		var node = aThis.animationNode;
-		var now = (new Date()).getTime();
-		if (aThis.animationTime <= (now - aThis.animationStart) || !node.parentNode) {
-			aThis.clearAnimationStyle(true);
-			window.clearInterval(aThis.animationTimer);
-			aThis.animationTimer = null;
-			aThis.animationNode  = null;
-		}
-		else {
-			var step = ((now - aThis.animationStart) || 1) / aThis.animationTime;
-			aThis.updateAnimationStyle(step);
-		}
-	},
-	animationTimer : null,
-	animationTime  : 250,
+	animationDuration : 250,
    
 	clearAnimationStyleIn : function(aFrame, aRecursively) 
 	{
@@ -641,54 +681,56 @@ var XMigemoHighlight = {
 				}, this);
 	},
  
-	clearAnimationStyle : function(aEndOfAnimation) 
+	finishAnimation : function(aNode, aEndOfAnimation) 
 	{
-		if (!this.animationNode || !this.animationNode.parentNode) return;
+		if (!aNode || !aNode.parentNode) return aNode;
 
-		var doc = this.animationNode.ownerDocument;
+		var doc = aNode.ownerDocument;
 
 		switch (this.animationStyle)
 		{
 			case this.STYLE_JUMP:
-				this.setStylePropertyValue(this.animationNode, 'top', 0);
+				this.setStylePropertyValue(aNode, 'top', 0);
 				doc.documentElement.removeAttribute(this.kANIMATION);
 				break;
 
 			case this.STYLE_ZOOM:
-				if (this.animationNode.getAttribute('class') != this.kANIMATION_NODE)
+				if (aNode.getAttribute('class') != this.kANIMATION_NODE)
 					return;
 				if (aEndOfAnimation) {
-					this.setStylePropertyValue(this.animationNode, 'font-size', '1em');
+					this.setStylePropertyValue(aNode, 'font-size', '1em');
 					return;
 				}
-				var parent = this.animationNode.parentNode;
-				var doc = this.animationNode.ownerDocument;
+				var parent = aNode.parentNode;
+				var doc = aNode.ownerDocument;
 				var range = doc.createRange();
-				range.selectNode(this.animationNode);
+				range.selectNode(aNode);
 				range.deleteContents();
 				range.detach();
-				this.animationNode = parent;
+				aNode = parent;
 				doc.documentElement.removeAttribute(this.kANIMATION);
 				break;
 		}
+
+		return aNode;
 	},
  
-	initAnimationStyle : function() 
+	initAnimation : function(aNode) 
 	{
-		if (!this.animationNode) return;
+		if (!aNode) return aNode;
 
-		var doc = this.animationNode.ownerDocument;
+		var doc = aNode.ownerDocument;
 		doc.documentElement.setAttribute(this.kANIMATION, true);
 
 		switch (this.animationStyle)
 		{
 			case this.STYLE_ZOOM:
-				var focusedNode = this.animationNode;
+				var focusedNode = aNode;
 				var node = doc.createElementNS(XMigemoUI.kXHTMLNS, 'span');
 				node.setAttribute('class', this.kANIMATION_NODE);
 
 				var range = doc.createRange();
-				range.selectNodeContents(this.animationNode);
+				range.selectNodeContents(aNode);
 				var contents = range.cloneContents(true);
 
 				range.collapse(false);
@@ -705,7 +747,7 @@ var XMigemoHighlight = {
 
 //				range.detach();
 
-				this.animationNode = node;
+				aNode = node;
 				this.setStylePropertyValue(node, 'top', 0);
 				this.setStylePropertyValue(node, 'bottom', 0);
 				this.setStylePropertyValue(node, 'left', 0);
@@ -723,32 +765,8 @@ var XMigemoHighlight = {
 				XMigemoUI.textUtils.setSelectionLook(doc, true);
 				break;
 		}
-	},
- 
-	updateAnimationStyle : function(aStep) 
-	{
-		if (!this.animationNode) return;
-		switch (this.animationStyle)
-		{
-			case this.STYLE_JUMP:
-				var y = parseInt(this.animationSize[this.STYLE_JUMP] * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
-				this.setStylePropertyValue(this.animationNode, 'top', '-'+(y * this.animationUnit)+'px');
-				break;
 
-			case this.STYLE_ZOOM:
-				if (this.animationNode.getAttribute('class') != this.kANIMATION_NODE)
-					return;
-				var unit = parseInt(this.animationSize[this.STYLE_ZOOM] * Math.sin((180 - (180 * aStep)) * Math.PI / 180));
-				var padding = this.animationUnit / 6;
-				var vPos = (-(unit * 0.025 * this.animationUnit) - padding)+'px';
-				this.setStylePropertyValue(this.animationNode, 'top', vPos);
-				this.setStylePropertyValue(this.animationNode, 'bottom', vPos);
-				var hPos = (-(unit * 0.05 * this.animationUnit) - padding)+'px';
-				this.setStylePropertyValue(this.animationNode, 'left', hPos);
-				this.setStylePropertyValue(this.animationNode, 'right', hPos);
-				this.setStylePropertyValue(this.animationNode, 'font-size', Math.min(1.1, 1 + (unit * 0.02))+'em');
-				break;
-		}
+		return aNode;
 	},
  
 	setStylePropertyValue : function(aNode, aPropertyName, aValue) 
