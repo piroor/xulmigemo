@@ -1,5 +1,4 @@
 pref("xulmigemo.lang", "");
-pref("xulmigemo.lang.default", "chrome://xulmigemo/locale/xulmigemo.properties");
 
 pref("xulmigemo.autostart",                     false);
 pref("xulmigemo.autostart.regExpFind",          true);

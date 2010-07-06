@@ -22,8 +22,7 @@ XMigemoStartupService.prototype = {
 	classID : Components.ID('{28a475d0-1c24-11dd-bd0b-0800200c9a66}'),
 
 	_xpcom_categories : [
-		{ category : 'app-startup', service : true },
-		{ category : 'profile-after-change', service : true }
+		{ category : 'app-startup', service : true }
 	],
 
 	QueryInterface : XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
@@ -33,7 +32,6 @@ XMigemoStartupService.prototype = {
 		switch (aTopic)
 		{
 			case 'app-startup':
-			case 'profile-after-change':
 				if (!this.initialized) {
 					ObserverService.addObserver(this, 'profile-after-change', false);
 					this.initialized = true;
@@ -56,27 +54,16 @@ XMigemoStartupService.prototype = {
 			this.updateGlobalStyleSheets();
 
 		if (Prefs.getCharPref('xulmigemo.lang') == '') {
-			let lang = Prefs.getCharPref('xulmigemo.lang');
-			try {
-				lang = Prefs.getComplexValue('xulmigemo.lang.default', Components.interfaces.nsIPrefLocalizedString).data;
-			}
-			catch(e) {
-			}
-			if (lang) {
-				Prefs.setCharPref('xulmigemo.lang', lang);
-			}
-			else {
-				var WindowWatcher = Components
-					.classes['@mozilla.org/embedcomp/window-watcher;1']
-					.getService(Components.interfaces.nsIWindowWatcher);
-				WindowWatcher.openWindow(
-					null,
-					'chrome://xulmigemo/content/initializer/langchooser.xul',
-					'xulmigemo:langchooser',
-					'chrome,dialog,modal,centerscreen,dependent',
-					null
-				);
-			}
+			var WindowWatcher = Components
+				.classes['@mozilla.org/embedcomp/window-watcher;1']
+				.getService(Components.interfaces.nsIWindowWatcher);
+			WindowWatcher.openWindow(
+				null,
+				'chrome://xulmigemo/content/initializer/langchooser.xul',
+				'xulmigemo:langchooser',
+				'chrome,dialog,modal,centerscreen,dependent',
+				null
+			);
 		}
 
 		ObserverService.notifyObservers(null, 'XMigemo:initialized', null);
