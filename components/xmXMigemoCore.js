@@ -577,7 +577,7 @@ xmXMigemoCore.prototype = {
 				this.textUtils.brushUpTermsWithCase(terms) ;
 
 		// DOMツリーを変更すると前から後ろへの検索が機能しなくなる
-		// （Minefield 4.0b2pre）ので、その回避として後ろから検索する。
+		// ので、その回避として後ろから検索する。（Firefox 4.0-）
 		this.mFind.findBackwards = aSurroundNode ? true : false ;
 		this.mFind.caseSensitive = !regExp.ignoreCase;
 
@@ -595,7 +595,11 @@ xmXMigemoCore.prototype = {
 		var originalFindRange  = findRange;
 		var originalStartPoint = startPoint;
 		var originalEndPoint   = aEndPoint;
-		terms.forEach(function(aTerm) {
+		terms.forEach(function(aTerm, aIndex) {
+			if (aSurroundNode && aIndex > 0) {
+				// レイアウトを確定しないと検索に失敗する（Firefox 4.0-）
+				doc.documentElement.clientTop;
+			}
 			var foundRange;
 			var findRange  = originalFindRange.cloneRange();
 			var startPoint = (this.mFind.findBackwards ? originalEndPoint : originalStartPoint).cloneRange();
