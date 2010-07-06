@@ -1917,7 +1917,6 @@ var XMigemoUI = {
 		}
 		catch(e) {
 		}
-		bar = bar.parentNode.removeChild(bar);
 		contentArea.parentNode.insertBefore(bar, contentArea);
 		try {
 			if ('gFindBar' in window &&
