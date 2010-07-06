@@ -6,17 +6,17 @@
 */
 var DEBUG = false;
 var TEST = false;
-var Cc = Components.classes;
-var Ci = Components.interfaces;
+const Cc = Components.classes;
+const Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
 
 var timer = {};
 
-var ObserverService = Cc['@mozilla.org/observer-service;1']
+const ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);;
 
-var Prefs = Cc['@mozilla.org/preferences;1']
+const Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
 function xmXMigemoCore() { 

@@ -68,10 +68,7 @@ xmXMigemoAPI.prototype = {
 		var prototype = this.__proto__;
 
 		if (!prototype.version)
-			prototype.version = Cc['@mozilla.org/extensions/manager;1']
-					.getService(Ci.nsIExtensionManager)
-					.getItemForID('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}')
-					.version,
+			prototype.version = '0.13.0';
 
 		prototype.lang = this.XMigemo.lang;
 		prototype.provider = 'XUL/Migemo '+prototype.version+' ('+prototype.lang+')';
