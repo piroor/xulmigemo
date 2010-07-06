@@ -25,7 +25,7 @@ function xmXMigemoDicManager() {
 }
 
 xmXMigemoDicManager.prototype = {
-	classDescription : 'XUL/Migemo Dictionary Manager Service',
+	classDescription : 'xmXMigemoDicManager',
 	contractID : '@piro.sakura.ne.jp/xmigemo/dictionary-manager;1',
 	classID : Components.ID('{25e5efa2-cef4-11db-8314-0800200c9a66}'),
 

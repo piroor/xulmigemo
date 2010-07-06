@@ -16,7 +16,7 @@ function xmXMigemoTextTransformJa() {
 xmXMigemoTextTransformJa.prototype = {
 	lang : 'ja',
 
-	classDescription : 'XUL/Migemo Japanese Text Transform Service',
+	classDescription : 'xmXMigemoTextTransformJa',
 	contractID : '@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=ja',
 	classID : Components.ID('{2d370a3e-cef4-11db-8314-0800200c9a66}'),
 

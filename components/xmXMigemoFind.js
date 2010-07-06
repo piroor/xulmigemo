@@ -33,7 +33,7 @@ function xmXMigemoFind() {
 }
 
 xmXMigemoFind.prototype = {
-	classDescription : 'XUL/Migemo Find Service',
+	classDescription : 'xmXMigemoFind',
 	contractID : '@piro.sakura.ne.jp/xmigemo/find;1',
 	classID : Components.ID('{147824f6-cef4-11db-8314-0800200c9a66}'),
 

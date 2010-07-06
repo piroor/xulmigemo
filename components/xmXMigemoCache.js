@@ -20,7 +20,7 @@ function xmXMigemoCache() {
 }
 
 xmXMigemoCache.prototype = {
-	classDescription : 'XUL/Migemo Cache Service',
+	classDescription : 'xmXMigemoCache',
 	contractID : '@piro.sakura.ne.jp/xmigemo/cache;1',
 	classID : Components.ID('{0c6119e4-cef4-11db-8314-0800200c9a66}'),
 

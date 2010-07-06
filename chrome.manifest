@@ -31,67 +31,55 @@ interfaces	components/xmIXMigemoAPI.xpt
 
 component	{28a475d0-1c24-11dd-bd0b-0800200c9a66}	components/Startup.js
 contract	@piro.sakura.ne.jp/xmigemo/startup;1	{28a475d0-1c24-11dd-bd0b-0800200c9a66}
-category	profile-after-change	XUL/Migemo Startup Service	@piro.sakura.ne.jp/xmigemo/startup;1
+category	profile-after-change	XMigemoStartupService	@piro.sakura.ne.jp/xmigemo/startup;1
 
 component	{6c93a2b0-bd7d-11de-8a39-0800200c9a66}	components/xmXMigemoAPI.js
 contract	@piro.sakura.ne.jp/xmigemo/api;1	{6c93a2b0-bd7d-11de-8a39-0800200c9a66}
-category	profile-after-change	XUL/Migemo service API for JavaScript	@piro.sakura.ne.jp/xmigemo/api;1
+category	profile-after-change	xmXMigemoAPI	@piro.sakura.ne.jp/xmigemo/api;1
+category	JavaScript-global-property	migemo	@piro.sakura.ne.jp/xmigemo/api;1
 
 component	{71715174-1dd4-11dc-8314-0800200c9a66}	components/xmXMigemoTextUtils.js
 contract	@piro.sakura.ne.jp/xmigemo/text-utility;1	{71715174-1dd4-11dc-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo Text Utility Service	@piro.sakura.ne.jp/xmigemo/text-utility;1
 
 component	{19c2aa1c-cef4-11db-8314-0800200c9a66}	components/xmXMigemoFileAccess.js
 contract	@piro.sakura.ne.jp/xmigemo/file-access;1	{19c2aa1c-cef4-11db-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo File Access Utility Service	@piro.sakura.ne.jp/xmigemo/file-access;1
 
 component	{4a17fa2c-1de7-11dc-8314-0800200c9a66}	components/xmXMigemoCore.js
 contract	@piro.sakura.ne.jp/xmigemo/core;1	{4a17fa2c-1de7-11dc-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo Core Service	@piro.sakura.ne.jp/xmigemo/core;1
 
 component	{650d509a-1f48-11dc-8314-0800200c9a66}	components/xmXMigemoCore.js
 contract	@piro.sakura.ne.jp/xmigemo/factory;1	{650d509a-1f48-11dc-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo Core Service Factory	@piro.sakura.ne.jp/xmigemo/factory;1
 
 component	{0c6119e4-cef4-11db-8314-0800200c9a66}	components/xmXMigemoCache.js
 contract	@piro.sakura.ne.jp/xmigemo/cache;1	{0c6119e4-cef4-11db-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo Cache Service	@piro.sakura.ne.jp/xmigemo/cache;1
 
 component	{25e5efa2-cef4-11db-8314-0800200c9a66}	components/xmXMigemoDicManager.js
 contract	@piro.sakura.ne.jp/xmigemo/dictionary-manager;1	{25e5efa2-cef4-11db-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo Dictionary Manager Service	@piro.sakura.ne.jp/xmigemo/dictionary-manager;1
 
 component	{2bf35d7c-36f9-11dc-8314-0800200c9a66}	components/xmXMigemoDictionary.js
 contract	@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*	{2bf35d7c-36f9-11dc-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo Universal Dictionary	@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*
 
 component	{20309e9a-cef4-11db-8314-0800200c9a66}	components/xmXMigemoDictionaryJa.js
 contract	@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=ja	{20309e9a-cef4-11db-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo Japanese Dictionary	@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=ja
 
 component	{323b8fbe-1deb-11dc-8314-0800200c9a66}	components/xmXMigemoTextTransform.js
 contract	@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*	{323b8fbe-1deb-11dc-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo Universal Text Transform Service	@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*
 
 component	{2d370a3e-cef4-11db-8314-0800200c9a66}	components/xmXMigemoTextTransformJa.js
 contract	@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=ja	{2d370a3e-cef4-11db-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo Japanese Text Transform Service	@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=ja
 
 component	{706170f0-36fb-11dc-8314-0800200c9a66}	components/xmXMigemoEngine.js
 contract	@piro.sakura.ne.jp/xmigemo/engine;1?lang=*	{706170f0-36fb-11dc-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo Universal Engine	@piro.sakura.ne.jp/xmigemo/engine;1?lang=*
 
 component	{792f3b58-cef4-11db-8314-0800200c9a66}	components/xmXMigemoEngineJa.js
 contract	@piro.sakura.ne.jp/xmigemo/engine;1?lang=ja	{792f3b58-cef4-11db-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo Japanese Engine	@piro.sakura.ne.jp/xmigemo/engine;1?lang=ja
 
 component	{147824f6-cef4-11db-8314-0800200c9a66}	components/xmXMigemoFind.js
 contract	@piro.sakura.ne.jp/xmigemo/find;1	{147824f6-cef4-11db-8314-0800200c9a66}
-category	profile-after-change	XUL/Migemo Find Service	@piro.sakura.ne.jp/xmigemo/find;1
 
 
 interfaces	components/xmIXMigemoMail.xpt	application={3550f703-e582-4d05-9a08-453d09bdfdc6}
 
 component	{15b05450-d389-11dc-95ff-0800200c9a66}	components/xmXMigemoMail.js	application={3550f703-e582-4d05-9a08-453d09bdfdc6}
 contract	@piro.sakura.ne.jp/xmigemo/mail;1	{15b05450-d389-11dc-95ff-0800200c9a66}	application={3550f703-e582-4d05-9a08-453d09bdfdc6}
-category	profile-after-change	XUL/Migemo Mail Service	@piro.sakura.ne.jp/xmigemo/mail;1	application={3550f703-e582-4d05-9a08-453d09bdfdc6}
+category	profile-after-change	xmXMigemoMail	@piro.sakura.ne.jp/xmigemo/mail;1	application={3550f703-e582-4d05-9a08-453d09bdfdc6}

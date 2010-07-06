@@ -25,7 +25,7 @@ function xmXMigemoDictionary() {
 xmXMigemoDictionary.prototype = {
 	lang : '',
 
-	classDescription : 'XUL/Migemo Universal Dictionary',
+	classDescription : 'xmXMigemoDictionary',
 	contractID : '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*',
 	classID : Components.ID('{2bf35d7c-36f9-11dc-8314-0800200c9a66}'),
 

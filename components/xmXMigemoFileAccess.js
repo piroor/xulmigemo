@@ -20,7 +20,7 @@ function xmXMigemoFileAccess() {}
 
 xmXMigemoFileAccess.prototype = {
 	contractID : '@piro.sakura.ne.jp/xmigemo/file-access;1',
-	classDescription : 'XUL/Migemo File Access Utility Service',
+	classDescription : 'xmXMigemoFileAccess',
 	classID : Components.ID('{19c2aa1c-cef4-11db-8314-0800200c9a66}'),
 
 	QueryInterface : XPCOMUtils.generateQI([

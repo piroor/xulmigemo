@@ -21,7 +21,7 @@ function xmXMigemoEngine() {
 xmXMigemoEngine.prototype = {
 	lang : '',
 
-	classDescription : 'XUL/Migemo Universal Engine',
+	classDescription : 'xmXMigemoEngine',
 	contractID : '@piro.sakura.ne.jp/xmigemo/engine;1?lang=*',
 	classID : Components.ID('{706170f0-36fb-11dc-8314-0800200c9a66}'),
 
