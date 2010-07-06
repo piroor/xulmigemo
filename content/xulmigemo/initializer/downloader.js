@@ -1,3 +1,5 @@
+Components.utils.import('resource://xulmigemo-modules/stringBundle.js');
+var bundle = stringBundle.get('chrome://xulmigemo/locale/xulmigemo.properties');
 
 var XMigemoFileDownloader = {
 	progressListener   : null,
@@ -27,9 +29,15 @@ var XMigemoFileDownloader = {
 		const IOService = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces.nsIIOService);
 
 		var lang = XMigemoService.getPref('xulmigemo.lang');
+		if (!lang) {
+			this.onError(bundle.getString('initializer.download.error.invalidLanguage'));
+			return;
+		}
+
 		var uri = XMigemoService.getPref('xulmigemo.dictionary.download.uri.'+lang);
-		if (!uri)
-			throw 'Download URI for "' + lang + '" is undefined.';
+		if (!uri) {
+			this.onError(bundle.getFormattedString('initializer.download.error.noDownloadURI', [lang]));
+		}
 
 		var source   = IOService.newURI(uri, null, null);
 		var tempFile = this.DirectoryService.get('TmpD', Components.interfaces.nsIFile);
@@ -102,15 +110,11 @@ var XMigemoFileDownloader = {
 	{
 		var zipReader = Components.classes['@mozilla.org/libjar/zip-reader;1'].createInstance(Components.interfaces.nsIZipReader);
 		try {
+			zipReader.open(aFile); // Firefox 3.0-
 		}
 		catch(e) {
-			try {
-				zipReader.open(aFile); // Firefox 3.0-
-			}
-			catch(e) {
-				zipReader.close();
-				throw e;
-			}
+			zipReader.close();
+			throw e;
 		}
 
 		var entries = zipReader.findEntries('*/');
