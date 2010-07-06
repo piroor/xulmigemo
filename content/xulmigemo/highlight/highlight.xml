@@ -5,7 +5,7 @@
 	xmlns:html="http://www.w3.org/1999/xhtml">
 
 <binding id="animation-box">
-	<content><html:span class="__mozilla-findbar-animation-inner-box"/></content>
+	<content><html:span class="__mozilla-findbar-animation-inner-box" xbl:text="text"/></content>
 </binding>
 
 </bindings>

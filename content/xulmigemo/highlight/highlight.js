@@ -735,11 +735,16 @@ var XMigemoHighlight = {
 				// anonymous contentsの中に挿入した内容は検索されない。
 				// （複製した内容は検索されて欲しくないのでこうする）
 				var box = doc.getAnonymousNodes(node);
-				if (box && box.length) {
-					box = box[0];
-					range.selectNodeContents(box);
-					range.insertNode(contents);
-				}
+				var insertContents = function(aTarget, aContents) {
+						var box = aTarget.ownerDocument.getAnonymousNodes(aTarget);
+						if (!box || !box.length)
+							return false;
+						box = box[0];
+						box.appendChild(aContents);
+						return true;
+					};
+				if (!insertContents(node, contents))
+					window.setTimeout(insertContents, 0, node, contents);
 
 //				range.detach();
 
