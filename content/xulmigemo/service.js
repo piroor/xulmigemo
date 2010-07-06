@@ -65,7 +65,7 @@ var XMigemoService = {
 		return this._strbundle;
 	},
  
-	firstListenPrefChange : function(aObserver)
+	firstListenPrefChange : function(aObserver) 
 	{
 		if ('preferences' in aObserver &&
 			typeof aObserver.preferences == 'string') {
