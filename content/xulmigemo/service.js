@@ -33,6 +33,14 @@ var XMigemoService = {
 	},
 	_TextUtils : null,
  
+	get animationManager() { 
+		return this.namespace.animationManager;
+	},
+ 
+	get stringBundle() { 
+		return this.namespace.stringBundle;
+	},
+ 
 	get isGecko18() { 
 		var version = this.XULAppInfo.platformVersion.split('.');
 		return parseInt(version[0]) <= 1 && parseInt(version[1]) <= 8;
@@ -50,86 +58,15 @@ var XMigemoService = {
 	},
 	_XULAppInfo : null,
  
-/* Prefs */ 
-	
-	get Prefs() 
+	get strbundle() 
 	{
-		if (!this._Prefs) {
-			this._Prefs = Components.classes['@mozilla.org/preferences;1'].getService(Components.interfaces.nsIPrefBranch);
-		}
-		return this._Prefs;
-	},
-	_Prefs : null,
- 
-	getPref : function(aPrefstring) 
-	{
-		try {
-			switch (this.Prefs.getPrefType(aPrefstring))
-			{
-				case this.Prefs.PREF_STRING:
-					return decodeURIComponent(escape(this.Prefs.getCharPref(aPrefstring)));
-					break;
-				case this.Prefs.PREF_INT:
-					return this.Prefs.getIntPref(aPrefstring);
-					break;
-				default:
-					return this.Prefs.getBoolPref(aPrefstring);
-					break;
-			}
-		}
-		catch(e) {
-		}
-
-		return null;
+		if (!this._strbundle)
+			this._strbundle = this.stringBundle.get('chrome://xulmigemo/locale/xulmigemo.properties');
+		return this._strbundle;
 	},
  
-	setPref : function(aPrefstring, aNewValue, aPrefObj) 
+	firstListenPrefChange : function(aObserver)
 	{
-		var pref = aPrefObj || this.Prefs ;
-		var type;
-		try {
-			type = typeof aNewValue;
-		}
-		catch(e) {
-			type = null;
-		}
-
-		switch (type)
-		{
-			case 'string':
-				pref.setCharPref(aPrefstring, unescape(encodeURIComponent(aNewValue)));
-				break;
-			case 'number':
-				pref.setIntPref(aPrefstring, parseInt(aNewValue));
-				break;
-			default:
-				pref.setBoolPref(aPrefstring, aNewValue);
-				break;
-		}
-		return true;
-	},
- 
-	clearPref : function(aPrefstring) 
-	{
-		try {
-			this.Prefs.clearUserPref(aPrefstring);
-		}
-		catch(e) {
-		}
-
-		return;
-	},
- 
-	addPrefListener : function(aObserver) 
-	{
-		var domains = ('domains' in aObserver) ? aObserver.domains : [aObserver.domain] ;
-		try {
-			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
-			for (var i = 0; i < domains.length; i++)
-				pbi.addObserver(domains[i], aObserver, false);
-		}
-		catch(e) {
-		}
 		if ('preferences' in aObserver &&
 			typeof aObserver.preferences == 'string') {
 			this.TextUtils.trim(aObserver.preferences)
@@ -140,28 +77,6 @@ var XMigemoService = {
 		}
 	},
  
-	removePrefListener : function(aObserver) 
-	{
-		var domains = ('domains' in aObserver) ? aObserver.domains : [aObserver.domain] ;
-		try {
-			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
-			for (var i = 0; i < domains.length; i++)
-				pbi.removeObserver(domains[i], aObserver, false);
-		}
-		catch(e) {
-		}
-	},
-  
-/* string bundle */ 
-	
-	get strbundle() 
-	{
-		if (!this._strbundle) {
-			this._strbundle = new XMigemoStringBundle('chrome://xulmigemo/locale/xulmigemo.properties');
-		}
-		return this._strbundle;
-	},
-  
 /* Shortcut Keys */ 
 	
 	parseShortcut : function(aShortcut) 
@@ -357,10 +272,8 @@ var XMigemoService = {
 			const UConvID = '@mozilla.org/intl/scriptableunicodeconverter';
 			const UConvIF  = Components.interfaces.nsIScriptableUnicodeConverter;
 			const UConv = Components.classes[UConvID].getService(UConvIF);
-			// UTF-8 から Shift_JIS に変換する
 			UConv.charset = 'Shift_JIS';
 			sjis_str = UConv.ConvertFromUnicode(str);
-			//日本語がうまく出ない！なぜだ！神ハワレヲ見捨テタモウタカ
 			dump(sjis_str+"\n");
 			return;
 		}else{
@@ -370,28 +283,13 @@ var XMigemoService = {
   
 	dummy : null
 }; 
+(function() {
+	var namespace = {};
+	Components.utils.import('resource://xulmigemo-modules/prefs.js', namespace);
+	Components.utils.import('resource://xulmigemo-modules/namespace.jsm', namespace);
+	XMigemoService.__proto__ = namespace.prefs;
+	XMigemoService.namespace = namespace.getNamespaceFor('piro.sakura.ne.jp')['piro.sakura.ne.jp'];
+	Components.utils.import('resource://xulmigemo-modules/animationManager.js');
+	Components.utils.import('resource://xulmigemo-modules/stringBundle.js');
+})();
   
-function XMigemoStringBundle(aStringBundle) 
-{
-	this.strbundle = this.stringBundleService.createBundle(aStringBundle);
-}
-XMigemoStringBundle.prototype = {
-	get stringBundleService()
-	{
-		if (!this._stringBundleService) {
-			this._stringBundleService = Components.classes['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService);
-		}
-		return this._stringBundleService;
-	},
-	_stringBundleService : null,
-	strbundle : null,
-	getString : function(aKey) {
-		try {
-			return this.strbundle.GetStringFromName(aKey);
-		}
-		catch(e) {
-		}
-		return '';
-	}
-};
- 

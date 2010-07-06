@@ -114,7 +114,7 @@ var gTestStringBundle;
 function updateCacheNow()
 {
 	if (!window.gTestStringBundle)
-		window.gTestStringBundle = new XMigemoStringBundle('chrome://xulmigemo/content/res/test.properties');
+		window.gTestStringBundle = XMigemoService.stringBundle.get('chrome://xulmigemo/content/res/test.properties');
 
 	var strbundle = gStringBundle;
 	var pattern = '';
