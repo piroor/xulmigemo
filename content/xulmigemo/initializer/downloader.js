@@ -101,9 +101,7 @@ var XMigemoFileDownloader = {
 	unzipTo : function(aFile, aParent)
 	{
 		var zipReader = Components.classes['@mozilla.org/libjar/zip-reader;1'].createInstance(Components.interfaces.nsIZipReader);
-		try { // Firefox 1.x-2.0
-			zipReader.init(aFile);
-			zipReader.open();
+		try {
 		}
 		catch(e) {
 			try {
@@ -117,15 +115,9 @@ var XMigemoFileDownloader = {
 
 		var entries = zipReader.findEntries('*/');
 		var target;
-		while (
-				('hasMore' in entries) ?
-				entries.hasMore() : // Firefox 3.0-
-				entries.hasMoreElements() // Firefox 1.x-2.0
-				)
+		while (entries.hasMore())
 		{
 			var entry = entries.getNext();
-			if (typeof entry != 'string') // Firefox 1.x-2.0
-				entry = entry.QueryInterface(Components.interfaces.nsIZipEntry).name;
 			target = aParent.clone();
 			target.append(entry);
 			if (!target.exists()) {
@@ -138,15 +130,9 @@ var XMigemoFileDownloader = {
 		}
 
 		entries = zipReader.findEntries('*');
-		while (
-				('hasMore' in entries) ?
-				entries.hasMore() : // Firefox 3.0-
-				entries.hasMoreElements() // Firefox 1.x-2.0
-				)
+		while (entries.hasMore())
 		{
 			var entry = entries.getNext();
-			if (typeof entry != 'string') // Firefox 1.x-2.0
-				entry = entry.QueryInterface(Components.interfaces.nsIZipEntry).name;
 			target = aParent.clone();
 			target.append(entry);
 			if (target.exists()) {
