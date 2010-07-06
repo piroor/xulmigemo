@@ -1,4 +1,6 @@
-var DEBUG = false; 
+const PROVIDER_VERSION = '0.13.0a1'; 
+
+var DEBUG = false;
 var TEST = false;
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -68,7 +70,7 @@ xmXMigemoAPI.prototype = {
 		var prototype = this.__proto__;
 
 		if (!prototype.version)
-			prototype.version = '0.13.0';
+			prototype.version = PROVIDER_VERSION;
 
 		prototype.lang = this.XMigemo.lang;
 		prototype.provider = 'XUL/Migemo '+prototype.version+' ('+prototype.lang+')';
