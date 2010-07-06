@@ -272,7 +272,7 @@ xmXMigemoDicManager.prototype = {
 					this.autoReloadDisabled = false;
 				}
 			}
-			this.available = trie;
+			this.available = true;
 		}
 
 		this.initialized = true;
