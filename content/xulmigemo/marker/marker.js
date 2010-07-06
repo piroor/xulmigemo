@@ -211,23 +211,63 @@ var XMigemoMarker = {
 		XMigemoUI.isScrolling = true;
 	},
 	 
-	scrollTo : function(aNode, aY) 
+	scrollTo : function(aNode, aY, aDisableAnimation) 
 	{
 		var doc = aNode.ownerDocument || aNode;
+		var w = doc.defaultView;
+		if (w.__xulmigemo__markerSmoothScrollTask) {
+			XMigemoService.animationManager.removeTask(w.__xulmigemo__markerSmoothScrollTask);
+			w.__xulmigemo__markerSmoothScrollTask = null;
+		}
+
 		var canvas = doc.getElementById(this.kCANVAS);
 		if (!canvas) return;
+
 		var size = XMigemoService.getDocumentSizeInfo(doc);
 		var height = size.viewHeight;
 		if (size.xScrollable) height -= this.scrollBarHeight;
 		if (height <= 0) return;
-		var w = doc.defaultView;
+
 		var topOffset = this.scrollButtonHeight;
 		var availableHeight = height - (topOffset * 2);
-		w.scrollTo(
-			Math.max(0, w.scrollX),
-			Math.min(w.scrollMaxY, ((aY - topOffset) / availableHeight * size.height) - (height / 2))
+
+		var finalX = Math.max(0, w.scrollX);
+		var finalY = Math.min(w.scrollMaxY, ((aY - topOffset) / availableHeight * size.height) - (height / 2));
+
+		if (aDisableAnimation ||
+			!XMigemoService.getPref('xulmigemo.highlight.foundMarker.smoothScroll.enabled')) {
+			w.scrollTo(finalX, finalY);
+			return;
+		}
+
+		var startX = w.scrollX;
+		var startY = w.scrollY;
+		var deltaX = finalX - startX;
+		var deltaY = finalY - startY;
+		var radian = 90 * Math.PI / 180;
+		var self   = this;
+		w.__xulmigemo__markerSmoothScrollTask = function(aTime, aBeginning, aChange, aDuration) {
+			var x, y, finished;
+			if (aTime >= aDuration) {
+				w.__xulmigemo__markerSmoothScrollTask = null;
+				x = finalX;
+				y = finalY
+				finished = true;
+			}
+			else {
+				x = startX + (deltaX * Math.sin(aTime / aDuration * radian));
+				y = startY + (deltaY * Math.sin(aTime / aDuration * radian));
+				finished = false;
+			}
+			w.scrollTo(x, y);
+			return finished;
+		};
+		XMigemoService.animationManager.addTask(
+			w.__xulmigemo__markerSmoothScrollTask,
+			0, 0, XMigemoService.getPref('xulmigemo.highlight.foundMarker.smoothScroll.duration')
 		);
 	},
+	smoothScrollDuration : 250,
   
 	onMouseUp : function(aEvent) 
 	{
@@ -243,7 +283,7 @@ var XMigemoMarker = {
 		if (!this.dragging) return;
 		aEvent.preventDefault();
 		aEvent.stopPropagation();
-		this.scrollTo(aEvent.target, aEvent.clientY);
+		this.scrollTo(aEvent.target, aEvent.clientY, true);
 	},
  
 	startListen : function() 
@@ -484,6 +524,11 @@ var XMigemoMarker = {
 	{
 		if (!aFrame)
 			aFrame = XMigemoUI.activeBrowser.contentWindow;
+
+		if (aFrame.__xulmigemo__markerSmoothScrollTask) {
+			XMigemoService.animationManager.removeTask(aFrame.__xulmigemo__markerSmoothScrollTask);
+			aFrame.__xulmigemo__markerSmoothScrollTask = null;
+		}
 
 		Array.slice(aFrame.frames).forEach(function(aFrame) {
 			this.toggleMarkers(aShow, aFrame);
