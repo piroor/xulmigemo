@@ -15,11 +15,16 @@ const Prefs = Components
 function XMigemoStartupService() { 
 }
 XMigemoStartupService.prototype = {
-	classDescription : 'XUL/Migemo Startup Service',
+	initialized : false,
+
+	classDescription : 'XMigemoStartupService',
 	contractID : '@piro.sakura.ne.jp/xmigemo/startup;1',
 	classID : Components.ID('{28a475d0-1c24-11dd-bd0b-0800200c9a66}'),
 
-	_xpcom_categories : [{ category : 'app-startup', service : true }],
+	_xpcom_categories : [
+		{ category : 'app-startup', service : true },
+		{ category : 'profile-after-change', service : true }
+	],
 
 	QueryInterface : XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
 	
@@ -28,11 +33,18 @@ XMigemoStartupService.prototype = {
 		switch (aTopic)
 		{
 			case 'app-startup':
-				ObserverService.addObserver(this, 'profile-after-change', false);
+			case 'profile-after-change':
+				if (!this.initialized) {
+					ObserverService.addObserver(this, 'profile-after-change', false);
+					this.initialized = true;
+				}
 				return;
 
 			case 'profile-after-change':
-				ObserverService.addObserver(this, 'profile-after-change', false);
+				if (this.initialized) {
+					ObserverService.addObserver(this, 'profile-after-change', false);
+					this.initialized = false;
+				}
 				this.init();
 				return;
 		}

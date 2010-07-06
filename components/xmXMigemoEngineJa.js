@@ -16,10 +16,10 @@ function xmXMigemoEngineJa() {
 	mydump('create instance xmIXMigemoEngine(lang=ja)');
 }
 
-xmXMigemoEngineJa.prototype = {
+.prototype = {
 	lang : 'ja',
 
-	classDescription : 'XUL/Migemo Japanese Engine',
+	classDescription : 'xmXMigemoEngineJa',
 	contractID : '@piro.sakura.ne.jp/xmigemo/engine;1?lang=ja',
 	classID : Components.ID('{792f3b58-cef4-11db-8314-0800200c9a66}'),
 

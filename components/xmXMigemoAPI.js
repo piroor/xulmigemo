@@ -22,14 +22,16 @@ function xmXMigemoAPI() {
 }
 
 xmXMigemoAPI.prototype = {
+	initialized : false,
+
 	contractID : '@piro.sakura.ne.jp/xmigemo/api;1',
-	classDescription : 'XUL/Migemo service API for JavaScript',
+	classDescription : 'xmXMigemoAPI',
 	classID : Components.ID('{6c93a2b0-bd7d-11de-8a39-0800200c9a66}'),
 
 	_xpcom_categories : [
 		{ category : 'JavaScript global property', entry : 'migemo' }, // -Firefox 3.6
-		{ category : 'JavaScript-global-property', entry : 'migemo' }, // Firefox 4.0-
-		{ category : 'app-startup', service : true }
+		{ category : 'app-startup', service : true },
+		{ category : 'profile-after-change', service : true }
 	],
 
 	QueryInterface : XPCOMUtils.generateQI([
@@ -359,7 +361,11 @@ xmXMigemoAPI.prototype = {
 		switch (aTopic)
 		{
 			case 'app-startup':
-				ObserverService.addObserver(this, 'XMigemo:initialized', false);
+			case 'profile-after-change':
+				if (!this.initialized) {
+					ObserverService.addObserver(this, 'XMigemo:initialized', false);
+					this.initialized = true;
+				}
 				return;
 
 			case 'XMigemo:initialized':

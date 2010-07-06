@@ -25,7 +25,7 @@ function xmXMigemoCore() {
 
 xmXMigemoCore.prototype = {
 	contractID : '@piro.sakura.ne.jp/xmigemo/core;1',
-	classDescription : 'XUL/Migemo Core Service',
+	classDescription : 'xmXMigemoCore',
 	classID : Components.ID('{4a17fa2c-1de7-11dc-8314-0800200c9a66}'),
 
 	QueryInterface : XPCOMUtils.generateQI([

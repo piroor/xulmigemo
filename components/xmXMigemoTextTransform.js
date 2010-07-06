@@ -10,7 +10,7 @@ function xmXMigemoTextTransform() {
 }
 
 xmXMigemoTextTransform.prototype = {
-	classDescription : 'XUL/Migemo Universal Text Transform Service',
+	classDescription : 'xmXMigemoTextTransform',
 	contractID : '@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*',
 	classID : Components.ID('{323b8fbe-1deb-11dc-8314-0800200c9a66}'),
 

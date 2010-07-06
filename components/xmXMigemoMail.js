@@ -19,7 +19,7 @@ function xmXMigemoMail() {
 }
 
 xmXMigemoMail.prototype = {
-	classDescription : 'XUL/Migemo Mail Service',
+	classDescription : 'xmXMigemoMail',
 	contractID : '@piro.sakura.ne.jp/xmigemo/mail;1',
 	classID : Components.ID('{15b05450-d389-11dc-95ff-0800200c9a66}'),
 

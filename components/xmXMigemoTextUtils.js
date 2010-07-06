@@ -31,7 +31,7 @@ function xmXMigemoTextUtils() {
 
 xmXMigemoTextUtils.prototype = {
 	contractID : '@piro.sakura.ne.jp/xmigemo/text-utility;1',
-	classDescription : 'XUL/Migemo Text Utility Service',
+	classDescription : 'xmXMigemoTextUtils',
 	classID : Components.ID('{71715174-1dd4-11dc-8314-0800200c9a66}'),
 
 	QueryInterface : XPCOMUtils.generateQI([
