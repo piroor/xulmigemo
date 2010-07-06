@@ -32,7 +32,7 @@
       </RDF:Description>
     </em:localized>
     <em:localized>
-      <RDF:Description em:locale="ja-JP"
+      <RDF:Description em:locale="ja"
                        em:name="XUL/Migemo"
                        em:description="Migemo風のローマ字入力による日本語逐次検索など、より高機能なインクリメンタル検索機能を提供します。"
                        em:homepageURL="http://piro.sakura.ne.jp/xul/_xulmigemo.html">
