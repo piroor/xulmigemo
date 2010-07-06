@@ -56,16 +56,27 @@ XMigemoStartupService.prototype = {
 			this.updateGlobalStyleSheets();
 
 		if (Prefs.getCharPref('xulmigemo.lang') == '') {
-			var WindowWatcher = Components
-				.classes['@mozilla.org/embedcomp/window-watcher;1']
-				.getService(Components.interfaces.nsIWindowWatcher);
-			WindowWatcher.openWindow(
-				null,
-				'chrome://xulmigemo/content/initializer/langchooser.xul',
-				'xulmigemo:langchooser',
-				'chrome,dialog,modal,centerscreen,dependent',
-				null
-			);
+			let lang = Prefs.getCharPref('xulmigemo.lang');
+			try {
+				lang = Prefs.getComplexValue('xulmigemo.lang.default', Components.interfaces.nsIPrefLocalizedString).data;
+			}
+			catch(e) {
+			}
+			if (lang) {
+				Prefs.setCharPref('xulmigemo.lang', lang);
+			}
+			else {
+				var WindowWatcher = Components
+					.classes['@mozilla.org/embedcomp/window-watcher;1']
+					.getService(Components.interfaces.nsIWindowWatcher);
+				WindowWatcher.openWindow(
+					null,
+					'chrome://xulmigemo/content/initializer/langchooser.xul',
+					'xulmigemo:langchooser',
+					'chrome,dialog,modal,centerscreen,dependent',
+					null
+				);
+			}
 		}
 
 		ObserverService.notifyObservers(null, 'XMigemo:initialized', null);
