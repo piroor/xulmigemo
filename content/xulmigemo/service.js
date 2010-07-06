@@ -65,16 +65,19 @@ var XMigemoService = {
 		return this._strbundle;
 	},
  
-	firstListenPrefChange : function(aObserver) 
+	firstListenPrefChange : function(aObserver, aList) 
 	{
-		if ('preferences' in aObserver &&
-			typeof aObserver.preferences == 'string') {
-			this.TextUtils.trim(aObserver.preferences)
-				.split(/\s+/)
+		if (!aList &&
+			'preferences' in aObserver &&
+			typeof aObserver.preferences == 'string')
+			aList = aObserver.preferences;
+
+		aList = this.TextUtils.trim(aList || '');
+		if (aList)
+			aList.split(/\s+/)
 				.forEach(function(aPref) {
 					aObserver.observe(null, 'nsPref:changed', aPref);
 				});
-		}
 	},
  
 /* Shortcut Keys */ 

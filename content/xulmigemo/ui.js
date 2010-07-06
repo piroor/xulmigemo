@@ -703,7 +703,6 @@ var XMigemoUI = {
 		xulmigemo.enabletimeout.indicator
 		xulmigemo.timeout
 		xulmigemo.timeout.stopWhileScrolling
-		xulmigemo.override_findtoolbar
 		xulmigemo.shortcut.findForward
 		xulmigemo.shortcut.findBackward
 		xulmigemo.shortcut.manualStart
@@ -713,15 +712,17 @@ var XMigemoUI = {
 		xulmigemo.shortcut.goDicManager
 		xulmigemo.shortcut.manualExit
 		xulmigemo.shortcut.modeCirculation
-		xulmigemo.appearance.buttonLabelsMode
-		xulmigemo.appearance.indicator.height
-		xulmigemo.appearance.closeButtonPosition
 		xulmigemo.disableIME.quickFindFor
 		xulmigemo.disableIME.normalFindFor
 		xulmigemo.find_delay
 		xulmigemo.ignore_find_links_only_behavior
 		xulmigemo.prefillwithselection
 		xulmigemo.work_for_any_xml_document
+	]]>.toString(),
+	preferencesFindBar : <![CDATA[ 
+		xulmigemo.appearance.buttonLabelsMode
+		xulmigemo.appearance.indicator.height
+		xulmigemo.appearance.closeButtonPosition
 	]]>.toString(),
  
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -1910,21 +1911,7 @@ var XMigemoUI = {
 
 		var contentArea = document.getElementById('browser') || // Firefox
 					document.getElementById('messagepane'); // Thunderbird
-		try {
-			if ('gFindBar' in window &&
-				'uninitFindBar' in gFindBar)
-				gFindBar.uninitFindBar();
-		}
-		catch(e) {
-		}
 		contentArea.parentNode.insertBefore(bar, contentArea);
-		try {
-			if ('gFindBar' in window &&
-				'initFindBar' in gFindBar)
-				gFindBar.initFindBar();
-		}
-		catch(e) {
-		}
 	},
  
 	updateFindBarAppearance : function() 
@@ -2636,61 +2623,83 @@ var XMigemoUI = {
 			.parent) // in subframe
 			return;
 
+		window.removeEventListener('load', this, false);
+		window.addEventListener('unload', this, false);
+
+		this.upgradeFindModePrefs();
+
 		this.overrideExtensionsOnInitBefore(); // hacks.js
 
-		this.lastFindMode = this.FIND_MODE_NATIVE;
-		this.findBar.setAttribute(this.kTARGET, this.activeBrowser.id);
-		this.findBar.addEventListener('XMigemoFindBarOpen', this, false);
-		this.findBar.addEventListener('XMigemoFindBarClose', this, false);
+		let (browser = this.browser) {
+			if (browser) {
+				XMigemoFind = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/find;1']
+					.createInstance(Components.interfaces.xmIXMigemoFind);
+				XMigemoFind.target = browser;
+
+				if (browser.getAttribute('onkeypress'))
+					browser.setAttribute('onkeypress', '');
+
+				(document.getElementById('appcontent') || browser).addEventListener('keypress', this, true);
+			}
+		}
 
 		document.addEventListener('XMigemoFindProgress', this, false);
 		document.addEventListener('XMigemoFindAgain', this, false);
 
-		var browser = this.browser;
-		if (browser) {
-			XMigemoFind = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/find;1']
-				.createInstance(Components.interfaces.xmIXMigemoFind);
-			XMigemoFind.target = browser;
-
-			if (browser.getAttribute('onkeypress'))
-				browser.setAttribute('onkeypress', '');
-
-			(document.getElementById('appcontent') || browser).addEventListener('keypress', this, true);
-		}
-
-		this.updateFindBarPosition();
-		this.updateItemOrder();
-		this.overrideFindBar();
-
-		this.upgradeFindModePrefs();
 		XMigemoService.addPrefListener(this);
 		XMigemoService.firstListenPrefChange(this);
 
-		window.setTimeout(function(aSelf) {
-			aSelf.delayedInit();
-		}, 0, this);
+		this.lastFindMode = this.FIND_MODE_NATIVE;
 
-		window.removeEventListener('load', this, false);
-		window.addEventListener('unload', this, false);
+		if (!('gFindBarInitialized' in window) || gFindBarInitialized) {
+			this.initFindBar();
+		}
+		else {
+			let self = this;
+			window.watch('gFindBarInitialized', function(aValue) {
+				if (aValue && self) {
+					self.initFindBar();
+					self = null;
+				}
+				return aValue;
+			});
+		}
+
+		window.setTimeout(function(aSelf) {
+			if (XMigemoService.getPref('xulmigemo.checked_by_default.findbar'))
+				gFindBar.open();
+		}, 0, this);
 
 		this.overrideExtensionsOnInitAfter(); // hacks.js
 	},
 	
-	delayedInit : function() { 
-		window.setTimeout("XMigemoUI.field.addEventListener('blur', XMigemoUI, false);", 0);
+	initFindBar : function()
+	{
+		if ('gFindBarInitialized' in window && !gFindBarInitialized)
+			return;
 
-		if (XMigemoService.getPref('xulmigemo.findMode.default') > -1)
-			this.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
-		if (XMigemoService.getPref('xulmigemo.checked_by_default.highlight'))
-			this.highlightCheck.checked = this.highlightCheck.xmigemoOriginalChecked = true;
-		if (XMigemoService.getPref('xulmigemo.checked_by_default.caseSensitive')) {
-			this.caseSensitiveCheck.checked = this.caseSensitiveCheck.xmigemoOriginalChecked = true;
-			gFindBar.toggleCaseSensitiveCheckbox(true);
-		}
+		this.findBar.setAttribute(this.kTARGET, this.activeBrowser.id);
+		this.findBar.addEventListener('XMigemoFindBarOpen', this, false);
+		this.findBar.addEventListener('XMigemoFindBarClose', this, false);
 
-		if (XMigemoService.getPref('xulmigemo.checked_by_default.findbar'))
-			gFindBar.open();
+		this.updateFindBarPosition();
+		this.updateItemOrder();
+		this.overrideFindBar();
+		XMigemoService.firstListenPrefChange(this, this.preferencesFindBar);
+
+		window.setTimeout(function(aSelf) {
+			window.setTimeout("XMigemoUI.field.addEventListener('blur', XMigemoUI, false);", 0);
+
+			if (XMigemoService.getPref('xulmigemo.findMode.default') > -1)
+				aSelf.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
+			if (XMigemoService.getPref('xulmigemo.checked_by_default.highlight'))
+				aSelf.highlightCheck.checked = aSelf.highlightCheck.xmigemoOriginalChecked = true;
+			if (XMigemoService.getPref('xulmigemo.checked_by_default.caseSensitive')) {
+				aSelf.caseSensitiveCheck.checked = aSelf.caseSensitiveCheck.xmigemoOriginalChecked = true;
+				gFindBar.toggleCaseSensitiveCheckbox(true);
+			}
+		}, 0, this);
 	},
   
 	destroy : function() 
