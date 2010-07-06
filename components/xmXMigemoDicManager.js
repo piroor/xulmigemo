@@ -25,6 +25,8 @@ function xmXMigemoDicManager() {
 }
 
 xmXMigemoDicManager.prototype = {
+	available : false,
+
 	classDescription : 'xmXMigemoDicManager',
 	contractID : '@piro.sakura.ne.jp/xmigemo/dictionary-manager;1',
 	classID : Components.ID('{25e5efa2-cef4-11db-8314-0800200c9a66}'),
@@ -182,8 +184,7 @@ xmXMigemoDicManager.prototype = {
  
 	reload : function() 
 	{
-		this.dictionary.load();
-		this.cache.reload();
+		this.available = this.dictionary.load() && this.cache.load();
 	},
  
 	showDirectoryPicker : function(aDefault) 
@@ -214,6 +215,25 @@ xmXMigemoDicManager.prototype = {
 		return '';
 	},
  
+	showInitializeWizard : function(aOwner) 
+	{
+		var existing = WindowManager.getMostRecentWindow('xulmigemo:initializer');
+		if (existing) {
+			existing.focus();
+			return;
+		}
+
+		var WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
+			.getService(Ci.nsIWindowWatcher);
+		WindowWatcher.openWindow(
+			aOwner,
+			'chrome://xulmigemo/content/initializer/initializer.xul',
+			'xulmigemo:initializer',
+			'chrome,dialog,modal,centerscreen,dependent',
+			null
+		);
+	},
+ 
 	init : function(aDictionary, aCache) 
 	{
 		if (aDictionary) this.dictionary = aDictionary;
@@ -238,26 +258,10 @@ xmXMigemoDicManager.prototype = {
 		ObserverService.addObserver(this, 'XMigemo:dictionaryModified', false);
 
 		if (
-			!this.dicpath ||
-			!this.dictionary.load() ||
-			!this.cache.load()
+			this.dicpath &&
+			this.dictionary.load() &&
+			this.cache.load()
 			) {
-			if (
-				Prefs.getBoolPref('xulmigemo.dictionary.useInitializeWizard') &&
-				!WindowManager.getMostRecentWindow('xulmigemo:initializer')
-				) {
-				var WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
-					.getService(Ci.nsIWindowWatcher);
-				WindowWatcher.openWindow(
-					null,
-					'chrome://xulmigemo/content/initializer/initializer.xul',
-					'xulmigemo:initializer',
-					'chrome,dialog,modal,centerscreen,dependent',
-					null
-				);
-			}
-		}
-		else {
 			var relPath = Prefs.getCharPref('xulmigemo.dicpath-relative');
 			if (!relPath) {
 				relPath = this.dicpath;
@@ -268,6 +272,7 @@ xmXMigemoDicManager.prototype = {
 					this.autoReloadDisabled = false;
 				}
 			}
+			this.available = trie;
 		}
 
 		this.initialized = true;

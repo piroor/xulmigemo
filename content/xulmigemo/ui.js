@@ -2667,6 +2667,13 @@ var XMigemoUI = {
 		}
 
 		window.setTimeout(function(aSelf) {
+			var XMigemoDicManager = Components
+					.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
+					.getService(Components.interfaces.xmIXMigemoDicManager);
+			if (!XMigemoDicManager.available &&
+				XMigemoService.getPref('xulmigemo.dictionary.useInitializeWizard'))
+				XMigemoDicManager.showInitializeWizard(window);
+
 			if (XMigemoService.getPref('xulmigemo.checked_by_default.findbar'))
 				gFindBar.open();
 		}, 0, this);
