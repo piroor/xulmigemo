@@ -15,7 +15,7 @@ function tearDown()
 testAutoHighlightNormal.description = '通常の検索で自動ハイライトが正常に動作するかどうか';
 function testAutoHighlightNormal()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	yield Do(autoHighlightTest(
 		'FIND_MODE_NATIVE',
@@ -30,7 +30,7 @@ function testAutoHighlightNormal()
 testAutoHighlightRegExp.description = '正規表現検索で自動ハイライトが正常に動作するかどうか';
 function testAutoHighlightRegExp()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	yield Do(autoHighlightTest(
 		'FIND_MODE_REGEXP',
@@ -45,7 +45,7 @@ function testAutoHighlightRegExp()
 testAutoHighlightMigemo.description = 'Migemo検索で自動ハイライトが正常に動作するかどうか';
 function testAutoHighlightMigemo()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	yield Do(autoHighlightTest(
 		'FIND_MODE_MIGEMO',
@@ -62,7 +62,7 @@ function testSafariHighlight()
 {
 	XMigemoHighlight.strongHighlight = true;
 
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	field.focus();
 
@@ -89,7 +89,7 @@ function getHighlightCount()
 testAutoHighlightAndModeSwitch.description = 'ハイライト表示したまま検索モードを切り替えた場合';
 function testAutoHighlightAndModeSwitch()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	field.focus();
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
@@ -112,13 +112,13 @@ function testAutoHighlightAndModeSwitch()
 
 	action.inputTo(field, '');
 	yield WAIT;
-	gFindBar.closeFindBar();
+	gFindBar.close();
 	yield WAIT;
 
 	content.getSelection().removeAllRanges();
 	XMigemoHighlight.strongHighlight = true;
 
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	field.focus();
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
@@ -149,7 +149,7 @@ function testMarker()
 {
 	XMigemoMarker.enabled = true;
 
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	field.focus();
 

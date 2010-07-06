@@ -131,7 +131,7 @@ function testAutoStartLinksOnly()
 	XMigemoUI.findNext();
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	assert.notEquals('1', link.getAttribute('focus-count'));
-	XMigemoUI.closeFindBar();
+	XMigemoUI.close();
 	yield WAIT;
 	assert.equals('1', link.getAttribute('focus-count'));
 }
@@ -157,7 +157,7 @@ function testAutoStartLinksOnly()
 	assert.contained(link, XMigemoUI.lastFoundRange);
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	assert.notEquals('1', link.getAttribute('focus-count'));
-	XMigemoUI.closeFindBar();
+	XMigemoUI.close();
 	yield WAIT;
 	assert.equals('1', link.getAttribute('focus-count'));
 }
@@ -174,7 +174,7 @@ function testManualStartLinksOnly()
 	assert.contained(link, XMigemoUI.lastFoundRange);
 	assert.isTrue(link.hasAttribute(XMigemoUI.kFOCUSED));
 	assert.notEquals('1', link.getAttribute('focus-count'));
-	XMigemoUI.closeFindBar();
+	XMigemoUI.close();
 	yield WAIT;
 	assert.equals('1', link.getAttribute('focus-count'));
 }

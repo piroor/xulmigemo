@@ -78,7 +78,7 @@ function commonSetUp(aURI)
 	field = XMigemoUI.field;
 	inputElem = field.inputField;
 
-	gFindBar.closeFindBar();
+	gFindBar.close();
 
 	yield WAIT;
 }

@@ -14,7 +14,7 @@ function tearDown() {
 testBS.description = 'BSキーで全削除';
 function testBS()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 
 	var mode;
 	function doTest() {
@@ -44,7 +44,7 @@ function testBS()
 testDel.description = 'Delキーで全削除';
 function testDel()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 
 	var mode;
 	function doTest() {
@@ -74,7 +74,7 @@ function testDel()
 testInput.description = '文字入力で全削除';
 function testInput()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 
 	var mode;
 	function doTest() {

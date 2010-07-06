@@ -19,11 +19,11 @@ function testStartQuickMigemoFindFromMigemoFind()
 {
 	XMigemoUI.autoStartQuickFind = true;
 
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 	yield WAIT;
-	gFindBar.closeFindBar();
+	gFindBar.close();
 	yield WAIT;
 
 	var findTerm = 'nihongo';

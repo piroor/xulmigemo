@@ -66,18 +66,18 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
 
-	gFindBar.closeFindBar();
+	gFindBar.close();
 	yield WAIT;
 	var selection = selectTextInPage();
 	var lastFindTerm = selection.toString();
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	assert.highlightCheck(false, true);
 
-	gFindBar.closeFindBar();
+	gFindBar.close();
 	yield WAIT;
 	selection.removeAllRanges();
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	assert.equals(lastFindTerm, field.value);
 	assert.highlightCheck(false, false);

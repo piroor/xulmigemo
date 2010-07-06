@@ -49,7 +49,7 @@ function testClickOnScreen()
 {
 	XMigemoUI.highlightCheckedAlwaysMinLength = 5;
 
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	field.focus();
 
