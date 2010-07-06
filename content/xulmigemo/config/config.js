@@ -1,3 +1,7 @@
+Components.utils.import('resource://multipletab-modules/extensions.js', {});
+Components.utils.import('resource://multipletab-modules/namespace.jsm');
+var extensions = getNamespaceFor('piro.sakura.ne.jp')['piro.sakura.ne.jp'].extensions;
+
 var gDisableIME;
 var gNormalFind;
 var gQuickFind;
@@ -127,8 +131,6 @@ function initCombinationPane()
 			.getService(Components.interfaces.nsIXULAppInfo);
 	const comparator = Components.classes['@mozilla.org/xpcom/version-comparator;1']
 						.getService(Components.interfaces.nsIVersionComparator);
-	const ExtensionManager = Components.classes['@mozilla.org/extensions/manager;1']
-				.getService(Components.interfaces.nsIExtensionManager);
 
 	const kID_FIREFOX = '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}';
 	const kID_THUNDERBIRD = '{3550f703-e582-4d05-9a08-453d09bdfdc6}';
@@ -154,8 +156,10 @@ function initCombinationPane()
 		thunderbirdBox.setAttribute('collapsed', true);
 
 	var autocompletemanagerBox = document.getElementById('xulmigemo.combination.autocompletemanager-check');
-	if (ExtensionManager.getInstallLocation('acmanager@ucla'))
-		autocompletemanagerBox.removeAttribute('collapsed');
-	else
-		autocompletemanagerBox.setAttribute('collapsed', true);
+	autocompletemanagerBox.setAttribute('collapsed', true);
+	extensions.isAvailable('acmanager@ucla', {
+		ok : function() {
+			autocompletemanagerBox.removeAttribute('collapsed');
+		}
+	});
 }
