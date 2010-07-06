@@ -14,13 +14,13 @@ assert.highlightCheck = function(aDisabled, aChecked, aMessage) {
 		assert.isFalse(check.checked, aMessage);
 }
 
-assert.find_found = function(aTerm, aMessage) {
+assert.found = function(aTerm, aMessage) {
 	action.inputTo(field, aTerm);
 	yield 1500;
 	assert.notEquals('notfound', field.getAttribute('status'), aMessage);
 }
 
-assert.find_notFound = function(aTerm, aMessage) {
+assert.nofFound = function(aTerm, aMessage) {
 	action.inputTo(field, aTerm);
 	yield 1500;
 	assert.equals('notfound', field.getAttribute('status'), aMessage);
@@ -45,10 +45,10 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 	XMigemoUI.caseSensitiveCheck.checked = false;
 	field.focus();
 
-	yield Do(assert.find_found(aOKShort, message));
+	yield Do(assert.found(aOKShort, message));
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
-	yield Do(assert.find_found(aOKLong, message));
+	yield Do(assert.found(aOKLong, message));
 	assert.isTrue(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, true, message);
 	var xpathResult = content.document.evaluate(
@@ -59,10 +59,10 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 		null
 	);
 	assert.equals(aOKLongNum, xpathResult.snapshotLength, message);
-	yield Do(assert.find_notFound(aNGShort, message));
+	yield Do(assert.nofFound(aNGShort, message));
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
-	yield Do(assert.find_notFound(aNGLong, message));
+	yield Do(assert.nofFound(aNGLong, message));
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
 

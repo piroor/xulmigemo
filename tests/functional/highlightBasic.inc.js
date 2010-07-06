@@ -94,7 +94,7 @@ function testAutoHighlightAndModeSwitch()
 	field.focus();
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	assert.highlightCheck(true, false);
-	yield Do(assert.find_found('sample'));
+	yield Do(assert.found('sample'));
 	yield WAIT;
 	assert.highlightCheck(false, true);
 
@@ -123,7 +123,7 @@ function testAutoHighlightAndModeSwitch()
 	field.focus();
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	assert.highlightCheck(true, false);
-	yield Do(assert.find_found('sample'));
+	yield Do(assert.found('sample'));
 	yield WAIT;
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());

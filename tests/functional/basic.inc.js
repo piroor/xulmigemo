@@ -1,5 +1,5 @@
 
-assert.find_found = function(aMode, aTerm, aFound) {
+assert.found = function(aMode, aTerm, aFound) {
 	action.inputTo(field, aTerm);
 	yield WAIT;
 	assert.notEquals('notfound', field.getAttribute('status'), aMode);
@@ -9,13 +9,13 @@ assert.find_found = function(aMode, aTerm, aFound) {
 		assert.matches(aFound, XMigemoUI.lastFoundRange.toString(), aMode);
 }
 
-assert.find_notFound = function(aMode, aTerm) {
+assert.nofFound = function(aMode, aTerm) {
 	action.inputTo(field, aTerm);
 	yield WAIT;
 	assert.equals('notfound', field.getAttribute('status'), aMode);
 }
 
-assert.find_again = function(aMode, aKeyOptions, aTimes, aFound) {
+assert.findAgain = function(aMode, aKeyOptions, aTimes, aFound) {
 	yield Do(keypressMultiply([field].concat(aKeyOptions), aTimes));
 	if (aFound)
 		assert.equals(aFound, XMigemoUI.lastFoundRange.toString(), aMode);
@@ -48,25 +48,25 @@ function testNormalFind()
 
 	// 検索に成功するケース
 	var findTerm = 'text field';
-	yield Do(assert.find_found(mode, findTerm, findTerm));
+	yield Do(assert.found(mode, findTerm, findTerm));
 
 	// 見つからない単語
-	yield Do(assert.find_notFound(mode, 'not found text'));
+	yield Do(assert.nofFound(mode, 'not found text'));
 
 
 	// Enterキーでの再検索
 	var key = ['return'];
-	yield Do(assert.find_found(mode, findTerm, findTerm));
+	yield Do(assert.found(mode, findTerm, findTerm));
 	var lastFoundRange = XMigemoUI.lastFoundRange;
 	assert.isTrue(lastFoundRange);
 
-	yield Do(assert.find_again(mode, key, 4));
+	yield Do(assert.findAgain(mode, key, 4));
 	var foundRange = XMigemoUI.lastFoundRange;
 	assert.notEquals(lastFoundRange.startContainer, foundRange.startContainer);
 	lastFoundRange = foundRange;
 
 	key = ['return', { shiftKey : true }];
-	yield Do(assert.find_again(mode, key, 4));
+	yield Do(assert.findAgain(mode, key, 4));
 	foundRange = XMigemoUI.lastFoundRange;
 	assert.notEquals(lastFoundRange.startContainer, foundRange.startContainer);
 	lastFoundRange = foundRange;
@@ -74,13 +74,13 @@ function testNormalFind()
 
 	// F3キーでの再検索
 	key = ['F3'];
-	yield Do(assert.find_again(mode, key, 4));
+	yield Do(assert.findAgain(mode, key, 4));
 	foundRange = XMigemoUI.lastFoundRange;
 	assert.notEquals(lastFoundRange.startContainer, foundRange.startContainer);
 	lastFoundRange = foundRange;
 
 	key = ['F3', { shiftKey : true }];
-	yield Do(assert.find_again(mode, key, 4));
+	yield Do(assert.findAgain(mode, key, 4));
 	foundRange = XMigemoUI.lastFoundRange;
 	assert.notEquals(lastFoundRange.startContainer, foundRange.startContainer);
 }
@@ -98,32 +98,32 @@ function testRegExpFind()
 
 	// 検索に成功するケース
 	var findTerm = 'text|field|single';
-	yield Do(assert.find_found(mode, findTerm, /text|field|single/));
+	yield Do(assert.found(mode, findTerm, /text|field|single/));
 
 	// 見つからない単語
-	yield Do(assert.find_notFound(mode, 'not found text'));
+	yield Do(assert.nofFound(mode, 'not found text'));
 
 
 	// Enterキーでの再検索
-	yield Do(assert.find_found(mode, findTerm, 'text'));
+	yield Do(assert.found(mode, findTerm, 'text'));
 	var key = ['return'];
-	yield Do(assert.find_again(mode, key, 1, 'single'));
-	yield Do(assert.find_again(mode, key, 1, 'field'));
-	yield Do(assert.find_again(mode, key, 3, 'field'));
+	yield Do(assert.findAgain(mode, key, 1, 'single'));
+	yield Do(assert.findAgain(mode, key, 1, 'field'));
+	yield Do(assert.findAgain(mode, key, 3, 'field'));
 	key = ['return', { shiftKey : true }];
-	yield Do(assert.find_again(mode, key, 3, 'field'));
-	yield Do(assert.find_again(mode, key, 1, 'single'));
-	yield Do(assert.find_again(mode, key, 1, 'text'));
+	yield Do(assert.findAgain(mode, key, 3, 'field'));
+	yield Do(assert.findAgain(mode, key, 1, 'single'));
+	yield Do(assert.findAgain(mode, key, 1, 'text'));
 
 
 	// F3キーでの再検索
 	key = ['F3'];
-	yield Do(assert.find_again(mode, key, 1, 'single'));
-	yield Do(assert.find_again(mode, key, 1, 'field'));
+	yield Do(assert.findAgain(mode, key, 1, 'single'));
+	yield Do(assert.findAgain(mode, key, 1, 'field'));
 
 	key = ['F3', { shiftKey : true }];
-	yield Do(assert.find_again(mode, key, 1, 'single'));
-	yield Do(assert.find_again(mode, key, 1, 'text'));
+	yield Do(assert.findAgain(mode, key, 1, 'single'));
+	yield Do(assert.findAgain(mode, key, 1, 'text'));
 }
 
 testMigemoFind.description = 'Migemo検索';
@@ -139,27 +139,27 @@ function testMigemoFind()
 
 	// 検索に成功するケース
 	var findTerm = 'nihongo';
-	yield Do(assert.find_found(mode, findTerm, '日本語'));
+	yield Do(assert.found(mode, findTerm, '日本語'));
 
 	// 見つからない単語
-	yield Do(assert.find_notFound(mode, 'eigo'));
+	yield Do(assert.nofFound(mode, 'eigo'));
 
 
 	// Enterキーでの再検索
-	yield Do(assert.find_found(mode, findTerm, '日本語'));
+	yield Do(assert.found(mode, findTerm, '日本語'));
 	var key = ['return'];
-	yield Do(assert.find_again(mode, key, 3, 'nihongo'));
-	yield Do(assert.find_again(mode, key, 2, 'にほんご'));
+	yield Do(assert.findAgain(mode, key, 3, 'nihongo'));
+	yield Do(assert.findAgain(mode, key, 2, 'にほんご'));
 	key = ['return', { shiftKey : true }];
-	yield Do(assert.find_again(mode, key, 1, '日本語'));
-	yield Do(assert.find_again(mode, key, 2, 'ニホンゴ'));
+	yield Do(assert.findAgain(mode, key, 1, '日本語'));
+	yield Do(assert.findAgain(mode, key, 2, 'ニホンゴ'));
 
 
 	// F3キーでの再検索
 	key = ['F3'];
-	yield Do(assert.find_again(mode, key, 2, '日本語'));
+	yield Do(assert.findAgain(mode, key, 2, '日本語'));
 	key = ['F3', { shiftKey : true }];
-	yield Do(assert.find_again(mode, key, 2, 'ニホンゴ'));
+	yield Do(assert.findAgain(mode, key, 2, 'ニホンゴ'));
 }
 
 testDynamicSwitch.description = '複数のモードを切り替えながらの検索';
@@ -170,17 +170,17 @@ function testDynamicSwitch()
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 	yield WAIT;
 
-	yield Do(assert.find_found('FIND_MODE_NATIVE', 'text field', 'text field'));
+	yield Do(assert.found('FIND_MODE_NATIVE', 'text field', 'text field'));
 
 	action.inputTo(field, '');
 	yield WAIT;
 
 	action.clickOn(XMigemoUI.findModeSelector.childNodes[2]);
 	yield WAIT;
-	yield Do(assert.find_found('FIND_MODE_MIGEMO', 'nihongo', '日本語'));
+	yield Do(assert.found('FIND_MODE_MIGEMO', 'nihongo', '日本語'));
 
 	var key = ['F3'];
-	yield Do(assert.find_again('FIND_MODE_MIGEMO', key, 1, 'にほんご'));
+	yield Do(assert.findAgain('FIND_MODE_MIGEMO', key, 1, 'にほんご'));
 
 	action.inputTo(field, '');
 	yield WAIT;
@@ -188,9 +188,9 @@ function testDynamicSwitch()
 
 	action.clickOn(XMigemoUI.findModeSelector.childNodes[0]);
 	yield WAIT;
-	yield Do(assert.find_found('FIND_MODE_NATIVE', 'link', 'link'));
+	yield Do(assert.found('FIND_MODE_NATIVE', 'link', 'link'));
 
-	yield Do(assert.find_again('FIND_MODE_NATIVE', key, 1, 'link'));
+	yield Do(assert.findAgain('FIND_MODE_NATIVE', key, 1, 'link'));
 }
 
 testFillWithSelection.description = '検索欄を選択範囲で埋める';
@@ -243,7 +243,7 @@ function assertLinkFind(aMode)
 	yield WAIT;
 	XMigemoUI.findMode = XMigemoUI[aMode];
 	yield WAIT;
-	yield Do(assert.find_found(aMode, 'sample', 'sample'));
+	yield Do(assert.found(aMode, 'sample', 'sample'));
 	assert.contained($('first', content), XMigemoUI.lastFoundRange);
 	assert.notContained(link, XMigemoUI.lastFoundRange);
 	XMigemoUI.findNext();
