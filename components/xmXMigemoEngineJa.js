@@ -16,7 +16,7 @@ function xmXMigemoEngineJa() {
 	mydump('create instance xmIXMigemoEngine(lang=ja)');
 }
 
-.prototype = {
+xmXMigemoEngineJa.prototype = {
 	lang : 'ja',
 
 	classDescription : 'xmXMigemoEngineJa',
