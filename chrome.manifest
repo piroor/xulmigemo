@@ -17,9 +17,9 @@ overlay	chrome://messenger/content/messageWindow.xul	chrome://xulmigemo/content/
 locale	xulmigemo	en-US	jar:chrome/xulmigemo.jar!/locale/en-US/xulmigemo/
 locale	xulmigemo-platform	en-US	jar:chrome/xulmigemo.jar!/locale/en-US/xulmigemo/
 locale	xulmigemo-platform	en-US	jar:platform/Darwin/chrome/xulmigemo.jar!/locale/en-US/xulmigemo/ os=Darwin
-locale	xulmigemo	ja-JP	jar:chrome/xulmigemo.jar!/locale/ja-JP/xulmigemo/
-locale	xulmigemo-platform	ja-JP	jar:chrome/xulmigemo.jar!/locale/ja-JP/xulmigemo/
-locale	xulmigemo-platform	ja-JP	jar:platform/Darwin/chrome/xulmigemo.jar!/locale/ja-JP/xulmigemo/ os=Darwin
+locale	xulmigemo	ja	jar:chrome/xulmigemo.jar!/locale/ja/xulmigemo/
+locale	xulmigemo-platform	ja	jar:chrome/xulmigemo.jar!/locale/ja/xulmigemo/
+locale	xulmigemo-platform	ja	jar:platform/Darwin/chrome/xulmigemo.jar!/locale/ja/xulmigemo/ os=Darwin
 
 skin	xulmigemo	classic/1.0	jar:chrome/xulmigemo.jar!/skin/classic/xulmigemo/
 
