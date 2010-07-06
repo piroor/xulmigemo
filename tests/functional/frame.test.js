@@ -23,7 +23,7 @@ testFindInFrame.description = 'フレーム内の検索';
 testFindInFrame.setUp = function() {
 	yield Do(commonSetUp(baseURL+'../fixtures/frameTest.html'));
 
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 	yield WAIT;
@@ -64,7 +64,7 @@ testNotFound.description = '検索語句を含まないフレームがある場�
 testNotFound.setUp = function() {
 	yield Do(commonSetUp(baseURL+'../fixtures/frameTest2.html'));
 
-	gFindBar.openFindBar();
+	gFindBar.open();
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 	yield WAIT;
 };

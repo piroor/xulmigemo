@@ -17,7 +17,7 @@ function tearDown()
 
 function testRegExpFind()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 	field.focus();

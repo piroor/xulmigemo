@@ -137,7 +137,7 @@ function test_manualSwitch_circulation_forcedFindMode()
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	yield Do(assert.findCommand('FIND_MODE_NATIVE'));
 
-	XMigemoUI.closeFindBar();
+	XMigemoUI.close();
 	yield WAIT;
 
 	XMigemoUI.forcedFindMode = XMigemoUI.FIND_MODE_REGEXP;
@@ -149,7 +149,7 @@ function test_manualSwitch_circulation_forcedFindMode()
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	yield Do(assert.findCommand('FIND_MODE_REGEXP'));
 
-	XMigemoUI.closeFindBar();
+	XMigemoUI.close();
 	yield WAIT;
 
 	XMigemoUI.forcedFindMode = XMigemoUI.FIND_MODE_MIGEMO;
@@ -165,7 +165,7 @@ function test_manualSwitch_circulation_forcedFindMode()
 testAutoSwitch.description = '検索モードの自動切り替え';
 function testAutoSwitch()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	field.focus();
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;

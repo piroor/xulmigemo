@@ -438,9 +438,9 @@ var XMigemoUI = {
 	set hidden(aValue)
 	{
 		if (aValue)
-			this.closeFindBar();
+			this.close();
 		else
-			this.openFindBar();
+			this.open();
 		return aValue;
 	},
  
@@ -2050,8 +2050,8 @@ var XMigemoUI = {
 
 		gFindBar.xmigemoOriginalOpen  = gFindBar.open;
 		gFindBar.xmigemoOriginalClose = gFindBar.close;
-		gFindBar.open                 = this.openFindBar;
-		gFindBar.close                = this.closeFindBar;
+		gFindBar.open                 = this.open;
+		gFindBar.close                = this.close;
 
 		gFindBar.xmigemoOriginalToggleHighlight = gFindBar.toggleHighlight;
 		gFindBar.toggleHighlight = this.toggleHighlight;
@@ -2252,7 +2252,7 @@ var XMigemoUI = {
 	},
 	shouldIgnoreFindLinksOnlyBehavior : true,
  
-	openFindBar : function(aShowMinimalUI) 
+	open : function(aShowMinimalUI) 
 	{
 		var ui = XMigemoUI;
 		ui.updateFindModeOnOpen(
@@ -2291,7 +2291,7 @@ var XMigemoUI = {
 		}
 	},
   
-	closeFindBar : function() 
+	close : function() 
 	{
 		var scope = window.gFindBar ? window.gFindBar : this ;
 		scope.xmigemoOriginalClose.apply(scope, arguments);

@@ -37,7 +37,7 @@ function tearDown()
 testNormalFind.description = '通常の検索';
 function testNormalFind()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 
 	var mode = 'FIND_MODE_REGEXP';
@@ -88,7 +88,7 @@ function testNormalFind()
 testRegExpFind.description = '正規表現検索';
 function testRegExpFind()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 
 	var mode = 'FIND_MODE_REGEXP';
@@ -129,7 +129,7 @@ function testRegExpFind()
 testMigemoFind.description = 'Migemo検索';
 function testMigemoFind()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 
 	var mode = 'FIND_MODE_MIGEMO';
@@ -165,7 +165,7 @@ function testMigemoFind()
 testDynamicSwitch.description = '複数のモードを切り替えながらの検索';
 function testDynamicSwitch()
 {
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 	yield WAIT;
@@ -210,7 +210,7 @@ function testFillWithSelection()
 	assert.prefill = function(aMode, aPreFill) {
 		XMigemoUI.prefillWithSelection = aPreFill;
 		var selectedTerm = selectInContent();
-		gFindBar.openFindBar();
+		gFindBar.open();
 		yield WAIT;
 		if (aPreFill) {
 			assert.equals(selectedTerm, XMigemoUI.findTerm, aMode);
@@ -219,7 +219,7 @@ function testFillWithSelection()
 		else {
 			assert.equals('', XMigemoUI.findTerm, aMode);
 		}
-		gFindBar.closeFindBar();
+		gFindBar.close();
 		yield WAIT;
 	}
 
@@ -239,7 +239,7 @@ function testFillWithSelection()
 function assertLinkFind(aMode)
 {
 	var link = content.document.getElementsByTagName('a')[0];
-	gFindBar.openFindBar();
+	gFindBar.open();
 	yield WAIT;
 	XMigemoUI.findMode = XMigemoUI[aMode];
 	yield WAIT;
