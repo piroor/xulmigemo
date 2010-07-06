@@ -1,16 +1,16 @@
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+const Cc = Components.classes; 
+const Ci = Components.interfaces;
 
-const ObserverService = Components
-		.classes['@mozilla.org/observer-service;1']
-		.getService(Components.interfaces.nsIObserverService);
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-const IOService = Components
-		.classes['@mozilla.org/network/io-service;1']
-		.getService(Components.interfaces.nsIIOService);
+const ObserverService = Cc['@mozilla.org/observer-service;1']
+		.getService(Ci.nsIObserverService);
 
-const Prefs = Components
-		.classes['@mozilla.org/preferences;1']
-		.getService(Components.interfaces.nsIPrefBranch);
+const IOService = Cc['@mozilla.org/network/io-service;1']
+		.getService(Ci.nsIIOService);
+
+const Prefs = Cc['@mozilla.org/preferences;1']
+		.getService(Ci.nsIPrefBranch);
  
 function XMigemoStartupService() { 
 }
@@ -25,7 +25,7 @@ XMigemoStartupService.prototype = {
 		{ category : 'app-startup', service : true }
 	],
 
-	QueryInterface : XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
+	QueryInterface : XPCOMUtils.generateQI([Ci.nsIObserver]),
 	
 	observe : function(aSubject, aTopic, aData) 
 	{
@@ -54,9 +54,8 @@ XMigemoStartupService.prototype = {
 			this.updateGlobalStyleSheets();
 
 		if (Prefs.getCharPref('xulmigemo.lang') == '') {
-			var WindowWatcher = Components
-				.classes['@mozilla.org/embedcomp/window-watcher;1']
-				.getService(Components.interfaces.nsIWindowWatcher);
+			var WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
+				.getService(Ci.nsIWindowWatcher);
 			WindowWatcher.openWindow(
 				null,
 				'chrome://xulmigemo/content/initializer/langchooser.xul',
@@ -67,6 +66,12 @@ XMigemoStartupService.prototype = {
 		}
 
 		ObserverService.notifyObservers(null, 'XMigemo:initialized', null);
+
+		var XMigemoDicManager = Cc['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
+				.getService(Ci.xmIXMigemoDicManager);
+		if (!XMigemoDicManager.available &&
+			Prefs.getBoolPref('xulmigemo.dictionary.useInitializeWizard'))
+			XMigemoDicManager.showInitializeWizard(null);
 	},
  
 	updateGlobalStyleSheets : function() 
@@ -87,9 +92,9 @@ XMigemoStartupService.prototype = {
 	get SSS() 
 	{
 		if (this._SSS === void(0)) {
-			if ('@mozilla.org/content/style-sheet-service;1' in Components.classes) {
-				this._SSS = Components.classes['@mozilla.org/content/style-sheet-service;1']
-						.getService(Components.interfaces.nsIStyleSheetService);
+			if ('@mozilla.org/content/style-sheet-service;1' in Cc) {
+				this._SSS = Cc['@mozilla.org/content/style-sheet-service;1']
+						.getService(Ci.nsIStyleSheetService);
 			}
 			if (!this._SSS)
 				this._SSS = null;
