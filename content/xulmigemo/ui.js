@@ -2061,18 +2061,33 @@ var XMigemoUI = {
 	updateFindBarMethods : function()
 	{
 		eval('gFindBar._find = '+gFindBar._find.toSource()
-			.replace(/(this._updateStatusUI\([^\)]*\))/, '$1; XMigemoFind.scrollSelectionToCenter(window._content);')
-			.replace(/\{/, '{ XMigemoUI.presetSearchString(arguments.length ? arguments[0] : null); ')
+			.replace(
+				'{',
+				'{ XMigemoUI.presetSearchString(arguments.length ? arguments[0] : null); '
+			)
+			.replace(
+				/(this._updateStatusUI\([^\)]*\))/,
+				'$1; XMigemoFind.scrollSelectionToCenter(null, true);'
+			)
 		);
 		eval('gFindBar.xmigemoOriginalFindNext = '+gFindBar.xmigemoOriginalFindNext.toSource()
-			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(window._content); $1')
+			.replace(
+				/(return res;)/,
+				'XMigemoFind.scrollSelectionToCenter(null, true); $1'
+			)
 		);
 		eval('gFindBar.xmigemoOriginalFindPrevious = '+gFindBar.xmigemoOriginalFindPrevious.toSource()
-			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(window._content); $1')
+			.replace(
+				/(return res;)/,
+				'XMigemoFind.scrollSelectionToCenter(null, true); $1'
+			)
 		);
 
 		eval('gFindBar._findAgain = '+gFindBar._findAgain.toSource()
-			.replace(/(return res;)/, 'XMigemoFind.scrollSelectionToCenter(window._content); $1')
+			.replace(
+				/(return res;)/,
+				'XMigemoFind.scrollSelectionToCenter(null, true); $1'
+			)
 		);
 
 		eval('gFindBar._highlightDoc = '+gFindBar._highlightDoc.toSource()

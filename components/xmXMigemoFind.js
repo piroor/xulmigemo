@@ -908,7 +908,7 @@ mydump("setSelectionAndScroll");
 				newSelCon.SELECTION_FOCUS_REGION, true);
 	},
 	
-	scrollSelectionToCenter : function(aFrame) 
+	scrollSelectionToCenter : function(aFrame, aPreventAnimation) 
 	{
 		if (!this.prefs.getPref('xulmigemo.scrollSelectionToCenter')) return;
 
@@ -928,6 +928,7 @@ mydump("setSelectionAndScroll");
 		var elem;
 
 		var padding = Math.max(0, Math.min(100, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.padding')));
+
 		var startX = frame.scrollX;
 		var startY = frame.scrollY;
 		var targetX,
@@ -984,7 +985,8 @@ mydump("setSelectionAndScroll");
 			frame.__xulmigemo__findSmoothScrollTask = null;
 		}
 
-		if (!this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled')) {
+		if (aPreventAnimation ||
+			!this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled')) {
 			frame.scrollTo(finalX, finalY);
 			return;
 		}

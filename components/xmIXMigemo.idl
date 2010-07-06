@@ -364,7 +364,8 @@ interface xmIXMigemoFind : nsIObserver
 
 	void setSelectionLook(in nsIDOMDocument document, in boolean changeColor);
 
-	void scrollSelectionToCenter(in nsIDOMWindow frame);
+	void scrollSelectionToCenter(in nsIDOMWindow frame, [optional] in boolean preventAnimation);
+	nsIDOMWindow getSelectionFrame(in nsIDOMWindow frame);
 
 	nsIDOMElement getParentLinkFromRange(in nsIDOMRange range);
 
