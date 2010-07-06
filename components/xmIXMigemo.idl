@@ -195,7 +195,10 @@ interface xmIXMigemoDicManager : nsIObserver
 	readonly attribute xmIXMigemoDictionary dictionary;
 	readonly attribute xmIXMigemoCache cache;
 
+	readonly attribute boolean available;
+
 	void init(in xmIXMigemoDictionary dictionary, in xmIXMigemoCache cache);
+	void showInitializeWizard(in nsIDOMWindow owner);
 
 	AString showDirectoryPicker(in AString defaultDirectoryPath);
 };
