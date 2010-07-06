@@ -898,6 +898,7 @@ var XMigemoPlaces = {
 		window.removeEventListener('load', this, false);
 
 		XMigemoService.addPrefListener(this);
+		XMigemoService.firstListenPrefChange(this);
 		window.addEventListener('unload', this, false);
 	},
  

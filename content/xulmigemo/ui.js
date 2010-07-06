@@ -2650,6 +2650,7 @@ var XMigemoUI = {
 
 		this.upgradeFindModePrefs();
 		XMigemoService.addPrefListener(this);
+		XMigemoService.firstListenPrefChange(this);
 
 		window.setTimeout(function(aSelf) {
 			aSelf.delayedInit();

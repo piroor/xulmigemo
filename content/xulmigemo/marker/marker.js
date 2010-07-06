@@ -39,6 +39,7 @@ var XMigemoMarker = {
 		window.addEventListener('unload', this, false);
 
 		XMigemoService.addPrefListener(this);
+		XMigemoService.firstListenPrefChange(this);
 
 		var bar = XMigemoUI.findBar;
 		bar.addEventListener('XMigemoFindBarOpen', this, false);

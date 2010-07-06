@@ -17,6 +17,7 @@ var XMigemoTabPreviews = {
 		window.addEventListener('unload', this, false);
 
 		XMigemoService.addPrefListener(this);
+		XMigemoService.firstListenPrefChange(this);
 
 		var getter = ctrlTab.__lookupGetter__('tabList');
 		eval('getter = '+getter.toSource().replace(
