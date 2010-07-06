@@ -39,11 +39,17 @@ XMigemoStartupService.prototype = {
 				return;
 
 			case 'profile-after-change':
+				ObserverService.addObserver(this, 'final-ui-startup', false);
 				if (this.initialized) {
-					ObserverService.addObserver(this, 'profile-after-change', false);
+					ObserverService.removeObserver(this, 'profile-after-change');
 					this.initialized = false;
 				}
 				this.init();
+				return;
+
+			case 'final-ui-startup':
+				ObserverService.removeObserver(this, 'final-ui-startup');
+				this.postInit();
 				return;
 		}
 	},
@@ -64,14 +70,17 @@ XMigemoStartupService.prototype = {
 				null
 			);
 		}
-
+	},
+ 
+	postInit : function() 
+	{
 		ObserverService.notifyObservers(null, 'XMigemo:initialized', null);
 
-		var XMigemoDicManager = Cc['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-				.getService(Ci.xmIXMigemoDicManager);
-		if (!XMigemoDicManager.available &&
-			Prefs.getBoolPref('xulmigemo.dictionary.useInitializeWizard'))
-			XMigemoDicManager.showInitializeWizard(null);
+		if (Prefs.getCharPref('xulmigemo.lang')) {
+			Cc['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
+				.getService(Ci.xmIXMigemoDicManager)
+				.init(null, null);
+		}
 	},
  
 	updateGlobalStyleSheets : function() 
