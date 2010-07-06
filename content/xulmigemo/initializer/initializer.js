@@ -79,7 +79,11 @@ function startDownload()
 		document.documentElement.canAdvance = true;
 	};
 
-	XMigemoFileDownloader.downloadDictionary();
+	try {
+		XMigemoFileDownloader.downloadDictionary();
+	}
+	catch(e) {
+	}
 }
 
 
