@@ -340,9 +340,9 @@ interface xmIXMigemoFind : nsIObserver
 	AString removeKeyword(in double length);
 	void shiftLastKeyword();
 
-	void find(in boolean backward, in AString keyword, in boolean forceFocus);
-	void findNext(in boolean forceFocus);
-	void findPrevious(in boolean forceFocus);
+	void find(in boolean backward, in AString keyword, [optional] in boolean forceFocus);
+	void findNext([optional] in boolean forceFocus);
+	void findPrevious([optional] in boolean forceFocus);
 
 	const unsigned short NOTFOUND          = 0;
 	const unsigned short FOUND             = 1;
@@ -369,8 +369,8 @@ interface xmIXMigemoFind : nsIObserver
 
 	nsIDOMElement getParentLinkFromRange(in nsIDOMRange range);
 
-	void clear(in boolean focusToFoundTarget);
-	void exitFind(in boolean focusToFoundTarget);
+	void clear([optional] in boolean focusToFoundTarget);
+	void exitFind([optional] in boolean focusToFoundTarget);
 };
 
 
