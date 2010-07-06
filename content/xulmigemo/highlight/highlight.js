@@ -20,7 +20,7 @@ var XMigemoHighlight = {
 
 	kHIGHLIGHTS : 'ancestor-or-self::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search"]',
 	kANIMATIONS : 'descendant::*[@class="__mozilla-findbar-animation"]',
-	 
+	
 	init : function() 
 	{
 		window.removeEventListener('load', this, false);
@@ -168,7 +168,7 @@ var XMigemoHighlight = {
 
 			case 'XMigemoFindBarClose':
 				this.clearAnimationStyleIn(XMigemoUI.activeBrowser.contentWindow, true);
-				this.clearAnimationStyle();
+				this.stopAllAnimations();
 				window.setTimeout(function(aSelf) {
 					if (!aSelf.strongHighlight) return;
 					aSelf.stopListen();
@@ -195,7 +195,7 @@ var XMigemoHighlight = {
 			case 'XMigemoFindAgain':
 				if (this.animationStyle == this.STYLE_ZOOM)
 					this.clearAnimationStyleIn(XMigemoUI.activeBrowser.contentWindow, true);
-				this.clearAnimationStyle()
+				this.stopAllAnimations()
 				break;
 
 			case 'SubBrowserFocusMoved':
@@ -215,13 +215,13 @@ var XMigemoHighlight = {
 		if (index > -1)
 			this._eventCancelers.splice(index, 1);
 	},
-	 
+	
 	onMouseDown : function(aEvent) 
 	{
 		if (aEvent.originalTarget.ownerDocument.defaultView.top == window.top ||
 			XMigemoService.isEventFiredOnScrollBar(aEvent) ||
-			!window.content ||
-			!window.content.__moz_xmigemoHighlightedScreen)
+			!XMigemoUI.activeBrowser.contentWindow ||
+			!XMigemoUI.activeBrowser.contentWindow.__moz_xmigemoHighlightedScreen)
 			return;
 
 		var node = aEvent.originalTarget;
@@ -246,8 +246,8 @@ var XMigemoHighlight = {
 	{
 		if (aEvent.originalTarget.ownerDocument.defaultView.top == window.top ||
 			XMigemoService.isEventFiredOnScrollBar(aEvent) ||
-			!window.content ||
-			!window.content.__moz_xmigemoHighlightedScreen)
+			!XMigemoUI.activeBrowser.contentWindow ||
+			!XMigemoUI.activeBrowser.contentWindow.__moz_xmigemoHighlightedScreen)
 			return;
 
 		var b = XMigemoUI.activeBrowser;
@@ -266,7 +266,7 @@ var XMigemoHighlight = {
 
 		var self = this;
 		var checker = function() {
-				var screen = window.content.document.getElementById(self.kSCREEN);
+				var screen = XMigemoUI.activeBrowser.contentWindow.document.getElementById(self.kSCREEN);
 				return !screen || !self.getBoxObjectFor(screen).width;
 			};
 		var callback = this.combinations.some(function(aCombination) {
@@ -282,7 +282,7 @@ var XMigemoHighlight = {
 		aEvent.stopPropagation();
 		aEvent.preventDefault();
 	},
-	 
+	
 	get isGestureInProgress() 
 	{
 		return (
@@ -414,7 +414,7 @@ var XMigemoHighlight = {
 /* Safari style highlight, dark screen 
 	based on http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
 */
-	 
+	
 	initializeHighlightScreen : function(aFrame, aDontFollowSubFrames) 
 	{
 		if (!aFrame)
@@ -429,7 +429,7 @@ var XMigemoHighlight = {
 
 		aFrame.__moz_xmigemoHighlightedScreenInitialized = true;
 	},
-	 
+	
 	insertHighlightScreen : function(aDocument) 
 	{
 		var doc = aDocument;
@@ -501,7 +501,7 @@ var XMigemoHighlight = {
 
 		migemo.repaintHighlights(doc, true, !aHighlight);
 	},
- 	
+ 
 	isDocumentHighlightable : function(aDocument) 
 	{
 		return (
@@ -589,16 +589,12 @@ var XMigemoHighlight = {
 		}
 		return null;
 	},
-	 
+	
 	animateFoundNode : function(aNode) 
 	{
 		var w = aNode.ownerDocument.defaultView;
 		this.clearAnimationStyleIn(w);
-		if (w.__xulmigemo__highlightAnimationTask) {
-			this.finishAnimation(w.__xulmigemo__highlightAnimationTask.animationNode);
-			XMigemoService.animationManager.removeTask(w.__xulmigemo__highlightAnimationTask);
-			w.__xulmigemo__highlightAnimationTask = null;
-		}
+		this.stopAllAnimations();
 
 		var animationNode = this.initAnimation(aNode);
 
@@ -769,6 +765,21 @@ var XMigemoHighlight = {
 		return aNode;
 	},
  
+	stopAllAnimations : function() 
+	{
+		var self = this;
+		(function(aFrame) {
+			var task = aFrame.__xulmigemo__highlightAnimationTask;
+			if (task) {
+				self.finishAnimation(task);
+				self.finishAnimation(task.animationNode);
+				XMigemoService.animationManager.removeTask(task);
+				aFrame.__xulmigemo__highlightAnimationTask = null;
+			}
+			Array.slice(aFrame.frames).forEach(arguments.callee);
+		})(XMigemoUI.activeBrowser.contentWindow);
+	},
+ 
 	setStylePropertyValue : function(aNode, aPropertyName, aValue) 
 	{
 		if ('style' in aNode) {
@@ -858,7 +869,7 @@ var XMigemoHighlight = {
 			}, 0, this, aEvent.view, aEvent.screenX, aEvent.screenY, aEvent.clientX, aEvent.clientY);
 		}
 	},
-	 
+	
 	getClickableElementFromPoint : function(aWindow, aScreenX, aScreenY, aClientX, aClientY) 
 	{
 		if ('elementFromPoint' in aWindow.document) {

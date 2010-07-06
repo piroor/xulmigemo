@@ -1545,7 +1545,7 @@ var XMigemoUI = {
 	doPrefillWithSelection : function(aShowMinimalUI) 
 	{
 		var win = document.commandDispatcher.focusedWindow;
-		if (!win || win.top == window.top) win = window.content;
+		if (!win || win.top == window.top) win = this.activeBrowser.contentWindow;
 		var sel = this.textUtils.trim(win && win.getSelection() ? win.getSelection().toString() : '' )
 					.replace(/\n/g, '');
 		if (!sel) return;
