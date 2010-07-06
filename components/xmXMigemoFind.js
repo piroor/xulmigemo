@@ -9,9 +9,6 @@ var Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
 
-var Prefs = Cc['@mozilla.org/preferences;1']
-			.getService(Ci.nsIPrefBranch);
-
 var xmIXMigemoFind = Ci.xmIXMigemoFind;
 
 var boxObjectModule = {};
@@ -91,7 +88,7 @@ xmXMigemoFind.prototype = {
 	get isLinksOnly() 
 	{
 		return this.manualLinksOnly ||
-			(this.isQuickFind && Prefs.getBoolPref('xulmigemo.linksonly'));
+			(this.isQuickFind && this.prefs.getPref('xulmigemo.linksonly'));
 	},
 	set isLinksOnly(val)
 	{
@@ -160,7 +157,7 @@ xmXMigemoFind.prototype = {
 	get core()
 	{
 		if (!this._core) {
-			var lang = Prefs.getCharPref('xulmigemo.lang');
+			var lang = this.prefs.getPref('xulmigemo.lang');
 			if (TEST && xmXMigemoCore) {
 				this._core = new xmXMigemoCore();
 				this._core.init(lang);
@@ -189,6 +186,16 @@ xmXMigemoFind.prototype = {
 		return this._textUtils;
 	},
 	_textUtils : null,
+ 
+	get prefs()
+	{
+		return this.namespace.prefs;
+	},
+ 
+	get animationManager()
+	{
+		return this.namespace.animationManager;
+	},
  
 /* Find */ 
 	
@@ -893,7 +900,7 @@ mydump("setSelectionAndScroll");
 		var selection = newSelCon.getSelection(newSelCon.SELECTION_NORMAL);
 		selection.addRange(aRange);
 
-		if (Prefs.getBoolPref('xulmigemo.scrollSelectionToCenter'))
+		if (this.prefs.getPref('xulmigemo.scrollSelectionToCenter'))
 			this.scrollSelectionToCenter(aDocument.defaultView);
 		else
 			newSelCon.scrollSelectionIntoView(
@@ -903,7 +910,7 @@ mydump("setSelectionAndScroll");
 	
 	scrollSelectionToCenter : function(aFrame) 
 	{
-		if (!Prefs.getBoolPref('xulmigemo.scrollSelectionToCenter')) return;
+		if (!this.prefs.getPref('xulmigemo.scrollSelectionToCenter')) return;
 
 		if (aFrame) aFrame.QueryInterface(Ci.nsIDOMWindow);
 
@@ -920,7 +927,9 @@ mydump("setSelectionAndScroll");
 		if (!selection || !selection.rangeCount) return;
 		var elem;
 
-		var padding = Math.max(0, Math.min(100, Prefs.getIntPref('xulmigemo.scrollSelectionToCenter.padding')));
+		var padding = Math.max(0, Math.min(100, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.padding')));
+		var startX = frame.scrollX;
+		var startY = frame.scrollY;
 		var targetX,
 			targetY,
 			targetW,
@@ -956,17 +965,53 @@ mydump("setSelectionAndScroll");
 
 		var viewW = frame.innerWidth;
 		var xUnit = viewW * (padding / 100);
-		var x = (targetX - frame.scrollX < xUnit) ? targetX - xUnit :
-				(targetX + targetW - frame.scrollX > viewW - xUnit) ? targetX + targetW - (viewW - xUnit) :
-					frame.scrollX ;
+		var finalX = (targetX - startX < xUnit) ?
+						targetX - xUnit :
+					(targetX + targetW - startX > viewW - xUnit) ?
+						targetX + targetW - (viewW - xUnit) :
+						startX ;
 
 		var viewH = frame.innerHeight;
 		var yUnit = viewH * (padding / 100);
-		var y = (targetY - frame.scrollY < yUnit ) ? targetY - yUnit  :
-				(targetY + targetH - frame.scrollY > viewH - yUnit ) ? targetY + targetH - (viewH - yUnit)  :
-					frame.scrollY ;
+		var finalY = (targetY - startY < yUnit ) ?
+						targetY - yUnit  :
+					(targetY + targetH - startY > viewH - yUnit ) ?
+						targetY + targetH - (viewH - yUnit)  :
+						startY ;
 
-		frame.scrollTo(x, y);
+		if (frame.__xulmigemo__findSmoothScrollTask) {
+			this.animationManager.removeTask(frame.__xulmigemo__findSmoothScrollTask);
+			frame.__xulmigemo__findSmoothScrollTask = null;
+		}
+
+		if (!this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled')) {
+			frame.scrollTo(finalX, finalY);
+			return;
+		}
+
+		var deltaX = finalX - startX;
+		var deltaY = finalY - startY;
+		var radian = 90 * Math.PI / 180;
+		frame.__xulmigemo__findSmoothScrollTask = function(aTime, aBeginning, aChange, aDuration) {
+			var x, y, finished;
+			if (aTime >= aDuration) {
+				frame.__xulmigemo__findSmoothScrollTask = null;
+				x = finalX;
+				y = finalY
+				finished = true;
+			}
+			else {
+				x = startX + (deltaX * Math.sin(aTime / aDuration * radian));
+				y = startY + (deltaY * Math.sin(aTime / aDuration * radian));
+				finished = false;
+			}
+			frame.scrollTo(x, y);
+			return finished;
+		};
+		this.animationManager.addTask(
+			frame.__xulmigemo__findSmoothScrollTask,
+			0, 0, this.prefs.getPref('xulmigemo.highlight.foundMarker.smoothScroll.duration')
+		);
 	},
  
 	getSelectionFrame : function(aFrame) 
@@ -1199,7 +1244,7 @@ mydump("setSelectionAndScroll");
 				switch (aData)
 				{
 					case 'xulmigemo.startfromviewport':
-						this.startFromViewport = Prefs.getBoolPref('xulmigemo.startfromviewport');
+						this.startFromViewport = this.prefs.getPref('xulmigemo.startfromviewport');
 						return;
 				}
 				return;
@@ -1222,9 +1267,15 @@ mydump("setSelectionAndScroll");
 
 		this.initialized = true;
 
+		var namespace = {};
+		Components.utils.import('resource://xulmigemo-modules/namespace.jsm', namespace);
+		this.namespace = namespace.getNamespaceFor('piro.sakura.ne.jp')['piro.sakura.ne.jp'];
+
+		Components.utils.import('resource://xulmigemo-modules/prefs.js');
+		Components.utils.import('resource://xulmigemo-modules/animationManager.js');
+
 		try {
-			var pbi = Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
-			pbi.addObserver(this.domain, this, false);
+			this.prefs.addPrefListener(this);
 		}
 		catch(e) {
 		}
@@ -1244,8 +1295,7 @@ mydump("setSelectionAndScroll");
 	destroy : function() 
 	{
 		try {
-			var pbi = Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
-			pbi.removeObserver(this.domain, this, false);
+			this.prefs.removePrefListener(this);
 		}
 		catch(e) {
 		}
