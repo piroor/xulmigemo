@@ -1,12 +1,12 @@
 var TEST = false; 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
+const Cc = Components.classes;
+const Ci = Components.interfaces;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 var timer = {};
 
-var Prefs = Cc['@mozilla.org/preferences;1']
+const Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
 function xmXMigemoTextUtils() { 
@@ -109,6 +109,19 @@ xmXMigemoTextUtils.prototype = {
 		var doc = aRange.startContainer;
 		if (doc.ownerDocument) doc = doc.ownerDocument;
 
+		var encoder = null;
+		if ('SkipInvisibleContent' in Ci.nsIDocumentEncoder) { // Firefox 4.0-
+			encoder = Cc['@mozilla.org/layout/documentEncoder;1?type=text/plain']
+						.createInstance(Ci.nsIDocumentEncoder);
+			encoder.init(
+				doc,
+				'text/plain',
+				Ci.nsIDocumentEncoder.OutputBodyOnly |
+				Ci.nsIDocumentEncoder.OutputLFLineBreak |
+				Ci.nsIDocumentEncoder.SkipInvisibleContent
+			);
+		}
+
 		if (Prefs.getBoolPref('javascript.enabled')) {
 			var noscript = doc.getElementsByTagName('noscript');
 			var trash = doc.createRange();
@@ -127,7 +140,7 @@ xmXMigemoTextUtils.prototype = {
 
 		try {
 			var nodes = doc.evaluate(
-					(aLazy ? this._lazyExceptionsExpression : this._exceptionsExpression ),
+					(aLazy || encoder ? this._lazyExceptionsExpression : this._exceptionsExpression ),
 					aRange.commonAncestorContainer,
 					null,
 					Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE,
@@ -135,7 +148,7 @@ xmXMigemoTextUtils.prototype = {
 				);
 			var node;
 			var found = false;
-			var selCon = aLazy ? null : this.getSelectionController(doc.defaultView) ;
+			var selCon = aLazy || encoder ? null : this.getSelectionController(doc.defaultView) ;
 			while (node = nodes.iterateNext())
 			{
 				nodeRange.selectNode(node);
@@ -147,7 +160,13 @@ xmXMigemoTextUtils.prototype = {
 						break;
 				}
 				textRange.setEndBefore(node);
-				result.push(textRange.toString());
+				if (encoder) {
+					encoder.setRange(textRange);
+					result.push(encoder.encodeToString());
+				}
+				else {
+					result.push(textRange.toString());
+				}
 				if (node.nodeType == node.TEXT_NODE) {
 					if (selCon.checkVisibility(node, 0, node.nodeValue.length))
 						result.push(node.nodeValue);
@@ -173,7 +192,13 @@ xmXMigemoTextUtils.prototype = {
 		}
 
 		textRange.setEnd(aRange.endContainer, aRange.endOffset);
-		result.push(textRange.toString());
+		if (encoder) {
+			encoder.setRange(textRange);
+			result.push(encoder.encodeToString());
+		}
+		else {
+			result.push(textRange.toString());
+		}
 
 		nodeRange.detach();
 		textRange.detach();
