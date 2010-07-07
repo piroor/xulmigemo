@@ -8,6 +8,7 @@ var XMigemoPlaces = {
 	restrictTyped : false,
 	matchBehavior : 1,
 	defaultBehavior : 0,
+	openPageAvailable : false,
  
 	TextUtils : Components 
 			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
@@ -62,12 +63,14 @@ var XMigemoPlaces = {
 		return info;
 	},
 	
-	kRESTRICT_HISTORY   : 1, 
-	kRESTRICT_BOOKMARKS : 2,
-	kRESTRICT_TAGGED    : 4,
-	kRESTRICT_TYPED     : 32,
-	kFIND_TITLE         : 8,
-	kFIND_URI           : 16,
+	kRESTRICT_HISTORY    : (1 << 0), 
+	kRESTRICT_BOOKMARKS  : (1 << 1),
+	kRESTRICT_TAGGED     : (1 << 2),
+	kFIND_TITLE          : (1 << 3),
+	kFIND_URI            : (1 << 4),
+	kRESTRICT_TYPED      : (1 << 5),
+	kRESTRICT_JAVASCRIPT : (1 << 6),
+	kRESTRICT_OPENPAGE   : (1 << 7),
 
 	findHistoryKey   : null,
 	findBookmarksKey : null,
@@ -75,6 +78,7 @@ var XMigemoPlaces = {
 	findTypedKey     : null,
 	findTitleKey     : null,
 	findURIKey       : null,
+	findOpenPageKey  : null,
 	findKeyRegExp    : null,
 	findKeyExtractRegExp : null,
  
@@ -100,6 +104,9 @@ var XMigemoPlaces = {
 		if (this.findTypedKey === '' ||
 			(this.findTypedKey && keys.indexOf(this.findTypedKey) > -1))
 			flag |= this.kRESTRICT_TYPED;
+		if (this.findOpenPageKey === '' ||
+			(this.findOpenPageKey && keys.indexOf(this.findOpenPageKey) > -1))
+			flag |= this.kRESTRICT_OPENPAGE;
 
 		if (!flag) flag |= sourcesFlag;
 
@@ -139,6 +146,7 @@ var XMigemoPlaces = {
 		if (this.findBookmarksKey) keys.push(this.findBookmarksKey);
 		if (this.findTaggedKey) keys.push(this.findTaggedKey);
 		if (this.findTypedKey) keys.push(this.findTypedKey);
+		if (this.findOpenPageKey) keys.push(this.findOpenPageKey);
 		if (this.findTitleKey) keys.push(this.findTitleKey);
 		if (this.findURIKey) keys.push(this.findURIKey);
 
@@ -201,8 +209,11 @@ var XMigemoPlaces = {
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						this.insertTaggedCondition(
-							this.insertFilter(
-								sql,
+							this.insertOpenPageCondition(
+								this.insertFilter(
+									sql,
+									aFindFlag
+								),
 								aFindFlag
 							),
 							aFindFlag
@@ -230,6 +241,7 @@ var XMigemoPlaces = {
 		               %EXCLUDE_JAVASCRIPT%
 		               %ONLY_TYPED%
 		               %ONLY_TAGGED%
+		               %ONLY_OPENPAGE%
 		         ORDER BY frecency DESC
 		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
 	]]>.toString(),
@@ -239,12 +251,17 @@ var XMigemoPlaces = {
 		var sql = this.placesItemsSQLBase
 				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
 				.replace('%TAGS%', this.tagsSQLFragment)
+				.replace('%OPEN_COUNT%', this.openCountSQLFragment)
+				.replace('%OPEN_COUNT_FINAL%', this.openCountFinalSQLFragment)
 				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						this.insertTaggedCondition(
-							this.insertFilter(
-								sql,
+							this.insertOpenPageCondition(
+								this.insertFilter(
+									sql,
+									aFindFlag
+								),
 								aFindFlag
 							),
 							aFindFlag
@@ -257,7 +274,7 @@ var XMigemoPlaces = {
 	},
 	
 	placesItemsSQLBase : <![CDATA[ 
-		SELECT title, uri, favicon, bookmark, tags, findkey
+		SELECT title, uri, favicon, bookmark, tags, findkey %OPEN_COUNT_FINAL%
 		  FROM (SELECT *,
 		        GROUP_CONCAT(%FINDKEY_CONTENTS%, ' ') findkey
 		    FROM (SELECT p.title title,
@@ -267,6 +284,7 @@ var XMigemoPlaces = {
 		                 p.typed typed,
 		                 %BOOKMARK_TITLE%,
 		                 %TAGS%
+		                 %OPEN_COUNT%
 		            FROM moz_places p
 		                 LEFT OUTER JOIN moz_favicons f ON f.id = p.favicon_id
 		                 %SOURCE_FILTER%
@@ -274,6 +292,7 @@ var XMigemoPlaces = {
 		                 %EXCLUDE_JAVASCRIPT%
 		                 %ONLY_TYPED%
 		                 %ONLY_TAGGED%
+		                 %ONLY_OPENPAGE%
 		           ORDER BY frecency DESC
 		           %SOURCES_LIMIT_PART%)
 		   GROUP BY uri)
@@ -291,8 +310,11 @@ var XMigemoPlaces = {
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						this.insertTaggedCondition(
-							this.insertFilter(
-								sql,
+							this.insertOpenPageCondition(
+								this.insertFilter(
+									sql,
+									aFindFlag
+								),
 								aFindFlag
 							),
 							aFindFlag
@@ -310,7 +332,8 @@ var XMigemoPlaces = {
 		               p.url uri,
 		               p.frecency frecency,
 		               %BOOKMARK_TITLE%,
-		               %TAGS%, i.rank rank
+		               %TAGS%,
+		               i.rank rank
 		          FROM (SELECT ROUND(
 		                         MAX(
 		                           (
@@ -328,6 +351,7 @@ var XMigemoPlaces = {
 		         WHERE 1 %EXCLUDE_JAVASCRIPT%
 		                 %ONLY_TYPED%
 		                 %ONLY_TAGGED%
+		                 %ONLY_OPENPAGE%
 		         ORDER BY rank DESC, frecency DESC
 		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
 	]]>.toString(),
@@ -341,8 +365,11 @@ var XMigemoPlaces = {
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						this.insertTaggedCondition(
-							this.insertFilter(
-								sql,
+							this.insertOpenPageCondition(
+								this.insertFilter(
+									sql,
+									aFindFlag
+								),
 								aFindFlag
 							),
 							aFindFlag
@@ -383,6 +410,7 @@ var XMigemoPlaces = {
 		           WHERE 1 %EXCLUDE_JAVASCRIPT%
 		                   %ONLY_TYPED%
 		                   %ONLY_TAGGED%
+		                   %ONLY_OPENPAGE%
 		           %SOURCES_LIMIT_PART%)
 		   GROUP BY uri
 		   ORDER BY rank DESC, frecency DESC)
@@ -476,6 +504,9 @@ var XMigemoPlaces = {
 	{
 		return aSQL.replace(
 				'%SOURCE_FILTER%',
+				(this.openPageAvailable ?
+					' LEFT OUTER JOIN moz_openpages_temp o ON o.place_id = p.id' :
+					'' ) +
 				((aFindFlag & this.kRESTRICT_HISTORY) ?
 					' JOIN moz_historyvisits filter1 ON p.id = filter1.place_id ' :
 					'' ) +
@@ -518,6 +549,19 @@ var XMigemoPlaces = {
 			);
 	},
  
+	insertOpenPageCondition : function(aSQL, aFindFlag) 
+	{
+		return aSQL.replace(
+				'%ONLY_OPENPAGE%',
+				(
+					this.openPageAvailable &&
+					(aFindFlag & this.kRESTRICT_OPENPAGE)
+				) ?
+					'AND o.open_count IS NOT NULL AND o.open_count > 0' :
+					''
+			);
+	},
+ 
 	parentFolderSQLFragment : <![CDATA[ 
 		SELECT b.parent
 		  FROM moz_bookmarks b
@@ -552,6 +596,9 @@ var XMigemoPlaces = {
 		                        WHERE root_name = 'tags')
 		 WHERE b.type = 1 AND b.fk = p.id) tags
 	]]>.toString(),
+ 
+	openCountSQLFragment : ', o.open_count open_count', 
+	openCountFinalSQLFragment : ', open_count',
   
 	/* output of the SQL must be:
 		SELECT single_string
@@ -830,6 +877,10 @@ var XMigemoPlaces = {
 				this.findTypedKey = value;
 				this.updateFindKeyRegExp();
 				return;
+			case 'browser.urlbar.restrict.openpage':
+				this.findOpenPageKey = value;
+				this.updateFindKeyRegExp();
+				return;
 
 			case 'browser.urlbar.match.title':
 				this.findTitleKey = value;
@@ -872,6 +923,7 @@ var XMigemoPlaces = {
 		browser.urlbar.restrict.bookmark
 		browser.urlbar.restrict.tag
 		browser.urlbar.restrict.typed
+		browser.urlbar.restrict.opanpage
 		browser.urlbar.match.title
 		browser.urlbar.match.url
 		browser.urlbar.matchOnlyTyped
@@ -896,6 +948,8 @@ var XMigemoPlaces = {
 	init : function() 
 	{
 		window.removeEventListener('load', this, false);
+
+		this.openPageAvailable = XMigemoService.Comparator.compare(XMigemoService.XULAppInfo.version, '3.7a6pre') >= 0;
 
 		XMigemoService.addPrefListener(this);
 		XMigemoService.firstListenPrefChange(this);

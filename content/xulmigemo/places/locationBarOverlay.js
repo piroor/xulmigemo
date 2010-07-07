@@ -692,6 +692,10 @@ var XMigemoLocationBarOverlay = {
 				if (aSource.style) {
 					item.style = aSource.style;
 				}
+				if (XMigemoPlaces.openPageAvailable && statement.getDouble(6) > 0) {
+					item.uri   = 'moz-action:switchtab,'+item.uri;
+					item.style = 'action';
+				}
 
 				switch (aSource.itemFilter(item, terms, aFindInfo.findFlag))
 				{
