@@ -576,9 +576,7 @@ xmXMigemoCore.prototype = {
 				this.textUtils.brushUpTerms(terms) :
 				this.textUtils.brushUpTermsWithCase(terms) ;
 
-		// DOMツリーを変更すると前から後ろへの検索が機能しなくなる
-		// ので、その回避として後ろから検索する。（Firefox 4.0-）
-		this.mFind.findBackwards = aSurroundNode ? true : false ;
+		this.mFind.findBackwards = false;
 		this.mFind.caseSensitive = !regExp.ignoreCase;
 
 		var selCon = (aUseSelection && 'SELECTION_FIND' in Ci.nsISelectionController) ?
@@ -592,14 +590,13 @@ xmXMigemoCore.prototype = {
 						null ;
 		var frameSelection = selCon ? selCon.getSelection(selCon.SELECTION_FIND) : null ;
 
+		// レイアウトを確定しないと検索に失敗する（Firefox 4.0-）
+		doc.clientTop;
+
 		var originalFindRange  = findRange;
 		var originalStartPoint = startPoint;
 		var originalEndPoint   = aEndPoint;
 		terms.forEach(function(aTerm, aIndex) {
-			if (aSurroundNode && aIndex > 0) {
-				// レイアウトを確定しないと検索に失敗する（Firefox 4.0-）
-				doc.documentElement.clientTop;
-			}
 			var foundRange;
 			var findRange  = originalFindRange.cloneRange();
 			var startPoint = (this.mFind.findBackwards ? originalEndPoint : originalStartPoint).cloneRange();
@@ -623,6 +620,9 @@ xmXMigemoCore.prototype = {
 					nodeSurround.appendChild(docfrag);
 					foundRange.insertNode(nodeSurround);
 
+					// レイアウトを確定しないと検索に失敗する（Firefox 4.0-）
+					nodeSurround.clientTop;
+
 					if (isOverlap)
 						this.textUtils.delayedSelect(firstChild, foundLength, true);
 
@@ -631,15 +631,15 @@ xmXMigemoCore.prototype = {
 					arrResults.push(foundRange);
 
 					findRange.selectNodeContents(this.getDocumentBody(doc));
-					findRange.setEndBefore(nodeSurround);
+					findRange.setStartAfter(nodeSurround);
 					try {
-						findRange.setStart(endPoint.startContainer, endPoint.startOffset);
+						findRange.setEnd(endPoint.endContainer, endPoint.endOffset);
 					}
 					catch(e) {
 					}
 					startPoint.selectNodeContents(this.getDocumentBody(doc));
-					startPoint.setEndBefore(nodeSurround);
-					startPoint.collapse(false);
+					startPoint.setStartAfter(nodeSurround);
+					startPoint.collapse(true);
 				}
 				else {
 					arrResults.push(foundRange);
