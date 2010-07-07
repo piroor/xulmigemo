@@ -1,13 +1,23 @@
-utils.include('../../components/xmXMigemoTextUtils.js', null, 'Shift_JIS');
-utils.include('../../components/xmXMigemoFileAccess.js', null, 'Shift_JIS');
-utils.include('../../components/xmXMigemoDicManager.js', null, 'Shift_JIS');
-utils.include('../../components/xmXMigemoDictionary.js', null, 'Shift_JIS');
-utils.include('../../components/xmXMigemoDictionaryJa.js', null, 'Shift_JIS');
-utils.include('../../components/xmXMigemoCache.js', null, 'Shift_JIS');
-utils.include('../../components/xmXMigemoEngineJa.js', null, 'Shift_JIS');
-utils.include('../../components/xmXMigemoTextTransform.js', null, 'Shift_JIS');
-utils.include('../../components/xmXMigemoTextTransformJa.js', null, 'Shift_JIS');
-utils.include('../../components/xmXMigemoCore.js', null, 'Shift_JIS');
-utils.include('../../components/xmXMigemoFind.js', null, 'Shift_JIS');
-utils.include('../../components/xmXMigemoMail.js', null, 'Shift_JIS');
-TEST = true;
+<![CDATA[
+../../components/xmXMigemoTextUtils.js
+../../components/xmXMigemoFileAccess.js
+../../components/xmXMigemoDicManager.js
+../../components/xmXMigemoDictionary.js
+../../components/xmXMigemoDictionaryJa.js
+../../components/xmXMigemoCache.js
+../../components/xmXMigemoEngineJa.js
+../../components/xmXMigemoTextTransform.js
+../../components/xmXMigemoTextTransformJa.js
+../../components/xmXMigemoCore.js
+../../components/xmXMigemoFind.js
+../../components/xmXMigemoMail.js
+]]>.toString()
+	.replace(/^\s+|\s+$/g, '')
+	.split('\n')
+	.forEach(function(aURI) {
+		utils.include({
+			uri                    : aURI,
+			encoding               : 'Shift_JIS',
+			allowOverrideConstants : true
+		});
+	}, this);
