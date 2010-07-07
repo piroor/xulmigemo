@@ -638,7 +638,6 @@
 </prefpane>
 
 
-<script src="chrome://xulmigemo/content/service.js" />
 <script src="chrome://xulmigemo/content/config/config.js" />
 
 </prefwindow>

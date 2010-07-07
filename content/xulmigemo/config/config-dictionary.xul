@@ -57,7 +57,7 @@
 	<hbox>
 		<spacer flex="1"/>
 		<button label="&config.dic.showManager;"
-			oncommand="XMigemoService.goDicManager();"/>
+			oncommand="XMigemoService.goDicManager(window);"/>
 	</hbox>
 
 	<groupbox>
@@ -97,7 +97,6 @@
 
 </prefpane>
 
-<script src="chrome://xulmigemo/content/service.js" />
 <script src="chrome://xulmigemo/content/config/config-dictionary.js" />
 
 </prefwindow>

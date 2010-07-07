@@ -76,7 +76,7 @@
 		<command id="xmigemo-command-findBackward"
 			oncommand="XMigemoUI.commandBackward(event);"/>
 		<command id="xmigemo-command-goDicManager"
-			oncommand="XMigemoService.goDicManager()"/>
+			oncommand="XMigemoService.goDicManager(window)"/>
 	</commandset>
 	<keyset id="xmigemo-shortcuts"/>
 </hbox>

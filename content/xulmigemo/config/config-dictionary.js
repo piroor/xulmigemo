@@ -1,11 +1,9 @@
-const Prefs = Components 
-	.classes['@mozilla.org/preferences;1']
-	.getService(Components.interfaces.nsIPrefBranch);
+Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
 
 const XMigemo = Components
 	.classes['@piro.sakura.ne.jp/xmigemo/factory;1']
 	.getService(Components.interfaces.xmIXMigemoFactory)
-	.getService(Prefs.getCharPref('xulmigemo.lang'));
+	.getService(XMigemoService.getPref('xulmigemo.lang'));
 
 const util = Components
 	.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
@@ -48,9 +46,9 @@ function goInitializeWizard()
 		'chrome,dialog,modal,centerscreen,dependent'
 	);
 	window.setTimeout(function() {
-		document.getElementById('xulmigemo.dicpath-textbox').checked = decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')));
-		document.getElementById('xulmigemo.dicpath-relative-textbox').checked = decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')));
-		document.getElementById('xulmigemo.dic.useInitializeWizard-check').checked = Prefs.getBoolPref('xulmigemo.dic.useInitializeWizard');
+		document.getElementById('xulmigemo.dicpath-textbox').checked = decodeURIComponent(escape(XMigemoService.getPref('xulmigemo.dicpath')));
+		document.getElementById('xulmigemo.dicpath-relative-textbox').checked = decodeURIComponent(escape(XMigemoService.getPref('xulmigemo.dicpath-relative')));
+		document.getElementById('xulmigemo.dic.useInitializeWizard-check').checked = XMigemoService.getPref('xulmigemo.dic.useInitializeWizard');
 	}, 0);
 }
 

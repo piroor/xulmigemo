@@ -2,6 +2,8 @@ Components.utils.import('resource://multipletab-modules/extensions.js', {});
 Components.utils.import('resource://multipletab-modules/namespace.jsm');
 var extensions = getNamespaceFor('piro.sakura.ne.jp')['piro.sakura.ne.jp'].extensions;
 
+Components.utils.import('resource://xulmigemo-modules/service.jsm');
+
 var gDisableIME;
 var gNormalFind;
 var gQuickFind;
