@@ -116,6 +116,7 @@ xmXMigemoTextUtils.prototype = {
 			encoder.init(
 				doc,
 				'text/plain',
+				Ci.nsIDocumentEncoder.OutputSelectionOnly |
 				Ci.nsIDocumentEncoder.OutputBodyOnly |
 				Ci.nsIDocumentEncoder.OutputLFLineBreak |
 				Ci.nsIDocumentEncoder.SkipInvisibleContent
@@ -123,8 +124,8 @@ xmXMigemoTextUtils.prototype = {
 		}
 
 		if (Prefs.getBoolPref('javascript.enabled')) {
-			var noscript = doc.getElementsByTagName('noscript');
-			var trash = doc.createRange();
+			let noscript = doc.getElementsByTagName('noscript');
+			let trash = doc.createRange();
 			Array.slice(noscript).forEach(function(aNode) {
 				trash.selectNode(aNode);
 				trash.deleteContents();
@@ -135,8 +136,12 @@ xmXMigemoTextUtils.prototype = {
 		var result = [];
 
 		var textRange = doc.createRange();
-		textRange.setStart(aRange.startContainer, aRange.startOffset);
 		var nodeRange = doc.createRange();
+
+		if (aRange.startContainer == doc)
+			textRange.setStartBefore(doc.body || doc.documentElement);
+		else
+			textRange.setStart(aRange.startContainer, aRange.startOffset);
 
 		try {
 			var nodes = doc.evaluate(
@@ -160,12 +165,15 @@ xmXMigemoTextUtils.prototype = {
 						break;
 				}
 				textRange.setEndBefore(node);
-				if (encoder) {
-					encoder.setRange(textRange);
-					result.push(encoder.encodeToString());
-				}
-				else {
-					result.push(textRange.toString());
+				let string = textRange.toString();
+				if (string) {
+					if (encoder) {
+						encoder.setRange(textRange);
+						result.push(encoder.encodeToString());
+					}
+					else {
+						result.push(string);
+					}
 				}
 				if (node.nodeType == node.TEXT_NODE) {
 					if (selCon.checkVisibility(node, 0, node.nodeValue.length))
@@ -191,13 +199,20 @@ xmXMigemoTextUtils.prototype = {
 		catch(e) {
 		}
 
-		textRange.setEnd(aRange.endContainer, aRange.endOffset);
-		if (encoder) {
-			encoder.setRange(textRange);
-			result.push(encoder.encodeToString());
-		}
-		else {
-			result.push(textRange.toString());
+		if (aRange.endContainer == doc)
+			textRange.setEndAfter(doc.body || doc.documentElement);
+		else
+			textRange.setEnd(aRange.endContainer, aRange.endOffset);
+
+		var string = textRange.toString();
+		if (string) {
+			if (encoder) {
+				encoder.setRange(textRange);
+				result.push(encoder.encodeToString());
+			}
+			else {
+				result.push(string);
+			}
 		}
 
 		nodeRange.detach();
