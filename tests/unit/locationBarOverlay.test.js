@@ -3,25 +3,16 @@ if (utils.checkAppVersion('3.0') < 0) var priority = 'never';
 var orig = {};
 function startUp()
 {
-	utils.include('../../content/xulmigemo/core.js', orig, 'Shift_JIS');
-	utils.include('../../content/xulmigemo/service.js', orig, 'Shift_JIS');
-	utils.include('../../content/xulmigemo/places/places.js', orig, 'Shift_JIS');
+	utils.include('../../modules/places.jsm', orig, 'Shift_JIS');
 	utils.include('../../content/xulmigemo/places/locationBarOverlay.js', null, 'Shift_JIS');
 }
 
-var XMigemoCore;
 var XMigemoPlaces;
 var searchSource;
 var service;
 
 function setUp()
 {
-	XMigemoCore = {};
-	XMigemoCore.__proto__ = orig.XMigemoCore;
-
-	XMigemoService = {};
-	XMigemoService.__proto__ = orig.XMigemoService;
-
 	XMigemoPlaces = {};
 	XMigemoPlaces.__proto__ = orig.XMigemoPlaces;
 	XMigemoPlaces.db = baseURL+'../fixtures/places.sqlite';
