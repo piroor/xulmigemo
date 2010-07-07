@@ -950,6 +950,10 @@ var XMigemoPlaces = {
 		window.removeEventListener('load', this, false);
 
 		this.openPageAvailable = XMigemoService.Comparator.compare(XMigemoService.XULAppInfo.version, '3.7a6pre') >= 0;
+		if (!this.openPageAvailable) {
+			this.openCountSQLFragment = '';
+			this.openCountFinalSQLFragment = '';
+		}
 
 		XMigemoService.addPrefListener(this);
 		XMigemoService.firstListenPrefChange(this);

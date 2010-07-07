@@ -25,6 +25,7 @@ function setUp()
 	XMigemoPlaces = {};
 	XMigemoPlaces.__proto__ = orig.XMigemoPlaces;
 	XMigemoPlaces.db = baseURL+'../fixtures/places.sqlite';
+	XMigemoPlaces.init();
 
 	service = {};
 	service.__proto__ = XMigemoLocationBarOverlay;
