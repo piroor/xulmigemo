@@ -251,8 +251,8 @@ var XMigemoPlaces = {
 		var sql = this.placesItemsSQLBase
 				.replace('%BOOKMARK_TITLE%', this.bookmarkTitleSQLFragment)
 				.replace('%TAGS%', this.tagsSQLFragment)
-				.replace('%OPEN_COUNT%', this.openCountSQLFragment)
-				.replace('%OPEN_COUNT_FINAL%', this.openCountFinalSQLFragment)
+				.replace('%OPEN_COUNT%', this.openCountColumnSQLFragment)
+				.replace('%OPEN_COUNT_FINAL%', this.openCountFinalColumnSQLFragment)
 				.replace('%FINDKEY_CONTENTS%', this.getFindKeyContentsFromFlag(aFindFlag));
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
@@ -504,9 +504,7 @@ var XMigemoPlaces = {
 	{
 		return aSQL.replace(
 				'%SOURCE_FILTER%',
-				(this.openPageAvailable ?
-					' LEFT OUTER JOIN moz_openpages_temp o ON o.place_id = p.id' :
-					'' ) +
+				this.openCountSourceSQLFragment +
 				((aFindFlag & this.kRESTRICT_HISTORY) ?
 					' JOIN moz_historyvisits filter1 ON p.id = filter1.place_id ' :
 					'' ) +
@@ -597,8 +595,9 @@ var XMigemoPlaces = {
 		 WHERE b.type = 1 AND b.fk = p.id) tags
 	]]>.toString(),
  
-	openCountSQLFragment : ', o.open_count open_count', 
-	openCountFinalSQLFragment : ', open_count',
+	openCountColumnSQLFragment      : ', o.open_count open_count', 
+	openCountFinalColumnSQLFragment : ', open_count',
+	openCountSourceSQLFragment      : ' LEFT OUTER JOIN moz_openpages_temp o ON o.place_id = p.id',
   
 	/* output of the SQL must be:
 		SELECT single_string
@@ -951,8 +950,9 @@ var XMigemoPlaces = {
 
 		this.openPageAvailable = XMigemoService.Comparator.compare(XMigemoService.XULAppInfo.version, '3.7a6pre') >= 0;
 		if (!this.openPageAvailable) {
-			this.openCountSQLFragment = '';
-			this.openCountFinalSQLFragment = '';
+			this.openCountColumnSQLFragment = '';
+			this.openCountFinalColumnSQLFragment = '';
+			this.openCountSourceSQLFragment = '';
 		}
 
 		XMigemoService.addPrefListener(this);
