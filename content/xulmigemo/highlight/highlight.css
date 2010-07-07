@@ -6,7 +6,6 @@
 :root[__moz_xmigemo-find-highlight-animation="on"] *:not(.__moz_xmigemo-positioned) {
 	z-index: auto !important;
 }
-:root[__moz_xmigemo-find-highlight-screen="on"] #__firefox-findbar-search-id, /* Firefox 2 */
 :root[__moz_xmigemo-find-highlight-screen="on"] .__mozilla-findbar-search, /* Firefox 3 */
 :root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term, /* SearchWP */
 :root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight1,
@@ -104,9 +103,6 @@
 	-moz-opacity: 0.3 !important;
 	display: none !important;
 	z-index: 1000000 !important;
-}
-#__moz_xmigemo-find-highlight-screen[gecko="1.8"] {
-	position: absolute !important;
 }
 :root[__moz_xmigemo-find-highlight-screen="on"] > body > #__moz_xmigemo-find-highlight-screen {
 	display: block !important;
