@@ -1,3 +1,6 @@
+Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/places.jsm');
+ 
 var XMigemoOrganizerOverlay = { 
 	 
 	handleEvent : function(aEvent) 

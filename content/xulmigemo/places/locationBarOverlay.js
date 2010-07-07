@@ -1,3 +1,5 @@
+Components.utils.import('resource://xulmigemo-modules/places.jsm'); 
+ 
 var XMigemoLocationBarSearchSource = { 
 	create : function(aDefinition)
 	{

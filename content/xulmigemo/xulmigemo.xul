@@ -10,13 +10,11 @@
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
 
-<script src="chrome://xulmigemo/content/core.js" type="application/javascript; e4x=1"/>
-<script src="chrome://xulmigemo/content/service.js" type="application/javascript; e4x=1"/>
-	<script src="chrome://xulmigemo/content/ui.js" type="application/javascript; e4x=1"/>
-		<script src="chrome://xulmigemo/content/highlight/highlight.js" type="application/javascript; e4x=1"/>
-		<script src="chrome://xulmigemo/content/marker/marker.js" type="application/javascript; e4x=1"/>
-		<script src="chrome://xulmigemo/content/combination.js" type="application/javascript; e4x=1"/>
-	<script src="chrome://xulmigemo/content/hacks.js" type="application/javascript; e4x=1"/>
+<script src="chrome://xulmigemo/content/ui.js" type="application/javascript; e4x=1"/>
+	<script src="chrome://xulmigemo/content/highlight/highlight.js" type="application/javascript; e4x=1"/>
+	<script src="chrome://xulmigemo/content/marker/marker.js" type="application/javascript; e4x=1"/>
+	<script src="chrome://xulmigemo/content/combination.js" type="application/javascript; e4x=1"/>
+<script src="chrome://xulmigemo/content/hacks.js" type="application/javascript; e4x=1"/>
 
 <hbox id="XMigemoFindToolbar"
 	collapsed="true"
