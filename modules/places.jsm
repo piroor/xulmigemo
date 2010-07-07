@@ -1,3 +1,12 @@
+const EXPORTED_SYMBOLS = ['XMigemoPlaces']; 
+
+const Cc = Components.classes;
+const Ci = Components.interfaces;
+ 
+Components.utils.import('resource://xulmigemo-modules/jstimer.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/service.jsm');
+Components.utils.import('resource://xulmigemo-modules/migemo.jsm');
+ 
 var XMigemoPlaces = { 
 	
 	chunk     : 100, 
@@ -10,9 +19,8 @@ var XMigemoPlaces = {
 	defaultBehavior : 0,
 	openPageAvailable : false,
  
-	TextUtils : Components 
-			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-			.getService(Components.interfaces.xmIXMigemoTextUtils),
+	TextUtils : Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1'] 
+			.getService(Ci.xmIXMigemoTextUtils),
  
 	isValidInput : function(aInput) 
 	{
@@ -32,7 +40,7 @@ var XMigemoPlaces = {
 		var info = {
 				input            : aInput,
 				findFlag         : 0,
-				findMode         : Components.interfaces.xmIXMigemoFind.FIND_MODE_NATIVE,
+				findMode         : Ci.xmIXMigemoFind.FIND_MODE_NATIVE,
 				findRegExps      : [],
 				termsRegExp      : null,
 				exceptionsRegExp : null
@@ -50,14 +58,14 @@ var XMigemoPlaces = {
 			var source = this.TextUtils.extractRegExpSource(findInput);
 			info.termsRegExp = new RegExp(source, flags);
 			info.findRegExps = [info.termsRegExp];
-			info.findMode = Components.interfaces.xmIXMigemoFind.FIND_MODE_REGEXP;
+			info.findMode = Ci.xmIXMigemoFind.FIND_MODE_REGEXP;
 		}
 		else {
 			var result = migemo.getRegExpsFunctional(findInput, 'gim');
 			info.findRegExps = result.regexps;
 			info.termsRegExp = result.terms;
 			info.exceptionsRegExp = result.exceptions;
-			info.findMode = Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO;
+			info.findMode = Ci.xmIXMigemoFind.FIND_MODE_MIGEMO;
 		}
 
 		return info;
@@ -676,23 +684,20 @@ var XMigemoPlaces = {
 			return this._db;
 
 		this._db = null;
-		if ('nsPIPlacesDatabase' in Components.interfaces) { // Firefox 3.1 or later
-			this._db = Components
-					.classes['@mozilla.org/browser/nav-history-service;1']
-					.getService(Components.interfaces.nsINavHistoryService)
-					.QueryInterface(Components.interfaces.nsPIPlacesDatabase)
+		if ('nsPIPlacesDatabase' in Ci) { // Firefox 3.1 or later
+			this._db = Cc['@mozilla.org/browser/nav-history-service;1']
+					.getService(Ci.nsINavHistoryService)
+					.QueryInterface(Ci.nsPIPlacesDatabase)
 					.DBConnection;
 		}
 		else { // Firefox 3.0.x
-			const DirectoryService = Components
-				.classes['@mozilla.org/file/directory_service;1']
-				.getService(Components.interfaces.nsIProperties);
-			var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
+			const DirectoryService = Cc['@mozilla.org/file/directory_service;1']
+				.getService(Ci.nsIProperties);
+			var file = DirectoryService.get('ProfD', Ci.nsIFile);
 			file.append('places.sqlite');
 			if (file.exists()) {
-				this._db = StorageService = Components
-							.classes['@mozilla.org/storage/service;1']
-							.getService(Components.interfaces.mozIStorageService)
+				this._db = StorageService = Cc['@mozilla.org/storage/service;1']
+							.getService(Ci.mozIStorageService)
 							.openDatabase(file);
 			}
 		}
@@ -706,27 +711,24 @@ var XMigemoPlaces = {
 		}
 
 		this._db = val;
-		if (!(this._db instanceof Components.interfaces.mozIStorageConnection)) {
+		if (!(this._db instanceof Ci.mozIStorageConnection)) {
 			var file = this._db;
 			if (typeof this._db == 'string') {
 				if (this._db.indexOf('file://') == 0) {
-					file = Components
-							.classes['@mozilla.org/network/io-service;1']
-							.getService(Components.interfaces.nsIIOService)
+					file = Cc['@mozilla.org/network/io-service;1']
+							.getService(Ci.nsIIOService)
 							.getProtocolHandler('file')
-							.QueryInterface(Components.interfaces.nsIFileProtocolHandler)
+							.QueryInterface(Ci.nsIFileProtocolHandler)
 							.getFileFromURLSpec(this._db);
 				}
 				else {
-					file = Components
-							.classes['@mozilla.org/file/local;1']
-							.createInstance(Components.interfaces.nsILocalFile);
+					file = Cc['@mozilla.org/file/local;1']
+							.createInstance(Ci.nsILocalFile);
 					file.initWithPath(this._db);
 				}
 			}
-			this._db = StorageService = Components
-						.classes['@mozilla.org/storage/service;1']
-						.getService(Components.interfaces.mozIStorageService)
+			this._db = StorageService = Cc['@mozilla.org/storage/service;1']
+						.getService(Ci.mozIStorageService)
 						.openDatabase(file);
 		}
 
@@ -770,7 +772,7 @@ var XMigemoPlaces = {
 
 		var current = 0;
 		var lastQueriesCount = 0;
-		this.progressiveLoadTimer = window.setInterval(function(aSelf) {
+		this.progressiveLoadTimer = setInterval(function(aSelf) {
 			if (aSelf.updateQuery(aBaseQuery, aSourceSQL, current, aSelf.chunk)) {
 				if (aSelf.lastQueries.length != lastQueriesCount) {
 					aTree.load(aSelf.lastQueries, aOptions);
@@ -788,7 +790,7 @@ var XMigemoPlaces = {
 	stopProgressiveLoad : function() 
 	{
 		if (!this.progressiveLoadTimer) return;
-		window.clearInterval(this.progressiveLoadTimer);
+		clearInterval(this.progressiveLoadTimer);
 		this.progressiveLoadTimer = null;
 	},
 	progressiveLoadTimer : null,
@@ -929,25 +931,9 @@ var XMigemoPlaces = {
 		browser.urlbar.matchBehavior
 		browser.urlbar.default.behavior
 	]]>.toString(),
- 
-	handleEvent : function(aEvent) 
-	{
-		switch (aEvent.type)
-		{
-			case 'load':
-				this.init();
-				break;
-
-			case 'unload':
-				this.destroy();
-				break;
-		}
-	},
-	
+  
 	init : function() 
 	{
-		window.removeEventListener('load', this, false);
-
 		this.openPageAvailable = XMigemoService.Comparator.compare(XMigemoService.XULAppInfo.version, '3.7a6pre') >= 0;
 		if (!this.openPageAvailable) {
 			this.openCountColumnSQLFragment = '';
@@ -957,21 +943,9 @@ var XMigemoPlaces = {
 
 		XMigemoService.addPrefListener(this);
 		XMigemoService.firstListenPrefChange(this);
-		window.addEventListener('unload', this, false);
-	},
- 
-	destroy : function() 
-	{
-		window.removeEventListener('unload', this, false);
-		XMigemoService.removePrefListener(this);
-
-		if (this.getSingleStringFromRange_lastStatement &&
-			'finalize' in this.getSingleStringFromRange_lastStatement) {
-			this.getSingleStringFromRange_lastStatement.finalize();
-		}
 	}
-   
-}; 
  
-window.addEventListener('load', XMigemoPlaces, false); 
+}; 
   
+XMigemoPlaces.init(); 
+ 

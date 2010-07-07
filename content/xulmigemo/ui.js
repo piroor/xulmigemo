@@ -3,6 +3,8 @@
 		service.js
 */
 
+Components.utils.import('resource://xulmigemo-modules/service.jsm');
+
 var XMigemoFind;
  
 var XMigemoUI = { 
@@ -784,42 +786,42 @@ var XMigemoUI = {
 
 			case 'xulmigemo.shortcut.findForward':
 				this.findForwardKey = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-findForward', this.findForwardKey);
+				XMigemoService.updateKey('xmigemo-shortcut-findForward', this.findForwardKey, document);
 				return;
 
 			case 'xulmigemo.shortcut.findBackward':
 				this.findBackwardKey = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-findBackward', this.findBackwardKey);
+				XMigemoService.updateKey('xmigemo-shortcut-findBackward', this.findBackwardKey, document);
 				return;
 
 			case 'xulmigemo.shortcut.manualStart':
 				this.manualStartKey = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-manualStart', this.manualStartKey);
+				XMigemoService.updateKey('xmigemo-shortcut-manualStart', this.manualStartKey, document);
 				return;
 
 			case 'xulmigemo.shortcut.manualStart2':
 				this.manualStartKey2 = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-manualStart2', this.manualStartKey2);
+				XMigemoService.updateKey('xmigemo-shortcut-manualStart2', this.manualStartKey2, document);
 				return;
 
 			case 'xulmigemo.shortcut.manualStartLinksOnly':
 				this.manualStartLinksOnlyKey = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-manualStartLinksOnly', this.manualStartLinksOnlyKey);
+				XMigemoService.updateKey('xmigemo-shortcut-manualStartLinksOnly', this.manualStartLinksOnlyKey, document);
 				return;
 
 			case 'xulmigemo.shortcut.manualStartLinksOnly2':
 				this.manualStartLinksOnlyKey2 = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-manualStartLinksOnly2', this.manualStartLinksOnlyKey2);
+				XMigemoService.updateKey('xmigemo-shortcut-manualStartLinksOnly2', this.manualStartLinksOnlyKey2, document);
 				return;
 
 			case 'xulmigemo.shortcut.manualExit':
 				this.manualExitKey = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-manualExit', this.manualExitKey);
+				XMigemoService.updateKey('xmigemo-shortcut-manualExit', this.manualExitKey, document);
 				return;
 
 			case 'xulmigemo.shortcut.goDicManager':
 				this.goDicManagerKey = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-goDicManager', this.goDicManagerKey);
+				XMigemoService.updateKey('xmigemo-shortcut-goDicManager', this.goDicManagerKey, document);
 				return;
 
 			case 'xulmigemo.shortcut.modeCirculation':
