@@ -2079,12 +2079,10 @@ var XMigemoUI = {
 
 		eval('gFindBar._highlightDoc = '+gFindBar._highlightDoc.toSource()
 			.replace(
-				'if (!aWord) {',
-				<![CDATA[
-					if (aWord && aWord != this._lastHighlightString) {
+				/((?:var|let) win = [^;]+;)/,
+				<![CDATA[$1
+					if (!aWord || aWord != this._lastHighlightString)
 						XMigemoUI.clearHighlight(win.document);
-					}
-					else $& XMigemoUI.clearHighlight(win.document);
 				]]>.toString()
 			).replace(
 				'return textFound;',
