@@ -1,10 +1,4 @@
-/* 
-	This depends on:
-		service.js
-*/
-
-Components.utils.import('resource://xulmigemo-modules/service.jsm');
-
+Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
 var XMigemoFind;
  
 var XMigemoUI = { 
@@ -1066,7 +1060,7 @@ var XMigemoUI = {
 		var isExitKey            = XMigemoService.checkShortcutForKeyEvent(this.manualExitKey, aEvent);
 
 		if (shouldGoDicManager) {
-			XMigemoService.goDicManager();
+			XMigemoService.goDicManager(window);
 			aEvent.preventDefault();
 			return true;
 		}
