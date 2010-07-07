@@ -564,18 +564,20 @@ xmXMigemoTextUtils.prototype = {
 	compareRangePosition : function(aBaseRange, aTargetRange) 
 	{
 		if (!aBaseRange || !aTargetRange)
-			return false;
+			return 0;
 
 		aBaseRange.QueryInterface(Ci.nsIDOMRange);
 		aTargetRange.QueryInterface(Ci.nsIDOMRange);
 		if ((aBaseRange.startContainer.ownerDocument || aBaseRange.startContainer) != (aTargetRange.startContainer.ownerDocument || aTargetRange.startContainer))
-			return false;
+			return 0;
 
 		try {
-			if (aBaseRange.compareBoundaryPoints(aBaseRange.START_TO_END, aTargetRange) < 0)
+			if (aBaseRange.compareBoundaryPoints(aBaseRange.START_TO_END, aTargetRange) < 0) {
 				return -1;
-			else if (aBaseRange.compareBoundaryPoints(aBaseRange.END_TO_START, aTargetRange) > 0)
+			}
+			else if (aBaseRange.compareBoundaryPoints(aBaseRange.END_TO_START, aTargetRange) > 0) {
 				return 1;
+			}
 		}
 		catch(e) {
 		}
