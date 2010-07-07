@@ -36,6 +36,7 @@ function setUp()
 	XMigemoPlaces.findHistoryKey = '^';
 	XMigemoPlaces.findBookmarksKey = '*';
 	XMigemoPlaces.findTaggedKey = '+';
+	XMigemoPlaces.findOpenPageKey = '%';
 	XMigemoPlaces.findTitleKey = '@';
 	XMigemoPlaces.findURIKey = '#';
 	XMigemoPlaces.updateFindKeyRegExp();
