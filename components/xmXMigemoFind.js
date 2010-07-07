@@ -713,7 +713,6 @@ mydump("count:"+count);
 					true,
 					false
 				);
-			let node;
 			if (aFindFlag & this.FIND_BACK) {
 				let i = 0,
 					maxi = nodes.length;
