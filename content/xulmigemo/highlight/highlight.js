@@ -447,15 +447,6 @@ var XMigemoHighlight = {
 
 		var screen = doc.createElementNS(XMigemoUI.kXHTMLNS, 'div');
 		screen.setAttribute('id', this.kSCREEN);
-		if (XMigemoService.isGecko18) {
-			screen.setAttribute('gecko', '1.8');
-			var pageSize = XMigemoService.getDocumentSizeInfo(doc);
-			screen.setAttribute(
-				'style',
-				'height: '+pageSize.height+'px !important;'+
-				'width: '+pageSize.width+'px !important;'
-			);
-		}
 
 		objBody.insertBefore(screen, objBody.firstChild);
 	},
