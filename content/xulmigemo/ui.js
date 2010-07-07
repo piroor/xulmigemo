@@ -1323,7 +1323,7 @@ var XMigemoUI = {
 		if (this.lastHighlightedKeyword != aEvent.findTerm) {
 			this.lastHighlightedKeyword = aEvent.findTerm;
 			if (found && this.highlightCheck.checked)
-				gFindBar.setHighlightTimeout();
+				gFindBar._setHighlightTimeout();
 		}
 
 		if (this.isQuickFind) {
