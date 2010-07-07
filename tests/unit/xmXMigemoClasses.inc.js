@@ -21,3 +21,4 @@
 			allowOverrideConstants : true
 		});
 	}, this);
+TEST = true;
