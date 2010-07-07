@@ -923,7 +923,7 @@ var XMigemoPlaces = {
 		browser.urlbar.restrict.bookmark
 		browser.urlbar.restrict.tag
 		browser.urlbar.restrict.typed
-		browser.urlbar.restrict.opanpage
+		browser.urlbar.restrict.openpage
 		browser.urlbar.match.title
 		browser.urlbar.match.url
 		browser.urlbar.matchOnlyTyped
