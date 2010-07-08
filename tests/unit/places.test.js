@@ -248,18 +248,10 @@ function test_insertConditions()
 		'tags NOT NULL'
 	);
 
-	service.restrictTyped = false;
 	assert_insertCondition(
 		'insertTypedCondition',
 		'%ONLY_TYPED%',
 		'kRESTRICT_TYPED',
-		'typed = 1'
-	);
-	service.restrictTyped = true;
-	assert_insertCondition(
-		'insertTypedCondition',
-		'%ONLY_TYPED%',
-		'*',
 		'typed = 1'
 	);
 
