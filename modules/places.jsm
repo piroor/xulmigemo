@@ -60,10 +60,14 @@ var XMigemoPlaces = {
 			info.findMode = Ci.xmIXMigemoFind.FIND_MODE_REGEXP;
 		}
 		else {
-			var result = XMigemoCore.getRegExpsFunctional(findInput, 'gim');
-			info.findRegExps = result.regexps;
-			info.termsRegExp = result.terms;
-			info.exceptionsRegExp = result.exceptions;
+			let termsRegExp = {};
+			let exceptionsRegExp = {};
+			info.findRegExps = XMigemoCore.getRegExpsFunctional(findInput, termsRegExp, exceptionsRegExp)
+								.map(function(aSource) {
+									return new RegExp(aSource, 'gim');
+								});
+			info.termsRegExp = new RegExp(termsRegExp.value, 'gim');
+			info.exceptionsRegExp = new RegExp(exceptionsRegExp.value, 'im');
 			info.findMode = Ci.xmIXMigemoFind.FIND_MODE_MIGEMO;
 		}
 
@@ -745,9 +749,12 @@ var XMigemoPlaces = {
 				this.lastTermsRegExp = new RegExp(this.TextUtils.extractRegExpSource(aQuery.searchTerms), flags);
 		}
 		else {
-			this.lastFindRegExp = XMigemoCore.getRegExpFunctional(aBaseQuery.searchTerms, 'gim');
-			this.lastTermsRegExp = this.lastFindRegExp.terms;
-//			this.lastExceptionsRegExp = this.lastFindRegExp.exceptions;
+			let termsRegExp = {};
+			let exceptionsRegExp = {};
+			this.lastFindRegExp = XMigemoCore.getRegExpFunctional(aBaseQuery.searchTerms, termsRegExp, exceptionsRegExp);
+			this.lastFindRegExp = new RegExp(this.lastFindRegExp, 'gim');
+			this.lastTermsRegExp = new RegExp(termsRegExp.value, 'gim');
+//			this.lastExceptionsRegExp = new RegExp(exceptionsRegExp.value, 'im');
 		}
 		this.lastTermSets = [];
 		this.lastQueries = [];
