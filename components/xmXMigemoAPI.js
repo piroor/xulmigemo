@@ -1,6 +1,4 @@
-const PROVIDER_VERSION = '0.13.0a1'; 
-
-var DEBUG = false;
+var DEBUG = false; 
 var TEST = false;
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -69,8 +67,17 @@ xmXMigemoAPI.prototype = {
 	{
 		var prototype = this.__proto__;
 
-		if (!prototype.version)
-			prototype.version = PROVIDER_VERSION;
+		if (!prototype.version) {
+			prototype.version = '?';
+			let ns = {};
+			Components.utils.import('resource://xulmigemo-modules/extensions.js', ns);
+			let self = this;
+			ns.extensions.getVersion('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}', function(aVersion) {
+				prototype.version = aVersion;
+				prototype.lang = self.XMigemo.lang;
+				prototype.provider = 'XUL/Migemo '+aVersion+' ('+prototype.lang+')';
+			});
+		}
 
 		prototype.lang = this.XMigemo.lang;
 		prototype.provider = 'XUL/Migemo '+prototype.version+' ('+prototype.lang+')';
