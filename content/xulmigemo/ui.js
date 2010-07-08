@@ -488,7 +488,7 @@ var XMigemoUI = {
 					regexp = new RegExp(this.textUtils.extractRegExpSource(term), flags);
 					break;
 				case this.FIND_MODE_MIGEMO:
-					regexp = XMigemoCore.getRegExp(term, flags);
+					regexp = new RegExp(XMigemoCore.getRegExp(term), flags);
 					break
 				default:
 					regexp = new RegExp(this.textUtils.sanitize(term), flags);
@@ -2371,7 +2371,7 @@ var XMigemoUI = {
 	clearHighlight : function(aDocument, aRecursively) 
 	{
 		var keepFoundHighlighted = !this.highlightCheck.disabled && this.highlightCheck.checked;
-		XMigemoCore.clearHighlight(aDocument, aRecursively, this.highlightSelectionOnly, keepFoundHighlighted);
+		migemo.clearHighlight(aDocument, aRecursively, this.highlightSelectionOnly, keepFoundHighlighted);
 	},
  
 	highlightText : function(aDoHighlight, aWord, aBaseNode, aRange) 

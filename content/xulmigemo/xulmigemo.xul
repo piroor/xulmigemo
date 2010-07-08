@@ -13,7 +13,6 @@
 <script src="chrome://xulmigemo/content/ui.js" type="application/javascript; e4x=1"/>
 	<script src="chrome://xulmigemo/content/highlight/highlight.js" type="application/javascript; e4x=1"/>
 	<script src="chrome://xulmigemo/content/marker/marker.js" type="application/javascript; e4x=1"/>
-	<script src="chrome://xulmigemo/content/combination.js" type="application/javascript; e4x=1"/>
 <script src="chrome://xulmigemo/content/hacks.js" type="application/javascript; e4x=1"/>
 
 <hbox id="XMigemoFindToolbar"

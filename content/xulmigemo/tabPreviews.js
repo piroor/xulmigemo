@@ -43,9 +43,12 @@ var XMigemoTabPreviews = {
  
 	filterListFromInput : function(aTabs, aInput) 
 	{
-		var filterRegExp = XMigemoCore.getRegExpFunctional(migemo.trimFunctionalInput(aInput), 'gim');
-		var termsRegExp = filterRegExp.terms;
-		var exceptionRegExp = filterRegExp.exceptions;
+		var termsRegExp = {};
+		var exceptionRegExp = {};
+		var filterRegExp = XMigemoCore.getRegExpFunctional(migemo.trimFunctionalInput(aInput), termsRegExp, exceptionRegExp);
+		filterRegExp = new RegExp(filterRegExp, 'gim');
+		termsRegExp = new RegExp(filterRegExp.value, 'gim');
+		exceptionRegExp = new RegExp(filterRegExp.value, 'im');
 
 		return aTabs.filter(function(aTab) {
 			var uri = aTab.linkedBrowser.currentURI.spec;
