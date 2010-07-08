@@ -599,8 +599,8 @@ xmXMigemoCore.prototype = {
 		terms.forEach(function(aTerm, aIndex) {
 			var foundRange;
 			var findRange  = originalFindRange.cloneRange();
-			var startPoint = (this.mFind.findBackwards ? originalEndPoint : originalStartPoint).cloneRange();
-			var endPoint   = (this.mFind.findBackwards ? originalStartPoint : originalEndPoint).cloneRange();
+			var startPoint = originalStartPoint.cloneRange();
+			var endPoint   = originalEndPoint.cloneRange();
 			var subSelCon;
 			while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, endPoint))
 			{
@@ -661,6 +661,9 @@ xmXMigemoCore.prototype = {
 					}
 				}
 			}
+			findRange.detach();
+			startPoint.detach();
+			endPoint.detach();
 		}, this);
 		if (frameSelection)
 			selCon.repaintSelection(selCon.SELECTION_FIND);

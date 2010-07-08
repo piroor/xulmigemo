@@ -59,8 +59,10 @@ xmXMigemoTextUtils.prototype = {
 				.join('\n')
 				.toLowerCase()
 				.replace(this.kBRUSH_UP_PATTERN, '$1')
+				.replace(this.kMULTIPLE_BR_PATTERN, '\n')
 				.split('\n');
 	},
+	kMULTIPLE_BR_PATTERN : /\n\n+/g,
 	kBRUSH_UP_PATTERN : /^(.+)(\n\1$)+/gim,
 	brushUpTermsWithCase : function(aTerms)
 	{
@@ -68,6 +70,7 @@ xmXMigemoTextUtils.prototype = {
 				.sort()
 				.join('\n')
 				.replace(this.kBRUSH_UP_PATTERN_CASE_SENSITIVE, '$1')
+				.replace(this.kMULTIPLE_BR_PATTERN, '\n')
 				.split('\n');
 	},
 	kBRUSH_UP_PATTERN_CASE_SENSITIVE : /^(.+)(\n\1$)+/gm,
