@@ -13,36 +13,34 @@ var XMigemoMail = {
 	{
 		window.removeEventListener('load', this, false);
 
-		eval('window.createSearchTerms = '+
-			window.createSearchTerms.toSource().replace(
-				'var termList = gSearchInput.value.split("|");',
-				<><![CDATA[
-					var termList;
-					if (XMigemoService.getPref('xulmigemo.mailnews.threadsearch.enabled'))
-						termList = XMigemoMail.service.getTermsList(
-							gSearchInput.value,
-							gSearchInput.searchMode,
-							gDBView.msgFolder
-						);
-					if (!termList || !termList.length)
-						termList = gSearchInput.value.split('|');
-				]]></>
-			)
-		);
+		if ('QuickSearchManager' in window) { // -Thunderbird 3.0
+			if (!('__xmigemo_original_createSearchTerms' in QuickSearchManager)) {
+				QuickSearchManager.__xmigemo_original_createSearchTerms = QuickSearchManager.createSearchTerms;
+				QuickSearchManager.createSearchTerms = this.createSearchTerms;
+			}
+		}
+		else if ('QuickFilterManager' in window) { // Thunderbird 3.1-
+		}
+	},
+ 
+	createSearchTerms : function(aTermCreator, aSearchMode, aSearchString)
+	{
+		var ns = {};
+		Components.utils.import('resource://xulmigemo-modules/service.jsm', ns); 
+		Components.utils.import('resource://xulmigemo-modules/mail.jsm', ns); 
 
-		eval('window.MsgCompactFolder = '+
-			window.MsgCompactFolder.toSource().replace(
-				'var expungedBytes = msgfolder.expungedBytes;',
-				<><![CDATA[$&
-					Components 
-						.classes['@mozilla.org/observer-service;1']
-						.getService(Components.interfaces.nsIObserverService)
-						.notifyObservers(msgfolder, 'XMigemo:compactFolderRequested', isAll ? 'forceCompact' : '' );
-				]]></>
-			)
-		);
+		if (aTermCreator.window &&
+			ns.XMigemoService.getPref('xulmigemo.mailnews.threadsearch.enabled')) {
+			let terms = ns.XMigemoMail.getTermsList(
+					aSearchString,
+					aSearchMode,
+					aTermCreator.window.domWindow.gDBView.msgFolder
+				);
+			if (terms.length)
+				aSearchString = terms.join('|');
+		}
 
-		this.service; // initialize
+		return this.__xmigemo_original_createSearchTerms.call(this, aTermCreator, aSearchMode, aSearchString);
 	}
  
 }; 
