@@ -309,6 +309,7 @@ var XMigemoService = {
 }; 
   
 var XMigemoCore = { 
+	dictionaries : Ci.xmIXMigemoEngine.ALL_DIC, 
 	
 	getRegExp : function(aInput) 
 	{
@@ -330,9 +331,19 @@ var XMigemoCore = {
 		return this.XMigemo.getRegExpsFunctional(aInput, aTermsRegExp, aExceptionRegExp);
 	},
  
-	getHighlights : function(aDocument, aRecursively) 
+	regExpFind : function(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
 	{
-		return this.XMigemo.getHighlights(aDocument, aRecursively);
+		return this.XMigemo.regExpFind(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aFindBackwards);
+	},
+ 
+	regExpHighlight : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
+	{
+		return this.XMigemo.regExpHighlight(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
+	},
+ 
+	regExpHighlightSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
+	{
+		return this.XMigemo.regExpHighlightSelection(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
 	},
  
 	get XMigemo() { 

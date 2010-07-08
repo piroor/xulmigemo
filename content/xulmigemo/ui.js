@@ -2371,27 +2371,27 @@ var XMigemoUI = {
 	clearHighlight : function(aDocument, aRecursively) 
 	{
 		var keepFoundHighlighted = !this.highlightCheck.disabled && this.highlightCheck.checked;
-		migemo.clearHighlight(aDocument, aRecursively, this.highlightSelectionOnly, keepFoundHighlighted);
+		XMigemoCore.clearHighlight(aDocument, aRecursively, this.highlightSelectionOnly, keepFoundHighlighted);
 	},
  
 	highlightText : function(aDoHighlight, aWord, aBaseNode, aRange) 
 	{
 		var flags = this.shouldCaseSensitive ? '' : 'i' ;
 		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
-					new RegExp(this.textUtils.extractRegExpSource(aWord), flags) :
+					this.textUtils.extractRegExpSource(aWord) :
 				this.findMode == this.FIND_MODE_MIGEMO ?
-					XMigemoCore.getRegExp(aWord, flags) :
-					new RegExp(this.textUtils.sanitize(aWord), flags) ;
+					XMigemoCore.getRegExp(aWord) :
+					this.textUtils.sanitize(aWord) ;
 
 		var doc = aRange.startContainer.ownerDocument || aRange.startContainer;
 		if (!this.highlightSelectionOnly && !aBaseNode)
 			aBaseNode = this.createNewHighlight(doc);
 
 		var ranges = !aDoHighlight ?
-				[migemo.regExpFind(regexp, aRange)] :
+				[XMigemoCore.regExpFind(regexp, flags, aRange)] :
 			this.highlightSelectionAvailable ?
-				migemo.regExpHighlightSelection(regexp, aRange, aBaseNode) :
-				migemo.regExpHighlight(regexp, aRange, aBaseNode) ;
+				XMigemoCore.regExpHighlightSelection(regexp, flags, aRange, aBaseNode) :
+				XMigemoCore.regExpHighlight(regexp, flags, aRange, aBaseNode) ;
 
 		return ranges.length ? true : false ;
 	},
