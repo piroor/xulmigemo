@@ -87,6 +87,9 @@ xmXMigemoFileAccess.prototype = {
 		if (aFile.exists()) aFile.remove(true); // 上書き確認は無し。必要があれば処理を追加。
 		aFile.create(aFile.NORMAL_FILE_TYPE, 0666); // アクセス権を8進数で指定。 Win9x などでは無視される。
 
+		if (!aFile.exists())
+			throw 'writeTo: failed to create output file '+aFile.path+'!';
+
 		var stream = Cc['@mozilla.org/network/file-output-stream;1']
 						.createInstance(Ci.nsIFileOutputStream);
 		stream.init(aFile, 2, 0x200, false); // open as "write only"
