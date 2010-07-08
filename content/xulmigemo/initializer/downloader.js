@@ -110,7 +110,7 @@ var XMigemoFileDownloader = {
 	{
 		var zipReader = Components.classes['@mozilla.org/libjar/zip-reader;1'].createInstance(Components.interfaces.nsIZipReader);
 		try {
-			zipReader.open(aFile); // Firefox 3.0-
+			zipReader.open(aFile);
 		}
 		catch(e) {
 			zipReader.close();

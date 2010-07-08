@@ -251,14 +251,8 @@ var XMigemoHighlight = {
 			return;
 
 		var b = XMigemoUI.activeBrowser;
-		if (b.localName == 'tabbrowser') b = b.selectedBrowser;
-		if ('_autoScrollPopup' in b) { // Firefox 3
-			if (b._autoScrollPopup)
-				b._autoScrollPopup.hidePopup();
-		}
-		else if (!b._snapOn) { // Firefox 2
-			b.stopScroll();
-		}
+		if (b._autoScrollPopup)
+			b._autoScrollPopup.hidePopup();
 
 		this.toggleHighlightScreen(false);
 
@@ -819,60 +813,25 @@ var XMigemoHighlight = {
 		var utils = aEvent.view
 			.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 			.getInterface(Components.interfaces.nsIDOMWindowUtils);
-		if ('sendMouseEvent' in utils) { // Firefox 3
-			var flags = 0;
-			const nsIDOMNSEvent = Components.interfaces.nsIDOMNSEvent;
-			if (aEvent.altKey) flags |= nsIDOMNSEvent.ALT_MASK;
-			if (aEvent.ctrlKey) flags |= nsIDOMNSEvent.CONTROL_MASK;
-			if (aEvent.shiftKey) flags |= nsIDOMNSEvent.SHIFT_MASK;
-			if (aEvent.metaKey) flags |= nsIDOMNSEvent.META_MASK;
-			window.setTimeout(function(aX, aY, aButton) {
-				if (aChecker && !aChecker()) {
-					window.setTimeout(arguments.callee, 0, aX, aY, aButton);
-					return;
-				}
-				if (ZoomManager.useFullZoom) {
-					aX = aX * ZoomManager.zoom;
-					aY = aY * ZoomManager.zoom;
-				}
-				utils.sendMouseEvent('mousedown', aX, aY, aButton, 1, flags);
-				utils.sendMouseEvent('mouseup', aX, aY, aButton, 1, flags);
-				if (aCallback) aCallback();
-			}, 0, aEvent.clientX, aEvent.clientY, aEvent.button);
-		}
-		else { // Firefox 2, emulation
-			var args = [
-					'click',
-					aEvent.bubbles,
-					aEvent.cancelable,
-					aEvent.view,
-					1,
-					aEvent.screenX,
-					aEvent.screenY,
-					aEvent.clientX,
-					aEvent.clientY,
-					aEvent.ctrlKey,
-					aEvent.altKey,
-					aEvent.shiftKey,
-					aEvent.metaKey,
-					aEvent.button
-				];
-			window.setTimeout(function(aSelf, aFrame, aScreenX, aScreenY, aClientX, aClientY) {
-				if (aChecker && !aChecker()) {
-					window.setTimeout(arguments.callee, 0, aSelf, aFrame, aScreenX, aScreenY, aClientX, aClientY);
-					return;
-				}
-				var node = aSelf.getClickableElementFromPoint(aFrame, aScreenX, aScreenY, aClientX, aClientY);
-				if (node) {
-					var event = aFrame.document.createEvent('MouseEvents');
-					args.push(node);
-					event.initMouseEvent.apply(event, args);
-					node.dispatchEvent(event);
-					if ('focus' in node) node.focus();
-				}
-				if (aCallback) aCallback();
-			}, 0, this, aEvent.view, aEvent.screenX, aEvent.screenY, aEvent.clientX, aEvent.clientY);
-		}
+		var flags = 0;
+		const nsIDOMNSEvent = Components.interfaces.nsIDOMNSEvent;
+		if (aEvent.altKey) flags |= nsIDOMNSEvent.ALT_MASK;
+		if (aEvent.ctrlKey) flags |= nsIDOMNSEvent.CONTROL_MASK;
+		if (aEvent.shiftKey) flags |= nsIDOMNSEvent.SHIFT_MASK;
+		if (aEvent.metaKey) flags |= nsIDOMNSEvent.META_MASK;
+		window.setTimeout(function(aX, aY, aButton) {
+			if (aChecker && !aChecker()) {
+				window.setTimeout(arguments.callee, 0, aX, aY, aButton);
+				return;
+			}
+			if (ZoomManager.useFullZoom) {
+				aX = aX * ZoomManager.zoom;
+				aY = aY * ZoomManager.zoom;
+			}
+			utils.sendMouseEvent('mousedown', aX, aY, aButton, 1, flags);
+			utils.sendMouseEvent('mouseup', aX, aY, aButton, 1, flags);
+			if (aCallback) aCallback();
+		}, 0, aEvent.clientX, aEvent.clientY, aEvent.button);
 	},
 	
 	getClickableElementFromPoint : function(aWindow, aScreenX, aScreenY, aClientX, aClientY) 

@@ -734,7 +734,7 @@ xmXMigemoCore.prototype = {
 		var selCons = [];
 		var highlights = this.getHighlights(aDocument, aRecursively, selCons);
 
-		if (this.highlightSelectionAvailable) { // Firefox 3.1
+		if (this.highlightSelectionAvailable) {
 			selCons.forEach(function(aSelCon) {
 				var selection = aSelCon.getSelection(aSelCon.SELECTION_FIND);
 				selection.removeAllRanges();
@@ -743,7 +743,6 @@ xmXMigemoCore.prototype = {
 			if (aSelectionOnly) return;
 		}
 
-		// old implementation for Firefox 3.0.x, 2.0.0.x
 		highlights.reverse();
 		var doc, range, foundRange, foundLength;
 		highlights.forEach(function(aHighlight) {
