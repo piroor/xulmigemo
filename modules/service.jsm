@@ -330,6 +330,11 @@ var XMigemoCore = {
 		return this.XMigemo.getRegExpsFunctional(aInput, aTermsRegExp, aExceptionRegExp);
 	},
  
+	getHighlights : function(aDocument, aRecursively) 
+	{
+		return this.XMigemo.getHighlights(aDocument, aRecursively);
+	},
+ 
 	get XMigemo() { 
 		if (!this._XMigemo) {
 			try {
