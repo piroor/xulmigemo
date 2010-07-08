@@ -14,7 +14,6 @@ var XMigemoPlaces = {
 	minLength : 3,
 	boundaryFindAvailable : false,
 	excludeJavaScript : true,
-	restrictTyped : false,
 	matchBehavior : 1,
 	defaultBehavior : 0,
 	openPageAvailable : false,
@@ -536,10 +535,7 @@ var XMigemoPlaces = {
 	{
 		return aSQL.replace(
 				'%ONLY_TYPED%',
-				(
-					this.restrictTyped || // Firefox 3.0.x
-					(aFindFlag & this.kRESTRICT_TYPED) // Firefox 3.1 or later
-				) ?
+				(aFindFlag & this.kRESTRICT_TYPED) ?
 					'AND p.typed = 1' :
 					''
 			);
@@ -683,24 +679,10 @@ var XMigemoPlaces = {
 		if (this._db !== void(0))
 			return this._db;
 
-		this._db = null;
-		if ('nsPIPlacesDatabase' in Ci) { // Firefox 3.1 or later
-			this._db = Cc['@mozilla.org/browser/nav-history-service;1']
-					.getService(Ci.nsINavHistoryService)
-					.QueryInterface(Ci.nsPIPlacesDatabase)
-					.DBConnection;
-		}
-		else { // Firefox 3.0.x
-			const DirectoryService = Cc['@mozilla.org/file/directory_service;1']
-				.getService(Ci.nsIProperties);
-			var file = DirectoryService.get('ProfD', Ci.nsIFile);
-			file.append('places.sqlite');
-			if (file.exists()) {
-				this._db = StorageService = Cc['@mozilla.org/storage/service;1']
-							.getService(Ci.mozIStorageService)
-							.openDatabase(file);
-			}
-		}
+		this._db = Cc['@mozilla.org/browser/nav-history-service;1']
+				.getService(Ci.nsINavHistoryService)
+				.QueryInterface(Ci.nsPIPlacesDatabase)
+				.DBConnection;
 		return this._db;
 	},
 	set db(val) // for test
@@ -892,10 +874,6 @@ var XMigemoPlaces = {
 				this.updateFindKeyRegExp();
 				return;
 
-			case 'browser.urlbar.matchOnlyTyped':
-				this.restrictTyped = value;
-				return;
-
 			case 'browser.urlbar.matchBehavior':
 				this.matchBehavior = value;
 				return;
@@ -927,7 +905,6 @@ var XMigemoPlaces = {
 		browser.urlbar.restrict.openpage
 		browser.urlbar.match.title
 		browser.urlbar.match.url
-		browser.urlbar.matchOnlyTyped
 		browser.urlbar.matchBehavior
 		browser.urlbar.default.behavior
 	]]>.toString(),

@@ -6,7 +6,7 @@
 :root[__moz_xmigemo-find-highlight-animation="on"] *:not(.__moz_xmigemo-positioned) {
 	z-index: auto !important;
 }
-:root[__moz_xmigemo-find-highlight-screen="on"] .__mozilla-findbar-search, /* Firefox 3 */
+:root[__moz_xmigemo-find-highlight-screen="on"] .__mozilla-findbar-search,
 :root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term, /* SearchWP */
 :root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight1,
 :root[__moz_xmigemo-find-highlight-screen="on"] .searchwp-term-highlight2,
@@ -83,7 +83,7 @@
 	padding: 0 !important;
 }
 
-/* for Firefox 3.1 */
+/* for Firefox 3.5- */
 :root[__moz_xmigemo-find-highlight-screen="on"] .__mozilla-findbar-search {
 	color: black !important;
 	background: yellow !important;
