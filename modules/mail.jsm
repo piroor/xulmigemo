@@ -51,6 +51,10 @@ var XMigemoMail = {
 				columns.push('c.c4recipients');
 			}
 			if (columns.length) {
+				columns = columns.map(function(aColumn) {
+					return 'COALESCE(' + aColumn + ', "")';
+				});
+
 				let regexp;
 				if (
 					XMigemoService.getPref('xulmigemo.autostart.regExpFind') &&
