@@ -336,14 +336,14 @@ var XMigemoCore = {
 		return this.XMigemo.regExpFind(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aFindBackwards);
 	},
  
-	regExpHighlight : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
+	regExpHighlight : function(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode) 
 	{
-		return this.XMigemo.regExpHighlight(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
+		return this.XMigemo.regExpHighlight(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode);
 	},
  
-	regExpHighlightSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
+	regExpHighlightSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode) 
 	{
-		return this.XMigemo.regExpHighlightSelection(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
+		return this.XMigemo.regExpHighlightSelection(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode);
 	},
  
 	get XMigemo() { 
