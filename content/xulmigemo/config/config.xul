@@ -578,13 +578,6 @@
 		<preference id="xulmigemo.mailnews.threadsearch.enabled"
 			name="xulmigemo.mailnews.threadsearch.enabled"
 			type="bool"/>
-		<preference id="xulmigemo.mailnews.threadsearch.body"
-			name="xulmigemo.mailnews.threadsearch.body"
-			type="bool"/>
-
-		<preference id="xulmigemo.combination.autocompletemanager"
-			name="xulmigemo.combination.autocompletemanager"
-			type="bool"/>
 	</preferences>
 
 	<description flex="1" style="max-width: &config.combination.description.maxwidth;">&config.combination.description;</description>
@@ -620,17 +613,7 @@
 		<checkbox id="xulmigemo.mailnews.threadsearch.enabled-check" flex="1"
 			label="&config.mailnews.threadsearch.enabled;"
 			preference="xulmigemo.mailnews.threadsearch.enabled"/>
-		<hbox>
-			<spacer style="width:1em;"/>
-			<checkbox id="xulmigemo.mailnews.threadsearch.body-check" flex="1"
-				label="&config.mailnews.threadsearch.body;"
-				preference="xulmigemo.mailnews.threadsearch.body"/>
-		</hbox>
 	</groupbox>
-
-	<checkbox id="xulmigemo.combination.autocompletemanager-check" flex="1"
-		label="&config.combination.autocompletemanager;"
-		preference="xulmigemo.combination.autocompletemanager"/>
 
 	<spacer flex="100"/>
 	</vbox>
