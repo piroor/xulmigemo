@@ -14,7 +14,7 @@
 </vbox>
 
 <script type="application/javascript"><![CDATA[
-Components.utils.import('resource://xulmigemo-modules/mail.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/mail.jsm');
 ]]></script>
 
 </overlay>
