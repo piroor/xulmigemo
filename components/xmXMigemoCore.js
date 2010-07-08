@@ -609,74 +609,98 @@ xmXMigemoCore.prototype = {
 				doc.__xulmigemo__highlightTimer = null;
 			}
 
-			terms.forEach(function(aTerm, aIndex) {
-				var foundRange;
-				var findRange  = originalFindRange.cloneRange();
-				var startPoint = originalStartPoint.cloneRange();
-				var endPoint   = originalEndPoint.cloneRange();
-				while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, endPoint))
-				{
-					let foundLength = foundRange.toString().length;
-					let isOverlap = shouldRebuildSelection ?
-							this.textUtils.isRangeOverlap(foundRange, selRange) :
-							false ;
+			terms = terms.map(function(aTerm) {
+				return (function() {
+					var foundRange;
+					var findRange  = originalFindRange.cloneRange();
+					var startPoint = originalStartPoint.cloneRange();
+					var endPoint   = originalEndPoint.cloneRange();
+					var count = 0;
+					while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, endPoint))
+					{
+						let foundLength = foundRange.toString().length;
+						let isOverlap = shouldRebuildSelection ?
+								this.textUtils.isRangeOverlap(foundRange, selRange) :
+								false ;
 
-					let nodeSurround   = aSurroundNode.cloneNode(true);
-					let startContainer = foundRange.startContainer;
-					let startOffset    = foundRange.startOffset;
-					let endContainer   = foundRange.endContainer;
-					let endOffset      = foundRange.endOffset;
-					let docfrag        = foundRange.extractContents();
-					let firstChild     = docfrag.firstChild;
-					nodeSurround.appendChild(docfrag);
-					foundRange.insertNode(nodeSurround);
+						let nodeSurround   = aSurroundNode.cloneNode(true);
+						let startContainer = foundRange.startContainer;
+						let startOffset    = foundRange.startOffset;
+						let endContainer   = foundRange.endContainer;
+						let endOffset      = foundRange.endOffset;
+						let docfrag        = foundRange.extractContents();
+						let firstChild     = docfrag.firstChild;
+						nodeSurround.appendChild(docfrag);
+						foundRange.insertNode(nodeSurround);
 
-					// レイアウトを確定しないと検索に失敗する（Firefox 4.0-）
-					nodeSurround.clientTop;
+						// レイアウトを確定しないと検索に失敗する（Firefox 4.0-）
+						nodeSurround.clientTop;
 
-					if (isOverlap)
-						this.textUtils.delayedSelect(firstChild, foundLength, true);
+						if (isOverlap)
+							this.textUtils.delayedSelect(firstChild, foundLength, true);
 
-					foundRange = doc.createRange();
-					foundRange.selectNodeContents(nodeSurround);
-					arrResults.push(foundRange);
+						foundRange = doc.createRange();
+						foundRange.selectNodeContents(nodeSurround);
+						arrResults.push(foundRange);
 
-					findRange.selectNodeContents(this.getDocumentBody(doc));
-					findRange.setStartAfter(nodeSurround);
-					try {
-						findRange.setEnd(endPoint.endContainer, endPoint.endOffset);
-					}
-					catch(e) {
-					}
-					startPoint.selectNodeContents(this.getDocumentBody(doc));
-					startPoint.setStartAfter(nodeSurround);
-					startPoint.collapse(true);
-					if (frameSelection) {
-						let subSelCon = this.getEditorSelConFromRange(foundRange);
-						if (subSelCon) {
-							subSelCon.getSelection(selCon.SELECTION_FIND)
-								.addRange(foundRange);
-							subSelCon.repaintSelection(selCon.SELECTION_FIND);
+						findRange.selectNodeContents(this.getDocumentBody(doc));
+						findRange.setStartAfter(nodeSurround);
+						try {
+							findRange.setEnd(endPoint.endContainer, endPoint.endOffset);
 						}
-						else {
-							frameSelection.addRange(foundRange);
+						catch(e) {
+						}
+						startPoint.selectNodeContents(this.getDocumentBody(doc));
+						startPoint.setStartAfter(nodeSurround);
+						startPoint.collapse(true);
+						if (frameSelection) {
+							let subSelCon = this.getEditorSelConFromRange(foundRange);
+							if (subSelCon) {
+								subSelCon.getSelection(selCon.SELECTION_FIND)
+									.addRange(foundRange);
+								subSelCon.repaintSelection(selCon.SELECTION_FIND);
+							}
+							else {
+								frameSelection.addRange(foundRange);
+							}
+						}
+
+						if (count++ > 10) {
+							if (frameSelection)
+								selCon.repaintSelection(selCon.SELECTION_FIND);
+							yield;
+							count = 0;
 						}
 					}
-				}
-				findRange.detach();
-				startPoint.detach();
-				endPoint.detach();
+					findRange.detach();
+					startPoint.detach();
+					endPoint.detach();
+					if (frameSelection)
+						selCon.repaintSelection(selCon.SELECTION_FIND);
+				}).call(this);
 			}, this);
-			if (frameSelection)
-				selCon.repaintSelection(selCon.SELECTION_FIND);
 
-			arrResults.sort(this.textUtils.compareRangePosition);
-
-//			doc.__xulmigemo__highlightTimer = timer.setInterval(function() {
-//			}, 50);
+			let runner = function() {
+					terms = terms.filter(function(aTermIterafor) {
+						try {
+							aTermIterafor.next();
+							return true;
+						}
+						catch(e) {
+						}
+						return false;
+					});
+					if (!terms.length && doc.__xulmigemo__highlightTimer) {
+						timer.clearInterval(doc.__xulmigemo__highlightTimer);
+						doc.__xulmigemo__highlightTimer = null;
+					}
+				};
+			runner();
+			if (terms.length)
+				doc.__xulmigemo__highlightTimer = timer.setInterval(runner, 50);
 		}
 		else {
-			terms.forEach(function(aTerm, aIndex) {
+			terms.forEach(function(aTerm) {
 				var foundRange;
 				var findRange  = originalFindRange.cloneRange();
 				var startPoint = originalStartPoint.cloneRange();
@@ -753,25 +777,25 @@ xmXMigemoCore.prototype = {
 		return null;
 	},
    
-	regExpHighlight : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
+	regExpHighlight : function(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode) 
 	{
-		if (!aSurrountNode) {
+		if (!aSurroundNode) {
 			return [];
 		}
-		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode);
+		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurroundNode);
 	},
-	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode)
+	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode)
 	{
-		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
+		return this.regExpHighlight(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode);
 	},
  
-	regExpHighlightSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
+	regExpHighlightSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode) 
 	{
-		return this.regExpHighlight(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, true);
+		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurroundNode, true);
 	},
-	regExpHighlightTextWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode)
+	regExpHighlightTextWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode)
 	{
-		return this.regExpHighlightSelection(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
+		return this.regExpHighlightSelection(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode);
 	},
  
 	clearHighlight : function(aDocument, aRecursively, aSelectionOnly, aKeepFoundHighlighted) 
