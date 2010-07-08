@@ -22,6 +22,8 @@ function setUp()
 	service.findHistoryKey = '^';
 	service.findBookmarksKey = '*';
 	service.findTaggedKey = '+';
+	service.findTyped = '~';
+	service.findOpenPageKey = '%';
 	service.findTitleKey = '@';
 	service.findURIKey = '#';
 	service.updateFindKeyRegExp();
@@ -96,6 +98,7 @@ function test_updateFindKeyRegExp()
 	assert.pattern('word + word word', service.findKeyRegExp);
 	assert.pattern('word + word * word', service.findKeyRegExp);
 	assert.pattern('word @ word # word', service.findKeyRegExp);
+	assert.pattern('word % word ~ word', service.findKeyRegExp);
 	assert.notPattern('word word word', service.findKeyRegExp);
 	assert.notPattern('word ; word word', service.findKeyRegExp);
 	assert.notPattern('word $ word word', service.findKeyRegExp);
@@ -103,6 +106,8 @@ function test_updateFindKeyRegExp()
 	service.findHistoryKey = '';
 	service.findBookmarksKey = '';
 	service.findTaggedKey = '';
+	service.findTypedKey = '';
+	service.findOpenPageKey = '';
 	service.findTitleKey = '';
 	service.findURIKey = '';
 	service.updateFindKeyRegExp();
@@ -111,29 +116,33 @@ function test_updateFindKeyRegExp()
 
 function test_extractFindKeysFromInput()
 {
-	var input = 'tagged + bookmarked * history ^ title @ uri # find';
+	var input = 'tagged + bookmarked * history ^ title @ uri # find ~ typed % open page';
 	var newInput = {};
 	var keys = service.extractFindKeysFromInput(input, newInput);
 
-	assert.equals('tagged bookmarked history title uri find', newInput.value);
+	assert.equals('tagged bookmarked history title uri find typed open page', newInput.value);
 	assert.contains('+', keys);
 	assert.contains('*', keys);
 	assert.contains('^', keys);
 	assert.contains('@', keys);
 	assert.contains('#', keys);
+	assert.contains('~', keys);
+	assert.contains('%', keys);
 }
 
 function test_getFindFlagFromInput()
 {
-	var input = 'tagged + bookmarked * history ^ title @ uri # find';
+	var input = 'tagged + bookmarked * history ^ title @ uri # find ~ typed % open page';
 	var newInput = {};
 	var flags = service.getFindFlagFromInput(input, newInput);
 
-	assert.equals('tagged bookmarked history title uri find', newInput.value);
+	assert.equals('tagged bookmarked history title uri find typed open page', newInput.value);
 
 	assert.isTrue(flags & service.kRESTRICT_HISTORY);
 	assert.isTrue(flags & service.kRESTRICT_BOOKMARKS);
 	assert.isTrue(flags & service.kRESTRICT_TAGGED);
+	assert.isTrue(flags & service.kRESTRICT_TYPED);
+	assert.isTrue(flags & service.kRESTRICT_OPENPAGE);
 	assert.isTrue(flags & service.kFIND_TITLE);
 	assert.isTrue(flags & service.kFIND_URI);
 }
@@ -200,7 +209,8 @@ function assert_insertCondition(aMethod, aSQL, aRestrictTarget, aCondition)
 		'kRESTRICT_HISTORY',
 		'kRESTRICT_BOOKMARKS',
 		'kRESTRICT_TAGGED',
-		'kRESTRICT_TYPED'
+		'kRESTRICT_TYPED',
+		'kRESTRICT_OPENPAGE'
 	].forEach(function(aFlag) {
 		var flag = service[aFlag];
 		var result = service[aMethod](aSQL, flag);
