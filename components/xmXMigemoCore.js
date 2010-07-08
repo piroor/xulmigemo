@@ -535,6 +535,14 @@ xmXMigemoCore.prototype = {
 		var findRange = aFindRange.cloneRange();
 		var doc = findRange.startContainer.ownerDocument || findRange.startContainer;
 
+		if (!('setInterval' in timer))
+			Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
+
+		if (doc.__xulmigemo__highlightTimer) {
+			timer.clearInterval(doc.__xulmigemo__highlightTimer);
+			doc.__xulmigemo__highlightTimer = null;
+		}
+
 		var startPoint = aStartPoint;
 		if (startPoint) {
 			startPoint = startPoint.cloneRange();
@@ -596,27 +604,27 @@ xmXMigemoCore.prototype = {
 		var originalFindRange  = findRange;
 		var originalStartPoint = startPoint;
 		var originalEndPoint   = aEndPoint;
-		terms.forEach(function(aTerm, aIndex) {
-			var foundRange;
-			var findRange  = originalFindRange.cloneRange();
-			var startPoint = originalStartPoint.cloneRange();
-			var endPoint   = originalEndPoint.cloneRange();
-			var subSelCon;
-			while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, endPoint))
-			{
-				var foundLength = foundRange.toString().length;
-				if (aSurroundNode) {
-					var isOverlap = shouldRebuildSelection ?
+
+		if (aSurroundNode) {
+			terms.forEach(function(aTerm, aIndex) {
+				var foundRange;
+				var findRange  = originalFindRange.cloneRange();
+				var startPoint = originalStartPoint.cloneRange();
+				var endPoint   = originalEndPoint.cloneRange();
+				while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, endPoint))
+				{
+					let foundLength = foundRange.toString().length;
+					let isOverlap = shouldRebuildSelection ?
 							this.textUtils.isRangeOverlap(foundRange, selRange) :
 							false ;
 
-					var nodeSurround   = aSurroundNode.cloneNode(true);
-					var startContainer = foundRange.startContainer;
-					var startOffset    = foundRange.startOffset;
-					var endContainer   = foundRange.endContainer;
-					var endOffset      = foundRange.endOffset;
-					var docfrag        = foundRange.extractContents();
-					var firstChild     = docfrag.firstChild;
+					let nodeSurround   = aSurroundNode.cloneNode(true);
+					let startContainer = foundRange.startContainer;
+					let startOffset    = foundRange.startOffset;
+					let endContainer   = foundRange.endContainer;
+					let endOffset      = foundRange.endOffset;
+					let docfrag        = foundRange.extractContents();
+					let firstChild     = docfrag.firstChild;
 					nodeSurround.appendChild(docfrag);
 					foundRange.insertNode(nodeSurround);
 
@@ -640,35 +648,63 @@ xmXMigemoCore.prototype = {
 					startPoint.selectNodeContents(this.getDocumentBody(doc));
 					startPoint.setStartAfter(nodeSurround);
 					startPoint.collapse(true);
+					if (frameSelection) {
+						let subSelCon = this.getEditorSelConFromRange(foundRange);
+						if (subSelCon) {
+							subSelCon.getSelection(selCon.SELECTION_FIND)
+								.addRange(foundRange);
+							subSelCon.repaintSelection(selCon.SELECTION_FIND);
+						}
+						else {
+							frameSelection.addRange(foundRange);
+						}
+					}
 				}
-				else {
+				findRange.detach();
+				startPoint.detach();
+				endPoint.detach();
+			}, this);
+			if (frameSelection)
+				selCon.repaintSelection(selCon.SELECTION_FIND);
+
+			arrResults.sort(this.textUtils.compareRangePosition);
+		}
+		else {
+			terms.forEach(function(aTerm, aIndex) {
+				var foundRange;
+				var findRange  = originalFindRange.cloneRange();
+				var startPoint = originalStartPoint.cloneRange();
+				var endPoint   = originalEndPoint.cloneRange();
+				while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, endPoint))
+				{
+					let foundLength = foundRange.toString().length;
 					arrResults.push(foundRange);
 
 					findRange.setStart(foundRange.endContainer, foundRange.endOffset);
 					startPoint.selectNodeContents(this.getDocumentBody(doc));
 					startPoint.setStart(foundRange.endContainer, foundRange.endOffset);
 					startPoint.collapse(true);
-				}
-				if (frameSelection) {
-					subSelCon = this.getEditorSelConFromRange(foundRange);
-					if (subSelCon) {
-						subSelCon.getSelection(selCon.SELECTION_FIND)
-							.addRange(foundRange);
-						subSelCon.repaintSelection(selCon.SELECTION_FIND);
+					if (frameSelection) {
+						let subSelCon = this.getEditorSelConFromRange(foundRange);
+						if (subSelCon) {
+							subSelCon.getSelection(selCon.SELECTION_FIND)
+								.addRange(foundRange);
+							subSelCon.repaintSelection(selCon.SELECTION_FIND);
+						}
+						else {
+							frameSelection.addRange(foundRange);
+						}
 					}
-					else {
-						frameSelection.addRange(foundRange);
-					}
 				}
-			}
-			findRange.detach();
-			startPoint.detach();
-			endPoint.detach();
-		}, this);
-		if (frameSelection)
-			selCon.repaintSelection(selCon.SELECTION_FIND);
+				findRange.detach();
+				startPoint.detach();
+				endPoint.detach();
+			}, this);
+			if (frameSelection)
+				selCon.repaintSelection(selCon.SELECTION_FIND);
 
-		arrResults.sort(this.textUtils.compareRangePosition);
+			arrResults.sort(this.textUtils.compareRangePosition);
+		}
 
 		return arrResults;
 	},
@@ -720,12 +756,12 @@ xmXMigemoCore.prototype = {
 	},
 	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode)
 	{
-		return this.regExpHighlight(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
+		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode);
 	},
  
 	regExpHighlightSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode) 
 	{
-		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, true);
+		return this.regExpHighlight(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurrountNode, true);
 	},
 	regExpHighlightTextWithSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurrountNode)
 	{
@@ -736,6 +772,14 @@ xmXMigemoCore.prototype = {
 	{
 		var selCons = [];
 		var highlights = this.getHighlights(aDocument, aRecursively, selCons);
+
+		if (!('clearInterval' in timer))
+			Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
+
+		if (aDocument.__xulmigemo__highlightTimer) {
+			timer.clearInterval(aDocument.__xulmigemo__highlightTimer);
+			aDocument.__xulmigemo__highlightTimer = null;
+		}
 
 		if (this.highlightSelectionAvailable) {
 			selCons.forEach(function(aSelCon) {
