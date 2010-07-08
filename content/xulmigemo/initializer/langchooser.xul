@@ -29,8 +29,9 @@
 		value="&config.lang.item2.value;"/>
 </listbox>
 
-<script src="chrome://xulmigemo/content/service.js" />
 <script type="application/javascript"><![CDATA[
+	Components.utils.import('resource://xulmigemo-modules/service.jsm');
+
 	function onUnload()
 	{
 		XMigemoService.setPref('xulmigemo.lang', document.getElementById('lang').selectedItem.getAttribute('value'));
