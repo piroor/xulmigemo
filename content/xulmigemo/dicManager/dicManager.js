@@ -1,4 +1,6 @@
-const Prefs = Components 
+Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
+
+const Prefs = Components
 	.classes['@mozilla.org/preferences;1']
 	.getService(Components.interfaces.nsIPrefBranch);
 
