@@ -8,13 +8,13 @@ var textUtils;
 function setUp()
 {
 	textUtils = new xmXMigemoTextUtils();
-	yield Do(utils.loadURI('../fixtures/keyEventTest.html'));
+	utils.wait(utils.loadURI('../fixtures/keyEventTest.html'));
 }
 
 function tearDown()
 {
 	textUtils = null;
-	yield Do(utils.loadURI());
+	utils.wait(utils.loadURI());
 }
 
 test_isRangeOverlap.description = 'isRangeOverlap（DOM Rangeの重なり合いのチェック）'

@@ -38,7 +38,7 @@ function test_getRegExpFor(aParameter)
 
 function test_regExpFind_forHiddenTargets()
 {
-	yield Do(utils.loadURI('../fixtures/containsHiddenMatchTarget.html'));
+	utils.wait(utils.loadURI('../fixtures/containsHiddenMatchTarget.html'));
 
 	range = content.document.createRange();
 	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
@@ -46,7 +46,7 @@ function test_regExpFind_forHiddenTargets()
 	assert.equals('a', foundRange.toString());
 
 	content.document.getElementsByTagName('legend')[0].setAttribute('style', 'display:inline');
-	yield 100;
+	utils.wait(100);
 	foundRange = core.regExpFind('a|b|c', 'gi', range, null, null, false);
 	assert.equals('b', foundRange.toString());
 
@@ -55,7 +55,7 @@ function test_regExpFind_forHiddenTargets()
 
 function test_regExpFindArr_forHiddenTargets()
 {
-	yield Do(utils.loadURI('../fixtures/containsHiddenMatchTarget.html'));
+	utils.wait(utils.loadURI('../fixtures/containsHiddenMatchTarget.html'));
 
 	range = content.document.createRange();
 	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
@@ -64,7 +64,7 @@ function test_regExpFindArr_forHiddenTargets()
 	assert.equals(['a', 'b', 'a', 'c'], array.map(function(aRange) { return aRange.toString(); }));
 
 	content.document.getElementsByTagName('legend')[0].setAttribute('style', 'display:inline');
-	yield 100;
+	utils.wait(100);
 	array = core.regExpFindArray('a|b|c', 'gi', range, null, null);
 	assert.equals(5, array.length);
 	assert.equals(['b', 'a', 'b', 'a', 'c'], array.map(function(aRange) { return aRange.toString(); }));
@@ -90,20 +90,20 @@ function test_regExpHighlight()
 		destroyRange();
 	}
 
-	yield Do(utils.loadURI('../fixtures/caseSensitive.html'));
+	utils.wait(utils.loadURI('../fixtures/caseSensitive.html'));
 	assertMatchCount('firefox', '', 3);
 
-	yield Do(utils.loadURI('../fixtures/caseSensitive.html'));
+	utils.wait(utils.loadURI('../fixtures/caseSensitive.html'));
 	assertMatchCount('firefox', 'i', 9);
 
-	yield Do(utils.loadURI('../fixtures/keyEventTest.html'));
+	utils.wait(utils.loadURI('../fixtures/keyEventTest.html'));
 	var input = content.document.getElementsByTagName('input')[0];
 	assertMatchCount('Text', '', 0,
 		input.QueryInterface(Ci.nsIDOMNSEditableElement)
 			.editor
 			.rootElement);
 
-	yield Do(utils.loadURI('../fixtures/keyEventTest.html'));
+	utils.wait(utils.loadURI('../fixtures/keyEventTest.html'));
 	input = content.document.getElementsByTagName('input')[0];
 	assertMatchCount('Text', 'i', 1,
 		input.QueryInterface(Ci.nsIDOMNSEditableElement)
@@ -134,20 +134,20 @@ function test_regExpHighlightSelection()
 		destroyRange();
 	}
 
-	yield Do(utils.loadURI('../fixtures/caseSensitive.html'));
+	utils.wait(utils.loadURI('../fixtures/caseSensitive.html'));
 	assertMatchCount('firefox', '', 3);
 
-	yield Do(utils.loadURI('../fixtures/caseSensitive.html'));
+	utils.wait(utils.loadURI('../fixtures/caseSensitive.html'));
 	assertMatchCount('firefox', 'i', 9);
 
-	yield Do(utils.loadURI('../fixtures/keyEventTest.html'));
+	utils.wait(utils.loadURI('../fixtures/keyEventTest.html'));
 	var input = content.document.getElementsByTagName('input')[0];
 	var selCon = input.QueryInterface(Ci.nsIDOMNSEditableElement)
 				.editor
 				.selectionController;
 	assertMatchCount('Text', '', 0, selCon);
 
-	yield Do(utils.loadURI('../fixtures/keyEventTest.html'));
+	utils.wait(utils.loadURI('../fixtures/keyEventTest.html'));
 	input = content.document.getElementsByTagName('input')[0];
 	selCon = input.QueryInterface(Ci.nsIDOMNSEditableElement)
 				.editor

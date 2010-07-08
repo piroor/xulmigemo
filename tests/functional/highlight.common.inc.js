@@ -16,13 +16,13 @@ assert.highlightCheck = function(aDisabled, aChecked, aMessage) {
 
 assert.found = function(aTerm, aMessage) {
 	action.inputTo(field, aTerm);
-	yield 1500;
+	utils.wait(1500);
 	assert.notEquals('notfound', field.getAttribute('status'), aMessage);
 }
 
 assert.nofFound = function(aTerm, aMessage) {
 	action.inputTo(field, aTerm);
-	yield 1500;
+	utils.wait(1500);
 	assert.equals('notfound', field.getAttribute('status'), aMessage);
 }
 
@@ -45,10 +45,10 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 	XMigemoUI.caseSensitiveCheck.checked = false;
 	field.focus();
 
-	yield Do(assert.found(aOKShort, message));
+	assert.found(aOKShort, message);
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
-	yield Do(assert.found(aOKLong, message));
+	assert.found(aOKLong, message);
 	assert.isTrue(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, true, message);
 	var xpathResult = content.document.evaluate(
@@ -59,33 +59,33 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 		null
 	);
 	assert.equals(aOKLongNum, xpathResult.snapshotLength, message);
-	yield Do(assert.nofFound(aNGShort, message));
+	assert.nofFound(aNGShort, message);
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
-	yield Do(assert.nofFound(aNGLong, message));
+	assert.nofFound(aNGLong, message);
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
 
 	gFindBar.close();
-	yield WAIT;
+	utils.wait(WAIT);
 	var selection = selectTextInPage();
 	var lastFindTerm = selection.toString();
 	gFindBar.open();
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 
 	gFindBar.close();
-	yield WAIT;
+	utils.wait(WAIT);
 	selection.removeAllRanges();
 	gFindBar.open();
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.equals(lastFindTerm, field.value);
 	assert.highlightCheck(false, false);
 }
 
 assert.screenStateForFind = function(aTerm, aShown) {
 	action.inputTo(field, aTerm);
-	yield 1500;
+	utils.wait(1500);
 	var screen = content.document.getElementById(kSCREEN);
 	assert.isTrue(screen);
 	var box = utils.getBoxObjectFor(screen);
@@ -108,7 +108,7 @@ assert.screenStateForFind = function(aTerm, aShown) {
 
 assert.markerStateForFind = function(aTerm, aShown) {
 	action.inputTo(field, aTerm);
-	yield 1500;
+	utils.wait(1500);
 	var canvas = content.document.getElementById(kMARKER_CANVAS);
 	if (aShown) {
 		assert.isTrue(canvas);

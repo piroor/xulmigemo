@@ -48,13 +48,13 @@ assert.focus = function(aIterator, aFrame) {
 
 function setUp()
 {
-	yield Do(utils.loadURI('../fixtures/frameTest.html'));
+	utils.wait(utils.loadURI('../fixtures/frameTest.html'));
 }
 
 function tearDown()
 {
 	iterator.destroy();
-	yield Do(utils.loadURI());
+	utils.wait(utils.loadURI());
 }
 
 function testInternalMethods()

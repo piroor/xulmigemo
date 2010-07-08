@@ -13,7 +13,7 @@ function fireClickEventOn(aNode, aButton) {
 		case 1: action.middleClickAt(content, box.x+10, box.y+5); break;
 		case 2: action.rightClickAt(content, box.x+10, box.y+5); break;
 	}
-	yield 1500;
+	utils.wait(1500);
 }
 
 function getTabs(aTabBrowser) {
@@ -34,7 +34,7 @@ function getTabs(aTabBrowser) {
 
 function setUp()
 {
-	yield Do(commonSetUp(keyEventTest));
+	commonSetUp(keyEventTest)
 	XMigemoUI.highlightCheckedAlways = true;
 	XMigemoHighlight.strongHighlight = true;
 }
@@ -50,28 +50,28 @@ function testClickOnScreen()
 	XMigemoUI.highlightCheckedAlwaysMinLength = 5;
 
 	gFindBar.open();
-	yield WAIT;
+	utils.wait(WAIT);
 	field.focus();
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 
 	action.inputTo(field, 'text field');
-	yield 1500;
+	utils.wait(1500);
 	assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
-	yield Do(fireClickEventOn(browser.selectedBrowser, 0));
+	fireClickEventOn(browser.selectedBrowser, 0)
 	assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 
 	XMigemoHighlight.toggleHighlightScreen(true);
 	content.scrollTo(0, 0);
-	yield WAIT;
+	utils.wait(WAIT);
 
 	var link = content.document.getElementsByTagName('a')[0];
 	var tabNum = getTabs(browser).length;
-	yield Do(fireClickEventOn(link, 1));
+	fireClickEventOn(link, 1)
 	assert.equals('on', content.document.documentElement.getAttribute(kSCREEN));
 	assert.equals(tabNum+1, getTabs(browser).length);
 
-	yield Do(fireClickEventOn(link, 0));
+	fireClickEventOn(link, 0)
 	assert.notEquals('on', content.document.documentElement.getAttribute(kSCREEN));
 	assert.matches(/\#link$/, content.location.href);
 }
@@ -83,16 +83,16 @@ function testNoInput()
 	XMigemoUI.autoStartQuickFind = true;
 
 	var findTerm = 'nihongo';
-	yield Do(assert.autoStart(findTerm));
+	assert.autoStart(findTerm)
 	for (var i = 0, maxi = findTerm.length; i < maxi; i++)
 	{
-		yield WAIT;
+		utils.wait(WAIT);
 		assert.highlightCheck(false, true);
 		action.keypressOn(field, Ci.nsIDOMKeyEvent.DOM_VK_BACK_SPACE);
-		yield WAIT;
+		utils.wait(WAIT);
 		assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 		assert.isFalse(XMigemoUI.hidden);
 	}
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.isTrue(XMigemoUI.highlightCheck.disabled);
 }

@@ -4,7 +4,7 @@ utils.include('common.inc.js');
 
 function setUp()
 {
-	yield Do(commonSetUp(keyEventTest));
+	commonSetUp(keyEventTest)
 	assert.isTrue(XMigemoUI.hidden);
 }
 
@@ -14,7 +14,7 @@ function tearDown() {
 
 assert.modeAPI = function(aMode) {
 	XMigemoUI.findMode = XMigemoUI[aMode];
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
 }
 
@@ -22,20 +22,20 @@ function test_manualSwitch_API()
 {
 	assert.isTrue(XMigemoUI.hidden);
 	eval(findCommand);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.isFalse(XMigemoUI.hidden);
 
-	yield Do(assert.modeAPI('FIND_MODE_NATIVE'));
+	assert.modeAPI('FIND_MODE_NATIVE')
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
-	yield Do(assert.modeAPI('FIND_MODE_REGEXP'));
+	assert.modeAPI('FIND_MODE_REGEXP')
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
-	yield Do(assert.modeAPI('FIND_MODE_MIGEMO'));
+	assert.modeAPI('FIND_MODE_MIGEMO')
 	assert.isTrue(XMigemoUI.caseSensitiveCheck.disabled);
 }
 
 assert.buttonClick = function(aMode, aIndex) {
 	action.clickOn(XMigemoUI.findModeSelector.childNodes[aIndex]);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
 }
 
@@ -43,20 +43,20 @@ function test_manualSwitch_buttonClick()
 {
 	assert.isTrue(XMigemoUI.hidden);
 	eval(findCommand);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.isFalse(XMigemoUI.hidden);
 
-	yield Do(assert.buttonClick('FIND_MODE_REGEXP', 1));
+	assert.buttonClick('FIND_MODE_REGEXP', 1)
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
-	yield Do(assert.buttonClick('FIND_MODE_MIGEMO', 2));
+	assert.buttonClick('FIND_MODE_MIGEMO', 2)
 	assert.isTrue(XMigemoUI.caseSensitiveCheck.disabled);
-	yield Do(assert.buttonClick('FIND_MODE_NATIVE', 0));
+	assert.buttonClick('FIND_MODE_NATIVE', 0)
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
 }
 
 assert.flipBack = function(aMode, aIndex, aNext) {
 	action.clickOn(XMigemoUI.findModeSelector.childNodes[aIndex]);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.equals(XMigemoUI[aNext], XMigemoUI.findMode, aMode);
 }
 
@@ -64,18 +64,18 @@ function test_manualSwitch_flipBackByClick()
 {
 	assert.isTrue(XMigemoUI.hidden);
 	eval(findCommand);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.isFalse(XMigemoUI.hidden);
 
-	yield Do(assert.flipBack('FIND_MODE_NATIVE', 0, 'FIND_MODE_MIGEMO'));
-	yield Do(assert.flipBack('FIND_MODE_MIGEMO', 2, 'FIND_MODE_NATIVE'));
+	assert.flipBack('FIND_MODE_NATIVE', 0, 'FIND_MODE_MIGEMO')
+	assert.flipBack('FIND_MODE_MIGEMO', 2, 'FIND_MODE_NATIVE')
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
-	yield Do(assert.flipBack('FIND_MODE_REGEXP', 1, 'FIND_MODE_NATIVE'));
+	assert.flipBack('FIND_MODE_REGEXP', 1, 'FIND_MODE_NATIVE')
 }
 
 assert.findCommand = function(aMode) {
 	eval(findCommand);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
 }
 
@@ -83,39 +83,39 @@ function test_manualSwitch_circulation()
 {
 	assert.isTrue(XMigemoUI.hidden);
 	eval(findCommand);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.isFalse(XMigemoUI.hidden);
 
 	// nothing
 	XMigemoUI.modeCirculation = XMigemoUI.CIRCULATE_MODE_NONE;
-	yield Do(assert.findCommand('FIND_MODE_NATIVE'));
+	assert.findCommand('FIND_MODE_NATIVE')
 	assert.isFalse(XMigemoUI.hidden);
 
 	// circulate mode
 	XMigemoUI.modeCirculation = XMigemoUI.FIND_MODE_NATIVE |
 								XMigemoUI.FIND_MODE_REGEXP |
 								XMigemoUI.FIND_MODE_MIGEMO;
-	yield Do(assert.findCommand('FIND_MODE_REGEXP'));
-	yield Do(assert.findCommand('FIND_MODE_MIGEMO'));
-	yield Do(assert.findCommand('FIND_MODE_NATIVE'));
+	assert.findCommand('FIND_MODE_REGEXP')
+	assert.findCommand('FIND_MODE_MIGEMO')
+	assert.findCommand('FIND_MODE_NATIVE')
 
 	// find => exit => find
 	XMigemoUI.modeCirculation = XMigemoUI.CIRCULATE_MODE_EXIT;
 	eval(findCommand);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.isTrue(XMigemoUI.hidden);
-	yield Do(assert.findCommand('FIND_MODE_NATIVE'));
+	assert.findCommand('FIND_MODE_NATIVE')
 
 	// find => switch mode => exit => find
 	XMigemoUI.modeCirculation = XMigemoUI.FIND_MODE_NATIVE |
 								XMigemoUI.FIND_MODE_MIGEMO |
 								XMigemoUI.CIRCULATE_MODE_EXIT;
-	yield Do(assert.findCommand('FIND_MODE_MIGEMO'));
+	assert.findCommand('FIND_MODE_MIGEMO')
 	eval(findCommand);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.isTrue(XMigemoUI.hidden);
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
-	yield Do(assert.findCommand('FIND_MODE_NATIVE'));
+	assert.findCommand('FIND_MODE_NATIVE')
 }
 
 function test_manualSwitch_circulation_forcedFindMode()
@@ -128,37 +128,37 @@ function test_manualSwitch_circulation_forcedFindMode()
 								XMigemoUI.CIRCULATE_MODE_EXIT;
 
 	XMigemoUI.forcedFindMode = XMigemoUI.FIND_MODE_NATIVE;
-	yield Do(assert.findCommand('FIND_MODE_NATIVE'));
-	yield Do(assert.findCommand('FIND_MODE_REGEXP'));
-	yield Do(assert.findCommand('FIND_MODE_MIGEMO'));
+	assert.findCommand('FIND_MODE_NATIVE')
+	assert.findCommand('FIND_MODE_REGEXP')
+	assert.findCommand('FIND_MODE_MIGEMO')
 	eval(findCommand);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.isTrue(XMigemoUI.hidden);
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
-	yield Do(assert.findCommand('FIND_MODE_NATIVE'));
+	assert.findCommand('FIND_MODE_NATIVE')
 
 	XMigemoUI.close();
-	yield WAIT;
+	utils.wait(WAIT);
 
 	XMigemoUI.forcedFindMode = XMigemoUI.FIND_MODE_REGEXP;
-	yield Do(assert.findCommand('FIND_MODE_REGEXP'));
-	yield Do(assert.findCommand('FIND_MODE_MIGEMO'));
+	assert.findCommand('FIND_MODE_REGEXP')
+	assert.findCommand('FIND_MODE_MIGEMO')
 	eval(findCommand);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.isTrue(XMigemoUI.hidden);
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
-	yield Do(assert.findCommand('FIND_MODE_REGEXP'));
+	assert.findCommand('FIND_MODE_REGEXP')
 
 	XMigemoUI.close();
-	yield WAIT;
+	utils.wait(WAIT);
 
 	XMigemoUI.forcedFindMode = XMigemoUI.FIND_MODE_MIGEMO;
-	yield Do(assert.findCommand('FIND_MODE_MIGEMO'));
+	assert.findCommand('FIND_MODE_MIGEMO')
 	eval(findCommand);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.isTrue(XMigemoUI.hidden);
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
-	yield Do(assert.findCommand('FIND_MODE_MIGEMO'));
+	assert.findCommand('FIND_MODE_MIGEMO')
 
 }
 
@@ -166,22 +166,22 @@ testAutoSwitch.description = '検索モードの自動切り替え';
 function testAutoSwitch()
 {
 	gFindBar.open();
-	yield WAIT;
+	utils.wait(WAIT);
 	field.focus();
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
-	yield WAIT;
+	utils.wait(WAIT);
 
 	action.inputTo(field, 'text field');
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.notEquals('notfound', field.getAttribute('status'));
 	assert.matches('text field', XMigemoUI.lastFoundRange.toString());
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.disabled);
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.checked);
 
 	action.inputTo(field, '');
-	yield WAIT;
+	utils.wait(WAIT);
 	action.inputTo(field, '/(single-row|multirow) field/');
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.equals(XMigemoUI.FIND_MODE_REGEXP, XMigemoUI.findMode);
 	assert.notEquals('notfound', field.getAttribute('status'));
 	assert.matches('single-row field', XMigemoUI.lastFoundRange.toString());
@@ -189,9 +189,9 @@ function testAutoSwitch()
 	assert.isTrue(XMigemoUI.caseSensitiveCheck.checked);
 
 	action.inputTo(field, '');
-	yield WAIT;
+	utils.wait(WAIT);
 	action.inputTo(field, '/(single-row|multirow) field/i');
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.equals(XMigemoUI.FIND_MODE_REGEXP, XMigemoUI.findMode);
 	assert.notEquals('notfound', field.getAttribute('status'));
 	assert.matches('single-row field', XMigemoUI.lastFoundRange.toString());
@@ -199,13 +199,13 @@ function testAutoSwitch()
 	assert.isFalse(XMigemoUI.caseSensitiveCheck.checked);
 
 	action.keypressOn(field, Ci.nsIDOMKeyEvent.DOM_VK_F3);
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.equals('multirow field', XMigemoUI.lastFoundRange.toString());
 
 	action.inputTo(field, '');
-	yield WAIT;
+	utils.wait(WAIT);
 	action.inputTo(field, '(single-row|multirow) field');
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	assert.equals('notfound', field.getAttribute('status'));
 }
