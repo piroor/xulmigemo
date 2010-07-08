@@ -8,6 +8,20 @@ const Ci = Components.interfaces;
 Components.utils.import('resource://xulmigemo-modules/service.jsm');
 Components.utils.import('resource://xulmigemo-modules/migemo.jsm');
 
+
+try { // -Thunderbird 3.0
+	Components.utils.import('resource:///modules/quickSearchManager.js');
+}
+catch(e) {
+}
+
+try { // Thunderbird 3.1-
+	Components.utils.import('resource:///modules/quickFilterManager.js');
+}
+catch(e) {
+}
+
+
 var XMigemoMail = {
 	get DBConnection()
 	{
@@ -16,40 +30,22 @@ var XMigemoMail = {
 
 		return GlodaDatastore.syncConnection;
 	},
+
+	FIND_SUBJECT   : (1 << 0),
+	FIND_BODY      : (1 << 1),
+	FIND_AUTHOR    : (1 << 2),
+	FIND_RECIPIENT : (1 << 3),
  
-	kQuickSearchSubjectFromOrRecipient : 0,
-	kQuickSearchFromOrSubject          : 1,
-	kQuickSearchRecipientOrSubject     : 2,
-	kQuickSearchSubject                : 3,
-	kQuickSearchFrom                   : 4,
-	kQuickSearchRecipient              : 5,
-	kQuickSearchBody                   : 6,
- 
-	getTermsList : function(aInput, aSearchMode, aFolder) 
+	getTermsList : function(aInput, aFindTargets, aFolder) 
 	{
 		aFolder.QueryInterface(Ci.nsIMsgFolder);
 		var terms = [];
 		try {
 			var columns = [];
-			if (aSearchMode == this.kQuickSearchSubjectFromOrRecipient ||
-				aSearchMode == this.kQuickSearchFromOrSubject ||
-				aSearchMode == this.kQuickSearchRecipientOrSubject ||
-				aSearchMode == this.kQuickSearchSubject) {
-				columns.push('c.c0subject');
-			}
-			if (aSearchMode == this.kQuickSearchBody) {
-				columns.push('c.c1body');
-			}
-			if (aSearchMode == this.kQuickSearchSubjectFromOrRecipient ||
-				aSearchMode == this.kQuickSearchFromOrSubject ||
-				aSearchMode == this.kQuickSearchFrom) {
-				columns.push('c.c3author');
-			}
-			if (aSearchMode == this.kQuickSearchSubjectFromOrRecipient ||
-				aSearchMode == this.kQuickSearchRecipientOrSubject ||
-				aSearchMode == this.kQuickSearchRecipient) {
-				columns.push('c.c4recipients');
-			}
+			if (aFindTargets & this.FIND_SUBJECT) columns.push('c.c0subject');
+			if (aFindTargets & this.FIND_BODY) columns.push('c.c1body');
+			if (aFindTargets & this.FIND_AUTHOR) columns.push('c.c3author');
+			if (aFindTargets & this.FIND_RECIPIENT) columns.push('c.c4recipients');
 			if (columns.length) {
 				columns = columns.map(function(aColumn) {
 					return 'COALESCE(' + aColumn + ', "")';
@@ -87,17 +83,98 @@ var XMigemoMail = {
 				statement.reset();
 
 				terms = sources.replace(/\n/g, ' ').match(regexp);
-				if (terms)
-					terms = terms
-						.sort()
-						.join('\n')
-						.replace(/^(.+)$(\n\1)+/mg, '$1')
-						.split('\n');
+				if (terms && terms.length)
+					terms = XMigemoService.TextUtils.brushUpTerms(terms);
 			}
 		}
 		catch(e) {
 		}
 		terms = terms || [];
 		return terms;
+	},
+
+	init : function()
+	{
+		// -Thunderbird 3.0
+		if (typeof QuickSearchManager != 'undefined' &&
+			!('__xmigemo_original_createSearchTerms' in QuickSearchManager)) {
+			QuickSearchManager.__xmigemo_original_createSearchTerms = QuickSearchManager.createSearchTerms;
+			QuickSearchManager.createSearchTerms = this.QuickSearchManager_createSearchTerms;
+		}
+
+		// Thunderbird 3.1-
+		if (typeof MessageTextFilter != 'undefined' &&
+			!('__xmigemo_original_appendTerms' in MessageTextFilter)) {
+			MessageTextFilter.__xmigemo_original_appendTerms = MessageTextFilter.appendTerms;
+			MessageTextFilter.appendTerms = this.MessageTextFilter_appendTerms;
+		}
+	},
+
+	// -Thunderbird 3.0
+	QuickSearchManager_createSearchTerms : function(aTermCreator, aSearchMode, aSearchString)
+	{
+		if (aTermCreator.window &&
+			XMigemoService.getPref('xulmigemo.mailnews.threadsearch.enabled')) {
+			let targets = 0;
+			if (aSearchMode == QuickSearchConstants.kQuickSearchSubjectFromOrRecipient ||
+				aSearchMode == QuickSearchConstants.kQuickSearchFromOrSubject ||
+				aSearchMode == QuickSearchConstants.kQuickSearchRecipientOrSubject ||
+				aSearchMode == QuickSearchConstants.kQuickSearchSubject)
+				targets |= XMigemoMail.FIND_SUBJECT;
+			if (aSearchMode == QuickSearchConstants.kQuickSearchBody)
+				targets |= XMigemoMail.FIND_BODY;
+			if (aSearchMode == QuickSearchConstants.kQuickSearchSubjectFromOrRecipient ||
+				aSearchMode == QuickSearchConstants.kQuickSearchFromOrSubject ||
+				aSearchMode == QuickSearchConstants.kQuickSearchFrom)
+				targets |= XMigemoMail.FIND_AUTHOR;
+			if (aSearchMode == QuickSearchConstants.kQuickSearchSubjectFromOrRecipient ||
+				aSearchMode == QuickSearchConstants.kQuickSearchRecipientOrSubject ||
+				aSearchMode == QuickSearchConstants.kQuickSearchRecipient)
+				targets |= XMigemoMail.FIND_RECIPIENT;
+			let terms = XMigemoMail.getTermsList(
+					aSearchString,
+					targets,
+					aTermCreator.window.domWindow.gDBView.msgFolder
+				);
+			if (terms.length)
+				aSearchString = terms.join('|');
+		}
+
+		return this.__xmigemo_original_createSearchTerms(aTermCreator, aSearchMode, aSearchString);
+	},
+
+	// Thunderbird 3.1-
+	MessageTextFilter_appendTerms : function(aTermCreator, aTerms, aFilterValue)
+	{
+		var activeWindow = Cc['@mozilla.org/focus-manager;1']
+							.getService(Ci.nsIFocusManager)
+							.activeWindow;
+		if (
+			activeWindow &&
+			aFilterValue.text &&
+			aFilterValue.states &&
+			XMigemoService.getPref('xulmigemo.mailnews.threadsearch.enabled')
+			) {
+			let targets = 0;
+			if (aFilterValue.states.subject)
+				targets |= XMigemoMail.FIND_SUBJECT;
+			if (aFilterValue.states.body)
+				targets |= XMigemoMail.FIND_BODY;
+			if (aFilterValue.states.sender)
+				targets |= XMigemoMail.FIND_AUTHOR;
+			if (aFilterValue.states.recipients)
+				targets |= XMigemoMail.FIND_RECIPIENT;
+			let terms = XMigemoMail.getTermsList(
+					aFilterValue.text,
+					targets,
+					activeWindow.gDBView.msgFolder
+				);
+			if (terms.length)
+				aFilterValue.text = terms.join(' ');
+		}
+
+		return this.__xmigemo_original_appendTerms(aTermCreator, aTerms, aFilterValue);
 	}
 };
+
+XMigemoMail.init();
