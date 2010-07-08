@@ -13,6 +13,8 @@
 		insertbefore="FindToolbar"/>
 </vbox>
 
-<script type="application/javascript; e4x=1" src="mailWindowOverlay.js"/>
+<script type="application/javascript"><![CDATA[
+Components.utils.import('resource://xulmigemo-modules/mail.jsm'); 
+]]></script>
 
 </overlay>

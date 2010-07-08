@@ -76,10 +76,3 @@ contract	@piro.sakura.ne.jp/xmigemo/engine;1?lang=ja	{792f3b58-cef4-11db-8314-08
 
 component	{147824f6-cef4-11db-8314-0800200c9a66}	components/xmXMigemoFind.js
 contract	@piro.sakura.ne.jp/xmigemo/find;1	{147824f6-cef4-11db-8314-0800200c9a66}
-
-
-interfaces	components/xmIXMigemoMail.xpt	application={3550f703-e582-4d05-9a08-453d09bdfdc6}
-
-component	{15b05450-d389-11dc-95ff-0800200c9a66}	components/xmXMigemoMail.js	application={3550f703-e582-4d05-9a08-453d09bdfdc6}
-contract	@piro.sakura.ne.jp/xmigemo/mail;1	{15b05450-d389-11dc-95ff-0800200c9a66}	application={3550f703-e582-4d05-9a08-453d09bdfdc6}
-category	profile-after-change	xmXMigemoMail	@piro.sakura.ne.jp/xmigemo/mail;1	application={3550f703-e582-4d05-9a08-453d09bdfdc6}
