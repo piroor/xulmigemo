@@ -5,6 +5,7 @@ var findModule;
 function setUp()
 {
 	utils.setPref('xulmigemo.lang', 'ja');
+	utils.setPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled', false);
 	yield utils.setUpTestWindow();
 	findModule = new xmXMigemoFind();
 	findModule.target = utils.getTestWindow().gBrowser;
