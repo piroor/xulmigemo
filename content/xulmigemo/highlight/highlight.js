@@ -591,13 +591,21 @@ var XMigemoHighlight = {
 
 		var self = this;
 		var updateAnimationStyle;
-		var radian = 90 * Math.PI / 180;
 
+		/*
+			0～180°の間のsinθの変化（0～1～0）を使う。
+			度数をradianに変換する式は θ * Math.PI / 180なので、
+			sinθ = Math.sin(θ * Math.PI / 180)
+			      = Math.sin(((aTime / aDuration) * 180) * Math.PI / 180)
+			      = Math.sin(aTime / aDuration * 180 * Math.PI / 180)
+			      = Math.sin(aTime / aDuration * Math.PI)
+		*/
 		switch (this.animationStyle)
 		{
 			case this.STYLE_JUMP:
 				updateAnimationStyle = function(aTime, aBeginning, aChange, aDuration) {
-					var y = parseInt(self.animationSize[self.STYLE_JUMP] * Math.sin((aTime / aDuration) * 2 * radian));
+					var factor = Math.sin(aTime / aDuration * Math.PI);
+					var y = parseInt(self.animationSize[self.STYLE_JUMP] * factor);
 					self.setStylePropertyValue(animationNode, 'top', '-'+(y * self.animationUnit)+'px');
 				};
 				break;
@@ -606,7 +614,8 @@ var XMigemoHighlight = {
 				updateAnimationStyle = function(aTime, aBeginning, aChange, aDuration) {
 					if (animationNode.getAttribute('class') != self.kANIMATION_NODE)
 						return;
-					var unit = parseInt(self.animationSize[self.STYLE_ZOOM] * Math.sin((aTime / aDuration) * 2 * radian));
+					var factor = Math.sin(aTime / aDuration * Math.PI);
+					var unit = parseInt(self.animationSize[self.STYLE_ZOOM] * factor);
 					var padding = self.animationUnit / 6;
 					var vPos = (-(unit * 0.025 * self.animationUnit) - padding)+'px';
 					self.setStylePropertyValue(animationNode, 'top', vPos);
