@@ -919,7 +919,7 @@ var XMigemoLocationBarOverlay = {
 		this.destroyLocationBar();
 		XMigemoService.removePrefListener(this);
 		if (this.findItemsFromTerms_lastStatement &&
-			'finalize' in this.findItemsFromTerms_lastStatements) {
+			'finalize' in this.findItemsFromTerms_lastStatement) {
 			this.findItemsFromTerms_lastStatement.finalize();
 		}
 	},
