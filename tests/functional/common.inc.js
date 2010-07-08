@@ -23,6 +23,7 @@ function commonSetUp(aURI)
 	yield retVal;
 
 	utils.setPref('browser.tabs.warnOnClose', false);
+	utils.setPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled', false);
 
 	browser = utils.getBrowser();
 	browser.removeAllTabsBut(retVal.tab);
