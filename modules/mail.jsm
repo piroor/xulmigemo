@@ -60,7 +60,7 @@ var XMigemoMail = {
 					regexp = new RegExp(regexp, 'ig');
 				}
 				else {
-					regexp = migemo.query(aInput);
+					regexp = migemo.getRegExp(aInput).source;
 				}
 				regexp = new RegExp(regexp, 'ig');
 
