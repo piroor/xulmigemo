@@ -611,12 +611,16 @@ xmXMigemoCore.prototype = {
 
 			terms = terms.map(function(aTerm) {
 				return (function() {
+					var find = Cc['@mozilla.org/embedcomp/rangefind;1'].createInstance(Ci.nsIFind);
+					find.findBackwards = false;
+					find.caseSensitive = !regExp.ignoreCase;
+
 					var foundRange;
 					var findRange  = originalFindRange.cloneRange();
 					var startPoint = originalStartPoint.cloneRange();
 					var endPoint   = originalEndPoint.cloneRange();
 					var count = 0;
-					while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, endPoint))
+					while (foundRange = find.Find(aTerm, findRange, startPoint, endPoint))
 					{
 						let foundLength = foundRange.toString().length;
 						let isOverlap = shouldRebuildSelection ?
