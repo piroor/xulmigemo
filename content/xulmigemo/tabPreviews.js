@@ -43,7 +43,7 @@ var XMigemoTabPreviews = {
  
 	filterListFromInput : function(aTabs, aInput) 
 	{
-		var filterRegExp = migemo.getRegExpFunctional(migemo.trimFunctionalInput(aInput), 'gim');
+		var filterRegExp = XMigemoCore.getRegExpFunctional(migemo.trimFunctionalInput(aInput), 'gim');
 		var termsRegExp = filterRegExp.terms;
 		var exceptionRegExp = filterRegExp.exceptions;
 

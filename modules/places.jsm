@@ -60,7 +60,7 @@ var XMigemoPlaces = {
 			info.findMode = Ci.xmIXMigemoFind.FIND_MODE_REGEXP;
 		}
 		else {
-			var result = migemo.getRegExpsFunctional(findInput, 'gim');
+			var result = XMigemoCore.getRegExpsFunctional(findInput, 'gim');
 			info.findRegExps = result.regexps;
 			info.termsRegExp = result.terms;
 			info.exceptionsRegExp = result.exceptions;
@@ -745,7 +745,7 @@ var XMigemoPlaces = {
 				this.lastTermsRegExp = new RegExp(this.TextUtils.extractRegExpSource(aQuery.searchTerms), flags);
 		}
 		else {
-			this.lastFindRegExp = migemo.getRegExpFunctional(aBaseQuery.searchTerms, 'gim');
+			this.lastFindRegExp = XMigemoCore.getRegExpFunctional(aBaseQuery.searchTerms, 'gim');
 			this.lastTermsRegExp = this.lastFindRegExp.terms;
 //			this.lastExceptionsRegExp = this.lastFindRegExp.exceptions;
 		}

@@ -488,7 +488,7 @@ var XMigemoUI = {
 					regexp = new RegExp(this.textUtils.extractRegExpSource(term), flags);
 					break;
 				case this.FIND_MODE_MIGEMO:
-					regexp = migemo.getRegExp(term, flags);
+					regexp = XMigemoCore.getRegExp(term, flags);
 					break
 				default:
 					regexp = new RegExp(this.textUtils.sanitize(term), flags);
@@ -2380,7 +2380,7 @@ var XMigemoUI = {
 		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
 					new RegExp(this.textUtils.extractRegExpSource(aWord), flags) :
 				this.findMode == this.FIND_MODE_MIGEMO ?
-					migemo.getRegExp(aWord, flags) :
+					XMigemoCore.getRegExp(aWord, flags) :
 					new RegExp(this.textUtils.sanitize(aWord), flags) ;
 
 		var doc = aRange.startContainer.ownerDocument || aRange.startContainer;

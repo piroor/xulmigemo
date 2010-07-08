@@ -423,7 +423,7 @@ var XMigemoMarker = {
 		if (!canvas) return;
 
 		var size = XMigemoService.getDocumentSizeInfo(aDocument);
-		var highlights = migemo.getHighlights(aDocument);
+		var highlights = XMigemoCore.getHighlights(aDocument);
 
 		var viewHeight = size.viewHeight;
 		if (size.xScrollable) viewHeight -= this.scrollBarHeight;
