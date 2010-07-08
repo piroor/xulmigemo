@@ -7,13 +7,13 @@ var textUtils;
 function setUp()
 {
 	textUtils = new xmXMigemoTextUtils();
-	yield Do(utils.loadURI('../fixtures/highlighted.html'));
+	utils.wait(utils.loadURI('../fixtures/highlighted.html'));
 }
 
 function tearDown()
 {
 	textUtils = null;
-	yield Do(utils.loadURI());
+	utils.wait(utils.loadURI());
 }
 
 function getHighlights()
@@ -42,7 +42,7 @@ function testNormalTextSingle()
 	container.removeChild(highlight);
 	container.normalize();
 	assert.equals(5, container.childNodes.length);
-	yield 500;
+	utils.wait(500);
 
 	selection = content.getSelection();
 	assert.equals('is', selection.toString());
@@ -79,7 +79,7 @@ function testNormalTextMultiple()
 
 	container.normalize();
 	assert.equals(3, container.childNodes.length);
-	yield 100;
+	utils.wait(100);
 
 	selection = content.getSelection();
 	assert.equals('sample', selection.toString());
@@ -108,7 +108,7 @@ function testEdgeTextSingle()
 	link.removeChild(highlight);
 	link.normalize();
 	assert.equals(1, link.childNodes.length);
-	yield 100;
+	utils.wait(100);
 
 	selection = content.getSelection();
 	assert.equals('sam', selection.toString());
@@ -148,7 +148,7 @@ function testSelectContentWithDelay()
 
 	container.normalize();
 	assert.equals(3, container.childNodes.length);
-	yield 100;
+	utils.wait(100);
 
 	var selection = content.getSelection();
 	assert.equals('text', selection.toString());

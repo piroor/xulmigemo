@@ -6,7 +6,7 @@ function setUp()
 {
 	utils.setPref('xulmigemo.lang', 'ja');
 	utils.setPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled', false);
-	yield utils.setUpTestWindow();
+	utils.wait(utils.setUpTestWindow());
 	findModule = new xmXMigemoFind();
 	findModule.target = utils.getTestWindow().gBrowser;
 	findModule.findMode = findModule.FIND_MODE_MIGEMO;
@@ -35,7 +35,7 @@ function assertFound(aTerm)
 
 function assertFindInSingleFrame()
 {
-	yield Do(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
+	utils.wait(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
 
 	assertFindAndFound(false, 'nihongo', '日本語');
 	assertFindAndFound(false, 'nihongo', 'にほんご');
@@ -67,7 +67,7 @@ testFind.setUp = function() {
 };
 function testFind()
 {
-	yield Do(assertFindInSingleFrame());
+	assertFindInSingleFrame();
 }
 
 testFindFromViewport.setUp = function() {
@@ -75,13 +75,13 @@ testFindFromViewport.setUp = function() {
 };
 function testFindFromViewport()
 {
-	yield Do(assertFindInSingleFrame());
+	assertFindInSingleFrame();
 }
 
 
 function assertFindInMultipleFrames()
 {
-	yield Do(utils.loadURI(baseURL+'../fixtures/frameTest.html'));
+	utils.wait(utils.loadURI(baseURL+'../fixtures/frameTest.html'));
 
 	function assertFindAndFoundInDocument(aBackward, aFindTerm, aFoundTerm, aFoundDocument) {
 		findModule.find(aBackward, aFindTerm, false);
@@ -133,7 +133,7 @@ testFindInFrame.setUp = function() {
 };
 function testFindInFrame()
 {
-	yield Do(assertFindInMultipleFrames());
+	assertFindInMultipleFrames();
 }
 
 testFindInFrameFromViewport.setUp = function() {
@@ -141,7 +141,7 @@ testFindInFrameFromViewport.setUp = function() {
 };
 function testFindInFrameFromViewport()
 {
-	yield Do(assertFindInMultipleFrames());
+	assertFindInMultipleFrames();
 }
 
 
@@ -167,17 +167,17 @@ function testFindFirstVisibleNode()
 		assert.equals(item, node);
 	}
 
-	yield utils.addTab(baseURL+'../fixtures/shortPage.html', { selected : true });
+	utils.wait(utils.addTab(baseURL+'../fixtures/shortPage.html', { selected : true }));
 	assertScrollAndFind(utils.contentDocument.documentElement, findModule.FIND_DEFAULT);
 	assertScrollAndFind('p3', findModule.FIND_BACK);
 
-	yield utils.addTab(baseURL+'../fixtures/longPage.html', { selected : true });
+	utils.wait(utils.addTab(baseURL+'../fixtures/longPage.html', { selected : true }));
 	assertScrollAndFind(utils.contentDocument.documentElement, findModule.FIND_DEFAULT);
 	assertScrollAndFind('p10', findModule.FIND_DEFAULT);
 	assertScrollAndFind('p10', findModule.FIND_BACK);
 	assertScrollAndFind('p21', findModule.FIND_BACK);
 
-	yield utils.addTab(baseURL+'../fixtures/tooLongPage.html', { selected : true });
+	utils.wait(utils.addTab(baseURL+'../fixtures/tooLongPage.html', { selected : true }));
 	assertScrollAndFind(utils.contentDocument.documentElement, findModule.FIND_DEFAULT);
 	assertScrollAndFind('p10', findModule.FIND_DEFAULT);
 	assertScrollAndFind('p10', findModule.FIND_BACK);
@@ -186,7 +186,7 @@ function testFindFirstVisibleNode()
 
 
 testGetParentLinkFromRange.setUp = function() {
-	yield Do(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
+	utils.wait(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
 };
 function testGetParentLinkFromRange()
 {
@@ -207,7 +207,7 @@ function testGetParentLinkFromRange()
 
 testRegExpFind.setUp = function() {
 	findModule.findMode = findModule.FIND_MODE_REGEXP;
-	yield Do(utils.loadURI(baseURL+'../fixtures/caseSensitive.html'));
+	utils.wait(utils.loadURI(baseURL+'../fixtures/caseSensitive.html'));
 };
 function testRegExpFind()
 {
@@ -266,7 +266,7 @@ function testRegExpFind()
 testRegExpFindWithFlags.setUp = function() {
 	findModule.findMode = findModule.FIND_MODE_REGEXP;
 	findModule.caseSensitive = false;
-	yield Do(utils.loadURI(baseURL+'../fixtures/caseSensitive.html'));
+	utils.wait(utils.loadURI(baseURL+'../fixtures/caseSensitive.html'));
 };
 function testRegExpFindWithFlags()
 {

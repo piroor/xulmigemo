@@ -4,7 +4,7 @@ utils.include('common.inc.js');
 
 function setUp()
 {
-	yield Do(commonSetUp(keyEventTest));
+	commonSetUp(keyEventTest)
 }
 
 function tearDown() {
@@ -18,27 +18,27 @@ function testBS()
 
 	var mode;
 	function doTest() {
-		yield WAIT;
+		utils.wait(WAIT);
 		action.inputTo(inputElem, 'text');
-		yield WAIT;
+		utils.wait(WAIT);
 		action.keypressOn(inputElem, 'a', { ctrlKey : true });
-		yield WAIT;
+		utils.wait(WAIT);
 		action.keypressOn(inputElem, Ci.nsIDOMKeyEvent.DOM_VK_BACK_SPACE);
-		yield WAIT;
+		utils.wait(WAIT);
 		assert.equals('', XMigemoUI.findTerm, 'mode is '+mode);
 	}
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 	mode = 'native';
-	yield Do(doTest);
+	doTest();
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 	mode = 'regexp';
-	yield Do(doTest);
+	doTest();
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 	mode = 'migemo';
-	yield Do(doTest);
+	doTest();
 }
 
 testDel.description = 'Delキーで全削除';
@@ -48,27 +48,27 @@ function testDel()
 
 	var mode;
 	function doTest() {
-		yield WAIT;
+		utils.wait(WAIT);
 		action.inputTo(inputElem, 'text');
-		yield WAIT;
+		utils.wait(WAIT);
 		action.keypressOn(inputElem, 'a', { ctrlKey : true });
-		yield WAIT;
+		utils.wait(WAIT);
 		action.keypressOn(inputElem, Ci.nsIDOMKeyEvent.DOM_VK_DELETE);
-		yield WAIT;
+		utils.wait(WAIT);
 		assert.equals('', XMigemoUI.findTerm, 'mode is '+mode);
 	}
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 	mode = 'native';
-	yield Do(doTest);
+	doTest();
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 	mode = 'regexp';
-	yield Do(doTest);
+	doTest();
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 	mode = 'migemo';
-	yield Do(doTest);
+	doTest();
 }
 
 testInput.description = '文字入力で全削除';
@@ -78,25 +78,25 @@ function testInput()
 
 	var mode;
 	function doTest() {
-		yield WAIT;
+		utils.wait(WAIT);
 		action.inputTo(inputElem, 'text');
-		yield WAIT;
+		utils.wait(WAIT);
 		action.keypressOn(inputElem, 'a', { ctrlKey : true });
-		yield WAIT;
+		utils.wait(WAIT);
 		action.keypressOn(inputElem, 'a');
-		yield WAIT;
+		utils.wait(WAIT);
 		assert.equals('a', XMigemoUI.findTerm, 'mode is '+mode);
 	}
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 	mode = 'native';
-	yield Do(doTest);
+	doTest();
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 	mode = 'regexp';
-	yield Do(doTest);
+	doTest();
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 	mode = 'migemo';
-	yield Do(doTest);
+	doTest();
 }

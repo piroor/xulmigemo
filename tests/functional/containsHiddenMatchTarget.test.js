@@ -6,7 +6,7 @@ var gTestPageURI = '../fixtures/containsHiddenMatchTarget.html';
 
 function setUp()
 {
-	yield Do(commonSetUp(gTestPageURI));
+	commonSetUp(gTestPageURI);
 	assert.isTrue(XMigemoUI.hidden);
 }
 
@@ -18,12 +18,12 @@ function tearDown()
 function testRegExpFind()
 {
 	gFindBar.open();
-	yield WAIT;
+	utils.wait(WAIT);
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 	field.focus();
 
 	action.inputTo(field, 'a|b');
-	yield WAIT;
+	utils.wait(WAIT);
 
 	assert.isNotNull(XMigemoUI.lastFoundRange);
 	assert.equals('a', XMigemoUI.lastFoundRange.toString());

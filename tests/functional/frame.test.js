@@ -10,7 +10,7 @@ assert.found = function(aTerm, aDocument) {
 }
 
 assert.findAgain = function(aKeyOptions, aTimes, aTerm, aDocument) {
-	yield Do(keypressMultiply([field].concat(aKeyOptions), aTimes));
+	keypressMultiply([field].concat(aKeyOptions), aTimes)
 	assert.found(aTerm, aDocument);
 }
 
@@ -21,12 +21,12 @@ function tearDown()
 
 testFindInFrame.description = 'フレーム内の検索';
 testFindInFrame.setUp = function() {
-	yield Do(commonSetUp(baseURL+'../fixtures/frameTest.html'));
+	commonSetUp(baseURL+'../fixtures/frameTest.html')
 
 	gFindBar.open();
-	yield WAIT;
+	utils.wait(WAIT);
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-	yield WAIT;
+	utils.wait(WAIT);
 };
 function testFindInFrame()
 {
@@ -34,39 +34,39 @@ function testFindInFrame()
 	var secondDoc = $('frame2', content).contentDocument;
 
 	action.inputTo(field, 'nihongo');
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.found('日本語', firstDoc);
 
 	var key = ['return'];
-	yield Do(assert.findAgain(key, 1, 'にほんご', firstDoc));
-	yield Do(assert.findAgain(key, 1, 'ニホンゴ', firstDoc));
-	yield Do(assert.findAgain(key, 1, 'nihongo', firstDoc));
-	yield Do(assert.findAgain(key, 1, '日本語', secondDoc));
-	yield Do(assert.findAgain(key, 1, 'にほんご', secondDoc));
-	yield Do(assert.findAgain(key, 1, 'ニホンゴ', secondDoc));
-	yield Do(assert.findAgain(key, 1, 'nihongo', secondDoc));
-	yield Do(assert.findAgain(key, 1, '日本語', firstDoc));
+	assert.findAgain(key, 1, 'にほんご', firstDoc)
+	assert.findAgain(key, 1, 'ニホンゴ', firstDoc)
+	assert.findAgain(key, 1, 'nihongo', firstDoc)
+	assert.findAgain(key, 1, '日本語', secondDoc)
+	assert.findAgain(key, 1, 'にほんご', secondDoc)
+	assert.findAgain(key, 1, 'ニホンゴ', secondDoc)
+	assert.findAgain(key, 1, 'nihongo', secondDoc)
+	assert.findAgain(key, 1, '日本語', firstDoc)
 
 	key = ['return', { shiftKey : true }];
-	yield Do(assert.findAgain(key, 1, 'nihongo', secondDoc));
-	yield Do(assert.findAgain(key, 1, 'ニホンゴ', secondDoc));
-	yield Do(assert.findAgain(key, 1, 'にほんご', secondDoc));
-	yield Do(assert.findAgain(key, 1, '日本語', secondDoc));
-	yield Do(assert.findAgain(key, 1, 'nihongo', firstDoc));
-	yield Do(assert.findAgain(key, 1, 'ニホンゴ', firstDoc));
-	yield Do(assert.findAgain(key, 1, 'にほんご', firstDoc));
-	yield Do(assert.findAgain(key, 1, '日本語', firstDoc));
-	yield Do(assert.findAgain(key, 1, 'nihongo', secondDoc));
+	assert.findAgain(key, 1, 'nihongo', secondDoc)
+	assert.findAgain(key, 1, 'ニホンゴ', secondDoc)
+	assert.findAgain(key, 1, 'にほんご', secondDoc)
+	assert.findAgain(key, 1, '日本語', secondDoc)
+	assert.findAgain(key, 1, 'nihongo', firstDoc)
+	assert.findAgain(key, 1, 'ニホンゴ', firstDoc)
+	assert.findAgain(key, 1, 'にほんご', firstDoc)
+	assert.findAgain(key, 1, '日本語', firstDoc)
+	assert.findAgain(key, 1, 'nihongo', secondDoc)
 
 }
 
 testNotFound.description = '検索語句を含まないフレームがある場合の検索';
 testNotFound.setUp = function() {
-	yield Do(commonSetUp(baseURL+'../fixtures/frameTest2.html'));
+	commonSetUp(baseURL+'../fixtures/frameTest2.html')
 
 	gFindBar.open();
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-	yield WAIT;
+	utils.wait(WAIT);
 };
 function testNotFound()
 {
@@ -74,15 +74,15 @@ function testNotFound()
 	var frameDoc = content.frames[0].document;
 
 	action.inputTo(field, 'nihongo');
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.found('日本語', rootDoc);
 
 	var key = ['return'];
-	yield Do(assert.findAgain(key, 1, 'にほんご', rootDoc));
-	yield Do(assert.findAgain(key, 1, 'ニホンゴ', rootDoc));
-	yield Do(assert.findAgain(key, 1, 'nihongo', rootDoc));
+	assert.findAgain(key, 1, 'にほんご', rootDoc)
+	assert.findAgain(key, 1, 'ニホンゴ', rootDoc)
+	assert.findAgain(key, 1, 'nihongo', rootDoc)
 
 	key = ['return', { shiftKey : true }];
-	yield Do(assert.findAgain(key, 1, 'ニホンゴ', rootDoc));
-	yield Do(assert.findAgain(key, 1, 'にほんご', rootDoc));
+	assert.findAgain(key, 1, 'ニホンゴ', rootDoc)
+	assert.findAgain(key, 1, 'にほんご', rootDoc)
 }

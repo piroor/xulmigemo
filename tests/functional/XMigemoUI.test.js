@@ -4,7 +4,7 @@ utils.include('common.inc.js');
 
 function setUp()
 {
-	yield Do(commonSetUp(keyEventTest));
+	commonSetUp(keyEventTest);
 	assert.isTrue(XMigemoUI.hidden);
 }
 
@@ -111,23 +111,23 @@ function testGetEditableNodes()
 		});
 	}
 
-	yield Do(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
+	utils.wait(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
 	assertGetEditableNodes();
-	yield Do(utils.loadURI(baseURL+'../fixtures/keyEventTest.xml'));
+	utils.wait(utils.loadURI(baseURL+'../fixtures/keyEventTest.xml'));
 	assertGetEditableNodes();
 }
 
 function testGetDocumentBody()
 {
-	yield Do(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
+	utils.wait(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
 	assert.equals(content.document.body, XMigemoUI.getDocumentBody(content.document));
-	yield Do(utils.loadURI(baseURL+'../fixtures/keyEventTest.xml'));
+	utils.wait(utils.loadURI(baseURL+'../fixtures/keyEventTest.xml'));
 	assert.equals(content.document.getElementsByTagName('body')[0], XMigemoUI.getDocumentBody(content.document));
 }
 
 testDoProcessForAllFrames.setUp = function()
 {
-	yield Do(utils.loadURI(baseURL+'../fixtures/frameTest.html'));
+	utils.wait(utils.loadURI(baseURL+'../fixtures/frameTest.html'));
 };
 function testDoProcessForAllFrames()
 {
@@ -155,7 +155,7 @@ function testDoProcessForAllFrames()
 
 testClearFocusRingForSingleFrame.setUp = function()
 {
-	yield Do(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
+	utils.wait(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
 	Array.slice(content.document.links).forEach(function(aLink) {
 		aLink.setAttribute(XMigemoUI.kFOCUSED, true);
 	});
@@ -171,7 +171,7 @@ function testClearFocusRingForSingleFrame()
 
 testClearFocusRingForMultipleFrames.setUp = function()
 {
-	yield Do(utils.loadURI(baseURL+'../fixtures/frameTest.html'));
+	utils.wait(utils.loadURI(baseURL+'../fixtures/frameTest.html'));
 	Array.slice($('frame1', content).contentDocument.links).forEach(function(aLink) {
 		aLink.setAttribute(XMigemoUI.kFOCUSED, true);
 	});

@@ -17,10 +17,10 @@ var WAIT = 500;
 
 function commonSetUp(aURI)
 {
-	yield utils.setUpTestWindow();
+	utils.wait(utils.setUpTestWindow());
 
 	var retVal = utils.addTab(aURI);
-	yield retVal;
+	utils.wait(retVal);
 
 	utils.setPref('browser.tabs.warnOnClose', false);
 	utils.setPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled', false);
@@ -81,7 +81,7 @@ function commonSetUp(aURI)
 
 	gFindBar.close();
 
-	yield WAIT;
+	utils.wait(WAIT);
 }
 
 function commonTearDown()
@@ -112,7 +112,7 @@ function keypressMultiply(aKeyOptions, aTimes)
 	{
 		action.keypressOn.apply(action, aKeyOptions);
 	}
-	yield WAIT;
+	utils.wait(WAIT);
 }
 
 // initialize prefs

@@ -1,6 +1,6 @@
 function setUp()
 {
-	yield Do(commonSetUp(gTestPageURI));
+	commonSetUp(gTestPageURI);
 	assert.isTrue(XMigemoUI.hidden);
 	XMigemoUI.highlightCheckedAlways = true;
 	XMigemoUI.highlightCheckedAlwaysMinLength = 5;
@@ -16,45 +16,45 @@ testAutoHighlightNormal.description = '通常の検索で自動ハイライト�
 function testAutoHighlightNormal()
 {
 	gFindBar.open();
-	yield WAIT;
-	yield Do(autoHighlightTest(
+	utils.wait(WAIT);
+	autoHighlightTest(
 		'FIND_MODE_NATIVE',
 		'text',
 		'text field',
 		'qute',
 		'not found long term',
 		10
-	));
+	);
 }
 
 testAutoHighlightRegExp.description = '正規表現検索で自動ハイライトが正常に動作するかどうか';
 function testAutoHighlightRegExp()
 {
 	gFindBar.open();
-	yield WAIT;
-	yield Do(autoHighlightTest(
+	utils.wait(WAIT);
+	autoHighlightTest(
 		'FIND_MODE_REGEXP',
 		'tex',
 		'text ?(field|area)',
 		'qute',
 		'not found long term',
 		10
-	));
+	);
 }
 
 testAutoHighlightMigemo.description = 'Migemo検索で自動ハイライトが正常に動作するかどうか';
 function testAutoHighlightMigemo()
 {
 	gFindBar.open();
-	yield WAIT;
-	yield Do(autoHighlightTest(
+	utils.wait(WAIT);
+	autoHighlightTest(
 		'FIND_MODE_MIGEMO',
 		'niho',
 		'nihongo',
 		'qute',
 		'not found long term',
 		4
-	));
+	);
 }
 
 testSafariHighlight.description = 'Safari風自動ハイライト';
@@ -63,17 +63,17 @@ function testSafariHighlight()
 	XMigemoHighlight.strongHighlight = true;
 
 	gFindBar.open();
-	yield WAIT;
+	utils.wait(WAIT);
 	field.focus();
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
-	yield Do(assert.screenStateForFind('text field', true));
-	yield Do(assert.screenStateForFind('', false));
-	yield Do(assert.screenStateForFind('t', false));
+	assert.screenStateForFind('text field', true)
+	assert.screenStateForFind('', false)
+	assert.screenStateForFind('t', false)
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-	yield Do(assert.screenStateForFind('nihongo', true));
-	yield Do(assert.screenStateForFind('', false));
-	yield Do(assert.screenStateForFind('n', false));
+	assert.screenStateForFind('nihongo', true)
+	assert.screenStateForFind('', false)
+	assert.screenStateForFind('n', false)
 }
 function getHighlightCount()
 {
@@ -90,56 +90,56 @@ testAutoHighlightAndModeSwitch.description = 'ハイライト表示したまま�
 function testAutoHighlightAndModeSwitch()
 {
 	gFindBar.open();
-	yield WAIT;
+	utils.wait(WAIT);
 	field.focus();
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	assert.highlightCheck(true, false);
-	yield Do(assert.found('sample'));
-	yield WAIT;
+	assert.found('sample')
+	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 
 	action.inputTo(field, '');
-	yield WAIT;
+	utils.wait(WAIT);
 	gFindBar.close();
-	yield WAIT;
+	utils.wait(WAIT);
 
 	content.getSelection().removeAllRanges();
 	XMigemoHighlight.strongHighlight = true;
 
 	gFindBar.open();
-	yield WAIT;
+	utils.wait(WAIT);
 	field.focus();
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	assert.highlightCheck(true, false);
-	yield Do(assert.found('sample'));
-	yield WAIT;
+	assert.found('sample')
+	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
-	yield WAIT;
+	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 }
@@ -150,15 +150,15 @@ function testMarker()
 	XMigemoMarker.enabled = true;
 
 	gFindBar.open();
-	yield WAIT;
+	utils.wait(WAIT);
 	field.focus();
 
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
-	yield Do(assert.markerStateForFind('text field', true));
-	yield Do(assert.markerStateForFind('', false));
-	yield Do(assert.markerStateForFind('t', false));
+	assert.markerStateForFind('text field', true)
+	assert.markerStateForFind('', false)
+	assert.markerStateForFind('t', false)
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
-	yield Do(assert.markerStateForFind('nihongo', true));
-	yield Do(assert.markerStateForFind('', false));
-	yield Do(assert.markerStateForFind('n', false));
+	assert.markerStateForFind('nihongo', true)
+	assert.markerStateForFind('', false)
+	assert.markerStateForFind('n', false)
 }
