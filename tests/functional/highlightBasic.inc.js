@@ -75,6 +75,7 @@ function testSafariHighlight()
 	assert.screenStateForFind('', false)
 	assert.screenStateForFind('n', false)
 }
+
 function getHighlightCount()
 {
 	return content.document.evaluate(
@@ -142,6 +143,96 @@ function testAutoHighlightAndModeSwitch()
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
+}
+
+testAutoHighlightAndFindAnotherWordNative.description = 'ハイライト表示したまま別の単語の検索を開始した場合（通常検索）';
+function testAutoHighlightAndFindAnotherWordNative()
+{
+	XMigemoHighlight.strongHighlight = true;
+	gFindBar.open();
+	utils.wait(WAIT);
+	field.focus();
+
+	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
+	assert.highlightCheck(true, false);
+	assert.found('sample')
+	utils.wait(WAIT);
+	assert.highlightCheck(false, true);
+	assert.equals(2, getHighlightCount());
+
+	assert.found('word1, out of text field')
+	utils.wait(WAIT);
+	assert.highlightCheck(false, true);
+	assert.equals(6, getHighlightCount());
+
+	assert.found('word3, out of text field')
+	utils.wait(WAIT);
+	assert.highlightCheck(false, true);
+	assert.equals(2, getHighlightCount());
+}
+
+testAutoHighlightAndFindAnotherWordRegExp.description = 'ハイライト表示したまま別の単語の検索を開始した場合（正規表現検索）';
+function testAutoHighlightAndFindAnotherWordRegExp()
+{
+	XMigemoHighlight.strongHighlight = true;
+	gFindBar.open();
+	utils.wait(WAIT);
+	field.focus();
+
+	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
+	assert.highlightCheck(true, false);
+
+	assert.found('sample')
+	utils.wait(WAIT);
+	assert.highlightCheck(false, true);
+	assert.equals(2, getHighlightCount());
+
+	assert.found('word1, out of text field')
+	utils.wait(WAIT);
+	assert.highlightCheck(false, true);
+	assert.equals(6, getHighlightCount());
+
+	assert.found('word3, out of text field')
+	utils.wait(WAIT);
+	assert.highlightCheck(false, true);
+	assert.equals(2, getHighlightCount());
+
+	assert.found('word[13], out of text field')
+	utils.wait(WAIT);
+	assert.highlightCheck(false, true);
+	assert.equals(8, getHighlightCount());
+}
+
+testAutoHighlightAndFindAnotherWordMigemo.description = 'ハイライト表示したまま別の単語の検索を開始した場合（Migemo検索）';
+function testAutoHighlightAndFindAnotherWordMigemo()
+{
+	XMigemoHighlight.strongHighlight = true;
+	gFindBar.open();
+	utils.wait(WAIT);
+	field.focus();
+
+	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
+
+	assert.highlightCheck(true, false);
+	assert.found('sample')
+	utils.wait(WAIT);
+	assert.highlightCheck(false, true);
+	assert.equals(2, getHighlightCount());
+
+	assert.found('word1, out of text field')
+	utils.wait(WAIT);
+	assert.highlightCheck(false, true);
+	assert.equals(6, getHighlightCount());
+
+	assert.found('word3, out of text field')
+	utils.wait(WAIT);
+	assert.highlightCheck(false, true);
+	assert.equals(2, getHighlightCount());
+
+	assert.found('nihongo')
+	utils.wait(WAIT);
+	assert.highlightCheck(false, true);
+	assert.equals(4, getHighlightCount());
 }
 
 
