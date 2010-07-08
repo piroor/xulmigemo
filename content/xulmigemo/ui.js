@@ -2647,6 +2647,8 @@ var XMigemoUI = {
 		this.lastFindMode = this.FIND_MODE_NATIVE;
 
 		if (!('gFindBarInitialized' in window) || gFindBarInitialized) {
+			if (typeof window.gFindBar == 'undefined')
+				window.gFindBar = this.findBar;
 			this.initFindBar();
 		}
 		else {
