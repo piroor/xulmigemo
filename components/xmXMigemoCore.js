@@ -535,14 +535,6 @@ xmXMigemoCore.prototype = {
 		var findRange = aFindRange.cloneRange();
 		var doc = findRange.startContainer.ownerDocument || findRange.startContainer;
 
-		if (!('setInterval' in timer))
-			Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
-
-		if (doc.__xulmigemo__highlightTimer) {
-			timer.clearInterval(doc.__xulmigemo__highlightTimer);
-			doc.__xulmigemo__highlightTimer = null;
-		}
-
 		var startPoint = aStartPoint;
 		if (startPoint) {
 			startPoint = startPoint.cloneRange();
@@ -584,6 +576,9 @@ xmXMigemoCore.prototype = {
 				this.textUtils.brushUpTerms(terms) :
 				this.textUtils.brushUpTermsWithCase(terms) ;
 
+		if (!terms.length)
+			return arrResults;
+
 		this.mFind.findBackwards = false;
 		this.mFind.caseSensitive = !regExp.ignoreCase;
 
@@ -606,6 +601,14 @@ xmXMigemoCore.prototype = {
 		var originalEndPoint   = aEndPoint;
 
 		if (aSurroundNode) {
+			if (!('setInterval' in timer))
+				Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
+
+			if (doc.__xulmigemo__highlightTimer) {
+				timer.clearInterval(doc.__xulmigemo__highlightTimer);
+				doc.__xulmigemo__highlightTimer = null;
+			}
+
 			terms.forEach(function(aTerm, aIndex) {
 				var foundRange;
 				var findRange  = originalFindRange.cloneRange();
@@ -668,6 +671,9 @@ xmXMigemoCore.prototype = {
 				selCon.repaintSelection(selCon.SELECTION_FIND);
 
 			arrResults.sort(this.textUtils.compareRangePosition);
+
+//			doc.__xulmigemo__highlightTimer = timer.setInterval(function() {
+//			}, 50);
 		}
 		else {
 			terms.forEach(function(aTerm, aIndex) {
