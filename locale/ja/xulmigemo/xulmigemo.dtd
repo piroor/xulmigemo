@@ -135,9 +135,6 @@
 
 <!ENTITY config.caption.mailnews        "Thunderbird">
 <!ENTITY config.mailnews.threadsearch.enabled "メールのクイック検索で有効にする">
-<!ENTITY config.mailnews.threadsearch.body    "本文の検索でも有効にする（処理が重くなります）">
-
-<!ENTITY config.combination.autocompletemanager "AutoComplete Managerで有効にする">
 
 
 
