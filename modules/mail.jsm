@@ -54,9 +54,9 @@ var XMigemoMail = {
 				let regexp;
 				if (
 					XMigemoService.getPref('xulmigemo.autostart.regExpFind') &&
-					XMigemoService.TextUtils.isRegExp(aInput)
+					XMigemoService.textUtils.isRegExp(aInput)
 					) {
-					regexp = XMigemoService.TextUtils.extractRegExpSource(aInput);
+					regexp = XMigemoService.textUtils.extractRegExpSource(aInput);
 					regexp = new RegExp(regexp, 'ig');
 				}
 				else {
@@ -84,7 +84,7 @@ var XMigemoMail = {
 
 				terms = sources.replace(/\n/g, ' ').match(regexp);
 				if (terms && terms.length)
-					terms = XMigemoService.TextUtils.brushUpTerms(terms);
+					terms = XMigemoService.textUtils.brushUpTerms(terms);
 			}
 		}
 		catch(e) {

@@ -90,8 +90,8 @@ var XMigemoLocationBarOverlay = {
 				var index = input.search(/\s/);
 				if (index < 0) index = input.length;
 				return {
-					keyword : XMigemoPlaces.TextUtils.trim(input.substring(0, index)),
-					terms   : XMigemoPlaces.TextUtils.trim(input.substring(index+1))
+					keyword : XMigemoPlaces.textUtils.trim(input.substring(0, index)),
+					terms   : XMigemoPlaces.textUtils.trim(input.substring(index+1))
 						.replace(/\+/g, '%2B')
 						.replace(/\s+/g, '+')
 				};
@@ -129,12 +129,12 @@ var XMigemoLocationBarOverlay = {
 				var target = XMigemoPlaces.getFindTargetsFromFlag(aItem, aFindFlag);
 				this.regexp.compile(
 					'^(?:'+aTerms.map(function(aTerm) {
-						return XMigemoPlaces.TextUtils.sanitize(aTerm);
+						return XMigemoPlaces.textUtils.sanitize(aTerm);
 					}).join('|')+')',
 					'gim'
 				);
-				var matched = XMigemoPlaces.TextUtils.brushUpTerms(
-							XMigemoPlaces.TextUtils
+				var matched = XMigemoPlaces.textUtils.brushUpTerms(
+							XMigemoPlaces.textUtils
 								.splitByBoundaries(target.join('\n'))
 						).join('\n').match(this.regexp);
 				return (matched && matched.length >= aTerms.length) ?
@@ -173,7 +173,7 @@ var XMigemoLocationBarOverlay = {
 				var target = XMigemoPlaces.getFindTargetsFromFlag(aItem, aFindFlag);
 				this.regexp.compile(
 					'^(?:'+aTerms.map(function(aTerm) {
-						return XMigemoPlaces.TextUtils.sanitize(aTerm);
+						return XMigemoPlaces.textUtils.sanitize(aTerm);
 					}).join('|')+')',
 					'gim'
 				);
@@ -193,7 +193,7 @@ var XMigemoLocationBarOverlay = {
 	ThreadManager : Components
 			.classes['@mozilla.org/thread-manager;1']
 			.getService(Components.interfaces.nsIThreadManager),
-	TextUtils : Components
+	textUtils : Components
 			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
 			.getService(Components.interfaces.xmIXMigemoTextUtils),
 
@@ -494,9 +494,9 @@ var XMigemoLocationBarOverlay = {
 		}
 
 		var terms = aSource.termsGetter ?
-					this.TextUtils.brushUpTerms(aSource.termsGetter(aFindInfo.input, sources) || [])
+					this.textUtils.brushUpTerms(aSource.termsGetter(aFindInfo.input, sources) || [])
 						.filter(function(aTerm) {
-							return this.TextUtils.trim(aTerm);
+							return this.textUtils.trim(aTerm);
 						}, this)
 						.slice(0, this.MAX_TERMS_COUNT) :
 					this.getMatchedTermsFromRegExps(aFindInfo.findRegExps, sources);
@@ -508,9 +508,9 @@ var XMigemoLocationBarOverlay = {
 		}
 		else if (aFindInfo.exceptionsRegExp) {
 			exceptions = sources.match(aFindInfo.exceptionsRegExp) || [];
-			exceptions = this.TextUtils.brushUpTerms(exceptions)
+			exceptions = this.textUtils.brushUpTerms(exceptions)
 				.filter(function(aTerm) {
-					return this.TextUtils.trim(aTerm);
+					return this.textUtils.trim(aTerm);
 				}, this);
 		}
 
@@ -529,7 +529,7 @@ var XMigemoLocationBarOverlay = {
 	getMatchedTermsFromRegExps : function(aRegExps, aSources)
 	{
 		if (!aRegExps || !aRegExps.length || !aSources) return null;
-		var utils = this.TextUtils;
+		var utils = this.textUtils;
 		var terms = [];
 		return aRegExps
 				.some(function(aRegExp) {
@@ -661,7 +661,7 @@ var XMigemoLocationBarOverlay = {
 				statement.bindDoubleParameter(termsCount+exceptionsCount+offset+1, Math.max(0, aRange));
 			}
 			var item, bookmark, terms;
-			var utils = this.TextUtils;
+			var utils = this.textUtils;
 			var maxNum = XMigemoService.getPref('browser.urlbar.maxRichResults');
 			var uri;
 			while(statement.executeStep())
@@ -670,7 +670,7 @@ var XMigemoLocationBarOverlay = {
 				if (uri in aFindInfo.blackList) continue;
 				aFindInfo.blackList[uri] = true;
 
-				terms = this.TextUtils.brushUpTerms(
+				terms = this.textUtils.brushUpTerms(
 						statement.getString(5).match(aFindInfo.termsRegExp) ||
 						[]
 					).filter(function(aTerm) {
@@ -1073,7 +1073,7 @@ XMigemoAutoCompletePopupController.prototype = {
  
 	startSearch : function(aString) 
 	{
-		if (!this.service.TextUtils.trim(aString) &&
+		if (!this.service.textUtils.trim(aString) &&
 			this.service.isActive) {
 			this.service.clearListbox();
 			this.service.isActive = false;
