@@ -647,7 +647,7 @@ mydump("count:"+count);
 			else {
 				if (aFindFlag & this.FIND_BACK) {
 					node = this.viewportStartPoint ||
-							this.textUtils.findFirstVisibleNode(doc, aFindFlag);
+							this.textUtils.findFirstVisibleNode(doc, true);
 					this.viewportStartPoint = node;
 					findRange.setEndAfter(node);
 					startPt.setStartAfter(node);
@@ -656,7 +656,7 @@ mydump("count:"+count);
 				}
 				else {
 					node = this.viewportEndPoint ||
-							this.textUtils.findFirstVisibleNode(doc, aFindFlag);
+							this.textUtils.findFirstVisibleNode(doc, false);
 					this.viewportEndPoint = node;
 					findRange.setStartBefore(node);
 					startPt.setStartBefore(node);
