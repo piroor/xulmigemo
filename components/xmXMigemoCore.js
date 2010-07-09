@@ -607,17 +607,23 @@ xmXMigemoCore.prototype = {
 				doc.__xulmigemo__highlightTimer = null;
 			}
 
-			terms = terms.map(function(aTerm) {
+			let startPointNode = Prefs.getBoolPref('xulmigemo.startfromviewport') ?
+					this.textUtils.findFirstVisibleNode(doc) :
+					body ;
+
+			let createIterator = function(aTerm, aBackward, aFindRange, aStartPoint, aEndPoint) {
 				return (function() {
 					var find = Cc['@mozilla.org/embedcomp/rangefind;1'].createInstance(Ci.nsIFind);
-					find.findBackwards = false;
+					find.findBackwards = aBackward;
 					find.caseSensitive = !regExp.ignoreCase;
 
 					var foundRange;
-					var findRange  = originalFindRange.cloneRange();
-					var startPoint = originalStartPoint.cloneRange();
-					var endPoint   = originalEndPoint.cloneRange();
+					var findRange  = aFindRange.cloneRange();
+					var startPoint = aStartPoint.cloneRange();
+					var endPoint   = aEndPoint.cloneRange();
 					var count = 0;
+					var ranges = [];
+					var highlights = [];
 					while (foundRange = find.Find(aTerm, findRange, startPoint, endPoint))
 					{
 						let foundLength = foundRange.toString().length;
@@ -644,29 +650,19 @@ xmXMigemoCore.prototype = {
 						foundRange = doc.createRange();
 						foundRange.selectNodeContents(nodeSurround);
 						arrResults.push(foundRange);
+						ranges.push(foundRange);
+						highlights.push(nodeSurround);
 
-						findRange.selectNodeContents(body);
-						if (find.findBackwards) {
+						startPoint.selectNode(nodeSurround);
+						if (aBackward) {
+							findRange.setStart(endPoint.endContainer, endPoint.endOffset);
 							findRange.setEndBefore(nodeSurround);
-							try {
-								findRange.setStart(originalStartPoint.endContainer, originalStartPoint.endOffset);
-							}
-							catch(e) {
-							}
-							endPoint.selectNodeContents(body);
-							endPoint.setEndBefore(nodeSurround);
-							endPoint.collapse(false);
+							startPoint.collapse(true);
 						}
 						else {
 							findRange.setStartAfter(nodeSurround);
-							try {
-								findRange.setEnd(originalEndPoint.endContainer, originalEndPoint.endOffset);
-							}
-							catch(e) {
-							}
-							startPoint.selectNodeContents(body);
-							startPoint.setStartAfter(nodeSurround);
-							startPoint.collapse(true);
+							findRange.setEnd(endPoint.endContainer, endPoint.endOffset);
+							startPoint.collapse(false);
 						}
 						if (frameSelection) {
 							let subSelCon = this.getEditorSelConFromRange(foundRange);
@@ -683,9 +679,11 @@ xmXMigemoCore.prototype = {
 						if (count++ > this.ASYNC_HIGHLIGHT_UNIT) {
 							if (frameSelection)
 								selCon.repaintSelection(selCon.SELECTION_FIND);
-							this.dispatchProgressEvent(doc, aTerm);
+							this.dispatchHighlightProgressEvent(doc, aTerm, ranges, highlights);
 							yield;
 							count = 0;
+							ranges = [];
+							highlights = [];
 						}
 					}
 					findRange.detach();
@@ -693,28 +691,56 @@ xmXMigemoCore.prototype = {
 					endPoint.detach();
 					if (frameSelection)
 						selCon.repaintSelection(selCon.SELECTION_FIND);
-					this.dispatchProgressEvent(doc, aTerm);
+					this.dispatchHighlightProgressEvent(doc, aTerm, ranges, highlights);
 				}).call(this);
-			}, this);
+			};
 
-			let runner = function() {
-					terms = terms.filter(function(aTermIterafor) {
+			let internalStartPoint = originalStartPoint;
+			let forwardFindRange = originalFindRange;
+			if (startPointNode !== body) {
+				internalStartPoint = doc.createRange();
+				internalStartPoint.selectNode(startPointNode);
+				internalStartPoint.collapse(true);
+				forwardFindRange = originalFindRange.cloneRange();
+				forwardFindRange.setStartBefore(startPointNode);
+			}
+
+			let iterators = terms.map(function(aTerm) {
+					return createIterator.call(this,
+								aTerm, false,
+								forwardFindRange, internalStartPoint, originalEndPoint
+							);
+				}, this);
+			if (startPointNode !== body) {
+				let backwardFindRange = originalFindRange.cloneRange();
+				backwardFindRange.setEndBefore(startPointNode);
+				iterators = iterators.concat(terms.map(function(aTerm) {
+					return createIterator.call(this,
+								aTerm, true,
+								backwardFindRange, internalStartPoint, originalStartPoint
+							);
+				}, this));
+			}
+
+			let runner = function(aSelf) {
+					iterators = iterators.filter(function(aIterafor) {
 						try {
-							aTermIterafor.next();
+							aIterafor.next();
 							return true;
 						}
 						catch(e) {
 						}
 						return false;
 					});
-					if (!terms.length && doc.__xulmigemo__highlightTimer) {
+					if (!iterators.length && doc.__xulmigemo__highlightTimer) {
 						timer.clearInterval(doc.__xulmigemo__highlightTimer);
 						doc.__xulmigemo__highlightTimer = null;
+						aSelf.dispatchHighlightFinishEvent();
 					}
 				};
 			runner();
-			if (terms.length)
-				doc.__xulmigemo__highlightTimer = timer.setInterval(runner, this.ASYNC_HIGHLIGHT_INTERVAL);
+			if (iterators.length)
+				doc.__xulmigemo__highlightTimer = timer.setInterval(runner, this.ASYNC_HIGHLIGHT_INTERVAL, this);
 		}
 		else {
 			this.mFind.findBackwards = false;
@@ -759,12 +785,19 @@ xmXMigemoCore.prototype = {
 	},
 	ASYNC_HIGHLIGHT_UNIT : 10,
 	ASYNC_HIGHLIGHT_INTERVAL : 100,
-	dispatchProgressEvent : function(aDocument, aTerm) 
+	dispatchHighlightProgressEvent : function(aDocument, aTerm, aRanges, aHighlights) 
 	{
 		var event = aDocument.createEvent('Events');
 		event.initEvent('XMigemoHighlightProgress', true, false);
-		event.findTerm  = aTerm;
 		event.foundTerm = aTerm;
+		event.foundRanges = aRanges;
+		event.highlights = aHighlights;
+		aDocument.dispatchEvent(event);
+	},
+	dispatchHighlightFinishEvent : function(aDocument) 
+	{
+		var event = aDocument.createEvent('Events');
+		event.initEvent('XMigemoHighlightFinish', true, false);
 		aDocument.dispatchEvent(event);
 	},
 	
@@ -811,7 +844,7 @@ xmXMigemoCore.prototype = {
 		if (!aSurroundNode) {
 			return [];
 		}
-		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurroundNode);
+		return this.regExpFindArrayInternal(aRegExpSource, aRegExpFlags, aFindRange, null, null, aSurroundNode, false);
 	},
 	regExpHighlightText : function(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode)
 	{
