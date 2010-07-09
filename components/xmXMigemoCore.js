@@ -596,6 +596,7 @@ xmXMigemoCore.prototype = {
 		var originalFindRange  = findRange;
 		var originalStartPoint = startPoint;
 		var originalEndPoint   = aEndPoint;
+		var body = this.getDocumentBody(doc);
 
 		if (aSurroundNode) {
 			if (!('setInterval' in timer))
@@ -644,16 +645,29 @@ xmXMigemoCore.prototype = {
 						foundRange.selectNodeContents(nodeSurround);
 						arrResults.push(foundRange);
 
-						findRange.selectNodeContents(this.getDocumentBody(doc));
-						findRange.setStartAfter(nodeSurround);
-						try {
-							findRange.setEnd(endPoint.endContainer, endPoint.endOffset);
+						findRange.selectNodeContents(body);
+						if (find.findBackwards) {
+							findRange.setEndBefore(nodeSurround);
+							try {
+								findRange.setStart(originalStartPoint.endContainer, originalStartPoint.endOffset);
+							}
+							catch(e) {
+							}
+							endPoint.selectNodeContents(body);
+							endPoint.setEndBefore(nodeSurround);
+							endPoint.collapse(false);
 						}
-						catch(e) {
+						else {
+							findRange.setStartAfter(nodeSurround);
+							try {
+								findRange.setEnd(originalEndPoint.endContainer, originalEndPoint.endOffset);
+							}
+							catch(e) {
+							}
+							startPoint.selectNodeContents(body);
+							startPoint.setStartAfter(nodeSurround);
+							startPoint.collapse(true);
 						}
-						startPoint.selectNodeContents(this.getDocumentBody(doc));
-						startPoint.setStartAfter(nodeSurround);
-						startPoint.collapse(true);
 						if (frameSelection) {
 							let subSelCon = this.getEditorSelConFromRange(foundRange);
 							if (subSelCon) {
@@ -716,7 +730,7 @@ xmXMigemoCore.prototype = {
 					arrResults.push(foundRange);
 
 					findRange.setStart(foundRange.endContainer, foundRange.endOffset);
-					startPoint.selectNodeContents(this.getDocumentBody(doc));
+					startPoint.selectNodeContents(body);
 					startPoint.setStart(foundRange.endContainer, foundRange.endOffset);
 					startPoint.collapse(true);
 					if (frameSelection) {
