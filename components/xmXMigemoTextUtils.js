@@ -4,10 +4,27 @@ const Ci = Components.interfaces;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-var timer = {};
-
 const Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
+
+var timer = {};
+
+var boxObjectModule = {};
+function getBoxObjectFor(aNode)
+{
+	if ('getBoxObjectFor' in aNode.ownerDocument)
+		return aNode.ownerDocument.getBoxObjectFor(aNode);
+
+	if (!('boxObject' in boxObjectModule)) {
+		Components.utils.import(
+			'resource://xulmigemo-modules/boxObject.js',
+			boxObjectModule
+		);
+	}
+	return boxObjectModule
+			.boxObject
+			.getBoxObjectFor(aNode);
+}
  
 function xmXMigemoTextUtils() { 
 
@@ -504,10 +521,9 @@ xmXMigemoTextUtils.prototype = {
   
 	findFirstVisibleNode : function(aDocument, aBackward) 
 	{
-		var doc = aFrame.document;
 		var w = aDocument.defaultView;
 
-		var topY = getBoxObjectFor(doc.documentElement).screenY;
+		var topY = getBoxObjectFor(aDocument.documentElement).screenY;
 
 		this.visibleNodeFilter.found       = false;
 		this.visibleNodeFilter.frameHeight = w.innerHeight;
@@ -554,15 +570,15 @@ xmXMigemoTextUtils.prototype = {
 			}
 		}
 		else { // -Firefox 3.5
-			let walker = doc.createTreeWalker(
-					doc.documentElement,
+			let walker = aDocument.createTreeWalker(
+					aDocument.documentElement,
 					Ci.nsIDOMNodeFilter.SHOW_ELEMENT,
 					this.visibleNodeFilter,
 					false
 				);
 
 			if (aBackward) {
-				lastNode = doc.documentElement;
+				lastNode = aDocument.documentElement;
 				while (node = walker.lastChild())
 				{
 					lastNode = node;
@@ -580,7 +596,7 @@ xmXMigemoTextUtils.prototype = {
 				}
 			}
 			else {
-				let node = doc.documentElement;
+				let node = aDocument.documentElement;
 				lastNode = node;
 				this.visibleNodeFilter.found = false;
 				if (this.visibleNodeFilter.acceptNode(node) != this.visibleNodeFilter.kACCEPT) {
@@ -593,7 +609,7 @@ xmXMigemoTextUtils.prototype = {
 				}
 			}
 			if (
-				(!lastNode || lastNode == doc.documentElement) &&
+				(!lastNode || lastNode == aDocument.documentElement) &&
 				this.visibleNodeFilter.lastInScreenNode
 				) {
 				lastNode = this.visibleNodeFilter.lastInScreenNode;
@@ -602,7 +618,7 @@ xmXMigemoTextUtils.prototype = {
 
 		this.visibleNodeFilter.clear();
 
-		return lastNode || doc.documentElement;
+		return lastNode || aDocument.documentElement;
 	},
 	
 	visibleNodeFilter : { 
