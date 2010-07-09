@@ -502,6 +502,176 @@ xmXMigemoTextUtils.prototype = {
 		this.setSelectionLookForNode(aRange.startContainer, aChangeColor);
 	},
   
+	findFirstVisibleNode : function(aDocument, aBackward) 
+	{
+		var doc = aFrame.document;
+		var w = aDocument.defaultView;
+
+		var topY = getBoxObjectFor(doc.documentElement).screenY;
+
+		this.visibleNodeFilter.found       = false;
+		this.visibleNodeFilter.frameHeight = w.innerHeight;
+		this.visibleNodeFilter.startY      = w.scrollY + topY;
+		this.visibleNodeFilter.endY        = w.scrollY + topY + w.innerHeight;
+		this.visibleNodeFilter.minPixels   = 12;
+		this.visibleNodeFilter.minSize     = w.innerWidth * w.innerHeight;
+		this.visibleNodeFilter.isInvisible =
+			this.visibleNodeFilter[aBackward ? 'isBelow' : 'isAbove' ];
+		this.visibleNodeFilter.isInScreenCompletely =
+			this.visibleNodeFilter[aBackward ? 'isAbove' : 'isBelow' ];
+
+		var lastNode;
+
+		var utils = w.QueryInterface(Ci.nsIInterfaceRequestor)
+						.getInterface(Ci.nsIDOMWindowUtils);
+		if ('nodesFromRect' in utils) { // Firefox 3.6-
+			let nodes = utils.nodesFromRect(
+					0,
+					0,
+					this.visibleNodeFilter.minPixels,
+					w.innerWidth+this.visibleNodeFilter.minPixels,
+					w.innerHeight+this.visibleNodeFilter.minPixels,
+					this.visibleNodeFilter.minPixels,
+					true,
+					false
+				);
+			if (aBackward) {
+				let i = 0,
+					maxi = nodes.length;
+				do {
+					lastNode = nodes[i];
+					i++;
+				}
+				while (this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i < maxi);
+			}
+			else {
+				let i = nodes.length-1;
+				do {
+					lastNode = nodes[i];
+					i--;
+				}
+				while (this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i > -1);
+			}
+		}
+		else { // -Firefox 3.5
+			let walker = doc.createTreeWalker(
+					doc.documentElement,
+					Ci.nsIDOMNodeFilter.SHOW_ELEMENT,
+					this.visibleNodeFilter,
+					false
+				);
+
+			if (aBackward) {
+				lastNode = doc.documentElement;
+				while (node = walker.lastChild())
+				{
+					lastNode = node;
+					walker.currentNode = node;
+				}
+				let node = lastNode;
+				this.visibleNodeFilter.found = false;
+				if (this.visibleNodeFilter.acceptNode(node) != this.visibleNodeFilter.kACCEPT) {
+					while (!this.visibleNodeFilter.found &&
+						(node = walker.previousNode()))
+					{
+						lastNode = node;
+						walker.currentNode = node;
+					}
+				}
+			}
+			else {
+				let node = doc.documentElement;
+				lastNode = node;
+				this.visibleNodeFilter.found = false;
+				if (this.visibleNodeFilter.acceptNode(node) != this.visibleNodeFilter.kACCEPT) {
+					while (!this.visibleNodeFilter.found &&
+						(node = walker.nextNode()))
+					{
+						lastNode = node;
+						walker.currentNode = node;
+					}
+				}
+			}
+			if (
+				(!lastNode || lastNode == doc.documentElement) &&
+				this.visibleNodeFilter.lastInScreenNode
+				) {
+				lastNode = this.visibleNodeFilter.lastInScreenNode;
+			}
+		}
+
+		this.visibleNodeFilter.clear();
+
+		return lastNode || doc.documentElement;
+	},
+	
+	visibleNodeFilter : { 
+		kSKIP   : Ci.nsIDOMNodeFilter.FILTER_SKIP,
+		kACCEPT : Ci.nsIDOMNodeFilter.FILTER_ACCEPT,
+		acceptNode : function(aNode)
+		{
+			var size = aNode.offsetWidth * aNode.offsetHeight;
+			result = (
+				size == 0 ||
+				this.isInvisible(aNode, true) ||
+				/^\s*$/.test(aNode.textContent)
+				) ? this.kSKIP : this.kACCEPT ;
+
+			if (result == this.kACCEPT) {
+				if (!this.isInScreenCompletely(aNode, true)) {
+					this.lastInScreenNode = aNode;
+				}
+				if (aNode.offsetHeight > this.frameHeight) {
+					result = this.kSKIP;
+				}
+			}
+			if (result == this.kACCEPT) {
+				if (size > this.minSize) {
+					result = this.kSKIP;
+				}
+				this.minSize = Math.min(this.minSize, size);
+			}
+			if (!this.found && this.isInScreenCompletely(aNode, false))
+				this.found = true;
+
+			return result;
+		},
+		isAbove : function(aNode, aOutside)
+		{
+			var y = this.getY(aNode);
+			var edge = aOutside ? this.startY : this.endY ;
+			return (
+				y < edge &&
+				y + Math.min(this.frameHeight, aNode.offsetHeight) < edge + this.minPixels
+			);
+		},
+		isBelow : function(aNode, aOutside)
+		{
+			var y = this.getY(aNode);
+			var edge = aOutside ? this.endY : this.startY ;
+			return (
+				y + Math.min(this.frameHeight, aNode.offsetHeight) > edge &&
+				y > edge - this.minPixels
+			);
+		},
+		getY : function(aNode)
+		{
+			return getBoxObjectFor(aNode).screenY;
+		},
+		isInvisible : null,
+		isInScreenCompletely : null,
+		frameHeight : 0,
+		startY      : 0,
+		endY        : 0,
+		minPixels   : 12,
+		minSize     : 0,
+		found       : false,
+		clear : function()
+		{
+			this.lastInScreenNode = null;
+		}
+	},
+  
 /* Restore selection after "highlight all" */ 
 	
 	getFoundRange : function(aFrame) 

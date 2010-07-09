@@ -59,6 +59,8 @@ interface xmIXMigemoTextUtils : nsISupports
 	void setSelectionLookForDocument(in nsIDOMDocument document, in boolean changeColor);
 	void setSelectionLookForNode(in nsIDOMNode selectionContainer, in boolean changeColor);
 	void setSelectionLookForRange(in nsIDOMRange selectionRange, in boolean changeColor);
+
+	nsIDOMNode findFirstVisibleNode(in nsIDOMDocument document, [optional] in boolean findBackwards);
 };
 
 [scriptable, uuid(554bdbd0-ae38-11de-8a39-0800200c9a66)]
