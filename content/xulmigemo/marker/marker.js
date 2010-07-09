@@ -48,6 +48,7 @@ var XMigemoMarker = {
 		bar.addEventListener('XMigemoFindBarUpdateHighlight', this, false);
 		document.addEventListener('XMigemoFindAgain', this, false);
 		document.addEventListener('SubBrowserFocusMoved', this, false);
+		document.addEventListener('XMigemoHighlightProgress', this, false);
 
 		XMigemoUI.registerHighlightUtility(this);
 		if ('XMigemoHighlight' in window)
@@ -103,6 +104,7 @@ var XMigemoMarker = {
 		bar.removeEventListener('XMigemoFindBarUpdateHighlight', this, false);
 		document.removeEventListener('XMigemoFindAgain', this, false);
 		document.removeEventListener('SubBrowserFocusMoved', this, false);
+		document.removeEventListener('XMigemoHighlightProgress', this, false);
 
 		XMigemoUI.unregisterHighlightUtility(this);
 		if ('XMigemoHighlight' in window)
@@ -179,6 +181,10 @@ var XMigemoMarker = {
 				break;
 
 			case 'XMigemoFindAgain':
+				this.redrawMarkersWithDelay(true);
+				break;
+
+			case 'XMigemoHighlightProgress':
 				this.redrawMarkersWithDelay(true);
 				break;
 

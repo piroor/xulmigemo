@@ -579,9 +579,6 @@ xmXMigemoCore.prototype = {
 		if (!terms.length)
 			return arrResults;
 
-		this.mFind.findBackwards = false;
-		this.mFind.caseSensitive = !regExp.ignoreCase;
-
 		var selCon = (aUseSelection && 'SELECTION_FIND' in Ci.nsISelectionController) ?
 						doc.defaultView
 							.QueryInterface(Ci.nsIInterfaceRequestor)
@@ -669,9 +666,10 @@ xmXMigemoCore.prototype = {
 							}
 						}
 
-						if (count++ > 10) {
+						if (count++ > this.ASYNC_HIGHLIGHT_UNIT) {
 							if (frameSelection)
 								selCon.repaintSelection(selCon.SELECTION_FIND);
+							this.dispatchProgressEvent(doc, aTerm);
 							yield;
 							count = 0;
 						}
@@ -681,6 +679,7 @@ xmXMigemoCore.prototype = {
 					endPoint.detach();
 					if (frameSelection)
 						selCon.repaintSelection(selCon.SELECTION_FIND);
+					this.dispatchProgressEvent(doc, aTerm);
 				}).call(this);
 			}, this);
 
@@ -701,9 +700,11 @@ xmXMigemoCore.prototype = {
 				};
 			runner();
 			if (terms.length)
-				doc.__xulmigemo__highlightTimer = timer.setInterval(runner, 50);
+				doc.__xulmigemo__highlightTimer = timer.setInterval(runner, this.ASYNC_HIGHLIGHT_INTERVAL);
 		}
 		else {
+			this.mFind.findBackwards = false;
+			this.mFind.caseSensitive = !regExp.ignoreCase;
 			terms.forEach(function(aTerm) {
 				var foundRange;
 				var findRange  = originalFindRange.cloneRange();
@@ -741,6 +742,16 @@ xmXMigemoCore.prototype = {
 		}
 
 		return arrResults;
+	},
+	ASYNC_HIGHLIGHT_UNIT : 10,
+	ASYNC_HIGHLIGHT_INTERVAL : 100,
+	dispatchProgressEvent : function(aDocument, aTerm) 
+	{
+		var event = aDocument.createEvent('Events');
+		event.initEvent('XMigemoHighlightProgress', true, false);
+		event.findTerm  = aTerm;
+		event.foundTerm = aTerm;
+		aDocument.dispatchEvent(event);
 	},
 	
 	getEditorSelConFromRange : function(aRange) 
