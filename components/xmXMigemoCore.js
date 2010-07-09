@@ -579,6 +579,8 @@ xmXMigemoCore.prototype = {
 		if (!terms.length)
 			return arrResults;
 
+		this.dispatchHighlightStartEvent(doc);
+
 		var selCon = (aUseSelection && 'SELECTION_FIND' in Ci.nsISelectionController) ?
 						doc.defaultView
 							.QueryInterface(Ci.nsIInterfaceRequestor)
@@ -732,13 +734,15 @@ xmXMigemoCore.prototype = {
 						}
 						return false;
 					});
-					if (!iterators.length && doc.__xulmigemo__highlightTimer) {
-						timer.clearInterval(doc.__xulmigemo__highlightTimer);
-						doc.__xulmigemo__highlightTimer = null;
-						aSelf.dispatchHighlightFinishEvent();
+					if (!iterators.length) {
+						if (doc.__xulmigemo__highlightTimer) {
+							timer.clearInterval(doc.__xulmigemo__highlightTimer);
+							doc.__xulmigemo__highlightTimer = null;
+						}
+						aSelf.dispatchHighlightFinishEvent(doc);
 					}
 				};
-			runner();
+			runner(this);
 			if (iterators.length)
 				doc.__xulmigemo__highlightTimer = timer.setInterval(runner, this.ASYNC_HIGHLIGHT_INTERVAL, this);
 		}
@@ -750,10 +754,12 @@ xmXMigemoCore.prototype = {
 				var findRange  = originalFindRange.cloneRange();
 				var startPoint = originalStartPoint.cloneRange();
 				var endPoint   = originalEndPoint.cloneRange();
+				var ranges = [];
 				while (foundRange = this.mFind.Find(aTerm, findRange, startPoint, endPoint))
 				{
 					let foundLength = foundRange.toString().length;
 					arrResults.push(foundRange);
+					ranges.push(foundRange);
 
 					findRange.setStart(foundRange.endContainer, foundRange.endOffset);
 					startPoint.selectNodeContents(body);
@@ -774,9 +780,12 @@ xmXMigemoCore.prototype = {
 				findRange.detach();
 				startPoint.detach();
 				endPoint.detach();
+				this.dispatchHighlightProgressEvent(doc, aTerm, ranges, []);
 			}, this);
 			if (frameSelection)
 				selCon.repaintSelection(selCon.SELECTION_FIND);
+
+			this.dispatchHighlightFinishEvent(doc);
 
 			arrResults.sort(this.textUtils.compareRangePosition);
 		}
@@ -785,6 +794,12 @@ xmXMigemoCore.prototype = {
 	},
 	ASYNC_HIGHLIGHT_UNIT : 10,
 	ASYNC_HIGHLIGHT_INTERVAL : 100,
+	dispatchHighlightStartEvent : function(aDocument) 
+	{
+		var event = aDocument.createEvent('Events');
+		event.initEvent('XMigemoHighlightStart', true, false);
+		aDocument.dispatchEvent(event);
+	},
 	dispatchHighlightProgressEvent : function(aDocument, aTerm, aRanges, aHighlights) 
 	{
 		var event = aDocument.createEvent('Events');
