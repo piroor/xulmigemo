@@ -79,6 +79,7 @@ var XMigemoHighlight = {
 		bar.addEventListener('XMigemoFindBarClose', this, false);
 		bar.addEventListener('XMigemoFindBarToggleHighlight', this, false);
 		document.addEventListener('XMigemoFindAgain', this, false);
+		document.addEventListener('XMigemoHighlightProgress', this, false);
 		document.addEventListener('SubBrowserFocusMoved', this, false);
 
 		window.addEventListener('unload', this, false);
@@ -98,6 +99,7 @@ var XMigemoHighlight = {
 		bar.removeEventListener('XMigemoFindBarClose', this, false);
 		bar.removeEventListener('XMigemoFindBarToggleHighlight', this, false);
 		document.removeEventListener('XMigemoFindAgain', this, false);
+		document.removeEventListener('XMigemoHighlightProgress', this, false);
 		document.removeEventListener('SubBrowserFocusMoved', this, false);
 
 		window.removeEventListener('unload', this, false);
@@ -196,6 +198,13 @@ var XMigemoHighlight = {
 				if (this.animationStyle == this.STYLE_ZOOM)
 					this.clearAnimationStyleIn(XMigemoUI.activeBrowser.contentWindow, true);
 				this.stopAllAnimations()
+				break;
+
+			case 'XMigemoHighlightProgress':
+				if (this.strongHighlight)
+					aEvent.originalTarget.defaultView.setTimeout(function() {
+						migemo.repaintHighlights(aEvent.originalTarget, false, false);
+					}, 0);
 				break;
 
 			case 'SubBrowserFocusMoved':
@@ -484,7 +493,9 @@ var XMigemoHighlight = {
 		else
 			doc.documentElement.removeAttribute(this.kSCREEN);
 
-		migemo.repaintHighlights(doc, true, !aHighlight);
+		aFrame.setTimeout(function() { // do with delay, because XMigemoMarker also does it.
+			migemo.repaintHighlights(doc, true, !aHighlight);
+		}, 0);
 	},
  
 	isDocumentHighlightable : function(aDocument) 
