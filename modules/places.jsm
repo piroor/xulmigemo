@@ -18,7 +18,7 @@ var XMigemoPlaces = {
 	defaultBehavior : 0,
 	openPageAvailable : false,
  
-	TextUtils : Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1'] 
+	textUtils : Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1'] 
 			.getService(Ci.xmIXMigemoTextUtils),
  
 	isValidInput : function(aInput) 
@@ -51,10 +51,10 @@ var XMigemoPlaces = {
 
 		var findInput = info.input;
 		if (this.autoStartRegExpFind &&
-			this.TextUtils.isRegExp(findInput)) {
+			this.textUtils.isRegExp(findInput)) {
 			var flags = 'gm';
 			if (/\/[^\/]*i[^\/]*$/.test(findInput)) flags += 'i';
-			var source = this.TextUtils.extractRegExpSource(findInput);
+			var source = this.textUtils.extractRegExpSource(findInput);
 			info.termsRegExp = new RegExp(source, flags);
 			info.findRegExps = [info.termsRegExp];
 			info.findMode = Ci.xmIXMigemoFind.FIND_MODE_REGEXP;
@@ -163,7 +163,7 @@ var XMigemoPlaces = {
 
 		if (keys.length) {
 			keys = keys.map(function(aKey) {
-					return this.TextUtils.sanitize(aKey);
+					return this.textUtils.sanitize(aKey);
 				}, this).join('|');
 			this.findKeyRegExp = new RegExp('(?:^|\\s+)('+keys+')(?:$|\\s+)', 'gi');
 			this.findKeyExtractRegExp = new RegExp('('+keys+')', 'gi');
@@ -673,7 +673,7 @@ var XMigemoPlaces = {
 			sources = statement.getString(0);
 		}
 		statement.reset();
-		return this.TextUtils.trim(sources || '');
+		return this.textUtils.trim(sources || '');
 	},
 	getSingleStringFromRange_lastStatement : null,
 	getSingleStringFromRange_lastSQL : null,
@@ -741,12 +741,12 @@ var XMigemoPlaces = {
 
 		if (
 			this.autoStartRegExpFind &&
-			this.TextUtils.isRegExp(aBaseQuery.searchTerms)
+			this.textUtils.isRegExp(aBaseQuery.searchTerms)
 			) {
 			var flags = 'gm';
 			if (/\/[^\/]*i[^\/]*$/.test(aBaseQuery.searchTerms)) flags += 'i';
 			this.lastFindRegExp =
-				this.lastTermsRegExp = new RegExp(this.TextUtils.extractRegExpSource(aQuery.searchTerms), flags);
+				this.lastTermsRegExp = new RegExp(this.textUtils.extractRegExpSource(aQuery.searchTerms), flags);
 		}
 		else {
 			let termsRegExp = {};
@@ -796,8 +796,8 @@ var XMigemoPlaces = {
 		if (!termSets) return true;
 
 		var regexp = this.lastTermsRegExp;
-		var utils = this.TextUtils;
-		termSets = this.TextUtils.brushUpTerms(termSets)
+		var utils = this.textUtils;
+		termSets = this.textUtils.brushUpTerms(termSets)
 			.map(function(aTermSet) {
 				return aTermSet.match(regexp)
 					.filter(function(aTerm) {
@@ -809,7 +809,7 @@ var XMigemoPlaces = {
 				return utils.trim(aTerm);
 			});
 
-		this.lastTermSets = this.TextUtils.brushUpTerms(this.lastTermSets.concat(termSets));
+		this.lastTermSets = this.textUtils.brushUpTerms(this.lastTermSets.concat(termSets));
 		this.lastQueries = this.lastTermSets.map(function(aTermSet) {
 			var newQuery = aBaseQuery.clone();
 			newQuery.searchTerms = aTermSet;

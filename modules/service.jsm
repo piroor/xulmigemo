@@ -41,7 +41,7 @@ var XMigemoService = {
 	},
 	_WindowWatcher : null,
  
-	get TextUtils() { 
+	get textUtils() { 
 		if (!this._TextUtils) {
 			try {
 				this._TextUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
@@ -94,7 +94,7 @@ var XMigemoService = {
 			typeof aObserver.preferences == 'string')
 			aList = aObserver.preferences;
 
-		aList = this.TextUtils.trim(aList || '');
+		aList = this.textUtils.trim(aList || '');
 		if (aList)
 			aList.split(/\s+/)
 				.forEach(function(aPref) {
