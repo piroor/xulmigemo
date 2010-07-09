@@ -145,46 +145,6 @@ function testFindInFrameFromViewport()
 }
 
 
-testFindFirstVisibleNode.setUp = function() {
-	var win = utils.getTestWindow();
-	win.resizeTo(500, 500);
-	assert.compare(200, '<', utils.contentWindow.innerHeight);
-};
-function testFindFirstVisibleNode()
-{
-	function assertScrollAndFind(aIdOrNode, aFindFlag)
-	{
-		var frame = utils.contentWindow;
-		var item = typeof aIdOrNode == 'string' ? frame.document.getElementById(aIdOrNode) : aIdOrNode ;
-		frame.scrollTo(
-			0,
-			(aFindFlag & findModule.FIND_BACK ?
-				item.offsetTop - frame.innerHeight + item.offsetHeight :
-				item.offsetTop
-			)
-		);
-		var node = findModule.findFirstVisibleNode(aFindFlag, frame);
-		assert.equals(item, node);
-	}
-
-	utils.wait(utils.addTab(baseURL+'../fixtures/shortPage.html', { selected : true }));
-	assertScrollAndFind(utils.contentDocument.documentElement, findModule.FIND_DEFAULT);
-	assertScrollAndFind('p3', findModule.FIND_BACK);
-
-	utils.wait(utils.addTab(baseURL+'../fixtures/longPage.html', { selected : true }));
-	assertScrollAndFind(utils.contentDocument.documentElement, findModule.FIND_DEFAULT);
-	assertScrollAndFind('p10', findModule.FIND_DEFAULT);
-	assertScrollAndFind('p10', findModule.FIND_BACK);
-	assertScrollAndFind('p21', findModule.FIND_BACK);
-
-	utils.wait(utils.addTab(baseURL+'../fixtures/tooLongPage.html', { selected : true }));
-	assertScrollAndFind(utils.contentDocument.documentElement, findModule.FIND_DEFAULT);
-	assertScrollAndFind('p10', findModule.FIND_DEFAULT);
-	assertScrollAndFind('p10', findModule.FIND_BACK);
-	assertScrollAndFind('p21', findModule.FIND_BACK);
-}
-
-
 testGetParentLinkFromRange.setUp = function() {
 	utils.wait(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
 };
