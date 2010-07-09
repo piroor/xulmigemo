@@ -66,8 +66,8 @@ var XMigemoPlaces = {
 								.map(function(aSource) {
 									return new RegExp(aSource, 'gim');
 								});
-			info.termsRegExp = new RegExp(termsRegExp.value, 'gim');
-			info.exceptionsRegExp = new RegExp(exceptionsRegExp.value, 'im');
+			info.termsRegExp = termsRegExp.value ? new RegExp(termsRegExp.value, 'gim') : null ;
+			info.exceptionsRegExp = exceptionsRegExp.value ? new RegExp(exceptionsRegExp.value, 'im') : null ;
 			info.findMode = Ci.xmIXMigemoFind.FIND_MODE_MIGEMO;
 		}
 
@@ -753,8 +753,8 @@ var XMigemoPlaces = {
 			let exceptionsRegExp = {};
 			this.lastFindRegExp = XMigemoCore.getRegExpFunctional(aBaseQuery.searchTerms, termsRegExp, exceptionsRegExp);
 			this.lastFindRegExp = new RegExp(this.lastFindRegExp, 'gim');
-			this.lastTermsRegExp = new RegExp(termsRegExp.value, 'gim');
-//			this.lastExceptionsRegExp = new RegExp(exceptionsRegExp.value, 'im');
+			this.lastTermsRegExp = termsRegExp.value ? new RegExp(termsRegExp.value, 'gim') : null ;
+//			this.lastExceptionsRegExp = exceptionsRegExp.value ? new RegExp(exceptionsRegExp.value, 'im') : null ;
 		}
 		this.lastTermSets = [];
 		this.lastQueries = [];
