@@ -116,12 +116,10 @@ var XMigemoMarker = {
 		switch (aEvent.type)
 		{
 			case 'load':
-				window.setTimeout('XMigemoMarker.init();', 0);
-				return;
+				return window.setTimeout('XMigemoMarker.init();', 0);
 
 			case 'unload':
-				this.destroy();
-				return;
+				return this.destroy();
 
 			case 'XMigemoHighlight:mouseup':
 				if (this.dragging) return true;
@@ -129,16 +127,13 @@ var XMigemoMarker = {
 				return this.isEventFiredOnMarkers(aEvent.originalEvent);
 
 			case 'mousedown':
-				this.onMouseDown(aEvent);
-				return;
+				return this.onMouseDown(aEvent);
 
 			case 'mouseup':
-				this.onMouseUp(aEvent);
-				return;
+				return this.onMouseUp(aEvent);
 
 			case 'mousemove':
-				this.onMouseMove(aEvent);
-				return;
+				return this.onMouseMove(aEvent);
 
 			case 'XMigemoFindBarOpen':
 				window.setTimeout(function(aSelf) {
@@ -150,7 +145,7 @@ var XMigemoMarker = {
 					aSelf.startListen();
 					aSelf.toggleMarkers(true);
 				}, 0, this);
-				break;
+				return;
 
 			case 'XMigemoFindBarClose':
 				window.setTimeout(function(aSelf) {
@@ -158,7 +153,7 @@ var XMigemoMarker = {
 					aSelf.stopListen();
 					aSelf.destroyMarkers();
 				}, 0, this);
-				break;
+				return;
 
 			case 'XMigemoFindBarToggleHighlight':
 				if (this.toggleTimer) {
@@ -174,27 +169,22 @@ var XMigemoMarker = {
 					else
 						aSelf.stopListen();
 				}, 10, this, aEvent.targetHighlight);
-				break;
+				return;
 
 			case 'XMigemoFindBarUpdateHighlight':
-				this.redrawMarkersWithDelay(aEvent.targetHighlight);
-				break;
+				return this.redrawMarkersWithDelay(aEvent.targetHighlight);
 
 			case 'XMigemoFindAgain':
-				this.redrawMarkersWithDelay(true);
-				break;
+				return this.redrawMarkersWithDelay(true);
 
 			case 'XMigemoHighlightProgress':
-				this.redrawMarkersWithDelay(true);
-				break;
+				return this.redrawMarkersWithDelay(true);
 
 			case 'resize':
-				this.redrawMarkersWithDelay(true, true);
-				break;
+				return this.redrawMarkersWithDelay(true, true);
 
 			case 'SubBrowserFocusMoved':
-				this.destroyMarkers(aEvent.lastFocused.browser);
-				break;
+				return this.destroyMarkers(aEvent.lastFocused.browser);
 		}
 	},
 	 
@@ -547,7 +537,7 @@ var XMigemoMarker = {
 		else
 			this.destroyMarkersInFrame(aFrame);
 
-		migemo.repaintHighlights(aFrame.document, true);
+		migemo.repaintHighlights(aFrame.document, true, XMigemoUI.highlightCheck.checked);
 	},
  
 	isAvailableForDocument : function(aDocument) 
