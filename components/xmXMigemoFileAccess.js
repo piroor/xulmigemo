@@ -12,10 +12,6 @@ var DIR = Cc['@mozilla.org/file/directory_service;1']
 
 var nsIFile = Ci.nsIFile;
 
-var PLATFORM = Cc['@mozilla.org/network/protocol;1?name=http']
-		.getService(Ci.nsIHttpProtocolHandler)
-		.oscpu;
-
 function xmXMigemoFileAccess() {}
 
 xmXMigemoFileAccess.prototype = {
@@ -30,6 +26,13 @@ xmXMigemoFileAccess.prototype = {
 
 	get wrappedJSObject() {
 		return this;
+	},
+
+	get isWindows() 
+	{
+		delete this.isWindows;
+		Components.utils.import('resource://xulmigemo-modules/service.jsm');
+		return this.isWindows = XMigemoService.isWindows;
 	},
 
 	readFrom : function(aFile, aEncoding)
@@ -126,7 +129,7 @@ xmXMigemoFileAccess.prototype = {
 
 		if (aPath.indexOf('.') == 0) {
 			// relative path
-			if (PLATFORM.indexOf('Win') > -1) {
+			if (this.isWindows) {
 				aPath = aPath.replace(/^\.\.\./g, '\.\.\\\.\.')
 							.replace(/\\\.\.\./g, '\\\.\.\\\.\.')
 							.replace(/\\/g, '/');
@@ -168,7 +171,7 @@ xmXMigemoFileAccess.prototype = {
 			return '';
 		}
 
-		if (PLATFORM.indexOf('Win') > -1) {
+		if (this.isWindows) {
 			aPath = aPath.replace(/\//g, '\\');
 		}
 

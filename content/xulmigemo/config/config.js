@@ -9,8 +9,7 @@ function initGeneralPane()
 	gDisableIME = document.getElementById('xulmigemo.disableIME-check');
 	gNormalFind = document.getElementById('xulmigemo.disableIME.normalFindFor-textbox');
 	gQuickFind = document.getElementById('xulmigemo.disableIME.quickFindFor-textbox');
-	var platform = navigator.platform.toLowerCase();
-	if (platform.indexOf('win') < 0 && platform.indexOf('mac') < 0) {
+	if (!XMigemoService.isWindows && !XMigemoService.isMac) {
 		gDisableIME.setAttribute('hidden', true);
 	}
 	else {
