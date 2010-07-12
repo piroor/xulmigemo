@@ -1,6 +1,8 @@
 //var profile = '../fixtures/profile-ja/';
 //var options = ['-console', '-jsconsole'/*, '-uxu-do-not-quit'*/];
 
+utils.include('assertions.inc.js');
+
 var XMigemoUI,
 	XMigemoHighlight,
 	XMigemoMarker,
@@ -24,6 +26,7 @@ function commonSetUp(aURI)
 
 	utils.setPref('browser.tabs.warnOnClose', false);
 	utils.setPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled', false);
+	utils.setPref('xulmigemo.findMode.default', 0);
 
 	browser = utils.getBrowser();
 	browser.removeAllTabsBut(retVal.tab);

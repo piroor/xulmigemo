@@ -23,25 +23,11 @@ function normalSetUp(aURI)
 	XMigemoUI = win.XMigemoUI;
 	XMigemoHighlight = win.XMigemoHighlight;
 
-	findCommand = 'with (win) {'+
-		win.document.getElementById('cmd_find').getAttribute('oncommand')+
-	'}';
-
 	field = XMigemoUI.field;
 	inputElem = field.inputField;
 
 	utils.wait(WAIT);
 }
-
-
-assert.findbarState = function(aMode, aShown) {
-	assert.equals(XMigemoUI[aMode], XMigemoUI.findMode, aMode);
-	if (aShown)
-		assert.isFalse(XMigemoUI.hidden, aMode);
-	else
-		assert.isTrue(XMigemoUI.hidden, aMode);
-}
-
 
 var customPrefs = {
 		'browser.tabs.warnOnClose' : false,
@@ -73,7 +59,7 @@ function testStartWithoutFindToolbar()
 {
 	utils.setPref('xulmigemo.checked_by_default.findbar', false);
 	normalSetUp(keyEventTest);
-	assert.findbarState('FIND_MODE_NATIVE', false);
+	assert.findbarState({ mode : 'FIND_MODE_NATIVE', shown : false });
 }
 
 testStartWithFindToolbar.description = '起動時に検索ツールバーを表示：ON';
@@ -81,7 +67,7 @@ function testStartWithFindToolbar()
 {
 	utils.setPref('xulmigemo.checked_by_default.findbar', true);
 	normalSetUp(keyEventTest);
-	assert.findbarState('FIND_MODE_NATIVE', true);
+	assert.findbarState({ mode : 'FIND_MODE_NATIVE', shown : true });
 }
 
 
@@ -90,7 +76,16 @@ function testStartWithNormalFindMode()
 {
 	utils.setPref('xulmigemo.findMode.default', 1);
 	normalSetUp(keyEventTest);
-	assert.findbarState('FIND_MODE_NATIVE', false);
+	assert.findbarState({ mode : 'FIND_MODE_NATIVE', shown : false });
+
+	gFindBar.open();
+	utils.wait(WAIT);
+
+	assert.findAndFound({ input : 'fie', found : 'fie' });
+	assert.findAgain({ keyOptions : ['return'], found : 'fie' });
+	assert.changeModeByButtonClick('FIND_MODE_MIGEMO', 2)
+	utils.wait(WAIT);
+	assert.findAgain({ keyOptions : ['return'], found : 'field' });
 }
 
 testStartWithRegExpFindMode.description = '起動時のモード：正規表現検索';
@@ -98,7 +93,16 @@ function testStartWithRegExpFindMode()
 {
 	utils.setPref('xulmigemo.findMode.default', 4);
 	normalSetUp(keyEventTest);
-	assert.findbarState('FIND_MODE_REGEXP', false);
+	assert.findbarState({ mode : 'FIND_MODE_REGEXP', shown : false });
+
+	gFindBar.open();
+	utils.wait(WAIT);
+
+	assert.findAndFound({ input : 'fie', found : 'fie' });
+	assert.findAgain({ keyOptions : ['return'], found : 'fie' });
+	assert.changeModeByButtonClick('FIND_MODE_MIGEMO', 2)
+	utils.wait(WAIT);
+	assert.findAgain({ keyOptions : ['return'], found : 'field' });
 }
 
 testStartWithMigemoFindMode.description = '起動時のモード：Migemo検索';
@@ -106,5 +110,14 @@ function testStartWithMigemoFindMode()
 {
 	utils.setPref('xulmigemo.findMode.default', 2);
 	normalSetUp(keyEventTest);
-	assert.findbarState('FIND_MODE_MIGEMO', false);
+	assert.findbarState({ mode : 'FIND_MODE_MIGEMO', shown : false });
+
+	gFindBar.open();
+	utils.wait(WAIT);
+
+	assert.findAndFound({ input : 'fie', found : 'field' });
+	assert.findAgain({ keyOptions : ['return'], found : 'field' });
+	assert.changeModeByButtonClick('FIND_MODE_NATIVE', 0)
+	utils.wait(WAIT);
+	assert.findAgain({ keyOptions : ['return'], found : 'fie' });
 }
