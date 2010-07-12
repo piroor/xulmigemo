@@ -27,6 +27,7 @@
 }
 
 :root[__moz_xmigemo-find-highlight-screen="on"] .__mozilla-findbar-search .__mozilla-findbar-search {
+	background: transparent !important;
 	-moz-box-shadow: none;
 }
 
