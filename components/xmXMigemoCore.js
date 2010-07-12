@@ -941,7 +941,7 @@ xmXMigemoCore.prototype = {
 
 			parent.removeChild(node);
 			parent.insertBefore(docfrag, next);
-			if (isOverlap) {
+			if (isOverlap && firstChild) {
 				this.textUtils.delayedSelect(firstChild, foundLength, aKeepFoundHighlighted);
 			}
 			else if (hasSelection) {
