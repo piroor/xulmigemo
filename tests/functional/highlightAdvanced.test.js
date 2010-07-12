@@ -121,7 +121,7 @@ function testAutoHighlightAndModeSwitch()
 	field.focus();
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	assert.highlightCheck(true, false);
-	assert.found('sample')
+	assert.findAndFound({ input : 'sample', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 
@@ -150,7 +150,7 @@ function testAutoHighlightAndModeSwitch()
 	field.focus();
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	assert.highlightCheck(true, false);
-	assert.found('sample')
+	assert.findAndFound({ input : 'sample', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
@@ -180,17 +180,17 @@ function testAutoHighlightAndFindAnotherWordNative()
 
 	assert.equals(XMigemoUI.FIND_MODE_NATIVE, XMigemoUI.findMode);
 	assert.highlightCheck(true, false);
-	assert.found('sample')
+	assert.findAndFound({ input : 'sample', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 
-	assert.found('word1, out of text field')
+	assert.findAndFound({ input : 'word1, out of text field', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(6, getHighlightCount());
 
-	assert.found('word3, out of text field')
+	assert.findAndFound({ input : 'word3, out of text field', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
@@ -206,22 +206,22 @@ function testAutoHighlightAndFindAnotherWordRegExp()
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_REGEXP;
 	assert.highlightCheck(true, false);
 
-	assert.found('sample')
+	assert.findAndFound({ input : 'sample', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 
-	assert.found('word1, out of text field')
+	assert.findAndFound({ input : 'word1, out of text field', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(6, getHighlightCount());
 
-	assert.found('word3, out of text field')
+	assert.findAndFound({ input : 'word3, out of text field', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 
-	assert.found('word[13], out of text field')
+	assert.findAndFound({ input : 'word[13], out of text field', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(8, getHighlightCount());
@@ -237,22 +237,22 @@ function testAutoHighlightAndFindAnotherWordMigemo()
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_MIGEMO;
 
 	assert.highlightCheck(true, false);
-	assert.found('sample')
+	assert.findAndFound({ input : 'sample', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 
-	assert.found('word1, out of text field')
+	assert.findAndFound({ input : 'word1, out of text field', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(6, getHighlightCount());
 
-	assert.found('word3, out of text field')
+	assert.findAndFound({ input : 'word3, out of text field', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(2, getHighlightCount());
 
-	assert.found('nihongo')
+	assert.findAndFound({ input : 'nihongo', wait : 1500, ignoreFoundRange : true })
 	utils.wait(WAIT);
 	assert.highlightCheck(false, true);
 	assert.equals(4, getHighlightCount());

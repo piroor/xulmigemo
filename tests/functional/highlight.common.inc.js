@@ -14,18 +14,6 @@ assert.highlightCheck = function(aDisabled, aChecked, aMessage) {
 		assert.isFalse(check.checked, aMessage);
 }
 
-assert.found = function(aTerm, aMessage) {
-	action.inputTo(field, aTerm);
-	utils.wait(1500);
-	assert.notEquals('notfound', field.getAttribute('status'), aMessage);
-}
-
-assert.nofFound = function(aTerm, aMessage) {
-	action.inputTo(field, aTerm);
-	utils.wait(1500);
-	assert.equals('notfound', field.getAttribute('status'), aMessage);
-}
-
 function selectTextInPage()
 {
 	var selection = content.getSelection();
@@ -45,10 +33,10 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 	XMigemoUI.caseSensitiveCheck.checked = false;
 	field.focus();
 
-	assert.found(aOKShort, message);
+	assert.findAndFound({ input : aOKShort, wait : 1500, ignoreFoundRange : true })
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
-	assert.found(aOKLong, message);
+	assert.findAndFound({ input : aOKLong, wait : 1500, ignoreFoundRange : true })
 	assert.isTrue(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, true, message);
 	var xpathResult = content.document.evaluate(
@@ -59,10 +47,10 @@ function autoHighlightTest(aMode, aOKShort, aOKLong, aNGShort, aNGLong, aOKLongN
 		null
 	);
 	assert.equals(aOKLongNum, xpathResult.snapshotLength, message);
-	assert.nofFound(aNGShort, message);
+	assert.findAndNofFound({ input : aNGShort, wait : 1500 });
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
-	assert.nofFound(aNGLong, message);
+	assert.findAndNofFound({ input : aNGLong, wait : 1500 });
 	assert.isFalse(XMigemoUI.shouldHighlightAll);
 	assert.highlightCheck(false, false, message);
 

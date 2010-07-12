@@ -2,18 +2,6 @@ var description = 'フレームを使用したページのテスト';
 
 utils.include('common.inc.js');
 
-assert.found = function(aTerm, aDocument) {
-	var range = XMigemoUI.lastFoundRange;
-	assert.isTrue(range);
-	if (aTerm) assert.equals(aTerm, range.toString());
-	assert.equals(aDocument.URL, range.startContainer.ownerDocument.URL);
-}
-
-assert.findAgain = function(aKeyOptions, aTimes, aTerm, aDocument) {
-	keypressMultiply([field].concat(aKeyOptions), aTimes)
-	assert.found(aTerm, aDocument);
-}
-
 function tearDown()
 {
 	commonTearDown();
@@ -33,30 +21,28 @@ function testFindInFrame()
 	var firstDoc = $('frame1', content).contentDocument;
 	var secondDoc = $('frame2', content).contentDocument;
 
-	action.inputTo(field, 'nihongo');
-	utils.wait(WAIT);
-	assert.found('日本語', firstDoc);
+	assert.findAndFound({ input : 'nihongo', found : '日本語', ownerDocument : firstDoc });
 
 	var key = ['return'];
-	assert.findAgain(key, 1, 'にほんご', firstDoc)
-	assert.findAgain(key, 1, 'ニホンゴ', firstDoc)
-	assert.findAgain(key, 1, 'nihongo', firstDoc)
-	assert.findAgain(key, 1, '日本語', secondDoc)
-	assert.findAgain(key, 1, 'にほんご', secondDoc)
-	assert.findAgain(key, 1, 'ニホンゴ', secondDoc)
-	assert.findAgain(key, 1, 'nihongo', secondDoc)
-	assert.findAgain(key, 1, '日本語', firstDoc)
+	assert.findAgain({ keyOptions : key, found : 'にほんご', ownerDocument : firstDoc })
+	assert.findAgain({ keyOptions : key, found : 'ニホンゴ', ownerDocument : firstDoc })
+	assert.findAgain({ keyOptions : key, found : 'nihongo', ownerDocument : firstDoc })
+	assert.findAgain({ keyOptions : key, found : '日本語', ownerDocument : secondDoc })
+	assert.findAgain({ keyOptions : key, found : 'にほんご', ownerDocument : secondDoc })
+	assert.findAgain({ keyOptions : key, found : 'ニホンゴ', ownerDocument : secondDoc })
+	assert.findAgain({ keyOptions : key, found : 'nihongo', ownerDocument : secondDoc })
+	assert.findAgain({ keyOptions : key, found : '日本語', ownerDocument : firstDoc })
 
 	key = ['return', { shiftKey : true }];
-	assert.findAgain(key, 1, 'nihongo', secondDoc)
-	assert.findAgain(key, 1, 'ニホンゴ', secondDoc)
-	assert.findAgain(key, 1, 'にほんご', secondDoc)
-	assert.findAgain(key, 1, '日本語', secondDoc)
-	assert.findAgain(key, 1, 'nihongo', firstDoc)
-	assert.findAgain(key, 1, 'ニホンゴ', firstDoc)
-	assert.findAgain(key, 1, 'にほんご', firstDoc)
-	assert.findAgain(key, 1, '日本語', firstDoc)
-	assert.findAgain(key, 1, 'nihongo', secondDoc)
+	assert.findAgain({ keyOptions : key, found : 'nihongo', ownerDocument : secondDoc })
+	assert.findAgain({ keyOptions : key, found : 'ニホンゴ', ownerDocument : secondDoc })
+	assert.findAgain({ keyOptions : key, found : 'にほんご', ownerDocument : secondDoc })
+	assert.findAgain({ keyOptions : key, found : '日本語', ownerDocument : secondDoc })
+	assert.findAgain({ keyOptions : key, found : 'nihongo', ownerDocument : firstDoc })
+	assert.findAgain({ keyOptions : key, found : 'ニホンゴ', ownerDocument : firstDoc })
+	assert.findAgain({ keyOptions : key, found : 'にほんご', ownerDocument : firstDoc })
+	assert.findAgain({ keyOptions : key, found : '日本語', ownerDocument : firstDoc })
+	assert.findAgain({ keyOptions : key, found : 'nihongo', ownerDocument : secondDoc })
 
 }
 
@@ -73,16 +59,14 @@ function testNotFound()
 	var rootDoc = content.document;
 	var frameDoc = content.frames[0].document;
 
-	action.inputTo(field, 'nihongo');
-	utils.wait(WAIT);
-	assert.found('日本語', rootDoc);
+	assert.findAndFound({ input : 'nihongo', found : '日本語', ownerDocument : rootDoc });
 
 	var key = ['return'];
-	assert.findAgain(key, 1, 'にほんご', rootDoc)
-	assert.findAgain(key, 1, 'ニホンゴ', rootDoc)
-	assert.findAgain(key, 1, 'nihongo', rootDoc)
+	assert.findAgain({ keyOptions : key, found : 'にほんご', ownerDocument : rootDoc })
+	assert.findAgain({ keyOptions : key, found : 'ニホンゴ', ownerDocument : rootDoc })
+	assert.findAgain({ keyOptions : key, found : 'nihongo', ownerDocument : rootDoc })
 
 	key = ['return', { shiftKey : true }];
-	assert.findAgain(key, 1, 'ニホンゴ', rootDoc)
-	assert.findAgain(key, 1, 'にほんご', rootDoc)
+	assert.findAgain({ keyOptions : key, found : 'ニホンゴ', ownerDocument : rootDoc })
+	assert.findAgain({ keyOptions : key, found : 'にほんご', ownerDocument : rootDoc })
 }
