@@ -19,41 +19,26 @@ var XMigemoService = {
  
 	get ObserverService() 
 	{
-		if (!this._ObserverService)
-			this._ObserverService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
-		return this._ObserverService;
+		delete this.ObserverService;
+		return this.ObserverService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
 	},
-	_ObserverService : null,
  
 	get WindowManager() 
 	{
-		if (!this._WindowManager)
-			this._WindowManager = Cc['@mozilla.org/appshell/window-mediator;1'].getService(Ci.nsIWindowMediator);
-		return this._WindowManager;
+		delete this.WindowManager;
+		return this.WindowManager = Cc['@mozilla.org/appshell/window-mediator;1'].getService(Ci.nsIWindowMediator);
 	},
-	_WindowManager : null,
  
 	get WindowWatcher() 
 	{
-		if (!this._WindowWatcher)
-			this._WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1'].getService(Ci.nsIWindowWatcher);
-		return this._WindowWatcher;
+		delete this.WindowWatcher;
+		return this.WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1'].getService(Ci.nsIWindowWatcher);
 	},
-	_WindowWatcher : null,
  
 	get textUtils() { 
-		if (!this._TextUtils) {
-			try {
-				this._TextUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-					.getService(Ci.xmIXMigemoTextUtils);
-			}
-			catch(e) {
-				throw e;
-			}
-		}
-		return this._TextUtils;
+		delete this.textUtils;
+		return this.textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1'].getService(Ci.xmIXMigemoTextUtils);
 	},
-	_TextUtils : null,
  
 	get animationManager() { 
 		return this.namespace.animationManager;
@@ -64,27 +49,34 @@ var XMigemoService = {
 	},
  
 	get XULAppInfo() { 
-		if (!this._XULAppInfo) {
-			this._XULAppInfo = Cc['@mozilla.org/xre/app-info;1']
+		delete this.XULAppInfo;
+		return this.XULAppInfo = Cc['@mozilla.org/xre/app-info;1']
 								.getService(Ci.nsIXULAppInfo)
 								.QueryInterface(Ci.nsIXULRuntime);
-		}
-		return this._XULAppInfo;
 	},
-	_XULAppInfo : null,
+ 
+	get isWindows() { 
+		delete this.isWindows;
+		return this.isWindows = this.XULAppInfo.OS.toLowerCase().indexOf('win') > -1;
+	},
+	get isMac() { 
+		delete this.isMac;
+		return this.isMac = this.XULAppInfo.OS.toLowerCase().indexOf('darwin') > -1;
+	},
+	get isLinux() { 
+		delete this.isLinux;
+		return this.isLinux = this.XULAppInfo.OS.toLowerCase().indexOf('linux') > -1;
+	},
+ 
 	get Comparator() {
-		if (!this._Comparator) {
-			this._Comparator = Cc['@mozilla.org/xpcom/version-comparator;1'].getService(Ci.nsIVersionComparator);
-		}
-		return this._Comparator;
+		delete this.Comparator;
+		return this.Comparator = Cc['@mozilla.org/xpcom/version-comparator;1'].getService(Ci.nsIVersionComparator);
 	},
-	_Comparator : null,
  
 	get strbundle() 
 	{
-		if (!this._strbundle)
-			this._strbundle = this.stringBundle.get('chrome://xulmigemo/locale/xulmigemo.properties');
-		return this._strbundle;
+		delete this.strbundle;
+		return this.strbundle = this.stringBundle.get('chrome://xulmigemo/locale/xulmigemo.properties');
 	},
  
 	firstListenPrefChange : function(aObserver, aList) 

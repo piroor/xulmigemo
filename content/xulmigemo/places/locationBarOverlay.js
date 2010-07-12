@@ -1153,7 +1153,6 @@ XMigemoAutoCompletePopupController.prototype = {
 		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
 		var input = this.input;
 		var popup = input.popup;
-		var isMac = navigator.platform.toLowerCase().indexOf('mac') == 0;
 		if (
 			this.isMigemoResult &&
 			(
@@ -1180,7 +1179,7 @@ XMigemoAutoCompletePopupController.prototype = {
 				return true;
 			}
 			else if (
-				!isMac ||
+				!XMigemoService.isMac ||
 				(
 					aKey == nsIDOMKeyEvent.DOM_VK_UP ?
 					(
@@ -1207,7 +1206,7 @@ XMigemoAutoCompletePopupController.prototype = {
 			(
 				aKey == nsIDOMKeyEvent.DOM_VK_LEFT ||
 				aKey == nsIDOMKeyEvent.DOM_VK_RIGHT ||
-				(!isMac && aKey == nsIDOMKeyEvent.DOM_VK_HOME)
+				(!XMigemoService.isMac && aKey == nsIDOMKeyEvent.DOM_VK_HOME)
 			)
 			) {
 			if (popup.popupOpen) {

@@ -14,10 +14,8 @@ var XMigemoUI = {
 	kINACTIVATE_IME    : '_moz-xmigemo-inactivate-ime',
 	get IMEAttribute()
 	{
-		return this.isLinux ? this.kDISABLE_IME : this.kINACTIVATE_IME ;
+		return XMigemoService.isLinux ? this.kDISABLE_IME : this.kINACTIVATE_IME ;
 	},
-
-	isLinux : (navigator.platform.toLowerCase().indexOf('linux') > -1),
 
 	kXHTMLNS : 'http://www.w3.org/1999/xhtml',
 
@@ -53,22 +51,22 @@ var XMigemoUI = {
 		'1' : Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO,
 		'2' : Components.interfaces.xmIXMigemoFind.FIND_MODE_REGEXP
 	},
-	upgradeFindModePrefs : function()
+	upgradePrefs : function()
 	{
-		var modeVersion = XMigemoService.getPref('xulmigemo.findMode.version') || 1;
-		if (modeVersion == this.findModeVersion) return;
+		var current = XMigemoService.getPref('xulmigemo.findMode.version') || 1;
+		if (current == this.findModeVersion) return;
 
-		var table = 'findModeFrom'+modeVersion+'To'+this.findModeVersion;
-		if (!(table in this)) return;
-
-		table = this[table];
-		'xulmigemo.findMode.default xulmigemo.findMode.always'
-			.split(' ')
-			.forEach(function(aPref) {
-				var value = XMigemoService.getPref(aPref);
-				if (value != XMigemoService.getDefaultPref(aPref) && value in table)
-					XMigemoService.setPref(aPref, table[value]);
-			}, this);
+		var table = 'findModeFrom'+current+'To'+this.findModeVersion;
+		if (table in this) {
+			table = this[table];
+			'xulmigemo.findMode.default xulmigemo.findMode.always'
+				.split(' ')
+				.forEach(function(aPref) {
+					var value = XMigemoService.getPref(aPref);
+					if (value != XMigemoService.getDefaultPref(aPref) && value in table)
+						XMigemoService.setPref(aPref, table[value]);
+				}, this);
+		}
 
 		XMigemoService.setPref('xulmigemo.findMode.version', this.findModeVersion);
 	},
@@ -2609,7 +2607,7 @@ var XMigemoUI = {
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 
-		this.upgradeFindModePrefs();
+		this.upgradePrefs();
 
 		this.overrideExtensionsOnInitBefore(); // hacks.js
 
