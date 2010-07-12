@@ -2096,7 +2096,6 @@ var XMigemoUI = {
 				'var retRange = null;',
 				<![CDATA[
 					if (XMigemoUI.isActive || !XMigemoUI.highlightSelectionOnly) {
-						if (!aHighlight) XMigemoUI.clearHighlight(doc);
 						if (XMigemoUI.highlightText(aHighlight, aWord, null, this._searchRange)) {
 							this._lastHighlightString = aWord;
 							return true;
@@ -2386,6 +2385,8 @@ var XMigemoUI = {
 		var doc = aRange.startContainer.ownerDocument || aRange.startContainer;
 		if (!this.highlightSelectionOnly && !aBaseNode)
 			aBaseNode = this.createNewHighlight(doc);
+
+		this.clearHighlight(doc);
 
 		var ranges = !aDoHighlight ?
 				[XMigemoCore.regExpFind(regexp, flags, aRange)] :
