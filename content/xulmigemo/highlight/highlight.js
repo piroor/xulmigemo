@@ -17,9 +17,11 @@ var XMigemoHighlight = {
 	kANIMATION : '__moz_xmigemo-find-highlight-animation',
 
 	kANIMATION_NODE : '__mozilla-findbar-animation',
+	kHIGHLIGHT_FOCUSED : '__mozilla-findbar-search-focused',
 
-	kHIGHLIGHTS : 'ancestor-or-self::*[@class="__mozilla-findbar-search"]',
-	kANIMATIONS : 'descendant::*[@class="__mozilla-findbar-animation"]',
+	kHIGHLIGHTS : 'ancestor-or-self::*[contains(@class, "__mozilla-findbar-search")]',
+	kFOCUSED_HIGHLIGHTS : 'descendant::*[@__mozilla-findbar-search-focused="true"]',
+	kANIMATIONS : 'descendant::*[contains(@class, "__mozilla-findbar-animation")]',
 	
 	init : function() 
 	{
@@ -722,6 +724,20 @@ var XMigemoHighlight = {
 
 		var doc = aNode.ownerDocument;
 		doc.documentElement.setAttribute(this.kANIMATION, true);
+
+		var nodes = doc.evaluate(
+				this.kFOCUSED_HIGHLIGHTS,
+				doc,
+				null,
+				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+				null
+			);
+		for (let i = nodes.snapshotLength-1; i > -1; i--)
+		{
+			nodes.snapshotItem(i).removeAttribute(this.kHIGHLIGHT_FOCUSED);
+		}
+
+		aNode.setAttribute(this.kHIGHLIGHT_FOCUSED, true);
 
 		switch (this.animationStyle)
 		{

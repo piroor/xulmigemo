@@ -1,5 +1,5 @@
 var kSCREEN = '__moz_xmigemo-find-highlight-screen';
-var kHIGHLIGHTS = 'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search" or @class="__mozilla-findbar-animation"]';
+var kHIGHLIGHTS = 'descendant::*[@id="__firefox-findbar-search-id" or contains(@class, "__mozilla-findbar-search") or contains(@class, "__mozilla-findbar-animation")]';
 var kMARKER_CANVAS = '__moz_xmigemo-found-marker-canvas';
 
 assert.highlightCheck = function(aDisabled, aChecked, aMessage) {
