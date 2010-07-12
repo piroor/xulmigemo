@@ -2148,19 +2148,15 @@ var XMigemoUI = {
 			).replace(
 				/(return res;)/,
 				'XMigemoFind.scrollSelectionToCenter(null, true); $1'
-			).replace(
-				'{',
-				<![CDATA[{
-					if (XMigemoUI.findMode != XMigemoUI.FIND_MODE_NATIVE) {
-						if (aFindPrevious)
-							XMigemoFind.findPrevious();
-						else
-							XMigemoFind.findNext();
-						return;
-					}
-				]]>.toString()
 			)
 		);
+		gFindBar.xmigemoOriginalOnFindAgainCommand = gFindBar.onFindAgainCommand;
+		gFindBar.onFindAgainCommand = function(aFindPrevious) {
+			if (aFindPrevious)
+				XMigemoUI.findPrevious();
+			else
+				XMigemoUI.findNext();
+		};
 
 		eval('gFindBar.onFindCommand = '+gFindBar.onFindCommand.toSource()
 			.replace('{', '$& XMigemoUI.onFindStartCommand();')
@@ -2487,7 +2483,7 @@ var XMigemoUI = {
 				XMigemoUI.isModeChanged = false;
 				return;
 			}
-			gFindBar.onFindAgainCommand(false);
+			gFindBar.xmigemoOriginalOnFindAgainCommand(false);
 		}
 	},
  
@@ -2517,7 +2513,7 @@ var XMigemoUI = {
 				XMigemoUI.isModeChanged = false;
 				return;
 			}
-			gFindBar.onFindAgainCommand(true);
+			gFindBar.xmigemoOriginalOnFindAgainCommand(true);
 		}
 	},
  
