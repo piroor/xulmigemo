@@ -26,6 +26,11 @@
 	-moz-box-shadow: 0.25em 0.25em 0.5em rgba(0, 0, 0, 0.4);
 }
 
+:root[__moz_xmigemo-find-highlight-animation="true"] [__mozilla-findbar-search-focused="true"] {
+	z-index: 3000050 !important;
+	-moz-box-shadow: 0.25em 0.25em 0.8em rgba(0, 0, 0, 1);
+}
+
 .__mozilla-findbar-animation {
 	display: none !important;
 }
