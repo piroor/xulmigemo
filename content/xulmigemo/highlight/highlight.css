@@ -23,6 +23,7 @@
 	position: relative !important;
 	z-index: 3000000 !important;
 	text-shadow: none !important;
+	-moz-box-shadow: 0.25em 0.25em 0.5em rgba(0, 0, 0, 0.4);
 }
 
 .__mozilla-findbar-animation {
