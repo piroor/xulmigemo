@@ -66,7 +66,7 @@ var XMigemoUI = {
 			.split(' ')
 			.forEach(function(aPref) {
 				var value = XMigemoService.getPref(aPref);
-				if (value !== null && value in table)
+				if (value != XMigemoService.getDefaultPref(aPref) && value in table)
 					XMigemoService.setPref(aPref, table[value]);
 			}, this);
 
