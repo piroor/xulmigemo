@@ -1051,7 +1051,7 @@ xmXMigemoCore.prototype = {
 	collectHighlightNodes : function(aDocument, aTarget) 
 	{
 		var xpathResult = aDocument.evaluate(
-				'descendant::*[@id="__firefox-findbar-search-id" or @class="__mozilla-findbar-search"]',
+				'descendant::*[@class="__mozilla-findbar-search"]',
 				aTarget,
 				null,
 				Ci.nsIDOMXPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
