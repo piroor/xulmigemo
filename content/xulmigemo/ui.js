@@ -2002,13 +2002,6 @@ var XMigemoUI = {
 		// for View Source etc.
 		if (!('gFindBar' in window)) window.gFindBar = this.findBar;
 
-		gFindBar.xmigemoOriginalFindNext = function() {
-			gFindBar.xmigemoOriginalOnFindAgainCommand(false);
-		};
-		gFindBar.xmigemoOriginalFindPrevious = function() {
-			gFindBar.xmigemoOriginalOnFindAgainCommand(true);
-		};
-
 		gFindBar.xmigemoOriginalEnableFindButtons = gFindBar._enableFindButtons;
 		gFindBar._enableFindButtons = this.enableFindButtons;
 
@@ -2051,18 +2044,6 @@ var XMigemoUI = {
 			.replace(
 				/(this._updateStatusUI\([^\)]*\))/,
 				'$1; XMigemoFind.scrollSelectionToCenter(null, true);'
-			)
-		);
-		eval('gFindBar.xmigemoOriginalFindNext = '+gFindBar.xmigemoOriginalFindNext.toSource()
-			.replace(
-				/(return res;)/,
-				'XMigemoFind.scrollSelectionToCenter(null, true); $1'
-			)
-		);
-		eval('gFindBar.xmigemoOriginalFindPrevious = '+gFindBar.xmigemoOriginalFindPrevious.toSource()
-			.replace(
-				/(return res;)/,
-				'XMigemoFind.scrollSelectionToCenter(null, true); $1'
 			)
 		);
 
@@ -2161,15 +2142,26 @@ var XMigemoUI = {
 		);
 
 		eval('gFindBar.onFindAgainCommand = '+gFindBar.onFindAgainCommand.toSource()
-			.replace(/([^=\s]+\.(find|search)String)/g, 'XMigemoUI.getLastFindString($1)')
+			.replace(
+				/([^=\s]+\.(find|search)String)/g,
+				'XMigemoUI.getLastFindString($1)'
+			).replace(
+				/(return res;)/,
+				'XMigemoFind.scrollSelectionToCenter(null, true); $1'
+			).replace(
+				'{',
+				<![CDATA[{
+					if (XMigemoUI.findMode != XMigemoUI.FIND_MODE_NATIVE) {
+						if (aFindPrevious)
+							XMigemoFind.findPrevious();
+						else
+							XMigemoFind.findNext();
+						return;
+					}
+				]]>.toString()
+			)
 		);
-		gFindBar.xmigemoOriginalOnFindAgainCommand = gFindBar.onFindAgainCommand;
-		gFindBar.onFindAgainCommand = function(aFindPrevious) {
-			if (aFindPrevious)
-				XMigemoFind.findPrevious();
-			else
-				XMigemoFind.findNext();
-		};
+
 		eval('gFindBar.onFindCommand = '+gFindBar.onFindCommand.toSource()
 			.replace('{', '$& XMigemoUI.onFindStartCommand();')
 		);
@@ -2495,7 +2487,7 @@ var XMigemoUI = {
 				XMigemoUI.isModeChanged = false;
 				return;
 			}
-			gFindBar.xmigemoOriginalFindNext();
+			gFindBar.onFindAgainCommand(false);
 		}
 	},
  
@@ -2525,7 +2517,7 @@ var XMigemoUI = {
 				XMigemoUI.isModeChanged = false;
 				return;
 			}
-			gFindBar.xmigemoOriginalFindPrevious();
+			gFindBar.onFindAgainCommand(true);
 		}
 	},
  
