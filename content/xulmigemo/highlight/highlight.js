@@ -255,7 +255,8 @@ var XMigemoHighlight = {
  
 	onMouseUp : function(aEvent) 
 	{
-		if (aEvent.originalTarget.ownerDocument.defaultView.top == window.top ||
+		var doc = aEvent.originalTarget.ownerDocument || aEvent.originalTarget;
+		if (doc.defaultView.top == window.top ||
 			XMigemoService.isEventFiredOnScrollBar(aEvent) ||
 			!XMigemoUI.activeBrowser.contentWindow ||
 			!XMigemoUI.activeBrowser.contentWindow.__moz_xmigemoHighlightedScreen)
