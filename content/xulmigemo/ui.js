@@ -2143,9 +2143,6 @@ var XMigemoUI = {
 			.replace(
 				/([^=\s]+\.(find|search)String)/g,
 				'XMigemoUI.getLastFindString($1)'
-			).replace(
-				/(return res;)/,
-				'XMigemoFind.scrollSelectionToCenter(null, true); $1'
 			)
 		);
 		gFindBar.xmigemoOriginalOnFindAgainCommand = gFindBar.onFindAgainCommand;
