@@ -50,8 +50,6 @@ XMigemoStartupService.prototype = {
 		this.updateGlobalStyleSheets();
 
 		if (this.Prefs.getCharPref('xulmigemo.lang') == '') {
-			var WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
-				.getService(Ci.nsIWindowWatcher);
 			this.WindowWatcher.openWindow(
 				null,
 				'chrome://xulmigemo/content/initializer/langchooser.xul',
@@ -90,23 +88,33 @@ XMigemoStartupService.prototype = {
 	
 	get ObserverService() 
 	{
-		delete this.ObserverService;
-		return this.ObserverService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
+		if (this._ObserverService === void(0))
+			this._ObserverService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
+		return this._ObserverService;
 	},
-	get IOService() 
+	get IOService()
 	{
-		delete this.IOService;
-		return this.IOService = Cc['@mozilla.org/network/io-service;1'].getService(Ci.nsIIOService);
+		if (this._IOService === void(0))
+			this._IOService = Cc['@mozilla.org/network/io-service;1'].getService(Ci.nsIIOService);
+		return this._IOService;
 	},
-	get Prefs() 
+	get Prefs()
 	{
-		delete this.Prefs;
-		return this.Prefs = Cc['@mozilla.org/preferences;1'].getService(Ci.nsIPrefBranch);
+		if (this._Prefs === void(0))
+			this._Prefs = Cc['@mozilla.org/preferences;1'].getService(Ci.nsIPrefBranch);
+		return this._Prefs;
 	},
-	get SSS() 
+	get WindowWatcher()
 	{
-		delete this.SSS;
-		return this.SSS = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
+		if (this._WindowWatcher === void(0))
+			this._WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1'].getService(Ci.nsIWindowWatcher);
+		return this._WindowWatcher;
+	},
+	get SSS()
+	{
+		if (this._SSS === void(0))
+			this._SSS = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
+		return this._SSS;
 	}
   
 }; 
