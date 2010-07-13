@@ -2,15 +2,6 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-const ObserverService = Cc['@mozilla.org/observer-service;1']
-		.getService(Ci.nsIObserverService);
-
-const IOService = Cc['@mozilla.org/network/io-service;1']
-		.getService(Ci.nsIIOService);
-
-const Prefs = Cc['@mozilla.org/preferences;1']
-		.getService(Ci.nsIPrefBranch);
  
 function XMigemoStartupService() { 
 }
@@ -33,22 +24,22 @@ XMigemoStartupService.prototype = {
 		{
 			case 'app-startup':
 				if (!this.initialized) {
-					ObserverService.addObserver(this, 'profile-after-change', false);
+					this.ObserverService.addObserver(this, 'profile-after-change', false);
 					this.initialized = true;
 				}
 				return;
 
 			case 'profile-after-change':
-				ObserverService.addObserver(this, 'final-ui-startup', false);
+				this.ObserverService.addObserver(this, 'final-ui-startup', false);
 				if (this.initialized) {
-					ObserverService.removeObserver(this, 'profile-after-change');
+					this.ObserverService.removeObserver(this, 'profile-after-change');
 					this.initialized = false;
 				}
 				this.init();
 				return;
 
 			case 'final-ui-startup':
-				ObserverService.removeObserver(this, 'final-ui-startup');
+				this.ObserverService.removeObserver(this, 'final-ui-startup');
 				this.postInit();
 				return;
 		}
@@ -56,13 +47,12 @@ XMigemoStartupService.prototype = {
  
 	init : function() 
 	{
-		if (this.SSS)
-			this.updateGlobalStyleSheets();
+		this.updateGlobalStyleSheets();
 
-		if (Prefs.getCharPref('xulmigemo.lang') == '') {
+		if (this.Prefs.getCharPref('xulmigemo.lang') == '') {
 			var WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
 				.getService(Ci.nsIWindowWatcher);
-			WindowWatcher.openWindow(
+			this.WindowWatcher.openWindow(
 				null,
 				'chrome://xulmigemo/content/initializer/langchooser.xul',
 				'xulmigemo:langchooser',
@@ -74,9 +64,9 @@ XMigemoStartupService.prototype = {
  
 	postInit : function() 
 	{
-		ObserverService.notifyObservers(null, 'XMigemo:initialized', null);
+		this.ObserverService.notifyObservers(null, 'XMigemo:initialized', null);
 
-		if (Prefs.getCharPref('xulmigemo.lang')) {
+		if (this.Prefs.getCharPref('xulmigemo.lang')) {
 			Cc['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
 				.getService(Ci.xmIXMigemoDicManager)
 				.init(null, null);
@@ -91,26 +81,33 @@ XMigemoStartupService.prototype = {
 				'chrome://xulmigemo/content/marker/marker.css'
 			];
 		sheets.forEach(function(aSheet) {
-			var sheet = IOService.newURI(aSheet, null, null);
+			var sheet = this.IOService.newURI(aSheet, null, null);
 			if (!this.SSS.sheetRegistered(sheet, this.SSS.AGENT_SHEET)) {
 				this.SSS.loadAndRegisterSheet(sheet, this.SSS.AGENT_SHEET);
 			}
 		}, this);
 	},
 	
+	get ObserverService() 
+	{
+		delete this.ObserverService;
+		return this.ObserverService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
+	},
+	get IOService() 
+	{
+		delete this.IOService;
+		return this.IOService = Cc['@mozilla.org/network/io-service;1'].getService(Ci.nsIIOService);
+	},
+	get Prefs() 
+	{
+		delete this.Prefs;
+		return this.Prefs = Cc['@mozilla.org/preferences;1'].getService(Ci.nsIPrefBranch);
+	},
 	get SSS() 
 	{
-		if (this._SSS === void(0)) {
-			if ('@mozilla.org/content/style-sheet-service;1' in Cc) {
-				this._SSS = Cc['@mozilla.org/content/style-sheet-service;1']
-						.getService(Ci.nsIStyleSheetService);
-			}
-			if (!this._SSS)
-				this._SSS = null;
-		}
-		return this._SSS;
+		delete this.SSS;
+		return this.SSS = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
 	}
-//	_SSS : null,
   
 }; 
   
