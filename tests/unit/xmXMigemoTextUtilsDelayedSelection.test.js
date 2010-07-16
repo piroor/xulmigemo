@@ -7,13 +7,13 @@ var textUtils;
 function setUp()
 {
 	textUtils = new xmXMigemoTextUtils();
-	utils.wait(utils.loadURI('../fixtures/highlighted.html'));
+	utils.loadURI('../fixtures/highlighted.html');
 }
 
 function tearDown()
 {
 	textUtils = null;
-	utils.wait(utils.loadURI());
+	utils.loadURI();
 }
 
 function getHighlights()

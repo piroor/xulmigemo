@@ -38,7 +38,7 @@ function test_getRegExpFor(aParameter)
 
 function test_regExpFind_forHiddenTargets()
 {
-	utils.wait(utils.loadURI('../fixtures/containsHiddenMatchTarget.html'));
+	utils.loadURI('../fixtures/containsHiddenMatchTarget.html');
 
 	range = content.document.createRange();
 	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
@@ -55,7 +55,7 @@ function test_regExpFind_forHiddenTargets()
 
 function test_regExpFindArr_forHiddenTargets()
 {
-	utils.wait(utils.loadURI('../fixtures/containsHiddenMatchTarget.html'));
+	utils.loadURI('../fixtures/containsHiddenMatchTarget.html');
 
 	range = content.document.createRange();
 	range.selectNodeContents(content.document.getElementsByTagName('body')[0]);
@@ -90,20 +90,20 @@ function test_regExpHighlight()
 		destroyRange();
 	}
 
-	utils.wait(utils.loadURI('../fixtures/caseSensitive.html'));
+	utils.loadURI('../fixtures/caseSensitive.html');
 	assertMatchCount('firefox', '', 3);
 
-	utils.wait(utils.loadURI('../fixtures/caseSensitive.html'));
+	utils.loadURI('../fixtures/caseSensitive.html');
 	assertMatchCount('firefox', 'i', 9);
 
-	utils.wait(utils.loadURI('../fixtures/keyEventTest.html'));
+	utils.loadURI('../fixtures/keyEventTest.html');
 	var input = content.document.getElementsByTagName('input')[0];
 	assertMatchCount('Text', '', 0,
 		input.QueryInterface(Ci.nsIDOMNSEditableElement)
 			.editor
 			.rootElement);
 
-	utils.wait(utils.loadURI('../fixtures/keyEventTest.html'));
+	utils.loadURI('../fixtures/keyEventTest.html');
 	input = content.document.getElementsByTagName('input')[0];
 	assertMatchCount('Text', 'i', 1,
 		input.QueryInterface(Ci.nsIDOMNSEditableElement)
@@ -134,20 +134,20 @@ function test_regExpHighlightSelection()
 		destroyRange();
 	}
 
-	utils.wait(utils.loadURI('../fixtures/caseSensitive.html'));
+	utils.loadURI('../fixtures/caseSensitive.html');
 	assertMatchCount('firefox', '', 3);
 
-	utils.wait(utils.loadURI('../fixtures/caseSensitive.html'));
+	utils.loadURI('../fixtures/caseSensitive.html');
 	assertMatchCount('firefox', 'i', 9);
 
-	utils.wait(utils.loadURI('../fixtures/keyEventTest.html'));
+	utils.loadURI('../fixtures/keyEventTest.html');
 	var input = content.document.getElementsByTagName('input')[0];
 	var selCon = input.QueryInterface(Ci.nsIDOMNSEditableElement)
 				.editor
 				.selectionController;
 	assertMatchCount('Text', '', 0, selCon);
 
-	utils.wait(utils.loadURI('../fixtures/keyEventTest.html'));
+	utils.loadURI('../fixtures/keyEventTest.html');
 	input = content.document.getElementsByTagName('input')[0];
 	selCon = input.QueryInterface(Ci.nsIDOMNSEditableElement)
 				.editor

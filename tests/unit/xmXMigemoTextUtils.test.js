@@ -157,7 +157,7 @@ function test_splitByBoundaries()
 
 
 test_findFirstVisibleNode.setUp = function() {
-	utils.wait(utils.setUpTestWindow());
+	utils.setUpTestWindow();
 
 	var win = utils.getTestWindow();
 	win.resizeTo(500, 500);
@@ -183,17 +183,17 @@ function test_findFirstVisibleNode()
 		assert.equals(item, node);
 	}
 
-	utils.wait(utils.addTab(baseURL+'../fixtures/shortPage.html', { selected : true }));
+	utils.addTab(baseURL+'../fixtures/shortPage.html', { selected : true });
 	assertScrollAndFind(utils.contentDocument.documentElement, false);
 	assertScrollAndFind('p3', true);
 
-	utils.wait(utils.addTab(baseURL+'../fixtures/longPage.html', { selected : true }));
+	utils.addTab(baseURL+'../fixtures/longPage.html', { selected : true });
 	assertScrollAndFind(utils.contentDocument.documentElement, false);
 	assertScrollAndFind('p10', false);
 	assertScrollAndFind('p10', true);
 	assertScrollAndFind('p21', true);
 
-	utils.wait(utils.addTab(baseURL+'../fixtures/tooLongPage.html', { selected : true }));
+	utils.addTab(baseURL+'../fixtures/tooLongPage.html', { selected : true });
 	assertScrollAndFind(utils.contentDocument.documentElement, false);
 	assertScrollAndFind('p10', false);
 	assertScrollAndFind('p10', true);
