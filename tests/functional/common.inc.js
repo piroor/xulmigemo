@@ -19,10 +19,9 @@ var WAIT = 500;
 
 function commonSetUp(aURI)
 {
-	utils.wait(utils.setUpTestWindow());
+	utils.setUpTestWindow();
 
 	var retVal = utils.addTab(aURI);
-	utils.wait(retVal);
 
 	utils.setPref('browser.tabs.warnOnClose', false);
 	utils.setPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled', false);

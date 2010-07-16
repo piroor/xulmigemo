@@ -6,7 +6,7 @@ function setUp()
 {
 	utils.setPref('xulmigemo.lang', 'ja');
 	utils.setPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled', false);
-	utils.wait(utils.setUpTestWindow());
+	utils.setUpTestWindow();
 	findModule = new xmXMigemoFind();
 	findModule.target = utils.getTestWindow().gBrowser;
 	findModule.findMode = findModule.FIND_MODE_MIGEMO;
@@ -35,7 +35,7 @@ function assertFound(aTerm)
 
 function assertFindInSingleFrame()
 {
-	utils.wait(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
+	utils.loadURI(baseURL+'../fixtures/keyEventTest.html');
 
 	assertFindAndFound(false, 'nihongo', '日本語');
 	assertFindAndFound(false, 'nihongo', 'にほんご');
@@ -81,7 +81,7 @@ function testFindFromViewport()
 
 function assertFindInMultipleFrames()
 {
-	utils.wait(utils.loadURI(baseURL+'../fixtures/frameTest.html'));
+	utils.loadURI(baseURL+'../fixtures/frameTest.html');
 
 	function assertFindAndFoundInDocument(aBackward, aFindTerm, aFoundTerm, aFoundDocument) {
 		findModule.find(aBackward, aFindTerm, false);
@@ -146,7 +146,7 @@ function testFindInFrameFromViewport()
 
 
 testGetParentLinkFromRange.setUp = function() {
-	utils.wait(utils.loadURI(baseURL+'../fixtures/keyEventTest.html'));
+	utils.loadURI(baseURL+'../fixtures/keyEventTest.html');
 };
 function testGetParentLinkFromRange()
 {
@@ -167,7 +167,7 @@ function testGetParentLinkFromRange()
 
 testRegExpFind.setUp = function() {
 	findModule.findMode = findModule.FIND_MODE_REGEXP;
-	utils.wait(utils.loadURI(baseURL+'../fixtures/caseSensitive.html'));
+	utils.loadURI(baseURL+'../fixtures/caseSensitive.html');
 };
 function testRegExpFind()
 {
@@ -226,7 +226,7 @@ function testRegExpFind()
 testRegExpFindWithFlags.setUp = function() {
 	findModule.findMode = findModule.FIND_MODE_REGEXP;
 	findModule.caseSensitive = false;
-	utils.wait(utils.loadURI(baseURL+'../fixtures/caseSensitive.html'));
+	utils.loadURI(baseURL+'../fixtures/caseSensitive.html');
 };
 function testRegExpFindWithFlags()
 {

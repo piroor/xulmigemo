@@ -6,10 +6,9 @@ var originalWarnOnClose = utils.getPref('browser.tabs.warnOnClose');
 
 function normalSetUp(aURI)
 {
-	utils.wait(utils.setUpTestWindow());
+	utils.setUpTestWindow();
 
 	var retVal = utils.addTab(aURI);
-	utils.wait(retVal);
 
 	browser = utils.getBrowser();
 	browser.removeAllTabsBut(retVal.tab);
