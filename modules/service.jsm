@@ -98,7 +98,7 @@ var XMigemoService = {
 	
 	parseShortcut : function(aShortcut) 
 	{
-		var accelKey = this.XULAppInfo.OS.indexOf('Darwin') < 0 ? 'ctrl' : 'meta' ;
+		var accelKey = this.isMac ? 'meta' : 'ctrl' ;
 		aShortcut = aShortcut.replace(/accel/gi, accelKey);
 
 		var keys = aShortcut.split('+');
