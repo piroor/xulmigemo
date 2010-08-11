@@ -43,7 +43,7 @@ if (typeof window == 'undefined') {
 }
 
 (function() {
-	const currentRevision = 9;
+	const currentRevision = 11;
 
 	if (!('piro.sakura.ne.jp' in window)) window['piro.sakura.ne.jp'] = {};
 
@@ -206,7 +206,7 @@ if (typeof window == 'undefined') {
 			else {
 				AM.AddonManager.getAddonByID(aId, function(aAddon) {
 					var location = null;
-					if (aAddon && aAddon.isActive)
+					if (aAddon)
 						location = aAddon.getResourceURI('/').QueryInterface(Ci.nsIFileURL).file.clone();
 					aCallback(location);
 				});
@@ -216,14 +216,12 @@ if (typeof window == 'undefined') {
 		{
 			var addon = this._ExtensionManager.getInstallLocation(aId);
 			if (!addon) return null;
-			var dir = addon.location.clone();
-			dir.append(aId);
-			return dir;
+			return addon.getItemFile(aId, '').clone();
 		},
 		_getInstalledLocation_AM : function(aId)
 		{
 			var addon = this._getInstalledAddonNow(aId);
-			if (!addon || !addon.isActive) return null;
+			if (!addon) return null;
 			return addon.getResourceURI('/').QueryInterface(Ci.nsIFileURL).file.clone();
 		},
 
