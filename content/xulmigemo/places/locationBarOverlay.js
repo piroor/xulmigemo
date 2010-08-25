@@ -1059,7 +1059,7 @@ XMigemoAutoCompletePopupController.prototype = {
 		return this.controller.input = aValue;
 	},
  
-	get searchStatus(aValue) 
+	get searchStatus() 
 	{
 		return this.controller.searchStatus;
 	},
