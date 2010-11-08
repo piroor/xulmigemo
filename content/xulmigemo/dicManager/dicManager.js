@@ -409,9 +409,9 @@ function onChangeDictionary()
 	}
 }
 
-function initListContext()
+function initListContext(aPopup)
 {
-	var node = document.popupNode;
+	var node = aPopup.triggerNode || document.popupNode;
 	if (node.localName == 'listitem') node = node.parentNode;
 
 	var removeItem = document.getElementById('listContextRemoveTerm');

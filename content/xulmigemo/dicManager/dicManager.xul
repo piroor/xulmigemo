@@ -183,8 +183,8 @@
 	</hbox>
 
 	<popupset>
-		<popup id="list-context"
-			onpopupshowing="initListContext()">
+		<menupopup id="list-context"
+			onpopupshowing="initListContext(this)">
 			<menuitem disabled="true"
 				label="&dicManager.list.addTerm;"
 				oncommand="addTermList()"
@@ -198,7 +198,7 @@
 				label="&dicManager.list.removeTermEntry;"
 				oncommand="removeTermList(true)"
 				observes="listRemoveCommand"/>
-		</popup>
+		</menupopup>
 	</popupset>
 
 	<broadcasterset>
