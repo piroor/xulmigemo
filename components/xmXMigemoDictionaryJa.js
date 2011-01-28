@@ -307,23 +307,23 @@ xmXMigemoDictionaryJa.prototype = {
 		var systemDic = this.list[key];
 		var userDic   = this.list[key+'-user'];
 
-		var regexp = new RegExp();
+		var regexp;
 
 		if (aOperation == 'add') {
 			// デフォルトの辞書に入っている単語は追加しない
-			regexp.compile('^'+yomi+'\t(.+)$', 'm');
+			regexp = new RegExp('^'+yomi+'\t(.+)$', 'm');
 			if (regexp.test(systemDic)) {
 				var terms = RegExp.$1.split('\t').join('\n');
-				regexp.compile('^'+this.textUtils.sanitize(term)+'$', 'm');
+				regexp = new RegExp('^'+this.textUtils.sanitize(term)+'$', 'm');
 				if (regexp.test(terms))
 					return this.RESULT_ERROR_ALREADY_EXIST;
 			}
 		}
 
-		regexp.compile('^'+yomi+'\t(.+)$', 'm');
+		regexp = new RegExp('^'+yomi+'\t(.+)$', 'm');
 		if (regexp.test(userDic)) {
 			var terms = RegExp.$1.split('\t').join('\n');
-			regexp.compile('^'+this.textUtils.sanitize(term)+'$', 'm');
+			regexp = new RegExp('^'+this.textUtils.sanitize(term)+'$', 'm');
 			if ((aOperation == 'remove' && !term) || regexp.test(terms)) {
 				// ユーザ辞書にすでに登録済みである場合
 				switch (aOperation)
@@ -336,7 +336,7 @@ xmXMigemoDictionaryJa.prototype = {
 							terms = terms.replace(regexp, '').replace(/\n\n+/g, '\n').split('\n').join('\t');
 							mydump('terms:'+terms.replace(/\t/g, ' / '));
 							if (terms) {
-								regexp.compile('^('+yomi+'\t.+)$', 'm');
+								regexp = new RegExp('^('+yomi+'\t.+)$', 'm');
 								regexp.test(userDic);
 								entry = yomi + '\t' + terms.replace(/(^\t|\t$)/, '');
 								this.list[key+'-user'] = userDic.replace(regexp, entry);
@@ -344,7 +344,7 @@ xmXMigemoDictionaryJa.prototype = {
 							}
 						}
 
-						regexp.compile('\n?^('+yomi+'\t.+)\n?', 'm');
+						regexp = new RegExp('\n?^('+yomi+'\t.+)\n?', 'm');
 						entry = yomi + '\t';
 						this.list[key+'-user'] = userDic.replace(regexp, '');
 						break;
@@ -355,7 +355,7 @@ xmXMigemoDictionaryJa.prototype = {
 				switch (aOperation)
 				{
 					case 'add':
-						regexp.compile('^('+yomi+'\t.+)$', 'm');
+						regexp = new RegExp('^('+yomi+'\t.+)$', 'm');
 						regexp.test(userDic);
 						entry = RegExp.$1 + '\t' + term;
 						this.list[key+'-user'] = userDic.replace(regexp, entry);

@@ -625,11 +625,11 @@ var XMigemoPlaces = {
 				PLACE_FOR_START     : -1,
 				PLACE_FOR_RANGE     : -1
 			};
-		var regexp = new RegExp();
+		var regexp;
 		for (var i in offsets)
 		{
 			if (aSQL.indexOf('%'+i+'%') < 0) continue;
-			regexp.compile('%'+i+'%', 'g');
+			regexp = new RegExp('%'+i+'%', 'g');
 			offsets[i] = offset;
 			offset++;
 			aSQL = aSQL.replace(regexp, '?'+offset);

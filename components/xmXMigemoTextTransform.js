@@ -128,11 +128,10 @@ xmXMigemoTextTransform.prototype = {
 	removeLatinModifiers : function(aInput) 
 	{
 		var table = this.LATMOD;
-		var regexp = new RegExp();
 		return String(aInput).replace(this.MODPAT, function(aChar) {
 				for (var i in table)
 				{
-					regexp.compile('^('+table[i].char+')$', 'i')
+					regexp = new RegExp('^('+table[i].char+')$', 'i')
 					if (!regexp.test(aChar)) continue;
 					aChar = table[i].key;
 					break;

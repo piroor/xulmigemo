@@ -127,7 +127,7 @@ var XMigemoLocationBarOverlay = {
 			},
 			itemFilter : function(aItem, aTerms, aFindFlag) {
 				var target = XMigemoPlaces.getFindTargetsFromFlag(aItem, aFindFlag);
-				this.regexp.compile(
+				this.regexp = new RegExp(
 					'^(?:'+aTerms.map(function(aTerm) {
 						return XMigemoPlaces.textUtils.sanitize(aTerm);
 					}).join('|')+')',
@@ -171,7 +171,7 @@ var XMigemoLocationBarOverlay = {
 			},
 			itemFilter : function(aItem, aTerms, aFindFlag) {
 				var target = XMigemoPlaces.getFindTargetsFromFlag(aItem, aFindFlag);
-				this.regexp.compile(
+				this.regexp = new RegExp(
 					'^(?:'+aTerms.map(function(aTerm) {
 						return XMigemoPlaces.textUtils.sanitize(aTerm);
 					}).join('|')+')',
