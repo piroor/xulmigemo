@@ -95,7 +95,7 @@
 
 <!ENTITY config.tab.shortcut            "ショートカット">
 
-<!ENTITY config.shortcut.modeCirculation.before1 "検索中にもう一度Ctrl(Command)-Fを入力した時は、モードを">
+<!ENTITY config.shortcut.modeCirculation.before1 "検索中にもう一度Ctrl/⌘-Fを入力した時は、モードを">
 <!ENTITY config.shortcut.modeCirculation.before2 "  ">
 <!ENTITY config.shortcut.modeCirculation.native  "[通常]">
 <!ENTITY config.shortcut.modeCirculation.n2r     "→">

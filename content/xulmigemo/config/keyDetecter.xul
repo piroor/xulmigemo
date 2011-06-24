@@ -100,7 +100,7 @@ function keyboardShortcutToString(keyData)
 	var keys = [];
 	if (keyData.altKey)   keys.push('Alt');
 	if (keyData.ctrlKey)  keys.push('Ctrl(Control)');
-	if (keyData.metaKey)  keys.push('Meta(Command)');
+	if (keyData.metaKey)  keys.push('Meta(\u2318)');
 	if (keyData.shiftKey) keys.push('Shift');
 	if (keyData.key == ' ')
 		keys.push('Space');
