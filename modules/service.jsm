@@ -261,7 +261,9 @@ var XMigemoService = {
 			target;
 		while (targets.hasMoreElements())
 		{
-			target = targets.getNext().QueryInterface(Ci.nsIDOMWindowInternal);
+			target = targets.getNext().QueryInterface(Ci.nsIDOMWindow);
+			if ('nsIDOMWindowInternal' in Ci) // for Firefox 7 or olders
+				target = target.QueryInterface(Ci.nsIDOMWindowInternal);
 			if (target.location.href == uri) {
 				target.focus();
 				return;
