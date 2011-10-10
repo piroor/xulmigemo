@@ -1239,9 +1239,9 @@ var XMigemoUI = {
 				XMigemoFind.clear(false);
 				XMigemoFind.isLinksOnly = false;
 				this.start();
+				this.field.focus();
 				XMigemoFind.appendKeyword(String.fromCharCode(aEvent.charCode));
 				this.updateStatus(XMigemoFind.lastKeyword);
-				this.field.focus();
 				aEvent.preventDefault();
 				this.delayedFind();
 				this.restartTimer();
