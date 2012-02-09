@@ -509,80 +509,32 @@ xmXMigemoTextUtils.prototype = {
 
 		var utils = w.QueryInterface(Ci.nsIInterfaceRequestor)
 						.getInterface(Ci.nsIDOMWindowUtils);
-		if ('nodesFromRect' in utils) { // Firefox 3.6-
-			let nodes = utils.nodesFromRect(
-					0,
-					0,
-					this.visibleNodeFilter.minPixels,
-					w.innerWidth+this.visibleNodeFilter.minPixels,
-					w.innerHeight+this.visibleNodeFilter.minPixels,
-					this.visibleNodeFilter.minPixels,
-					true,
-					false
-				);
-			if (aBackward) {
-				let i = 0,
-					maxi = nodes.length;
-				do {
-					lastNode = nodes[i];
-					i++;
-				}
-				while (this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i < maxi);
+		var nodes = utils.nodesFromRect(
+				0,
+				0,
+				this.visibleNodeFilter.minPixels,
+				w.innerWidth+this.visibleNodeFilter.minPixels,
+				w.innerHeight+this.visibleNodeFilter.minPixels,
+				this.visibleNodeFilter.minPixels,
+				true,
+				false
+			);
+		if (aBackward) {
+			let i = 0,
+				maxi = nodes.length;
+			do {
+				lastNode = nodes[i];
+				i++;
 			}
-			else {
-				let i = nodes.length-1;
-				do {
-					lastNode = nodes[i];
-					i--;
-				}
-				while (this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i > -1);
-			}
+			while (this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i < maxi);
 		}
-		else { // -Firefox 3.5
-			let walker = aDocument.createTreeWalker(
-					aDocument.documentElement,
-					Ci.nsIDOMNodeFilter.SHOW_ELEMENT,
-					this.visibleNodeFilter,
-					false
-				);
-
-			if (aBackward) {
-				lastNode = aDocument.documentElement;
-				while (node = walker.lastChild())
-				{
-					lastNode = node;
-					walker.currentNode = node;
-				}
-				let node = lastNode;
-				this.visibleNodeFilter.found = false;
-				if (this.visibleNodeFilter.acceptNode(node) != this.visibleNodeFilter.kACCEPT) {
-					while (!this.visibleNodeFilter.found &&
-						(node = walker.previousNode()))
-					{
-						lastNode = node;
-						walker.currentNode = node;
-					}
-				}
+		else {
+			let i = nodes.length-1;
+			do {
+				lastNode = nodes[i];
+				i--;
 			}
-			else {
-				let node = aDocument.documentElement;
-				lastNode = node;
-				this.visibleNodeFilter.found = false;
-				if (this.visibleNodeFilter.acceptNode(node) != this.visibleNodeFilter.kACCEPT) {
-					while (!this.visibleNodeFilter.found &&
-						(node = walker.nextNode()))
-					{
-						lastNode = node;
-						walker.currentNode = node;
-					}
-				}
-			}
-			if (
-				(!lastNode || lastNode == aDocument.documentElement) &&
-				this.visibleNodeFilter.lastInScreenNode
-				) {
-				lastNode = this.visibleNodeFilter.lastInScreenNode;
-			}
+			while (this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i > -1);
 		}
 
 		this.visibleNodeFilter.clear();
