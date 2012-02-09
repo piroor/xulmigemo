@@ -28,11 +28,6 @@ xmXMigemoAPI.prototype = {
 	classDescription : 'xmXMigemoAPI',
 	classID : Components.ID('{6c93a2b0-bd7d-11de-8a39-0800200c9a66}'),
 
-	_xpcom_categories : [
-		{ category : 'JavaScript global property', entry : 'migemo' }, // -Firefox 3.6
-		{ category : 'app-startup', service : true } // -Firefox 3.6
-	],
-
 	QueryInterface : XPCOMUtils.generateQI([
 		Ci.xmIXMigemoAPI,
 		Ci.xmIXMigemoCoreAPI,
@@ -418,10 +413,7 @@ xmXMigemoAPI.prototype = {
  
 }; 
   
-if (XPCOMUtils.generateNSGetFactory) 
-	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoAPI]);
-else
-	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoAPI]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoAPI]); 
  
 function mydump(aString) 
 {

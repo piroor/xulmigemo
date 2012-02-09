@@ -206,7 +206,4 @@ xmXMigemoFileAccess.prototype = {
 	}
 };
 
-if (XPCOMUtils.generateNSGetFactory) 
-	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoFileAccess]);
-else
-	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoFileAccess]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoFileAccess]); 

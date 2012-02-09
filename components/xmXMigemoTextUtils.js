@@ -27,23 +27,6 @@ function getBoxObjectFor(aNode)
 }
  
 function xmXMigemoTextUtils() { 
-
-	var excludeNodesCondition = 'contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " "))';
-	this._lazyExceptionsExpression = [
-			'descendant::*[',
-				excludeNodesCondition,
-				' or ',
-				'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
-			']'
-		].join('');
-	this._exceptionsExpression = this._lazyExceptionsExpression + ' | '+[
-			'descendant::text()[',
-				'normalize-space()',
-				' and ',
-				'not(ancestor::*['+excludeNodesCondition+'])',
-			']'
-		].join('');
-
 }
 
 xmXMigemoTextUtils.prototype = {
@@ -115,33 +98,30 @@ xmXMigemoTextUtils.prototype = {
 	
 	range2Text : function(aRange) 
 	{
-		return this.range2TextInternal(aRange, false);
+		return this.range2TextInternal(aRange);
 	},
  
-	lazyRange2Text : function(aRange) 
+	lazyRange2Text : function(aRange) // for backward compatibility... 
 	{
-		return this.range2TextInternal(aRange, true);
+		return this.range2TextInternal(aRange);
 	},
  
-	range2TextInternal : function(aRange, aLazy) 
+	range2TextInternal : function(aRange) 
 	{
 		aRange.QueryInterface(Ci.nsIDOMRange);
 		var doc = aRange.startContainer;
 		if (doc.ownerDocument) doc = doc.ownerDocument;
 
-		var encoder = null;
-		if ('SkipInvisibleContent' in Ci.nsIDocumentEncoder) { // Firefox 4.0-
-			encoder = Cc['@mozilla.org/layout/documentEncoder;1?type=text/plain']
+		var encoder = Cc['@mozilla.org/layout/documentEncoder;1?type=text/plain']
 						.createInstance(Ci.nsIDocumentEncoder);
-			encoder.init(
-				doc,
-				'text/plain',
-				Ci.nsIDocumentEncoder.OutputSelectionOnly |
-				Ci.nsIDocumentEncoder.OutputBodyOnly |
-				Ci.nsIDocumentEncoder.OutputLFLineBreak |
-				Ci.nsIDocumentEncoder.SkipInvisibleContent
-			);
-		}
+		encoder.init(
+			doc,
+			'text/plain',
+			Ci.nsIDocumentEncoder.OutputSelectionOnly |
+			Ci.nsIDocumentEncoder.OutputBodyOnly |
+			Ci.nsIDocumentEncoder.OutputLFLineBreak |
+			Ci.nsIDocumentEncoder.SkipInvisibleContent
+		);
 
 		if (Prefs.getBoolPref('javascript.enabled')) {
 			let noscript = doc.getElementsByTagName('noscript');
@@ -165,7 +145,7 @@ xmXMigemoTextUtils.prototype = {
 
 		try {
 			var nodes = doc.evaluate(
-					(aLazy || encoder ? this._lazyExceptionsExpression : this._exceptionsExpression ),
+					this.kEXCEPTION_EXPRESSION,
 					aRange.commonAncestorContainer,
 					null,
 					Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE,
@@ -173,7 +153,6 @@ xmXMigemoTextUtils.prototype = {
 				);
 			var node;
 			var found = false;
-			var selCon = aLazy || encoder ? null : this.getSelectionController(doc.defaultView) ;
 			while (node = nodes.iterateNext())
 			{
 				nodeRange.selectNode(node);
@@ -187,28 +166,17 @@ xmXMigemoTextUtils.prototype = {
 				textRange.setEndBefore(node);
 				let string = textRange.toString();
 				if (string) {
-					if (encoder) {
-						encoder.setRange(textRange);
-						result.push(encoder.encodeToString());
-					}
-					else {
-						result.push(string);
-					}
+					encoder.setRange(textRange);
+					result.push(encoder.encodeToString());
 				}
-				if (node.nodeType == node.TEXT_NODE) {
-					if (selCon.checkVisibility(node, 0, node.nodeValue.length))
-						result.push(node.nodeValue);
-				}
-				else {
-					switch (node.localName.toLowerCase())
-					{
-						case 'textarea':
-						case 'input':
-						case 'textbox':
-							result.push(node.value);
-						default:
-							break;
-					}
+				switch (node.localName.toLowerCase())
+				{
+					case 'textarea':
+					case 'input':
+					case 'textbox':
+						result.push(node.value);
+					default:
+						break;
 				}
 				textRange.selectNode(node);
 				textRange.collapse(false);
@@ -226,13 +194,8 @@ xmXMigemoTextUtils.prototype = {
 
 		var string = textRange.toString();
 		if (string) {
-			if (encoder) {
-				encoder.setRange(textRange);
-				result.push(encoder.encodeToString());
-			}
-			else {
-				result.push(string);
-			}
+			encoder.setRange(textRange);
+			result.push(encoder.encodeToString());
 		}
 
 		nodeRange.detach();
@@ -240,6 +203,12 @@ xmXMigemoTextUtils.prototype = {
 
 		return result.join('');
 	},
+	kEXCEPTION_EXPRESSION : <![CDATA[
+		descendant::*[
+			contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " ")) or
+			((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))
+		]
+	]]>.toString(),
   
 /* manipulate regular expressions */ 
 	
