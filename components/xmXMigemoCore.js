@@ -220,14 +220,14 @@ xmXMigemoCore.prototype = {
 			return cacheText.replace(/\n/g, '');
 		}
 
-		var date1 = new Date();
+		var date1 = Date.now();
 
 		var regexpPattern = this.engine.getRegExpFor(aInput, aTargetDic);
 
 		mydump('created:'+encodeURIComponent(regexpPattern));
 
-		var date2 = new Date();
-		if ((date2.getTime() - date1.getTime()) > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Prefs.getIntPref('xulmigemo.cache.update.time'))) {
+		var date2 = Date.now();
+		if ((date2 - date1) > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Prefs.getIntPref('xulmigemo.cache.update.time'))) {
 			// 遅かったらキャッシュします
 			cache.setDiskCache(aInput, regexpPattern, aTargetDic);
 			cache.setMemCache(aInput, regexpPattern, aTargetDic);
@@ -237,7 +237,7 @@ xmXMigemoCore.prototype = {
 			cache.setMemCache(aInput, regexpPattern, aTargetDic);//メモリキャッシュ
 			mydump('memCacheWasSaved');
 		}
-		mydump(date2.getTime() - date1.getTime());
+		mydump(date2 - date1);
 
 		return regexpPattern;
 	},
