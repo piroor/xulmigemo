@@ -19,7 +19,7 @@
    // restart after doing something
    window['piro.sakura.ne.jp'].animationManager.start();
 
- license: The MIT License, Copyright (c) 2009-2011 SHIMODA "Piro" Hiroshi
+ license: The MIT License, Copyright (c) 2009-2011 YUKI "Piro" Hiroshi
    http://github.com/piroor/fxaddonlibs/blob/master/license.txt
  original:
    http://github.com/piroor/fxaddonlibs/blob/master/animationManager.js
@@ -46,7 +46,7 @@ if (typeof window == 'undefined' ||
 }
 
 (function() {
-	const currentRevision = 9;
+	const currentRevision = 13;
 
 	if (!('piro.sakura.ne.jp' in window)) window['piro.sakura.ne.jp'] = {};
 
@@ -96,21 +96,22 @@ if (typeof window == 'undefined' ||
 		removeTask : function(aTask) 
 		{
 			if (!aTask) return;
-			var task;
-			for (var i in this.tasks)
+			for (let i = this.tasks.length - 1; i > -1; i--)
 			{
-				task = this.tasks[i];
-				if (task.task != aTask) continue;
-				delete task.task;
-				delete task.start;
-				delete task.beginning;
-				delete task.change;
-				delete task.duration;
-				delete task.window;
+				let registeredTask = this.tasks[i];
+				if (registeredTask) {
+					if (registeredTask.task != aTask)
+						continue;
+					delete registeredTask.task;
+					delete registeredTask.start;
+					delete registeredTask.beginning;
+					delete registeredTask.change;
+					delete registeredTask.duration;
+					delete registeredTask.window;
+				}
 				this.tasks.splice(i, 1);
-				this._cleanUpWindows();
-				break;
 			}
+			this._cleanUpWindows();
 			if (!this.tasks.length)
 				this.stop();
 		},
@@ -119,7 +120,7 @@ if (typeof window == 'undefined' ||
 		{
 			this.stop();
 			if (this.tasks.some(function(aTask) {
-					return !aTask.window;
+					return aTask && !aTask.window;
 				})) {
 				this.timer = window.setInterval(
 					this.onAnimation,
@@ -193,7 +194,7 @@ if (typeof window == 'undefined' ||
 		{
 			this._windows = this._windows.filter(function(aWindow) {
 				if (this.tasks.some(function(aTask) {
-						return aTask.window && this._windows.indexOf(aTask.window) > -1;
+						return aTask && aTask.window && this._windows.indexOf(aTask.window) > -1;
 					}, this))
 					return true;
 				let index = this._animatingWindows.indexOf(aWindow);
@@ -227,28 +228,29 @@ if (typeof window == 'undefined' ||
 		{
 			// task should return true if it finishes.
 			var now = (new Date()).getTime() ;
-			var tasks = aSelf.tasks;
-			aSelf.tasks = [null];
-			tasks = tasks.filter(function(aTask) {
-				if (!aTask)
-					return false;
-				if (aWindow && aTask.window != aWindow)
-					return true;
+			for (let i = aSelf.tasks.length - 1; i > -1; i--)
+			{
+				let task = aSelf.tasks[i];
 				try {
-					var time = Math.min(aTask.duration, now - aTask.start);
-					var finished = aTask.task(
-							time,
-							aTask.beginning,
-							aTask.change,
-							aTask.duration
-						);
-					return !finished && (time < aTask.duration);
+					if (task) {
+						if (aWindow && task.window != aWindow)
+							continue;
+						let time = Math.min(task.duration, now - task.start);
+						let finished = task.task(
+								time,
+								task.beginning,
+								task.change,
+								task.duration
+							);
+						if (!finished && (time < task.duration))
+							continue;
+					}
 				}
 				catch(e) {
+					dump(e+'\n'+e.stack+'\n');
 				}
-				return false;
-			});
-			aSelf.tasks = aSelf.tasks.slice(1).concat(tasks);
+				aSelf.tasks.splice(i, 1);
+			}
 			if (!aSelf.tasks.length)
 				aSelf.stop();
 		}
