@@ -114,12 +114,6 @@
 		<preference id="xulmigemo.appearance.buttonLabelsMode"
 			name="xulmigemo.appearance.buttonLabelsMode"
 			type="int"/>
-		<preference id="xulmigemo.appearance.findBarPosition"
-			name="xulmigemo.appearance.findBarPosition"
-			type="int"/>
-		<preference id="xulmigemo.appearance.closeButtonPosition"
-			name="xulmigemo.appearance.closeButtonPosition"
-			type="int"/>
 	</preferences>
 
 	<vbox>
@@ -142,35 +136,6 @@
 				class="image" align="center"
 				src="chrome://xulmigemo/content/res/label-short.png"/>
 			</hbox>
-		</radiogroup>
-	</groupbox>
-	<groupbox orient="vertical">
-		<caption label="&config.appearance.findBarPosition;"/>
-		<radiogroup id="xulmigemo.appearance.findBarPosition-radiogroup"
-			preference="xulmigemo.appearance.findBarPosition"
-			orient="horizontal">
-			<radio value="0" label="&config.appearance.findBarPosition.0;"
-				class="image" align="center"
-				src="chrome://xulmigemo/content/res/findbar-belowcontent.png"/>
-			<radio value="1" label="&config.appearance.findBarPosition.1;"
-				class="image" align="center"
-				src="chrome://xulmigemo/content/res/findbar-abovecontent.png"/>
-			<radio value="2" label="&config.appearance.findBarPosition.2;"
-				class="image" align="center"
-				src="chrome://xulmigemo/content/res/findbar-belowtab.png"/>
-		</radiogroup>
-	</groupbox>
-	<groupbox orient="vertical">
-		<caption label="&config.appearance.closeButtonPosition;"/>
-		<radiogroup id="xulmigemo.appearance.closeButtonPosition-radiogroup"
-			preference="xulmigemo.appearance.closeButtonPosition"
-			orient="horizontal">
-			<radio value="0" label="&config.appearance.closeButtonPosition.0;"
-				class="image" align="center"
-				src="chrome://xulmigemo/content/res/close-leftmost.png"/>
-			<radio value="1" label="&config.appearance.closeButtonPosition.1;"
-				class="image" align="center"
-				src="chrome://xulmigemo/content/res/close-rightmost.png"/>
 		</radiogroup>
 	</groupbox>
 	</vbox>
