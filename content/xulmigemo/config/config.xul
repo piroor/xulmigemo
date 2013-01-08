@@ -110,7 +110,6 @@
 		<preference id="xulmigemo.checked_by_default.findbar"
 			name="xulmigemo.checked_by_default.findbar"
 			type="bool"/>
-
 		<preference id="xulmigemo.appearance.buttonLabelsMode"
 			name="xulmigemo.appearance.buttonLabelsMode"
 			type="int"/>
@@ -147,9 +146,6 @@
 		<preference id="xulmigemo.prefillwithselection"
 			name="xulmigemo.prefillwithselection"
 			type="bool"/>
-		<preference id="xulmigemo.checked_by_default.caseSensitive.always"
-			name="xulmigemo.checked_by_default.caseSensitive.always"
-			type="bool"/>
 		<preference id="xulmigemo.findMode.always"
 			name="xulmigemo.findMode.always"
 			type="int"/>
@@ -180,10 +176,6 @@
 				<radio label="&ui.mode.migemo.label;" value="2"/>
 			</radiogroup>
 		</hbox>
-		<separator class="groove"/>
-		<checkbox id="xulmigemo.checked_by_default.caseSensitive.always-check"
-			label="&config.checked_by_default.caseSensitive.always;"
-			preference="xulmigemo.checked_by_default.caseSensitive.always"/>
 	</groupbox>
 
 	<hbox align="center">

@@ -82,8 +82,6 @@ var XMigemoUI = {
 	disableIMEOnQuickFindFor  : 7, 
 	disableIMEOnNormalFindFor : 0,
  
-	caseSensitiveCheckedAlways : false, 
- 
 	_modeCirculation : 0, 
 	get modeCirculation()
 	{
@@ -510,7 +508,6 @@ var XMigemoUI = {
 		'xulmigemo.autostart.regExpFind\n' +
 		'xulmigemo.enableautoexit.inherit\n' +
 		'xulmigemo.enableautoexit.nokeyword\n' +
-		'xulmigemo.checked_by_default.caseSensitive\n' +
 		'xulmigemo.findMode.always\n' +
 		'xulmigemo.enabletimeout\n' +
 		'xulmigemo.enabletimeout.indicator\n' +
@@ -556,10 +553,6 @@ var XMigemoUI = {
 
 			case 'xulmigemo.autostart.regExpFind':
 				this.autoStartRegExpFind = value;
-				return;
-
-			case 'xulmigemo.checked_by_default.caseSensitive.always':
-				this.caseSensitiveCheckedAlways = value;
 				return;
 
 			case 'xulmigemo.findMode.always':
@@ -2085,11 +2078,8 @@ var XMigemoUI = {
 		var self = window.gFindBar || this;
 		self.xmigemoOriginalEnableFindButtons.apply(self, arguments);
 
-		if (aEnable) {
+		if (aEnable)
 			XMigemoUI.updateHighlightCheck();
-			if (XMigemoUI.caseSensitiveCheckedAlways)
-				caseSensitive.checked = true;
-		}
 
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarUpdate', true, false);
@@ -2237,10 +2227,6 @@ var XMigemoUI = {
 			else {
 				if (XMigemoService.getPref('xulmigemo.findMode.default') > -1)
 					aSelf.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
-				if (XMigemoService.getPref('xulmigemo.checked_by_default.caseSensitive')) {
-					aSelf.caseSensitiveCheck.checked = aSelf.caseSensitiveCheck.xmigemoOriginalChecked = true;
-					gFindBar.toggleCaseSensitiveCheckbox(true);
-				}
 			}
 		}, 0, this);
 	},
