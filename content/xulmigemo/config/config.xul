@@ -107,18 +107,10 @@
 
 <prefpane id="prefpane-appearance" label="&config.tab.appearance;" flex="1">
 	<preferences>
-		<preference id="xulmigemo.checked_by_default.findbar"
-			name="xulmigemo.checked_by_default.findbar"
-			type="bool"/>
 		<preference id="xulmigemo.appearance.buttonLabelsMode"
 			name="xulmigemo.appearance.buttonLabelsMode"
 			type="int"/>
 	</preferences>
-
-	<vbox>
-	<checkbox id="xulmigemo.checked_by_default.findbar-check" flex="1"
-		label="&config.checked_by_default.findbar;"
-		preference="xulmigemo.checked_by_default.findbar"/>
 	<groupbox orient="vertical">
 		<caption label="&config.appearance.buttonLabelsMode;"/>
 		<radiogroup id="xulmigemo.appearance.buttonLabelsMode-radiogroup"
@@ -137,7 +129,6 @@
 			</hbox>
 		</radiogroup>
 	</groupbox>
-	</vbox>
 </prefpane>
 
 

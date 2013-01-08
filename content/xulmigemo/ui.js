@@ -2198,9 +2198,6 @@ var XMigemoUI = {
 			if (!XMigemoDicManager.available &&
 				XMigemoService.getPref('xulmigemo.dictionary.useInitializeWizard'))
 				XMigemoDicManager.showInitializeWizard(null);
-
-			if (XMigemoService.getPref('xulmigemo.checked_by_default.findbar'))
-				gFindBar.open();
 		}, 0, this);
 
 		this.overrideExtensionsOnInitAfter(); // hacks.js

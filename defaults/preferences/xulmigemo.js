@@ -20,12 +20,6 @@ pref("xulmigemo.scrollSelectionToCenter.smoothScroll.duration", 350);
 pref("xulmigemo.ignore_find_links_only_behavior", true);
 pref("xulmigemo.work_for_any_xml_document",     true);
 
-pref("xulmigemo.checked_by_default.findbar",       false);
-
-pref("xulmigemo.checked_by_default.caseSensitive", false);
-
-pref("xulmigemo.checked_by_default.caseSensitive.always", false);
-
 // 1 = native, 2 = migemo, 4 = regexp
 pref("xulmigemo.findMode.always", -1);
 pref("xulmigemo.findMode.default", 1);
