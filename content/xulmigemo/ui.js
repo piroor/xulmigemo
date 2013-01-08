@@ -113,11 +113,6 @@ var XMigemoUI = {
 	kLABELS_AUTO : 1,
 	kLABELS_HIDE : 2,
 	buttonLabelsMode : 1,
- 
-	kCLOSEBUTTON_POSITION_LEFTMOST : 0, 
-	kCLOSEBUTTON_POSITION_RIGHTMOST : 1,
-	closeButtonPosition : 0,
-	lastCloseButtonPosition : 0,
   
 /* elements */ 
 	
@@ -156,31 +151,6 @@ var XMigemoUI = {
 	},
 	_findBar : null,
 	
-	get findBarItems() 
-	{
-		window.gFindBar; // ensure initialized
-		var node = this.closeButton;
-		var items = [];
-		do {
-			items.push(node);
-			node = node.nextSibling;
-		}
-		while (node);
-		return items;
-	},
- 
-	get closeButton() 
-	{
-		if (this._closeButton === void(0)) {
-			this._closeButton = document.getElementById('find-closebutton');
-			if (!this._closeButton && this.findBar) {
-				this._closeButton = this.findBar.getElement('find-closebutton');
-			}
-		}
-		return this._closeButton;
-	},
-//	_closeButton : null,
- 
 	get label() 
 	{
 		if (this._label === void(0)) {
@@ -595,8 +565,7 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
 		'xulmigemo.work_for_any_xml_document',
 	preferencesFindBar : 
 		'xulmigemo.appearance.buttonLabelsMode\n' +
-		'xulmigemo.appearance.indicator.height\n' +
-		'xulmigemo.appearance.closeButtonPosition',
+		'xulmigemo.appearance.indicator.height',
  
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
@@ -701,11 +670,6 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
 
 			case 'xulmigemo.appearance.indicator.height':
 				this.updateIndicatorHeight(value);
-				return;
-
-			case 'xulmigemo.appearance.closeButtonPosition':
-				this.closeButtonPosition = value;
-				this.findBarInitialShown = false;
 				return;
 
 			case 'xulmigemo.disableIME.quickFindFor':
@@ -1288,7 +1252,6 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
   
 	onFindBarOpen : function(aEvent) 
 	{
-		this.updateItemOrder();
 		this.updateModeSelectorPosition(true);
 		if (this.lastWindowWidth != window.innerWidth) {
 			this.onChangeFindBarSize();
@@ -1297,47 +1260,12 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
 
 		this.updateCaseSensitiveCheck();
 
-		this.findBarInitialShow();
-
 		if (this.prefillWithSelection)
 			this.doPrefillWithSelection(aEvent.isQuickFind);
 
 		this.disableFindFieldIMEForCurrentMode(aEvent.isQuickFind);
 	},
 	
-	findBarInitialShow : function() 
-	{
-		if (this.findBarInitialShown) return;
-		this.findBarInitialShown = true;
-		if (this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_LEFTMOST)
-			return;
-		window.setTimeout(function(aSelf) {
-			var items = aSelf.findBarItems;
-			items = items.sort(function(aA, aB) {
-					return parseInt(aA.ordinal) - parseInt(aB.ordinal);
-				}).filter(function(aItem) {
-					return aItem.boxObject.x;
-				});
-			var wrongOrder = false;
-			for (var i = 0, maxi = items.length-1; i < maxi; i++)
-			{
-				if (items[i].boxObject.x < items[i+1].boxObject.x)
-					continue;
-				wrongOrder = true;
-				break;
-			}
-			if (!wrongOrder) return;
-
-			aSelf.findBar.hidden = true;
-			window.setTimeout(function(aSelf) {
-				aSelf.findBar.hidden = false;
-				window.setTimeout(function(aSelf) {
-					aSelf.field.focus();
-				}, 0, aSelf);
-			}, 0, aSelf);
-		}, 0, this);
-	},
- 
 	doPrefillWithSelection : function(aShowMinimalUI) 
 	{
 		var win = document.commandDispatcher.focusedWindow;
@@ -1637,21 +1565,6 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
 		}
 	},
  
-	updateItemOrder : function(aPosition) 
-	{
-		if (this.closeButtonPosition == this.lastCloseButtonPosition) return;
-		this.lastCloseButtonPosition = this.closeButtonPosition;
-
-		var items = this.findBarItems;
-		var closebox = items.shift();
-		closebox.ordinal = (this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_RIGHTMOST) ?
-				(items.length + 2) * 100 :
-				1 ;
-		items.forEach(function(aItem, aIndex) {
-			aItem.ordinal = (aIndex + 1) * 100;
-		});
-	},
- 
 	updateModeSelectorPosition : function(aForceUpdate) 
 	{
 		var box = this.findModeSelectorBox;
@@ -1669,11 +1582,6 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
 				document.documentElement.boxObject.width
 				- findBarBox.x
 				- findBarBox.width
-				+ (
-					(this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_RIGHTMOST) ?
-						this.closeButton.boxObject.width + this.rightMostOffset :
-						0
-				)
 			)+'px';
 		box.style.top = 'auto';
 		box.style.bottom = (
@@ -2169,7 +2077,6 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
 		this.findBar.addEventListener('XMigemoFindBarOpen', this, false);
 		this.findBar.addEventListener('XMigemoFindBarClose', this, false);
 
-		this.updateItemOrder();
 		this.overrideFindBar();
 		XMigemoService.firstListenPrefChange(this, this.preferencesFindBar);
 
