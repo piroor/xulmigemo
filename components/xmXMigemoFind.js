@@ -916,8 +916,8 @@ mydump("setSelectionAndScroll");
 					.XULBrowserWindow;
 		}
 		catch(e) {
-			return;
 		}
+		if (!xulBrowserWindow) return;
 
 		if (!aLink || !aLink.href) {
 			xulBrowserWindow.setOverLink('', null);
