@@ -19,11 +19,11 @@
    window['piro.sakura.ne.jp'].prefs.addPrefListener(listener);
    window['piro.sakura.ne.jp'].prefs.removePrefListener(listener);
 
- license: The MIT License, Copyright (c) 2009-2010 SHIMODA "Piro" Hiroshi
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/license.txt
+ license: The MIT License, Copyright (c) 2009-2010 YUKI "Piro" Hiroshi
+   http://github.com/piroor/fxaddonlibs/blob/master/license.txt
  original:
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/prefs.js
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/prefs.test.js
+   http://github.com/piroor/fxaddonlibs/blob/master/prefs.js
+   http://github.com/piroor/fxaddonlibs/blob/master/prefs.test.js
 */
 
 /* To work as a JS Code Module  */
@@ -32,7 +32,7 @@ if (typeof window == 'undefined' ||
 	this.EXPORTED_SYMBOLS = ['prefs'];
 
 	// If namespace.jsm is available, export symbols to the shared namespace.
-	// See: http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/namespace.jsm
+	// See: http://github.com/piroor/fxaddonlibs/blob/master/namespace.jsm
 	try {
 		let ns = {};
 		Components.utils.import('resource://xulmigemo-modules/namespace.jsm', ns);
@@ -44,7 +44,7 @@ if (typeof window == 'undefined' ||
 }
 
 (function() {
-	const currentRevision = 7;
+	const currentRevision = 8;
 
 	if (!('piro.sakura.ne.jp' in window)) window['piro.sakura.ne.jp'] = {};
 
@@ -76,12 +76,14 @@ if (typeof window == 'undefined' ||
 
 			aBranch = aBranch || this.Prefs;
 
-			if (aInterface)
-				return (aBranch.getPrefType(aPrefstring) == aBranch.PREF_INVALID) ?
-						null :
-						aBranch.getComplexValue(aPrefstring, aInterface);
+			var type = aBranch.getPrefType(aPrefstring);
+			if (type == aBranch.PREF_INVALID)
+				return null;
 
-			switch (aBranch.getPrefType(aPrefstring))
+			if (aInterface)
+				return aBranch.getComplexValue(aPrefstring, aInterface);
+
+			switch (type)
 			{
 				case aBranch.PREF_STRING:
 					return decodeURIComponent(escape(aBranch.getCharPref(aPrefstring)));

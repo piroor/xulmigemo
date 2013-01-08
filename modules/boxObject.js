@@ -7,12 +7,12 @@
                          .boxObject
                          .getBoxObjectFor(HTMLElement);
 
- license: The MIT License, Copyright (c) 2009-2010 SHIMODA "Piro" Hiroshi
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/license.txt
+ license: The MIT License, Copyright (c) 2009-2010 YUKI "Piro" Hiroshi
+   http://github.com/piroor/fxaddonlibs/blob/master/license.txt
  original:
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/boxObject.js
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/boxObject.test.js
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/fixtures/box.html
+   http://github.com/piroor/fxaddonlibs/blob/master/boxObject.js
+   http://github.com/piroor/fxaddonlibs/blob/master/boxObject.test.js
+   http://github.com/piroor/fxaddonlibs/blob/master/fixtures/box.html
 */
 
 /* To work as a JS Code Module */
@@ -21,7 +21,7 @@ if (typeof window == 'undefined' ||
 	this.EXPORTED_SYMBOLS = ['boxObject'];
 
 	// If namespace.jsm is available, export symbols to the shared namespace.
-	// See: http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/namespace.jsm
+	// See: http://github.com/piroor/fxaddonlibs/blob/master/namespace.jsm
 	try {
 		let ns = {};
 		Components.utils.import('resource://xulmigemo-modules/namespace.jsm', ns);

@@ -19,11 +19,11 @@
          extensions.goToOptions('my.extension.id@example.com');
      var dir = extensions.getInstalledLocation('my.extension.id@example.com'); // nsILocalFile
 
- license: The MIT License, Copyright (c) 2009-2010 SHIMODA "Piro" Hiroshi
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/license.txt
+ license: The MIT License, Copyright (c) 2009-2010 YUKI "Piro" Hiroshi
+   http://github.com/piroor/fxaddonlibs/blob/master/license.txt
  original:
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/extensions.js
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/extensions.test.js
+   http://github.com/piroor/fxaddonlibs/blob/master/extensions.js
+   http://github.com/piroor/fxaddonlibs/blob/master/extensions.test.js
 */
 
 /* To work as a JS Code Module */
@@ -32,7 +32,7 @@ if (typeof window == 'undefined' ||
 	this.EXPORTED_SYMBOLS = ['extensions'];
 
 	// If namespace.jsm is available, export symbols to the shared namespace.
-	// See: http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/namespace.jsm
+	// See: http://github.com/piroor/fxaddonlibs/blob/master/namespace.jsm
 	try {
 		let ns = {};
 		Components.utils.import('resource://xulmigemo-modules/namespace.jsm', ns);
@@ -44,7 +44,7 @@ if (typeof window == 'undefined' ||
 }
 
 (function() {
-	const currentRevision = 11;
+	const currentRevision = 12;
 
 	if (!('piro.sakura.ne.jp' in window)) window['piro.sakura.ne.jp'] = {};
 
@@ -320,7 +320,7 @@ if (typeof window == 'undefined' ||
 			while (windows.hasMoreElements())
 			{
 				let win = windows.getNext();
-				if (win.location.href == uri) {
+				if (win.location.href == aURI) {
 					win.focus();
 					return;
 				}
@@ -332,7 +332,7 @@ if (typeof window == 'undefined' ||
 			catch(e) {
 			}
 			(aOwnerWindow || window).openDialog(
-				uri,
+				aURI,
 				'',
 				'chrome,titlebar,toolbar,centerscreen,' + (instantApply ? 'dialog=no' : 'modal' )
 			);

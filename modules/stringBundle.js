@@ -8,10 +8,10 @@
    bundle.getString('key1');
    bundle.getFormattedString('key2', [val1, val2]);
 
- license: The MIT License, Copyright (c) 2009 SHIMODA "Piro" Hiroshi
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/license.txt
+ license: The MIT License, Copyright (c) 2009 YUKI "Piro" Hiroshi
+   http://github.com/piroor/fxaddonlibs/blob/master/license.txt
  original:
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/stringBundle.js
+   http://github.com/piroor/fxaddonlibs/blob/master/stringBundle.js
 */
 
 /* To work as a JS Code Module */
@@ -20,7 +20,7 @@ if (typeof window == 'undefined' ||
 	this.EXPORTED_SYMBOLS = ['stringBundle'];
 
 	// If namespace.jsm is available, export symbols to the shared namespace.
-	// See: http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/namespace.jsm
+	// See: http://github.com/piroor/fxaddonlibs/blob/master/namespace.jsm
 	try {
 		let ns = {};
 		Components.utils.import('resource://xulmigemo-modules/namespace.jsm', ns);

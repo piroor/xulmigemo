@@ -11,27 +11,28 @@
      },
      100, // beginning
      200, // total change (so, the final value will be 100+200=300)
-     250  // msec, duration
+     250, // msec, duration
+     window // the window (used by Firefox 4 animation frame API)
    );
    // stop all
    window['piro.sakura.ne.jp'].animationManager.stop();
    // restart after doing something
    window['piro.sakura.ne.jp'].animationManager.start();
 
- license: The MIT License, Copyright (c) 2009-2010 SHIMODA "Piro" Hiroshi
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/license.txt
+ license: The MIT License, Copyright (c) 2009-2012 YUKI "Piro" Hiroshi
+   http://github.com/piroor/fxaddonlibs/blob/master/license.txt
  original:
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/animationManager.js
+   http://github.com/piroor/fxaddonlibs/blob/master/animationManager.js
 */
 
 /* To work as a JS Code Module (*require jstimer.jsm)
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/jstimer.jsm */
+   http://github.com/piroor/fxaddonlibs/blob/master/jstimer.jsm */
 if (typeof window == 'undefined' ||
 	(window && typeof window.constructor == 'function')) {
 	this.EXPORTED_SYMBOLS = ['animationManager'];
 
 	// If namespace.jsm is available, export symbols to the shared namespace.
-	// See: http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/namespace.jsm
+	// See: http://github.com/piroor/fxaddonlibs/blob/master/namespace.jsm
 	let ns = {};
 	try {
 		Components.utils.import('resource://xulmigemo-modules/namespace.jsm', ns);
@@ -45,7 +46,7 @@ if (typeof window == 'undefined' ||
 }
 
 (function() {
-	const currentRevision = 5;
+	const currentRevision = 16;
 
 	if (!('piro.sakura.ne.jp' in window)) window['piro.sakura.ne.jp'] = {};
 
@@ -53,6 +54,7 @@ if (typeof window == 'undefined' ||
 			window['piro.sakura.ne.jp'].animationManager.revision :
 			0 ;
 	var tasks = !loadedRevision ? [] : window['piro.sakura.ne.jp'].animationManager.tasks ;
+	var windows = !loadedRevision ? [] : window['piro.sakura.ne.jp'].animationManager._windows || [] ;
 	if (loadedRevision && loadedRevision > currentRevision) {
 		return;
 	}
@@ -66,90 +68,141 @@ if (typeof window == 'undefined' ||
 	window['piro.sakura.ne.jp'].animationManager = {
 		revision : currentRevision,
 
-		addTask : function(aTask, aBeginningValue, aTotalChange, aDuration) 
+		running : false,
+
+		addTask : function(aTask, aBeginningValue, aTotalChange, aDuration, aRelatedWindow) 
 		{
-			if (!aTask) return;
+			if (!aRelatedWindow && window instanceof Ci.nsIDOMWindow)
+				aRelatedWindow = window;
+
+			if (!aTask || !aRelatedWindow) return;
+
+			if (this._windows.indexOf(aRelatedWindow) < 0)
+				this._windows.push(aRelatedWindow);
+
 			this.tasks.push({
 				task      : aTask,
-				start     : (new Date()).getTime(),
+				start     : aRelatedWindow ? aRelatedWindow.mozAnimationStartTime : Date.now(),
 				beginning : aBeginningValue,
 				change    : aTotalChange,
-				duration  : aDuration
+				duration  : aDuration,
+				window    : aRelatedWindow
 			});
-			if (this.tasks.length == 1)
-				this.start();
+
+			this.start();
 		},
 
 		removeTask : function(aTask) 
 		{
 			if (!aTask) return;
-			var task;
-			for (var i in this.tasks)
+			for (let i = this.tasks.length - 1; i > -1; i--)
 			{
-				task = this.tasks[i];
-				if (task.task != aTask) continue;
-				delete task.task;
-				delete task.start;
-				delete task.beginning;
-				delete task.change;
-				delete task.duration;
+				let registeredTask = this.tasks[i];
+				if (registeredTask) {
+					if (registeredTask.task != aTask)
+						continue;
+					delete registeredTask.task;
+					delete registeredTask.start;
+					delete registeredTask.beginning;
+					delete registeredTask.change;
+					delete registeredTask.duration;
+					delete registeredTask.window;
+				}
 				this.tasks.splice(i, 1);
-				break;
 			}
-			if (!this.tasks.length)
-				this.stop();
+			this._cleanUpWindows();
 		},
 
 		start : function()
 		{
-			this.stop();
-			this.timer = window.setInterval(
-				this.onAnimation,
-				this.interval,
-				this
-			);
+			if (!this._windows.length)
+				return;
+			this._windows.forEach(function(aWindow) {
+				if (this._animatingWindows.indexOf(aWindow) > -1)
+					return;
+				this._animatingWindows.push(aWindow);
+				let self = this;
+				aWindow.mozRequestAnimationFrame(function() {
+					self.processAnimationFrame(aWindow);
+				});
+			}, this);
 		},
 
 		stop : function() 
 		{
-			if (!this.timer) return;
-			window.clearInterval(this.timer);
-			this.timer = null;
+			this._animatingWindows = [];
 		},
 
 		removeAllTasks : function()
 		{
 			this.stop();
 			this.tasks = [];
+			this._windows = [];
 		},
 
 		tasks    : tasks,
-		interval : 10,
-		timer    : null,
+		_windows : windows,
+		_animatingWindows : [],
 
-		onAnimation : function(aSelf) 
+		_cleanUpWindows : function()
+		{
+			for (let i = this._windows.length - 1; i > -1; i--)
+			{
+				let w = this._windows[i];
+				if (this.tasks.some(function(aTask) {
+						return aTask && aTask.window == w;
+					}))
+					continue;
+
+				let index = this._animatingWindows.indexOf(w);
+				if (index > -1)
+					this._animatingWindows.splice(index, 1);
+
+				this._windows.splice(i, 1);
+			}
+		},
+
+		processAnimationFrame : function(aWindow)
+		{
+			if (this._animatingWindows.indexOf(aWindow) > -1) {
+				this.onAnimation(aWindow);
+			}
+			this._cleanUpWindows();
+			if (this._animatingWindows.indexOf(aWindow) > -1) {
+				let self = this;
+				aWindow.mozRequestAnimationFrame(function() {
+					self.processAnimationFrame(aWindow);
+				});
+			}
+		},
+
+		onAnimation : function(aWindow) 
 		{
 			// task should return true if it finishes.
-			var now = (new Date()).getTime();
-			var tasks = aSelf.tasks;
-			aSelf.tasks = [null];
-			tasks = tasks.filter(function(aTask) {
-				if (!aTask) return false;
+			var now = Date.now();
+			for (let i = this.tasks.length - 1; i > -1; i--)
+			{
+				let task = this.tasks[i];
 				try {
-					return !aTask.task(
-						now - aTask.start,
-						aTask.beginning,
-						aTask.change,
-						aTask.duration
-					);
+					if (task && !task.window.closed) {
+						if (task.window != aWindow)
+							continue;
+						let time = Math.min(task.duration, now - task.start);
+						let finished = task.task(
+								time,
+								task.beginning,
+								task.change,
+								task.duration
+							);
+						if (!finished && (time < task.duration))
+							continue;
+					}
 				}
 				catch(e) {
+					dump(e+'\n'+e.stack+'\n');
 				}
-				return false;
-			});
-			aSelf.tasks = aSelf.tasks.slice(1).concat(tasks);
-			if (!aSelf.tasks.length)
-				aSelf.stop();
+				this.tasks.splice(i, 1);
+			}
 		}
 
 	};

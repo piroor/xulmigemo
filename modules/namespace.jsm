@@ -12,10 +12,10 @@
    var func1 = namespace.func1;
    var func2 = namespace.func2;
 
- license: The MIT License, Copyright (c) 2010 SHIMODA "Piro" Hiroshi
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/license.txt
+ license: The MIT License, Copyright (c) 2010 YUKI "Piro" Hiroshi
+   http://github.com/piroor/fxaddonlibs/blob/master/license.txt
  original:
-   http://www.cozmixng.org/repos/piro/fx3-compatibility-lib/trunk/namespace.js
+   http://github.com/piroor/fxaddonlibs/blob/master/namespace.js
 */
 
 var EXPORTED_SYMBOLS = ['getNamespaceFor'];
