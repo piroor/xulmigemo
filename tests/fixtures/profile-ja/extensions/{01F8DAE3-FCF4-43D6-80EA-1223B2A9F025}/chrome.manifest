@@ -4,7 +4,6 @@ overlay	chrome://browser/content/browser.xul	chrome://xulmigemo/content/browserO
 
 overlay	chrome://global/content/viewSource.xul	chrome://xulmigemo/content/viewSourceOverlay.xul
 overlay	chrome://global/content/viewPartialSource.xul	chrome://xulmigemo/content/viewSourceOverlay.xul
-overlay	chrome://help/content/help.xul	chrome://xulmigemo/content/helpOverlay.xul
 
 overlay	chrome://browser/content/browser.xul	chrome://xulmigemo/content/places/locationBarOverlay.xul	appversion>=3.0pre
 overlay	chrome://browser/content/bookmarks/bookmarksPanel.xul	chrome://xulmigemo/content/places/bookmarksPanelOverlay.xul	appversion>=3.0pre

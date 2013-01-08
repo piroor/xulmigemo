@@ -118,8 +118,7 @@ var XMigemoUI = {
 	get browser() 
 	{
 		return document.getElementById('content') || // Firefox
-			document.getElementById('messagepane') || // Thunderbird
-			document.getElementById('help-content'); // Help
+			document.getElementById('messagepane'); // Thunderbird
 	},
  
 	get target() 
