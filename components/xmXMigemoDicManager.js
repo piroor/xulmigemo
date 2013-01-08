@@ -209,10 +209,46 @@ xmXMigemoDicManager.prototype = {
 			filePicker.modeGetFolder
 		);
 
-		if (filePicker.show() != filePicker.returnCancel) {
-			return filePicker.file.path;
+		function findExistingFolder(aFile) {
+			// Windows's file picker sometimes returns wrong path like
+			// "c:\folder\folder" even if I actually selected "c:\folder".
+			// However, when the "OK" button is chosen, any existing folder
+			// must be selected. So, I find existing ancestor folder from
+			// the path.
+			while (aFile && !aFile.exists() && aFile.parent)
+			{
+				aFile = aFile.parent;
+			}
+			return aFile;
 		}
-		return '';
+
+		if (typeof filePicker.open != 'function') { // Firefox 18 and olders
+			let folder = (filePicker.show() == filePicker.returnOK) ?
+							filePicker.file.QueryInterface(Components.interfaces.nsILocalFile) : null ;
+			folder = findExistingFolder(folder);
+			return folder ? folder.path : '' ;
+		}
+
+		var folder;
+		filePicker.open({ done: function(aResult) {
+			if (aResult == filePicker.returnOK) {
+				folder = filePicker.file.QueryInterface(Components.interfaces.nsILocalFile);
+			}
+			else {
+				folder = null;
+			}
+		}});
+
+		// this must be rewritten in asynchronous style.
+		// this is required just for backward compatibility.
+		var thread = Cc['@mozilla.org/thread-manager;1'].getService().mainThread;
+		while (folder === undefined)
+		{
+			thread.processNextEvent(true);
+		}
+
+		folder = findExistingFolder(folder);
+		return folder ? folder.path : '' ;
 	},
  
 	showInitializeWizard : function(aOwner) 
