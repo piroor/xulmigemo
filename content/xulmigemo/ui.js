@@ -7,6 +7,7 @@ var XMigemoUI = {
 
 	kFINDBAR_POSITION : '_moz-xmigemo-position',
 	kTARGET           : '_moz-xmigemo-target',
+	kLAST_HIGHLIGHT   : '_moz-xmigemo-last-highlight',
 	kFOCUSED          : '_moz-xmigemo-focused',
 
 	kDISABLE_IME    : '_moz-xmigemo-disable-ime',
@@ -178,6 +179,13 @@ var XMigemoUI = {
 		if (!this._caseSensitiveCheck && this.findBar)
 			this._caseSensitiveCheck = this.findBar.getElement('find-case-sensitive');
 		return this._caseSensitiveCheck;
+	},
+ 
+	get highlightCheck() 
+	{
+		if (!this._highlightCheck && this.findBar)
+			this._highlightCheck = this.findBar.getElement('highlight');
+		return this._highlightCheck;
 	},
   
 	get findMigemoBar() 
@@ -674,6 +682,16 @@ var XMigemoUI = {
 				this.onXMigemoFindProgress(aEvent);
 				return;
 
+			case 'XMigemoFindAgain':
+				if (!this.isActive &&
+					this.lastFindMode == this.FIND_MODE_NATIVE &&
+					this.highlightCheck.checked) {
+					window.setTimeout(function(aSelf) {
+						aSelf.clearSelectionInEditable(aSelf.browser.contentWindow);
+					}, 0, this);
+				}
+				return;
+
 			case 'XMigemoFindBarOpen':
 				this.startListen();
 				this.onFindBarOpen(aEvent);
@@ -681,6 +699,7 @@ var XMigemoUI = {
 
 			case 'XMigemoFindBarClose':
 				this.stopListen();
+				this.highlightCheck.checked = false;
 				return;
 
 			case 'blur':
@@ -1060,6 +1079,11 @@ var XMigemoUI = {
 
 		var found = (statusRes == this.nsITypeAheadFind.FIND_FOUND || statusRes == this.nsITypeAheadFind.FIND_WRAPPED);
 		gFindBar._enableFindButtons(this.findTerm);
+		if (this.lastHighlightedKeyword != data.findTerm) {
+			this.lastHighlightedKeyword = data.findTerm;
+			if (found && this.highlightCheck.checked)
+				gFindBar._setHighlightTimeout();
+		}
 
 		if (this.isQuickFind) {
 			this.clearFocusRing();
@@ -1069,6 +1093,7 @@ var XMigemoUI = {
 
 		gFindBar._updateStatusUI(statusRes, !(data.findFlag & XMigemoFind.FIND_BACK));
 	},
+	lastHighlightedKeyword : null,
  
 	onInput : function(aEvent) 
 	{
@@ -1127,6 +1152,11 @@ var XMigemoUI = {
 	onChangeMode : function() 
 	{
 		this.clearTimer();
+		var highlighted = this.highlightCheck.checked;
+		if (highlighted) {
+			gFindBar.toggleHighlight(false);
+			this.clearHighlight(this.browser.contentDocument, true);
+		}
 		if (!this.hidden && !this.inCancelingProcess) {
 			if (this.isQuickFind || this.findMode == this.FIND_MODE_NATIVE) {
 				this.cancel(true);
@@ -1141,6 +1171,9 @@ var XMigemoUI = {
 		if (!this.inCancelingProcess &&
 			!this.hidden) {
 			this.field.focus();
+		}
+		if (highlighted) {
+			gFindBar.toggleHighlight(true);
 		}
 	},
  
@@ -1489,7 +1522,8 @@ var XMigemoUI = {
 		var buttons = [
 				this.findNextButton,
 				this.findPreviousButton,
-				this.caseSensitiveCheck
+				this.caseSensitiveCheck,
+				this.highlightCheck
 			];
 		var switchers = Array.slice(this.findModeSelector.childNodes);
 		if (aShow) {
@@ -1618,10 +1652,15 @@ var XMigemoUI = {
 		gFindBar.open                 = this.open;
 		gFindBar.close                = this.close;
 
+		gFindBar.xmigemoOriginalToggleHighlight = gFindBar.toggleHighlight;
+		gFindBar.toggleHighlight = this.toggleHighlight;
+
 		gFindBar.prefillWithSelection = false; // disable Firefox's native feature
 	},
 	updateFindBarMethods : function()
 	{
+		var { here } = Components.utils.import('resource://xulmigemo-modules/here.js', {});
+
 		eval('gFindBar._find = '+gFindBar._find.toSource()
 			.replace(
 				'{',
@@ -1640,6 +1679,50 @@ var XMigemoUI = {
 			)
 		);
 
+		eval('gFindBar._highlightDoc = '+gFindBar._highlightDoc.toSource()
+			.replace(
+				/((?:var|let) win = [^;]+;)/,
+				here(/*$1
+					if (!aWord || aWord != this._lastHighlightString)
+						XMigemoUI.clearHighlight(win.document);
+				*/)
+			).replace(
+				'return textFound;',
+				'XMigemoUI.clearHighlight(doc); $&'
+			).replace(
+				'this._highlight(aHighlight, retRange, controller);',
+				'this._highlight(aHighlight, retRange, controller, aWord);'
+			).replace(
+				/if \((!doc \|\| )(!\("body" in doc\)|!\(doc instanceof HTMLDocument\))\)/,
+				'if ($1($2 && (!XMigemoUI.workForAnyXMLDocuments || !(doc instanceof XMLDocument))))'
+			).replace(
+				'doc.body',
+				'XMigemoUI.getDocumentBody(doc)'
+			).replace(
+				'var retRange = null;',
+				here(/*
+					if (XMigemoUI.isActive) {
+						if (XMigemoUI.highlightText(aHighlight, aWord, this._searchRange || searchRange)) {
+							this._lastHighlightString = aWord;
+							return true;
+						}
+						else {
+							return false;
+						}
+					}
+					$&
+				*/)
+			)
+		);
+		eval('gFindBar.xmigemoOriginalToggleHighlight = '+gFindBar.xmigemoOriginalToggleHighlight.toSource()
+			.replace(
+				')',
+				', aAutoChecked, aKeepLastStatus)'
+			).replace(
+				/(this\._updateStatusUI\([^\)]+\);)/g,
+				'if (!aKeepLastStatus) { $1 }'
+			)
+		);
 /*
 		var setter = gFindBar.__lookupSetter__('browser');
 		var getter = gFindBar.__lookupGetter__('browser');
@@ -1660,6 +1743,28 @@ var XMigemoUI = {
 		gFindBar.__defineSetter__('browser', setter);
 		gFindBar.__defineGetter__('browser', getter);
 */
+
+		eval('gFindBar._setHighlightTimeout ='+
+			gFindBar._setHighlightTimeout.toSource()
+			.replace(
+				/^(\(?function)([^\(]*)\(\) \{/,
+				here(/*$1$2(aAutoChecked) {
+					if (XMigemoUI.findTerm == XMigemoUI.browser.contentDocument.documentElement.getAttribute(XMigemoUI.kLAST_HIGHLIGHT))
+						return;
+				*/)
+			).replace(
+				/(\w+\.toggleHighlight\(false)(\);)/,
+				here(/*
+					var checked = !XMigemoUI.highlightCheck.disabled && XMigemoUI.highlightCheck.checked;
+					$1, false, true$2
+					if (checked)
+						XMigemoUI.textUtils.setSelectionLook(XMigemoUI.browser.contentDocument, true);
+				*/)
+			).replace(
+				/(\b[^\.]+\.toggleHighlight\(true)(\);)/,
+				'$1, !checked$2'
+			)
+		);
 
 		eval('gFindBar.onFindAgainCommand = '+gFindBar.onFindAgainCommand.toSource()
 			.replace(
@@ -1699,6 +1804,10 @@ var XMigemoUI = {
 		var caseSensitive = this.caseSensitiveCheck;
 		caseSensitive.setAttribute('long-label', caseSensitive.getAttribute('label'));
 		caseSensitive.setAttribute('short-label', this.findMigemoBar.getAttribute('caseSensitive-short-label'));
+
+		var highlight = this.highlightCheck;
+		highlight.setAttribute('long-label', highlight.getAttribute('label'));
+		highlight.setAttribute('short-label', this.findMigemoBar.getAttribute('highlight-short-label'));
 	},
  
 	getLastFindString : function(aString) 
@@ -1811,6 +1920,9 @@ var XMigemoUI = {
 
 		this.updateCaseSensitiveCheck();
 
+		this.clearHighlight(this.browser.contentDocument, true);
+		this.lastHighlightedKeyword = null;
+
 		var WindowWatcher = Components
 				.classes['@mozilla.org/embedcomp/window-watcher;1']
 				.getService(Components.interfaces.nsIWindowWatcher);
@@ -1825,6 +1937,60 @@ var XMigemoUI = {
 		this.clearFocusRing();
 		var link = XMigemoFind.getParentLinkFromRange(this.lastFoundRange);
 		if (link) link.focus();
+	},
+  
+/* highlight */ 
+	
+	toggleHighlight : function(aHighlight, aAutoChecked) 
+	{
+		var event = document.createEvent('DataContainerEvents');
+		event.initEvent('XMigemoFindBarUpdateHighlight', true, false);
+		event.setData('data', { targetHighlight: aHighlight });
+		XMigemoUI.findBar.dispatchEvent(event);
+
+		event = document.createEvent('Events');
+		event.initEvent('XMigemoFindBarToggleHighlight', true, false);
+		event.targetHighlight = aHighlight;
+		XMigemoUI.findBar.dispatchEvent(event);
+
+		if (!aHighlight)
+			XMigemoUI.browser.contentDocument.documentElement.removeAttribute(XMigemoUI.kLAST_HIGHLIGHT);
+
+		var self = window.gFindBar || this;
+		self.xmigemoOriginalToggleHighlight.apply(self, arguments);
+	},
+ 
+	stopDelayedToggleHighlightTimer : function() 
+	{
+		if (!this.delayedToggleHighlightTimer) return;
+		window.clearTimeout(this.delayedToggleHighlightTimer);
+		this.delayedToggleHighlightTimer = null;
+	},
+	delayedToggleHighlightTimer : null,
+ 
+	clearHighlight : function(aDocument, aRecursively) 
+	{
+		var keepFoundHighlighted = !this.highlightCheck.disabled && this.highlightCheck.checked;
+		migemo.clearHighlight(aDocument, aRecursively, this.highlightSelectionOnly, keepFoundHighlighted);
+	},
+ 
+	highlightText : function(aDoHighlight, aWord, aRange) 
+	{
+		var flags = this.shouldCaseSensitive ? '' : 'i' ;
+		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
+					this.textUtils.extractRegExpSource(aWord) :
+				this.findMode == this.FIND_MODE_MIGEMO ?
+					XMigemoCore.getRegExp(aWord) :
+					this.textUtils.sanitize(aWord) ;
+
+		var doc = aRange.startContainer.ownerDocument || aRange.startContainer;
+		this.clearHighlight(doc);
+
+		var ranges = !aDoHighlight ?
+				[XMigemoCore.regExpFind(regexp, flags, aRange)] :
+				XMigemoCore.regExpHighlightSelection(regexp, flags, aRange) ;
+
+		return ranges.length ? true : false ;
 	},
   
 	updateStatus : function(aStatusText) 
@@ -1911,10 +2077,16 @@ var XMigemoUI = {
  
 	enableFindButtons : function(aEnable) 
 	{
+		var highlightCheck = XMigemoUI.highlightCheck;
+		var caseSensitive  = this.caseSensitiveCheck;
+		if (!highlightCheck.disabled)
+			highlightCheck.xmigemoOriginalChecked = highlightCheck.checked;
+
 		var self = window.gFindBar || this;
 		self.xmigemoOriginalEnableFindButtons.apply(self, arguments);
 
 		if (aEnable) {
+			XMigemoUI.updateHighlightCheck();
 			if (XMigemoUI.caseSensitiveCheckedAlways)
 				caseSensitive.checked = true;
 		}
@@ -1923,6 +2095,32 @@ var XMigemoUI = {
 		event.initEvent('XMigemoFindBarUpdate', true, false);
 		XMigemoUI.findBar.dispatchEvent(event);
 	},
+	highlightCheckFirst : true,
+	updateHighlightCheck : function()
+	{
+		if (this.updateHighlightCheckTimer) {
+			window.clearTimeout(this.updateHighlightCheckTimer);
+			this.updateHighlightCheckTimer = null;
+		}
+		this.updateHighlightCheckTimer = window.setTimeout(this.updateHighlightCheckCallback, 400, this);
+	},
+	updateHighlightCheckCallback : function(aSelf)
+	{
+		var highlightCheck = aSelf.highlightCheck;
+		var prevHighlightState = highlightCheck.checked;
+		var checked =
+			!aSelf.findTerm ?
+				false :
+			aSelf.highlightCheckFirst ?
+				false :
+				highlightCheck.xmigemoOriginalChecked ;
+		highlightCheck.checked = checked;
+		if (checked != prevHighlightState) {
+			aSelf.toggleHighlight(checked, true);
+		}
+		aSelf.highlightCheckFirst = false;
+	},
+	updateHighlightCheckTimer : null,
  
 	updateCaseSensitiveCheck : function(aSilently) 
 	{
