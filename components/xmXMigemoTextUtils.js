@@ -527,7 +527,7 @@ xmXMigemoTextUtils.prototype = {
 				lastNode = nodes[i];
 				i++;
 			}
-			while (this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i < maxi);
+			while (nodes[i] && this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i < maxi);
 		}
 		else {
 			let i = nodes.length-1;
@@ -535,7 +535,7 @@ xmXMigemoTextUtils.prototype = {
 				lastNode = nodes[i];
 				i--;
 			}
-			while (this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i > -1);
+			while (nodes[i] && this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i > -1);
 		}
 
 		this.visibleNodeFilter.clear();
