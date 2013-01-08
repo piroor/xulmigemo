@@ -206,10 +206,7 @@ xmXMigemoEngine.prototype = {
  
 }; 
   
-if (XPCOMUtils.generateNSGetFactory) 
-	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoEngine]);
-else
-	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoEngine]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoEngine]); 
  
 function mydump(aString) 
 {

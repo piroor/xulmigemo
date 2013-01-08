@@ -842,8 +842,5 @@ xmXMigemoTextTransformJa.prototype = {
    
 }; 
   
-if (XPCOMUtils.generateNSGetFactory) 
-	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoTextTransformJa]);
-else
-	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoTextTransformJa]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoTextTransformJa]); 
  

@@ -9,8 +9,9 @@
                    em:description="Provides advanced incremental search for any language."
                    em:homepageURL="http://piro.sakura.ne.jp/xul/xulmigemo/"
                    em:optionsURL="chrome://xulmigemo/content/config/config.xul"
-                   em:iconURL="chrome://xulmigemo/content/icon.png">
-	<em:creator>plus7, SHIMODA Hiroshi</em:creator>
+                   em:iconURL="chrome://xulmigemo/content/icon.png"
+                   em:type="2">
+	<em:creator>plus7, YUKI "Piro" Hiroshi</em:creator>
 	<em:contributor>alice0775</em:contributor>
 	<em:contributor>Dear Periwinkle</em:contributor>
 
@@ -24,7 +25,7 @@
                        em:name="XUL/Migemo"
                        em:description="This provides advanced incremental search. You can find Japanese words incremental with roman input, like the Migemo."
                        em:homepageURL="http://piro.sakura.ne.jp/xul/_xulmigemo.html.en">
-		<em:creator>plus7, SHIMODA Hiroshi</em:creator>
+		<em:creator>plus7, YUKI "Piro" Hiroshi</em:creator>
 		<em:contributor>alice0775</em:contributor>
 		<em:contributor>Dear Periwinkle</em:contributor>
       </RDF:Description>
@@ -34,7 +35,7 @@
                        em:name="XUL/Migemo"
                        em:description="Migemo風のローマ字入力による日本語逐次検索など、より高機能なインクリメンタル検索機能を提供します。"
                        em:homepageURL="http://piro.sakura.ne.jp/xul/_xulmigemo.html">
-		<em:creator>plus7, SHIMODA Hiroshi</em:creator>
+		<em:creator>plus7, YUKI "Piro" Hiroshi</em:creator>
 		<em:contributor>alice0775</em:contributor>
 		<em:contributor>Dear Periwinkle</em:contributor>
       </RDF:Description>

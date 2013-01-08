@@ -117,8 +117,5 @@ XMigemoStartupService.prototype = {
   
 }; 
   
-if (XPCOMUtils.generateNSGetFactory) 
-	var NSGetFactory = XPCOMUtils.generateNSGetFactory([XMigemoStartupService]);
-else
-	var NSGetModule = XPCOMUtils.generateNSGetModule([XMigemoStartupService]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([XMigemoStartupService]); 
  

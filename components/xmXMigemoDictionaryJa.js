@@ -445,10 +445,7 @@ xmXMigemoDictionaryJa.prototype = {
   
 }; 
   
-if (XPCOMUtils.generateNSGetFactory) 
-	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoDictionaryJa]);
-else
-	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoDictionaryJa]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoDictionaryJa]); 
  
 function mydump(aString) 
 {

@@ -27,16 +27,6 @@ function getBoxObjectFor(aNode)
 }
  
 function xmXMigemoTextUtils() { 
-
-	var excludeNodesCondition = 'contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " "))';
-	this._exceptionsExpression = [
-			'descendant::*[',
-				excludeNodesCondition,
-				' or ',
-				'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
-			']'
-		].join('');
-
 }
 
 xmXMigemoTextUtils.prototype = {
@@ -108,12 +98,12 @@ xmXMigemoTextUtils.prototype = {
 	
 	range2Text : function(aRange) 
 	{
-		return this.range2TextInternal(aRange, false);
+		return this.range2TextInternal(aRange);
 	},
  
-	lazyRange2Text : function(aRange) 
+	lazyRange2Text : function(aRange) // for backward compatibility... 
 	{
-		return this.range2TextInternal(aRange, true);
+		return this.range2TextInternal(aRange);
 	},
  
 	range2TextInternal : function(aRange) 
@@ -155,7 +145,7 @@ xmXMigemoTextUtils.prototype = {
 
 		try {
 			var nodes = doc.evaluate(
-					this._exceptionsExpression,
+					this.kEXCEPTION_EXPRESSION,
 					aRange.commonAncestorContainer,
 					null,
 					Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE,
@@ -213,6 +203,12 @@ xmXMigemoTextUtils.prototype = {
 
 		return result.join('');
 	},
+	kEXCEPTION_EXPRESSION : here(/*
+		descendant::*[
+			contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " ")) or
+			((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))
+		]
+	*/),
   
 /* manipulate regular expressions */ 
 	
@@ -513,34 +509,32 @@ xmXMigemoTextUtils.prototype = {
 
 		var utils = w.QueryInterface(Ci.nsIInterfaceRequestor)
 						.getInterface(Ci.nsIDOMWindowUtils);
-		if ('nodesFromRect' in utils) {
-			let nodes = utils.nodesFromRect(
-					0,
-					0,
-					this.visibleNodeFilter.minPixels,
-					w.innerWidth+this.visibleNodeFilter.minPixels,
-					w.innerHeight+this.visibleNodeFilter.minPixels,
-					this.visibleNodeFilter.minPixels,
-					true,
-					false
-				);
-			if (aBackward) {
-				let i = 0,
-					maxi = nodes.length;
-				do {
-					lastNode = nodes[i];
-					i++;
-				}
-				while (nodes[i] && this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i < maxi);
+		var nodes = utils.nodesFromRect(
+				0,
+				0,
+				this.visibleNodeFilter.minPixels,
+				w.innerWidth+this.visibleNodeFilter.minPixels,
+				w.innerHeight+this.visibleNodeFilter.minPixels,
+				this.visibleNodeFilter.minPixels,
+				true,
+				false
+			);
+		if (aBackward) {
+			let i = 0,
+				maxi = nodes.length;
+			do {
+				lastNode = nodes[i];
+				i++;
 			}
-			else {
-				let i = nodes.length-1;
-				do {
-					lastNode = nodes[i];
-					i--;
-				}
-				while (nodes[i] && this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i > -1);
+			while (this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i < maxi);
+		}
+		else {
+			let i = nodes.length-1;
+			do {
+				lastNode = nodes[i];
+				i--;
 			}
+			while (this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i > -1);
 		}
 
 		this.visibleNodeFilter.clear();

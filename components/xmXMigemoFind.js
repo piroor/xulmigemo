@@ -1401,10 +1401,7 @@ DocShellIterator.prototype = {
  
 }; 
   
-if (XPCOMUtils.generateNSGetFactory) 
-	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoFind]);
-else
-	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoFind]);
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoFind]); 
  
 function mydump(aString) 
 {

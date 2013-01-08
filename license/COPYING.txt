@@ -1,4 +1,4 @@
-Developer       : SHIMODA Hiroshi <piro.outsider.reflex@gmail.com>
+Developer       : YUKI "Piro" Hiroshi <piro.outsider.reflex@gmail.com>
 Original Author : plus7
 
 Some parts of this program are based on:
