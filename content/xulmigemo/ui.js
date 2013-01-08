@@ -122,8 +122,7 @@ var XMigemoUI = {
 			document.getElementById('messagepane') || // Thunderbird
 			document.getElementById('help-content'); // Help
 	},
-	
-  
+ 
 	get target() 
 	{
 		return XMigemoFind.target;
@@ -340,7 +339,6 @@ var XMigemoUI = {
 		return null;
 	},
   
- 
 	get isScrolling() 
 	{
 		return this._isScrolling;
@@ -525,7 +523,7 @@ var XMigemoUI = {
 		'xulmigemo.ignore_find_links_only_behavior\n' +
 		'xulmigemo.prefillwithselection\n' +
 		'xulmigemo.work_for_any_xml_document',
-	preferencesFindBar : 
+	preferencesFindBar :
 		'xulmigemo.appearance.buttonLabelsMode\n' +
 		'xulmigemo.appearance.indicator.height',
  
@@ -1574,8 +1572,7 @@ var XMigemoUI = {
 				return;
 		}
 	},
-	
-   
+  
 /* Override FindBar */ 
 	
 	overrideFindBar : function() 
@@ -1830,15 +1827,6 @@ var XMigemoUI = {
 		if (link) link.focus();
 	},
   
-/* highlight */ 
-	
- 
- 
- 
-	
- 
- 
-   
 	updateStatus : function(aStatusText) 
 	{
 		var bar = this.findBar;
@@ -2030,7 +2018,7 @@ var XMigemoUI = {
 		this.overrideExtensionsOnInitAfter(); // hacks.js
 	},
 	
-	initFindBar : function()
+	initFindBar : function() 
 	{
 		if ('gFindBarInitialized' in window && !gFindBarInitialized)
 			return;
