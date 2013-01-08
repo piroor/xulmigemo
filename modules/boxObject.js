@@ -7,7 +7,7 @@
                          .boxObject
                          .getBoxObjectFor(HTMLElement);
 
- license: The MIT License, Copyright (c) 2009-2010 YUKI "Piro" Hiroshi
+ license: The MIT License, Copyright (c) 2009-2013 YUKI "Piro" Hiroshi
    http://github.com/piroor/fxaddonlibs/blob/master/license.txt
  original:
    http://github.com/piroor/fxaddonlibs/blob/master/boxObject.js
@@ -33,7 +33,7 @@ if (typeof window == 'undefined' ||
 }
 
 (function() {
-	const currentRevision = 6;
+	const currentRevision = 7;
 
 	if (!('piro.sakura.ne.jp' in window)) window['piro.sakura.ne.jp'] = {};
 
@@ -50,11 +50,11 @@ if (typeof window == 'undefined' ||
 	window['piro.sakura.ne.jp'].boxObject = {
 		revision : currentRevision,
 
-		getBoxObjectFor : function(aNode, aUnify)
+		getBoxObjectFor : function(aNodeOrRange, aUnify)
 		{
-			return ('getBoxObjectFor' in aNode.ownerDocument) ?
-					this.getBoxObjectFromBoxObjectFor(aNode, aUnify) :
-					this.getBoxObjectFromClientRectFor(aNode, aUnify) ;
+			return (aNodeOrRange instanceof Ci.nsIDOMNode && 'getBoxObjectFor' in aNodeOrRange.ownerDocument) ?
+					this.getBoxObjectFromBoxObjectFor(aNodeOrRange, aUnify) :
+					this.getBoxObjectFromClientRectFor(aNodeOrRange, aUnify) ;
 		},
 
 		getBoxObjectFromBoxObjectFor : function(aNode, aUnify)
@@ -67,7 +67,8 @@ if (typeof window == 'undefined' ||
 					height  : boxObject.height,
 					screenX : boxObject.screenX,
 					screenY : boxObject.screenY,
-					element : aNode
+					element : aNode,
+					fixed   : false
 				};
 			if (!aUnify) return box;
 
@@ -77,6 +78,7 @@ if (typeof window == 'undefined' ||
 			if (style.getPropertyValue('position') == 'fixed') {
 				box.left -= frame.scrollX;
 				box.top  -= frame.scrollY;
+				box.fixed = true;
 			}
 			box.right  = box.left + box.width;
 			box.bottom = box.top + box.height;
@@ -84,7 +86,7 @@ if (typeof window == 'undefined' ||
 			return box;
 		},
 
-		getBoxObjectFromClientRectFor : function(aNode, aUnify)
+		getBoxObjectFromClientRectFor : function(aNodeOrRange, aUnify)
 		{
 			var box = {
 					x       : 0,
@@ -93,12 +95,15 @@ if (typeof window == 'undefined' ||
 					height  : 0,
 					screenX : 0,
 					screenY : 0,
-					element : aNode
+					element : aNodeOrRange instanceof Ci.nsIDOMNode ? aNodeOrRange : null ,
+					range   : aNodeOrRange instanceof Ci.nsIDOMRange ? aNodeOrRange : null,
+					fixed   : false
 				};
 			try {
-				var zoom = this.getZoom(aNode.ownerDocument.defaultView);
+				var frame = (box.element || box.range.startContainer).ownerDocument.defaultView;
+				var zoom = this.getZoom(frame) ;
 
-				var rect = aNode.getBoundingClientRect();
+				var rect = aNodeOrRange.getBoundingClientRect();
 				if (aUnify) {
 					box.left   = rect.left;
 					box.top    = rect.top;
@@ -106,15 +111,38 @@ if (typeof window == 'undefined' ||
 					box.bottom = rect.bottom;
 				}
 
-				var style = this._getComputedStyle(aNode);
-				var frame = aNode.ownerDocument.defaultView;
+				box.x = rect.left;
+				box.y = rect.top;
 
-				// "x" and "y" are offset positions of the "padding-box" from the document top-left edge.
-				box.x = rect.left + this._getPropertyPixelValue(style, 'border-left-width');
-				box.y = rect.top + this._getPropertyPixelValue(style, 'border-top-width');
-				if (style.getPropertyValue('position') != 'fixed') {
-					box.x += frame.scrollX;
-					box.y += frame.scrollY;
+				if (box.element) {
+					let style = this._getComputedStyle(aNodeOrRange);
+
+					// "x" and "y" are offset positions of the "padding-box" from the document top-left edge.
+					box.x += this._getPropertyPixelValue(style, 'border-left-width');
+					box.y += this._getPropertyPixelValue(style, 'border-top-width');
+
+					if (style.getPropertyValue('position') != 'fixed') {
+						box.x += frame.scrollX;
+						box.y += frame.scrollY;
+					}
+				}
+				else {
+					let node = aNodeOrRange.startContainer;
+					if (node.nodeType != Ci.nsIDOMNode.ELEMENT_NODE)
+						node = node.parentNode;
+					do {
+						let style = this._getComputedStyle(node);
+						if (style.getPropertyValue('position') == 'fixed') {
+							box.fixed = true;
+							break;
+						}
+						node = node.offsetParent;
+					}
+					while (node);
+					if (!box.fixed) {
+						box.x += frame.scrollX;
+						box.y += frame.scrollY;
+					}
 				}
 
 				// "width" and "height" are sizes of the "border-box".
