@@ -883,7 +883,8 @@ mydump("setSelectionAndScroll");
 		};
 		this.animationManager.addTask(
 			frame.__xulmigemo__findSmoothScrollTask,
-			0, 0, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.duration')
+			0, 0, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.duration'),
+			frame
 		);
 	},
  
