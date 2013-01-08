@@ -123,10 +123,6 @@ var XMigemoUI = {
 			document.getElementById('help-content'); // Help
 	},
 	
-	get activeBrowser() 
-	{
-		return this.browser;
-	},
   
 	get target() 
 	{
@@ -149,103 +145,69 @@ var XMigemoUI = {
 		}
 		return this._findBar;
 	},
-	_findBar : null,
 	
 	get label() 
 	{
-		if (this._label === void(0)) {
-			this._label = document.getElementById('find-label');
-			if (!this._label && this.findBar) {
-				this._label = this.findBar.getElement('find-label');
-			}
-		}
+		if (!this._label && this.findBar)
+			this._label = this.findBar.getElement('find-label');
 		return this._label;
 	},
-//	_label : null,
  
 	get field() 
 	{
-		if (!this._field) {
-			this._field = document.getElementById('find-field');
-			if (!this._field && this.findBar) {
-				this._field = this.findBar.getElement('findbar-textbox');
-			}
-		}
-if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +document.getElementById('find-field')+'\n'+this.findBar+'\n'+new Error().stack);
+		if (!this._field && this.findBar)
+			this._field = this.findBar.getElement('findbar-textbox');
 		return this._field;
 	},
  
 	get findNextButton() 
 	{
-		if (this._findNextButton === void(0)) {
-			this._findNextButton = document.getElementById('find-next');
-			if (!this._findNextButton && this.findBar) {
-				this._findNextButton = this.findBar.getElement('find-next');
-			}
-		}
+		if (!this._findNextButton && this.findBar)
+			this._findNextButton = this.findBar.getElement('find-next');
 		return this._findNextButton;
 	},
-//	_findNextButton : null,
  
 	get findPreviousButton() 
 	{
-		if (this._findPreviousButton === void(0)) {
-			this._findPreviousButton = document.getElementById('find-previous');
-			if (!this._findPreviousButton && this.findBar) {
-				this._findPreviousButton = this.findBar.getElement('find-previous');
-			}
-		}
+		if (!this._findPreviousButton && this.findBar)
+			this._findPreviousButton = this.findBar.getElement('find-previous');
 		return this._findPreviousButton;
 	},
-//	_findPreviousButton : null,
  
 	get caseSensitiveCheck() 
 	{
-		if (this._caseSensitiveCheck === void(0)) {
-			this._caseSensitiveCheck = document.getElementById('find-case-sensitive');
-			if (!this._caseSensitiveCheck && this.findBar) {
-				this._caseSensitiveCheck = this.findBar.getElement('find-case-sensitive');
-			}
-		}
+		if (!this._caseSensitiveCheck && this.findBar)
+			this._caseSensitiveCheck = this.findBar.getElement('find-case-sensitive');
 		return this._caseSensitiveCheck;
 	},
-//	_caseSensitiveCheck : null,
   
 	get findMigemoBar() 
 	{
-		if (!this._findMigemoBar) {
+		if (!this._findMigemoBar)
 			this._findMigemoBar = document.getElementById('XMigemoFindToolbar');
-		}
 		return this._findMigemoBar;
 	},
-	_findMigemoBar : null,
 	
 	get findModeSelectorBox() 
 	{
-		if (!this._findModeSelectorBox) {
+		if (!this._findModeSelectorBox)
 			this._findModeSelectorBox = document.getElementById('find-migemo-mode-box');
-		}
 		return this._findModeSelectorBox;
 	},
-	_findModeSelectorBox : null,
  
 	get findModeSelector() 
 	{
-		if (!this._findModeSelector) {
+		if (!this._findModeSelector)
 			this._findModeSelector = document.getElementById('find-mode-selector');
-		}
 		return this._findModeSelector;
 	},
-	_findModeSelector : null,
  
 	get timeoutIndicator() 
 	{
-		if (!this._timeoutIndicator) {
+		if (!this._timeoutIndicator)
 			this._timeoutIndicator = document.getElementById('migemo-timeout-indicator');
-		}
 		return this._timeoutIndicator;
 	},
-	_timeoutIndicator : null,
    
 /* status */ 
 	
@@ -309,7 +271,7 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
  
 	get lastFoundRange() 
 	{
-		return this.getLastFoundRangeIn(this.activeBrowser.contentWindow);
+		return this.getLastFoundRangeIn(this.browser.contentWindow);
 	},
 	getLastFoundRangeIn : function(aFrame)
 	{
@@ -503,7 +465,7 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
 	
 	doProcessForAllFrames : function(aProcess, aSelf, aBrowserOrFrame) 
 	{
-		var b = aBrowserOrFrame || this.activeBrowser;
+		var b = aBrowserOrFrame || this.browser;
 		var frames;
 		if (b instanceof Ci.nsIDOMWindow) {
 			frames = [b];
@@ -932,7 +894,7 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
 				if (aFromFindField) {
 					aEvent.stopPropagation();
 					aEvent.preventDefault();
-					if (!this.dispatchKeyEventForLink(aEvent, this.activeBrowser.contentWindow)) {
+					if (!this.dispatchKeyEventForLink(aEvent, this.browser.contentWindow)) {
 						this.restartTimer();
 						return true;
 					}
@@ -1269,7 +1231,7 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
 	doPrefillWithSelection : function(aShowMinimalUI) 
 	{
 		var win = document.commandDispatcher.focusedWindow;
-		if (!win || win.top == window.top) win = this.activeBrowser.contentWindow;
+		if (!win || win.top == window.top) win = this.browser.contentWindow;
 		var sel = this.textUtils.trim(win && win.getSelection() ? win.getSelection().toString() : '' )
 					.replace(/\n/g, '');
 		if (!sel) return;
@@ -1310,7 +1272,7 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
 		this.cancelTimer = window.setTimeout(this.timerCallback, this.timeout, this);
 		this.updateTimeoutIndicator(this.timeout);
 		window.setTimeout(function(aSelf) {
-			aSelf.textUtils.setSelectionLook(aSelf.activeBrowser.contentDocument, true);
+			aSelf.textUtils.setSelectionLook(aSelf.browser.contentDocument, true);
 		}, 0, this);
 	},
 	
@@ -1504,7 +1466,7 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
 		this.cancel();
 		this.clearTimer(); // ここでタイマーを殺さないといじられてしまう
 		var win = document.commandDispatcher.focusedWindow;
-		var doc = (win != window) ? win.document : this.activeBrowser.contentDocument;
+		var doc = (win != window) ? win.document : this.browser.contentDocument;
 		this.textUtils.setSelectionLook(doc, false);
 	},
  
@@ -2073,7 +2035,7 @@ if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +do
 		if ('gFindBarInitialized' in window && !gFindBarInitialized)
 			return;
 
-		this.findBar.setAttribute(this.kTARGET, this.activeBrowser.id);
+		this.findBar.setAttribute(this.kTARGET, this.browser.id);
 		this.findBar.addEventListener('XMigemoFindBarOpen', this, false);
 		this.findBar.addEventListener('XMigemoFindBarClose', this, false);
 
