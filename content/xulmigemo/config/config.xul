@@ -105,12 +105,19 @@
 </prefpane>
 
 
-<prefpane id="prefpane-appearance" label="&config.tab.appearance;" flex="1">
+<prefpane id="prefpane-findbar" label="&config.tab.findbar;" flex="1">
 	<preferences>
 		<preference id="xulmigemo.appearance.buttonLabelsMode"
 			name="xulmigemo.appearance.buttonLabelsMode"
 			type="int"/>
+		<preference id="xulmigemo.prefillwithselection"
+			name="xulmigemo.prefillwithselection"
+			type="bool"/>
+		<preference id="xulmigemo.findMode.always"
+			name="xulmigemo.findMode.always"
+			type="int"/>
 	</preferences>
+
 	<groupbox orient="vertical">
 		<caption label="&config.appearance.buttonLabelsMode;"/>
 		<radiogroup id="xulmigemo.appearance.buttonLabelsMode-radiogroup"
@@ -129,19 +136,6 @@
 			</hbox>
 		</radiogroup>
 	</groupbox>
-</prefpane>
-
-
-<prefpane id="prefpane-findbar" label="&config.tab.findbar;" flex="1">
-	<preferences>
-		<preference id="xulmigemo.prefillwithselection"
-			name="xulmigemo.prefillwithselection"
-			type="bool"/>
-		<preference id="xulmigemo.findMode.always"
-			name="xulmigemo.findMode.always"
-			type="int"/>
-	</preferences>
-
 	<groupbox orient="vertical">
 		<caption label="&config.findbar.permanentState;"/>
 		<hbox align="center">
