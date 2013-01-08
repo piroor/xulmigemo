@@ -18,11 +18,12 @@
 }
 
 #find-mode-selector radio {
+	appearance: none;
+	-moz-appearance: none;
+	border-right: 1px solid ThreeDLightShadow;
 	margin: 0;
 	padding: 0.1em 0.15em;
 	min-width: 0;
-	-moz-appearance: none;
-	border-right: 1px solid ThreeDLightShadow;
 }
 
 #find-mode-selector radio:last-child {

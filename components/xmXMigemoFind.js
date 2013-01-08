@@ -450,12 +450,14 @@ mydump("findInDocument ==========================================");
  
 	dispatchProgressEvent : function(aFindFlag, aResultFlag) 
 	{
-		var event = this.document.createEvent('Events');
+		var event = this.document.createEvent('DataContainerEvent');
 		event.initEvent('XMigemoFindProgress', true, false);
-		event.resultFlag = aResultFlag;
-		event.findFlag   = aFindFlag;
-		event.findTerm   = this.lastKeyword;
-		event.foundTerm  = aResultFlag & this.FOUND ? this.lastFoundWord : null ;
+		event.setData('data', {
+			resultFlag: aResultFlag,
+			findFlag:   aFindFlag,
+			findTerm:   this.lastKeyword,
+			foundTerm:  aResultFlag & this.FOUND ? this.lastFoundWord : null 
+		});
 		this.document.dispatchEvent(event);
 	},
   
@@ -527,8 +529,9 @@ mydump('getParentEditableFromRange');
 		{
 			var isEditable = false;
 			try {
-				node.QueryInterface(Ci.nsIDOMNSEditableElement);
-				return node;
+				node = node.QueryInterface(Ci.nsIDOMNSEditableElement);
+				if (node.editor)
+					return node;
 			}
 			catch(e) {
 			}

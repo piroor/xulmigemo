@@ -17,9 +17,6 @@
 		<preference id="xulmigemo.findMode.default"
 			name="xulmigemo.findMode.default"
 			type="int"/>
-		<preference id="xulmigemo.checked_by_default.highlight"
-			name="xulmigemo.checked_by_default.highlight"
-			type="bool"/>
 		<preference id="xulmigemo.checked_by_default.caseSensitive"
 			name="xulmigemo.checked_by_default.caseSensitive"
 			type="bool"/>
@@ -38,10 +35,6 @@
 				<radio label="&ui.mode.migemo.label;" value="2"/>
 			</radiogroup>
 		</hbox>
-		<checkbox id="xulmigemo.checked_by_default.highlight-check"
-			label="&config.checked_by_default.highlight;"
-			preference="xulmigemo.checked_by_default.highlight"
-			style="min-width: 0;"/>
 		<checkbox id="xulmigemo.checked_by_default.caseSensitive-check"
 			label="&config.checked_by_default.caseSensitive;"
 			preference="xulmigemo.checked_by_default.caseSensitive"

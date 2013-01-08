@@ -19,7 +19,7 @@ function init()
 					String.fromCharCode(aEvent.charCode),
 					aEvent.target,
 					aEvent.target.localName,
-					(new Date()).getTime()
+					Date.now()
 				].join(' : ')
 			)
 		);

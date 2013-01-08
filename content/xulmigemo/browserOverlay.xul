@@ -10,10 +10,12 @@
 
 
 <window id="main-window">
-	<hbox id="XMigemoFindToolbar"
-		insertbefore="FindToolbar"/>
+	<vbox id="browser-bottombox">
+		<hbox id="XMigemoFindToolbar"
+			insertbefore="FindToolbar"/>
+	</vbox>
 
-	<script src="chrome://xulmigemo/content/tabPreviews.js" type="application/javascript; e4x=1"/>
+	<script src="chrome://xulmigemo/content/tabPreviews.js" type="application/javascript"/>
 </window>
 
 </overlay>

@@ -6,6 +6,7 @@ const Ci = Components.interfaces;
 Components.utils.import('resource://xulmigemo-modules/jstimer.jsm'); 
 Components.utils.import('resource://xulmigemo-modules/service.jsm');
 Components.utils.import('resource://xulmigemo-modules/migemo.jsm');
+Components.utils.import('resource://xulmigemo-modules/here.js');
  
 var XMigemoPlaces = { 
 	
@@ -236,7 +237,7 @@ var XMigemoPlaces = {
 		return sql;
 	},
 	
-	placesSourceInRangeSQLBase : <![CDATA[ 
+	placesSourceInRangeSQLBase : here(/* 
 		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, %PLACE_FOR_LINEBREAK%)
 		  FROM (SELECT p.id id,
 		               p.title title,
@@ -255,7 +256,7 @@ var XMigemoPlaces = {
 		               %ONLY_OPENPAGE%
 		         ORDER BY frecency DESC
 		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
-	]]>.toString(),
+	*/),
   
 	getPlacesItemsSQL : function(aFindFlag) 
 	{
@@ -284,7 +285,7 @@ var XMigemoPlaces = {
 		return sql;
 	},
 	
-	placesItemsSQLBase : <![CDATA[ 
+	placesItemsSQLBase : here(/* 
 		SELECT title, uri, favicon, bookmark, tags, findkey %OPEN_COUNT_FINAL%
 		  FROM (SELECT *,
 		        GROUP_CONCAT(%FINDKEY_CONTENTS%, ' ') findkey
@@ -308,7 +309,7 @@ var XMigemoPlaces = {
 		           %SOURCES_LIMIT_PART%)
 		   GROUP BY uri)
 		   WHERE %TERMS_RULES%
-	]]>.toString(),
+	*/),
    
 /* 入力履歴の検索 */ 
 	
@@ -337,7 +338,7 @@ var XMigemoPlaces = {
 		return sql;
 	},
 	
-	inputHistorySourceInRangeSQLBase : <![CDATA[ 
+	inputHistorySourceInRangeSQLBase : here(/* 
 		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, %PLACE_FOR_LINEBREAK%)
 		  FROM (SELECT p.title title,
 		               p.url uri,
@@ -365,7 +366,7 @@ var XMigemoPlaces = {
 		                 %ONLY_OPENPAGE%
 		         ORDER BY rank DESC, frecency DESC
 		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
-	]]>.toString(),
+	*/),
   
 	getInputHistoryItemsSQL : function(aFindFlag) 
 	{
@@ -392,7 +393,7 @@ var XMigemoPlaces = {
 		return sql;
 	},
 	
-	inputHistoryItemsSQLBase : <![CDATA[ 
+	inputHistoryItemsSQLBase : here(/*
 		SELECT title, uri, favicon, bookmark, tags, findkey
 		  FROM (SELECT *,
 		        GROUP_CONCAT(%FINDKEY_CONTENTS%, ' ') findkey
@@ -426,11 +427,11 @@ var XMigemoPlaces = {
 		   GROUP BY uri
 		   ORDER BY rank DESC, frecency DESC)
 		   WHERE %TERMS_RULES%
-	]]>.toString(),
+	*/),
    
 /* スマートキーワードの検索 */ 
 	
-	keywordSearchSourceInRangeSQL : <![CDATA[ 
+	keywordSearchSourceInRangeSQL : here(/* 
 		SELECT GROUP_CONCAT(search_url, %PLACE_FOR_LINEBREAK%)
 		  FROM (SELECT REPLACE(s.url, '%s', ?2) search_url
 		          FROM moz_keywords k
@@ -440,9 +441,9 @@ var XMigemoPlaces = {
 		          WHERE LOWER(k.keyword) = LOWER(?1)
 		          ORDER BY h.frecency DESC
                   LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
-	]]>.toString(),
+	*/),
  
-	keywordSearchItemInRangeSQL : <![CDATA[ 
+	keywordSearchItemInRangeSQL : here(/*
 		SELECT h.title,
 		       REPLACE(s.url, '%s', ?2) search_url,
 		       IFNULL(f.url,
@@ -462,7 +463,7 @@ var XMigemoPlaces = {
 		 WHERE LOWER(k.keyword) = LOWER(?1)
 		 ORDER BY h.frecency DESC
          %SOURCES_LIMIT_PART%
-	]]>.toString(),
+	*/),
   
 /* Places Organizerとサイドバーの検索 */ 
 	
@@ -476,7 +477,7 @@ var XMigemoPlaces = {
 		return this._historyInRangeSQL;
 	},
 	
-	historyInRangeSQLBase : <![CDATA[ 
+	historyInRangeSQLBase : here(/*
 		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, %PLACE_FOR_LINEBREAK%)
 		  FROM (SELECT p.id id,
 		               p.title title,
@@ -486,7 +487,7 @@ var XMigemoPlaces = {
 		          FROM moz_places p
 		         WHERE p.hidden <> 1
 		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
-	]]>.toString(),
+	*/),
   
 	get bookmarksInRangeSQL() 
 	{
@@ -498,7 +499,7 @@ var XMigemoPlaces = {
 		return this._bookmarksInRangeSQL;
 	},
 	
-	bookmarksInRangeSQLBase : <![CDATA[ 
+	bookmarksInRangeSQLBase : here(/*
 		SELECT GROUP_CONCAT(%FINDKEY_CONTENTS%, %PLACE_FOR_LINEBREAK%)
 		  FROM (SELECT b.id id,
 		               b.title title,
@@ -509,7 +510,7 @@ var XMigemoPlaces = {
 		               LEFT OUTER JOIN moz_places p ON b.fk = p.id
 		         WHERE b.type = 1 AND b.title IS NOT NULL
 		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
-	]]>.toString(),
+	*/),
    
 	insertFilter : function(aSQL, aFindFlag) 
 	{
@@ -568,7 +569,7 @@ var XMigemoPlaces = {
 			);
 	},
  
-	parentFolderSQLFragment : <![CDATA[ 
+	parentFolderSQLFragment : here(/*
 		SELECT b.parent
 		  FROM moz_bookmarks b
 		       JOIN moz_bookmarks t
@@ -578,9 +579,9 @@ var XMigemoPlaces = {
 		                         WHERE root_name = 'tags')
 		 WHERE b.type = 1 AND b.fk = p.id
 		 ORDER BY b.lastModified DESC LIMIT 1
-	]]>.toString(),
+	*/),
  
-	bookmarkTitleSQLFragment : <![CDATA[ 
+	bookmarkTitleSQLFragment : here(/*
 		(SELECT b.title
 		  FROM moz_bookmarks b
 		       JOIN moz_bookmarks t
@@ -590,9 +591,9 @@ var XMigemoPlaces = {
 		                         WHERE root_name = 'tags')
 		 WHERE b.type = 1 AND b.fk = p.id
 		 ORDER BY b.lastModified DESC LIMIT 1) bookmark
-	]]>.toString(),
+	*/),
  
-	tagsSQLFragment : <![CDATA[ 
+	tagsSQLFragment : here(/*
 		(SELECT GROUP_CONCAT(t.title, ',')
 		  FROM moz_bookmarks b
 		       JOIN moz_bookmarks t
@@ -601,7 +602,7 @@ var XMigemoPlaces = {
 		                         FROM moz_bookmarks_roots
 		                        WHERE root_name = 'tags')
 		 WHERE b.type = 1 AND b.fk = p.id) tags
-	]]>.toString(),
+	*/),
  
 	openCountColumnSQLFragment      : ', o.open_count open_count', 
 	openCountFinalColumnSQLFragment : ', open_count',
@@ -898,7 +899,7 @@ var XMigemoPlaces = {
 		'xulmigemo.autostart.regExpFind',
 		'browser.urlbar'
 	],
-	preferences : <![CDATA[
+	preferences : here(/*
 		xulmigemo.places.enableBoundaryFind
 		xulmigemo.places.ignoreURI
 		xulmigemo.places.chunk
@@ -914,7 +915,7 @@ var XMigemoPlaces = {
 		browser.urlbar.match.url
 		browser.urlbar.matchBehavior
 		browser.urlbar.default.behavior
-	]]>.toString(),
+	*/),
   
 	init : function() 
 	{

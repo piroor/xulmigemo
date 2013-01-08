@@ -22,40 +22,13 @@ pref("xulmigemo.work_for_any_xml_document",     true);
 
 pref("xulmigemo.checked_by_default.findbar",       false);
 
-pref("xulmigemo.checked_by_default.highlight",     false);
 pref("xulmigemo.checked_by_default.caseSensitive", false);
 
-pref("xulmigemo.checked_by_default.highlight.always",     false);
-pref("xulmigemo.checked_by_default.highlight.always.minLength", 2);
 pref("xulmigemo.checked_by_default.caseSensitive.always", false);
 
 // 1 = native, 2 = migemo, 4 = regexp
 pref("xulmigemo.findMode.always", -1);
 pref("xulmigemo.findMode.default", 1);
-
-pref("xulmigemo.highlight.showScreen",     true);
-pref("xulmigemo.highlight.animateFound",   true);
-// 0 = zoom (like webkit), 1 = jump (old XUL/Migemo)
-pref("xulmigemo.highlight.animationStyle", 0);
-pref("xulmigemo.highlight.animationStyle.0.size", 10);
-pref("xulmigemo.highlight.animationStyle.1.size", 2);
-// <button>[+<modifier flags (nsIDOMNSEvent)>]
-// for example:
-//   0+2 = 0(left click) + 2 (CONTROL_MASK)
-//   0+8 = 0(left click) + 8 (META_MASK)
-//   1+6 = 1(middle click) + 2 (CONTROL_MASK) + 4 (SHIFT_MASK)
-//   2+1 = 2(right click) + 1 (ALT_MASK)
-pref("xulmigemo.highlight.hideScreen.restoreButtons", "1,0+1,0+2,0+4,0+8,0+6,0+12");
-
-pref("xulmigemo.highlight.foundMarker.enabled", true);
-pref("xulmigemo.highlight.foundMarker.size",    10);
-pref("xulmigemo.highlight.foundMarker.padding", 5);
-pref("xulmigemo.highlight.foundMarker.fill",    "rgba(255,255,0,1)");
-pref("xulmigemo.highlight.foundMarker.stroke",  "rgba(192,128,0,0.75)");
-pref("xulmigemo.highlight.foundMarker.fill.active",   "rgba(255,191,0,1)");
-pref("xulmigemo.highlight.foundMarker.stroke.active", "rgba(160,80,0,0.75)");
-pref("xulmigemo.highlight.foundMarker.smoothScroll.enabled", true);
-pref("xulmigemo.highlight.foundMarker.smoothScroll.duration", 150);
 
 pref("xulmigemo.timeout",                       4000);
 pref("xulmigemo.timeout.stopWhileScrolling",    true);

@@ -75,8 +75,6 @@ XMigemoStartupService.prototype = {
 	{
 		var sheets = [
 				'chrome://xulmigemo/content/focus.css',
-				'chrome://xulmigemo/content/highlight/highlight.css',
-				'chrome://xulmigemo/content/marker/marker.css'
 			];
 		sheets.forEach(function(aSheet) {
 			var sheet = this.IOService.newURI(aSheet, null, null);

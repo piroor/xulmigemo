@@ -7,7 +7,6 @@ var XMigemoUI = {
 
 	kFINDBAR_POSITION : '_moz-xmigemo-position',
 	kTARGET           : '_moz-xmigemo-target',
-	kLAST_HIGHLIGHT   : '_moz-xmigemo-last-highlight',
 	kFOCUSED          : '_moz-xmigemo-focused',
 
 	kDISABLE_IME    : '_moz-xmigemo-disable-ime',
@@ -82,9 +81,6 @@ var XMigemoUI = {
 	disableIMEOnQuickFindFor  : 7, 
 	disableIMEOnNormalFindFor : 0,
  
-	highlightCheckedAlways     : false, 
-	highlightCheckedAlwaysMinLength : 2,
- 
 	caseSensitiveCheckedAlways : false, 
  
 	_modeCirculation : 0, 
@@ -122,50 +118,6 @@ var XMigemoUI = {
 	kCLOSEBUTTON_POSITION_RIGHTMOST : 1,
 	closeButtonPosition : 0,
 	lastCloseButtonPosition : 0,
- 
-	kFINDBAR_POSITION_BELOW_CONTENT : 0, 
-	kFINDBAR_POSITION_ABOVE_CONTENT : 1,
-	kFINDBAR_POSITION_BELOW_TABS    : 2,
-	findBarPositionAttrValues : [
-		'belowcontent',
-		'abovecontent',
-		'belowtabbar'
-	],
-	findBarPosition : 0,
-
-	get highlightSelectionOnly()
-	{
-		return this.highlightSelectionAvailable &&
-				this._highlightUtilities.every(function(aUtility) {
-					return !aUtility.requireDOMHighlight;
-				});
-	},
-	registerHighlightUtility : function(aUtility)
-	{
-		if (this._highlightUtilities.indexOf(aUtility) < 0)
-			this._highlightUtilities.push(aUtility);
-	},
-	unregisterHighlightUtility : function(aUtility)
-	{
-		var index = this._highlightUtilities.indexOf(aUtility);
-		if (index > -1)
-			this._highlightUtilities.splice(index, 1);
-	},
-	_highlightUtilities : [],
-
-	get highlightSelectionAvailable()
-	{
-		return (
-				this._highlightSelectionAvailable &&
-				'SELECTION_FIND' in Components.interfaces.nsISelectionController
-			);
-	},
-	set highlightSelectionAvailable(aValue)
-	{
-		this._highlightSelectionAvailable = aValue;
-		return aValue;
-	},
-	_highlightSelectionAvailable : true,
   
 /* elements */ 
 	
@@ -178,7 +130,7 @@ var XMigemoUI = {
 	
 	get activeBrowser() 
 	{
-		return ('SplitBrowser' in window && SplitBrowser.activeBrowser) || this.browser;
+		return this.browser;
 	},
   
 	get target() 
@@ -197,6 +149,7 @@ var XMigemoUI = {
 	get findBar() 
 	{
 		if (!this._findBar) {
+			window.gFindBar; // ensure initialized
 			this._findBar = document.getElementById('FindToolbar');
 		}
 		return this._findBar;
@@ -205,6 +158,7 @@ var XMigemoUI = {
 	
 	get findBarItems() 
 	{
+		window.gFindBar; // ensure initialized
 		var node = this.closeButton;
 		var items = [];
 		do {
@@ -241,15 +195,15 @@ var XMigemoUI = {
  
 	get field() 
 	{
-		if (this._field === void(0)) {
+		if (!this._field) {
 			this._field = document.getElementById('find-field');
 			if (!this._field && this.findBar) {
 				this._field = this.findBar.getElement('findbar-textbox');
 			}
 		}
+if (!this._field) Application.console.log('FIND FIELD IS NOT UPDATED YET!\n' +document.getElementById('find-field')+'\n'+this.findBar+'\n'+new Error().stack);
 		return this._field;
 	},
-//	_field : null,
  
 	get findNextButton() 
 	{
@@ -286,18 +240,6 @@ var XMigemoUI = {
 		return this._caseSensitiveCheck;
 	},
 //	_caseSensitiveCheck : null,
- 
-	get highlightCheck() 
-	{
-		if (this._highlightCheck === void(0)) {
-			this._highlightCheck = document.getElementById('highlight');
-			if (!this._highlightCheck && this.findBar) {
-				this._highlightCheck = this.findBar.getElement('highlight');
-			}
-		}
-		return this._highlightCheck;
-	},
-//	_highlightCheck : null,
   
 	get findMigemoBar() 
 	{
@@ -466,65 +408,6 @@ var XMigemoUI = {
 		return null;
 	},
   
-	get shouldHighlightAll() 
-	{
-		var term = this.findTerm;
-		if (!this.highlightCheckedAlways)
-			return term.length ? true : false ;
-
-		var minLength = Math.max(1, this.highlightCheckedAlwaysMinLength);
-		var termLength = term.length;
-		if (termLength) {
-			var flags = 'gm';
-			if (this.findMode == this.FIND_MODE_MIGEMO ||
-				!this.caseSensitiveCheck.checked)
-				flags += 'i';
-			var regexp;
-			switch (this.findMode)
-			{
-				case this.FIND_MODE_REGEXP:
-					regexp = new RegExp(this.textUtils.extractRegExpSource(term), flags);
-					break;
-				case this.FIND_MODE_MIGEMO:
-					regexp = new RegExp(XMigemoCore.getRegExp(term), flags);
-					break
-				default:
-					regexp = new RegExp(this.textUtils.sanitize(term), flags);
-					break;
-			}
-			termLength = Math.max.apply(
-				null,
-				this.getMatchedTerms(
-					regexp,
-					this.activeBrowser.contentWindow
-				).map(function(aItem) {
-					return (aItem || '').length;
-				})
-				.concat(0) // to prevent "-Infinity" error
-			);
-		}
-
-		return minLength <= termLength;
-	},
-	getMatchedTerms : function(aRegExp, aWindow)
-	{
-		var results = [];
-		var frames = aWindow.frames;
-		for (var i = 0, maxi = frames.length; i < maxi; i++)
-		{
-			results = results.concat(this.getMatchedTerms(aRegExp, frames[i]));
-		}
-
-		var doc = aWindow.document;
-		var range = doc.createRange();
-		range.selectNodeContents(doc.documentElement);
-
-		var arrTerms = this.textUtils.range2Text(range).match(aRegExp);
-		if (arrTerms)
-			results = results.concat(arrTerms);
-
-		return results;
-	},
  
 	get isScrolling() 
 	{
@@ -648,7 +531,7 @@ var XMigemoUI = {
 		}, this);
 	},
 	
-	doProcessForAllFrames : function(aProcess, aScope, aBrowserOrFrame) 
+	doProcessForAllFrames : function(aProcess, aSelf, aBrowserOrFrame) 
 	{
 		var b = aBrowserOrFrame || this.activeBrowser;
 		var frames;
@@ -669,7 +552,7 @@ var XMigemoUI = {
 			if (aFrame.frames && aFrame.frames.length) {
 				Array.slice(aFrame.frames).forEach(arguments.callee, this);
 			}
-			aProcess.call(aScope || this, aFrame);
+			aProcess.call(aSelf || this, aFrame);
 		}, this);
 	},
   
@@ -684,40 +567,36 @@ var XMigemoUI = {
 	
 	domain  : 'xulmigemo', 
  
-	preferences : <![CDATA[ 
-		xulmigemo.autostart
-		xulmigemo.autostart.regExpFind
-		xulmigemo.enableautoexit.inherit
-		xulmigemo.enableautoexit.nokeyword
-		xulmigemo.checked_by_default.highlight.always
-		xulmigemo.checked_by_default.highlight.always.minLength
-		xulmigemo.checked_by_default.caseSensitive
-		xulmigemo.findMode.always
-		xulmigemo.enabletimeout
-		xulmigemo.enabletimeout.indicator
-		xulmigemo.timeout
-		xulmigemo.timeout.stopWhileScrolling
-		xulmigemo.shortcut.findForward
-		xulmigemo.shortcut.findBackward
-		xulmigemo.shortcut.manualStart
-		xulmigemo.shortcut.manualStart2
-		xulmigemo.shortcut.manualStartLinksOnly
-		xulmigemo.shortcut.manualStartLinksOnly2
-		xulmigemo.shortcut.goDicManager
-		xulmigemo.shortcut.manualExit
-		xulmigemo.shortcut.modeCirculation
-		xulmigemo.disableIME.quickFindFor
-		xulmigemo.disableIME.normalFindFor
-		xulmigemo.find_delay
-		xulmigemo.ignore_find_links_only_behavior
-		xulmigemo.prefillwithselection
-		xulmigemo.work_for_any_xml_document
-	]]>.toString(),
-	preferencesFindBar : <![CDATA[ 
-		xulmigemo.appearance.buttonLabelsMode
-		xulmigemo.appearance.indicator.height
-		xulmigemo.appearance.closeButtonPosition
-	]]>.toString(),
+	preferences : 
+		'xulmigemo.autostart\n' +
+		'xulmigemo.autostart.regExpFind\n' +
+		'xulmigemo.enableautoexit.inherit\n' +
+		'xulmigemo.enableautoexit.nokeyword\n' +
+		'xulmigemo.checked_by_default.caseSensitive\n' +
+		'xulmigemo.findMode.always\n' +
+		'xulmigemo.enabletimeout\n' +
+		'xulmigemo.enabletimeout.indicator\n' +
+		'xulmigemo.timeout\n' +
+		'xulmigemo.timeout.stopWhileScrolling\n' +
+		'xulmigemo.shortcut.findForward\n' +
+		'xulmigemo.shortcut.findBackward\n' +
+		'xulmigemo.shortcut.manualStart\n' +
+		'xulmigemo.shortcut.manualStart2\n' +
+		'xulmigemo.shortcut.manualStartLinksOnly\n' +
+		'xulmigemo.shortcut.manualStartLinksOnly2\n' +
+		'xulmigemo.shortcut.goDicManager\n' +
+		'xulmigemo.shortcut.manualExit\n' +
+		'xulmigemo.shortcut.modeCirculation\n' +
+		'xulmigemo.disableIME.quickFindFor\n' +
+		'xulmigemo.disableIME.normalFindFor\n' +
+		'xulmigemo.find_delay\n' +
+		'xulmigemo.ignore_find_links_only_behavior\n' +
+		'xulmigemo.prefillwithselection\n' +
+		'xulmigemo.work_for_any_xml_document',
+	preferencesFindBar : 
+		'xulmigemo.appearance.buttonLabelsMode\n' +
+		'xulmigemo.appearance.indicator.height\n' +
+		'xulmigemo.appearance.closeButtonPosition',
  
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
@@ -740,14 +619,6 @@ var XMigemoUI = {
 
 			case 'xulmigemo.autostart.regExpFind':
 				this.autoStartRegExpFind = value;
-				return;
-
-			case 'xulmigemo.checked_by_default.highlight.always':
-				this.highlightCheckedAlways = value;
-				return;
-
-			case 'xulmigemo.checked_by_default.highlight.always.minLength':
-				this.highlightCheckedAlwaysMinLength = value;
 				return;
 
 			case 'xulmigemo.checked_by_default.caseSensitive.always':
@@ -879,16 +750,6 @@ var XMigemoUI = {
 				this.onXMigemoFindProgress(aEvent);
 				return;
 
-			case 'XMigemoFindAgain':
-				if (!this.isActive &&
-					this.lastFindMode == this.FIND_MODE_NATIVE &&
-					this.highlightCheck.checked) {
-					window.setTimeout(function(aSelf) {
-						aSelf.clearSelectionInEditable(aSelf.activeBrowser.contentWindow);
-					}, 0, this);
-				}
-				return;
-
 			case 'XMigemoFindBarOpen':
 				this.startListen();
 				this.onFindBarOpen(aEvent);
@@ -896,7 +757,6 @@ var XMigemoUI = {
 
 			case 'XMigemoFindBarClose':
 				this.stopListen();
-				this.highlightCheck.checked = false;
 				return;
 
 			case 'blur':
@@ -934,31 +794,10 @@ var XMigemoUI = {
 			case 'XMigemoFindBarUpdateRequest':
 				if (this.updatingFindBar) return;
 				this.updatingFindBar = true;
-				this.updateFloatingFindBarAppearance(aEvent);
 				this.onChangeFindBarSize(aEvent);
 				window.setTimeout(function(aSelf) {
 					aSelf.updatingFindBar = false;
 				}, 100, this);
-				return;
-
-			case 'SubBrowserContentExpanded':
-				if (!this.hidden) return;
-			case 'SubBrowserAdded':
-			case 'SubBrowserRemoved':
-			case 'SubBrowserContentCollapsed':
-				if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS)
-					return;
-				gFindBar.close();
-				window.setTimeout('gFindBar.open();', 100);
-				return;
-
-			case 'SubBrowserFocusMoved':
-				XMigemoFind.target = this.activeBrowser;
-				this.findBar.setAttribute(this.kTARGET, this.activeBrowser.id || 'subbrowser');
-				if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS)
-					return;
-				gFindBar.close();
-				window.setTimeout('gFindBar.open();', 100);
 				return;
 
 			default:
@@ -980,15 +819,6 @@ var XMigemoUI = {
 			target.addEventListener('scroll', this, true);
 		}
 
-		if ('SplitBrowser' in window) {
-			var root = document.documentElement;
-			root.addEventListener('SubBrowserAdded', this, false);
-			root.addEventListener('SubBrowserRemoved', this, false);
-			root.addEventListener('SubBrowserContentCollapsed', this, false);
-			root.addEventListener('SubBrowserContentExpanded', this, false);
-			root.addEventListener('SubBrowserFocusMoved', this, false);
-		}
-
 		if ('TreeStyleTabService' in window)
 			document.addEventListener('TreeStyleTabAutoHideStateChange', this, false);
 	},
@@ -1006,15 +836,6 @@ var XMigemoUI = {
 			target.removeEventListener('mousedown', this, true);
 			target.removeEventListener('mouseup', this, true);
 			target.removeEventListener('scroll', this, true);
-		}
-
-		if ('SplitBrowser' in window) {
-			var root = document.documentElement;
-			root.removeEventListener('SubBrowserAdded', this, false);
-			root.removeEventListener('SubBrowserRemoved', this, false);
-			root.removeEventListener('SubBrowserContentCollapsed', this, false);
-			root.removeEventListener('SubBrowserContentExpanded', this, false);
-			root.removeEventListener('SubBrowserFocusMoved', this, false);
 		}
 
 		if ('TreeStyleTabService' in window)
@@ -1302,23 +1123,19 @@ var XMigemoUI = {
  
 	onXMigemoFindProgress : function(aEvent) 
 	{
+		var data = aEvent.getData('data');
 		var statusRes = (
 				 XMigemoFind.isLinksOnly ?
-				 	aEvent.resultFlag & XMigemoFind.FOUND_IN_LINK :
-					aEvent.resultFlag & XMigemoFind.FOUND
+				 	data.resultFlag & XMigemoFind.FOUND_IN_LINK :
+					data.resultFlag & XMigemoFind.FOUND
 			) ?
 				this.nsITypeAheadFind.FIND_FOUND :
-			(aEvent.resultFlag & XMigemoFind.WRAPPED) ?
+			(data.resultFlag & XMigemoFind.WRAPPED) ?
 				this.nsITypeAheadFind.FIND_WRAPPED :
 				this.nsITypeAheadFind.FIND_NOTFOUND;
 
 		var found = (statusRes == this.nsITypeAheadFind.FIND_FOUND || statusRes == this.nsITypeAheadFind.FIND_WRAPPED);
 		gFindBar._enableFindButtons(this.findTerm);
-		if (this.lastHighlightedKeyword != aEvent.findTerm) {
-			this.lastHighlightedKeyword = aEvent.findTerm;
-			if (found && this.highlightCheck.checked)
-				gFindBar._setHighlightTimeout();
-		}
 
 		if (this.isQuickFind) {
 			this.clearFocusRing();
@@ -1326,9 +1143,8 @@ var XMigemoUI = {
 			if (link) link.setAttribute(this.kFOCUSED, true);
 		}
 
-		gFindBar._updateStatusUI(statusRes, !(aEvent.findFlag & XMigemoFind.FIND_BACK));
+		gFindBar._updateStatusUI(statusRes, !(data.findFlag & XMigemoFind.FIND_BACK));
 	},
-	lastHighlightedKeyword : null,
  
 	onInput : function(aEvent) 
 	{
@@ -1370,11 +1186,6 @@ var XMigemoUI = {
 	onChangeFindBarSize : function(aEvent) 
 	{
 		var shouldUpdatePosition = false;
-		if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS &&
-			this.lastTargetBox) {
-			this.setFloatingFindBarWidth(this.lastTargetBox.boxObject.width, aEvent);
-			shouldUpdatePosition = true;
-		}
 		if (this.buttonLabelsMode == this.kLABELS_AUTO) {
 			this.showHideLabels(true);
 			var box = this.caseSensitiveCheck.boxObject;
@@ -1392,11 +1203,6 @@ var XMigemoUI = {
 	onChangeMode : function() 
 	{
 		this.clearTimer();
-		var highlighted = this.highlightCheck.checked;
-		if (highlighted) {
-			gFindBar.toggleHighlight(false);
-			this.clearHighlight(this.activeBrowser.contentDocument, true);
-		}
 		if (!this.hidden && !this.inCancelingProcess) {
 			if (this.isQuickFind || this.findMode == this.FIND_MODE_NATIVE) {
 				this.cancel(true);
@@ -1411,9 +1217,6 @@ var XMigemoUI = {
 		if (!this.inCancelingProcess &&
 			!this.hidden) {
 			this.field.focus();
-		}
-		if (highlighted) {
-			gFindBar.toggleHighlight(true);
 		}
 	},
  
@@ -1486,7 +1289,6 @@ var XMigemoUI = {
 	onFindBarOpen : function(aEvent) 
 	{
 		this.updateItemOrder();
-		this.updateFindBarAppearance();
 		this.updateModeSelectorPosition(true);
 		if (this.lastWindowWidth != window.innerWidth) {
 			this.onChangeFindBarSize();
@@ -1507,8 +1309,7 @@ var XMigemoUI = {
 	{
 		if (this.findBarInitialShown) return;
 		this.findBarInitialShown = true;
-		if (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_CONTENT &&
-			this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_LEFTMOST)
+		if (this.closeButtonPosition == this.kCLOSEBUTTON_POSITION_LEFTMOST)
 			return;
 		window.setTimeout(function(aSelf) {
 			var items = aSelf.findBarItems;
@@ -1628,7 +1429,7 @@ var XMigemoUI = {
 		var value = 0;
 		if (aTimeout > -1) {
 			if (aCurrent === void(0)) {
-				aThis.indicatorStartTime = (new Date()).getTime();
+				aThis.indicatorStartTime = Date.now();
 				aCurrent = aTimeout;
 			}
 
@@ -1655,7 +1456,7 @@ var XMigemoUI = {
 				- aThis.findBar.boxObject.height
 			)+'px';
 
-			aCurrent = aTimeout - parseInt(((new Date()).getTime() - aThis.indicatorStartTime));
+			aCurrent = aTimeout - parseInt(Date.now() - aThis.indicatorStartTime);
 
 			aThis.indicatorTimer = window.setTimeout(arguments.callee, 50, aTimeout, aCurrent, aThis);
 		}
@@ -1800,8 +1601,7 @@ var XMigemoUI = {
 		var buttons = [
 				this.findNextButton,
 				this.findPreviousButton,
-				this.caseSensitiveCheck,
-				this.highlightCheck
+				this.caseSensitiveCheck
 			];
 		var switchers = Array.slice(this.findModeSelector.childNodes);
 		if (aShow) {
@@ -1875,64 +1675,15 @@ var XMigemoUI = {
 						0
 				)
 			)+'px';
-		box.style.top = (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_CONTENT) ?
-			'auto' :
-			this.findBar.boxObject.y+'px' ;
-		box.style.bottom = (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_CONTENT) ?
-			(
+		box.style.top = 'auto';
+		box.style.bottom = (
 				document.documentElement.boxObject.height
 				- findBarBox.y
 				- findBarBox.height
-			)+'px' :
-			'auto' ;
+			)+'px';
 		box.lastBaseState = baseState;
 	},
 	rightMostOffset : 5,
- 
-	updateFindBarPosition : function() 
-	{
-		this.findBarPosition = XMigemoService.getPref('xulmigemo.appearance.findBarPosition');
-		if (this.findBarPosition < 0 || this.findBarPosition >= this.findBarPositionAttrValues.length)
-			this.findBarPosition = this.kFINDBAR_POSITION_BELOW_CONTENT;
-
-		if ('XMigemoMail' in window && this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS)
-			this.findBarPosition = this.kFINDBAR_POSITION_ABOVE_CONTENT;
-
-		var bar = this.findBar;
-		bar.setAttribute(this.kFINDBAR_POSITION, this.findBarPositionAttrValues[this.findBarPosition]);
-
-		if (this.findBarPosition != this.kFINDBAR_POSITION_ABOVE_CONTENT) return;
-
-		var contentArea = document.getElementById('browser') || // Firefox
-					document.getElementById('messagepane'); // Thunderbird
-		contentArea.parentNode.insertBefore(bar, contentArea);
-	},
- 
-	updateFindBarAppearance : function() 
-	{
-		if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS &&
-			this.findBarPosition != this.kFINDBAR_POSITION_ABOVE_CONTENT)
-			return;
-
-		this.cleanUpOnFindBarHidden()
-
-		var floating = (this.findBarPosition == this.kFINDBAR_POSITION_BELOW_TABS);
-		if (floating) {
-			this.updateFloatingFindBarAppearance();
-			this.onChangeFindBarSize();
-		}
-
-		var height = this.findBar.boxObject.height;
-
-		var target = this.target;
-		var targetBox = this.targetBox;
-		if (floating) targetBox.style.paddingTop = height+'px';
-		target.contentWindow.scrollBy(0, height);
-
-		this.lastTarget = target;
-		this.lastTargetBox = targetBox;
-		this.contentAreaYOffset = height;
-	},
  
 	cleanUpOnFindBarHidden : function() 
 	{
@@ -1953,34 +1704,7 @@ var XMigemoUI = {
 				return;
 		}
 	},
- 
-	updateFloatingFindBarAppearance : function(aEvent) 
-	{
-		if (this.findBarPosition != this.kFINDBAR_POSITION_BELOW_TABS) return;
-
-		var bar = this.findBar;
-		var target = this.targetBox;
-
-		bar.style.position = 'fixed';
-		bar.style.top = target.boxObject.y+'px';
-		bar.style.left = target.boxObject.x+'px';
-
-		this.setFloatingFindBarWidth(target.boxObject.width, aEvent);
-	},
 	
-	setFloatingFindBarWidth : function(aWidth, aEvent) 
-	{
-		if (aEvent &&
-			aEvent.type == 'TreeStyleTabAutoHideStateChange' &&
-			aEvent.shown &&
-			aEvent.xOffset)
-			aWidth -= aEvent.xOffset;
-
-		var bar = this.findBar;
-		bar.style.width = aWidth+'px';
-		var box = document.getAnonymousElementByAttribute(bar, 'anonid', 'findbar-container');
-		if (box) box.style.width = bar.style.width;
-	},
    
 /* Override FindBar */ 
 	
@@ -2027,9 +1751,6 @@ var XMigemoUI = {
 		gFindBar.open                 = this.open;
 		gFindBar.close                = this.close;
 
-		gFindBar.xmigemoOriginalToggleHighlight = gFindBar.toggleHighlight;
-		gFindBar.toggleHighlight = this.toggleHighlight;
-
 		gFindBar.prefillWithSelection = false; // disable Firefox's native feature
 	},
 	updateFindBarMethods : function()
@@ -2052,50 +1773,6 @@ var XMigemoUI = {
 			)
 		);
 
-		eval('gFindBar._highlightDoc = '+gFindBar._highlightDoc.toSource()
-			.replace(
-				/((?:var|let) win = [^;]+;)/,
-				<![CDATA[$1
-					if (!aWord || aWord != this._lastHighlightString)
-						XMigemoUI.clearHighlight(win.document);
-				]]>.toString()
-			).replace(
-				'return textFound;',
-				'XMigemoUI.clearHighlight(doc); $&'
-			).replace(
-				'this._highlight(aHighlight, retRange, controller);',
-				'this._highlight(aHighlight, retRange, controller, aWord);'
-			).replace(
-				/if \((!doc \|\| )(!\("body" in doc\)|!\(doc instanceof HTMLDocument\))\)/,
-				'if ($1($2 && (!XMigemoUI.workForAnyXMLDocuments || !(doc instanceof XMLDocument))))'
-			).replace(
-				'doc.body',
-				'XMigemoUI.getDocumentBody(doc)'
-			).replace(
-				'var retRange = null;',
-				<![CDATA[
-					if (XMigemoUI.isActive || !XMigemoUI.highlightSelectionOnly) {
-						if (XMigemoUI.highlightText(aHighlight, aWord, null, this._searchRange)) {
-							this._lastHighlightString = aWord;
-							return true;
-						}
-						else {
-							return false;
-						}
-					}
-					$&
-				]]>.toString()
-			)
-		);
-		eval('gFindBar.xmigemoOriginalToggleHighlight = '+gFindBar.xmigemoOriginalToggleHighlight.toSource()
-			.replace(
-				')',
-				', aAutoChecked, aKeepLastStatus)'
-			).replace(
-				/(this\._updateStatusUI\([^\)]+\);)/g,
-				'if (!aKeepLastStatus) { $1 }'
-			)
-		);
 /*
 		var setter = gFindBar.__lookupSetter__('browser');
 		var getter = gFindBar.__lookupGetter__('browser');
@@ -2116,28 +1793,6 @@ var XMigemoUI = {
 		gFindBar.__defineSetter__('browser', setter);
 		gFindBar.__defineGetter__('browser', getter);
 */
-
-		eval('gFindBar._setHighlightTimeout ='+
-			gFindBar._setHighlightTimeout.toSource()
-			.replace(
-				/^(\(?function)([^\(]*)\(\) \{/,
-				<![CDATA[$1$2(aAutoChecked) {
-					if (XMigemoUI.findTerm == XMigemoUI.activeBrowser.contentDocument.documentElement.getAttribute(XMigemoUI.kLAST_HIGHLIGHT))
-						return;
-				]]>
-			).replace(
-				/(\w+\.toggleHighlight\(false)(\);)/,
-				<![CDATA[
-					var checked = !XMigemoUI.highlightCheck.disabled && XMigemoUI.highlightCheck.checked;
-					$1, false, true$2
-					if (checked)
-						XMigemoUI.textUtils.setSelectionLook(XMigemoUI.activeBrowser.contentDocument, true);
-				]]>
-			).replace(
-				/(\b[^\.]+\.toggleHighlight\(true)(\);)/,
-				'$1, !checked$2'
-			)
-		);
 
 		eval('gFindBar.onFindAgainCommand = '+gFindBar.onFindAgainCommand.toSource()
 			.replace(
@@ -2177,10 +1832,6 @@ var XMigemoUI = {
 		var caseSensitive = this.caseSensitiveCheck;
 		caseSensitive.setAttribute('long-label', caseSensitive.getAttribute('label'));
 		caseSensitive.setAttribute('short-label', this.findMigemoBar.getAttribute('caseSensitive-short-label'));
-
-		var highlight = this.highlightCheck;
-		highlight.setAttribute('long-label', highlight.getAttribute('label'));
-		highlight.setAttribute('short-label', this.findMigemoBar.getAttribute('highlight-short-label'));
 	},
  
 	getLastFindString : function(aString) 
@@ -2224,14 +1875,18 @@ var XMigemoUI = {
 		);
 		if (aShowMinimalUI) ui.isQuickFind = true;
 
-		var scope = window.gFindBar ? window.gFindBar : this ;
-		scope.xmigemoOriginalOpen.apply(scope, arguments);
-		ui.findMigemoBar.removeAttribute('collapsed');
+		var self = window.gFindBar || this;
+		self.xmigemoOriginalOpen.apply(self, arguments);
+		ui.finishOpen();
+	},
+	finishOpen : function()
+	{
+		this.findMigemoBar.removeAttribute('collapsed');
 
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarOpen', true, false);
-		event.isQuickFind = aShowMinimalUI;
-		ui.findBar.dispatchEvent(event);
+		event.isQuickFind = this.isQuickFind;
+		this.findBar.dispatchEvent(event);
 	},
 	
 	updateFindModeOnOpen : function(aOverrideMode, aSwitchQuickFindMode) 
@@ -2256,8 +1911,8 @@ var XMigemoUI = {
   
 	close : function() 
 	{
-		var scope = window.gFindBar ? window.gFindBar : this ;
-		scope.xmigemoOriginalClose.apply(scope, arguments);
+		var self = window.gFindBar || this;
+		self.xmigemoOriginalClose.apply(self, arguments);
 
 		if (XMigemoUI.hidden) {
 			XMigemoUI.findModeSelectorBox.setAttribute('hidden', true);
@@ -2289,9 +1944,6 @@ var XMigemoUI = {
 
 		this.updateCaseSensitiveCheck();
 
-		this.clearHighlight(this.activeBrowser.contentDocument, true);
-		this.lastHighlightedKeyword = null;
-
 		var WindowWatcher = Components
 				.classes['@mozilla.org/embedcomp/window-watcher;1']
 				.getService(Components.interfaces.nsIWindowWatcher);
@@ -2310,125 +1962,12 @@ var XMigemoUI = {
   
 /* highlight */ 
 	
-	toggleHighlight : function(aHighlight, aAutoChecked) 
-	{
-		var event = document.createEvent('Events');
-		event.initEvent('XMigemoFindBarUpdateHighlight', true, false);
-		event.targetHighlight = aHighlight;
-		XMigemoUI.findBar.dispatchEvent(event);
-
-		if (XMigemoUI.highlightCheckedAlways && aAutoChecked) {
-			XMigemoUI.stopDelayedToggleHighlightTimer();
-			XMigemoUI.delayedToggleHighlightTimer = window.setTimeout(function() {
-				XMigemoUI.stopDelayedToggleHighlightTimer();
-				var highlight = XMigemoUI.shouldHighlightAll;
-				var disabled = XMigemoUI.highlightCheck.disabled;
-				var checked = XMigemoUI.highlightCheck.checked;
-				if (!XMigemoUI.findTerm || !checked) highlight = false;
-				XMigemoUI.toggleHighlight(highlight, false, true);
-			}, 10);
-			return;
-		}
-
-		event = document.createEvent('Events');
-		event.initEvent('XMigemoFindBarToggleHighlight', true, false);
-		event.targetHighlight = aHighlight;
-		XMigemoUI.findBar.dispatchEvent(event);
-
-		if (!aHighlight)
-			XMigemoUI.activeBrowser.contentDocument.documentElement.removeAttribute(XMigemoUI.kLAST_HIGHLIGHT);
-
-		var scope = window.gFindBar ? window.gFindBar : this ;
-		scope.xmigemoOriginalToggleHighlight.apply(scope, arguments);
-	},
  
-	stopDelayedToggleHighlightTimer : function() 
-	{
-		if (!this.delayedToggleHighlightTimer) return;
-		window.clearTimeout(this.delayedToggleHighlightTimer);
-		this.delayedToggleHighlightTimer = null;
-	},
-	delayedToggleHighlightTimer : null,
  
-	clearHighlight : function(aDocument, aRecursively) 
-	{
-		var keepFoundHighlighted = !this.highlightCheck.disabled && this.highlightCheck.checked;
-		migemo.clearHighlight(aDocument, aRecursively, this.highlightSelectionOnly, keepFoundHighlighted);
-	},
  
-	highlightText : function(aDoHighlight, aWord, aBaseNode, aRange) 
-	{
-		var flags = this.shouldCaseSensitive ? '' : 'i' ;
-		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
-					this.textUtils.extractRegExpSource(aWord) :
-				this.findMode == this.FIND_MODE_MIGEMO ?
-					XMigemoCore.getRegExp(aWord) :
-					this.textUtils.sanitize(aWord) ;
-
-		var doc = aRange.startContainer.ownerDocument || aRange.startContainer;
-		if (!this.highlightSelectionOnly && !aBaseNode)
-			aBaseNode = this.createNewHighlight(doc);
-
-		this.clearHighlight(doc);
-
-		var ranges = !aDoHighlight ?
-				[XMigemoCore.regExpFind(regexp, flags, aRange)] :
-			this.highlightSelectionAvailable ?
-				XMigemoCore.regExpHighlightSelection(regexp, flags, aRange, aBaseNode) :
-				XMigemoCore.regExpHighlight(regexp, flags, aRange, aBaseNode) ;
-
-		return ranges.length ? true : false ;
-	},
 	
-	createNewHighlight : function(aDocument) 
-	{
-		var node = aDocument.createElementNS('http://www.w3.org/1999/xhtml', 'span');
-		var color = this.highlightSelectionAvailable ?
-				'' :
-				'color: black; background-color: yellow;' ;
-		node.setAttribute('style', color + <![CDATA[
-			display: inline;
-			font-size: inherit;
-			padding: 0;
-		]]>.toString());
-		node.className = '__mozilla-findbar-search';
-		this.updateHighlightNode(node);
-		return node;
-	},
  
-	updateHighlightNode : function(aNode) 
-	{
-		aNode.setAttribute('onmousedown', <><![CDATA[
-			try {
-				var xpathResult = this.ownerDocument.evaluate(
-						'ancestor::*[contains(" INPUT input TEXTAREA textarea ", concat(" ", local-name(), " "))]',
-						this,
-						null,
-						XPathResult.FIRST_ORDERED_NODE_TYPE,
-						null
-					);
-				if (!xpathResult.singleNodeValue) return;
-			}
-			catch(e) {
-				// permission denied, then this is in the input area!
-			}
-			var range = document.createRange();
-			range.selectNodeContents(this);
-			var contents = range.extractContents(true);
-			range.selectNode(this);
-			range.deleteContents();
-			range.insertNode(contents);
-			range.detach();
-		]]></>);
-
-		XMigemoService.ObserverService.notifyObservers(aNode, 'XMigemo:highlightNodeReaday', null);
-	},
  
-	onHighlightClickedOrTyped : function(aEvent) 
-	{
-		alert(aEvent.target);
-		alert(aEvent.originalTarget);
-	},
    
 	updateStatus : function(aStatusText) 
 	{
@@ -2514,59 +2053,18 @@ var XMigemoUI = {
  
 	enableFindButtons : function(aEnable) 
 	{
-		var highlightCheck = XMigemoUI.highlightCheck;
-		var caseSensitive  = this.caseSensitiveCheck;
-		if (!highlightCheck.disabled) {
-			highlightCheck.xmigemoOriginalChecked = highlightCheck.checked;
-		}
-
-		var scope = window.gFindBar ? window.gFindBar : this ;
-		scope.xmigemoOriginalEnableFindButtons.apply(scope, arguments);
+		var self = window.gFindBar || this;
+		self.xmigemoOriginalEnableFindButtons.apply(self, arguments);
 
 		if (aEnable) {
-			XMigemoUI.updateHighlightCheck();
 			if (XMigemoUI.caseSensitiveCheckedAlways)
 				caseSensitive.checked = true;
-		}
-		else {
-			if (XMigemoUI.highlightCheckedAlways) {
-				XMigemoUI.toggleHighlight(false, true);
-				XMigemoUI.highlightCheck.checked = false;
-			}
 		}
 
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindBarUpdate', true, false);
 		XMigemoUI.findBar.dispatchEvent(event);
 	},
-	highlightCheckFirst : true,
-	updateHighlightCheck : function()
-	{
-		if (this.updateHighlightCheckTimer) {
-			window.clearTimeout(this.updateHighlightCheckTimer);
-			this.updateHighlightCheckTimer = null;
-		}
-		this.updateHighlightCheckTimer = window.setTimeout(this.updateHighlightCheckCallback, 400, this);
-	},
-	updateHighlightCheckCallback : function(aSelf)
-	{
-		var highlightCheck = aSelf.highlightCheck;
-		var prevHighlightState = highlightCheck.checked;
-		var checked =
-			!aSelf.findTerm ?
-				false :
-			aSelf.highlightCheckedAlways ?
-				aSelf.shouldHighlightAll :
-			aSelf.highlightCheckFirst ?
-				XMigemoService.getPref('xulmigemo.checked_by_default.highlight') :
-				highlightCheck.xmigemoOriginalChecked ;
-		highlightCheck.checked = checked;
-		if (checked != prevHighlightState) {
-			aSelf.toggleHighlight(checked, true);
-		}
-		aSelf.highlightCheckFirst = false;
-	},
-	updateHighlightCheckTimer : null,
  
 	updateCaseSensitiveCheck : function(aSilently) 
 	{
@@ -2639,8 +2137,10 @@ var XMigemoUI = {
 			let self = this;
 			window.watch('gFindBarInitialized', function(aValue) {
 				if (aValue && self) {
-					self.initFindBar();
-					self = null;
+					window.setTimeout(function() {
+						self.initFindBar();
+						self = null;
+					}, 0);
 				}
 				return aValue;
 			});
@@ -2669,7 +2169,6 @@ var XMigemoUI = {
 		this.findBar.addEventListener('XMigemoFindBarOpen', this, false);
 		this.findBar.addEventListener('XMigemoFindBarClose', this, false);
 
-		this.updateFindBarPosition();
 		this.updateItemOrder();
 		this.overrideFindBar();
 		XMigemoService.firstListenPrefChange(this, this.preferencesFindBar);
@@ -2677,13 +2176,16 @@ var XMigemoUI = {
 		window.setTimeout(function(aSelf) {
 			window.setTimeout("XMigemoUI.field.addEventListener('blur', XMigemoUI, false);", 0);
 
-			if (XMigemoService.getPref('xulmigemo.findMode.default') > -1)
-				aSelf.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
-			if (XMigemoService.getPref('xulmigemo.checked_by_default.highlight'))
-				aSelf.highlightCheck.checked = aSelf.highlightCheck.xmigemoOriginalChecked = true;
-			if (XMigemoService.getPref('xulmigemo.checked_by_default.caseSensitive')) {
-				aSelf.caseSensitiveCheck.checked = aSelf.caseSensitiveCheck.xmigemoOriginalChecked = true;
-				gFindBar.toggleCaseSensitiveCheckbox(true);
+			if (!aSelf.hidden) {
+				aSelf.finishOpen();
+			}
+			else {
+				if (XMigemoService.getPref('xulmigemo.findMode.default') > -1)
+					aSelf.findMode = XMigemoService.getPref('xulmigemo.findMode.default');
+				if (XMigemoService.getPref('xulmigemo.checked_by_default.caseSensitive')) {
+					aSelf.caseSensitiveCheck.checked = aSelf.caseSensitiveCheck.xmigemoOriginalChecked = true;
+					gFindBar.toggleCaseSensitiveCheckbox(true);
+				}
 			}
 		}, 0, this);
 	},

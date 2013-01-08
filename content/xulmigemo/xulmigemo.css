@@ -20,6 +20,7 @@ findbar#FindToolbar[_moz-xmigemo-position="belowtabbar"] > [anonid="findbar-cont
 
 #FindToolbar [anonid="find-status"],
 toolbar#FindToolbar label#find-status {
+	box-flex: 1;
 	-moz-box-flex: 1;
 }
 

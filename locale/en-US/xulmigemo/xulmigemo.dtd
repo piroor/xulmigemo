@@ -14,11 +14,6 @@
 
 <!ENTITY config.startfromviewport       "Find from viewport">
 <!ENTITY config.scrollSelectionToCenter "Show the found term in the middle of the screen">
-<!ENTITY config.highlight.showScreen    "Strongly emphasise &quot;Highlight all&quot;">
-<!ENTITY config.highlight.animationStyle "Animation:">
-<!ENTITY config.highlight.animationStyle.0 "Zoom">
-<!ENTITY config.highlight.animationStyle.1 "Jump">
-<!ENTITY config.highlight.foundMarker   "Show positions of found terms beside the scrollbar">
 <!ENTITY config.autoStartRegExpFind     "Do regular expression search for /REGEXP/ inputs">
 <!ENTITY config.disableIME              "Turn IME off automatically for Migemo Find">
 
@@ -62,9 +57,6 @@
 <!ENTITY config.prefillwithselection             "Find field contents:">
 <!ENTITY config.prefillwithselection.true        "Selected term">
 <!ENTITY config.prefillwithselection.false       "Last find term">
-<!ENTITY config.checked_by_default.highlight.always     "Highlight all">
-<!ENTITY config.checked_by_default.highlight.always.minLength.before ": only for">
-<!ENTITY config.checked_by_default.highlight.always.minLength.after  "or more characters">
 <!ENTITY config.checked_by_default.caseSensitive.always "Match cases">
 <!ENTITY config.findMode.always.caption         "Find mode:">
 <!ENTITY config.findMode.always.undefined.label "Keep last mode">
@@ -146,7 +138,6 @@
 <!ENTITY config.findbar.advanced.title   "Initial state of the Find Toolbar Features">
 
 <!ENTITY config.findbar.initialState             "Initial state:">
-<!ENTITY config.checked_by_default.highlight     "Highlight all">
 <!ENTITY config.checked_by_default.caseSensitive "Match cases">
 <!ENTITY config.findMode.default.caption         "Find mode:">
 

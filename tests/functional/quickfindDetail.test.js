@@ -39,7 +39,7 @@ function testResetTimerOnInput()
 	var findTerm = 'nihongoNoTekisuto';
 	assert.autoStart(findTerm.charAt(0))
 
-	var startAt = (new Date()).getTime();
+	var startAt = Date.now();
 
 	var lastInput = XMigemoUI.findTerm;
 	var key;
@@ -49,22 +49,22 @@ function testResetTimerOnInput()
 		utils.wait(WAIT);
 		assert.equals(lastInput+findTerm.charAt(i), XMigemoUI.findTerm);
 		lastInput = XMigemoUI.findTerm;
-		if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
+		if ((Date.now() - startAt) > XMigemoUI.timeout) break;
 	}
 	assert.isQuickMigemoFindActive();
 
 	action.inputTo(field, findTerm);
 	utils.wait(WAIT);
 
-	startAt = (new Date()).getTime();
-	while (((new Date()).getTime() - startAt) < XMigemoUI.timeout)
+	startAt = Date.now();
+	while ((Date.now() - startAt) < XMigemoUI.timeout)
 	{
 		assert.isQuickMigemoFindActive();
 		action.keypressOn(field, Ci.nsIDOMKeyEvent.DOM_VK_RETURN);
 		utils.wait(WAIT);
 	}
 
-	startAt = (new Date()).getTime();
+	startAt = Date.now();
 	lastInput = XMigemoUI.findTerm;
 	for (var i = findTerm.length; i > 0; i--)
 	{
@@ -72,7 +72,7 @@ function testResetTimerOnInput()
 		utils.wait(WAIT);
 		assert.equals(lastInput.substring(0, lastInput.length-1), XMigemoUI.findTerm);
 		lastInput = XMigemoUI.findTerm;
-		if (((new Date()).getTime() - startAt) > XMigemoUI.timeout) break;
+		if ((Date.now() - startAt) > XMigemoUI.timeout) break;
 	}
 	assert.isQuickMigemoFindActive();
 }

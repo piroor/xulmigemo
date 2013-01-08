@@ -29,18 +29,11 @@ function getBoxObjectFor(aNode)
 function xmXMigemoTextUtils() { 
 
 	var excludeNodesCondition = 'contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " "))';
-	this._lazyExceptionsExpression = [
+	this._exceptionsExpression = [
 			'descendant::*[',
 				excludeNodesCondition,
 				' or ',
 				'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
-			']'
-		].join('');
-	this._exceptionsExpression = this._lazyExceptionsExpression + ' | '+[
-			'descendant::text()[',
-				'normalize-space()',
-				' and ',
-				'not(ancestor::*['+excludeNodesCondition+'])',
 			']'
 		].join('');
 
@@ -123,25 +116,22 @@ xmXMigemoTextUtils.prototype = {
 		return this.range2TextInternal(aRange, true);
 	},
  
-	range2TextInternal : function(aRange, aLazy) 
+	range2TextInternal : function(aRange) 
 	{
 		aRange.QueryInterface(Ci.nsIDOMRange);
 		var doc = aRange.startContainer;
 		if (doc.ownerDocument) doc = doc.ownerDocument;
 
-		var encoder = null;
-		if ('SkipInvisibleContent' in Ci.nsIDocumentEncoder) { // Firefox 4.0-
-			encoder = Cc['@mozilla.org/layout/documentEncoder;1?type=text/plain']
+		var encoder = Cc['@mozilla.org/layout/documentEncoder;1?type=text/plain']
 						.createInstance(Ci.nsIDocumentEncoder);
-			encoder.init(
-				doc,
-				'text/plain',
-				Ci.nsIDocumentEncoder.OutputSelectionOnly |
-				Ci.nsIDocumentEncoder.OutputBodyOnly |
-				Ci.nsIDocumentEncoder.OutputLFLineBreak |
-				Ci.nsIDocumentEncoder.SkipInvisibleContent
-			);
-		}
+		encoder.init(
+			doc,
+			'text/plain',
+			Ci.nsIDocumentEncoder.OutputSelectionOnly |
+			Ci.nsIDocumentEncoder.OutputBodyOnly |
+			Ci.nsIDocumentEncoder.OutputLFLineBreak |
+			Ci.nsIDocumentEncoder.SkipInvisibleContent
+		);
 
 		if (Prefs.getBoolPref('javascript.enabled')) {
 			let noscript = doc.getElementsByTagName('noscript');
@@ -165,7 +155,7 @@ xmXMigemoTextUtils.prototype = {
 
 		try {
 			var nodes = doc.evaluate(
-					(aLazy || encoder ? this._lazyExceptionsExpression : this._exceptionsExpression ),
+					this._exceptionsExpression,
 					aRange.commonAncestorContainer,
 					null,
 					Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE,
@@ -173,7 +163,6 @@ xmXMigemoTextUtils.prototype = {
 				);
 			var node;
 			var found = false;
-			var selCon = aLazy || encoder ? null : this.getSelectionController(doc.defaultView) ;
 			while (node = nodes.iterateNext())
 			{
 				nodeRange.selectNode(node);
@@ -187,28 +176,17 @@ xmXMigemoTextUtils.prototype = {
 				textRange.setEndBefore(node);
 				let string = textRange.toString();
 				if (string) {
-					if (encoder) {
-						encoder.setRange(textRange);
-						result.push(encoder.encodeToString());
-					}
-					else {
-						result.push(string);
-					}
+					encoder.setRange(textRange);
+					result.push(encoder.encodeToString());
 				}
-				if (node.nodeType == node.TEXT_NODE) {
-					if (selCon.checkVisibility(node, 0, node.nodeValue.length))
-						result.push(node.nodeValue);
-				}
-				else {
-					switch (node.localName.toLowerCase())
-					{
-						case 'textarea':
-						case 'input':
-						case 'textbox':
-							result.push(node.value);
-						default:
-							break;
-					}
+				switch (node.localName.toLowerCase())
+				{
+					case 'textarea':
+					case 'input':
+					case 'textbox':
+						result.push(node.value);
+					default:
+						break;
 				}
 				textRange.selectNode(node);
 				textRange.collapse(false);
@@ -226,13 +204,8 @@ xmXMigemoTextUtils.prototype = {
 
 		var string = textRange.toString();
 		if (string) {
-			if (encoder) {
-				encoder.setRange(textRange);
-				result.push(encoder.encodeToString());
-			}
-			else {
-				result.push(string);
-			}
+			encoder.setRange(textRange);
+			result.push(encoder.encodeToString());
 		}
 
 		nodeRange.detach();
@@ -540,7 +513,7 @@ xmXMigemoTextUtils.prototype = {
 
 		var utils = w.QueryInterface(Ci.nsIInterfaceRequestor)
 						.getInterface(Ci.nsIDOMWindowUtils);
-		if ('nodesFromRect' in utils) { // Firefox 3.6-
+		if ('nodesFromRect' in utils) {
 			let nodes = utils.nodesFromRect(
 					0,
 					0,
@@ -558,7 +531,7 @@ xmXMigemoTextUtils.prototype = {
 					lastNode = nodes[i];
 					i++;
 				}
-				while (this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i < maxi);
+				while (nodes[i] && this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i < maxi);
 			}
 			else {
 				let i = nodes.length-1;
@@ -566,53 +539,7 @@ xmXMigemoTextUtils.prototype = {
 					lastNode = nodes[i];
 					i--;
 				}
-				while (this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i > -1);
-			}
-		}
-		else { // -Firefox 3.5
-			let walker = aDocument.createTreeWalker(
-					aDocument.documentElement,
-					Ci.nsIDOMNodeFilter.SHOW_ELEMENT,
-					this.visibleNodeFilter,
-					false
-				);
-
-			if (aBackward) {
-				lastNode = aDocument.documentElement;
-				while (node = walker.lastChild())
-				{
-					lastNode = node;
-					walker.currentNode = node;
-				}
-				let node = lastNode;
-				this.visibleNodeFilter.found = false;
-				if (this.visibleNodeFilter.acceptNode(node) != this.visibleNodeFilter.kACCEPT) {
-					while (!this.visibleNodeFilter.found &&
-						(node = walker.previousNode()))
-					{
-						lastNode = node;
-						walker.currentNode = node;
-					}
-				}
-			}
-			else {
-				let node = aDocument.documentElement;
-				lastNode = node;
-				this.visibleNodeFilter.found = false;
-				if (this.visibleNodeFilter.acceptNode(node) != this.visibleNodeFilter.kACCEPT) {
-					while (!this.visibleNodeFilter.found &&
-						(node = walker.nextNode()))
-					{
-						lastNode = node;
-						walker.currentNode = node;
-					}
-				}
-			}
-			if (
-				(!lastNode || lastNode == aDocument.documentElement) &&
-				this.visibleNodeFilter.lastInScreenNode
-				) {
-				lastNode = this.visibleNodeFilter.lastInScreenNode;
+				while (nodes[i] && this.visibleNodeFilter.acceptNode(nodes[i]) != this.visibleNodeFilter.kACCEPT && i > -1);
 			}
 		}
 

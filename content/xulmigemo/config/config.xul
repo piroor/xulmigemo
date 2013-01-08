@@ -26,15 +26,6 @@
 		<preference id="xulmigemo.scrollSelectionToCenter"
 			name="xulmigemo.scrollSelectionToCenter"
 			type="bool"/>
-		<preference id="xulmigemo.highlight.showScreen"
-			name="xulmigemo.highlight.showScreen"
-			type="bool"/>
-		<preference id="xulmigemo.highlight.animationStyle"
-			name="xulmigemo.highlight.animationStyle"
-			type="int"/>
-		<preference id="xulmigemo.highlight.foundMarker.enabled"
-			name="xulmigemo.highlight.foundMarker.enabled"
-			type="bool"/>
 		<preference id="xulmigemo.autostart.regExpFind"
 			name="xulmigemo.autostart.regExpFind"
 			type="bool"/>
@@ -84,24 +75,6 @@
 		<checkbox id="xulmigemo.scrollSelectionToCenter-check" flex="1"
 			label="&config.scrollSelectionToCenter;"
 			preference="xulmigemo.scrollSelectionToCenter"/>
-		<checkbox id="xulmigemo.highlight.showScreen-check" flex="1"
-			label="&config.highlight.showScreen;"
-			preference="xulmigemo.highlight.showScreen"/>
-		<hbox align="center">
-			<spacer style="width:1em;"/>
-			<label value="&config.highlight.animationStyle;"
-				control="xulmigemo.highlight.animationStyle-radiogroup"/>
-			<radiogroup orient="horizontal"
-				id="xulmigemo.highlight.animationStyle-radiogroup"
-				preference="xulmigemo.highlight.animationStyle"
-				align="center">
-				<radio label="&config.highlight.animationStyle.0;" value="0"/>
-				<radio label="&config.highlight.animationStyle.1;" value="1"/>
-			</radiogroup>
-		</hbox>
-		<checkbox id="xulmigemo.highlight.foundMarker.enabled-check" flex="1"
-			label="&config.highlight.foundMarker;"
-			preference="xulmigemo.highlight.foundMarker.enabled"/>
 		<checkbox id="xulmigemo.autostart.regExpFind-check" flex="1"
 			label="&config.autoStartRegExpFind;"
 			preference="xulmigemo.autostart.regExpFind"/>
@@ -209,12 +182,6 @@
 		<preference id="xulmigemo.prefillwithselection"
 			name="xulmigemo.prefillwithselection"
 			type="bool"/>
-		<preference id="xulmigemo.checked_by_default.highlight.always"
-			name="xulmigemo.checked_by_default.highlight.always"
-			type="bool"/>
-		<preference id="xulmigemo.checked_by_default.highlight.always.minLength"
-			name="xulmigemo.checked_by_default.highlight.always.minLength"
-			type="int"/>
 		<preference id="xulmigemo.checked_by_default.caseSensitive.always"
 			name="xulmigemo.checked_by_default.caseSensitive.always"
 			type="bool"/>
@@ -249,19 +216,6 @@
 			</radiogroup>
 		</hbox>
 		<separator class="groove"/>
-		<hbox align="center">
-			<checkbox id="xulmigemo.checked_by_default.highlight.always-check"
-				label="&config.checked_by_default.highlight.always;"
-				preference="xulmigemo.checked_by_default.highlight.always"/>
-			<label value="&config.checked_by_default.highlight.always.minLength.before;"
-				control="xulmigemo.checked_by_default.highlight.always.minLength-textbox"/>
-			<textbox id="xulmigemo.checked_by_default.highlight.always.minLength-textbox"
-				preference="xulmigemo.checked_by_default.highlight.always.minLength"
-				style="width: 3em;"
-				type="number" min="1" increment="1"/>
-			<label value="&config.checked_by_default.highlight.always.minLength.after;"
-				control="xulmigemo.checked_by_default.highlight.always.minLength-textbox"/>
-		</hbox>
 		<checkbox id="xulmigemo.checked_by_default.caseSensitive.always-check"
 			label="&config.checked_by_default.caseSensitive.always;"
 			preference="xulmigemo.checked_by_default.caseSensitive.always"/>

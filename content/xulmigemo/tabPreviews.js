@@ -20,16 +20,17 @@ var XMigemoTabPreviews = {
 		XMigemoService.firstListenPrefChange(this);
 
 		var getter = ctrlTab.__lookupGetter__('tabList');
+		var { here } = Components.utils.import('resource://xulmigemo-modules/here.js', {});
 		eval('getter = '+getter.toSource().replace(
 			'if (this.searchField.value) {',
-			<![CDATA[
+			here(/*
 				if (this.searchField.value &&
 					XMigemoTabPreviews.enabled &&
 					migemo.isValidFunctionalInput(this.searchField.value)) {
 					list = XMigemoTabPreviews.filterListFromInput(list, this.searchField.value);
 				}
 				else $&
-			]]>.toString()
+			*/)
 		));
 		ctrlTab.__defineGetter__('tabList', getter);
 	},
@@ -96,9 +97,7 @@ var XMigemoTabPreviews = {
 		}
 	},
 	domain  : 'xulmigemo.ctrlTab',
-	preferences : <><![CDATA[
-		xulmigemo.ctrlTab.enabled
-	]]></>.toString(),
+	preferences : 'xulmigemo.ctrlTab.enabled',
   
 	dummy : null
 }; 
