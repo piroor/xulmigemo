@@ -919,7 +919,9 @@ var XMigemoPlaces = {
   
 	init : function() 
 	{
-		this.openPageAvailable = XMigemoService.Comparator.compare(XMigemoService.XULAppInfo.version, '3.7a6pre') >= 0;
+		// this.openPageAvailable = XMigemoService.Comparator.compare(XMigemoService.XULAppInfo.version, '3.7a6pre') >= 0;
+		// this feature doesn't work, so disabled. see: https://github.com/piroor/xulmigemo/issues/4
+		this.openPageAvailable = false;
 		if (!this.openPageAvailable) {
 			this.openCountColumnSQLFragment = '';
 			this.openCountFinalColumnSQLFragment = '';
