@@ -32,32 +32,17 @@
 <!ENTITY config.timeout.after           "ミリ秒経過したら終了する">
 
 
-
-<!ENTITY config.tab.appearance  "外観">
-
-<!ENTITY config.checked_by_default.findbar  "Firefox起動時に最初から検索ツールバーを表示しておく">
+<!ENTITY config.tab.findbar             "検索ツールバー">
 
 <!ENTITY config.appearance.buttonLabelsMode "検索ツールバー内のボタン">
 <!ENTITY config.appearance.buttonLabelsMode.0 "フルサイズで表示">
 <!ENTITY config.appearance.buttonLabelsMode.1 "幅に合わせて自動で変更">
 <!ENTITY config.appearance.buttonLabelsMode.2 "小さく表示">
-<!ENTITY config.appearance.findBarPosition "検索ツールバーの位置（再起動後から有効）">
-<!ENTITY config.appearance.findBarPosition.0 "下">
-<!ENTITY config.appearance.findBarPosition.1 "上">
-<!ENTITY config.appearance.findBarPosition.2 "タブの下">
-<!ENTITY config.appearance.closeButtonPosition "「閉じる」ボタンの位置">
-<!ENTITY config.appearance.closeButtonPosition.0 "左端">
-<!ENTITY config.appearance.closeButtonPosition.1 "右端">
-
-
-
-<!ENTITY config.tab.findbar             "検索ツールバー">
 
 <!ENTITY config.findbar.permanentState       "検索を実行する度に常に以下の状態にリセットする：">
 <!ENTITY config.prefillwithselection         "入力欄の内容：">
 <!ENTITY config.prefillwithselection.true    "選択範囲のテキスト">
 <!ENTITY config.prefillwithselection.false   "前回検索した内容">
-<!ENTITY config.checked_by_default.caseSensitive.always "大文字/小文字を区別">
 <!ENTITY config.findMode.always.caption         "検索モード：">
 <!ENTITY config.findMode.always.undefined.label "リセットしない">
 
@@ -137,7 +122,6 @@
 <!ENTITY config.findbar.advanced.title   "検索ツールバーの初期状態">
 
 <!ENTITY config.findbar.initialState             "起動時の設定：">
-<!ENTITY config.checked_by_default.caseSensitive "大文字/小文字を区別">
 <!ENTITY config.findMode.default.caption         "検索モード：">
 
 

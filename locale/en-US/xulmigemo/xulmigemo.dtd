@@ -33,31 +33,17 @@
 
 
 
-<!ENTITY config.tab.appearance  "Appearance">
-
-<!ENTITY config.checked_by_default.findbar       "Show Find Toolbar at startup">
+<!ENTITY config.tab.findbar             "Find Toolbar">
 
 <!ENTITY config.appearance.buttonLabelsMode "Appearance of Find Toolbar Buttons">
 <!ENTITY config.appearance.buttonLabelsMode.0 "Full size">
 <!ENTITY config.appearance.buttonLabelsMode.1 "Auto fit to width">
 <!ENTITY config.appearance.buttonLabelsMode.2 "Compact size">
-<!ENTITY config.appearance.findBarPosition "Find Toolbar Position (require restart)">
-<!ENTITY config.appearance.findBarPosition.0 "Bottom">
-<!ENTITY config.appearance.findBarPosition.1 "Top">
-<!ENTITY config.appearance.findBarPosition.2 "Below Tab Bar">
-<!ENTITY config.appearance.closeButtonPosition "&quot;Close&quot; Button Position">
-<!ENTITY config.appearance.closeButtonPosition.0 "Leftmost">
-<!ENTITY config.appearance.closeButtonPosition.1 "Rightmost">
-
-
-
-<!ENTITY config.tab.findbar             "Find Toolbar">
 
 <!ENTITY config.findbar.permanentState           "Always apply these settings when the Find Toolbar is shown:">
 <!ENTITY config.prefillwithselection             "Find field contents:">
 <!ENTITY config.prefillwithselection.true        "Selected term">
 <!ENTITY config.prefillwithselection.false       "Last find term">
-<!ENTITY config.checked_by_default.caseSensitive.always "Match cases">
 <!ENTITY config.findMode.always.caption         "Find mode:">
 <!ENTITY config.findMode.always.undefined.label "Keep last mode">
 
@@ -138,7 +124,6 @@
 <!ENTITY config.findbar.advanced.title   "Initial state of the Find Toolbar Features">
 
 <!ENTITY config.findbar.initialState             "Initial state:">
-<!ENTITY config.checked_by_default.caseSensitive "Match cases">
 <!ENTITY config.findMode.default.caption         "Find mode:">
 
 
