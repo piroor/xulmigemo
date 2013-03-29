@@ -1,5 +1,8 @@
 # History
 
+ - master/HEAD
+   * Modified: "jar" archive is no longer included.
+   * Fixed: Make codes E4X-free, to work lately versions of Firefox.
  - 0.13.6 (2010.7.13)
    * Fixed: On the first startup, the initial state of the find toolbar was wrongly set to "Migemo" mode. (*If you got the wrongly initialized preference, you have to repair it manually by "XUL/Migemo Configuration" =&gt; "Find Toolbar" =&gt; "Change initial state of the Find Toolbar Features..." =&gt; "Find mode:" =&gt; "Normal".)
    * Fixed: Failed to switch internal modes when you clicked the find mode switcher.
