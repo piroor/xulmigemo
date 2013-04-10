@@ -65,7 +65,7 @@ xmXMigemoAPI.prototype = {
 		if (!prototype.version) {
 			prototype.version = '?';
 			let ns = {};
-			Components.utils.import('resource://xulmigemo-modules/extensions.js', ns);
+			Components.utils.import('resource://xulmigemo-modules/lib/extensions.js', ns);
 			let self = this;
 			ns.extensions.getVersion('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}', function(aVersion) {
 				prototype.version = aVersion;

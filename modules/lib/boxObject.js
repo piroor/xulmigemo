@@ -24,7 +24,7 @@ if (typeof window == 'undefined' ||
 	// See: http://github.com/piroor/fxaddonlibs/blob/master/namespace.jsm
 	try {
 		let ns = {};
-		Components.utils.import('resource://xulmigemo-modules/namespace.jsm', ns);
+		Components.utils.import('resource://xulmigemo-modules/lib/namespace.jsm', ns);
 		/* var */ window = ns.getNamespaceFor('piro.sakura.ne.jp');
 	}
 	catch(e) {

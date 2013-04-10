@@ -1,4 +1,4 @@
-Components.utils.import('resource://xulmigemo-modules/stringBundle.js');
+Components.utils.import('resource://xulmigemo-modules/lib/stringBundle.js');
 var bundle = stringBundle.get('chrome://xulmigemo/locale/xulmigemo.properties');
 
 var XMigemoFileDownloader = {

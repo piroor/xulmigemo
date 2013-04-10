@@ -6,10 +6,10 @@ const Ci = Components.interfaces;
 Components.utils.import('resource://xulmigemo-modules/migemo.jsm');
 
 var namespace = {};
-Components.utils.import('resource://xulmigemo-modules/prefs.js', namespace);
-Components.utils.import('resource://xulmigemo-modules/namespace.jsm', namespace);
-Components.utils.import('resource://xulmigemo-modules/animationManager.js');
-Components.utils.import('resource://xulmigemo-modules/stringBundle.js');
+Components.utils.import('resource://xulmigemo-modules/lib/prefs.js', namespace);
+Components.utils.import('resource://xulmigemo-modules/lib/namespace.jsm', namespace);
+Components.utils.import('resource://xulmigemo-modules/lib/animationManager.js');
+Components.utils.import('resource://xulmigemo-modules/lib/stringBundle.js');
  
 var XMigemoService = { 
 	__proto__ : namespace.prefs,

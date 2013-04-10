@@ -20,7 +20,7 @@ var XMigemoTabPreviews = {
 		XMigemoService.firstListenPrefChange(this);
 
 		var getter = ctrlTab.__lookupGetter__('tabList');
-		var { here } = Components.utils.import('resource://xulmigemo-modules/here.js', {});
+		var { here } = Components.utils.import('resource://xulmigemo-modules/lib/here.js', {});
 		eval('getter = '+getter.toSource().replace(
 			'if (this.searchField.value) {',
 			here(/*

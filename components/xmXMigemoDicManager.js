@@ -330,8 +330,8 @@ xmXMigemoDicManager.prototype = {
 	get strbundle() 
 	{
 		if (!('getNamespaceFor' in namespace)) {
-			Components.utils.import('resource://xulmigemo-modules/stringBundle.js');
-			Components.utils.import('resource://xulmigemo-modules/namespace.jsm', namespace);
+			Components.utils.import('resource://xulmigemo-modules/lib/stringBundle.js');
+			Components.utils.import('resource://xulmigemo-modules/lib/namespace.jsm', namespace);
 			window = namespace.getNamespaceFor('piro.sakura.ne.jp');
 		}
 

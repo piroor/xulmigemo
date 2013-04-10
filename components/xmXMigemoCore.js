@@ -602,7 +602,7 @@ xmXMigemoCore.prototype = {
 
 		if (aSurroundNode) {
 			if (!('setInterval' in timer))
-				Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
+				Components.utils.import('resource://xulmigemo-modules/lib/jstimer.jsm', timer);
 
 			if (doc.__xulmigemo__highlightTimer) {
 				timer.clearInterval(doc.__xulmigemo__highlightTimer);
@@ -881,7 +881,7 @@ xmXMigemoCore.prototype = {
 		var highlights = this.getHighlights(aDocument, aRecursively, selCons);
 
 		if (!('clearInterval' in timer))
-			Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
+			Components.utils.import('resource://xulmigemo-modules/lib/jstimer.jsm', timer);
 
 		if (aDocument.__xulmigemo__highlightTimer) {
 			timer.clearInterval(aDocument.__xulmigemo__highlightTimer);
@@ -1070,7 +1070,7 @@ xmXMigemoCore.prototype = {
 		if (!this.highlightSelectionAvailable) return;
 
 		if (!('setTimeout' in timer))
-			Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
+			Components.utils.import('resource://xulmigemo-modules/lib/jstimer.jsm', timer);
 
 		if (aDocument.__xulmigemo__repaintHighlightsTimer)
 			timer.clearTimeout(aDocument.__xulmigemo__repaintHighlightsTimer);

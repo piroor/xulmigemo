@@ -1651,7 +1651,7 @@ var XMigemoUI = {
 	},
 	updateFindBarMethods : function()
 	{
-		var { here } = Components.utils.import('resource://xulmigemo-modules/here.js', {});
+		var { here } = Components.utils.import('resource://xulmigemo-modules/lib/here.js', {});
 
 		eval('gFindBar._find = '+gFindBar._find.toSource()
 			.replace(

@@ -16,7 +16,7 @@ function getBoxObjectFor(aNode)
 {
 	if (!('boxObject' in boxObjectModule)) {
 		Components.utils.import(
-			'resource://xulmigemo-modules/boxObject.js',
+			'resource://xulmigemo-modules/lib/boxObject.js',
 			boxObjectModule
 		);
 	}
@@ -1118,11 +1118,11 @@ mydump("setSelectionAndScroll");
 		this.initialized = true;
 
 		var namespace = {};
-		Components.utils.import('resource://xulmigemo-modules/namespace.jsm', namespace);
+		Components.utils.import('resource://xulmigemo-modules/lib/namespace.jsm', namespace);
 		this.namespace = namespace.getNamespaceFor('piro.sakura.ne.jp')['piro.sakura.ne.jp'];
 
-		Components.utils.import('resource://xulmigemo-modules/prefs.js');
-		Components.utils.import('resource://xulmigemo-modules/animationManager.js');
+		Components.utils.import('resource://xulmigemo-modules/lib/prefs.js');
+		Components.utils.import('resource://xulmigemo-modules/lib/animationManager.js');
 
 		try {
 			this.prefs.addPrefListener(this);

@@ -3,10 +3,10 @@ const EXPORTED_SYMBOLS = ['XMigemoPlaces'];
 const Cc = Components.classes;
 const Ci = Components.interfaces;
  
-Components.utils.import('resource://xulmigemo-modules/jstimer.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/lib/jstimer.jsm'); 
 Components.utils.import('resource://xulmigemo-modules/service.jsm');
 Components.utils.import('resource://xulmigemo-modules/migemo.jsm');
-Components.utils.import('resource://xulmigemo-modules/here.js');
+Components.utils.import('resource://xulmigemo-modules/lib/here.js');
  
 var XMigemoPlaces = { 
 	

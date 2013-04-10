@@ -3,7 +3,7 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('resource://xulmigemo-modules/here.js');
+Components.utils.import('resource://xulmigemo-modules/lib/here.js');
 
 const Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
@@ -18,7 +18,7 @@ function getBoxObjectFor(aNode)
 
 	if (!('boxObject' in boxObjectModule)) {
 		Components.utils.import(
-			'resource://xulmigemo-modules/boxObject.js',
+			'resource://xulmigemo-modules/lib/boxObject.js',
 			boxObjectModule
 		);
 	}
@@ -805,7 +805,7 @@ xmXMigemoTextUtils.prototype = {
 		aParent.QueryInterface(Ci.nsIDOMNode);
 
 		if (!('setTimeout' in timer))
-			Components.utils.import('resource://xulmigemo-modules/jstimer.jsm', timer);
+			Components.utils.import('resource://xulmigemo-modules/lib/jstimer.jsm', timer);
 
 		if (this.selectContentWithDelayTimer)
 			timer.clearTimeout(this.selectContentWithDelayTimer);
