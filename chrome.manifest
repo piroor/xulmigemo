@@ -15,10 +15,10 @@ overlay	chrome://messenger/content/messageWindow.xul	chrome://xulmigemo/content/
 
 locale	xulmigemo	en-US	locale/en-US/xulmigemo/
 locale	xulmigemo-platform	en-US	locale/en-US/xulmigemo/
-locale	xulmigemo-platform	en-US	jar:platform/Darwin/chrome/xulmigemo.jar!/locale/en-US/xulmigemo/ os=Darwin
+locale	xulmigemo-platform	en-US	locale/en-US/xulmigemo-Darwin/ os=Darwin
 locale	xulmigemo	ja	locale/ja/xulmigemo/
 locale	xulmigemo-platform	ja	locale/ja/xulmigemo/
-locale	xulmigemo-platform	ja	jar:platform/Darwin/chrome/xulmigemo.jar!/locale/ja/xulmigemo/ os=Darwin
+locale	xulmigemo-platform	ja	locale/ja/xulmigemo-Darwin/ os=Darwin
 
 skin	xulmigemo	classic/1.0	skin/classic/xulmigemo/
 
