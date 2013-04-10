@@ -57,7 +57,7 @@ var XMigemoFileDownloader = {
 				nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE;
 
 		Persist.progressListener = this;
-		Persist.saveURI(source, null, null, null, null, tempFile);
+		Persist.saveURI(source, null, null, null, null, tempFile, null);
 	},
 
 	onComplete : function()
