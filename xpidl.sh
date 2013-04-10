@@ -15,6 +15,7 @@ then
 fi
 
 if [ -f ${sdkroot}/bin/xpidl ]
+then
 	rm -f components/*.xpt
 	rm -f .xpt
 
