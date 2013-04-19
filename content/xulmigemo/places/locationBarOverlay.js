@@ -343,7 +343,6 @@ var XMigemoLocationBarOverlay = {
 	
 	delayedStart : function() 
 	{
-		this.panel.style.removeProperty("display");
 		this.bar.controller.stopSearch();
 
 		var findInfo = XMigemoPlaces.parseInput(this.lastInput);
@@ -981,7 +980,6 @@ XMigemoAutoCompletePopupController.prototype = {
 		if (this.input) {
 			try {
 				this.input.popup.removeEventListener('popupshowing', this, false);
-				this.input.popup.removeEventListener('popuphiding', this, false);
 			}
 			catch(e) {
 			}
@@ -992,7 +990,6 @@ XMigemoAutoCompletePopupController.prototype = {
 	{
 		try {
 			this.input.popup.removeEventListener('popupshowing', this, false);
-			this.input.popup.removeEventListener('popuphiding', this, false);
 		}
 		catch(e) {
 		}
@@ -1016,8 +1013,6 @@ XMigemoAutoCompletePopupController.prototype = {
 		{
 			case 'popupshowing':
 				return this.doCompleteDefaultIndex();
-			case 'popuphiding':
-				return this.hidePopup();
 		}
 	},
  
@@ -1043,11 +1038,6 @@ XMigemoAutoCompletePopupController.prototype = {
 		input.selectTextRange(term.length, input.textValue.length);
 	},
  
-	hidePopup : function(aEvent)
-	{
-		this.service.panel.style.setProperty("display", "none", "important");
-	},
- 
 	STATUS_NONE              : Components.interfaces.nsIAutoCompleteController.STATUS_NONE, 
 	STATUS_SEARCHING         : Components.interfaces.nsIAutoCompleteController.STATUS_SEARCHING,
 	STATUS_COMPLETE_NO_MATCH : Components.interfaces.nsIAutoCompleteController.STATUS_COMPLETE_NO_MATCH,
@@ -1062,14 +1052,12 @@ XMigemoAutoCompletePopupController.prototype = {
 		if (this.controller.input) {
 			try {
 				this.controller.input.popup.removeEventListener('popupshowing', this, false);
-				this.controller.input.popup.removeEventListener('popuphiding', this, false);
 			}
 			catch(e) {
 			}
 		}
 		if(aValue) {
 			aValue.popup.addEventListener('popupshowing', this, false);
-			aValue.popup.addEventListener('popuphiding', this, false);
 		}
 		return this.controller.input = aValue;
 	},
