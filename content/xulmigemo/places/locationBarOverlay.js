@@ -1067,8 +1067,10 @@ XMigemoAutoCompletePopupController.prototype = {
 			catch(e) {
 			}
 		}
-		aValue.popup.addEventListener('popupshowing', this, false);
-		aValue.popup.addEventListener('popuphiding', this, false);
+		if(aValue) {
+			aValue.popup.addEventListener('popupshowing', this, false);
+			aValue.popup.addEventListener('popuphiding', this, false);
+		}
 		return this.controller.input = aValue;
 	},
  
