@@ -447,13 +447,15 @@ mydump("findInDocument ==========================================");
  
 	dispatchProgressEvent : function(aFindFlag, aResultFlag) 
 	{
-		var event = this.document.createEvent('DataContainerEvent');
-		event.initEvent('XMigemoFindProgress', true, false);
-		event.setData('data', {
-			resultFlag: aResultFlag,
-			findFlag:   aFindFlag,
-			findTerm:   this.lastKeyword,
-			foundTerm:  aResultFlag & this.FOUND ? this.lastFoundWord : null 
+		var event = new this.window.CustomEvent('XMigemoFindProgress', {
+			bubbles    : true,
+			cancelable : false,
+			detail     : {
+				resultFlag : aResultFlag,
+				findFlag   : aFindFlag,
+				findTerm   : this.lastKeyword,
+				foundTerm  : aResultFlag & this.FOUND ? this.lastFoundWord : null
+			}
 		});
 		this.document.dispatchEvent(event);
 	},

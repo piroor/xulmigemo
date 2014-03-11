@@ -1058,7 +1058,7 @@ var XMigemoUI = {
  
 	onXMigemoFindProgress : function(aEvent) 
 	{
-		var data = aEvent.getData('data');
+		var data = aEvent.detail;
 		var statusRes = (
 				 XMigemoFind.isLinksOnly ?
 				 	data.resultFlag & XMigemoFind.FOUND_IN_LINK :
@@ -1935,14 +1935,13 @@ var XMigemoUI = {
 	
 	toggleHighlight : function(aHighlight, aAutoChecked) 
 	{
-		var event = document.createEvent('DataContainerEvents');
-		event.initEvent('XMigemoFindBarUpdateHighlight', true, false);
-		event.setData('data', { targetHighlight: aHighlight });
-		XMigemoUI.findBar.dispatchEvent(event);
-
-		event = document.createEvent('Events');
-		event.initEvent('XMigemoFindBarToggleHighlight', true, false);
-		event.targetHighlight = aHighlight;
+		var event = new CustomEvent('XMigemoFindBarUpdateHighlight', {
+			bubbles    : true,
+			cancelable : false,
+			detail     : {
+				targetHighlight : aHighlight
+			}
+		});
 		XMigemoUI.findBar.dispatchEvent(event);
 
 		if (!aHighlight)
