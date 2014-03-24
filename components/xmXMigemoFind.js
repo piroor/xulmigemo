@@ -10,6 +10,7 @@ var Ci = Components.interfaces;
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
 
 var xmIXMigemoFind = Ci.xmIXMigemoFind;
+var nsIDocShellTreeItem = Ci.nsIDocShellTreeNode || Ci.nsIDocShellTreeItem; // nsIDocShellTreeNode is merged to nsIDocShellTreeItem by https://bugzilla.mozilla.org/show_bug.cgi?id=331376
 
 var boxObjectModule = {};
 function getBoxObjectFor(aNode)
@@ -1266,7 +1267,7 @@ DocShellIterator.prototype = {
 	
 	getNextDocShell : function(aNode) 
 	{
-		aNode.QueryInterface(Ci.nsIDocShellTreeNode);
+		aNode.QueryInterface(nsIDocShellTreeItem);
 		// 子がある場合、最初の子を返す
 		if (aNode.childCount) return aNode.getChildAt(0);
 		var curNode = aNode;
@@ -1283,7 +1284,7 @@ DocShellIterator.prototype = {
 
 			// nextSiblingに相当するノードを取得して返す
 			childOffset = this.getChildOffsetFromDocShellNode(curNode);
-			parentNode = parentItem.QueryInterface(Ci.nsIDocShellTreeNode);
+			parentNode = parentItem.QueryInterface(Ci.nsIDocShellTreeItem);
 			if (childOffset > -1 && childOffset < parentNode.childCount-1)
 				return parentNode.getChildAt(childOffset+1);
 
@@ -1295,7 +1296,7 @@ DocShellIterator.prototype = {
  
 	getPrevDocShell : function(aNode) 
 	{
-		aNode.QueryInterface(Ci.nsIDocShellTreeNode);
+		aNode.QueryInterface(nsIDocShellTreeItem);
 		var curNode = aNode;
 		var curItem = curNode.QueryInterface(Ci.nsIDocShellTreeItem);
 		// このノードが最上位（一番最初）である場合、検索終了
@@ -1312,7 +1313,7 @@ DocShellIterator.prototype = {
 		// previousSiblingに相当するノードが子を持っている場合、
 		// 最後の子を返す。
 		// 子が無ければ、previousSiblingに相当するノードそれ自体を返す。
-		parentNode = parentItem.QueryInterface(Ci.nsIDocShellTreeNode);
+		parentNode = parentItem.QueryInterface(nsIDocShellTreeItem);
 		curItem = parentNode.getChildAt(childOffset-1);
 		return this.getLastChildDocShell(curItem) || curItem;
 	},
@@ -1324,7 +1325,7 @@ DocShellIterator.prototype = {
 		if (!parent) return -1;
 
 		// nextSiblingに相当するノードを取得して返す
-		parent.QueryInterface(Ci.nsIDocShellTreeNode);
+		parent.QueryInterface(nsIDocShellTreeItem);
 		var childOffset = 0;
 		while (parent.getChildAt(childOffset) != aNode)
 		{
@@ -1340,7 +1341,7 @@ DocShellIterator.prototype = {
 		var childCount;
 		while (true)
 		{
-			curNode = curItem.QueryInterface(Ci.nsIDocShellTreeNode);
+			curNode = curItem.QueryInterface(nsIDocShellTreeItem);
 			childCount = curNode.childCount;
 			if (!childCount)
 				return (curItem == aItem) ? null : curItem ;
