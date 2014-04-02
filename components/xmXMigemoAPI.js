@@ -60,7 +60,7 @@ xmXMigemoAPI.prototype = {
  
 	initProperties : function() 
 	{
-		var prototype = this.__proto__;
+		var prototype = xmXMigemoAPI.prototype;
 
 		if (!prototype.version) {
 			prototype.version = '?';

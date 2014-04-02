@@ -3,8 +3,8 @@ Components.utils.import('resource://xulmigemo-modules/places.jsm');
 var XMigemoLocationBarSearchSource = { 
 	create : function(aDefinition)
 	{
-		aDefinition.__proto__ = this;
-		return aDefinition;
+		let { inherit } = Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm', {});
+		return inherit(this, aDefinition);
 	},
 	isAvailable : function(aFindMode)
 	{

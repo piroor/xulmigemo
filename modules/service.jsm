@@ -10,9 +10,9 @@ Components.utils.import('resource://xulmigemo-modules/lib/prefs.js', namespace);
 Components.utils.import('resource://xulmigemo-modules/lib/namespace.jsm', namespace);
 Components.utils.import('resource://xulmigemo-modules/lib/animationManager.js');
 Components.utils.import('resource://xulmigemo-modules/lib/stringBundle.js');
+Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
  
-var XMigemoService = { 
-	__proto__ : namespace.prefs,
+var XMigemoService = inherit(namespace.prefs, { 
 	namespace : namespace.getNamespaceFor('piro.sakura.ne.jp')['piro.sakura.ne.jp'],
 	
 	DEBUG : true, 
@@ -300,9 +300,9 @@ var XMigemoService = {
 	},
   
 	dummy : null
-}; 
+}); 
   
-var XMigemoCore = { 
+var XMigemoCore = inherit(migemo, { 
 	dictionaries : Ci.xmIXMigemoEngine.ALL_DIC, 
 	
 	getRegExp : function(aInput) 
@@ -355,8 +355,7 @@ var XMigemoCore = {
 	},
 	_XMigemo : null
  
-}; 
-XMigemoCore.__proto__ = migemo;
+}); 
   
 var xulMigemoCore = XMigemoCore; 
  
