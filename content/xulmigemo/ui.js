@@ -470,7 +470,7 @@ var XMigemoUI = {
 	{
 		var b = aBrowserOrFrame || this.browser;
 		var frames;
-		if (b instanceof Ci.nsIDOMWindow) {
+		if (b instanceof Window) {
 			frames = [b];
 		}
 		else if (b.localName == 'tabbrowser') {
