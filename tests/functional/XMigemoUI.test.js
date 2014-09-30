@@ -35,7 +35,7 @@ function getFindFieldFromContent()
 {
 	var field = XMigemoUI.field;
 	assert.isNotNull(field);
-	assert.isTrue(field instanceof Ci.nsIDOMNode);
+	assert.isTrue(field instanceof field.ownerDocument.defaultView.Node);
 
 	assert.equals(field, XMigemoUI.getFindFieldFromContent(field));
 	assert.equals(field, XMigemoUI.getFindFieldFromContent(field.ownerDocument.getAnonymousNodes(field)[0]));
