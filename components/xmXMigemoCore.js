@@ -836,7 +836,7 @@ xmXMigemoCore.prototype = {
  
 	getDocumentBody : function(aDocument) 
 	{
-		if (aDocument instanceof Ci.nsIDOMHTMLDocument)
+		if (aDocument.body)
 			return aDocument.body;
 
 		try {

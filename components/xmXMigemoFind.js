@@ -726,7 +726,7 @@ mydump("resetFindRangeSet");
 		try {
 			return (aTarget instanceof nsIDOMNSEditableElement) ?
 						aTarget.QueryInterface(nsIDOMNSEditableElement).editor.selectionController :
-					(aTarget instanceof nsIDOMWindow) ?
+					(typeof aTarget.Window == 'function' && aTarget instanceof aTarget.Window) ?
 						DocShellIterator.prototype.getDocShellFromFrame(aTarget)
 							.QueryInterface(Ci.nsIInterfaceRequestor)
 							.getInterface(Ci.nsISelectionDisplay)
@@ -1214,7 +1214,7 @@ DocShellIterator.prototype = {
 	
 	getDocumentBody : function(aDocument) 
 	{
-		if (aDocument instanceof Ci.nsIDOMHTMLDocument)
+		if (aDocument.body)
 			return aDocument.body;
 
 		try {

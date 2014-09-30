@@ -643,7 +643,7 @@ xmXMigemoTextUtils.prototype = {
 						aTarget.QueryInterface(nsIDOMNSEditableElement)
 							.editor
 							.selectionController :
-					(aTarget instanceof nsIDOMWindow) ?
+					(typeof aTarget.Window == 'function' && aTarget instanceof aTarget.Window) ?
 						this.getDocShellFromFrame(aTarget)
 							.QueryInterface(Ci.nsIInterfaceRequestor)
 							.getInterface(Ci.nsISelectionDisplay)
