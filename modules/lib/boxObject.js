@@ -30,7 +30,7 @@ if (typeof window == 'undefined' ||
 }
 
 (function() {
-	const currentRevision = 8;
+	const currentRevision = 9;
 
 	if (!('piro.sakura.ne.jp' in window)) window['piro.sakura.ne.jp'] = {};
 
@@ -162,6 +162,7 @@ if (typeof window == 'undefined' ||
 				box.screenY += frame.mozInnerScreenY * zoom;
 			}
 			catch(e) {
+				Components.utils.reportError(e);
 			}
 
 			'x,y,screenX,screenY,width,height,left,top,right,bottom'
@@ -195,13 +196,17 @@ if (typeof window == 'undefined' ||
 					return 1;
 			}
 			catch(e) {
+				Components.utils.reportError(e);
 				return 1;
 			}
 			var markupDocumentViewer = aFrame.top
 					.QueryInterface(Ci.nsIInterfaceRequestor)
 					.getInterface(Ci.nsIWebNavigation)
 					.QueryInterface(Ci.nsIDocShell)
-					.contentViewer
+					.contentViewer;
+			// no need to QI for Firefox 35, but this is still required for old environments.
+			if (!('fullZoom' in markupDocumentViewer))
+				markupDocumentViewer = markupDocumentViewer
 					.QueryInterface(Ci.nsIMarkupDocumentViewer);
 			return markupDocumentViewer.fullZoom;
 		}
