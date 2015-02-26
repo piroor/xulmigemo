@@ -2150,7 +2150,8 @@ var XMigemoUI = {
 
 		this.overrideExtensionsOnInitBefore(); // hacks.js
 
-		let (browser = this.browser) {
+		{
+			let browser = this.browser;
 			if (browser) {
 				XMigemoFind = Components
 					.classes['@piro.sakura.ne.jp/xmigemo/find;1']
