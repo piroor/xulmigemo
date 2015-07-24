@@ -19,7 +19,7 @@
    // restart after doing something
    window['piro.sakura.ne.jp'].animationManager.start();
 
- license: The MIT License, Copyright (c) 2009-2014 YUKI "Piro" Hiroshi
+ license: The MIT License, Copyright (c) 2009-2015 YUKI "Piro" Hiroshi
  original:
    http://github.com/piroor/fxaddonlib-animation-manager
 */
@@ -41,7 +41,7 @@ if (typeof window == 'undefined' ||
 }
 
 (function() {
-	const currentRevision = 18;
+	const currentRevision = 19;
 
 	if (!('piro.sakura.ne.jp' in window)) window['piro.sakura.ne.jp'] = {};
 
@@ -120,7 +120,7 @@ if (typeof window == 'undefined' ||
 					return;
 				this._animatingWindows.push(aWindow);
 				let self = this;
-				aWindow.mozRequestAnimationFrame(function() {
+				aWindow.requestAnimationFrame(function() {
 					self.processAnimationFrame(aWindow);
 				});
 			}, this);
@@ -168,7 +168,7 @@ if (typeof window == 'undefined' ||
 			this._cleanUpWindows();
 			if (this._animatingWindows.indexOf(aWindow) > -1) {
 				let self = this;
-				aWindow.mozRequestAnimationFrame(function() {
+				aWindow.requestAnimationFrame(function() {
 					self.processAnimationFrame(aWindow);
 				});
 			}
