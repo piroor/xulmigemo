@@ -4,11 +4,11 @@ const Prefs = Components
 	.classes['@mozilla.org/preferences;1']
 	.getService(Components.interfaces.nsIPrefBranch);
 
-const XMigemo = Components
+var XMigemo = Components
 	.classes['@piro.sakura.ne.jp/xmigemo/engine;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
 	.getService(Components.interfaces.xmIXMigemoEngine);
 
-const XMigemoDic = XMigemo.dictionary;
+var XMigemoDic = XMigemo.dictionary;
 
 function addTerm(aStatus)
 {

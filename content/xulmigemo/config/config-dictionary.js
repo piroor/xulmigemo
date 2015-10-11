@@ -1,11 +1,11 @@
 Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
 
-const XMigemo = Components
+var XMigemo = Components
 	.classes['@piro.sakura.ne.jp/xmigemo/factory;1']
 	.getService(Components.interfaces.xmIXMigemoFactory)
 	.getService(XMigemoService.getPref('xulmigemo.lang'));
 
-const util = Components
+var util = Components
 	.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
 	.getService(Components.interfaces.xmIXMigemoFileAccess);
 

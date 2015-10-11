@@ -3,7 +3,7 @@ var TEST = false;
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
-const MAX_CACHE_COUNT = 100;
+var MAX_CACHE_COUNT = 100;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
