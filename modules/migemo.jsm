@@ -1,4 +1,4 @@
-const EXPORTED_SYMBOLS = ['migemo']; 
+var EXPORTED_SYMBOLS = ['migemo']; 
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

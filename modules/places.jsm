@@ -1,4 +1,4 @@
-const EXPORTED_SYMBOLS = ['XMigemoPlaces']; 
+var EXPORTED_SYMBOLS = ['XMigemoPlaces']; 
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

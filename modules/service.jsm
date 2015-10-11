@@ -1,4 +1,4 @@
-const EXPORTED_SYMBOLS = ['XMigemoService', 'XMigemoCore', 'xulMigemoCore']; 
+var EXPORTED_SYMBOLS = ['XMigemoService', 'XMigemoCore', 'xulMigemoCore']; 
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;

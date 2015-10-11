@@ -1,6 +1,6 @@
 var TEST = false; 
 
-const EXPORTED_SYMBOLS = ['XMigemoMail'];
+var EXPORTED_SYMBOLS = ['XMigemoMail'];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
