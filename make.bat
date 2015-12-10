@@ -1,4 +1,4 @@
-copy buildscript\makexpi.sh .\
+copy makexpi\makexpi.sh .\
 
 call xpidl.bat xulrunner-sdk-1.9.2
 bash makexpi.sh -n xulmigemo -o

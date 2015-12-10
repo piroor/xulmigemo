@@ -2,7 +2,7 @@
 
 appname=xulmigemo
 
-cp buildscript/makexpi.sh ./
+cp makexpi/makexpi.sh ./
 
 ./xpidl.sh xulrunner-sdk-1.9.2
 ./makexpi.sh -n $appname -o
