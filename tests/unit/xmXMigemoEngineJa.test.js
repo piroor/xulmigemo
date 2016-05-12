@@ -4,7 +4,7 @@ var engine;
 
 function setUp()
 {
-	engine = new xmXMigemoEngineJa();
+	engine = MigemoEngineJa;
 	engine.dictionary.load();
 }
 

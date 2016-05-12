@@ -13,8 +13,7 @@ function destroyRange()
 function setUp()
 {
 	utils.setPref('xulmigemo.lang', 'ja');
-	core = new xmXMigemoCore();
-	core.init('ja');
+	core = new MigemoCore('ja');
 	range = null;
 }
 

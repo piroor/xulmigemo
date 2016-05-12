@@ -4,7 +4,7 @@ var transform;
 
 function setUp()
 {
-	transform = new xmXMigemoTextTransformJa();
+	transform = MigemoTextTransformJa;
 }
 
 function tearDown()

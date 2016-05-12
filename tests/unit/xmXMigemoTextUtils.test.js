@@ -6,7 +6,7 @@ var textUtils;
 
 function setUp()
 {
-	textUtils = new xmXMigemoTextUtils();
+	textUtils = MigemoTextUtils;
 }
 
 function tearDown()
