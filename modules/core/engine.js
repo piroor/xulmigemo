@@ -24,6 +24,9 @@ MigemoEngine = {
 	SYSTEM_DIC : 1 << 0, 
 	USER_DIC   : 1 << 1,
 	ALL_DIC    : (1 << 0 | 1 << 1),
+
+	textTransform : MigemoTextTransform,
+	dictionary : MigemoDicitonary,
  
 	getRegExpFor : function(aInput, aTargetDic) 
 	{
@@ -35,7 +38,7 @@ MigemoEngine = {
 		var str = MigemoTextUtils.sanitize(aInput);
 
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
-			str = MigemoTextTransform.addLatinModifiers(str);
+			str = this.textTransform.addLatinModifiers(str);
 
 		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, aTargetDic);
 
@@ -92,15 +95,15 @@ MigemoEngine = {
 
 		var str = MigemoTextUtils.sanitize(aInput);
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
-			str = MigemoTextTransform.addLatinModifiers(str);
+			str = this.textTransform.addLatinModifiers(str);
 
 		var tmp = '^(' + str + ').+$';
 		var exp = new RegExp(tmp, 'img');
 
 		var lines = [];
 
-		var mydicU = (aTargetDic & this.USER_DIC) ? MigemoDictionary.getUserDic() : null ;
-		var mydic  = (aTargetDic & this.SYSTEM_DIC) ? MigemoDictionary.getDic() : null ;
+		var mydicU = (aTargetDic & this.USER_DIC) ? this.dictionary.getUserDic() : null ;
+		var mydic  = (aTargetDic & this.SYSTEM_DIC) ? this.dictionary.getDic() : null ;
 
 		if (mydicU) {
 			var lineU = mydicU.match(exp);

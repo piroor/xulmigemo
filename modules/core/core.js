@@ -1,3 +1,5 @@
+var EXPORTED_SYMBOLS = ['MigemoCore', 'MigemoCoreFactory'];
+
 /* This depends on: 
 	xmIXMigemoEngine
 	xmIXMigemoCache
@@ -10,6 +12,9 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
+Components.utils.import('resource://xulmigemo-modules/core/dicManager.js');
+Components.utils.import('resource://xulmigemo-modules/core/cache.js');
 
 var timer = {};
 
@@ -19,88 +24,19 @@ const ObserverService = Cc['@mozilla.org/observer-service;1']
 const Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
-function xmXMigemoCore() { 
-	mydump('create instance xmIXMigemo');
+function MigemoCore(aLang) {
+	this.init(aLang);
 }
+MigemoCore.prototype = {
 
-xmXMigemoCore.prototype = {
-	contractID : '@piro.sakura.ne.jp/xmigemo/core;1',
-	classDescription : 'xmXMigemoCore',
-	classID : Components.ID('{4a17fa2c-1de7-11dc-8314-0800200c9a66}'),
-
-	QueryInterface : XPCOMUtils.generateQI([
-		Ci.xmIXMigemo,
-		Ci.xmIXMigemoEngine,
-		Ci.nsIObserver,
-		Ci.nsIObserver
-	]),
-
-	get wrappedJSObject() {
-		return this;
-	},
-	
-	SYSTEM_DIC : 1, 
-	USER_DIC   : 2,
-	ALL_DIC    : 3,
- 
-	get dictionaryManager() 
-	{
-		if (!this._dictionaryManager) {
-			if (TEST && xmXMigemoDicManager) {
-				this._dictionaryManager = new xmXMigemoDicManager();
-			}
-			else {
-				this._dictionaryManager = Cc['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-						.createInstance(Ci.xmIXMigemoDicManager);
-			}
-		}
-		return this._dictionaryManager;
-	},
-	_dictionaryManager : null,
- 
-	get textUtils() 
-	{
-		if (!this._textUtils) {
-			if (TEST && xmXMigemoTextUtils) {
-				this._textUtils = new xmXMigemoTextUtils();
-			}
-			else {
-				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.xmIXMigemoTextUtils);
-			}
-		}
-		return this._textUtils;
-	},
-	_textUtils : null,
+	SYSTEM_DIC : 1 << 0, 
+	USER_DIC   : 1 << 1,
+	ALL_DIC    : (1 << 0 | 1 << 1),
  
 	get cache() 
 	{
 		if (!this._cache) {
-			var cache;
-			if (TEST && xmXMigemoCache) {
-				cache = new xmXMigemoCache();
-			}
-			else {
-				cache = Cc['@piro.sakura.ne.jp/xmigemo/cache;1']
-						.createInstance(Ci.xmIXMigemoCache);
-			}
-			var fileNameOverride;
-			try {
-				fileNameOverride = Prefs.getCharPref('xulmigemo.cache.override.'+this.lang);
-			}
-			catch(e) {
-			}
-			var encodingOverride;
-			try {
-				encodingOverride = Prefs.getCharPref('xulmigemo.cache.override.'+this.lang+'.encoding');
-			}
-			catch(e) {
-			}
-			cache.init(
-				fileNameOverride || this.engine.lang+'.cache.txt',
-				encodingOverride || 'UTF-8'
-			);
-			this._cache = cache;
+			this._cache = MigemoCacheFactory.get(this.lang);
 		}
 		return this._cache;
 	},
@@ -199,7 +135,7 @@ xmXMigemoCore.prototype = {
   
 	getRegExps : function(aInput, aTargetDic) 
 	{
-		return this.textUtils.trim(aInput)
+		return MigemoTextUtils.trim(aInput)
 			.split(/\s+/)
 			.map(function(aInput) {
 				return this.getRegExp(aInput, aTargetDic);
@@ -213,7 +149,7 @@ xmXMigemoCore.prototype = {
 
 		aInput = aInput.toLowerCase();
 
-		var cache = this.dictionaryManager.cache;
+		var cache = MigemoDicManager.cache;
 		var cacheText = cache.getCacheFor(aInput, aTargetDic);
 		if (cacheText) {
 			mydump('cache:'+encodeURIComponent(cacheText));
@@ -402,10 +338,10 @@ xmXMigemoCore.prototype = {
 			var exceptions = {};
 			aInput = this.siftExceptions(aInput, exceptions);
 			if (exceptions.value.length)
-				aExceptionRegExp.value = this.textUtils.getORFindRegExpFromTerms(this.getRegExps(exceptions.value.join(' '), aTargetDic));
+				aExceptionRegExp.value = MigemoTextUtils.getORFindRegExpFromTerms(this.getRegExps(exceptions.value.join(' '), aTargetDic));
 		}
 		var regexps = this.getRegExps(aInput, aTargetDic);
-		aTermsRegExp.value = this.textUtils.getORFindRegExpFromTerms(regexps);
+		aTermsRegExp.value = MigemoTextUtils.getORFindRegExpFromTerms(regexps);
 		return regexps;
 	},
 	getRegExpFunctional : function(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic)
@@ -414,7 +350,7 @@ xmXMigemoCore.prototype = {
 		if (!aExceptionRegExp) aExceptionRegExp = {};
 		var regexps = this.getRegExpFunctionalInternal(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic);
 		return this.andFindAvailable ?
-				this.textUtils.getANDFindRegExpFromTerms(regexps) :
+				MigemoTextUtils.getANDFindRegExpFromTerms(regexps) :
 				this.getRegExp(aInput, aTargetDic) ;
 	},
 	getRegExpsFunctional : function(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic)
@@ -445,7 +381,7 @@ xmXMigemoCore.prototype = {
 	{
 		var converted = aInput.replace(/\s+/g, '\n');
 		return (
-				this.textUtils.isRegExp(aInput) ||
+				MigemoTextUtils.isRegExp(aInput) ||
 				this.kMIGEMO_PATTERN.test(converted) ||
 				(this.notFindAvailable && this.kNOT_PATTERN.test(converted))
 			);
@@ -455,7 +391,7 @@ xmXMigemoCore.prototype = {
  
 	trimFunctionalInput : function(aInput) 
 	{
-		var input = this.textUtils.trim(aInput);
+		var input = MigemoTextUtils.trim(aInput);
 		if (this.notFindAvailable) {
 			// “ü—Í’†‚ÌNOTŒŸõ—p‰‰ŽZŽq‚ðœŠO
 			input = input.replace(/\s+-$/, '');
@@ -506,7 +442,7 @@ xmXMigemoCore.prototype = {
 
 		var foundRange = null;
 
-		var text = this.textUtils.range2Text(aFindRange);
+		var text = MigemoTextUtils.range2Text(aFindRange);
 		if (text.match(regExp)) {
 			term = RegExp.lastMatch;
 			this.mFind.findBackwards = aFindBackwards;
@@ -549,7 +485,7 @@ xmXMigemoCore.prototype = {
 			aEndPoint.collapse(false);
 		}
 
-		var selRange = this.textUtils.getFoundRange(doc.defaultView);
+		var selRange = MigemoTextUtils.getFoundRange(doc.defaultView);
 		if (selRange) selRange = selRange.QueryInterface(Ci.nsIDOMRange);
 		var shouldRebuildSelection = selRange;
 		var arrResults = [];
@@ -566,15 +502,15 @@ xmXMigemoCore.prototype = {
 		}
 		var regExp = new RegExp(aRegExpSource, aRegExpFlags);
 
-		var text = this.textUtils.range2Text(findRange);
+		var text = MigemoTextUtils.range2Text(findRange);
 		if (!text.match(new RegExp(regExp.source, 'img'))) {
 			return arrResults;
 		}
 
 		var terms = text.match(regExp);
 		terms = regExp.ignoreCase ?
-				this.textUtils.brushUpTerms(terms) :
-				this.textUtils.brushUpTermsWithCase(terms) ;
+				MigemoTextUtils.brushUpTerms(terms) :
+				MigemoTextUtils.brushUpTermsWithCase(terms) ;
 
 		if (!terms.length)
 			return arrResults;
@@ -610,7 +546,7 @@ xmXMigemoCore.prototype = {
 			}
 
 			let startPointNode = Prefs.getBoolPref('xulmigemo.startfromviewport') ?
-					this.textUtils.findFirstVisibleNode(doc) :
+					MigemoTextUtils.findFirstVisibleNode(doc) :
 					body ;
 
 			let createIterator = function(aTerm, aBackward, aFindRange, aStartPoint, aEndPoint) {
@@ -630,7 +566,7 @@ xmXMigemoCore.prototype = {
 					{
 						let foundLength = foundRange.toString().length;
 						let isOverlap = shouldRebuildSelection ?
-								this.textUtils.isRangeOverlap(foundRange, selRange) :
+								MigemoTextUtils.isRangeOverlap(foundRange, selRange) :
 								false ;
 
 						let nodeSurround   = aSurroundNode.cloneNode(true);
@@ -647,7 +583,7 @@ xmXMigemoCore.prototype = {
 						nodeSurround.clientTop;
 
 						if (isOverlap)
-							this.textUtils.delayedSelect(firstChild, foundLength, true);
+							MigemoTextUtils.delayedSelect(firstChild, foundLength, true);
 
 						foundRange = doc.createRange();
 						foundRange.selectNodeContents(nodeSurround);
@@ -787,7 +723,7 @@ xmXMigemoCore.prototype = {
 
 			this.dispatchHighlightFinishEvent(doc);
 
-			arrResults.sort(this.textUtils.compareRangePosition);
+			arrResults.sort(MigemoTextUtils.compareRangePosition);
 		}
 
 		return arrResults;
@@ -907,7 +843,7 @@ xmXMigemoCore.prototype = {
 				range = doc.createRange();
 				var selection = doc.defaultView.getSelection();
 				foundRange = (
-						this.textUtils.getFoundRange(doc.defaultView) ||
+						MigemoTextUtils.getFoundRange(doc.defaultView) ||
 						(selection.rangeCount ? selection.getRangeAt(0) : null )
 					);
 				foundLength = foundRange ? foundRange.toString().length : 0 ;
@@ -923,7 +859,7 @@ xmXMigemoCore.prototype = {
 			var hasSelection = false;
 			if (foundRange && foundRange.toString().length) {
 				range.selectNodeContents(node.parentNode);
-				hasSelection = this.textUtils.isRangeOverlap(foundRange, range);
+				hasSelection = MigemoTextUtils.isRangeOverlap(foundRange, range);
 			}
 
 			range.selectNodeContents(node);
@@ -936,19 +872,19 @@ xmXMigemoCore.prototype = {
 			{
 				docfrag.appendChild(child);
 			}
-			var isOverlap = this.textUtils.isRangeOverlap(foundRange, range);
+			var isOverlap = MigemoTextUtils.isRangeOverlap(foundRange, range);
 			var firstChild  = docfrag.firstChild;
 
 			parent.removeChild(node);
 			parent.insertBefore(docfrag, next);
 			if (isOverlap && firstChild) {
-				this.textUtils.delayedSelect(firstChild, foundLength, aKeepFoundHighlighted);
+				MigemoTextUtils.delayedSelect(firstChild, foundLength, aKeepFoundHighlighted);
 			}
 			else if (hasSelection) {
 				range = foundRange.cloneRange();
 				range.collapse(true);
 				range.setStartBefore(parent.firstChild);
-				this.textUtils.selectContentWithDelay(parent, range.toString().length, foundLength, aKeepFoundHighlighted);
+				MigemoTextUtils.selectContentWithDelay(parent, range.toString().length, foundLength, aKeepFoundHighlighted);
 			}
 
 			parent.normalize();
@@ -1256,7 +1192,7 @@ xmXMigemoCore.prototype = {
 			}
 		}
 
-		this.dictionaryManager.init(this.dictionary, this.cache);
+		MigemoDicManager.init(this.dictionary, this.cache);
 
 		ObserverService.addObserver(this, 'XMigemo:cacheCleared', false);
 
@@ -1275,45 +1211,18 @@ xmXMigemoCore.prototype = {
 	}
  
 }; 
-  
-function xmXMigemoFactory() { 
-	mydump('create instance xmIXMigemoFactory');
-}
 
-xmXMigemoFactory.prototype = {
-	contractID : '@piro.sakura.ne.jp/xmigemo/factory;1',
-	classDescription : 'XUL/Migemo Core Service Factory',
-	classID : Components.ID('{650d509a-1f48-11dc-8314-0800200c9a66}'),
-
-	QueryInterface : XPCOMUtils.generateQI([
-		Ci.xmIXMigemoFactory,
-		Ci.pIXMigemoFactory,
-		Ci.nsIObserver
-	]),
-
-	get wrappedJSObject() {
-		return this;
-	},
-	
-	services : {}, 
- 
-	getService : function(aLang) 
+var MigemoCoreFactory = {
+	_instances : {},
+	get : function(aLang)
 	{
-		if (!(aLang in this.services)) {
-			this.services[aLang] = Cc['@piro.sakura.ne.jp/xmigemo/core;1']
-				.createInstance(Ci.xmIXMigemo);
-			this.services[aLang].init(aLang);
+		if (!this._instances[aLang]) {
+			this._instances[aLang] = new MigemoCore(aLang);
 		}
-		return this.services[aLang];
+		return this._instances[aLang];
 	}
- 
-}; 
-  
-if (XPCOMUtils.generateNSGetFactory) 
-	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoCore, xmXMigemoFactory]);
-else
-	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoCore, xmXMigemoFactory]);
- 
+};
+
 function mydump(aString) 
 {
 	if (DEBUG)

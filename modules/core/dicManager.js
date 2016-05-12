@@ -57,8 +57,8 @@ var MigemoDicManager = {
 				var term = RegExp.$3;
 
 				var lang = Prefs.getCharPref('xulmigemo.lang');
-				MigemoCore.init(lang);
-				this.cache.clearCacheForAllPatterns(MigemoCore.textTransform.normalizeKeyInput(input));
+				var core = MigemoCoreFactory.get(lang);
+				this.cache.clearCacheForAllPatterns(core.textTransform.normalizeKeyInput(input));
 				return;
 
 				return;
@@ -119,8 +119,8 @@ var MigemoDicManager = {
 	get cache()
 	{
 		if (!this._cache) { // default cache; can be overridden.
-			var { MigemoCache } = Components.utils.import('resource://xulmigemo-modules/core/cache.js', {});
-			this._cache = MigemoCache;
+			var lang = Prefs.getCharPref('xulmigemo.lang');
+			this._cache = MigemoCacheFactory.get(lang);
 		}
 		return this._cache;
 	},

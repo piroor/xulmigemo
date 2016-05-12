@@ -1,4 +1,4 @@
-var EXPORTED_SYMBOLS = ['MigemoEngine'];
+var EXPORTED_SYMBOLS = ['MigemoEngineJa'];
 
 /* This depends on: 
 	xmIXMigemoDictionaryJa
@@ -13,7 +13,7 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
 Components.utils.import('resource://xulmigemo-modules/core/textTransform.ja.js');
-Components.utils.import('resource://xulmigemo-modules/core/engine.js');
+Components.utils.import('resource://xulmigemo-modules/core/dictionary.ja.js');
 
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
@@ -21,9 +21,12 @@ var Prefs = Cc['@mozilla.org/preferences;1']
 var MigemoEngineJa = {
 	lang : 'ja',
 	
-	SYSTEM_DIC : MigemoEngine.SYSTEM_DIC, 
-	USER_DIC   : MigemoEngine.USER_DIC,
-	ALL_DIC    : MigemoEngine.ALL_DIC,
+	SYSTEM_DIC : 1 << 0, 
+	USER_DIC   : 1 << 1,
+	ALL_DIC    : (1 << 0 | 1 << 1),
+
+	textTransform : MigemoTextTransformJa,
+	dictionary : MigemoDicitonaryJa,
  
 	getRegExpFor : function(aInput, aTargetDic) 
 	{
@@ -31,7 +34,7 @@ var MigemoEngineJa = {
 
 		aInput = aInput.toLowerCase();
 
-		var transform = MigemoTextTransformJa;
+		var transform = this.textTransform;
 
 		mydump('noCache');
 
@@ -161,7 +164,7 @@ var MigemoEngineJa = {
 		}
 		aTargetDic = aTargetDic || this.ALL_DIC;
 
-		var transform = MigemoTextTransformJa;
+		var transform = this.textTransform;
 
 		var hira = transform.expand(
 					MigemoTextUtils.sanitize(
@@ -186,10 +189,10 @@ var MigemoEngineJa = {
 
 		var lines = [];
 
-		var mydicAU = (aTargetDic & this.USER_DIC) ? MigemoDictionaryJa.getUserAlphaDic() : null ;
-		var mydicA  = (aTargetDic & this.SYSTEM_DIC)   ? MigemoDictionaryJa.getAlphaDic() : null ;
-		var mydicU  = (aTargetDic & this.USER_DIC) ? MigemoDictionaryJa.getUserDicFor(firstlet) : null ;
-		var mydic   = (aTargetDic & this.SYSTEM_DIC)   ? MigemoDictionaryJa.getDicFor(firstlet) : null ;
+		var mydicAU = (aTargetDic & this.USER_DIC) ? this.dictionary.getUserAlphaDic() : null ;
+		var mydicA  = (aTargetDic & this.SYSTEM_DIC) ? this.dictionary.getAlphaDic() : null ;
+		var mydicU  = (aTargetDic & this.USER_DIC) ? this.dictionary.getUserDicFor(firstlet) : null ;
+		var mydic   = (aTargetDic & this.SYSTEM_DIC) ? this.dictionary.getDicFor(firstlet) : null ;
 
 		if (mydicAU) {
 			var lineAU = mydicAU.match(expA);

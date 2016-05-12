@@ -1,3 +1,5 @@
+var EXPORTED_SYMBOLS = ['MigemoCache', 'MigemoCacheFactory'];
+
 /* This depends on: 
 	xmIXMigemoFileAccess
 	xmIXMigemoTextUtils
@@ -7,7 +9,9 @@ var TEST = false;
 const Cc = Components.classes;
 const Ci = Components.interfaces;
  
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
+Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js');
 
 const ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);
@@ -15,66 +19,25 @@ const ObserverService = Cc['@mozilla.org/observer-service;1']
 const Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
-function xmXMigemoCache() { 
-	mydump('create instance xmIXMigemoCache');
+function MigemoCache() {
 }
-
-xmXMigemoCache.prototype = {
-	classDescription : 'xmXMigemoCache',
-	contractID : '@piro.sakura.ne.jp/xmigemo/cache;1',
-	classID : Components.ID('{0c6119e4-cef4-11db-8314-0800200c9a66}'),
-
-	QueryInterface : XPCOMUtils.generateQI([
-		Ci.xmIXMigemoCache,
-		Ci.pIXMigemoCache
-	]),
-
-	get wrappedJSObject() {
-		return this;
-	},
-	
+XMigemoCache.prototype = {
 	initialized : false, 
- 
-	get textUtils() 
-	{
-		if (!this._textUtils) {
-			if (TEST && xmXMigemoTextUtils) {
-				this._textUtils = new xmXMigemoTextUtils();
-			}
-			else {
-				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.xmIXMigemoTextUtils);
-			}
-		}
-		return this._textUtils;
-	},
-	_textUtils : null,
- 
-	get fileUtils() 
-	{
-		if (!this._fileUtils) {
-			if (TEST && xmXMigemoFileAccess) {
-				this._fileUtils = new xmXMigemoFileAccess();
-			}
-			else {
-				this._fileUtils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
-						.getService(Ci.xmIXMigemoFileAccess);
-			}
-		}
-		return this._fileUtils;
-	},
-	_fileUtils : null,
+
+	SYSTEM_DIC : 1 << 0, 
+	USER_DIC   : 1 << 1,
+	ALL_DIC    : (1 << 0 | 1 << 1),
  
 	memCache       : {}, 
 	diskCacheClone : {},
 	DICTIONARIES_ALL : [
-		Ci.xmIXMigemoEngine.SYSTEM_DIC,
-		Ci.xmIXMigemoEngine.USER_DIC,
-		Ci.xmIXMigemoEngine.ALL_DIC
+		1 << 0,
+		1 << 1,
+		(1 << 0 | 1 << 1)
 	],
 	DICTIONARIES_CHANGABLE : [
-		Ci.xmIXMigemoEngine.USER_DIC,
-		Ci.xmIXMigemoEngine.ALL_DIC
+		1 << 1,
+		(1 << 0 | 1 << 1)
 	],
 	encoding : 'UTF-8',
  
@@ -90,7 +53,7 @@ xmXMigemoCache.prototype = {
 			this.memCache[aType] = '';
 			this.diskCacheClone[aType] = '';
 
-			var fileName = aFileName + (aType != Ci.xmIXMigemoEngine.ALL_DIC ? '-'+aType : '' );
+			var fileName = aFileName + (aType != this.ALL_DIC ? '-'+aType : '' );
 			try {
 				var file = Cc['@mozilla.org/file/local;1']
 						.createInstance(Ci.nsILocalFile);
@@ -110,8 +73,8 @@ xmXMigemoCache.prototype = {
  
 	getCacheFor : function (aRoman, aTargetDic) 
 	{
-		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
-		var miexp = new RegExp('(^'+this.textUtils.sanitize(aRoman)+'\t.+\n)', 'im');
+		aTargetDic = aTargetDic || this.ALL_DIC;
+		var miexp = new RegExp('(^'+MigemoTextUtils.sanitize(aRoman)+'\t.+\n)', 'im');
 		if (this.memCache[aTargetDic].match(miexp)) {
 			mydump('use memCache');
 			return RegExp.$1.split('\t')[1];
@@ -171,16 +134,16 @@ xmXMigemoCache.prototype = {
 		if (aDisk) {
 			var file = this.getCacheFile(aTargetDic);
 			if (file)
-				this.fileUtils.writeTo(file, '', this.encoding);
+				MigemoFileAccess.writeTo(file, '', this.encoding);
 			this.diskCacheClone[aTargetDic] = '';
 		}
 	},
  
 	setMemCache : function(aRoman, aRegExp, aTargetDic) 
 	{
-		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
+		aTargetDic = aTargetDic || this.ALL_DIC;
 		var cache = this.memCache[aTargetDic] || '';
-		var tmpexp = new RegExp('(^'+this.textUtils.sanitize(aRoman)+'\t.+\n)', 'im');
+		var tmpexp = new RegExp('(^'+MigemoTextUtils.sanitize(aRoman)+'\t.+\n)', 'im');
 		if (cache.match(tmpexp)) {
 			return;
 		}
@@ -196,12 +159,12 @@ xmXMigemoCache.prototype = {
  
 	setDiskCache : function (aRoman, aMyRegExp, aTargetDic) 
 	{
-		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
+		aTargetDic = aTargetDic || this.ALL_DIC;
 		var file = this.getCacheFile(aTargetDic);
 		if (!file) return;
 
 		var oldCache = this.diskCacheClone[aTargetDic] || '' ;
-		var tmpexp = new RegExp('^' + this.textUtils.sanitize(aRoman) + '\t.+\n', 'im');
+		var tmpexp = new RegExp('^' + MigemoTextUtils.sanitize(aRoman) + '\t.+\n', 'im');
 		var newCache = oldCache.replace(tmpexp, '')+aRoman+'\t'+aMyRegExp+'\n';
 		this.diskCacheClone[aTargetDic] = newCache;
 		if (newCache != oldCache)
@@ -212,14 +175,14 @@ xmXMigemoCache.prototype = {
 	
 	getCacheFile : function(aTargetDic) 
 	{
-		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
+		aTargetDic = aTargetDic || this.ALL_DIC;
 		return aTargetDic in this.cacheFileHolders ?
 				this.cacheFileHolders[aTargetDic] :
 				null ;
 	},
 	setCacheFile : function(aFile, aTargetDic)
 	{
-		aTargetDic = aTargetDic || Ci.xmIXMigemoEngine.ALL_DIC;
+		aTargetDic = aTargetDic || this.ALL_DIC;
 		this.cacheFileHolders[aTargetDic] = aFile;
 	},
 	get cacheFile()
@@ -235,10 +198,10 @@ xmXMigemoCache.prototype = {
 	
 	get dicpath() 
 	{
-		var fullPath = this.fileUtils.getExistingPath(
+		var fullPath = MigemoFileAccess.getExistingPath(
 				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')))
 			);
-		var relPath = this.fileUtils.getExistingPath(
+		var relPath = MigemoFileAccess.getExistingPath(
 				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
 			);
 		if (relPath && (!fullPath || fullPath != relPath))
@@ -273,10 +236,10 @@ xmXMigemoCache.prototype = {
 			return false;
 
 		if (!file.exists()) {
-			this.fileUtils.writeTo(file, '', this.encoding);
+			MigemoFileAccess.writeTo(file, '', this.encoding);
 		}
 		else {
-			this.diskCacheClone[aTargetDic] = this.fileUtils.readFrom(file, this.encoding);
+			this.diskCacheClone[aTargetDic] = MigemoFileAccess.readFrom(file, this.encoding);
 		}
 		return true;
 	},
@@ -299,18 +262,47 @@ xmXMigemoCache.prototype = {
 		if (!file)
 			return false;
 
-		var cache = this.fileUtils.readFrom(file, this.encoding);
+		var cache = MigemoFileAccess.readFrom(file, this.encoding);
 		var clone = this.diskCacheClone[aTargetDic];
 		if (cache != clone)
-			this.fileUtils.writeTo(file, clone, this.encoding);
+			MigemoFileAccess.writeTo(file, clone, this.encoding);
 
 		return true;
 	}
   
 }; 
-  
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoCache]); 
- 
+
+var MigemoCacheFactory = {
+	_instances : {},
+	get : function(aKey, aEncoding)
+	{
+		if (!this._instances[aKey]) {
+			this._instances[aKey] = new MigemoCache();
+
+			var lang = Prefs.getCharPref('xulmigemo.lang');
+
+			var fileNameOverride;
+			try {
+				fileNameOverride = Prefs.getCharPref('xulmigemo.cache.override.'+lang);
+			}
+			catch(e) {
+			}
+			var fileName = fileNameOverride || aKey+'.cache.txt';
+
+			var encodingOverride;
+			try {
+				encodingOverride = Prefs.getCharPref('xulmigemo.cache.override.'+lang+'.encoding');
+			}
+			catch(e) {
+			}
+			aEncoding = encodingOverride || aEncoding || 'UTF-8';
+
+			this._instances[aKey].init(fileName, aEncoding);
+		}
+		return this._instances[aKey];
+	}
+};
+
 function mydump(aString) 
 {
 	if (DEBUG)
