@@ -1,3 +1,5 @@
+var EXPORTED_SYMBOLS = ['MigemoEngine'];
+
 /* This depends on: 
 	xmIXMigemoDictionaryJa
 	xmIXMigemoTextTransformJa
@@ -9,79 +11,19 @@ var Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
 
+Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
+Components.utils.import('resource://xulmigemo-modules/core/textTransform.ja.js');
+Components.utils.import('resource://xulmigemo-modules/core/engine.js');
+
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
-function xmXMigemoEngineJa() { 
-	mydump('create instance xmIXMigemoEngine(lang=ja)');
-}
-
-xmXMigemoEngineJa.prototype = {
+var MigemoEngineJa = {
 	lang : 'ja',
-
-	classDescription : 'xmXMigemoEngineJa',
-	contractID : '@piro.sakura.ne.jp/xmigemo/engine;1?lang=ja',
-	classID : Components.ID('{792f3b58-cef4-11db-8314-0800200c9a66}'),
-
-	QueryInterface : XPCOMUtils.generateQI([
-		Ci.xmIXMigemoEngine,
-		Ci.pIXMigemoEngine
-	]),
-
-	get wrappedJSObject() {
-		return this;
-	},
 	
-	SYSTEM_DIC : 1, 
-	USER_DIC   : 2,
-	ALL_DIC    : 3,
- 
-	get dictionary() 
-	{
-		if (!this._dictionary) {
-			if (TEST && xmXMigemoDictionaryJa) {
-				this._dictionary = new xmXMigemoDictionaryJa();
-			}
-			else {
-				this._dictionary = Cc['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+this.lang]
-					.getService(Ci.xmIXMigemoDictionary)
-					.QueryInterface(Ci.xmIXMigemoDictionaryJa);
-			}
-		}
-		return this._dictionary;
-	},
-	_dictionary : null,
- 
-	get textUtils() 
-	{
-		if (!this._textUtils) {
-			if (TEST && xmXMigemoTextUtils) {
-				this._textUtils = new xmXMigemoTextUtils();
-			}
-			else {
-				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.xmIXMigemoTextUtils);
-			}
-		}
-		return this._textUtils;
-	},
-	_textUtils : null,
- 
-	get textTransform() 
-	{
-		if (!this._textTransform) {
-			if (TEST && xmXMigemoTextTransformJa) {
-				this._textTransform = new xmXMigemoTextTransformJa();
-			}
-			else {
-				this._textTransform = Cc['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang='+this.lang]
-					.getService(Ci.xmIXMigemoTextTransform)
-					.QueryInterface(Ci.xmIXMigemoTextTransformJa);
-			}
-		}
-		return this._textTransform;
-	},
-	_textTransform : null,
+	SYSTEM_DIC : MigemoEngine.SYSTEM_DIC, 
+	USER_DIC   : MigemoEngine.USER_DIC,
+	ALL_DIC    : MigemoEngine.ALL_DIC,
  
 	getRegExpFor : function(aInput, aTargetDic) 
 	{
@@ -89,15 +31,15 @@ xmXMigemoEngineJa.prototype = {
 
 		aInput = aInput.toLowerCase();
 
-		var transform = this.textTransform;
+		var transform = MigemoTextTransformJa;
 
 		mydump('noCache');
 
 		var hira = transform.expand(
-				this.textUtils.sanitizeForTransformOutput(
+				MigemoTextUtils.sanitizeForTransformOutput(
 					transform.roman2kana(
 						transform.kata2hira(
-							this.textUtils.sanitizeForTransformInput(aInput)
+							MigemoTextUtils.sanitizeForTransformInput(aInput)
 						)
 					)
 				)
@@ -108,9 +50,9 @@ xmXMigemoEngineJa.prototype = {
 		var ignoreHiraKata = Prefs.getBoolPref('xulmigemo.ignoreHiraKata');
 		var kana = ignoreHiraKata ? '' :
 				transform.expand2(
-					this.textUtils.sanitizeForTransformOutput(
+					MigemoTextUtils.sanitizeForTransformOutput(
 						transform.roman2kana2(
-							this.textUtils.sanitizeForTransformInput(roman),
+							MigemoTextUtils.sanitizeForTransformInput(roman),
 							transform.KANA_KATA
 						)
 					),
@@ -118,9 +60,9 @@ xmXMigemoEngineJa.prototype = {
 				);
 		var hiraAndKana = ignoreHiraKata ?
 				transform.expand2(
-					this.textUtils.sanitizeForTransformOutput(
+					MigemoTextUtils.sanitizeForTransformOutput(
 						transform.roman2kana2(
-							this.textUtils.sanitizeForTransformInput(roman),
+							MigemoTextUtils.sanitizeForTransformInput(roman),
 							transform.KANA_ALL
 						)
 					),
@@ -134,7 +76,7 @@ xmXMigemoEngineJa.prototype = {
 
 		var lines = this.gatherEntriesFor(aInput, aTargetDic);
 
-		var original = this.textUtils.sanitize(aInput);
+		var original = MigemoTextUtils.sanitize(aInput);
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
 			original = transform.addLatinModifiers(original);
 
@@ -170,7 +112,7 @@ xmXMigemoEngineJa.prototype = {
 				.join('\n')
 				.replace(/^(.+)$(\n\1.*$)+/img, '$1')
 				.replace(/^.$\n?/mg, ''); // àÍï∂éöÇæÇØÇÃçÄñ⁄ÇÕópçœÇ›Ç»ÇÃÇ≈çÌèú
-			searchterm = this.textUtils.sanitize(searchterm)
+			searchterm = MigemoTextUtils.sanitize(searchterm)
 				.replace(/\n/g, '|');
 			pattern += (pattern ? '|' : '') + searchterm;//.substring(0, searchterm.length-1);
 
@@ -219,17 +161,17 @@ xmXMigemoEngineJa.prototype = {
 		}
 		aTargetDic = aTargetDic || this.ALL_DIC;
 
-		var transform = this.textTransform;
+		var transform = MigemoTextTransformJa;
 
 		var hira = transform.expand(
-					this.textUtils.sanitize(
+					MigemoTextUtils.sanitize(
 						transform.roman2kana(
 							transform.kata2hira(aInput)
 						)
 					)
 				);
 
-		var str = this.textUtils.sanitize(aInput);
+		var str = MigemoTextUtils.sanitize(aInput);
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
 			str = transform.addLatinModifiers(str);
 
@@ -244,12 +186,10 @@ xmXMigemoEngineJa.prototype = {
 
 		var lines = [];
 
-		const XMigemoDic = this.dictionary;
-
-		var mydicAU = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserAlphaDic() : null ;
-		var mydicA  = (aTargetDic & this.SYSTEM_DIC)   ? XMigemoDic.getAlphaDic() : null ;
-		var mydicU  = (aTargetDic & this.USER_DIC) ? XMigemoDic.getUserDicFor(firstlet) : null ;
-		var mydic   = (aTargetDic & this.SYSTEM_DIC)   ? XMigemoDic.getDicFor(firstlet) : null ;
+		var mydicAU = (aTargetDic & this.USER_DIC) ? MigemoDictionaryJa.getUserAlphaDic() : null ;
+		var mydicA  = (aTargetDic & this.SYSTEM_DIC)   ? MigemoDictionaryJa.getAlphaDic() : null ;
+		var mydicU  = (aTargetDic & this.USER_DIC) ? MigemoDictionaryJa.getUserDicFor(firstlet) : null ;
+		var mydic   = (aTargetDic & this.SYSTEM_DIC)   ? MigemoDictionaryJa.getDicFor(firstlet) : null ;
 
 		if (mydicAU) {
 			var lineAU = mydicAU.match(expA);
@@ -288,8 +228,6 @@ xmXMigemoEngineJa.prototype = {
 	}
  
 }; 
-  
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoEngineJa]); 
  
 function mydump(aString) 
 {

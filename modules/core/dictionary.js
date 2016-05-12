@@ -9,6 +9,9 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
+Components.utils.import('resource://xulmigemo-modules/core/textTransform.js');
+Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js');
 
 var ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);
@@ -16,94 +19,29 @@ var ObserverService = Cc['@mozilla.org/observer-service;1']
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
 
-var xmIXMigemoDictionary = Ci.xmIXMigemoDictionary;
- 
-function xmXMigemoDictionary() { 
-	mydump('create instance xmIXMigemoDictionary(lang=*)');
-}
-
-xmXMigemoDictionary.prototype = {
+var MigemoDictionary {
 	lang : '',
-
-	classDescription : 'xmXMigemoDictionary',
-	contractID : '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*',
-	classID : Components.ID('{2bf35d7c-36f9-11dc-8314-0800200c9a66}'),
-
-	QueryInterface : XPCOMUtils.generateQI([
-		Ci.xmIXMigemoDictionary,
-		Ci.xmIXMigemoDictionaryUniversal,
-		Ci.pIXMigemoDictionary,
-		Ci.pIXMigemoDictionaryUniversal
-	]),
-
-	get wrappedJSObject() {
-		return this;
-	},
 	
-	// xmIXMigemoDictionary 
+	// MigemoDictionary 
 	
 	initialized : false, 
+
  
-	get textUtils() 
-	{
-		if (!this._textUtils) {
-			if (TEST && xmXMigemoTextUtils) {
-				this._textUtils = new xmXMigemoTextUtils();
-			}
-			else {
-				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.xmIXMigemoTextUtils);
-			}
-		}
-		return this._textUtils;
-	},
-	_textUtils : null,
- 
-	get textTransform() 
-	{
-		if (!this._textTransform) {
-			if (TEST && xmXMigemoTextTransform) {
-				this._textTransform = new xmXMigemoTextTransform();
-			}
-			else {
-				this._textTransform = Cc['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*']
-						.getService(Ci.xmIXMigemoTextTransform);
-			}
-		}
-		return this._textTransform;
-	},
-	_textTransform : null,
- 
-	get fileUtils() 
-	{
-		if (!this._fileUtils) {
-			if (TEST && xmXMigemoFileAccess) {
-				this._fileUtils = new xmXMigemoFileAccess();
-			}
-			else {
-				this._fileUtils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
-						.getService(Ci.xmIXMigemoFileAccess);
-			}
-		}
-		return this._fileUtils;
-	},
-	_fileUtils : null,
- 
-	RESULT_OK                      : xmIXMigemoDictionary.RESULT_OK, 
-	RESULT_ERROR_INVALID_INPUT     : xmIXMigemoDictionary.RESULT_ERROR_INVALID_INPUT,
-	RESULT_ERROR_ALREADY_EXIST     : xmIXMigemoDictionary.RESULT_ERROR_ALREADY_EXIST,
-	RESULT_ERROR_NOT_EXIST         : xmIXMigemoDictionary.RESULT_ERROR_NOT_EXIST,
-	RESULT_ERROR_NO_TARGET         : xmIXMigemoDictionary.RESULT_ERROR_NO_TARGET,
-	RESULT_ERROR_INVALID_OPERATION : xmIXMigemoDictionary.RESULT_ERROR_INVALID_OPERATION,
+	RESULT_OK                      : 1 << 0, 
+	RESULT_ERROR_INVALID_INPUT     : 1 << 1,
+	RESULT_ERROR_ALREADY_EXIST     : 1 << 2,
+	RESULT_ERROR_NOT_EXIST         : 1 << 3,
+	RESULT_ERROR_NO_TARGET         : 1 << 4,
+	RESULT_ERROR_INVALID_OPERATION : 1 << 5,
  
 /* File I/O */ 
 	
 	get dicpath() 
 	{
-		var fullPath = this.fileUtils.getExistingPath(
+		var fullPath = MigemoFileAccess.getExistingPath(
 				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')))
 			);
-		var relPath = this.fileUtils.getExistingPath(
+		var relPath = MigemoFileAccess.getExistingPath(
 				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
 			);
 		if (relPath && (!fullPath || fullPath != relPath))
@@ -129,7 +67,7 @@ xmXMigemoDictionary.prototype = {
 		}
 		if (file && file.exists()) {
 //			dump('system dic loaded from '+file.path+'\n');
-			this.list['system'] = this.fileUtils.readFrom(file, 'UTF-8');
+			this.list['system'] = MigemoFileAccess.readFrom(file, 'UTF-8');
 		}
 		else {
 //			dump('system dic not found at '+file.path+'\n');
@@ -146,7 +84,7 @@ xmXMigemoDictionary.prototype = {
 		}
 		if (file && file.exists()) {
 //			dump('user dic loaded from '+file.path+'\n');
-			this.list['user'] = this.fileUtils.readFrom(file, 'UTF-8');
+			this.list['user'] = MigemoFileAccess.readFrom(file, 'UTF-8');
 		}
 		else {
 //			dump('user dic not found at '+file.path+'\n');
@@ -178,7 +116,7 @@ xmXMigemoDictionary.prototype = {
 		file.initWithPath(dicDir);
 		file.append(this.lang+'.user.txt');
 
-		this.fileUtils.writeTo(file, (this.list['user'] || ''), 'UTF-8');
+		MigemoFileAccess.writeTo(file, (this.list['user'] || ''), 'UTF-8');
 	},
   
 	addTerm : function(aInput, aTerm) 
@@ -227,10 +165,10 @@ xmXMigemoDictionary.prototype = {
 
 		var input = aTermSet.input ? String(aTermSet.input) : '' ;
 		var term  = aTermSet.term ? String(aTermSet.term) : '' ;
-		if (!input || !this.textTransform.isValidInput(input))
+		if (!input || !MigemoTextTransform.isValidInput(input))
 			return this.RESULT_ERROR_INVALID_INPUT;
 
-		input = this.textTransform.normalizeInput(input);
+		input = MigemoTextTransform.normalizeInput(input);
 		if (aTermSet) aTermSet.input = input;
 
 		if (aOperation == 'add' && !term) {
@@ -247,7 +185,7 @@ xmXMigemoDictionary.prototype = {
 			regexp = new RegExp('^'+input+'\t(.+)$', 'm');
 			if (regexp.test(systemDic)) {
 				var terms = RegExp.$1.split('\t').join('\n');
-				regexp = new RegExp('^'+this.textUtils.sanitize(term)+'$', 'm');
+				regexp = new RegExp('^'+MigemoTextUtils.sanitize(term)+'$', 'm');
 				if (regexp.test(terms))
 					return this.RESULT_ERROR_ALREADY_EXIST;
 			}
@@ -256,7 +194,7 @@ xmXMigemoDictionary.prototype = {
 		regexp = new RegExp('^'+input+'\t(.+)$', 'm');
 		if (regexp.test(userDic)) {
 			var terms = RegExp.$1.split('\t').join('\n');
-			regexp = new RegExp('^'+this.textUtils.sanitize(term)+'$', 'm');
+			regexp = new RegExp('^'+MigemoTextUtils.sanitize(term)+'$', 'm');
 			if ((aOperation == 'remove' && !term) || regexp.test(terms)) {
 				// ƒ†[ƒUŽ«‘‚É‚·‚Å‚É“o˜^Ï‚Ý‚Å‚ ‚éê‡
 				switch (aOperation)
@@ -327,9 +265,7 @@ xmXMigemoDictionary.prototype = {
 	}
   
 }; 
-  
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoDictionary]); 
- 
+
 function mydump(aString) 
 {
 	if (DEBUG)

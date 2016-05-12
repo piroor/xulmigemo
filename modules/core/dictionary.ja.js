@@ -9,102 +9,39 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
+Components.utils.import('resource://xulmigemo-modules/core/textTransform.ja.js');
+Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js');
+Components.utils.import('resource://xulmigemo-modules/core/dictionary.js');
 
 const ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);;
 
 const Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
-
-const xmIXMigemoDictionary = Ci.xmIXMigemoDictionary;
  
-function xmXMigemoDictionaryJa() { 
-	mydump('create instance xmIXMigemoDictionary(lang=ja)');
-}
-
-xmXMigemoDictionaryJa.prototype = {
+var MigemoDictionaryJa = {
 	lang : 'ja',
 
-	classDescription : 'xmXMigemoDictionaryJa',
-	contractID : '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=ja',
-	classID : Components.ID('{20309e9a-cef4-11db-8314-0800200c9a66}'),
-
-	QueryInterface : XPCOMUtils.generateQI([
-		Ci.xmIXMigemoDictionary,
-		Ci.xmIXMigemoDictionaryJa,
-		Ci.pIXMigemoDictionary,
-		Ci.pIXMigemoDictionaryJa
-	]),
-
-	get wrappedJSObject() {
-		return this;
-	},
-	
-	// xmIXMigemoDictionary 
+	// MigemoDictionary 
 	
 	initialized : false, 
  
-	get textUtils() 
-	{
-		if (!this._textUtils) {
-			if (TEST && xmXMigemoTextUtils) {
-				this._textUtils = new xmXMigemoTextUtils();
-			}
-			else {
-				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.xmIXMigemoTextUtils);
-			}
-		}
-		return this._textUtils;
-	},
-	_textUtils : null,
- 
-	get textTransform() 
-	{
-		if (!this._textTransform) {
-			if (TEST && xmXMigemoTextTransformJa) {
-				this._textTransform = new xmXMigemoTextTransformJa();
-			}
-			else {
-				this._textTransform = Cc['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang='+this.lang]
-					.getService(Ci.xmIXMigemoTextTransform)
-					.QueryInterface(Ci.xmIXMigemoTextTransformJa);
-			}
-		}
-		return this._textTransform;
-	},
-	_textTransform : null,
- 
-	get fileUtils() 
-	{
-		if (!this._fileUtils) {
-			if (TEST && xmXMigemoFileAccess) {
-				this._fileUtils = new xmXMigemoFileAccess();
-			}
-			else {
-				this._fileUtils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
-						.getService(Ci.xmIXMigemoFileAccess);
-			}
-		}
-		return this._fileUtils;
-	},
-	_fileUtils : null,
- 
-	RESULT_OK                      : xmIXMigemoDictionary.RESULT_OK, 
-	RESULT_ERROR_INVALID_INPUT     : xmIXMigemoDictionary.RESULT_ERROR_INVALID_INPUT,
-	RESULT_ERROR_ALREADY_EXIST     : xmIXMigemoDictionary.RESULT_ERROR_ALREADY_EXIST,
-	RESULT_ERROR_NOT_EXIST         : xmIXMigemoDictionary.RESULT_ERROR_NOT_EXIST,
-	RESULT_ERROR_NO_TARGET         : xmIXMigemoDictionary.RESULT_ERROR_NO_TARGET,
-	RESULT_ERROR_INVALID_OPERATION : xmIXMigemoDictionary.RESULT_ERROR_INVALID_OPERATION,
+	RESULT_OK                      : MigemoDictionary.RESULT_OK, 
+	RESULT_ERROR_INVALID_INPUT     : MigemoDictionary.RESULT_ERROR_INVALID_INPUT,
+	RESULT_ERROR_ALREADY_EXIST     : MigemoDictionary.RESULT_ERROR_ALREADY_EXIST,
+	RESULT_ERROR_NOT_EXIST         : MigemoDictionary.RESULT_ERROR_NOT_EXIST,
+	RESULT_ERROR_NO_TARGET         : MigemoDictionary.RESULT_ERROR_NO_TARGET,
+	RESULT_ERROR_INVALID_OPERATION : MigemoDictionary.RESULT_ERROR_INVALID_OPERATION,
  
 /* File I/O */ 
 	
 	get dicpath() 
 	{
-		var fullPath = this.fileUtils.getExistingPath(
+		var fullPath = MigemoFileAccess.getExistingPath(
 				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')))
 			);
-		var relPath = this.fileUtils.getExistingPath(
+		var relPath = MigemoFileAccess.getExistingPath(
 				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
 			);
 		if (relPath && (!fullPath || fullPath != relPath))
@@ -135,7 +72,7 @@ xmXMigemoDictionaryJa.prototype = {
 			}
 			if (file && file.exists()) {
 				mydump(this.cList[i]);
-				this.list[this.cList[i]] = this.fileUtils.readFrom(file, 'Shift_JIS');
+				this.list[this.cList[i]] = MigemoFileAccess.readFrom(file, 'Shift_JIS');
 			}
 			else {
 				this.list[this.cList[i]] = '';
@@ -151,7 +88,7 @@ xmXMigemoDictionaryJa.prototype = {
 			}
 			if (file && file.exists()) {
 				mydump(this.cList[i] + '-user');
-				this.list[this.cList[i] + '-user'] = this.fileUtils.readFrom(file, 'Shift_JIS');
+				this.list[this.cList[i] + '-user'] = MigemoFileAccess.readFrom(file, 'Shift_JIS');
 			}
 			else {
 				this.list[this.cList[i] + '-user'] = '';
@@ -159,7 +96,7 @@ xmXMigemoDictionaryJa.prototype = {
 		}
 
 		this.initialized = true;
-		mydump('xmIXMigemoDictionary: loaded');
+		mydump('MigemoDictionary: loaded');
 
 		return !error;
 	},
@@ -213,7 +150,7 @@ xmXMigemoDictionaryJa.prototype = {
 		return dics.join('\n');
 	},
   
-	// xmIXMigemoDictionaryJa 
+	// MigemoDictionaryJa 
 	
 	saveUserDicFor : function(aKey) 
 	{
@@ -228,7 +165,7 @@ xmXMigemoDictionaryJa.prototype = {
 		file.initWithPath(dicDir);
 		file.append(aKey + 'a2.user.txt');
 
-		this.fileUtils.writeTo(file, (this.list[aKey+'-user'] || ''), 'Shift_JIS');
+		MigemoFileAccess.writeTo(file, (this.list[aKey+'-user'] || ''), 'Shift_JIS');
 	},
  
 	getDicFor : function(aLetter) 
@@ -257,7 +194,7 @@ xmXMigemoDictionaryJa.prototype = {
 
 		if (/^[a-z0-9]+$/i.test(aYomi)) return 'alph';
 
-		var firstLetter = this.textTransform.hira2roman(aYomi.charAt(0)).charAt(0);
+		var firstLetter = MigemoTextTransformJa.hira2roman(aYomi.charAt(0)).charAt(0);
 		switch (firstLetter)
 		{
 			case 'a':
@@ -289,10 +226,10 @@ xmXMigemoDictionaryJa.prototype = {
 
 		var yomi = aTermSet.yomi ? String(aTermSet.yomi) : '' ;
 		var term = aTermSet.term ? String(aTermSet.term) : '' ;
-		if (!yomi || !this.textTransform.isYomi(yomi))
+		if (!yomi || !MigemoTextTransformJa.isYomi(yomi))
 			return this.RESULT_ERROR_INVALID_INPUT;
 
-		yomi = this.textTransform.normalizeForYomi(yomi);
+		yomi = MigemoTextTransformJa.normalizeForYomi(yomi);
 		if (aTermSet) aTermSet.yomi = yomi;
 
 		var key = this.getDicForTerm(yomi);
@@ -314,7 +251,7 @@ xmXMigemoDictionaryJa.prototype = {
 			regexp = new RegExp('^'+yomi+'\t(.+)$', 'm');
 			if (regexp.test(systemDic)) {
 				var terms = RegExp.$1.split('\t').join('\n');
-				regexp = new RegExp('^'+this.textUtils.sanitize(term)+'$', 'm');
+				regexp = new RegExp('^'+MigemoTextUtils.sanitize(term)+'$', 'm');
 				if (regexp.test(terms))
 					return this.RESULT_ERROR_ALREADY_EXIST;
 			}
@@ -323,7 +260,7 @@ xmXMigemoDictionaryJa.prototype = {
 		regexp = new RegExp('^'+yomi+'\t(.+)$', 'm');
 		if (regexp.test(userDic)) {
 			var terms = RegExp.$1.split('\t').join('\n');
-			regexp = new RegExp('^'+this.textUtils.sanitize(term)+'$', 'm');
+			regexp = new RegExp('^'+MigemoTextUtils.sanitize(term)+'$', 'm');
 			if ((aOperation == 'remove' && !term) || regexp.test(terms)) {
 				// ÉÜÅ[ÉUé´èëÇ…Ç∑Ç≈Ç…ìoò^çœÇ›Ç≈Ç†ÇÈèÍçá
 				switch (aOperation)
@@ -445,8 +382,6 @@ xmXMigemoDictionaryJa.prototype = {
   
 }; 
   
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoDictionaryJa]); 
- 
 function mydump(aString) 
 {
 	if (DEBUG)

@@ -1,3 +1,5 @@
+var EXPORTED_SYMBOLS = ['MigemoDicManager'];
+
 /* This depends on: 
 	xmIXMigemoDictionary
 	xmIXMigemoCache
@@ -8,6 +10,8 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/core/core.js');
+Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js');
 
 var namespace = {};
 
@@ -20,26 +24,9 @@ const Prefs = Cc['@mozilla.org/preferences;1']
 const WindowManager = Cc['@mozilla.org/appshell/window-mediator;1']
 		.getService(Ci.nsIWindowMediator);
  	
-function xmXMigemoDicManager() { 
-	mydump('create instance xmIXMigemoDicManager');
-}
-
-xmXMigemoDicManager.prototype = {
+var MigemoDicManager = {
 	available : false,
 
-	classDescription : 'xmXMigemoDicManager',
-	contractID : '@piro.sakura.ne.jp/xmigemo/dictionary-manager;1',
-	classID : Components.ID('{25e5efa2-cef4-11db-8314-0800200c9a66}'),
-
-	QueryInterface : XPCOMUtils.generateQI([
-		Ci.xmIXMigemoDicManager,
-		Ci.pIXMigemoDicManager
-	]),
-
-	get wrappedJSObject() {
-		return this;
-	},
-	
 	domain : 'xulmigemo', 
  
 	observe : function(aSubject, aTopic, aData) 
@@ -69,18 +56,9 @@ xmXMigemoDicManager.prototype = {
 				var input = RegExp.$2;
 				var term = RegExp.$3;
 
-				var lang = Prefs.getCharPref('xulmigemo.lang')
-				var core;
-				if (TEST && xmXMigemoCore) {
-					core = new xmXMigemoCore();
-					core.init(lang);
-				}
-				else {
-					core = Cc['@piro.sakura.ne.jp/xmigemo/factory;1']
-						.getService(Ci.xmIXMigemoFactory)
-						.getService(lang);
-				}
-				this.cache.clearCacheForAllPatterns(core.textTransform.normalizeKeyInput(input));
+				var lang = Prefs.getCharPref('xulmigemo.lang');
+				MigemoCore.init(lang);
+				this.cache.clearCacheForAllPatterns(MigemoCore.textTransform.normalizeKeyInput(input));
 				return;
 
 				return;
@@ -94,10 +72,10 @@ xmXMigemoDicManager.prototype = {
  
 	get dicpath() 
 	{
-		var fullPath = this.fileUtils.getExistingPath(
+		var fullPath = MigemoFileAccess.getExistingPath(
 				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')))
 			);
-		var relPath = this.fileUtils.getExistingPath(
+		var relPath = MigemoFileAccess.getExistingPath(
 				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
 			);
 		if (relPath && (!fullPath || fullPath != relPath)) {
@@ -108,22 +86,7 @@ xmXMigemoDicManager.prototype = {
 
 		return fullPath || relPath;
 	},
-	
-	get fileUtils() 
-	{
-		if (!this._fileUtils) {
-			if (TEST && xmXMigemoFileAccess) {
-				this._fileUtils = new xmXMigemoFileAccess();
-			}
-			else {
-				this._fileUtils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
-						.getService(Ci.xmIXMigemoFileAccess);
-			}
-		}
-		return this._fileUtils;
-	},
-	_fileUtils : null,
-  
+
 	set dictionary(val) 
 	{
 		this._dictionary = val;
@@ -133,30 +96,16 @@ xmXMigemoDicManager.prototype = {
 	{
 		if (!this._dictionary) { // default dictionary; can be overridden.
 			var lang = Prefs.getCharPref('xulmigemo.lang');
-			var constructor;
-			if (TEST) {
-				eval('constructor = xmXMigemoDictionary'+
-						lang.replace(/^./, function(aChar) {
-							return aChar.toUpperCase();
-						})
-				);
+
+			var leafNameSuffix = '';
+			var moduleNameSuffix = '';
+			if (lang) {
+				leafNameSuffix = '.' + lang;
+				moduleNameSuffix = lang.charAt(0).toUpperCase() + this.lang.slice(1);
 			}
-			if (constructor) {
-				this._dictionary = new constructor();
-			}
-			else {
-				var id = '@piro.sakura.ne.jp/xmigemo/dictionary;1?lang='+lang;
-				if (id in Cc) {
-					this._dictionary = Cc[id]
-						.getService(Ci.xmIXMigemoDictionary);
-				}
-				else {
-					this._dictionary = Cc['@piro.sakura.ne.jp/xmigemo/dictionary;1?lang=*']
-						.createInstance(Ci.xmIXMigemoDictionary)
-						.QueryInterface(Ci.xmIXMigemoDictionaryUniversal);
-					this._dictionary.lang = Prefs.getCharPref('xulmigemo.lang');
-				}
-			}
+
+			var ns = Components.utils.import('resource://xulmigemo-modules/core/dictionary' + leafNameSuffix + '.js', {});
+			this._dictionary = ns['MigemoDictionary' + moduleNameSuffix];
 		}
 		return this._dictionary;
 	},
@@ -170,13 +119,8 @@ xmXMigemoDicManager.prototype = {
 	get cache()
 	{
 		if (!this._cache) { // default cache; can be overridden.
-			if (TEST && xmXMigemoCache) {
-				this._cache = new xmXMigemoCache();
-			}
-			else {
-				this._cache = Cc['@piro.sakura.ne.jp/xmigemo/cache;1']
-					.getService(Ci.xmIXMigemoCache);
-			}
+			var { MigemoCache } = Components.utils.import('resource://xulmigemo-modules/core/cache.js', {});
+			this._cache = MigemoCache;
 		}
 		return this._cache;
 	},
@@ -301,7 +245,7 @@ xmXMigemoDicManager.prototype = {
 			var relPath = Prefs.getCharPref('xulmigemo.dicpath-relative');
 			if (!relPath) {
 				relPath = this.dicpath;
-				relPath = this.fileUtils.getRelativePath(relPath);
+				relPath = MigemoFileAccess.getRelativePath(relPath);
 				if (relPath && relPath != this.dicpath) {
 					this.autoReloadDisabled = true;
 					Prefs.setCharPref('xulmigemo.dicpath-relative', unescape(encodeURIComponent(relPath)));
@@ -340,8 +284,6 @@ xmXMigemoDicManager.prototype = {
 	}
  
 }; 
-  
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoDicManager]); 
  
 function mydump(aString) 
 {
