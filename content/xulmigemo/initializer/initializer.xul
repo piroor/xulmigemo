@@ -98,8 +98,8 @@
 Components.utils.import('resource://xulmigemo-modules/service.jsm');
 ]]></script>
 
-<script src="chrome://xulmigemo/content/initializer/downloader.js" />
 <script src="chrome://xulmigemo/content/initializer/initializer.js" />
+<script src="chrome://xulmigemo/content/initializer/downloader.js" />
 
 
 </wizard>

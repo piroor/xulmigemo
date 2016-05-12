@@ -1,33 +1,26 @@
 Components.utils.import('resource://xulmigemo-modules/lib/stringBundle.js');
 var bundle = stringBundle.get('chrome://xulmigemo/locale/xulmigemo.properties');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'Downloads', 'resource://gre/modules/Downloads.jsm');
+
 var XMigemoFileDownloader = {
 	progressListener   : null,
 	onCompleteListener : null,
-	onErrorListener    : null,
+	onErrorListener	: null,
 
-	percent : 0,
+	percent : -1,
 
 	tempFile : null,
 	dicDir   : null,
 
-	PERMS_FILE      : 0644,
+	PERMS_FILE	  : 0644,
 	PERMS_DIRECTORY : 0755,
 
-	nsILocalFile : Components.interfaces.nsILocalFile,
+	nsILocalFile : Ci.nsILocalFile,
 
-	get DirectoryService()
-	{
-		if (!this._DirectoryService)
-			this._DirectoryService = Components.classes['@mozilla.org/file/directory_service;1'].getService(Components.interfaces.nsIProperties);
-		return this._DirectoryService;
-	},
-	_DirectoryService : null,
 
 	downloadDictionary : function()
 	{
-		const IOService = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces.nsIIOService);
-
 		var lang = XMigemoService.getPref('xulmigemo.lang');
 		if (!lang) {
 			this.onError(bundle.getString('initializer.download.error.invalidLanguage'));
@@ -39,8 +32,7 @@ var XMigemoFileDownloader = {
 			this.onError(bundle.getFormattedString('initializer.download.error.noDownloadURI', [lang]));
 		}
 
-		var source   = IOService.newURI(uri, null, null);
-		var tempFile = this.DirectoryService.get('TmpD', Components.interfaces.nsIFile);
+		var tempFile = Services.dirsvc.get('TmpD', Ci.nsIFile);
 
 		tempFile.append('xulmigemodic.zip');
 		if (tempFile.exists()) {
@@ -49,15 +41,69 @@ var XMigemoFileDownloader = {
 
 		this.tempFile = tempFile;
 
-		const nsIWebBrowserPersist = Components.interfaces.nsIWebBrowserPersist;
-		const Persist = Components.classes['@mozilla.org/embedding/browser/nsWebBrowserPersist;1'].createInstance(nsIWebBrowserPersist);
+		this.downloadsList = null;
+		this.download = null;
+		Downloads.getList(Downloads.ALL)
+			.then((function(aList) {
+				this.downloadsList = aList;
+				return aList.addView(this);
+			}).bind(this))
+			.then((function() {
+				return Downloads.createDownload({
+					source : Services.io.newURI(uri, null, null),
+					target : tempFile
+				});
+			}).bind(this))
+			.then((function(aDownload) {
+				this.download = aDownload;
+				return this.downloadsList.add(aDownload);
+			}).bind(this))
+			.then((function() {
+				this.download.start();
+			}).bind(this))
+			.catch((function(aError) {
+				Components.utils.reportError(aError);
+				this.onError(aError);
+				return this.finishDownload();
+			}).bind(this));
+	},
 
-		Persist.persistFlags = nsIWebBrowserPersist.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION |
-				nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
-				nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE;
+	finishDownload : function() {
+		return this.downloadsList.remove(this.download)
+			.then((function() {
+				return this.download.finalize(true);
+			}).bind(this))
+			.then((function() {
+				this.downloadsList.removeView(this);
+				delete this.downloadsList;
+				delete this.download;
+			}).bind(this))
+			.catch((function(aError) {
+				Components.utils.reportError(aError);
+				this.onError(aError);
+			}).bind(this));
+	},
 
-		Persist.progressListener = this;
-		Persist.saveURI(source, null, null, null, null, tempFile, null);
+	onDownloadAdded : function(aDownload)
+	{
+ 		this.percent = aDownload.progress;
+	},
+	onDownloadChanged : function(aDownload)
+	{
+		this.percent = aDownload.progress;
+		if (this.onProgressListener)
+			this.onProgressListener(this.percent);
+		if (aDownload.stopped)
+			this.finishDownload();
+	},
+	onDownloadRemoved : function(aDownload)
+	{
+		if (aDownload.succeeded)
+	 		this.onComplete();
+		else
+	 		this.onError();
+
+	 	this.downloadsList.remove(aDownload);
 	},
 
 	onComplete : function()
@@ -65,7 +111,7 @@ var XMigemoFileDownloader = {
 		try {
 			var path = this.tempFile.path;
 
-			var parentDir = this.DirectoryService.get('ProfD', Components.interfaces.nsIFile);
+			var parentDir = Services.dirsvc.get('ProfD', Ci.nsIFile);
 			parentDir.append('xulmigemodic');
 			if (!parentDir.exists()) {
 				try {
@@ -84,12 +130,13 @@ var XMigemoFileDownloader = {
 			this.onError(e);
 			return;
 		}
+		finally {
+		}
 
 		this.dicDir = parentDir;
 
-		var utils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-				.getService(Components.interfaces.xmIXMigemoFileAccess);
+		var utils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
+				.getService(Ci.xmIXMigemoFileAccess);
 
 		XMigemoService.setPref('xulmigemo.dicpath', '');
 		XMigemoService.setPref('xulmigemo.dicpath-relative', '');
@@ -108,7 +155,7 @@ var XMigemoFileDownloader = {
 
 	unzipTo : function(aFile, aParent)
 	{
-		var zipReader = Components.classes['@mozilla.org/libjar/zip-reader;1'].createInstance(Components.interfaces.nsIZipReader);
+		var zipReader = Cc['@mozilla.org/libjar/zip-reader;1'].createInstance(Ci.nsIZipReader);
 		try {
 			zipReader.open(aFile);
 		}
@@ -153,56 +200,7 @@ var XMigemoFileDownloader = {
 		}
 
 		zipReader.close();
-	},
-
-
-	// nsIWebProgressListener
-	onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)
-	{
-		if (this.progressListener)
-			this.progressListener.onStateChange.apply(this.progressListener, arguments);
-		if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP) {
-			if (this.percent >= 100)
-				this.onComplete();
-			else
-				this.onError();
-		}
-	},
-	onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress)
-	{
-		if (this.progressListener)
-			this.progressListener.onProgressChange.apply(this.progressListener, arguments);
-		if (aMaxTotalProgress > 0) {
-			this.percent = Math.floor((aCurTotalProgress*100.0)/aMaxTotalProgress);
-			if (this.percent > 100) this.percent = 100;
-		}
-		else {
-			this.percent = -1;
-		}
-	},
-	onLocationChange: function()
-	{
-		if (this.progressListener)
-			this.progressListener.onLocationChange.apply(this.progressListener, arguments);
-	},
-	onStatusChange: function()
-	{
-		if (this.progressListener)
-			this.progressListener.onStatusChange.apply(this.progressListener, arguments);
-	},
-	onSecurityChange: function()
-	{
-		if (this.progressListener)
-			this.progressListener.onSecurityChange.apply(this.progressListener, arguments);
-	},
-	QueryInterface : function(aIID)
-	{
-		if (aIID.equals(Components.interfaces.nsIDownloadProgressListener) ||
-			aIID.equals(Components.interfaces.nsISupports))
-			return this;
-		throw Components.results.NS_NOINTERFACE;
 	}
-
 };
 
 

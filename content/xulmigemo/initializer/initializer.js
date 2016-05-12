@@ -1,3 +1,9 @@
+var Ci = Components.interfaces;
+var Cc = Components.classes;
+
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'Services', 'resource://gre/modules/Services.jsm');
 
 function startDownload()
 {
@@ -13,52 +19,25 @@ function startDownload()
 			range.detach();
 		};
 
-
-
-	XMigemoFileDownloader.progressListener = {
-		percent : -1,
-
-		onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)
-		{
-			if (this.percent >= 100) {
-				clearStatus();
-				text = status.getAttribute('label-install');
-				status.appendChild(document.createTextNode(text));
-			}
-		},
-		onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress)
-		{
-			if (aMaxTotalProgress > 0) {
-				this.percent = Math.floor((aCurTotalProgress*100.0)/aMaxTotalProgress);
-				if (this.percent > 100) this.percent = 100;
-			}
-			else {
-				this.percent = -1;
-			}
+	XMigemoFileDownloader.onProgressListener = function(aProgress) {
+		if (aProgress >= 100) {
 			clearStatus();
-			if (this.percent >= 0) {
-				text = status.getAttribute('label-download-progress');
-				status.appendChild(document.createTextNode(text.replace(/%s/i, this.percent)));
+			text = status.getAttribute('label-install');
+			status.appendChild(document.createTextNode(text));
+		}
+		else if (aProgress > 0) {
+			text = status.getAttribute('label-download-progress');
+			status.appendChild(document.createTextNode(text.replace(/%s/i, aProgress)));
 
-				bar.setAttribute('type', 'determined');
-				bar.setAttribute('value', this.percent+'%');
-			}
-			else {
-				text = status.getAttribute('label-download');
-				status.appendChild(document.createTextNode(text));
+			bar.setAttribute('type', 'determined');
+			bar.setAttribute('value', aProgress+'%');
+		}
+		else {
+			text = status.getAttribute('label-download');
+			status.appendChild(document.createTextNode(text));
 
-				bar.setAttribute('type', 'undetermined');
-				bar.removeAttribute('value');
-			}
-		},
-		onLocationChange: function()
-		{
-		},
-		onStatusChange: function()
-		{
-		},
-		onSecurityChange: function()
-		{
+			bar.setAttribute('type', 'undetermined');
+			bar.removeAttribute('value');
 		}
 	};
 	XMigemoFileDownloader.onCompleteListener = function() {
@@ -91,9 +70,8 @@ function startDownload()
 
 function chooseFolder()
 {
-	var XMigemoDicManager = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-				.getService(Components.interfaces.xmIXMigemoDicManager);
+	var XMigemoDicManager = Cc['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
+				.getService(Ci.xmIXMigemoDicManager);
 
 	var path = XMigemoDicManager.showDirectoryPicker(null);
 	if (path) {
@@ -104,9 +82,8 @@ function chooseFolder()
 
 function saveChosenFolder()
 {
-	var utils = Components
-			.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-			.getService(Components.interfaces.xmIXMigemoFileAccess);
+	var utils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
+			.getService(Ci.xmIXMigemoFileAccess);
 
 	XMigemoService.setPref('xulmigemo.dicpath', '');
 	XMigemoService.setPref('xulmigemo.dicpath-relative', '');
