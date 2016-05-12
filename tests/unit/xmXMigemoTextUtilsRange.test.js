@@ -77,51 +77,51 @@ function test_range2Text()
 	assert.equals('single-row field\ntext in input field\n', textUtils.range2Text(range));
 
 	range.selectNodeContents(content.document.body);
-	assert.equals(<![CDATA[
-
-
-
-This is a sample text and a sample link.
-single-row field
-text in input field
-
-multirow field
-
-text in textarea
-
-
-word1, out of text field
-word1, out of text field
-word1, in text field
-word1, in text field
-word1, out of text field
-word1, out of text field
-word1, in text field
-word1, in text field
-word1, out of text field
-word1, out of text field
-
-word2, out of text field
-word2, out of text field
-word2, in text field
-word2, in text field
-
-word3, in text field
-word3, in text field
-word3, out of text field
-word3, out of text field
-
-日本語のテキスト　にほんごのテキスト　ニホンゴのテキスト　nihongoのテキスト
-
-another link
-
-
-Pressed:
-
-
-
-
-]]>.toString(), textUtils.range2Text(range));
+	assert.equals(" \
+ \
+ \
+ \
+This is a sample text and a sample link. \
+single-row field \
+text in input field \
+ \
+multirow field \
+ \
+text in textarea \
+ \
+ \
+word1, out of text field \
+word1, out of text field \
+word1, in text field \
+word1, in text field \
+word1, out of text field \
+word1, out of text field \
+word1, in text field \
+word1, in text field \
+word1, out of text field \
+word1, out of text field \
+ \
+word2, out of text field \
+word2, out of text field \
+word2, in text field \
+word2, in text field \
+ \
+word3, in text field \
+word3, in text field \
+word3, out of text field \
+word3, out of text field \
+ \
+日本語のテキスト　にほんごのテキスト　ニホンゴのテキスト　nihongoのテキスト \
+ \
+another link \
+ \
+ \
+Pressed: \
+ \
+ \
+ \
+ \
+", textUtils.range2Text(range));
 
 	range.detach();
 }

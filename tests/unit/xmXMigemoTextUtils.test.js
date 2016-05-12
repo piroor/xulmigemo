@@ -101,10 +101,10 @@ function test_extractRegExpSource()
 test_getMatchedTermsFromSource.description = 'getMatchedTermsFromSource（正規表現リテラルからのソース文字列抽出）';
 function test_getMatchedTermsFromSource()
 {
-	var source = <![CDATA[
-		英語,日本語,フランス語,ドイツ語,中国語,english,japanese,french,german,chinese,
-		タガログ語,ポーランド語,ハンガリー語,バルタン星語
-	]]>.toString();
+	var source = ' \
+		英語,日本語,フランス語,ドイツ語,中国語,english,japanese,french,german,chinese, \
+		タガログ語,ポーランド語,ハンガリー語,バルタン星語 \
+	';
 
 	assert.arrayEquals(
 		['語'],
