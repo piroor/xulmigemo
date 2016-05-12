@@ -10,12 +10,14 @@ var XMigemoOrganizerOverlay = {
 		eval('PlacesSearchBox.search = '+
 			PlacesSearchBox.search.toSource().replace(
 				'content.load([query], options)',
-				"if (XMigemoService.getPref('xulmigemo.places.organizer') && \n" +
-				"	XMigemoPlaces.isValidInput(query.searchTerms)) \n" +
-				"	XMigemoPlaces.startProgressiveLoad(query, options, content, \n" +
-				"		XMigemoPlaces.historyInRangeSQL); \n" +
-				"else \n" +
-				"	$&  \n"
+				' \
+				if (XMigemoService.getPref("xulmigemo.places.organizer") && \
+					XMigemoPlaces.isValidInput(query.searchTerms)) \
+					XMigemoPlaces.startProgressiveLoad(query, options, content, \
+						XMigemoPlaces.historyInRangeSQL); \
+				else \
+					$& \
+				'
 			)
 		);
 
@@ -23,20 +25,22 @@ var XMigemoOrganizerOverlay = {
 		eval('tree.applyFilter = '+
 			tree.applyFilter.toSource().replace(
 				'this.load([query], options);',
-				"if (XMigemoService.getPref('xulmigemo.places.organizer') && \n" +
-				"	XMigemoPlaces.isValidInput(query.searchTerms)) { \n" +
-				"	XMigemoPlaces.startProgressiveLoad(query, options, this, \n" +
-				"		options.queryType == Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY ? \n" +
-				"			XMigemoPlaces.historyInRangeSQL : \n" +
-				"			XMigemoPlaces.bookmarksInRangeSQL, \n" +
-				"		XMigemoOrganizerOverlay.saveCommand \n" +
-				"	); \n" +
-				"} \n" +
-				"else { \n" +
-				"	if (XMigemoOrganizerOverlay.saveCommand) \n" +
-				"		XMigemoOrganizerOverlay.saveCommand.removeAttribute('disabled'); \n" +
-				"	$& \n" +
-				"} \n"
+				' \
+				if (XMigemoService.getPref("xulmigemo.places.organizer") && \
+					XMigemoPlaces.isValidInput(query.searchTerms)) { \
+					XMigemoPlaces.startProgressiveLoad(query, options, this, \
+						options.queryType == Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY ? \
+							XMigemoPlaces.historyInRangeSQL : \
+							XMigemoPlaces.bookmarksInRangeSQL, \
+						XMigemoOrganizerOverlay.saveCommand \
+					); \
+				} \
+				else { \
+					if (XMigemoOrganizerOverlay.saveCommand) \
+						XMigemoOrganizerOverlay.saveCommand.removeAttribute('disabled'); \
+					$& \
+				} \
+				'
 			)
 		);
 	},

@@ -64,12 +64,13 @@ var XMigemoMail = {
 				}
 				regexp = new RegExp(regexp, 'ig');
 
-				let sql = "" +
-					"SELECT GROUP_CONCAT(%COLUMNS%, ?1) \n" +
-					"  FROM messagesText_content c \n" +
-					"       LEFT JOIN messages m ON m.id = c.docid \n" +
-					"       LEFT JOIN folderLocations f ON f.id = m.folderID \n" +
-					"  WHERE f.folderURI = ?2".replace('%COLUMNS%', columns.join(' || '));
+				let sql = ' \
+					SELECT GROUP_CONCAT(%COLUMNS%, ?1) \
+					  FROM messagesText_content c \
+					       LEFT JOIN messages m ON m.id = c.docid \
+					       LEFT JOIN folderLocations f ON f.id = m.folderID \
+					  WHERE f.folderURI = ?2 \
+					'.replace('%COLUMNS%', columns.join(' || '));
 				let statement = this.DBConnection.createStatement(sql);
 				statement.bindStringParameter(0, '\n');
 				statement.bindStringParameter(1, aFolder.folderURL);

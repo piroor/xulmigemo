@@ -13,12 +13,14 @@ var XMigemoBookmarksPanelOverlay = {
 		eval('tree.applyFilter = '+
 			tree.applyFilter.toSource().replace(
 				'this.load([query], options);',
-				"if (XMigemoService.getPref('xulmigemo.places.bookmarksPanel') && \n" +
-				"	XMigemoPlaces.isValidInput(query.searchTerms)) \n" +
-				"	XMigemoPlaces.startProgressiveLoad(query, options, this, \n" +
-				"		XMigemoPlaces.bookmarksInRangeSQL); \n" +
-				"else \n" +
-				"	$& \n"
+				' \
+				if (XMigemoService.getPref('xulmigemo.places.bookmarksPanel') && \
+					XMigemoPlaces.isValidInput(query.searchTerms)) \
+					XMigemoPlaces.startProgressiveLoad(query, options, this, \
+						XMigemoPlaces.bookmarksInRangeSQL); \
+				else \
+					$& \
+				'
 			)
 		);
 	}
