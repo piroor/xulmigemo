@@ -1,6 +1,6 @@
-var description = 'XMigemoTextUtilsのテスト（遅延選択関連）';
+var description = 'MigemoTextUtilsのテスト（遅延選択関連）';
 
-utils.include('xmXMigemoClasses.inc.js');
+utils.include('classes.inc.js');
 
 var textUtils;
 

@@ -1,7 +1,7 @@
-var description = 'XMigemoTextUtilsのテスト（DOM Range関連）';
+var description = 'MigemoTextUtilsのテスト（DOM Range関連）';
 var isAsync = true;
 
-utils.include('xmXMigemoClasses.inc.js');
+utils.include('classes.inc.js');
 
 var textUtils;
 

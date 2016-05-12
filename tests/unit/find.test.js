@@ -1,4 +1,4 @@
-utils.include('xmXMigemoClasses.inc.js');
+utils.include('classes.inc.js');
 
 var findModule;
 

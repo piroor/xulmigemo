@@ -3,8 +3,8 @@ var shouldSkip = utils.checkAppVersion('3.0') < 0;
 var orig = {};
 function warmUp()
 {
-	utils.include('../../content/xulmigemo/core.js', orig, 'Shift_JIS');
-	utils.include('../../content/xulmigemo/places/places.js', null, 'Shift_JIS');
+	utils.include('../../content/xulmigemo/core.js', orig, 'UTF-8');
+	utils.include('../../content/xulmigemo/places/places.js', null, 'UTF-8');
 }
 
 var XMigemoCore;

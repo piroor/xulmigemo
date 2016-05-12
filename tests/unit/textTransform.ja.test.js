@@ -1,4 +1,4 @@
-utils.include('xmXMigemoClasses.inc.js');
+utils.include('classes.inc.js');
 
 var transform;
 
@@ -13,7 +13,7 @@ function tearDown()
 }
 
 
-var convertPatterns = utils.readParametersFromCSV("xmMigemoTextTransformJa_convertPatterns.csv", "UTF-8");
+var convertPatterns = utils.readParametersFromCSV("textTransformJa_convertPatterns.csv", "UTF-8");
 
 test_optimizeRegExp.parameters = {
 	singleCharacters                 : ['(a|b|c)', '[abc]'],

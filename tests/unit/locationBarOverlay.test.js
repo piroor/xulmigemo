@@ -4,7 +4,7 @@ var orig = {};
 function startUp()
 {
 	utils.include('../../modules/places.jsm', orig, 'Shift_JIS');
-	utils.include('../../content/xulmigemo/places/locationBarOverlay.js', null, 'Shift_JIS');
+	utils.include('../../content/xulmigemo/places/locationBarOverlay.js', null, 'UTF-8');
 }
 
 var XMigemoPlaces;

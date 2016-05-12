@@ -16,7 +16,7 @@
 	.forEach(function(aURI) {
 		utils.include({
 			uri                    : aURI,
-			encoding               : 'Shift_JIS',
+			encoding               : 'UTF-8',
 			allowOverrideConstants : true
 		});
 	}, this);

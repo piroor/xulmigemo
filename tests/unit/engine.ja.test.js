@@ -1,4 +1,4 @@
-utils.include('xmXMigemoClasses.inc.js');
+utils.include('classes.inc.js');
 
 var engine;
 
@@ -13,7 +13,7 @@ function tearDown()
 	engine = null;
 }
 
-test_getRegExpFor.parameters = utils.readJSON('xmXMigemoEngineJa_regExpPatterns.json', 'UTF-8');
+test_getRegExpFor.parameters = utils.readJSON('engineJa_regExpPatterns.json', 'UTF-8');
 function test_getRegExpFor(aParameter)
 {
 	var regexp = engine.getRegExpFor(aParameter.input);
