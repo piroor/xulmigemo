@@ -1,67 +1,25 @@
+var EXPORTED_SYMBOLS = ['MigemoTextTransformJa'];
+
 var TEST = false; 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
+Components.utils.import('resource://xulmigemo-modules/core/textTransform.js');
+
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
 
-var xmIXMigemoTextTransformJa = Ci.xmIXMigemoTextTransformJa;
- 
-function xmXMigemoTextTransformJa() { 
-	this.init();
-}
+var MigemoTextTransformJa = {
+	KATA_HIRA : 1 << 0,
+	KANA_KATA : 1 << 1,
+	KANA_ALL  : 1 << 2,
 
-xmXMigemoTextTransformJa.prototype = {
 	lang : 'ja',
-
-	classDescription : 'xmXMigemoTextTransformJa',
-	contractID : '@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=ja',
-	classID : Components.ID('{2d370a3e-cef4-11db-8314-0800200c9a66}'),
-
-	QueryInterface : XPCOMUtils.generateQI([
-		Ci.xmIXMigemoTextTransform,
-		Ci.xmIXMigemoTextTransformJa,
-		Ci.pIXMigemoTextTransform,
-		Ci.pIXMigemoTextTransformJa
-	]),
-
-	get wrappedJSObject() {
-		return this;
-	},
-	
-	get textUtils() 
-	{
-		if (!this._textUtils) {
-			if (TEST && xmXMigemoTextUtils) {
-				this._textUtils = new xmXMigemoTextUtils();
-			}
-			else {
-				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.xmIXMigemoTextUtils);
-			}
-		}
-		return this._textUtils;
-	},
-	_textUtils : null,
  
-	get textTransform() 
-	{
-		if (!this._textTransform) {
-			if (TEST && xmXMigemoTextTransform) {
-				this._textTransform = new xmXMigemoTextTransform();
-			}
-			else {
-				this._textTransform = Cc['@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*']
-						.getService(Ci.xmIXMigemoTextTransform);
-			}
-		}
-		return this._textTransform;
-	},
-	_textTransform : null,
- 
-	// xmIXMigemoTextTransform 
+	// compatibility for MigemoTextTransform 
 	isValidInput : function(aInput)
 	{
 		return this.isYomi(aInput);
@@ -83,17 +41,13 @@ xmXMigemoTextTransformJa.prototype = {
 
 	addLatinModifiers : function(aInput)
 	{
-		return this.textTransform.addLatinModifiers(aInput);
+		return MigemoTextTransform.addLatinModifiers(aInput);
 	},
 
 	removeLatinModifiers : function(aInput)
 	{
-		return this.textTransform.removeLatinModifiers(aInput);
+		return MigemoTextTransform.removeLatinModifiers(aInput);
 	},
- 
-	KANA_HIRA : xmIXMigemoTextTransformJa.KANA_HIRA, 
-	KANA_KATA : xmIXMigemoTextTransformJa.KANA_KATA,
-	KANA_ALL  : xmIXMigemoTextTransformJa.KANA_ALL,
  
 	normalizeForYomi : function(aStr) 
 	{
@@ -124,7 +78,7 @@ xmXMigemoTextTransformJa.prototype = {
 		this.KANROM_Hash = {};
 		this.KANPAT     = [];
 
-		var pairs = this.textUtils.trim(this.CUSTOMTAB +'\t'+ this.KUNREITAB +'\t'+ this.HEPBURNTAB).split(/\s+/);
+		var pairs = MigemoTextUtils.trim(this.CUSTOMTAB +'\t'+ this.KUNREITAB +'\t'+ this.HEPBURNTAB).split(/\s+/);
 		var ROMKAN_Hash_multiple = {};
 		for (var i = 0, maxi = pairs.length; i < maxi; i += 2)
 		{
@@ -841,6 +795,5 @@ xmXMigemoTextTransformJa.prototype = {
 	}
    
 }; 
-  
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoTextTransformJa]); 
- 
+
+MigemoTextTransformJa.init();

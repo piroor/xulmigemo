@@ -1,3 +1,5 @@
+var EXPORTED_SYMBOLS = ['MigemoTextUtils'];
+
 var TEST = false; 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -27,23 +29,7 @@ function getBoxObjectFor(aNode)
 			.getBoxObjectFor(aNode);
 }
  
-function xmXMigemoTextUtils() { 
-}
-
-xmXMigemoTextUtils.prototype = {
-	contractID : '@piro.sakura.ne.jp/xmigemo/text-utility;1',
-	classDescription : 'xmXMigemoTextUtils',
-	classID : Components.ID('{71715174-1dd4-11dc-8314-0800200c9a66}'),
-
-	QueryInterface : XPCOMUtils.generateQI([
-		Ci.xmIXMigemoTextUtils,
-		Ci.pIXMigemoTextUtils
-	]),
-
-	get wrappedJSObject() {
-		return this;
-	},
-	
+var MigemoTextUtils = {
 /* string operations */ 
 	
 	trim : function(aInput) 
@@ -880,9 +866,4 @@ xmXMigemoTextUtils.prototype = {
 	}
    
 }; 
-  
-if (XPCOMUtils.generateNSGetFactory) 
-	var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoTextUtils]);
-else
-	var NSGetModule = XPCOMUtils.generateNSGetModule([xmXMigemoTextUtils]);
- 
+

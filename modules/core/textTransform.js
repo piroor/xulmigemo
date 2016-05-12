@@ -1,43 +1,14 @@
+var EXPORTED_SYMBOLS = ['MigemoTextTransform'];
+
 // for ASCII 
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
  
-function xmXMigemoTextTransform() { 
-	this.init();
-}
-
-xmXMigemoTextTransform.prototype = {
-	classDescription : 'xmXMigemoTextTransform',
-	contractID : '@piro.sakura.ne.jp/xmigemo/text-transform;1?lang=*',
-	classID : Components.ID('{323b8fbe-1deb-11dc-8314-0800200c9a66}'),
-
-	QueryInterface : XPCOMUtils.generateQI([
-		Ci.xmIXMigemoTextTransform,
-		Ci.pIXMigemoTextTransform
-	]),
-
-	get wrappedJSObject() {
-		return this;
-	},
-	
-	get textUtils() 
-	{
-		if (!this._textUtils) {
-			if (TEST && xmXMigemoTextUtils) {
-				this._textUtils = new xmXMigemoTextUtils();
-			}
-			else {
-				this._textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Ci.xmIXMigemoTextUtils);
-			}
-		}
-		return this._textUtils;
-	},
-	_textUtils : null,
- 
+var MigemoTextTransform = {
 	nonAsciiRegExp : /[^a-zA-Z0-9\!\_\-\?\/\\\~\|\{\}\(\)\'\"\&\%\$\<\>\[\]\@\`\+\*\;\:]/gi, 
  
 	LATIN_LETTES_WITH_MODIFIERS : [ 
@@ -79,7 +50,7 @@ xmXMigemoTextTransform.prototype = {
 		this.LATPAT      = [];
 		this.MODPAT      = [];
 
-		var pairs = this.textUtils.trim(this.LATIN_LETTES_WITH_MODIFIERS).split(/\s+/);
+		var pairs = MigemoTextUtils.trim(this.LATIN_LETTES_WITH_MODIFIERS).split(/\s+/);
 		for (var i = 0, maxi = pairs.length; i < maxi; i += 2)
 		{
 			this.LATMOD.push({ key : pairs[i], char : pairs[i+1] });
@@ -140,7 +111,6 @@ xmXMigemoTextTransform.prototype = {
 			});
 	}
  
-}; 
-  
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoTextTransform]); 
- 
+};
+
+MigemoTextTransform.init();

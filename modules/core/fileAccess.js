@@ -1,3 +1,5 @@
+var EXPORTED_SYMBOLS = ['MigemoFileAccess'];
+
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -12,26 +14,11 @@ var DIR = Cc['@mozilla.org/file/directory_service;1']
 
 var nsIFile = Ci.nsIFile;
 
-function xmXMigemoFileAccess() {}
-
-xmXMigemoFileAccess.prototype = {
-	contractID : '@piro.sakura.ne.jp/xmigemo/file-access;1',
-	classDescription : 'xmXMigemoFileAccess',
-	classID : Components.ID('{19c2aa1c-cef4-11db-8314-0800200c9a66}'),
-
-	QueryInterface : XPCOMUtils.generateQI([
-		Ci.xmIXMigemoFileAccess,
-		Ci.pIXMigemoFileAccess
-	]),
-
-	get wrappedJSObject() {
-		return this;
-	},
-
+var FileAccess = {
 	get isWindows() 
 	{
 		delete this.isWindows;
-		Components.utils.import('resource://xulmigemo-modules/service.jsm');
+		let { XMigemoService } = Components.utils.import('resource://xulmigemo-modules/service.jsm', {});
 		return this.isWindows = XMigemoService.isWindows;
 	},
 
@@ -205,5 +192,3 @@ xmXMigemoFileAccess.prototype = {
 		return '';
 	}
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoFileAccess]); 
