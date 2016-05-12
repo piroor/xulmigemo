@@ -167,7 +167,7 @@ var MigemoTextTransformJa = {
 		{
 			kata = pairs[i+1]
 			kata.split('|').forEach(function(aKata, aIndex) {
-				if (aKata == '-') return; // —áŠO
+				if (aKata == '-') return; // ä¾‹å¤–
 				self.KATAHIRA_Hash[aKata] = pairs[i];
 				self.KATAPAT.push(aKata);
 				if (aIndex == 0) {
@@ -440,7 +440,7 @@ var MigemoTextTransformJa = {
 						var char;
 						while (str.length > 0)
 						{
-							if (str.indexOf('\u3046\u309b') == 0) { // u‚¤Jv‚¾‚¯‚Í“Á—á‚Åˆê•¶šˆµ‚¢
+							if (str.indexOf('\u3046\u309b') == 0) { // ã€Œã†ã‚›ã€ã ã‘ã¯ç‰¹ä¾‹ã§ä¸€æ–‡å­—æ‰±ã„
 								char = str.substring(0, 2);
 								str  = str.substring(1);
 							}
@@ -748,17 +748,17 @@ var MigemoTextTransformJa = {
 	{
 		var code = aStr.charCodeAt(0);
 
-		// ‘SŠp‚©‚È
+		// å…¨è§’ã‹ãª
 		if (/^[\u304b\u304d\u304f\u3051\u3053\u3055\u3057\u3059\u305b\u305d\u305f\u3061\u3064\u3066\u3068\u306f\u3072\u3075\u3078\u307b\u30ab\u30ad\u30af\u30b1\u30b3\u30b5\u30b7\u30b9\u30bb\u30bd\u30bf\u30c1\u30c4\u30c6\u30c8\u30cf\u30d2\u30d5\u30d8\u30db][\uff9e\u309b]/.test(aStr)) {
 			return String.fromCharCode(code+1);
 		}
 		else if (/^[\u306f\u3072\u3075\u3078\u307b\u30cf\u30d2\u30d5\u30d8\u30db][\uff9f\u309c]/.test(aStr)) {
 			return String.fromCharCode(code+2);
 		}
-		else if (/^[\u30a6\uff73]/.test(aStr)) { // ‘SŠpE”¼Šp‚Ìƒ”
+		else if (/^[\u30a6\uff73]/.test(aStr)) { // å…¨è§’ãƒ»åŠè§’ã®ãƒ´
 			return '\u30f4';
 		}
-		else { // ”¼ŠpƒJƒi
+		else { // åŠè§’ã‚«ãƒŠ
 			switch (aStr)
 			{
 				case '\uff76\uff9e': return '\u30ac';

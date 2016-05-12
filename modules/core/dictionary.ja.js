@@ -53,7 +53,7 @@ var MigemoDictionaryJa = {
 	load : function() 
 	{
 		// dicPath
-		//c‚Íconsonant(‰pŒê:"q‰¹")
+		//cã¯consonant(è‹±èª:"å­éŸ³")
 		var failed = new Array();
 		var file;
 		var dicDir = this.dicpath;
@@ -79,7 +79,7 @@ var MigemoDictionaryJa = {
 				error = true;
 			}
 
-			// ƒ†[ƒU[«‘
+			// ãƒ¦ãƒ¼ã‚¶ãƒ¼è¾æ›¸
 			if (dicDir) {
 				file = Cc["@mozilla.org/file/local;1"]
 					.createInstance(Ci.nsILocalFile);
@@ -247,7 +247,7 @@ var MigemoDictionaryJa = {
 		var regexp;
 
 		if (aOperation == 'add') {
-			// ƒfƒtƒHƒ‹ƒg‚Ì«‘‚É“ü‚Á‚Ä‚¢‚é’PŒê‚Í’Ç‰Á‚µ‚È‚¢
+			// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®è¾æ›¸ã«å…¥ã£ã¦ã„ã‚‹å˜èªã¯è¿½åŠ ã—ãªã„
 			regexp = new RegExp('^'+yomi+'\t(.+)$', 'm');
 			if (regexp.test(systemDic)) {
 				var terms = RegExp.$1.split('\t').join('\n');
@@ -262,7 +262,7 @@ var MigemoDictionaryJa = {
 			var terms = RegExp.$1.split('\t').join('\n');
 			regexp = new RegExp('^'+MigemoTextUtils.sanitize(term)+'$', 'm');
 			if ((aOperation == 'remove' && !term) || regexp.test(terms)) {
-				// ƒ†[ƒU«‘‚É‚·‚Å‚É“o˜^Ï‚İ‚Å‚ ‚éê‡
+				// ãƒ¦ãƒ¼ã‚¶è¾æ›¸ã«ã™ã§ã«ç™»éŒ²æ¸ˆã¿ã§ã‚ã‚‹å ´åˆ
 				switch (aOperation)
 				{
 					case 'add':
@@ -288,7 +288,7 @@ var MigemoDictionaryJa = {
 				}
 			}
 			else {
-				// ƒ†[ƒU«‘‚ÉƒGƒ“ƒgƒŠ‚Í‚ ‚é‚ªA‚»‚ÌŒê‹å‚Í“o˜^‚³‚ê‚Ä‚¢‚È‚¢ê‡
+				// ãƒ¦ãƒ¼ã‚¶è¾æ›¸ã«ã‚¨ãƒ³ãƒˆãƒªã¯ã‚ã‚‹ãŒã€ãã®èªå¥ã¯ç™»éŒ²ã•ã‚Œã¦ã„ãªã„å ´åˆ
 				switch (aOperation)
 				{
 					case 'add':
@@ -304,7 +304,7 @@ var MigemoDictionaryJa = {
 			}
 		}
 		else {
-			// ƒ†[ƒU«‘‚É–¢“o˜^‚Ìê‡
+			// ãƒ¦ãƒ¼ã‚¶è¾æ›¸ã«æœªç™»éŒ²ã®å ´åˆ
 			switch (aOperation)
 			{
 				case 'add':

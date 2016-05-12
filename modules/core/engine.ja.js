@@ -96,7 +96,7 @@ var MigemoEngineJa = {
 			if (/[\[\(]/.test(zen)) pattern += (pattern ? '|' : '') + zen;
 			if (/[\[\(]/.test(hiraAndKana)) pattern += (pattern ? '|' : '') + hiraAndKana;
 
-			// ˆê•¶š‚¾‚¯‚Ì€–Ú‚¾‚¯‚ÍA”²‚«o‚µ‚Ä•¶šƒNƒ‰ƒX‚É‚Ü‚Æ‚ß‚é
+			// ä¸€æ–‡å­—ã ã‘ã®é …ç›®ã ã‘ã¯ã€æŠœãå‡ºã—ã¦æ–‡å­—ã‚¯ãƒ©ã‚¹ã«ã¾ã¨ã‚ã‚‹
 			var ichimoji = searchterm
 							.replace(/^..+$\n?/mg, '')
 							.split('\n')
@@ -107,14 +107,14 @@ var MigemoEngineJa = {
 				pattern += (pattern ? '|' : '') + '[' + ichimoji + ']';
 			}
 
-			// foo, foobar, fooee... ‚Æ‚¢‚Á‚½•—‚ÉA“¯‚¶•¶š—ñ‚Ån‚Ü‚é•¡”‚ÌŒó•â‚ª‚ ‚éê‡‚ÍA
-			// Å‚à’Z‚¢Œó•âi‚±‚Ì—á‚È‚çfooj‚¾‚¯‚É‚·‚é
+			// foo, foobar, fooee... ã¨ã„ã£ãŸé¢¨ã«ã€åŒã˜æ–‡å­—åˆ—ã§å§‹ã¾ã‚‹è¤‡æ•°ã®å€™è£œãŒã‚ã‚‹å ´åˆã¯ã€
+			// æœ€ã‚‚çŸ­ã„å€™è£œï¼ˆã“ã®ä¾‹ãªã‚‰fooï¼‰ã ã‘ã«ã™ã‚‹
 			searchterm = searchterm
 				.split('\n')
 				.sort()
 				.join('\n')
 				.replace(/^(.+)$(\n\1.*$)+/img, '$1')
-				.replace(/^.$\n?/mg, ''); // ˆê•¶š‚¾‚¯‚Ì€–Ú‚Í—pÏ‚İ‚È‚Ì‚Åíœ
+				.replace(/^.$\n?/mg, ''); // ä¸€æ–‡å­—ã ã‘ã®é …ç›®ã¯ç”¨æ¸ˆã¿ãªã®ã§å‰Šé™¤
 			searchterm = MigemoTextUtils.sanitize(searchterm)
 				.replace(/\n/g, '|');
 			pattern += (pattern ? '|' : '') + searchterm;//.substring(0, searchterm.length-1);
@@ -124,7 +124,7 @@ var MigemoEngineJa = {
 
 			mydump('pattern(from dic):'+encodeURIComponent(pattern));
 		}
-		else { // «‘‚Éˆø‚Á‚©‚©‚ç‚È‚©‚Á‚½–Í—l‚È‚Ì‚Å©‘O‚Ì•¶š—ñ‚¾‚¯
+		else { // è¾æ›¸ã«å¼•ã£ã‹ã‹ã‚‰ãªã‹ã£ãŸæ¨¡æ§˜ãªã®ã§è‡ªå‰ã®æ–‡å­—åˆ—ã ã‘
 			pattern = original;
 			if (original != zen) pattern += '|' + zen;
 			if (original != hiraAndKana) pattern += '|' + hiraAndKana;
@@ -141,13 +141,13 @@ var MigemoEngineJa = {
 	{
 		var terms = (
 					(/^[A-Z]{2,}/.test(aInput)) ?
-						aInput.replace(/([a-z])/g, '\t$1') : // CapsLock‚³‚ê‚Ä‚éê‡‚Í¬•¶š‚Å‹æØ‚é
+						aInput.replace(/([a-z])/g, '\t$1') : // CapsLockã•ã‚Œã¦ã‚‹å ´åˆã¯å°æ–‡å­—ã§åŒºåˆ‡ã‚‹
 						aInput.replace(/([A-Z])/g, '\t$1')
 				)
 				.replace(/([\uff66-\uff9fa-z])([0-9])/i, '$1\t$2')
 				.replace(/([0-9a-z])([\uff66-\uff9f])/i, '$1\t$2')
 				.replace(/([0-9\uff66-\uff9f])([a-z])/i, '$1\t$2')
-				.replace(new RegExp('([!"#\$%&\'\\(\\)=~\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64]+)', 'g'), '\t$1\t');
+				.replace(new RegExp('([!"#\$%&\'\\(\\)=â€¾\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64]+)', 'g'), '\t$1\t');
 
 		terms = terms
 				.replace(/ +|\t\t+/g, '\t')
@@ -178,13 +178,13 @@ var MigemoEngineJa = {
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
 			str = transform.addLatinModifiers(str);
 
-		var tmp  = '^' + hira + '.+$'; //“ú–{Œê
-		var tmpA = '^(' + str + ').+$'; //ƒAƒ‹ƒtƒ@ƒxƒbƒg
+		var tmp  = '^' + hira + '.+$'; //æ—¥æœ¬èª
+		var tmpA = '^(' + str + ').+$'; //ã‚¢ãƒ«ãƒ•ã‚¡ãƒ™ãƒƒãƒˆ
 		var exp  = new RegExp(tmp, 'mg');
 		var expA = new RegExp(tmpA, 'mg');
 
 		var firstlet = '';
-		firstlet = aInput.charAt(0);//Å‰‚Ì•¶š
+		firstlet = aInput.charAt(0);//æœ€åˆã®æ–‡å­—
 		mydump(firstlet+' dic loaded');
 
 		var lines = [];
@@ -203,7 +203,7 @@ var MigemoEngineJa = {
 			}
 		}
 		if (mydicA) {
-			var lineA = mydicA.match(expA);//ƒAƒ‹ƒtƒ@ƒxƒbƒg‚Ì«‘‚ğŒŸõ
+			var lineA = mydicA.match(expA);//ã‚¢ãƒ«ãƒ•ã‚¡ãƒ™ãƒƒãƒˆã®è¾æ›¸ã‚’æ¤œç´¢
 			mydump('searchEnDic');
 			if (lineA) {
 				lines = lines.concat(lineA);
@@ -219,7 +219,7 @@ var MigemoEngineJa = {
 			}
 		}
 		if (mydic) {
-			var line = mydic.match(exp);//“ú–{Œê‚Ì«‘‚ğŒŸõ
+			var line = mydic.match(exp);//æ—¥æœ¬èªã®è¾æ›¸ã‚’æ¤œç´¢
 			mydump('searchJpnDic');
 			if (line) {
 				lines = lines.concat(line);

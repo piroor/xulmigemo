@@ -167,7 +167,7 @@ var MigemoTextUtils = {
 				}
 				textRange.selectNode(node);
 				textRange.collapse(false);
-				//textRange.setStartAfter(node);‚È‚º‚©ƒGƒ‰[‚ªo‚é
+				//textRange.setStartAfter(node);ãªãœã‹ã‚¨ãƒ©ãƒ¼ãŒå‡ºã‚‹
 				found = true;
 			}
 		}
@@ -201,7 +201,7 @@ var MigemoTextUtils = {
 	
 	sanitize : function(str) 
 	{
-		//	[]^.+*?$|{}\(),  ³‹K•\Œ»‚Ìƒƒ^ƒLƒƒƒ‰ƒNƒ^‚ğƒGƒXƒP[ƒv
+		//	[]^.+*?$|{}\(),  æ­£è¦è¡¨ç¾ã®ãƒ¡ã‚¿ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ã‚’ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—
 		str = str.replace(this.kSANITIZE_PATTERN, "\\$1");
 		return str;
 	},
@@ -701,15 +701,15 @@ var MigemoTextUtils = {
 		aNode.QueryInterface(Ci.nsIDOMNode);
 
 		/*
-			Œ»İ‚Ì‘I‘ğ”ÍˆÍ‚Ìn“_‚ªAnormalize()Œã‚ÌƒeƒLƒXƒgƒm[ƒh‚Ì’†‚Å
-			‰½•¶š–Ú‚É‚È‚é‚©‚ğ‹‚ß‚é
+			ç¾åœ¨ã®é¸æŠç¯„å›²ã®å§‹ç‚¹ãŒã€normalize()å¾Œã®ãƒ†ã‚­ã‚¹ãƒˆãƒãƒ¼ãƒ‰ã®ä¸­ã§
+			ä½•æ–‡å­—ç›®ã«ãªã‚‹ã‹ã‚’æ±‚ã‚ã‚‹
 		*/
 		var startNodeInfo = this.countPreviousText(aNode.previousSibling);
 		var startOffset = startNodeInfo.count;
 
 		/*
-			normalize()Œã‚ÌƒeƒLƒXƒgƒm[ƒh‚ªAeƒm[ƒh‚Ì‰½”Ô–Ú‚Ìqƒm[ƒh‚É
-			‚È‚é‚©‚ğ‹‚ß‚éi‹­’²•\¦‚ª–³‚¢ó‘Ô‚ğ‘z’èj
+			normalize()å¾Œã®ãƒ†ã‚­ã‚¹ãƒˆãƒãƒ¼ãƒ‰ãŒã€è¦ªãƒãƒ¼ãƒ‰ã®ä½•ç•ªç›®ã®å­ãƒãƒ¼ãƒ‰ã«
+			ãªã‚‹ã‹ã‚’æ±‚ã‚ã‚‹ï¼ˆå¼·èª¿è¡¨ç¤ºãŒç„¡ã„çŠ¶æ…‹ã‚’æƒ³å®šï¼‰
 		*/
 		var childCount = 0;
 		this.countPreviousText(aNode);
@@ -721,8 +721,8 @@ var MigemoTextUtils = {
 
 		var parent = (aNode.nodeType == aNode.ELEMENT_NODE && !this.isTextNodeOrHighlight(aNode)) ? aNode : aNode.parentNode ;
 		if (startOffset || childCount || this.countNextText(aNode).lastNode != aNode) {
-			// normalize()‚É‚æ‚Á‚Ä‘I‘ğ”ÍˆÍ‚Ìn“_EI“_‚ª•Ï‚í‚éê‡‚Í
-			// ƒm[ƒh‚ÌÄ\’z‚ªI‚í‚Á‚½Œã‚Å‘I‘ğ”ÍˆÍ‚ğ•œŒ³‚·‚é
+			// normalize()ã«ã‚ˆã£ã¦é¸æŠç¯„å›²ã®å§‹ç‚¹ãƒ»çµ‚ç‚¹ãŒå¤‰ã‚ã‚‹å ´åˆã¯
+			// ãƒãƒ¼ãƒ‰ã®å†æ§‹ç¯‰ãŒçµ‚ã‚ã£ãŸå¾Œã§é¸æŠç¯„å›²ã‚’å¾©å…ƒã™ã‚‹
 			var range = aNode.ownerDocument.createRange();
 			range.selectNodeContents(aNode);
 			range.collapse(true);
@@ -747,7 +747,7 @@ var MigemoTextUtils = {
 
 		var doc = aParent.ownerDocument;
 
-		// n“_‚ÌˆÊ’u‚Ü‚ÅˆÚ“®‚µ‚ÄAn“_‚ğİ’è
+		// å§‹ç‚¹ã®ä½ç½®ã¾ã§ç§»å‹•ã—ã¦ã€å§‹ç‚¹ã‚’è¨­å®š
 		var node;
 		var startNode = aParent.firstChild;
 		if (startNode.nodeType != startNode.TEXT_NODE) startNode = this.getNextTextNode(startNode);
@@ -803,12 +803,12 @@ var MigemoTextUtils = {
 	selectContentWithDelayTimer : null,
   
 	/* 
-		‹­’²•\¦‚Ì—L‚é–³‚µ‚ğ–³‹‚µ‚ÄAI’[‚É‚ ‚éƒeƒLƒXƒgƒm[ƒh‚ÆA
-		‚»‚±‚Ü‚Å‚Ìinormalize()‚É‚æ‚Á‚ÄŒ‹‡‚³‚ê‚é‚Å‚ ‚ë‚¤jƒeƒLƒXƒg‚Ì
-		’·‚³‚Ì˜a‚ğ“¾‚éB
-		‹­’²•\¦—p‚Ì—v‘f‚Íí‚ÉƒeƒLƒXƒgƒm[ƒh‚Ì’¼ã‚É‚µ‚©Œ»‚ê“¾‚È‚¢‚Ì‚ÅA
-		u‹­’²•\¦—p‚Ì—v‘f‚ª‚ ‚é‹­’²•\¦‚ª‰ğœ‚³‚ê‚½‚ç‚»‚±‚ÍƒeƒLƒXƒgƒm[ƒh‚É‚È‚év
-		‚Æ”»’f‚·‚é‚±‚Æ‚ª‚Å‚«‚éB
+		å¼·èª¿è¡¨ç¤ºã®æœ‰ã‚‹ç„¡ã—ã‚’ç„¡è¦–ã—ã¦ã€çµ‚ç«¯ã«ã‚ã‚‹ãƒ†ã‚­ã‚¹ãƒˆãƒãƒ¼ãƒ‰ã¨ã€
+		ãã“ã¾ã§ã®ï¼ˆnormalize()ã«ã‚ˆã£ã¦çµåˆã•ã‚Œã‚‹ã§ã‚ã‚ã†ï¼‰ãƒ†ã‚­ã‚¹ãƒˆã®
+		é•·ã•ã®å’Œã‚’å¾—ã‚‹ã€‚
+		å¼·èª¿è¡¨ç¤ºç”¨ã®è¦ç´ ã¯å¸¸ã«ãƒ†ã‚­ã‚¹ãƒˆãƒãƒ¼ãƒ‰ã®ç›´ä¸Šã«ã—ã‹ç¾ã‚Œå¾—ãªã„ã®ã§ã€
+		ã€Œå¼·èª¿è¡¨ç¤ºç”¨ã®è¦ç´ ãŒã‚ã‚‹ï¼å¼·èª¿è¡¨ç¤ºãŒè§£é™¤ã•ã‚ŒãŸã‚‰ãã“ã¯ãƒ†ã‚­ã‚¹ãƒˆãƒãƒ¼ãƒ‰ã«ãªã‚‹ã€
+		ã¨åˆ¤æ–­ã™ã‚‹ã“ã¨ãŒã§ãã‚‹ã€‚
 	*/
 	countPreviousText : function(aNode)
 	{

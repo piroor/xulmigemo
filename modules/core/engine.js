@@ -59,7 +59,7 @@ MigemoEngine = {
 			pattern = pattern.replace(/\n/g, '');
 			mydump('pattern:'+pattern);
 		}
-		else { // «‘‚Éˆø‚Á‚©‚©‚ç‚È‚©‚Á‚½–Í—l‚È‚Ì‚Å©‘O‚Ì•¶š—ñ‚¾‚¯
+		else { // è¾æ›¸ã«å¼•ã£ã‹ã‹ã‚‰ãªã‹ã£ãŸæ¨¡æ§˜ãªã®ã§è‡ªå‰ã®æ–‡å­—åˆ—ã ã‘
 			pattern = str;
 			mydump('pattern:'+pattern);
 		}
@@ -76,7 +76,7 @@ MigemoEngine = {
 				.replace(/([\uff66-\uff9fa-z])([0-9])/i, '$1\t$2')
 				.replace(/([0-9a-z])([\uff66-\uff9f])/i, '$1\t$2')
 				.replace(/([0-9\uff66-\uff9f])([a-z])/i, '$1\t$2')
-				.replace(new RegExp('([!"#\$%&\'\\(\\)=~\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64]+)', 'g'), '\t$1\t');
+				.replace(new RegExp('([!"#\$%&\'\\(\\)=â€¾\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64]+)', 'g'), '\t$1\t');
 
 		terms = terms
 				.replace(/ +|\t\t+/g, '\t')
@@ -113,7 +113,7 @@ MigemoEngine = {
 			}
 		}
 		if (mydic) {
-			var line = mydic.match(exp);//ƒAƒ‹ƒtƒ@ƒxƒbƒg‚Ì«‘‚ğŒŸõ
+			var line = mydic.match(exp);//ã‚¢ãƒ«ãƒ•ã‚¡ãƒ™ãƒƒãƒˆã®è¾æ›¸ã‚’æ¤œç´¢
 			if (line) {
 				lines = lines.concat(line);
 				mydump(' found '+line.length+' terms');

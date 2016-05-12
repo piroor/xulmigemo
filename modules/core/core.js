@@ -81,7 +81,7 @@ MigemoCore.prototype = {
 
 		var autoSplit = (aEnableAutoSplit === void(0)) ? Prefs.getBoolPref('xulmigemo.splitTermsAutomatically') : aEnableAutoSplit ;
 
-		// “ü—Í‚ğØ‚Á‚ÄA•¶ß‚Æ‚µ‚ÄŒÂ•Ê‚É³‹K•\Œ»‚ğ¶¬‚·‚é
+		// å…¥åŠ›ã‚’åˆ‡ã£ã¦ã€æ–‡ç¯€ã¨ã—ã¦å€‹åˆ¥ã«æ­£è¦è¡¨ç¾ã‚’ç”Ÿæˆã™ã‚‹
 		var romanTerm;
 		var romanTerms = this.engine.splitInput(aInput);
 		mydump('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n');
@@ -164,13 +164,13 @@ MigemoCore.prototype = {
 
 		var date2 = Date.now();
 		if ((date2 - date1) > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Prefs.getIntPref('xulmigemo.cache.update.time'))) {
-			// ’x‚©‚Á‚½‚çƒLƒƒƒbƒVƒ…‚µ‚Ü‚·
+			// é…ã‹ã£ãŸã‚‰ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã—ã¾ã™
 			cache.setDiskCache(aInput, regexpPattern, aTargetDic);
 			cache.setMemCache(aInput, regexpPattern, aTargetDic);
 			mydump('CacheWasSaved');
 		}
 		else{
-			cache.setMemCache(aInput, regexpPattern, aTargetDic);//ƒƒ‚ƒŠƒLƒƒƒbƒVƒ…
+			cache.setMemCache(aInput, regexpPattern, aTargetDic);//ãƒ¡ãƒ¢ãƒªã‚­ãƒ£ãƒƒã‚·ãƒ¥
 			mydump('memCacheWasSaved');
 		}
 		mydump(date2 - date1);
@@ -393,7 +393,7 @@ MigemoCore.prototype = {
 	{
 		var input = MigemoTextUtils.trim(aInput);
 		if (this.notFindAvailable) {
-			// “ü—Í’†‚ÌNOTŒŸõ—p‰‰Zq‚ğœŠO
+			// å…¥åŠ›ä¸­ã®NOTæ¤œç´¢ç”¨æ¼”ç®—å­ã‚’é™¤å¤–
 			input = input.replace(/\s+-$/, '');
 		}
 		return input;
@@ -528,7 +528,7 @@ MigemoCore.prototype = {
 						null ;
 		var frameSelection = selCon ? selCon.getSelection(selCon.SELECTION_FIND) : null ;
 
-		// ƒŒƒCƒAƒEƒg‚ğŠm’è‚µ‚È‚¢‚ÆŒŸõ‚É¸”s‚·‚éiFirefox 4.0-j
+		// ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã‚’ç¢ºå®šã—ãªã„ã¨æ¤œç´¢ã«å¤±æ•—ã™ã‚‹ï¼ˆFirefox 4.0-ï¼‰
 		doc.clientTop;
 
 		var originalFindRange  = findRange;
@@ -579,7 +579,7 @@ MigemoCore.prototype = {
 						nodeSurround.appendChild(docfrag);
 						foundRange.insertNode(nodeSurround);
 
-						// ƒŒƒCƒAƒEƒg‚ğŠm’è‚µ‚È‚¢‚ÆŒŸõ‚É¸”s‚·‚éiFirefox 4.0-j
+						// ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã‚’ç¢ºå®šã—ãªã„ã¨æ¤œç´¢ã«å¤±æ•—ã™ã‚‹ï¼ˆFirefox 4.0-ï¼‰
 						nodeSurround.clientTop;
 
 						if (isOverlap)
