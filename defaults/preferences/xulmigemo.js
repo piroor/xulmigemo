@@ -86,5 +86,5 @@ pref("xulmigemo.combination.autocompletemanager", true);
 
 
 pref("xulmigemo.dictionary.useInitializeWizard", true);
-pref("xulmigemo.dictionary.download.uri.ja",     "http://piro.sakura.ne.jp/xul/xpi/xulmigemodic.zip");
-pref("xulmigemo.dictionary.download.uri.en-US",  "http://piro.sakura.ne.jp/xul/xpi/xulmigemodic.en-US.zip");
+pref("xulmigemo.dictionary.download.uri.ja",     "https://piro.sakura.ne.jp/xul/xpi/xulmigemodic.zip");
+pref("xulmigemo.dictionary.download.uri.en-US",  "https://piro.sakura.ne.jp/xul/xpi/xulmigemodic.en-US.zip");
