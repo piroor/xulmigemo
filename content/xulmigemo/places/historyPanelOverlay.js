@@ -13,28 +13,24 @@ var XMigemoHistoryPanelOverlay = {
 		eval('window.searchHistory = '+
 			window.searchHistory.toSource().replace(
 				'gHistoryTree.load([query], options);',
-				<![CDATA[
-					if (XMigemoService.getPref('xulmigemo.places.historyPanel') &&
-						XMigemoPlaces.isValidInput(query.searchTerms))
-						XMigemoPlaces.startProgressiveLoad(query, options, gHistoryTree,
-							XMigemoPlaces.historyInRangeSQL);
-					else
-						$&
-				]]>
+				"if (XMigemoService.getPref('xulmigemo.places.historyPanel') && \n" +
+				"	XMigemoPlaces.isValidInput(query.searchTerms)) \n" +
+				"	XMigemoPlaces.startProgressiveLoad(query, options, gHistoryTree, \n" +
+				"		XMigemoPlaces.historyInRangeSQL); \n" +
+				"else \n" +
+				"	$& \n"
 			)
 		);
 
 		eval('tree.applyFilter = '+
 			tree.applyFilter.toSource().replace(
 				'this.load([query], options);',
-				<![CDATA[
-					if (XMigemoService.getPref('xulmigemo.places.historyPanel') &&
-						XMigemoPlaces.isValidInput(query.searchTerms))
-						XMigemoPlaces.startProgressiveLoad(query, options, this,
-							XMigemoPlaces.historyInRangeSQL);
-					else
-						$&
-				]]>
+				"if (XMigemoService.getPref('xulmigemo.places.historyPanel') && \n" +
+				"	XMigemoPlaces.isValidInput(query.searchTerms)) \n" +
+				"	XMigemoPlaces.startProgressiveLoad(query, options, this, \n" +
+				"		XMigemoPlaces.historyInRangeSQL); \n" +
+				"else \n" +
+				"	$& \n"
 			)
 		);
 	}
