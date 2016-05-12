@@ -37,7 +37,7 @@ var XMigemoOrganizerOverlay = {
 				} \
 				else { \
 					if (XMigemoOrganizerOverlay.saveCommand) \
-						XMigemoOrganizerOverlay.saveCommand.removeAttribute('disabled'); \
+						XMigemoOrganizerOverlay.saveCommand.removeAttribute("disabled"); \
 					$& \
 				} \
 				'
