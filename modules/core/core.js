@@ -1171,7 +1171,7 @@ MigemoCore.prototype = {
 		var moduleNameSuffix = '';
 		if (lang) {
 			leafNameSuffix = '.' + lang;
-			moduleNameSuffix = lang.charAt(0).toUpperCase() + this.lang.slice(1);
+			moduleNameSuffix = lang.charAt(0).toUpperCase() + lang.slice(1);
 		}
 
 		var ns = Components.utils.import('resource://xulmigemo-modules/core/engine' + leafNameSuffix + '.js', {});
