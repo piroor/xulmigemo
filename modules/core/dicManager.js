@@ -11,6 +11,7 @@ const Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
 Components.utils.import('resource://xulmigemo-modules/core/core.js');
+Components.utils.import('resource://xulmigemo-modules/core/cache.js');
 Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js');
 
 var namespace = {};
