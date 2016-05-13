@@ -551,6 +551,18 @@ mydump('getParentEditableFromRange');
 		}
 		return null;
 	},
+	getFindRangeFromRangeInEditable : function(aRange) 
+	{
+		var owner = this.getParentEditableFromRange(aRange);
+		var lastContainer = aRange.startContainer;
+		while (lastContainer.parentNode != owner)
+		{
+			lastContainer = lastContainer.parentNode;
+		}
+		var range = lastContainer.ownerDocument.createRange();
+		range.selectNodeContents(lastContainer);
+		return range;
+	},
   
 /* Range Manipulation */ 
 	
@@ -561,40 +573,52 @@ mydump("getFindRangeSet");
 		var docShell  = aDocShellIterator.current;
 		var docSelCon = this.getSelectionController(aDocShellIterator.view);
 
-		var lastFoundEditable = this.lastFoundEditableMap.get(doc);
-		if (lastFoundEditable) {
-			var selCon = this.getSelectionController(lastFoundEditable);
-			var selection = selCon.getSelection(selCon.SELECTION_NORMAL);
-			var testRange1 = doc.createRange();
+		if (aFindFlag & this.FIND_SILENTLY) {
+			let range = this.foundRange;
+			if (range) {
+				let editable = this.getParentEditableFromRange(range);
+				if (editable &&
+					editable.ownerDocument == doc) {
+					let selCon = this.getSelectionController(editable);
+					return this.getFindRangeSetIn(aFindFlag, aDocShellIterator, editable, selCon);
+				}
+			}
+		}
+		else {
+			let lastFoundEditable = this.lastFoundEditableMap.get(doc);
+			if (lastFoundEditable) {
+				let selCon = this.getSelectionController(lastFoundEditable);
+				let selection = selCon.getSelection(selCon.SELECTION_NORMAL);
+				if (selection.rangeCount) {
+					let testRange2, node;
+					if (aFindFlag & this.FIND_BACK) {
+						testRange2 = selection.getRangeAt(0);
+						node = testRange2.startContainer;
+					}
+					else {
+						testRange2 = selection.getRangeAt(selection.rangeCount-1);
+						node = testRange2.endContainer;
+					}
+					while (node != lastFoundEditable &&
+							node.parentNode != lastFoundEditable)
+						node = node.parentNode;
+					return this.getFindRangeSetIn(aFindFlag, aDocShellIterator, node, selCon);
+				}
 
-			if (selection.rangeCount) {
-				var testRange2, node;
+				selection.removeAllRanges();
+
+				let testRange1 = doc.createRange();
+				testRange1.selectNode(lastFoundEditable);
 				if (aFindFlag & this.FIND_BACK) {
-					var testRange2 = selection.getRangeAt(0);
-					var node = testRange2.startContainer;
+					testRange1.setEndBefore(lastFoundEditable);
 				}
 				else {
-					var testRange2 = selection.getRangeAt(selection.rangeCount-1);
-					var node = testRange2.endContainer;
+					testRange1.setStartAfter(lastFoundEditable);
 				}
-				while (node != lastFoundEditable &&
-						node.parentNode != lastFoundEditable)
-					node = node.parentNode;
-				return this.getFindRangeSetIn(aFindFlag, aDocShellIterator, node, selCon);
+				selection = docSelCon.getSelection(docSelCon.SELECTION_NORMAL);
+				selection.addRange(testRange1);
+				this.lastFoundEditableMap.delete(doc);
 			}
-
-			selection.removeAllRanges();
-
-			testRange1.selectNode(lastFoundEditable);
-			if (aFindFlag & this.FIND_BACK) {
-				testRange1.setEndBefore(lastFoundEditable);
-			}
-			else {
-				testRange1.setStartAfter(lastFoundEditable);
-			}
-			selection = docSelCon.getSelection(docSelCon.SELECTION_NORMAL);
-			selection.addRange(testRange1);
-			this.lastFoundEditableMap.delete(doc);
 		}
 
 		return this.getFindRangeSetIn(aFindFlag, aDocShellIterator, aDocShellIterator.body, docSelCon);
@@ -602,7 +626,7 @@ mydump("getFindRangeSet");
 	
 	getFindRangeSetIn : function(aFindFlag, aDocShellIterator, aRangeParent, aSelCon) 
 	{
-mydump("getFindRangeSetIn");
+mydump("getFindRangeSetIn "+aRangeParent);
 		var doc = aDocShellIterator.document;
 
 		var findRange = doc.createRange();
@@ -617,24 +641,38 @@ mydump("getFindRangeSetIn");
 
 		if (aFindFlag & this.FIND_SILENTLY) {
 			range = this.foundRange;
-			if (range && range.startContainer.ownerDocument != doc)
-				range = null;
+			let lastFoundEditable = this.lastFoundEditableMap.get(doc);
 			if (range) {
+				let editable = this.getParentEditableFromRange(range);
+				if (editable) {
+					findRange = this.getFindRangeFromRangeInEditable(range);
+				}
+				startPt = findRange.cloneRange();
+				endPt = findRange.cloneRange();
 				if (aFindFlag & this.FIND_FORWARD) {
-					node = range.endContainer;
-					offset = range.endOffset;
-					findRange.setStart(node, offset);
-					startPt.setStart(node, offset);
-					startPt.setEnd(node, offset);
+					findRange.setStart(range.endContainer, range.endOffset);
+					startPt = range.cloneRange();
+					startPt.collapse(false);
 					endPt.collapse(false);
 				}
 				else if (aFindFlag & this.FIND_BACK) {
-					node = range.startContainer;
-					offset = range.startOffset;
-					findRange.setEnd(node, offset);
-					startPt.setStart(node, offset);
-					startPt.setEnd(node, offset);
+					findRange.setEnd(range.startContainer, range.startOffset);
+					startPt = foundRange.cloneRange();
+					startPt.collapse(true);
 					endPt.collapse(true);
+				}
+			}
+			else if (lastFoundEditable) {
+				this.lastFoundEditableMap.delete(doc);
+				if (aFindFlag & this.FIND_BACK) {
+					findRange.setEndBefore(lastFoundEditable);
+					startPt = findRange.cloneRange();
+					startPt.collapse(false);
+				}
+				else {
+					findRange.setStartAfter(lastFoundEditable);
+					startPt = findRange.cloneRange();
+					startPt.collapse(true);
 				}
 			}
 			else {
@@ -660,20 +698,16 @@ mydump("getFindRangeSetIn");
 			if (!(aFindFlag & this.FIND_DEFAULT) && count != 0) {
 				if (aFindFlag & this.FIND_FORWARD) {
 					range = selection.getRangeAt(count-1);
-					node = range.endContainer;
-					offset = range.endOffset;
-					findRange.setStart(node, offset);
-					startPt.setStart(node, offset);
-					startPt.setEnd(node, offset);
+					findRange.setStart(range.endContainer, range.endOffset);
+					startPt = range.cloneRange();
+					startPt.collapse(false);
 					endPt.collapse(false);
 				}
 				else if (aFindFlag & this.FIND_BACK) {
 					range = selection.getRangeAt(0);
-					node = range.startContainer;
-					offset = range.startOffset;
-					findRange.setEnd(node, offset);
-					startPt.setStart(node, offset);
-					startPt.setEnd(node, offset);
+					findRange.setEnd(range.startContainer, range.startOffset);
+					startPt = foundRange.cloneRange();
+					startPt.collapse(true);
 					endPt.collapse(true);
 				}
 			}
