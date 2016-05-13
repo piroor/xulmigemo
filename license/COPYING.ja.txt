@@ -6,9 +6,6 @@ Original Author : plus7
  * Ruby/Romkan
    http://0xcc.net/ruby-romkan/
    ローマ字・平仮名の相互変換処理
- * SafariHighlight
-   http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
-   検索結果のSafari 3風強調表示処理
  * ページ内検索(Findbar)からの検索結果を画面中央にスクロール表示
    http://space.geocities.jp/alice0775/STORE/ucjs_findbar.uc.js
    検索結果を画面中央に表示する処理

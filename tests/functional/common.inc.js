@@ -4,8 +4,6 @@
 utils.include('assertions.inc.js');
 
 var XMigemoUI,
-	XMigemoHighlight,
-	XMigemoMarker,
 	win,
 	browser,
 	content,
@@ -41,7 +39,6 @@ function commonSetUp(aURI)
 	XMigemoUI.modeCirculation = XMigemoUI.CIRCULATE_MODE_NONE;
 	XMigemoUI.findMode = XMigemoUI.FIND_MODE_NATIVE;
 	XMigemoUI.forcedFindMode = -1;
-	XMigemoUI.highlightCheckedAlways = false;
 	XMigemoUI.caseSensitiveCheckedAlways = false;
 	XMigemoUI.autoStartRegExpFind = true;
 	XMigemoUI.autoStartQuickFind = false;
@@ -50,29 +47,6 @@ function commonSetUp(aURI)
 	XMigemoUI.timeout = 2500;
 	XMigemoUI.prefillWithSelection = true;
 	XMigemoUI.workForAnyXMLDocuments = true;
-
-	XMigemoHighlight = win.XMigemoHighlight;
-	XMigemoHighlight.strongHighlight = false;
-	XMigemoHighlight.animationEnabled = false;
-	XMigemoHighlight.combinations = [
-		{
-			button   : 1,
-			altKey   : false,
-			ctrlKey  : false,
-			shiftKey : false,
-			metaKey  : false
-		},
-		{
-			button   : 0,
-			altKey   : false,
-			ctrlKey  : true,
-			shiftKey : false,
-			metaKey  : false
-		}
-	];
-
-	XMigemoMarker = win.XMigemoMarker;
-	XMigemoMarker.enabled = false;
 
 	findCommand = 'with (win) {'+
 		win.document.getElementById('cmd_find').getAttribute('oncommand')+

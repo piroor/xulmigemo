@@ -6,9 +6,6 @@ Some parts of this program are based on:
  * Ruby/Romkan
    http://0xcc.net/ruby-romkan/
    converts roman letters and hiragana letters
- * SafariHighlight
-   http://kuonn.mydns.jp/fx/SafariHighlight.uc.js
-   highlights find results like as Safari 3
  * Show the result of finding by the find bar in the center of
    the screen
    http://space.geocities.jp/alice0775/STORE/ucjs_findbar.uc.js

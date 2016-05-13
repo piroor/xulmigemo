@@ -16,7 +16,6 @@ var XMigemoUI = {
 
 	kFINDBAR_POSITION : '_moz-xmigemo-position',
 	kTARGET           : '_moz-xmigemo-target',
-	kLAST_HIGHLIGHT   : '_moz-xmigemo-last-highlight',
 	kFOCUSED          : '_moz-xmigemo-focused',
 
 	kDISABLE_IME    : '_moz-xmigemo-disable-ime',
@@ -611,23 +610,12 @@ var XMigemoUI = {
 				this.onXMigemoFindProgress(aEvent);
 				return;
 
-			case 'XMigemoFindAgain':
-				if (!this.isActive &&
-					this.lastFindMode == this.FIND_MODE_NATIVE &&
-					this.highlightCheck.checked) {
-					window.setTimeout(function(aSelf) {
-						aSelf.clearSelectionInEditable(aSelf.browser.contentWindow);
-					}, 0, this);
-				}
-				return;
-
 			case 'XMigemoFindBarOpen':
 				this.onFindBarOpen(aEvent);
 				return;
 
 			case 'XMigemoFindBarClose':
 				this.stopListen();
-				this.highlightCheck.checked = false;
 				return;
 
 			case 'blur':
@@ -1007,11 +995,6 @@ var XMigemoUI = {
 
 		var found = (statusRes == this.nsITypeAheadFind.FIND_FOUND || statusRes == this.nsITypeAheadFind.FIND_WRAPPED);
 		this.findBar._enableFindButtons(this.findTerm);
-		if (this.lastHighlightedKeyword != data.findTerm) {
-			this.lastHighlightedKeyword = data.findTerm;
-			if (found && this.highlightCheck.checked)
-				this.findBar._setHighlightTimeout();
-		}
 
 		if (this.isQuickFind) {
 			this.clearFocusRing();
@@ -1021,7 +1004,6 @@ var XMigemoUI = {
 
 		this.findBar._updateStatusUI(statusRes, !(data.findFlag & XMigemoFind.FIND_BACK));
 	},
-	lastHighlightedKeyword : null,
  
 	onInput : function(aEvent) 
 	{
@@ -1491,14 +1473,7 @@ return;
 	{
 		this.findBar.__xulmigemo__enableFindButtons = this.findBar._enableFindButtons;
 		this.findBar._enableFindButtons = function(...aArgs) {
-			var highlightCheck = XMigemoUI.highlightCheck;
-			if (!highlightCheck.disabled)
-				highlightCheck.xmigemoOriginalChecked = highlightCheck.checked;
-
 			this.__xulmigemo__enableFindButtons(...aArgs);
-
-			if (aEnable)
-				XMigemoUI.updateHighlightCheck();
 /*
 			var event = document.createEvent('Events');
 			event.initEvent('XMigemoFindBarUpdate', true, false);
@@ -1671,8 +1646,6 @@ return;
 
 		this.updateCaseSensitiveCheck();
 
-		this.lastHighlightedKeyword = null;
-
 		var WindowWatcher = Components
 				.classes['@mozilla.org/embedcomp/window-watcher;1']
 				.getService(Components.interfaces.nsIWindowWatcher);
@@ -1770,33 +1743,6 @@ return;
 			this.findBar.xmigemoOriginalOnFindAgainCommand(true);
 		}
 	},
- 
-	highlightCheckFirst : true,
-	updateHighlightCheck : function()
-	{
-		if (this.updateHighlightCheckTimer) {
-			window.clearTimeout(this.updateHighlightCheckTimer);
-			this.updateHighlightCheckTimer = null;
-		}
-		this.updateHighlightCheckTimer = window.setTimeout(this.updateHighlightCheckCallback.bind(this), 400);
-	},
-	updateHighlightCheckCallback : function()
-	{
-		var highlightCheck = this.highlightCheck;
-		var prevHighlightState = highlightCheck.checked;
-		var checked =
-			!this.findTerm ?
-				false :
-			this.highlightCheckFirst ?
-				false :
-				highlightCheck.xmigemoOriginalChecked ;
-		highlightCheck.checked = checked;
-		if (checked != prevHighlightState) {
-			this.findBar.toggleHighlight(checked, true);
-		}
-		this.highlightCheckFirst = false;
-	},
-	updateHighlightCheckTimer : null,
  
 	updateCaseSensitiveCheck : function(aSilently) 
 	{
