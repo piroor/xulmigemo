@@ -316,7 +316,7 @@ var MigemoAPI = {
 			}
 			catch(e) {
 			}
-			this._XMigemo = XMigemoCoreFactory.get(this._lang);
+			this._XMigemo = MigemoCoreFactory.get(this._lang);
 		}
 		return this._XMigemo;
 	},

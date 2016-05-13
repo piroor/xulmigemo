@@ -7,7 +7,9 @@ Components.utils.import('resource://xulmigemo-modules/lib/jstimer.jsm');
 Components.utils.import('resource://xulmigemo-modules/lib/here.js');
 
 Components.utils.import('resource://xulmigemo-modules/service.jsm');
+Components.utils.import('resource://xulmigemo-modules/api.jsm');
 Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
+Components.utils.import('resource://xulmigemo-modules/core/find.js');
  
 var XMigemoPlaces = { 
 	
