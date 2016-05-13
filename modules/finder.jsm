@@ -13,6 +13,9 @@ MigemoFind.findMode = MigemoFind.FIND_MODE_MIGEMO;
 
 Finder.prototype.__xulmigemo__fastFind = Finder.prototype.fastFind;
 Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
+	if (MigemoFind.findMode === MigemoFind.FIND_MODE_NATIVE)
+		return this.__xulmigemo__fastFind(aSearchString, aLinksOnly, aDrawOutline);
+
 	if (MigemoFind.targetDocShell !== this._docShell)
 		MigemoFind.targetDocShell = this._docShell;
 	if (MigemoFind.lastKeyword != aSearchString)
@@ -24,6 +27,9 @@ Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
 
 Finder.prototype.__xulmigemo__findAgain = Finder.prototype.findAgain;
 Finder.prototype.findAgain = function(aFindBackwards, aLinksOnly, aDrawOutline) {
+	if (MigemoFind.findMode ==== MigemoFind.FIND_MODE_NATIVE)
+		return this.__xulmigemo__findAgain(aFindBackwards, aLinksOnly, aDrawOutline);
+
 	if (MigemoFind.targetDocShell !== this._docShell)
 		MigemoFind.targetDocShell = this._docShell;
 	MigemoFind.caseSensitive = this._fastFind.caseSensitive;
