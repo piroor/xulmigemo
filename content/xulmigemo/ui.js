@@ -1,4 +1,5 @@
 Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/api.jsm'); 
 var XMigemoFind;
 (function() {
 	let { MigemoFind } = Components.utils.import('resource://xulmigemo-modules/core/find.js', {});
@@ -1965,7 +1966,7 @@ var XMigemoUI = {
 	clearHighlight : function(aDocument, aRecursively) 
 	{
 		var keepFoundHighlighted = !this.highlightCheck.disabled && this.highlightCheck.checked;
-		migemo.clearHighlight(aDocument, aRecursively, this.highlightSelectionOnly, keepFoundHighlighted);
+		MigemoAPI.clearHighlight(aDocument, aRecursively, this.highlightSelectionOnly, keepFoundHighlighted);
 	},
  
 	highlightText : function(aDoHighlight, aWord, aRange) 

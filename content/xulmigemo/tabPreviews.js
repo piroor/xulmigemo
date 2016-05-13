@@ -26,7 +26,7 @@ var XMigemoTabPreviews = {
 			here(/*
 				if (this.searchField.value &&
 					XMigemoTabPreviews.enabled &&
-					migemo.isValidFunctionalInput(this.searchField.value)) {
+					MigemoAPI.isValidFunctionalInput(this.searchField.value)) {
 					list = XMigemoTabPreviews.filterListFromInput(list, this.searchField.value);
 				}
 				else $&
@@ -46,7 +46,7 @@ var XMigemoTabPreviews = {
 	{
 		var termsRegExp = {};
 		var exceptionRegExp = {};
-		var filterRegExp = XMigemoCore.getRegExpFunctional(migemo.trimFunctionalInput(aInput), termsRegExp, exceptionRegExp);
+		var filterRegExp = XMigemoCore.getRegExpFunctional(MigemoAPI.trimFunctionalInput(aInput), termsRegExp, exceptionRegExp);
 		filterRegExp = new RegExp(filterRegExp, 'gim');
 		termsRegExp = new RegExp(filterRegExp.value, 'gim');
 		exceptionRegExp = new RegExp(filterRegExp.value, 'im');

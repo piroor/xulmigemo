@@ -1,4 +1,5 @@
 Components.utils.import('resource://xulmigemo-modules/places.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/api.jsm');
 Components.utils.import('resource://xulmigemo-modules/core/find.js'); 
  
 var XMigemoLocationBarSearchSource = { 
@@ -212,7 +213,7 @@ var XMigemoLocationBarOverlay = {
  
 	get input() 
 	{
-		return migemo.trimFunctionalInput(this.bar.value);
+		return XMigemoAPI.trimFunctionalInput(this.bar.value);
 	},
  
 	get panel() 
