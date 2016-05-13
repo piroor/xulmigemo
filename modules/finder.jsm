@@ -86,8 +86,10 @@ Finder.prototype.__xm__findIterator = Finder.prototype._findIterator;
 Finder.prototype._findIterator = function(aWord, aWindow) {
 	if (MigemoFind.findMode === MigemoFind.FIND_MODE_NATIVE)
 		return this.__xm__findIterator(aWord, aWindow);
-
-	return (function* () {
+	else
+		return this.__xm__findIterator_regexp(aWord, aWindow);
+};
+Finder.prototype.__xm__findIterator_regexp = function* (aWord, aWindow) {
 		var doc = aWindow.document;
 		var body = (doc instanceof Ci.nsIDOMHTMLDocument && doc.body) ? doc.body : doc.documentElement;
 
@@ -114,7 +116,6 @@ Finder.prototype._findIterator = function(aWord, aWindow) {
 			startPoint = foundRange.cloneRange();
 			startPoint.collapse(false);
 		}
-	})();
 };
 
 var MigemoFinder = Finder;
