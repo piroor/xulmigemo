@@ -84,6 +84,7 @@ var MigemoFind = {
 
 	startFromViewport : false,
  
+	lastResult        : 0,
 	NOTFOUND          : 0, 
 	FOUND             : 1 << 0,
 	WRAPPED           : 1 << 1,
@@ -212,10 +213,13 @@ var MigemoFind = {
 	find : function(aBackward, aKeyword, aForceFocus) 
 	{
 		if (!this.targetDocShell)
-			throw new Error('not initialized yet');
+			new Error('not initialized yet');
 
 mydump("find");
-		if (!aKeyword) return;
+		if (!aKeyword) {
+			this.lastResult = this.NOTFOUND;
+			return this.lastResult;
+		}
 
 		this.viewportStartPoint = null;
 		this.viewportEndPoint   = null;
@@ -240,7 +244,7 @@ mydump("find");
 
 		if (!myExp) {
 			this.previousKeyword = aKeyword;
-			return;
+			return this.lastResult;
 		}
 
 		var findFlag = 0;
@@ -264,9 +268,10 @@ mydump("find");
 		}
 
 		var iterator = new DocShellIterator(win, findFlag & this.FIND_BACK ? true : false );
-		var result = this.findInDocument(findFlag, myExp, iterator, aForceFocus);
+		this.lastResult = this.findInDocument(findFlag, myExp, iterator, aForceFocus);
 		iterator.destroy();
 		this.previousKeyword = aKeyword;
+		return this.lastResult;
 	},
 	
 	findInDocument : function(aFindFlag, aFindTerm, aDocShellIterator, aForceFocus) 
