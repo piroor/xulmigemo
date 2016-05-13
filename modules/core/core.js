@@ -13,7 +13,6 @@ const Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
 Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
-Components.utils.import('resource://xulmigemo-modules/core/dicManager.js');
 Components.utils.import('resource://xulmigemo-modules/core/cache.js');
 
 var timer = {};
@@ -149,7 +148,7 @@ MigemoCore.prototype = {
 
 		aInput = aInput.toLowerCase();
 
-		var cache = MigemoDicManager.cache;
+		var cache = this.cache;
 		var cacheText = cache.getCacheFor(aInput, aTargetDic);
 		if (cacheText) {
 			mydump('cache:'+encodeURIComponent(cacheText));
@@ -1179,6 +1178,7 @@ MigemoCore.prototype = {
 		if (!this.engine.lang)
 			this.engine.lang = aLang || Prefs.getCharPref('xulmigemo.lang');
 
+		let { MigemoDicManager } = Components.utils.import('resource://xulmigemo-modules/core/dicManager.js', {});
 		MigemoDicManager.init(this.dictionary, this.cache);
 
 		ObserverService.addObserver(this, 'XMigemo:cacheCleared', false);
