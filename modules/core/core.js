@@ -416,14 +416,24 @@ MigemoCore.prototype = {
 		if (aEndPoint) aEndPoint.QueryInterface(Ci.nsIDOMRange);
 
 		var doc = aFindRange.startContainer.ownerDocument || aFindRange.startContainer;
+		aFindRange = aFindRange.cloneRange();
 
 		if (!aStartPoint) {
 			aStartPoint = aFindRange.cloneRange();
 			aStartPoint.collapse(true);
 		}
+		else {
+			// we need to shrink the find range to find different term!
+			aFindRange.setStart(aStartPoint.startContainer, aStartPoint.startOffset);
+		}
+
 		if (!aEndPoint) {
 			aEndPoint = aFindRange.cloneRange();
 			aEndPoint.collapse(false);
+		}
+		else {
+			// we need to shrink the find range to find different term!
+			aFindRange.setEnd(aEndPoint.endContainer, aEndPoint.endOffset);
 		}
 
 		if (aRegExpFlags == 'null' ||
