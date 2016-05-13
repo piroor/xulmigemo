@@ -606,10 +606,6 @@ var XMigemoUI = {
 				this.onKeyPress(aEvent, this.getFindFieldFromContent(aEvent.originalTarget));
 				return;
 
-			case 'XMigemoFindProgress':
-				this.onXMigemoFindProgress(aEvent);
-				return;
-
 			case 'XMigemoFindBarOpen':
 				this.onFindBarOpen(aEvent);
 				return;
@@ -978,31 +974,6 @@ var XMigemoUI = {
 			this.isScrolling)
 			return;
 		this.restartTimer();
-	},
- 
-	onXMigemoFindProgress : function(aEvent) 
-	{
-		var data = aEvent.detail;
-		var statusRes = (
-				 XMigemoFind.isLinksOnly ?
-				 	data.resultFlag & XMigemoFind.FOUND_IN_LINK :
-					data.resultFlag & XMigemoFind.FOUND
-			) ?
-				this.nsITypeAheadFind.FIND_FOUND :
-			(data.resultFlag & XMigemoFind.WRAPPED) ?
-				this.nsITypeAheadFind.FIND_WRAPPED :
-				this.nsITypeAheadFind.FIND_NOTFOUND;
-
-		var found = (statusRes == this.nsITypeAheadFind.FIND_FOUND || statusRes == this.nsITypeAheadFind.FIND_WRAPPED);
-		this.findBar._enableFindButtons(this.findTerm);
-
-		if (this.isQuickFind) {
-			this.clearFocusRing();
-			var link = XMigemoFind.getParentLinkFromRange(this.lastFoundRange);
-			if (link) link.setAttribute(this.kFOCUSED, true);
-		}
-
-		this.findBar._updateStatusUI(statusRes, !(data.findFlag & XMigemoFind.FIND_BACK));
 	},
  
 	onInput : function(aEvent) 
@@ -1793,7 +1764,6 @@ return;
 			}
 		}
 
-		document.addEventListener('XMigemoFindProgress', this, false);
 		document.addEventListener('XMigemoFindAgain', this, false);
 */
 
@@ -1871,7 +1841,6 @@ return;
 
 		this.findBar.removeEventListener('XMigemoFindBarOpen', this, false);
 		this.findBar.removeEventListener('XMigemoFindBarClose', this, false);
-		document.removeEventListener('XMigemoFindProgress', this, false);
 		document.removeEventListener('XMigemoFindAgain', this, false);
 
 		var browser = this.browser;

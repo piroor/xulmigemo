@@ -311,7 +311,6 @@ mydump("findInDocument ==========================================");
 			}
 
 			if (resultFlag & this.FINISH_FIND) {
-				this.dispatchProgressEvent(aFindFlag, resultFlag);
 				this.setSelectionLook(doc, true);
 				break;
 			}
@@ -333,12 +332,10 @@ mydump("findInDocument ==========================================");
 						aFindFlag |= this.FIND_WRAP;
 					continue;
 				}
-				this.dispatchProgressEvent(aFindFlag, resultFlag);
 				break;
 			}
 
 			if (aDocShellIterator.isInitial) {
-				this.dispatchProgressEvent(aFindFlag, resultFlag);
 				break;
 			}
 		}
@@ -428,22 +425,6 @@ mydump("findInDocument ==========================================");
 			}
 		}
 		return result;
-	},
- 
-	dispatchProgressEvent : function(aFindFlag, aResultFlag) 
-	{
-return;
-		var event = new this.window.CustomEvent('XMigemoFindProgress', {
-			bubbles    : true,
-			cancelable : false,
-			detail     : {
-				resultFlag : aResultFlag,
-				findFlag   : aFindFlag,
-				findTerm   : this.lastKeyword,
-				foundTerm  : aResultFlag & this.FOUND ? this.lastFoundWord : null
-			}
-		});
-		this.document.dispatchEvent(event);
 	},
   
 	findInRange : function(aFindFlag, aTerm, aRangeSet) 
