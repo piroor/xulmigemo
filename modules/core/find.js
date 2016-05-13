@@ -149,12 +149,16 @@ var MigemoFind = {
  
 	get prefs() 
 	{
-		return this.namespace.prefs;
+		delete this.prefs;
+		let { prefs } = Components.utils.import('resource://xulmigemo-modules/lib/prefs.js', {});
+		return this.prefs = prefs;
 	},
  
 	get animationManager() 
 	{
-		return this.namespace.animationManager;
+		delete this.animationManager;
+		let { animationManager } = Components.utils.import('resource://xulmigemo-modules/lib/animationManager.js', {});
+		return this.animationManager = animationManager;
 	},
  
 /* Find */ 
@@ -1081,13 +1085,6 @@ mydump("setSelectionAndScroll");
 		if (this.initialized) return;
 
 		this.initialized = true;
-
-		var namespace = {};
-		Components.utils.import('resource://xulmigemo-modules/lib/namespace.jsm', namespace);
-		this.namespace = namespace.getNamespaceFor('piro.sakura.ne.jp')['piro.sakura.ne.jp'];
-
-		Components.utils.import('resource://xulmigemo-modules/lib/prefs.js');
-		Components.utils.import('resource://xulmigemo-modules/lib/animationManager.js');
 
 		try {
 			this.prefs.addPrefListener(this);

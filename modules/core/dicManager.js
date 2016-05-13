@@ -14,8 +14,6 @@ Components.utils.import('resource://xulmigemo-modules/core/core.js');
 Components.utils.import('resource://xulmigemo-modules/core/cache.js');
 Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js');
 
-var namespace = {};
-
 const ObserverService = Cc['@mozilla.org/observer-service;1']
 		.getService(Ci.nsIObserverService);;
 
@@ -274,14 +272,9 @@ var MigemoDicManager = {
  
 	get strbundle() 
 	{
-		if (!('getNamespaceFor' in namespace)) {
-			Components.utils.import('resource://xulmigemo-modules/lib/stringBundle.js');
-			Components.utils.import('resource://xulmigemo-modules/lib/namespace.jsm', namespace);
-			window = namespace.getNamespaceFor('piro.sakura.ne.jp');
-		}
-
-		return window['piro.sakura.ne.jp'].stringBundle
-				.get('chrome://xulmigemo/locale/xulmigemo.properties');
+		delete this.strbundle;
+		let { stringBundle } = Components.utils.import('resource://xulmigemo-modules/lib/stringBundle.js', {});
+		return this.strbundle = stringBundle.get('chrome://xulmigemo/locale/xulmigemo.properties');
 	}
  
 }; 

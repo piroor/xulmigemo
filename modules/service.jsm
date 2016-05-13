@@ -8,16 +8,12 @@ Components.utils.import('resource://xulmigemo-modules/core/core.js');
 Components.utils.import('resource://xulmigemo-modules/core/engine.js');
 Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
 
-var namespace = {};
-Components.utils.import('resource://xulmigemo-modules/lib/prefs.js', namespace);
-Components.utils.import('resource://xulmigemo-modules/lib/namespace.jsm', namespace);
+Components.utils.import('resource://xulmigemo-modules/lib/prefs.js');
 Components.utils.import('resource://xulmigemo-modules/lib/animationManager.js');
 Components.utils.import('resource://xulmigemo-modules/lib/stringBundle.js');
 Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
  
-var XMigemoService = inherit(namespace.prefs, { 
-	namespace : namespace.getNamespaceFor('piro.sakura.ne.jp')['piro.sakura.ne.jp'],
-	
+var XMigemoService = inherit(prefs, { 
 	DEBUG : true, 
  
 	get ObserverService() 
@@ -44,11 +40,15 @@ var XMigemoService = inherit(namespace.prefs, {
 	},
  
 	get animationManager() { 
-		return this.namespace.animationManager;
+		delete this.animationManager;
+		let { animationManager } = Components.utils.import('resource://xulmigemo-modules/lib/animationManager.js', {});
+		return this.animationManager = animationManager;
 	},
  
 	get stringBundle() { 
-		return this.namespace.stringBundle;
+		delete this.stringBundle;
+		let { stringBundle } = Components.utils.import('resource://xulmigemo-modules/lib/stringBundle.js', {});
+		return this.stringBundle = stringBundle;
 	},
  
 	get XULAppInfo() { 
