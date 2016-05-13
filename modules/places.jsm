@@ -25,11 +25,11 @@ var XMigemoPlaces = {
  
 	isValidInput : function(aInput) 
 	{
-		var converted = aInput.replace(/¥s+/g, '¥n');
+		var converted = aInput.replace(/\s+/g, '\n');
 		return (
 			(
 				!this.ignoreURI ||
-				!/^¥w+:¥/¥//.test(aInput)
+				!/^\w+:\/\//.test(aInput)
 			) &&
 			this.minLength <= aInput.length &&
 			MigemoAPI.isValidFunctionalInput(aInput)
@@ -55,7 +55,7 @@ var XMigemoPlaces = {
 		if (this.autoStartRegExpFind &&
 			MigemoTextUtils.isRegExp(findInput)) {
 			var flags = 'gm';
-			if (/¥/[^¥/]*i[^¥/]*$/.test(findInput)) flags += 'i';
+			if (/\/[^\/]*i[^\/]*$/.test(findInput)) flags += 'i';
 			var source = MigemoTextUtils.extractRegExpSource(findInput);
 			info.termsRegExp = new RegExp(source, flags);
 			info.findRegExps = [info.termsRegExp];
@@ -167,7 +167,7 @@ var XMigemoPlaces = {
 			keys = keys.map(function(aKey) {
 					return MigemoTextUtils.sanitize(aKey);
 				}, this).join('|');
-			this.findKeyRegExp = new RegExp('(?:^|¥¥s+)('+keys+')(?:$|¥¥s+)', 'gi');
+			this.findKeyRegExp = new RegExp('(?:^|\\s+)('+keys+')(?:$|\\s+)', 'gi');
 			this.findKeyExtractRegExp = new RegExp('('+keys+')', 'gi');
 		}
 		else {
@@ -648,7 +648,7 @@ var XMigemoPlaces = {
 			}
 			catch(e) {
 				this.getSingleStringFromRange_lastSQL = null;
-				dump(e+'¥n'+aSQL+'¥n');
+				dump(e+'\n'+aSQL+'\n');
 				throw e;
 			}
 		}
@@ -663,7 +663,7 @@ var XMigemoPlaces = {
 		}
 
 		if (offsets.PLACE_FOR_LINEBREAK > -1)
-			statement.bindStringParameter(offsets.PLACE_FOR_LINEBREAK, '¥n');
+			statement.bindStringParameter(offsets.PLACE_FOR_LINEBREAK, '\n');
 		if (offsets.PLACE_FOR_START > -1)
 			statement.bindDoubleParameter(offsets.PLACE_FOR_START, aStart);
 		if (offsets.PLACE_FOR_RANGE > -1)
@@ -746,7 +746,7 @@ var XMigemoPlaces = {
 			MigemoTextUtils.isRegExp(aBaseQuery.searchTerms)
 			) {
 			var flags = 'gm';
-			if (/¥/[^¥/]*i[^¥/]*$/.test(aBaseQuery.searchTerms)) flags += 'i';
+			if (/\/[^\/]*i[^\/]*$/.test(aBaseQuery.searchTerms)) flags += 'i';
 			this.lastFindRegExp =
 				this.lastTermsRegExp = new RegExp(MigemoTextUtils.extractRegExpSource(aQuery.searchTerms), flags);
 		}
