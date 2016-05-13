@@ -2,8 +2,9 @@ var EXPORTED_SYMBOLS = ['XMigemoPlaces'];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
- 
-Components.utils.import('resource://xulmigemo-modules/lib/jstimer.jsm'); 
+
+Components.utils.import('resource://gre/modules/Timer.jsm');
+
 Components.utils.import('resource://xulmigemo-modules/lib/here.js');
 
 Components.utils.import('resource://xulmigemo-modules/service.jsm');

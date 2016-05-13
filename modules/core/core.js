@@ -12,6 +12,7 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+Components.utils.import('resource://gre/modules/Timer.jsm'); 
 Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
 Components.utils.import('resource://xulmigemo-modules/core/cache.js');
 
@@ -536,11 +537,8 @@ MigemoCore.prototype = {
 		var body = this.getDocumentBody(doc);
 
 		if (aSurroundNode) {
-			if (!('setInterval' in timer))
-				Components.utils.import('resource://xulmigemo-modules/lib/jstimer.jsm', timer);
-
 			if (doc.__xulmigemo__highlightTimer) {
-				timer.clearInterval(doc.__xulmigemo__highlightTimer);
+				clearInterval(doc.__xulmigemo__highlightTimer);
 				doc.__xulmigemo__highlightTimer = null;
 			}
 
@@ -671,7 +669,7 @@ MigemoCore.prototype = {
 					});
 					if (!iterators.length) {
 						if (doc.__xulmigemo__highlightTimer) {
-							timer.clearInterval(doc.__xulmigemo__highlightTimer);
+							clearInterval(doc.__xulmigemo__highlightTimer);
 							doc.__xulmigemo__highlightTimer = null;
 						}
 						aSelf.dispatchHighlightFinishEvent(doc);
@@ -679,7 +677,7 @@ MigemoCore.prototype = {
 				};
 			runner(this);
 			if (iterators.length)
-				doc.__xulmigemo__highlightTimer = timer.setInterval(runner, this.ASYNC_HIGHLIGHT_INTERVAL, this);
+				doc.__xulmigemo__highlightTimer = setInterval(runner, this.ASYNC_HIGHLIGHT_INTERVAL, this);
 		}
 		else {
 			this.mFind.findBackwards = false;
@@ -815,11 +813,8 @@ MigemoCore.prototype = {
 		var selCons = [];
 		var highlights = this.getHighlights(aDocument, aRecursively, selCons);
 
-		if (!('clearInterval' in timer))
-			Components.utils.import('resource://xulmigemo-modules/lib/jstimer.jsm', timer);
-
 		if (aDocument.__xulmigemo__highlightTimer) {
-			timer.clearInterval(aDocument.__xulmigemo__highlightTimer);
+			clearInterval(aDocument.__xulmigemo__highlightTimer);
 			aDocument.__xulmigemo__highlightTimer = null;
 		}
 
@@ -1004,16 +999,13 @@ MigemoCore.prototype = {
 	{
 		if (!this.highlightSelectionAvailable) return;
 
-		if (!('setTimeout' in timer))
-			Components.utils.import('resource://xulmigemo-modules/lib/jstimer.jsm', timer);
-
 		if (aDocument.__xulmigemo__repaintHighlightsTimer)
-			timer.clearTimeout(aDocument.__xulmigemo__repaintHighlightsTimer);
+			clearTimeout(aDocument.__xulmigemo__repaintHighlightsTimer);
 
 		if (aSelection !== void(0))
 			aDocument.__xulmigemo__nextHighlightSelectionState = aSelection;
 
-		aDocument.__xulmigemo__repaintHighlightsTimer = timer.setTimeout(function(aSelf) {
+		aDocument.__xulmigemo__repaintHighlightsTimer = setTimeout(function(aSelf) {
 			aSelf.repaintHighlightsNow(aDocument, aRecursively);
 		}, 1, this);
 	},

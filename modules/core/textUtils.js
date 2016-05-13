@@ -5,12 +5,11 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/Timer.jsm');
 Components.utils.import('resource://xulmigemo-modules/lib/here.js');
 
 const Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
-
-var timer = {};
 
 var boxObjectModule = {};
 function getBoxObjectFor(aNode)
@@ -790,13 +789,10 @@ var MigemoTextUtils = {
 	{
 		aParent.QueryInterface(Ci.nsIDOMNode);
 
-		if (!('setTimeout' in timer))
-			Components.utils.import('resource://xulmigemo-modules/lib/jstimer.jsm', timer);
-
 		if (this.selectContentWithDelayTimer)
-			timer.clearTimeout(this.selectContentWithDelayTimer);
+			clearTimeout(this.selectContentWithDelayTimer);
 
-		this.selectContentWithDelayTimer = timer.setTimeout(function(aSelf) {
+		this.selectContentWithDelayTimer = setTimeout(function(aSelf) {
 			aSelf.selectContent(aParent, aStartOffset, aSelectLength, aIsHighlight);
 		}, 1, this);
 	},
