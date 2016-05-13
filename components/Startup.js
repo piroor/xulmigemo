@@ -65,9 +65,8 @@ XMigemoStartupService.prototype = {
 		this.ObserverService.notifyObservers(null, 'XMigemo:initialized', null);
 
 		if (this.Prefs.getCharPref('xulmigemo.lang')) {
-			Cc['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-				.getService(Ci.xmIXMigemoDicManager)
-				.init(null, null);
+			let { MigemoDicManager } = Components.utils.import('resource://xulmigemo-modules/core/dicManager.js', {});
+			MigemoDicManager.init(null, null);
 		}
 	},
  
