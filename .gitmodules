@@ -1,3 +1,21 @@
 [submodule "makexpi"]
 	path = makexpi
 	url = https://github.com/piroor/makexpi.git
+[submodule "extlib/fxaddonlib-animation-manager"]
+	path = extlib/fxaddonlib-animation-manager
+	url = https://github.com/piroor/fxaddonlib-animation-manager.git
+[submodule "extlib/fxaddonlib-prefs"]
+	path = extlib/fxaddonlib-prefs
+	url = https://github.com/piroor/fxaddonlib-prefs.git
+[submodule "extlib/fxaddonlib-stringbundle"]
+	path = extlib/fxaddonlib-stringbundle
+	url = https://github.com/piroor/fxaddonlib-stringbundle.git
+[submodule "extlib/fxaddonlib-inherit"]
+	path = extlib/fxaddonlib-inherit
+	url = https://github.com/piroor/fxaddonlib-inherit.git
+[submodule "extlib/fxaddonlib-extensions"]
+	path = extlib/fxaddonlib-extensions
+	url = https://github.com/piroor/fxaddonlib-extensions.git
+[submodule "extlib/fxaddonlib-boxobject"]
+	path = extlib/fxaddonlib-boxobject
+	url = https://github.com/piroor/fxaddonlib-boxobject.git
