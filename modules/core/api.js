@@ -1,3 +1,5 @@
+var EXPORTED_SYMBOLS = ['MigemoAPI']; 
+
 var DEBUG = false; 
 var TEST = false;
 const Cc = Components.classes;
@@ -7,37 +9,18 @@ var MAX_CACHE_COUNT = 100;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+Components.utils.import('resource://xulmigemo-modules/core/core.js');
+Components.utils.import('resource://xulmigemo-modules/core/cache.js');
+
 const ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);
 
 const Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
 
- 
-function xmXMigemoAPI() { 
-	mydump('create instance xmIXMigemoAPI');
-	this._lang = '';
-	this._XMigemo = null;
-	this.initCache();
-}
 
-xmXMigemoAPI.prototype = {
-	initialized : false,
-
-	contractID : '@piro.sakura.ne.jp/xmigemo/api;1',
-	classDescription : 'xmXMigemoAPI',
-	classID : Components.ID('{6c93a2b0-bd7d-11de-8a39-0800200c9a66}'),
-
-	QueryInterface : XPCOMUtils.generateQI([
-		Ci.xmIXMigemoAPI,
-		Ci.xmIXMigemoCoreAPI,
-		Ci.xmIXMigemoRangeFindAPI,
-		Ci.xmIXMigemoHighlightAPI,
-		Ci.nsIClassInfo,
-		Ci.nsIObserver
-	]),
-	
-	dictionaries : Ci.xmIXMigemoEngine.SYSTEM_DIC, 
+var MigemoAPI = {
+	dictionaries : MigemoEngine.SYSTEM_DIC, 
  
 	initCache : function() 
 	{
@@ -60,7 +43,7 @@ xmXMigemoAPI.prototype = {
  
 	initProperties : function() 
 	{
-		var prototype = xmXMigemoAPI.prototype;
+		var prototype = MigemoAPI.prototype;
 
 		if (!prototype.version) {
 			prototype.version = '?';
@@ -77,22 +60,8 @@ xmXMigemoAPI.prototype = {
 		prototype.lang = this.XMigemo.lang;
 		prototype.provider = 'XUL/Migemo '+prototype.version+' ('+prototype.lang+')';
 	},
-/*
-	get provider() {
-		return 'XUL/Migemo '+this.version+' ('+this.lang+')';;
-	},
-	get version() {
-		return Cc['@mozilla.org/extensions/manager;1']
-					.getService(Ci.nsIExtensionManager)
-					.getItemForID('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}')
-					.version;
-	},
-	get lang() {
-		return this.XMigemo.lang;
-	},
-*/
  
-	// xmIXMigemoAPI 
+	// MigemoAPI 
 	
 	getRegExp : function(aInput, aFlags) 
 	{
@@ -191,7 +160,7 @@ xmXMigemoAPI.prototype = {
 		return this.XMigemo.trimFunctionalInput(aInput);
 	},
   
-	// xmIXMigemoQueryAPI 
+	// MigemoQueryAPI 
 	
 	query : function(aInput) 
 	{
@@ -259,7 +228,7 @@ xmXMigemoAPI.prototype = {
 		return this._queriesFunctional_cache[key];
 	},
   
-	// xmIXMigemoRangeFindAPI 
+	// MigemoRangeFindAPI 
 	
 	regExpFind : function(aRegExp, aFindRange, aStartPoint, aEndPoint, aFindBackwards) 
 	{
@@ -299,7 +268,7 @@ xmXMigemoAPI.prototype = {
 		return flags.join('');
 	},
   
-	// xmIXMigemoHighlightAPI 
+	// MigemoHighlightAPI 
 	
 	regExpHighlight : function(aRegExp, aFindRange, aSurrountNode) 
 	{
@@ -346,10 +315,7 @@ xmXMigemoAPI.prototype = {
 			}
 			catch(e) {
 			}
-			this._XMigemo = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/factory;1']
-				.getService(Ci.xmIXMigemoFactory)
-				.getService(this._lang);
+			this._XMigemo = XMigemoCoreFactory.get(this._lang);
 		}
 		return this._XMigemo;
 	},
@@ -360,16 +326,11 @@ xmXMigemoAPI.prototype = {
 	{
 		switch (aTopic)
 		{
-			case 'app-startup':
-			case 'profile-after-change':
-				if (!this.initialized) {
-					ObserverService.addObserver(this, 'XMigemo:initialized', false);
-					this.initialized = true;
-				}
-				return;
-
 			case 'XMigemo:initialized':
 				ObserverService.removeObserver(this, 'XMigemo:initialized');
+				this._lang = '';
+				this._XMigemo = null;
+				this.initCache();
 				this.initProperties();
 				Prefs.QueryInterface(Ci.nsIPrefBranchInternal)
 					.addObserver('xulmigemo.', this, false);
@@ -386,34 +347,10 @@ xmXMigemoAPI.prototype = {
 						return;
 				}
 		}
-	},
- 
-	// nsIClassInfo 
-	flags : Ci.nsIClassInfo.DOM_OBJECT | Ci.nsIClassInfo.SINGLETON,
-	getInterfaces : function(aCount)
-	{
-		var interfaces = [
-				Ci.xmIXMigemoAPI,
-				Ci.xmIXMigemoCoreAPI,
-				Ci.xmIXMigemoRangeFindAPI,
-				Ci.xmIXMigemoHighlightAPI
-				// hide interfaces unrelated to Migemo feature
-				/* ,
-				Ci.nsIClassInfo,
-				Ci.nsIObserver
-				*/
-			];
-		aCount.value = interfaces.length;
-		return interfaces;
-	},
-	getHelperForLanguage : function(aLanguage)
-	{
-		return null;
-	}
- 
+	} 
 }; 
-  
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([xmXMigemoAPI]); 
+ 
+ObserverService.addObserver(MigemoAPI, 'XMigemo:initialized', false);
  
 function mydump(aString) 
 {
