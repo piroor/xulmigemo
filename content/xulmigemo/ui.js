@@ -2130,6 +2130,7 @@ return;
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 
+return;
 		window.addEventListener('findbaropen', this, true);
 
 		this.upgradePrefs();
