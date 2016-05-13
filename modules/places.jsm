@@ -4,9 +4,10 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
  
 Components.utils.import('resource://xulmigemo-modules/lib/jstimer.jsm'); 
-Components.utils.import('resource://xulmigemo-modules/service.jsm');
-Components.utils.import('resource://xulmigemo-modules/migemo.jsm');
 Components.utils.import('resource://xulmigemo-modules/lib/here.js');
+
+Components.utils.import('resource://xulmigemo-modules/service.jsm');
+Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
  
 var XMigemoPlaces = { 
 	
@@ -19,9 +20,6 @@ var XMigemoPlaces = {
 	defaultBehavior : 0,
 	openPageAvailable : false,
  
-	textUtils : Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1'] 
-			.getService(Ci.xmIXMigemoTextUtils),
- 
 	isValidInput : function(aInput) 
 	{
 		var converted = aInput.replace(/\s+/g, '\n');
@@ -31,7 +29,7 @@ var XMigemoPlaces = {
 				!/^\w+:\/\//.test(aInput)
 			) &&
 			this.minLength <= aInput.length &&
-			migemo.isValidFunctionalInput(aInput)
+			MigemoAPI.isValidFunctionalInput(aInput)
 			);
 	},
  
@@ -40,7 +38,7 @@ var XMigemoPlaces = {
 		var info = {
 				input            : aInput,
 				findFlag         : 0,
-				findMode         : Ci.xmIXMigemoFind.FIND_MODE_NATIVE,
+				findMode         : MigemoFind.FIND_MODE_NATIVE,
 				findRegExps      : [],
 				termsRegExp      : null,
 				exceptionsRegExp : null
@@ -52,13 +50,13 @@ var XMigemoPlaces = {
 
 		var findInput = info.input;
 		if (this.autoStartRegExpFind &&
-			this.textUtils.isRegExp(findInput)) {
+			MigemoTextUtils.isRegExp(findInput)) {
 			var flags = 'gm';
 			if (/\/[^\/]*i[^\/]*$/.test(findInput)) flags += 'i';
-			var source = this.textUtils.extractRegExpSource(findInput);
+			var source = MigemoTextUtils.extractRegExpSource(findInput);
 			info.termsRegExp = new RegExp(source, flags);
 			info.findRegExps = [info.termsRegExp];
-			info.findMode = Ci.xmIXMigemoFind.FIND_MODE_REGEXP;
+			info.findMode = MigemoFind.FIND_MODE_REGEXP;
 		}
 		else {
 			let termsRegExp = {};
@@ -69,7 +67,7 @@ var XMigemoPlaces = {
 								});
 			info.termsRegExp = termsRegExp.value ? new RegExp(termsRegExp.value, 'gim') : null ;
 			info.exceptionsRegExp = exceptionsRegExp.value ? new RegExp(exceptionsRegExp.value, 'im') : null ;
-			info.findMode = Ci.xmIXMigemoFind.FIND_MODE_MIGEMO;
+			info.findMode = MigemoFind.FIND_MODE_MIGEMO;
 		}
 
 		return info;
@@ -164,7 +162,7 @@ var XMigemoPlaces = {
 
 		if (keys.length) {
 			keys = keys.map(function(aKey) {
-					return this.textUtils.sanitize(aKey);
+					return MigemoTextUtils.sanitize(aKey);
 				}, this).join('|');
 			this.findKeyRegExp = new RegExp('(?:^|\\s+)('+keys+')(?:$|\\s+)', 'gi');
 			this.findKeyExtractRegExp = new RegExp('('+keys+')', 'gi');
@@ -674,7 +672,7 @@ var XMigemoPlaces = {
 			sources = statement.getString(0);
 		}
 		statement.reset();
-		return this.textUtils.trim(sources || '');
+		return MigemoTextUtils.trim(sources || '');
 	},
 	getSingleStringFromRange_lastStatement : null,
 	getSingleStringFromRange_lastSQL : null,
@@ -742,12 +740,12 @@ var XMigemoPlaces = {
 
 		if (
 			this.autoStartRegExpFind &&
-			this.textUtils.isRegExp(aBaseQuery.searchTerms)
+			MigemoTextUtils.isRegExp(aBaseQuery.searchTerms)
 			) {
 			var flags = 'gm';
 			if (/\/[^\/]*i[^\/]*$/.test(aBaseQuery.searchTerms)) flags += 'i';
 			this.lastFindRegExp =
-				this.lastTermsRegExp = new RegExp(this.textUtils.extractRegExpSource(aQuery.searchTerms), flags);
+				this.lastTermsRegExp = new RegExp(MigemoTextUtils.extractRegExpSource(aQuery.searchTerms), flags);
 		}
 		else {
 			let termsRegExp = {};
@@ -797,8 +795,8 @@ var XMigemoPlaces = {
 		if (!termSets) return true;
 
 		var regexp = this.lastTermsRegExp;
-		var utils = this.textUtils;
-		termSets = this.textUtils.brushUpTerms(termSets)
+		var utils = MigemoTextUtils;
+		termSets = MigemoTextUtils.brushUpTerms(termSets)
 			.map(function(aTermSet) {
 				return aTermSet.match(regexp)
 					.filter(function(aTerm) {
@@ -810,7 +808,7 @@ var XMigemoPlaces = {
 				return utils.trim(aTerm);
 			});
 
-		this.lastTermSets = this.textUtils.brushUpTerms(this.lastTermSets.concat(termSets));
+		this.lastTermSets = MigemoTextUtils.brushUpTerms(this.lastTermSets.concat(termSets));
 		this.lastQueries = this.lastTermSets.map(function(aTermSet) {
 			var newQuery = aBaseQuery.clone();
 			newQuery.searchTerms = aTermSet;

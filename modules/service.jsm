@@ -3,7 +3,10 @@ var EXPORTED_SYMBOLS = ['XMigemoService', 'XMigemoCore', 'xulMigemoCore'];
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
-Components.utils.import('resource://xulmigemo-modules/migemo.jsm');
+Components.utils.import('resource://xulmigemo-modules/api.jsm');
+Components.utils.import('resource://xulmigemo-modules/core/core.js');
+Components.utils.import('resource://xulmigemo-modules/core/engine.js');
+Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
 
 var namespace = {};
 Components.utils.import('resource://xulmigemo-modules/lib/prefs.js', namespace);
@@ -37,7 +40,7 @@ var XMigemoService = inherit(namespace.prefs, {
  
 	get textUtils() { 
 		delete this.textUtils;
-		return this.textUtils = Cc['@piro.sakura.ne.jp/xmigemo/text-utility;1'].getService(Ci.xmIXMigemoTextUtils);
+		return this.textUtils = MigemoTextUtils;
 	},
  
 	get animationManager() { 
@@ -302,8 +305,8 @@ var XMigemoService = inherit(namespace.prefs, {
 	dummy : null
 }); 
   
-var XMigemoCore = inherit(migemo, { 
-	dictionaries : Ci.xmIXMigemoEngine.ALL_DIC, 
+var XMigemoCore = inherit(MigemoAPI, { 
+	dictionaries : MigemoEngine.ALL_DIC, 
 	
 	getRegExp : function(aInput) 
 	{
@@ -343,9 +346,7 @@ var XMigemoCore = inherit(migemo, {
 	get XMigemo() { 
 		if (!this._XMigemo) {
 			try {
-				this._XMigemo = Cc['@piro.sakura.ne.jp/xmigemo/factory;1']
-					.getService(Ci.xmIXMigemoFactory)
-					.getService(migemo.language);
+				this._XMigemo = MigemoCoreFactory.get(MigemoAPI.language);
 			}
 			catch(e) {
 				throw e;

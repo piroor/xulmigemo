@@ -6,7 +6,6 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 
 Components.utils.import('resource://xulmigemo-modules/service.jsm');
-Components.utils.import('resource://xulmigemo-modules/migemo.jsm');
 
 
 try { // -Thunderbird 3.0
