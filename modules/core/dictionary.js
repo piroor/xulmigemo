@@ -19,7 +19,7 @@ var ObserverService = Cc['@mozilla.org/observer-service;1']
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
 
-var MigemoDictionary {
+var MigemoDictionary = {
 	lang : '',
 	
 	// MigemoDictionary 
