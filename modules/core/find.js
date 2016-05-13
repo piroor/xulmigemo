@@ -36,8 +36,8 @@ var MigemoFind = {
 	
 	appendKeyword : function(aString) 
 	{
-		if (!this.target)
-			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+		if (!this.targetDocShell)
+			throw new Error('not initialized yet');
 
 		this.lastKeyword += aString;
 		return this.lastKeyword;
@@ -45,8 +45,8 @@ var MigemoFind = {
  
 	replaceKeyword : function(aString) 
 	{
-		if (!this.target)
-			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+		if (!this.targetDocShell)
+			throw new Error('not initialized yet');
 
 		this.lastKeyword = aString;
 		return this.lastKeyword;
@@ -54,8 +54,8 @@ var MigemoFind = {
  
 	removeKeyword : function(aLength) 
 	{
-		if (!this.target)
-			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+		if (!this.targetDocShell)
+			throw new Error('not initialized yet');
 
 		this.lastKeyword = this.lastKeyword.substr(0, this.lastKeyword.length - aLength);
 		return this.lastKeyword;
@@ -63,8 +63,8 @@ var MigemoFind = {
  
 	shiftLastKeyword : function() 
 	{
-		if (!this.target)
-			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+		if (!this.targetDocShell)
+			throw new Error('not initialized yet');
 
 		this.previousKeyword = this.lastKeyword;
 	},
@@ -103,24 +103,33 @@ var MigemoFind = {
 	FIND_MODE_REGEXP : 1 << 2,
 	findMode : 1 << 1, 
  
-	set target(val) 
+	set targetDocShell(val) 
 	{
 		if (val) {
-			this._target = val;
+			this._targetDocShell = val;
 			this.init();
 		}
-		return this._target;
+		return this._targetDocShell;
 	},
-	get target()
+	get targetDocShell()
 	{
-		return this._target;
+		return this._targetDocShell;
 	},
-	_target : null,
+	_targetDocShell : null,
+
+	get targetDocument()
+	{
+		return (
+			this.targetDocShell &&
+			this.targetDocShell.QueryInterface(Ci.nsIWebNavigation).document
+		);
+	},
 	
+/*
 	get document() 
 	{
 		if (!this.target)
-			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+			throw new Error('not initialized yet');
 
 		return this.target.ownerDocument;
 	},
@@ -129,6 +138,7 @@ var MigemoFind = {
 	{
 		return this.document.defaultView;
 	},
+*/
   
 	set core(val) 
 	{
@@ -185,24 +195,24 @@ var MigemoFind = {
  
 	findNext : function(aForceFocus) 
 	{
-		if (!this.target)
-			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+		if (!this.targetDocShell)
+			throw new Error('not initialized yet');
 
 		this.find(false, this.lastKeyword || this.previousKeyword, aForceFocus);
 	},
  
 	findPrevious : function(aForceFocus) 
 	{
-		if (!this.target)
-			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+		if (!this.targetDocShell)
+			throw new Error('not initialized yet');
 
 		this.find(true, this.lastKeyword || this.previousKeyword, aForceFocus);
 	},
  
 	find : function(aBackward, aKeyword, aForceFocus) 
 	{
-		if (!this.target)
-			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+		if (!this.targetDocShell)
+			throw new Error('not initialized yet');
 
 mydump("find");
 		if (!aKeyword) return;
@@ -241,8 +251,11 @@ mydump("find");
 		if (this.isLinksOnly)
 			findFlag |= this.FIND_IN_LINK;
 
+/*
 		var win = this.document.commandDispatcher.focusedWindow;
 		if (win.top == this.window.top) win = this.target.contentWindow;
+*/
+		var win = this.targetDocument.defaultView;
 
 		var sel = win.getSelection();
 		if (sel && !sel.rangeCount) {
@@ -414,6 +427,7 @@ mydump("findInDocument ==========================================");
  
 	dispatchProgressEvent : function(aFindFlag, aResultFlag) 
 	{
+return;
 		var event = new this.window.CustomEvent('XMigemoFindProgress', {
 			bubbles    : true,
 			cancelable : false,
@@ -653,10 +667,13 @@ mydump("count:"+count);
 	resetFindRangeSet : function(aRangeSet, aFoundRange, aFindFlag, aDocument) 
 	{
 mydump("resetFindRangeSet");
+/*
 		var win = this.document.commandDispatcher.focusedWindow;
 		var theDoc = (win && win.top != this.window.top) ?
 					win.document :
 					aDocument ;
+*/
+		var theDoc = aDocument;
 
 		var root = DocShellIterator.prototype.getDocumentBody(theDoc);
 		aRangeSet.range.selectNodeContents(root);
@@ -752,7 +769,7 @@ mydump("setSelectionAndScroll");
 		if (aFrame) aFrame.QueryInterface(Ci.nsIDOMWindow);
 
 		var frame = aFrame;
-		if (!frame) {
+		if (!frame && this.document) {
 			frame = this.document.commandDispatcher.focusedWindow;
 			if (!frame || frame.top == this.document.defaultView)
 				frame = this.window._content;
@@ -939,18 +956,21 @@ mydump("setSelectionAndScroll");
    
 	clear : function(aFocusToFoundTarget) 
 	{
-		if (!this.target)
-			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+		if (!this.targetDocShell)
+			throw new Error('not initialized yet');
 
 		this.lastKeyword        = '';
 		this.viewportStartPoint = null;
 		this.viewportEndPoint   = null;
 		this.lastFoundWord      = '';
 
+/*
 		var win = this.document.commandDispatcher.focusedWindow;
 		var doc = (win != this.window) ?
 					win.document :
 					this.target.contentDocument;
+*/
+		var doc = this.targetDocument;
 
 		this.exitFind(aFocusToFoundTarget);
 
@@ -960,13 +980,16 @@ mydump("setSelectionAndScroll");
  
 	exitFind : function(aFocusToFoundTarget) 
 	{
-		if (!this.target)
-			throw Components.results.NS_ERROR_NOT_INITIALIZED;
+		if (!this.targetDocShell)
+			throw new Error('not initialized yet');
 
+/*
 		var win = this.document.commandDispatcher.focusedWindow;
 		var doc = (win != this.window) ?
 					win.document :
 					this.target.contentDocument;
+*/
+		var doc = this.targetDocument;
 
 		this.setSelectionLook(doc, false);
 
@@ -976,9 +999,11 @@ mydump("setSelectionAndScroll");
 				.getService(Ci.nsIWindowWatcher);
 		if (this.window != WindowWatcher.activeWindow) return;
 
+/*
 		win = doc.defaultView;
 		if (!this.focusToFound(win))
 			win.focus();
+*/
 	},
 	
 	focusToFound : function(aFrame) 
@@ -1094,11 +1119,14 @@ mydump("setSelectionAndScroll");
 
 		this.observe(null, 'nsPref:changed', 'xulmigemo.startfromviewport');
 
+
+/*
 		var service = this;
 		this.window.addEventListener('unload', function() {
 			service.window.removeEventListener('unload', arguments.callee, false);
 			service.destroy();
 		}, false);
+*/
 
 		// Initialize
 		this.core;
