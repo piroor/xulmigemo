@@ -9,6 +9,8 @@ var XMigemoFind;
 })();
  
 var XMigemoUI = { 
+	MESSAGE_TYPE : '{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}',
+	SCRIPT_URL : 'chrome://xulmigemo/content/content.js',
 	
 /* constants */ 
 
@@ -1911,6 +1913,8 @@ return;
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 
+		window.messageManager.loadFrameScript(this.SCRIPT_URL, true);
+
 return;
 		window.addEventListener('findbaropen', this, true);
 
@@ -1998,9 +2002,14 @@ return;
 	{
 		XMigemoService.removePrefListener(this);
 
-		window.removeEventListener('findbaropen', this, true);
+		window.messageManager.broadcastAsyncMessage(this.MESSAGE_TYPE, {
+			command : 'shutdown'
+		});
+		window.messageManager.removeDelayedFrameScript(this.SCRIPT_URL);
 
 /*
+		window.removeEventListener('findbaropen', this, true);
+
 		this.findBar.removeEventListener('XMigemoFindBarOpen', this, false);
 		this.findBar.removeEventListener('XMigemoFindBarClose', this, false);
 		document.removeEventListener('XMigemoFindProgress', this, false);
