@@ -4,10 +4,7 @@ const Prefs = Components
 	.classes['@mozilla.org/preferences;1']
 	.getService(Components.interfaces.nsIPrefBranch);
 
-var XMigemo = Components
-	.classes['@piro.sakura.ne.jp/xmigemo/engine;1?lang='+Prefs.getCharPref('xulmigemo.lang')]
-	.getService(Components.interfaces.xmIXMigemoEngine);
-
+var XMigemo = XMigemoService.XMigemo.engine;
 var XMigemoDic = XMigemo.dictionary;
 
 function addTerm(aStatus)
@@ -364,11 +361,9 @@ function removeTermList(aAll)
 					gListRemoveOneCommand.setAttribute('disabled', true);
 				}
 
-				const XMigemoTextUtils = Components
-						.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-						.getService(Components.interfaces.xmIXMigemoTextUtils);
+				let { MigemoTextUtils } = Components.utils.import('resource://xulmigemo-modules/core/textUtils.js', {});
 
-				gListKeys.selectedItem.value = gListKeys.selectedItem.value.replace(new RegExp('^'+XMigemoTextUtils.sanitize(term)+'$', 'm'), '');
+				gListKeys.selectedItem.value = gListKeys.selectedItem.value.replace(new RegExp('^'+MigemoTextUtils.sanitize(term)+'$', 'm'), '');
 			}
 			if (!term || !gListKeys.selectedItem.value.replace(/\s+/g, '')) {
 				index = gListKeys.selectedIndex;

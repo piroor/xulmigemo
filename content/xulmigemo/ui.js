@@ -1,5 +1,9 @@
 Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
 var XMigemoFind;
+(function() {
+	let { MigemoFind } = Components.utils.import('resource://xulmigemo-modules/core/find.js', {});
+	XMigemoFind = MigemoFind;
+})();
  
 var XMigemoUI = { 
 	
@@ -25,9 +29,8 @@ var XMigemoUI = {
 	get textUtils() 
 	{
 		if (!this._textUtils) {
-			this._textUtils = Components
-				.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-				.getService(Components.interfaces.xmIXMigemoTextUtils);
+			let { MigemoTextUtils } = Components.utils.import('resource://xulmigemo-modules/core/textUtils.js', {});
+			this._textUtils = MigemoTextUtils;
 		}
 		return this._textUtils;
 	},
@@ -35,9 +38,9 @@ var XMigemoUI = {
   
 /* internal status */ 
 	
-	FIND_MODE_NATIVE : Components.interfaces.xmIXMigemoFind.FIND_MODE_NATIVE, 
-	FIND_MODE_MIGEMO : Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO,
-	FIND_MODE_REGEXP : Components.interfaces.xmIXMigemoFind.FIND_MODE_REGEXP,
+	FIND_MODE_NATIVE : XMigemoFind.FIND_MODE_NATIVE, 
+	FIND_MODE_MIGEMO : XMigemoFind.FIND_MODE_MIGEMO,
+	FIND_MODE_REGEXP : XMigemoFind.FIND_MODE_REGEXP,
 
 	forcedFindMode   : -1,
 	lastFindMode     : -1,
@@ -47,9 +50,9 @@ var XMigemoUI = {
 	
 	findModeVersion : 2, 
 	findModeFrom1To2 : {
-		'0' : Components.interfaces.xmIXMigemoFind.FIND_MODE_NATIVE,
-		'1' : Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO,
-		'2' : Components.interfaces.xmIXMigemoFind.FIND_MODE_REGEXP
+		'0' : XMigemoFind.FIND_MODE_NATIVE,
+		'1' : XMigemoFind.FIND_MODE_MIGEMO,
+		'2' : XMigemoFind.FIND_MODE_REGEXP
 	},
 	upgradePrefs : function()
 	{
@@ -2153,9 +2156,6 @@ var XMigemoUI = {
 		{
 			let browser = this.browser;
 			if (browser) {
-				XMigemoFind = Components
-					.classes['@piro.sakura.ne.jp/xmigemo/find;1']
-					.createInstance(Components.interfaces.xmIXMigemoFind);
 				XMigemoFind.target = browser;
 
 				if (browser.getAttribute('onkeypress'))
@@ -2192,11 +2192,10 @@ var XMigemoUI = {
 		}
 
 		window.setTimeout(function(aSelf) {
-			var XMigemoDicManager = Components.classes['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-					.getService(Components.interfaces.xmIXMigemoDicManager);
-			if (!XMigemoDicManager.available &&
+			let { MigemoDicManager } = Components.utils.import('resource://xulmigemo-modules/core/dicManager.js', {});
+			if (!MigemoDicManager.available &&
 				XMigemoService.getPref('xulmigemo.dictionary.useInitializeWizard'))
-				XMigemoDicManager.showInitializeWizard(null);
+				MigemoDicManager.showInitializeWizard(null);
 		}, 0, this);
 
 		this.overrideExtensionsOnInitAfter(); // hacks.js

@@ -3,7 +3,7 @@ var shouldSkip = utils.checkAppVersion('3.0') < 0;
 var orig = {};
 function warmUp()
 {
-	utils.include('../../content/xulmigemo/core.js', orig, 'UTF-8');
+	utils.include('../../modules/service.jsm', orig, 'UTF-8');
 	utils.include('../../content/xulmigemo/places/places.js', null, 'UTF-8');
 }
 
@@ -50,12 +50,11 @@ function test_isValidInput()
 function test_parseInput()
 {
 	var info;
-	const pIMigemoFind = Components.interfaces.xmIXMigemoFind;
 
 	info = service.parseInput('nihongo');
 	assert.equals('nihongo', info.input);
 	assert.equals(0, info.findFlag);
-	assert.equals(pIMigemoFind.FIND_MODE_MIGEMO, info.findMode);
+	assert.equals(MigemoFind.FIND_MODE_MIGEMO, info.findMode);
 	assert.equals(1, info.findRegExps.length);
 	assert.pattern('にほんご', info.findRegExps[0]);
 	assert.pattern('にほんご', info.termsRegExp);
@@ -64,7 +63,7 @@ function test_parseInput()
 	info = service.parseInput('nihongo -eigo');
 	assert.equals('nihongo -eigo', info.input);
 	assert.equals(0, info.findFlag);
-	assert.equals(pIMigemoFind.FIND_MODE_MIGEMO, info.findMode);
+	assert.equals(MigemoFind.FIND_MODE_MIGEMO, info.findMode);
 	assert.equals(1, info.findRegExps.length);
 	assert.pattern('にほんご', info.findRegExps[0]);
 	assert.pattern('にほんご', info.termsRegExp);
@@ -74,7 +73,7 @@ function test_parseInput()
 	info = service.parseInput('/reg(ular )?exp?(ression)?/');
 	assert.equals('/reg(ular )?exp?(ression)?/', info.input);
 	assert.equals(0, info.findFlag);
-	assert.equals(pIMigemoFind.FIND_MODE_REGEXP, info.findMode);
+	assert.equals(MigemoFind.FIND_MODE_REGEXP, info.findMode);
 	assert.equals(1, info.findRegExps.length);
 	assert.pattern('regexp', info.findRegExps[0]);
 	assert.pattern('regular expression', info.findRegExps[0]);
@@ -86,7 +85,7 @@ function test_parseInput()
 	info = service.parseInput('/reg(ular )?exp?(ression)?/');
 	assert.equals('/reg(ular )?exp?(ression)?/', info.input);
 	assert.equals(0, info.findFlag);
-	assert.equals(pIMigemoFind.FIND_MODE_MIGEMO, info.findMode);
+	assert.equals(MigemoFind.FIND_MODE_MIGEMO, info.findMode);
 	assert.isNull(info.exceptionsRegExp);
 }
 

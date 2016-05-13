@@ -70,10 +70,8 @@ function startDownload()
 
 function chooseFolder()
 {
-	var XMigemoDicManager = Cc['@piro.sakura.ne.jp/xmigemo/dictionary-manager;1']
-				.getService(Ci.xmIXMigemoDicManager);
-
-	var path = XMigemoDicManager.showDirectoryPicker(null);
+	let { MigemoDicManager } = Components.utils.import('resource://xulmigemo-modules/core/dicManager.js', {});
+	var path = MigemoDicManager.showDirectoryPicker(null);
 	if (path) {
 		document.getElementById('choose-path').value = path;
 		document.documentElement.canAdvance = true;
@@ -82,14 +80,13 @@ function chooseFolder()
 
 function saveChosenFolder()
 {
-	var utils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
-			.getService(Ci.xmIXMigemoFileAccess);
+	let { MigemoFileAccess } = Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js', {});
 
 	XMigemoService.setPref('xulmigemo.dicpath', '');
 	XMigemoService.setPref('xulmigemo.dicpath-relative', '');
 	var path = document.getElementById('choose-path').value;
 	XMigemoService.setPref('xulmigemo.dicpath', path);
-	XMigemoService.setPref('xulmigemo.dicpath-relative', utils.getRelativePath(path));
+	XMigemoService.setPref('xulmigemo.dicpath-relative', MigemoFileAccess.getRelativePath(path));
 }
 
 

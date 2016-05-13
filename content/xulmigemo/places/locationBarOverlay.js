@@ -1,4 +1,5 @@
 Components.utils.import('resource://xulmigemo-modules/places.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/core/find.js'); 
  
 var XMigemoLocationBarSearchSource = { 
 	create : function(aDefinition)
@@ -43,9 +44,9 @@ var XMigemoLocationBarOverlay = {
 	delay     : 250,
 	useThread : false,
 
-	FIND_MODE_NATIVE : Components.interfaces.xmIXMigemoFind.FIND_MODE_NATIVE,
-	FIND_MODE_MIGEMO : Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO,
-	FIND_MODE_REGEXP : Components.interfaces.xmIXMigemoFind.FIND_MODE_REGEXP,
+	FIND_MODE_NATIVE : MigemoFind.FIND_MODE_NATIVE,
+	FIND_MODE_MIGEMO : MigemoFind.FIND_MODE_MIGEMO,
+	FIND_MODE_REGEXP : MigemoFind.FIND_MODE_REGEXP,
 
 	kITEM_ACCEPT  : 1,
 	kITEM_SKIP    : 2,
@@ -193,9 +194,12 @@ var XMigemoLocationBarOverlay = {
 	ThreadManager : Components
 			.classes['@mozilla.org/thread-manager;1']
 			.getService(Components.interfaces.nsIThreadManager),
-	textUtils : Components
-			.classes['@piro.sakura.ne.jp/xmigemo/text-utility;1']
-			.getService(Components.interfaces.xmIXMigemoTextUtils),
+	get textUtils()
+	{
+		delete this.textUtils
+		let { MigemoTextUtils } = Components.utils.import('resource://xulmigemo-modules/core/textUtils.js', {});
+		return this.textUtils = MigemoTextUtils;
+	},
 
 	kXULNS : 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
  

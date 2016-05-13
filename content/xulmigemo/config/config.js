@@ -1,4 +1,5 @@
 Components.utils.import('resource://xulmigemo-modules/service.jsm');
+Components.utils.import('resource://xulmigemo-modules/core/find.js');
 
 var gDisableIME;
 var gNormalFind;
@@ -29,8 +30,8 @@ function initDisableIMECheck()
 	var quickFind = parseInt(gQuickFind.value);
 
 	gDisableIME.checked = (
-		(normalFind & Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO) &&
-		(quickFind & Components.interfaces.xmIXMigemoFind.FIND_MODE_MIGEMO)
+		(normalFind & MigemoFind.FIND_MODE_MIGEMO) &&
+		(quickFind & MigemoFind.FIND_MODE_MIGEMO)
 	) ? true : false ;
 }
 

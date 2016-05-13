@@ -135,13 +135,11 @@ var XMigemoFileDownloader = {
 
 		this.dicDir = parentDir;
 
-		var utils = Cc['@piro.sakura.ne.jp/xmigemo/file-access;1']
-				.getService(Ci.xmIXMigemoFileAccess);
-
+		let { MigemoFileAccess } = Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js', {});
 		XMigemoService.setPref('xulmigemo.dicpath', '');
 		XMigemoService.setPref('xulmigemo.dicpath-relative', '');
 		XMigemoService.setPref('xulmigemo.dicpath', parentDir.path);
-		XMigemoService.setPref('xulmigemo.dicpath-relative', utils.getRelativePath(parentDir.path));
+		XMigemoService.setPref('xulmigemo.dicpath-relative', MigemoFileAccess.getRelativePath(parentDir.path));
 
 		if (this.onCompleteListener && typeof this.onCompleteListener == 'function')
 			this.onCompleteListener();

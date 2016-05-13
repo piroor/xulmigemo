@@ -1,13 +1,8 @@
 Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/core/core.js');
+Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js'); 
 
-var XMigemo = Components
-	.classes['@piro.sakura.ne.jp/xmigemo/factory;1']
-	.getService(Components.interfaces.xmIXMigemoFactory)
-	.getService(XMigemoService.getPref('xulmigemo.lang'));
-
-var util = Components
-	.classes['@piro.sakura.ne.jp/xmigemo/file-access;1']
-	.getService(Components.interfaces.xmIXMigemoFileAccess);
+var XMigemo = XMigemoCoreFactory.get(XMigemoService.getPref('xulmigemo.lang'));
 
 var gAbsolutePath;
 var gRelativePath;
@@ -23,7 +18,7 @@ function getDP()
 	event.initUIEvent('input', true, false, window, 0);
 	gAbsolutePath.dispatchEvent(event);
 
-	gRelativePath.value = util.getRelativePath(folderPath);
+	gRelativePath.value = MigemoFileAccess.getRelativePath(folderPath);
 	event = document.createEvent('UIEvents');
 	event.initUIEvent('input', true, false, window, 0);
 	gRelativePath.dispatchEvent(event);
@@ -72,7 +67,7 @@ function initDicPane()
 		if (!file.exists()) fromRelative = true;
 	}
 	if (fromRelative && gRelativePath.value)
-		gAbsolutePath.value = util.getAbsolutePath(gRelativePath.value);
+		gAbsolutePath.value = MigemoFileAccess.getAbsolutePath(gRelativePath.value);
 
 
 	gCacheSlider  = document.getElementById('xulmigemo.cache.update.time-slider');
