@@ -52,10 +52,6 @@
 				tooltiptext="&ui.mode.migemo.tooltiptext;"
 				onclick="XMigemoUI.onClickMode(event);"/>
 		</radiogroup>
-		<progressmeter id="migemo-timeout-indicator"
-			style="position: fixed; /*z-index: 64000;*/ bottom: 0; right: 0;"
-			hidden="true"
-			type="determined"/>
 	</hbox>
 	<commandset id="xmigemo-commands">
 		<command id="xmigemo-command-manualStart"

@@ -5,7 +5,6 @@ assert.autoStart = function(aTerm) {
 	assert.equals(aTerm.charAt(0), XMigemoUI.findTerm);
 	assert.notEquals('notfound', field.getAttribute('status'));
 	assert.isFalse(XMigemoUI.hidden);
-	assert.notEquals('true', XMigemoUI.timeoutIndicator.getAttribute('hidden'));
 	if (aTerm.length > 1) {
 		action.appendTo(field, aTerm.substring(1), true);
 		utils.wait(WAIT);
@@ -19,7 +18,6 @@ assert.manualStart = function(aTerm, aKey) {
 	assert.equals('', XMigemoUI.findTerm);
 	assert.notEquals('notfound', field.getAttribute('status'));
 	assert.isFalse(XMigemoUI.hidden);
-	assert.notEquals('true', XMigemoUI.timeoutIndicator.getAttribute('hidden'));
 	if (aTerm) {
 		action.appendTo(field, aTerm, true);
 		utils.wait(WAIT);
@@ -69,11 +67,9 @@ assert.findStart = function() {
 	utils.wait(WAIT);
 	assert.isFalse(XMigemoUI.hidden);
 	assert.notEquals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
-	assert.equals('true', XMigemoUI.timeoutIndicator.getAttribute('hidden'));
 }
 
 assert.isQuickMigemoFindActive = function() {
 	assert.equals(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.findMode);
 	assert.isFalse(XMigemoUI.hidden);
-	assert.notEquals('true', XMigemoUI.timeoutIndicator.getAttribute('hidden'));
 }

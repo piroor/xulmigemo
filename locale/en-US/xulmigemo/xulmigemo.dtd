@@ -133,10 +133,6 @@
 <!ENTITY config.quickfind.advanced.button  "Advanced...">
 <!ENTITY config.quickfind.advanced.title   "Advanced Configuration of Quick Migemo Find">
 
-<!ENTITY config.enabletimeout.indicator "Indicate remaining time for timeout of Quick Migemo Find">
-<!ENTITY config.appearance.indicator.height.before "Height of the remaining time indicator:">
-<!ENTITY config.appearance.indicator.height.after "pixel (0=system default)">
-
 <!ENTITY config.caption.quickexit       "Exit Quick Migemo Find">
 <!ENTITY config.enableautoexit.inherit  "Separate setting of auto-exit and auto-start">
 <!ENTITY config.enableautoexit.nokeyword "Exit the mode automatically when there is no keyword left (auto-exit)">

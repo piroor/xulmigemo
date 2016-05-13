@@ -129,10 +129,6 @@
 <!ENTITY config.quickfind.advanced.button  "詳細...">
 <!ENTITY config.quickfind.advanced.title   "クイックMigemo検索の詳細設定">
 
-<!ENTITY config.enabletimeout.indicator "クイックMigemo検索終了までの残り時間を表示する">
-<!ENTITY config.appearance.indicator.height.before "残り時間を表示するバーの高さ：">
-<!ENTITY config.appearance.indicator.height.after "ピクセル（0＝標準の高さ）">
-
 <!ENTITY config.caption.quickexit       "クイックMigemo検索の終了">
 <!ENTITY config.enableautoexit.inherit "クイックMigemo検索の自動開始と自動終了を別々に設定する">
 <!ENTITY config.enableautoexit.nokeyword "キーワードがすべて消去されたら自動的にクイックMigemo検索を終了する">

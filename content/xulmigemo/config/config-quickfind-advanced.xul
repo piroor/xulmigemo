@@ -22,13 +22,6 @@
 			name="xulmigemo.enableautoexit.nokeyword"
 			type="bool"/>
 
-		<preference id="xulmigemo.enabletimeout.indicator"
-			name="xulmigemo.enabletimeout.indicator"
-			type="bool"/>
-		<preference id="xulmigemo.appearance.indicator.height"
-			name="xulmigemo.appearance.indicator.height"
-			type="int"/>
-
 		<preference id="xulmigemo.timeout.stopWhileScrolling"
 			name="xulmigemo.timeout.stopWhileScrolling"
 			type="bool"/>
@@ -45,20 +38,6 @@
 	</hbox>
 
 	<separator/>
-
-	<checkbox id="xulmigemo.enabletimeout.indicator-check" flex="1"
-		label="&config.enabletimeout.indicator;"
-		preference="xulmigemo.enabletimeout.indicator"/>
-	<hbox align="center">
-		<label value="&config.appearance.indicator.height.before;"
-			control="xulmigemo.appearance.indicator.height-textbox"/>
-		<textbox id="xulmigemo.appearance.indicator.height-textbox"
-			preference="xulmigemo.appearance.indicator.height"
-			style="width: 4em;"
-			type="number" min="0" increment="1"/>
-		<label value="&config.appearance.indicator.height.after;"
-			control="xulmigemo.appearance.indicator.height-textbox"/>
-	</hbox>
 
 	<checkbox id="xulmigemo.timeout.stopWhileScrolling-check" flex="1"
 		label="&config.timeout.stopWhileScrolling;"

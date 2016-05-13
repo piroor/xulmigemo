@@ -35,14 +35,6 @@
 	background: #666;
 }
 
-
-#XMigemoFindToolbar progressmeter,
-#XMigemoFindToolbar progressmeter > * {
-	min-height: 5px;
-	margin: 0;
-	padding: 0;
-}
-
 #FindToolbar[_moz-xmigemo-position="abovecontent"],
 #FindToolbar[_moz-xmigemo-position="belowtabbar"] {
 	border-top: 0 none;

@@ -25,7 +25,6 @@ function testProperties()
 	assert.isTrue(XMigemoUI.findMigemoBar);
 	assert.isTrue(XMigemoUI.findModeSelectorBox);
 	assert.isTrue(XMigemoUI.findModeSelector);
-	assert.isTrue(XMigemoUI.timeoutIndicator);
 	assert.isTrue(win.XMigemoFind);
 	assert.isTrue(win.XMigemoCore);
 }

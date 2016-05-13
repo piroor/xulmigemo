@@ -197,13 +197,6 @@ var XMigemoUI = {
 			this._findModeSelector = document.getElementById('find-mode-selector');
 		return this._findModeSelector;
 	},
- 
-	get timeoutIndicator() 
-	{
-		if (!this._timeoutIndicator)
-			this._timeoutIndicator = document.getElementById('migemo-timeout-indicator');
-		return this._timeoutIndicator;
-	},
    
 /* status */ 
 	
@@ -459,7 +452,6 @@ var XMigemoUI = {
 		'xulmigemo.enableautoexit.nokeyword\n' +
 		'xulmigemo.findMode.always\n' +
 		'xulmigemo.enabletimeout\n' +
-		'xulmigemo.enabletimeout.indicator\n' +
 		'xulmigemo.timeout\n' +
 		'xulmigemo.timeout.stopWhileScrolling\n' +
 		'xulmigemo.shortcut.findForward\n' +
@@ -478,8 +470,7 @@ var XMigemoUI = {
 		'xulmigemo.prefillwithselection\n' +
 		'xulmigemo.work_for_any_xml_document',
 	preferencesFindBar :
-		'xulmigemo.appearance.buttonLabelsMode\n' +
-		'xulmigemo.appearance.indicator.height',
+		'xulmigemo.appearance.buttonLabelsMode',
  
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
@@ -510,10 +501,6 @@ var XMigemoUI = {
 
 			case 'xulmigemo.enabletimeout':
 				this.shouldTimeout = value;
-				return;
-
-			case 'xulmigemo.enabletimeout.indicator':
-				this.shouldIndicateTimeout = value;
 				return;
 
 			case 'xulmigemo.timeout':
@@ -576,10 +563,6 @@ var XMigemoUI = {
 					this.onChangeFindBarSize();
 				else
 					this.showHideLabels(value != this.kLABELS_HIDE);
-				return;
-
-			case 'xulmigemo.appearance.indicator.height':
-				this.updateIndicatorHeight(value);
 				return;
 
 			case 'xulmigemo.disableIME.quickFindFor':
@@ -1261,7 +1244,6 @@ return;
 		if (!this.isQuickFind) return;
 		this.clearTimer();
 		this.cancelTimer = window.setTimeout(this.timerCallback, this.timeout, this);
-		this.updateTimeoutIndicator(this.timeout);
 		window.setTimeout(function(aSelf) {
 			aSelf.textUtils.setSelectionLook(aSelf.browser.contentDocument, true);
 		}, 0, this);
@@ -1285,61 +1267,6 @@ return;
 		if (this.cancelTimer) {
 			window.clearTimeout(this.cancelTimer);
 			this.cancelTimer = null;
-		}
-		if (this.indicatorTimer) {
-			window.clearTimeout(this.indicatorTimer);
-			this.indicatorTimer = null;
-		}
-	},
-  
-/* Indicator Timer */ 
-	indicatorTimer : null,
-	indicatorStartTime : null,
-	shouldIndicateTimeout : true,
-
-	updateTimeoutIndicator : function(aTimeout, aCurrent, aThis)
-	{
-		aThis = aThis || this;
-		if (!aThis.timeoutIndicator) return;
-
-		if (aThis.indicatorTimer) {
-			window.clearTimeout(aThis.indicatorTimer);
-			aThis.indicatorTimer = null;
-		}
-
-		var value = 0;
-		if (aTimeout > -1) {
-			if (aCurrent === void(0)) {
-				aThis.indicatorStartTime = Date.now();
-				aCurrent = aTimeout;
-			}
-
-			value = Math.min(100, parseInt((aCurrent / aTimeout) * 100));
-		}
-
-		if (value <= 0) {
-			aThis.timeoutIndicator.removeAttribute('value');
-			aThis.timeoutIndicator.setAttribute('hidden', true);
-			if (aThis.indicatorStartTime)
-				aThis.indicatorStartTime = null;
-		}
-		else if (aThis.shouldIndicateTimeout) {
-			aThis.timeoutIndicator.setAttribute('value', value+'%');
-			aThis.timeoutIndicator.removeAttribute('hidden');
-			aThis.timeoutIndicator.style.right = (
-				document.documentElement.boxObject.width
-				- aThis.findBar.boxObject.x
-				- aThis.findBar.boxObject.width
-			)+'px';
-			aThis.timeoutIndicator.style.bottom = (
-				document.documentElement.boxObject.height
-				- aThis.findBar.boxObject.y
-				- aThis.findBar.boxObject.height
-			)+'px';
-
-			aCurrent = aTimeout - parseInt(Date.now() - aThis.indicatorStartTime);
-
-			aThis.indicatorTimer = window.setTimeout(arguments.callee, 50, aTimeout, aCurrent, aThis);
 		}
 	},
   
@@ -1403,7 +1330,6 @@ return;
 			this.delayedFindTimer = null;
 		}
 
-		this.updateTimeoutIndicator(-1);
 		this.clearTimer();
 
 		this.inCancelingProcess = false;
@@ -1503,19 +1429,6 @@ return;
 			switchers.forEach(function(aNode) {
 				aNode.setAttribute('label', aNode.getAttribute('short-label'));
 			});
-		}
-	},
- 
-	updateIndicatorHeight : function(aHeight) 
-	{
-		var node = this.timeoutIndicator;
-		if (aHeight) {
-			node.style.minHeight = aHeight+'px';
-			node.style.maxHeight = aHeight+'px';
-		}
-		else {
-			node.style.minHeight = 'none';
-			node.style.maxHeight = 'auto';
 		}
 	},
  
