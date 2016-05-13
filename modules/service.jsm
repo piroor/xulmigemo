@@ -333,16 +333,6 @@ var XMigemoCore = inherit(MigemoAPI, {
 		return this.XMigemo.regExpFind(aRegExpSource, aRegExpFlags, aFindRange, aStartPoint, aEndPoint, aFindBackwards);
 	},
  
-	regExpHighlight : function(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode) 
-	{
-		return this.XMigemo.regExpHighlight(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode);
-	},
- 
-	regExpHighlightSelection : function(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode) 
-	{
-		return this.XMigemo.regExpHighlightSelection(aRegExpSource, aRegExpFlags, aFindRange, aSurroundNode);
-	},
- 
 	get XMigemo() { 
 		if (!this._XMigemo) {
 			try {
