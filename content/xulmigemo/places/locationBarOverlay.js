@@ -213,7 +213,7 @@ var XMigemoLocationBarOverlay = {
  
 	get input() 
 	{
-		return XMigemoAPI.trimFunctionalInput(this.bar.value);
+		return MigemoAPI.trimFunctionalInput(this.bar.value);
 	},
  
 	get panel() 
