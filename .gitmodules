@@ -19,3 +19,6 @@
 [submodule "extlib/fxaddonlib-boxobject"]
 	path = extlib/fxaddonlib-boxobject
 	url = https://github.com/piroor/fxaddonlib-boxobject.git
+[submodule "extlib/js-extended-immutable"]
+	path = extlib/js-extended-immutable
+	url = https://github.com/clear-code/js-extended-immutable.git

@@ -9,6 +9,7 @@ Cu.import('resource://gre/modules/Finder.jsm');
 
 Cu.import('resource://gre/modules/Services.jsm');
 
+Cu.import('resource://xulmigemo-modules/lib/extended-immutable.js');
 Cu.import('resource://xulmigemo-modules/service.jsm');
 Cu.import('resource://xulmigemo-modules/core/find.js');
 
@@ -32,6 +33,23 @@ Object.defineProperty(Finder.prototype, '__xm__nativeSearchString', {
 	},
 	set: function(aValue) {
 		return this._fastFind.searchString = aValue;
+	}
+});
+
+Object.defineProperty(Finder.prototype, '_fastFind', {
+	get: function() {
+		return this.__xm__fastFind;
+	},
+	set: function(aValue) {
+		this.__xm__fastFind = new ExtendedImmutable(aValue, {
+			getFoundRange : function()
+			{
+				if (MigemoFind.findMode === MigemoFind.FIND_MODE_NATIVE)
+					return aValue.getFoundRange();
+				return MigemoFind.foundRange;
+			}
+		});
+		return aValue;
 	}
 });
 

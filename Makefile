@@ -4,13 +4,14 @@ PACKAGE_NAME = xulmigemo
 
 all: xpi
 
-xpi: makexpi/makexpi.sh extlib/fxaddonlib-animation-manager/animationManager.js extlib/fxaddonlib-boxobject/boxObject.js extlib/fxaddonlib-extensions/extensions.js extlib/fxaddonlib-inherit/inherit.jsm extlib/fxaddonlib-prefs/prefs.js extlib/fxaddonlib-stringbundle/stringBundle.js
+xpi: makexpi/makexpi.sh extlib/fxaddonlib-animation-manager/animationManager.js extlib/fxaddonlib-boxobject/boxObject.js extlib/fxaddonlib-extensions/extensions.js extlib/fxaddonlib-inherit/inherit.jsm extlib/fxaddonlib-prefs/prefs.js extlib/fxaddonlib-stringbundle/stringBundle.js extlib/js-extended-immutable/extended-immutable.js
 	cp extlib/fxaddonlib-animation-manager/animationManager.js modules/lib/
 	cp extlib/fxaddonlib-boxobject/boxObject.js modules/lib/
 	cp extlib/fxaddonlib-extensions/extensions.js modules/lib/
 	cp extlib/fxaddonlib-inherit/inherit.jsm modules/lib/
 	cp extlib/fxaddonlib-prefs/prefs.js modules/lib/
 	cp extlib/fxaddonlib-stringbundle/stringBundle.js modules/lib/
+	cp extlib/js-extended-immutable/extended-immutable.js modules/lib/
 	bash ./make.sh
 
 extlib/fxaddonlib-animation-manager/animationManager.js:
@@ -29,6 +30,9 @@ extlib/fxaddonlib-prefs/prefs.js:
 	git submodule update --init
 
 extlib/fxaddonlib-stringbundle/stringBundle.js:
+	git submodule update --init
+
+extlib/js-extended-immutable/extended-immutable.js:
 	git submodule update --init
 
 makexpi/makexpi.sh:
