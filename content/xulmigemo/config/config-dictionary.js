@@ -2,7 +2,7 @@ Components.utils.import('resource://xulmigemo-modules/service.jsm');
 Components.utils.import('resource://xulmigemo-modules/core/core.js');
 Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js'); 
 
-var XMigemo = XMigemoCoreFactory.get(XMigemoService.getPref('xulmigemo.lang'));
+var XMigemo = MigemoCoreFactory.get(XMigemoService.getPref('xulmigemo.lang'));
 
 var gAbsolutePath;
 var gRelativePath;
