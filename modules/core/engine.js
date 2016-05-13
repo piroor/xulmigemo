@@ -26,7 +26,7 @@ MigemoEngine = {
 	ALL_DIC    : (1 << 0 | 1 << 1),
 
 	textTransform : MigemoTextTransform,
-	dictionary : MigemoDicitonary,
+	dictionary : MigemoDictionary,
  
 	getRegExpFor : function(aInput, aTargetDic) 
 	{
