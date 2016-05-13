@@ -1,8 +1,8 @@
 var EXPORTED_SYMBOLS = ['MigemoEngineJa'];
 
 /* This depends on: 
-	xmIXMigemoDictionaryJa
-	xmIXMigemoTextTransformJa
+	MigemoDictionaryJa
+	MigemoTextTransformJa
 */
 var DEBUG = false;
 var TEST = false;

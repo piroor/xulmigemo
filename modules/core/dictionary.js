@@ -1,7 +1,7 @@
 /* This depends on: 
-	xmIXMigemoFileAccess
-	xmIXMigemoTextUtils
-	xmIXMigemoTextTransform
+	MigemoFileAccess
+	MigemoTextUtils
+	MigemoTextTransform
 */
 var DEBUG = false;
 var TEST = false;
@@ -93,7 +93,7 @@ var MigemoDictionary {
 
 
 		this.initialized = true;
-		mydump('xmIXMigemoDictionary: loaded');
+		mydump('MigemoDictionary: loaded');
 
 		return !error;
 	},

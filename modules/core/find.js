@@ -1,8 +1,8 @@
 var EXPORTED_SYMBOLS = ['MigemoFind'];
 
 /* This depends on: 
-	xmIXMigemo
-	xmIXMigemoTextUtils
+	MigemoCoreFactory
+	MigemoTextUtils
 */
 var DEBUG = false;
 var TEST = false;

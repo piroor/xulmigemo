@@ -1,8 +1,8 @@
 var EXPORTED_SYMBOLS = ['MigemoDicManager'];
 
 /* This depends on: 
-	xmIXMigemoDictionary
-	xmIXMigemoCache
+	MigemoDictionary
+	MigemoCache
 */
 var DEBUG = false;
 var TEST = false;

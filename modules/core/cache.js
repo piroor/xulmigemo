@@ -1,8 +1,8 @@
 var EXPORTED_SYMBOLS = ['MigemoCache', 'MigemoCacheFactory'];
 
 /* This depends on: 
-	xmIXMigemoFileAccess
-	xmIXMigemoTextUtils
+	MigemoFileAccess
+	MigemoTextUtils
 */
 var DEBUG = false;
 var TEST = false;
@@ -222,7 +222,7 @@ XMigemoCache.prototype = {
 		}
 		this.initialized = this.DICTIONARIES_ALL.every(this.getCacheFile, this);
 		if (this.initialized) {
-			mydump('xmIXMigemoCache: loaded');
+			mydump('MigemoCache: loaded');
 			return true;
 		}
 		else {

@@ -1,10 +1,10 @@
 var EXPORTED_SYMBOLS = ['MigemoCore', 'MigemoCoreFactory'];
 
 /* This depends on: 
-	xmIXMigemoEngine
-	xmIXMigemoCache
-	xmIXMigemoDicManager
-	xmIXMigemoTextUtils
+	MigemoEngine
+	MigemoCache
+	MigemoDicManager
+	MigemoTextUtils
 */
 var DEBUG = false;
 var TEST = false;
@@ -1167,30 +1167,17 @@ MigemoCore.prototype = {
 		this.initialized = true;
 
 		var lang = aLang || Prefs.getCharPref('xulmigemo.lang');
-		var constructor;
-		if (TEST) {
-			eval('constructor = xmXMigemoEngine'+
-					lang.replace(/^./, function(aChar) {
-						return aChar.toUpperCase();
-					})
-			);
+		var leafNameSuffix = '';
+		var moduleNameSuffix = '';
+		if (lang) {
+			leafNameSuffix = '.' + lang;
+			moduleNameSuffix = lang.charAt(0).toUpperCase() + this.lang.slice(1);
 		}
-		if (constructor) {
-			this.engine = new constructor();
-		}
-		else {
-			var id = '@piro.sakura.ne.jp/xmigemo/engine;1?lang='+lang;
-			if (id in Cc) {
-				this.engine = Cc[id]
-					.getService(Ci.xmIXMigemoEngine);
-			}
-			else {
-				this.engine = Cc['@piro.sakura.ne.jp/xmigemo/engine;1?lang=*']
-					.createInstance(Ci.xmIXMigemoEngine)
-					.QueryInterface(Ci.xmIXMigemoEngineUniversal);
-				this.engine.lang = aLang || Prefs.getCharPref('xulmigemo.lang');
-			}
-		}
+
+		var ns = Components.utils.import('resource://xulmigemo-modules/core/engine' + leafNameSuffix + '.js', {});
+		this.engine = ns['MigemoEngine' + moduleNameSuffix];
+		if (!this.engine.lang)
+			this.engine.lang = aLang || Prefs.getCharPref('xulmigemo.lang');
 
 		MigemoDicManager.init(this.dictionary, this.cache);
 

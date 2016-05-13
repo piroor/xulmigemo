@@ -1,7 +1,7 @@
 /* This depends on: 
-	xmIXMigemoFileAccess
-	xmIXMigemoTextUtils
-	xmIXMigemoTextTransformJa
+	MigemoFileAccess
+	MigemoTextUtils
+	MigemoTextTransformJa
 */
 var DEBUG = false;
 var TEST = false;
