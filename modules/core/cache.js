@@ -21,7 +21,7 @@ const Prefs = Cc['@mozilla.org/preferences;1']
  
 function MigemoCache() {
 }
-XMigemoCache.prototype = {
+MigemoCache.prototype = {
 	initialized : false, 
 
 	SYSTEM_DIC : 1 << 0, 
