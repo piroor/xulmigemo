@@ -90,32 +90,32 @@ Finder.prototype._findIterator = function(aWord, aWindow) {
 		return this.__xm__findIterator_regexp(aWord, aWindow);
 };
 Finder.prototype.__xm__findIterator_regexp = function* (aWord, aWindow) {
-		var doc = aWindow.document;
-		var body = (doc instanceof Ci.nsIDOMHTMLDocument && doc.body) ? doc.body : doc.documentElement;
+	var doc = aWindow.document;
+	var body = (doc instanceof Ci.nsIDOMHTMLDocument && doc.body) ? doc.body : doc.documentElement;
 
-		var findRange = doc.createRange();
-		findRange.selectNodeContents(body);
+	var findRange = doc.createRange();
+	findRange.selectNodeContents(body);
 
-		var startPoint = findRange.cloneRange();
-		startPoint.collapse(true);
+	var startPoint = findRange.cloneRange();
+	startPoint.collapse(true);
 
-		var endPoint = findRange.cloneRange();
-		endPoint.collapse(false);
+	var endPoint = findRange.cloneRange();
+	endPoint.collapse(false);
 
-		var regexp = MigemoFind.findMode === MigemoFind.FIND_MODE_REGEXP ?
-					MigemoTextUtils.extractRegExpSource(aWord) :
-				MigemoFind.findMode === MigemoFind.FIND_MODE_MIGEMO ?
-					XMigemoCore.getRegExp(aWord) :
-					MigemoTextUtils.sanitize(aWord) ;
-		var flags = MigemoFind.caseSensitive ? '' : 'i' ;
+	var regexp = MigemoFind.findMode === MigemoFind.FIND_MODE_REGEXP ?
+				MigemoTextUtils.extractRegExpSource(aWord) :
+			MigemoFind.findMode === MigemoFind.FIND_MODE_MIGEMO ?
+				XMigemoCore.getRegExp(aWord) :
+				MigemoTextUtils.sanitize(aWord) ;
+	var flags = MigemoFind.caseSensitive ? '' : 'i' ;
 
-		var foundRange;
-		while ((foundRange = XMigemoCore.regExpFind(regexp, flags, findRange, startPoint, endPoint, false)))
-		{
-			yield foundRange;
-			startPoint = foundRange.cloneRange();
-			startPoint.collapse(false);
-		}
+	var foundRange;
+	while ((foundRange = XMigemoCore.regExpFind(regexp, flags, findRange, startPoint, endPoint, false)))
+	{
+		yield foundRange;
+		startPoint = foundRange.cloneRange();
+		startPoint.collapse(false);
+	}
 };
 
 var MigemoFinder = Finder;
