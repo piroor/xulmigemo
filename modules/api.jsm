@@ -10,6 +10,7 @@ var MAX_CACHE_COUNT = 100;
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 Components.utils.import('resource://xulmigemo-modules/core/core.js');
+Components.utils.import('resource://xulmigemo-modules/core/engine.js');
 Components.utils.import('resource://xulmigemo-modules/core/cache.js');
 
 const ObserverService = Cc['@mozilla.org/observer-service;1']
