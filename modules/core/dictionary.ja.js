@@ -1,3 +1,5 @@
+var EXPORTED_SYMBOLS = ['MigemoDictionaryJa'];
+
 /* This depends on: 
 	MigemoFileAccess
 	MigemoTextUtils
