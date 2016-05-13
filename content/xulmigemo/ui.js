@@ -358,48 +358,6 @@ var XMigemoUI = {
   
 /* utilities */ 
 	
-	getEditableNodes : function(aDocument) 
-	{
-		var expression = [
-					'descendant::*[',
-						'local-name()="TEXTAREA" or local-name()="textarea" or ',
-						'((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))',
-					']'
-				].join('');
-		return aDocument.evaluate(
-				expression,
-				aDocument,
-				null,
-				XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-				null
-			);
-	},
- 
-	clearSelectionInEditable : function(aFrame) 
-	{
-		try {
-			var xpathResult = this.getEditableNodes(aFrame.document);
-			var selCon, selection;
-			for (var i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
-			{
-				selCon = xpathResult.snapshotItem(i)
-					.QueryInterface(this.nsIDOMNSEditableElement)
-					.editor
-					.selectionController;
-				if (selCon.getDisplaySelection() == selCon.SELECTION_ON &&
-					(selection = selCon.getSelection(selCon.SELECTION_NORMAL)) &&
-					selection.rangeCount)
-					selection.removeAllRanges();
-			}
-		}
-		catch(e) {
-		}
-		Array.slice(aFrame.frames)
-			.some(function(aFrame) {
-				this.clearSelectionInEditable(aFrame);
-			}, this);
-	},
- 
 	disableFindFieldIME : function() 
 	{
 		if (!('imeMode' in this.field.style)) return;
@@ -1141,7 +1099,6 @@ var XMigemoUI = {
 		var highlighted = this.highlightCheck.checked;
 		if (highlighted) {
 			this.findBar.toggleHighlight(false);
-			this.clearHighlight(this.browser.contentDocument, true);
 		}
 		if (!this.hidden && !this.inCancelingProcess) {
 			if (this.isQuickFind || this.findMode == this.FIND_MODE_NATIVE) {
@@ -1688,134 +1645,12 @@ return;
 		};
 
 /*
-		this.findBar.xmigemoOriginalToggleHighlight = this.findBar.toggleHighlight;
-		this.findBar.toggleHighlight = this.toggleHighlight;
-
 		this.findBar.prefillWithSelection = false; // disable Firefox's native feature
 */
 	},
 	updateFindBarMethods : function()
 	{
 		var { here } = Components.utils.import('resource://xulmigemo-modules/lib/here.js', {});
-
-		eval('this.findBar._find = '+this.findBar._find.toSource()
-			.replace(
-				'{',
-				'{ XMigemoUI.presetSearchString(arguments.length ? arguments[0] : null); '
-			)
-			.replace(
-				/(this._updateStatusUI\([^\)]*\))/,
-				'$1; XMigemoFind.scrollSelectionToCenter(null, true);'
-			)
-		);
-
-		eval('this.findBar._findAgain = '+this.findBar._findAgathis.findBarin.toSource()
-			.replace(
-				/(return res;)/,
-				'XMigemoFind.scrollSelectionToCenter(null, true); $1'
-			)
-		);
-
-		eval('this.findBar._highlightDoc = '+this.findBar._highlightDoc.toSource()
-			.replace(
-				/((?:var|let) win = [^;]+;)/,
-				here(/*$1
-					if (!aWord || aWord != this._lastHighlightString)
-						XMigemoUI.clearHighlight(win.document);
-				*/)
-			).replace(
-				'return textFound;',
-				'XMigemoUI.clearHighlight(doc); $&'
-			).replace(
-				'this._highlight(aHighlight, retRange, controller);',
-				'this._highlight(aHighlight, retRange, controller, aWord);'
-			).replace(
-				/if \((!doc \|\| )(!\("body" in doc\)|!\(doc instanceof HTMLDocument\))\)/,
-				'if ($1($2 && (!XMigemoUI.workForAnyXMLDocuments || !(doc instanceof XMLDocument))))'
-			).replace(
-				'doc.body',
-				'XMigemoUI.getDocumentBody(doc)'
-			).replace(
-				'var retRange = null;',
-				here(/*
-					if (XMigemoUI.isActive) {
-						if (XMigemoUI.highlightText(aHighlight, aWord, this._searchRange || searchRange)) {
-							this._lastHighlightString = aWord;
-							return true;
-						}
-						else {
-							return false;
-						}
-					}
-					$&
-				*/)
-			)
-		);
-		eval('this.findBar.xmigemoOriginalToggleHighlight = '+this.findBar.xmigemoOriginalToggleHighlight.toSource()
-			.replace(
-				')',
-				', aAutoChecked, aKeepLastStatus)'
-			).replace(
-				/(this\._updateStatusUI\([^\)]+\);)/g,
-				'if (!aKeepLastStatus) { $1 }'
-			)
-		);
-/*
-		var setter = this.findBar.__lookupSetter__('browser');
-		var getter = this.findBar.__lookupGetter__('browser');
-		eval('setter = '+setter.toSource()
-			.replace(
-				/this._browser.(?:add|remove)EventListener\("(keypress|mouseup)"[^\)]+(true|false)\);/g,
-				function(aMatch) {
-					try {
-						if (this.findBar._browser)
-							this.findBar._browser.removeEventListener(RegExp.$1, this.findBar, RegExp.$2 == 'true');
-					}
-					catch(e) {
-					}
-					return '';
-				}
-			)
-		);
-		this.findBar.__defineSetter__('browser', setter);
-		this.findBar.__defineGetter__('browser', getter);
-*/
-
-		eval('this.findBar._setHighlightTimeout ='+
-			this.findBar._setHighlightTimeout.toSource()
-			.replace(
-				/^(\(?function)([^\(]*)\(\) \{/,
-				here(/*$1$2(aAutoChecked) {
-					if (XMigemoUI.findTerm == XMigemoUI.browser.contentDocument.documentElement.getAttribute(XMigemoUI.kLAST_HIGHLIGHT))
-						return;
-				*/)
-			).replace(
-				/(\w+\.toggleHighlight\(false)(\);)/,
-				here(/*
-					var checked = !XMigemoUI.highlightCheck.disabled && XMigemoUI.highlightCheck.checked;
-					$1, false, true$2
-					if (checked)
-						XMigemoUI.textUtils.setSelectionLook(XMigemoUI.browser.contentDocument, true);
-				*/)
-			).replace(
-				/(\b[^\.]+\.toggleHighlight\(true)(\);)/,
-				'$1, !checked$2'
-			)
-		);
-
-		eval('this.findBar.onFindAgainCommand = '+this.findBar.onFindAgainCommand.toSource()
-			.replace(
-				/([^=\s]+\.(find|search)String)/g,
-				'XMigemoUI.getLastFindString($1)'
-			)
-		);
-		this.findBar.xmigemoOriginalOnFindAgainCommand = this.findBar.onFindAgainCommand;
-		this.findBar.onFindAgainCommand = function(aFindPrevious) {
-			if (aFindPrevious)
-				XMigemoUI.findPrevious();
-			else
-				XMigemoUI.findNext();
-		};
 
 		eval('this.findBar.onFindCommand = '+this.findBar.onFindCommand.toSource()
 			.replace('{', '$& XMigemoUI.onFindStartCommand();')
@@ -1921,7 +1756,6 @@ return;
 
 		this.updateCaseSensitiveCheck();
 
-		this.clearHighlight(this.browser.contentDocument, true);
 		this.lastHighlightedKeyword = null;
 
 		var WindowWatcher = Components
@@ -1938,59 +1772,6 @@ return;
 		this.clearFocusRing();
 		var link = XMigemoFind.getParentLinkFromRange(this.lastFoundRange);
 		if (link) link.focus();
-	},
-  
-/* highlight */ 
-	
-	toggleHighlight : function(aHighlight, aAutoChecked) 
-	{
-		var event = new CustomEvent('XMigemoFindBarUpdateHighlight', {
-			bubbles    : true,
-			cancelable : false,
-			detail     : {
-				targetHighlight : aHighlight
-			}
-		});
-		XMigemoUI.findBar.dispatchEvent(event);
-
-		if (!aHighlight)
-			XMigemoUI.browser.contentDocument.documentElement.removeAttribute(XMigemoUI.kLAST_HIGHLIGHT);
-
-		var self = window.gFindBar || this;
-		self.xmigemoOriginalToggleHighlight.apply(self, arguments);
-	},
- 
-	stopDelayedToggleHighlightTimer : function() 
-	{
-		if (!this.delayedToggleHighlightTimer) return;
-		window.clearTimeout(this.delayedToggleHighlightTimer);
-		this.delayedToggleHighlightTimer = null;
-	},
-	delayedToggleHighlightTimer : null,
- 
-	clearHighlight : function(aDocument, aRecursively) 
-	{
-		var keepFoundHighlighted = !this.highlightCheck.disabled && this.highlightCheck.checked;
-		MigemoAPI.clearHighlight(aDocument, aRecursively, this.highlightSelectionOnly, keepFoundHighlighted);
-	},
- 
-	highlightText : function(aDoHighlight, aWord, aRange) 
-	{
-		var flags = this.shouldCaseSensitive ? '' : 'i' ;
-		var regexp = this.findMode == this.FIND_MODE_REGEXP ?
-					this.textUtils.extractRegExpSource(aWord) :
-				this.findMode == this.FIND_MODE_MIGEMO ?
-					XMigemoCore.getRegExp(aWord) :
-					this.textUtils.sanitize(aWord) ;
-
-		var doc = aRange.startContainer.ownerDocument || aRange.startContainer;
-		this.clearHighlight(doc);
-
-		var ranges = !aDoHighlight ?
-				[XMigemoCore.regExpFind(regexp, flags, aRange)] :
-				XMigemoCore.regExpHighlightSelection(regexp, flags, aRange) ;
-
-		return ranges.length ? true : false ;
 	},
   
 	updateStatus : function(aStatusText) 
@@ -2096,7 +1877,7 @@ return;
 				highlightCheck.xmigemoOriginalChecked ;
 		highlightCheck.checked = checked;
 		if (checked != prevHighlightState) {
-			this.toggleHighlight(checked, true);
+			this.findBar.toggleHighlight(checked, true);
 		}
 		this.highlightCheckFirst = false;
 	},
