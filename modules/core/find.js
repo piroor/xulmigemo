@@ -651,68 +651,68 @@ mydump("getFindRangeSetIn");
 		else {
 			let selection;
 			let count = 0;
-		if (aSelCon) {
-			selection = aSelCon.getSelection(aSelCon.SELECTION_NORMAL);
-			count = selection.rangeCount;
-		}
-mydump("count:"+count);
+			if (aSelCon) {
+				selection = aSelCon.getSelection(aSelCon.SELECTION_NORMAL);
+				count = selection.rangeCount;
+			}
+	mydump("count:"+count);
 
-		if (!(aFindFlag & this.FIND_DEFAULT) && count != 0) {
-			if (aFindFlag & this.FIND_FORWARD) {
-				range = selection.getRangeAt(count-1);
-				node = range.endContainer;
-				offset = range.endOffset;
-				findRange.setStart(node, offset);
-				startPt.setStart(node, offset);
-				startPt.setEnd(node, offset);
-				endPt.collapse(false);
-			}
-			else if (aFindFlag & this.FIND_BACK) {
-				range = selection.getRangeAt(0);
-				node = range.startContainer;
-				offset = range.startOffset;
-				findRange.setEnd(node, offset);
-				startPt.setStart(node, offset);
-				startPt.setEnd(node, offset);
-				endPt.collapse(true);
-			}
-		}
-		else {
-			if (
-				aFindFlag & this.FIND_WRAP ||
-				String(aRangeParent.localName).toLowerCase() != 'body' ||
-				!this.startFromViewport
-				) {
-				if (aFindFlag & this.FIND_BACK) {
-					startPt.collapse(false);
-					endPt.collapse(true);
-				}
-				else {
-					startPt.collapse(true);
+			if (!(aFindFlag & this.FIND_DEFAULT) && count != 0) {
+				if (aFindFlag & this.FIND_FORWARD) {
+					range = selection.getRangeAt(count-1);
+					node = range.endContainer;
+					offset = range.endOffset;
+					findRange.setStart(node, offset);
+					startPt.setStart(node, offset);
+					startPt.setEnd(node, offset);
 					endPt.collapse(false);
+				}
+				else if (aFindFlag & this.FIND_BACK) {
+					range = selection.getRangeAt(0);
+					node = range.startContainer;
+					offset = range.startOffset;
+					findRange.setEnd(node, offset);
+					startPt.setStart(node, offset);
+					startPt.setEnd(node, offset);
+					endPt.collapse(true);
 				}
 			}
 			else {
-				if (aFindFlag & this.FIND_BACK) {
-					node = this.viewportStartPoint ||
-							MigemoTextUtils.findFirstVisibleNode(doc, true);
-					this.viewportStartPoint = node;
-					findRange.setEndAfter(node);
-					startPt.setStartAfter(node);
-					startPt.setEndAfter(node);
-					endPt.collapse(true);
+				if (
+					aFindFlag & this.FIND_WRAP ||
+					String(aRangeParent.localName).toLowerCase() != 'body' ||
+					!this.startFromViewport
+					) {
+					if (aFindFlag & this.FIND_BACK) {
+						startPt.collapse(false);
+						endPt.collapse(true);
+					}
+					else {
+						startPt.collapse(true);
+						endPt.collapse(false);
+					}
 				}
 				else {
-					node = this.viewportEndPoint ||
-							MigemoTextUtils.findFirstVisibleNode(doc, false);
-					this.viewportEndPoint = node;
-					findRange.setStartBefore(node);
-					startPt.setStartBefore(node);
-					startPt.setEndBefore(node);
-					endPt.collapse(false);
+					if (aFindFlag & this.FIND_BACK) {
+						node = this.viewportStartPoint ||
+								MigemoTextUtils.findFirstVisibleNode(doc, true);
+						this.viewportStartPoint = node;
+						findRange.setEndAfter(node);
+						startPt.setStartAfter(node);
+						startPt.setEndAfter(node);
+						endPt.collapse(true);
+					}
+					else {
+						node = this.viewportEndPoint ||
+								MigemoTextUtils.findFirstVisibleNode(doc, false);
+						this.viewportEndPoint = node;
+						findRange.setStartBefore(node);
+						startPt.setStartBefore(node);
+						startPt.setEndBefore(node);
+						endPt.collapse(false);
+					}
 				}
 			}
-		}
 		}
 
 		var ret = {
