@@ -244,22 +244,6 @@ var MigemoAPI = {
 		return result;
 	},
  
-	regExpFindArray : function(aRegExp, aFindRange, aStartPoint, aEndPoint) 
-	{
-		var result = this.XMigemo.regExpFindArray(
-						aRegExp.source,
-						this.getFlagsFromRegExp(aRegExp),
-						aFindRange,
-						aStartPoint,
-						aEndPoint
-					);
-		return result;
-	},
-	regExpFindArr : function(aRegExp, aFindRange, aStartPoint, aEndPoint)
-	{
-		return this.regExpFindArray(aRegExp, aFindRange, aStartPoint, aEndPoint);
-	},
- 
 	getFlagsFromRegExp : function(aRegExp) 
 	{
 		var flags = [];
@@ -267,45 +251,6 @@ var MigemoAPI = {
 		if (aRegExp.global) flags.push('g');
 		if (aRegExp.multiline) flags.push('m');
 		return flags.join('');
-	},
-  
-	// MigemoHighlightAPI 
-	
-	regExpHighlight : function(aRegExp, aFindRange, aSurrountNode) 
-	{
-		var result = this.XMigemo.regExpHighlight(
-						aRegExp.source,
-						this.getFlagsFromRegExp(aRegExp),
-						aFindRange,
-						aSurrountNode
-					);
-		return result;
-	},
- 
-	regExpHighlightSelection : function(aRegExp, aFindRange, aSurrountNode) 
-	{
-		var result = this.XMigemo.regExpHighlightSelection(
-						aRegExp.source,
-						this.getFlagsFromRegExp(aRegExp),
-						aFindRange,
-						aSurrountNode
-					);
-		return result;
-	},
- 
-	clearHighlight : function(aDocument, aRecursively, aSelectionOnly, aKeepFoundHighlighted) 
-	{
-		this.XMigemo.clearHighlight(aDocument, aRecursively, aSelectionOnly, aKeepFoundHighlighted);
-	},
- 
-	repaintHighlights : function(aDocument, aRecursively, aHighlighted) 
-	{
-		this.XMigemo.repaintHighlights(aDocument, aRecursively, aHighlighted);
-	},
- 
-	getHighlights : function(aDocument, aRecursively) 
-	{
-		return this.XMigemo.getHighlights(aDocument, aRecursively);
 	},
   
 	get XMigemo() { 
