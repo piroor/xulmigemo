@@ -44,22 +44,19 @@ var MigemoAPI = {
  
 	initProperties : function() 
 	{
-		var prototype = MigemoAPI.prototype;
-
-		if (!prototype.version) {
-			prototype.version = '?';
+		if (!this.version) {
+			this.version = '?';
 			let ns = {};
 			Components.utils.import('resource://xulmigemo-modules/lib/extensions.js', ns);
-			let self = this;
-			ns.extensions.getVersion('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}', function(aVersion) {
-				prototype.version = aVersion;
-				prototype.lang = self.XMigemo.lang;
-				prototype.provider = 'XUL/Migemo '+aVersion+' ('+prototype.lang+')';
-			});
+			ns.extensions.getVersion('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}', (function(aVersion) {
+				this.version = aVersion;
+				this.lang = this.XMigemo.lang;
+				this.provider = 'XUL/Migemo '+aVersion+' ('+this.lang+')';
+			}).bind(this));
 		}
 
-		prototype.lang = this.XMigemo.lang;
-		prototype.provider = 'XUL/Migemo '+prototype.version+' ('+prototype.lang+')';
+		this.lang = this.XMigemo.lang;
+		this.provider = 'XUL/Migemo '+this.version+' ('+this.lang+')';
 	},
  
 	// MigemoAPI 
