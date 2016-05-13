@@ -14,7 +14,7 @@ var DIR = Cc['@mozilla.org/file/directory_service;1']
 
 var nsIFile = Ci.nsIFile;
 
-var FileAccess = {
+var MigemoFileAccess = {
 	get isWindows() 
 	{
 		delete this.isWindows;
