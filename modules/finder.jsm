@@ -49,6 +49,7 @@ Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
 
 	MigemoFind.caseSensitive = this._fastFind.caseSensitive;
 	MigemoFind.isLinksOnly = aLinksOnly;
+	MigemoFind.isQuickFind = !aDrawOutline;
 	var result = MigemoFind.find(false, MigemoFind.lastKeyword, false);
 	this._notify(
 		aSearchString,
@@ -70,6 +71,7 @@ Finder.prototype.findAgain = function(aFindBackwards, aLinksOnly, aDrawOutline) 
 
 	MigemoFind.caseSensitive = this._fastFind.caseSensitive;
 	MigemoFind.isLinksOnly = aLinksOnly;
+	MigemoFind.isQuickFind = !aDrawOutline;
 	var result = MigemoFind.find(aFindBackwards, MigemoFind.lastKeyword, false);
 	this._notify(
 		this.__xm__nativeSearchString,
