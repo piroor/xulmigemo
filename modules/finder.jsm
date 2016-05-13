@@ -9,6 +9,7 @@ Cu.import('resource://gre/modules/Finder.jsm');
 
 Cu.import('resource://gre/modules/Services.jsm');
 
+Cu.import('resource://xulmigemo-modules/service.jsm');
 Cu.import('resource://xulmigemo-modules/core/find.js');
 
 // for development
@@ -79,6 +80,41 @@ Finder.prototype.findAgain = function(aFindBackwards, aLinksOnly, aDrawOutline) 
 		aFindBackwards,
 		aDrawOutline
 	);
+};
+
+Finder.prototype.__xm__findIterator = Finder.prototype._findIterator;
+Finder.prototype._findIterator = function(aWord, aWindow) {
+	if (MigemoFind.findMode === MigemoFind.FIND_MODE_NATIVE)
+		return this.__xm__findIterator(aWord, aWindow);
+
+	return (function* () {
+		var doc = aWindow.document;
+		var body = (doc instanceof Ci.nsIDOMHTMLDocument && doc.body) ? doc.body : doc.documentElement;
+
+		var findRange = doc.createRange();
+		findRange.selectNodeContents(body);
+
+		var startPoint = findRange.cloneRange();
+		startPoint.collapse(true);
+
+		var endPoint = findRange.cloneRange();
+		endPoint.collapse(false);
+
+		var regexp = MigemoFind.findMode === MigemoFind.FIND_MODE_REGEXP ?
+					MigemoTextUtils.extractRegExpSource(aWord) :
+				MigemoFind.findMode === MigemoFind.FIND_MODE_MIGEMO ?
+					XMigemoCore.getRegExp(aWord) :
+					MigemoTextUtils.sanitize(aWord) ;
+		var flags = MigemoFind.caseSensitive ? '' : 'i' ;
+
+		var foundRange;
+		while ((foundRange = XMigemoCore.regExpFind(regexp, flags, findRange, startPoint, endPoint, false)))
+		{
+			yield foundRange;
+			startPoint = foundRange.cloneRange();
+			startPoint.collapse(false);
+		}
+	})();
 };
 
 var MigemoFinder = Finder;
