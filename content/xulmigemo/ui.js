@@ -3,7 +3,7 @@ Components.utils.import('resource://xulmigemo-modules/api.jsm');
 var XMigemoFind;
 (function() {
 	let { MigemoFind } = Components.utils.import('resource://xulmigemo-modules/core/find.js', {});
-	XMigemoFind = MigemoFind;
+	XMigemoFind = new MigemoFind();
 
 	Components.utils.import('resource://xulmigemo-modules/finder.jsm');
 })();

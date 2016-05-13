@@ -12,9 +12,7 @@ Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://xulmigemo-modules/lib/extended-immutable.js');
 Cu.import('resource://xulmigemo-modules/service.jsm');
 Cu.import('resource://xulmigemo-modules/core/find.js');
-
-// for development
-MigemoFind.findMode = MigemoFind.FIND_MODE_MIGEMO;
+Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 
 function myResultToNativeResult(aFlag)
 {
@@ -26,6 +24,17 @@ function myResultToNativeResult(aFlag)
 
 	return Ci.nsITypeAheadFind.FIND_FOUND;
 }
+
+Object.defineProperty(Finder.prototype, '__xm__finder', {
+	get: function() {
+		if (!this.__xm__finderInstance) {
+			this.__xm__finderInstance = new MigemoFind();
+			// for development
+			this.__xm__finderInstance.findMode = MigemoFind.FIND_MODE_MIGEMO;
+		}
+		return this.__xm__finderInstance;
+	}
+});
 
 Object.defineProperty(Finder.prototype, '__xm__nativeSearchString', {
 	get: function() {
@@ -41,12 +50,13 @@ Object.defineProperty(Finder.prototype, '_fastFind', {
 		return this.__xm__fastFind;
 	},
 	set: function(aValue) {
+		var myFinder = this.__xm__finder;
 		this.__xm__fastFind = new ExtendedImmutable(aValue, {
 			getFoundRange : function()
 			{
-				if (MigemoFind.findMode === MigemoFind.FIND_MODE_NATIVE)
+				if (myFinder.findMode === MigemoFind.FIND_MODE_NATIVE)
 					return aValue.getFoundRange();
-				return MigemoFind.foundRange;
+				return myFinder.foundRange;
 			}
 		});
 		return aValue;
@@ -55,21 +65,25 @@ Object.defineProperty(Finder.prototype, '_fastFind', {
 
 Finder.prototype.__xm__fastFind = Finder.prototype.fastFind;
 Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
-	if (MigemoFind.findMode === MigemoFind.FIND_MODE_NATIVE)
+	var finder = this.__xm__finder;
+	if (finder.findMode === MigemoFind.FIND_MODE_NATIVE)
 		return this.__xm__fastFind(aSearchString, aLinksOnly, aDrawOutline);
 
 	this.__xm__nativeSearchString = aSearchString;
 
-	if (MigemoFind.targetDocShell !== this._docShell)
-		MigemoFind.targetDocShell = this._docShell;
+	if (finder.targetDocShell !== this._docShell)
+		finder.targetDocShell = this._docShell;
 
-	if (MigemoFind.lastKeyword != aSearchString)
-		MigemoFind.lastKeyword = aSearchString
+	if (finder.lastKeyword != aSearchString)
+		finder.lastKeyword = aSearchString
 
-	MigemoFind.caseSensitive = this._fastFind.caseSensitive;
-	MigemoFind.isLinksOnly = aLinksOnly;
-	MigemoFind.isQuickFind = !aDrawOutline;
-	var result = MigemoFind.find(false, MigemoFind.lastKeyword, false);
+	finder.caseSensitive = this._fastFind.caseSensitive;
+	finder.isLinksOnly = aLinksOnly;
+	finder.isQuickFind = !aDrawOutline;
+	var result = finder.find({
+		keyword : finder.lastKeyword,
+		scroll  : true
+	});
 	this._notify(
 		aSearchString,
 		myResultToNativeResult(result),
@@ -80,18 +94,23 @@ Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
 
 Finder.prototype.__xm__findAgain = Finder.prototype.findAgain;
 Finder.prototype.findAgain = function(aFindBackwards, aLinksOnly, aDrawOutline) {
-	if (MigemoFind.findMode === MigemoFind.FIND_MODE_NATIVE)
+	var finder = this.__xm__finder;
+	if (finder.findMode === MigemoFind.FIND_MODE_NATIVE)
 		return this.__xm__findAgain(aFindBackwards, aLinksOnly, aDrawOutline);
 
-	if (MigemoFind.targetDocShell !== this._docShell)
-		MigemoFind.targetDocShell = this._docShell;
+	if (finder.targetDocShell !== this._docShell)
+		finder.targetDocShell = this._docShell;
 
-	this.__xm__nativeSearchString = MigemoFind.lastKeyword;
+	this.__xm__nativeSearchString = finder.lastKeyword;
 
-	MigemoFind.caseSensitive = this._fastFind.caseSensitive;
-	MigemoFind.isLinksOnly = aLinksOnly;
-	MigemoFind.isQuickFind = !aDrawOutline;
-	var result = MigemoFind.find(aFindBackwards, MigemoFind.lastKeyword, false);
+	finder.caseSensitive = this._fastFind.caseSensitive;
+	finder.isLinksOnly = aLinksOnly;
+	finder.isQuickFind = !aDrawOutline;
+	var result = finder.find({
+		backward : aFindBackwards,
+		keyword  : finder.lastKeyword,
+		scroll   : true
+	});
 	this._notify(
 		this.__xm__nativeSearchString,
 		myResultToNativeResult(result),
@@ -102,37 +121,29 @@ Finder.prototype.findAgain = function(aFindBackwards, aLinksOnly, aDrawOutline) 
 
 Finder.prototype.__xm__findIterator = Finder.prototype._findIterator;
 Finder.prototype._findIterator = function(aWord, aWindow) {
-	if (MigemoFind.findMode === MigemoFind.FIND_MODE_NATIVE)
+	if (this.__xm__finder.findMode === MigemoFind.FIND_MODE_NATIVE)
 		return this.__xm__findIterator(aWord, aWindow);
 	else
 		return this.__xm__findIterator_regexp(aWord, aWindow);
 };
 Finder.prototype.__xm__findIterator_regexp = function* (aWord, aWindow) {
-	var doc = aWindow.document;
-	var body = (doc instanceof Ci.nsIDOMHTMLDocument && doc.body) ? doc.body : doc.documentElement;
+	var finder = new MigemoFind();
+	finder.findMode = this.__xm__finder.findMode;
+	finder.targetDocShell = this._docShell;
+	finder.foundRange = null;
+	finder.lastKeyword = aWord
+	finder.caseSensitive = this.__xm__finder.caseSensitive;
+	finder.isLinksOnly = this.__xm__finder.isLinksOnly;
+	finder.isQuickFind = false;
 
-	var findRange = doc.createRange();
-	findRange.selectNodeContents(body);
-
-	var startPoint = findRange.cloneRange();
-	startPoint.collapse(true);
-
-	var endPoint = findRange.cloneRange();
-	endPoint.collapse(false);
-
-	var regexp = MigemoFind.findMode === MigemoFind.FIND_MODE_REGEXP ?
-				MigemoTextUtils.extractRegExpSource(aWord) :
-			MigemoFind.findMode === MigemoFind.FIND_MODE_MIGEMO ?
-				XMigemoCore.getRegExp(aWord) :
-				MigemoTextUtils.sanitize(aWord) ;
-	var flags = MigemoFind.caseSensitive ? '' : 'i' ;
-
-	var foundRange;
-	while ((foundRange = XMigemoCore.regExpFind(regexp, flags, findRange, startPoint, endPoint, false)))
+	while (!(finder.find({
+			keyword : aWord
+		}) & MigemoFind.WRAPPED))
 	{
-		yield foundRange;
-		startPoint = foundRange.cloneRange();
-		startPoint.collapse(false);
+		var range = finder.foundRange;
+		if (!range)
+			break;
+		yield range;
 	}
 };
 
