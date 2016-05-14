@@ -349,15 +349,13 @@ mydump("findInDocument ==========================================");
 			}
 
 			if (resultFlag & this.FINISH_FIND) {
-				if (!(aFindFlag & this.FIND_SILENTLY))
-					this.setSelectionLook(doc, true);
 				break;
 			}
 
 			if (!(aFindFlag & this.FIND_SILENTLY) &&
 				aDocShellIterator.isFindable) {
 				this.clearSelection(doc);
-				this.setSelectionLook(doc, false);
+				this.clearSelectionLook(doc);
 			}
 
 			aDocShellIterator.iterateNext();
@@ -800,7 +798,9 @@ mydump("resetFindRangeSet");
 		const nsIDOMWindow = Ci.nsIDOMWindow;
 		try {
 			return (aTarget instanceof nsIDOMNSEditableElement) ?
-						aTarget.QueryInterface(nsIDOMNSEditableElement).editor.selectionController :
+						aTarget.QueryInterface(nsIDOMNSEditableElement)
+							.editor
+							.selectionController :
 					(typeof aTarget.Window == 'function' && aTarget instanceof aTarget.Window) ?
 						DocShellIterator.prototype.getDocShellFromFrame(aTarget)
 							.QueryInterface(Ci.nsIInterfaceRequestor)
@@ -813,13 +813,22 @@ mydump("resetFindRangeSet");
 		return null;
 	},
  
-	setSelectionLook : function(aDocument, aChangeColor) 
+	clearSelectionLook : function(aDocument) 
 	{
 		if (aDocument) aDocument.QueryInterface(Ci.nsIDOMDocument);
 		var foundEditable = this.foundEditableMap.get(aDocument);
 		if (foundEditable)
-			MigemoTextUtils.setSelectionLookForNode(foundEditable, aChangeColor);
-		MigemoTextUtils.setSelectionLookForDocument(aDocument, aChangeColor);
+			this.clearSelectionLookInternal(foundEditable);
+		this.clearSelectionLookInternal(aDocument);
+	},
+	clearSelectionLookInternal : function(aTarget) 
+	{
+		var selCon = this.getSelectionController(aTarget);
+		if (!selCon)
+			return;
+
+		selCon.setDisplaySelection(selCon.SELECTION_ON);
+		selCon.repaintSelection(selCon.SELECTION_NORMAL);
 	},
  
 	setSelectionAndScroll : function(aRange, aDocument) 
@@ -848,6 +857,9 @@ mydump("setSelectionAndScroll");
 				this.getSelectionController(aDocument.defaultView);
 		var selection = newSelCon.getSelection(newSelCon.SELECTION_NORMAL);
 		selection.addRange(aRange);
+
+		newSelCon.setDisplaySelection(newSelCon.SELECTION_ATTENTION);
+		newSelCon.repaintSelection(newSelCon.SELECTION_NORMAL);
 
 		if (this.prefs.getPref('xulmigemo.scrollSelectionToCenter'))
 			this.scrollSelectionToCenter(aDocument.defaultView);
@@ -1089,7 +1101,7 @@ mydump("setSelectionAndScroll");
 */
 		var doc = this.targetDocument;
 
-		this.setSelectionLook(doc, false);
+		this.clearSelectionLook(doc);
 
 		if (!aFocusToFoundTarget) return;
 

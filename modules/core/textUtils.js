@@ -412,68 +412,6 @@ var MigemoTextUtils = {
 		return tmp;
 	},
   
-	setSelectionLook : function(aDocument, aChangeColor) 
-	{
-		aDocument.QueryInterface(Ci.nsIDOMDocument);
-		var range = this.getFoundRange(aDocument.defaultView);
-		if (range) this.setSelectionLookForRange(range, aChangeColor);
-		this.setSelectionLookForDocument(aDocument, aChangeColor);
-	},
-	
-	setSelectionLookInternal : function(aSelCon, aChangeColor) 
-	{
-		try {
-			if (aChangeColor)
-				aSelCon.setDisplaySelection(aSelCon.SELECTION_ATTENTION);
-			else
-				aSelCon.setDisplaySelection(aSelCon.SELECTION_ON);
-		}
-		catch(e) {
-		}
-		try {
-			aSelCon.repaintSelection(aSelCon.SELECTION_NORMAL);
-		}
-		catch(e) {
-		}
-	},
- 
-	setSelectionLookForDocument : function(aDocument, aChangeColor) 
-	{
-		aDocument.QueryInterface(Ci.nsIDOMDocument);
-		this.setSelectionLookInternal(this.getSelectionController(aDocument.defaultView), aChangeColor);
-	},
- 
-	setSelectionLookForNode : function(aNode, aChangeColor) 
-	{
-		aNode.QueryInterface(Ci.nsIDOMNode);
-		try {
-			var editor;
-			var node = aNode;
-			while (node)
-			{
-				if (editor instanceof this.nsIDOMNSEditableElement) {
-					editor = node;
-					break;
-				}
-				node = node.parentNode;
-			}
-			if (editor) {
-				this.setSelectionLookInternal(this.getSelectionController(editor), aChangeColor);
-				return;
-			}
-		}
-		catch(e) {
-		}
-		this.setSelectionLookForDocument(aNode.ownerDocument || aNode, aChangeColor);
-	},
-	nsIDOMNSEditableElement : Ci.nsIDOMNSEditableElement,
- 
-	setSelectionLookForRange : function(aRange, aChangeColor) 
-	{
-		aRange.QueryInterface(Ci.nsIDOMRange);
-		this.setSelectionLookForNode(aRange.startContainer, aChangeColor);
-	},
-  
 	findFirstVisibleNode : function(aDocument, aBackward) 
 	{
 		var w = aDocument.defaultView;
@@ -593,58 +531,6 @@ var MigemoTextUtils = {
 		{
 			this.lastInScreenNode = null;
 		}
-	},
-  
-/* Restore selection after "highlight all" */ 
-	
-	getFoundRange : function(aFrame) 
-	{
-		if (!aFrame) return null;
-		aFrame.QueryInterface(Ci.nsIDOMWindow);
-		try {
-			var selCon = this.getSelectionController(aFrame);
-			if (selCon.getDisplaySelection() == selCon.SELECTION_ATTENTION) {
-				var sel = aFrame.getSelection();
-				if (!sel.rangeCount && aFrame.document.foundEditable) {
-					selCon = this.getSelectionController(aFrame.document.foundEditable);
-					sel = selCon.getSelection(selCon.SELECTION_NORMAL);
-				}
-				if (sel && sel.rangeCount)
-					return sel.getRangeAt(0);
-			}
-		}
-		catch(e) {
-		}
-		return null;
-	},
-	getSelectionController : function(aTarget)
-	{
-		if (!aTarget) return null;
-
-		const nsIDOMNSEditableElement = Ci.nsIDOMNSEditableElement;
-		const nsIDOMWindow = Ci.nsIDOMWindow;
-		try {
-			return (aTarget instanceof nsIDOMNSEditableElement) ?
-						aTarget.QueryInterface(nsIDOMNSEditableElement)
-							.editor
-							.selectionController :
-					(typeof aTarget.Window == 'function' && aTarget instanceof aTarget.Window) ?
-						this.getDocShellFromFrame(aTarget)
-							.QueryInterface(Ci.nsIInterfaceRequestor)
-							.getInterface(Ci.nsISelectionDisplay)
-							.QueryInterface(Ci.nsISelectionController) :
-					null;
-		}
-		catch(e) {
-		}
-		return null;
-	},
-	getDocShellFromFrame : function(aFrame)
-	{
-		return aFrame
-				.QueryInterface(Ci.nsIInterfaceRequestor)
-				.getInterface(Ci.nsIWebNavigation)
-				.QueryInterface(Ci.nsIDocShell);
 	},
  
 	isRangeOverlap : function(aBaseRange, aTargetRange) 

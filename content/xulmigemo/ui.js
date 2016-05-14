@@ -1197,9 +1197,6 @@ return;
 		if (!this.isQuickFind) return;
 		this.clearTimer();
 		this.cancelTimer = window.setTimeout(this.timerCallback, this.timeout, this);
-		window.setTimeout(function(aSelf) {
-			aSelf.textUtils.setSelectionLook(aSelf.browser.contentDocument, true);
-		}, 0, this);
 	},
 	
 	timerCallback : function(aThis) 
@@ -1335,9 +1332,6 @@ return;
 	{
 		this.cancel();
 		this.clearTimer(); // ここでタイマーを殺さないといじられてしまう
-		var win = document.commandDispatcher.focusedWindow;
-		var doc = (win != window) ? win.document : this.browser.contentDocument;
-		this.textUtils.setSelectionLook(doc, false);
 	},
  
 	commandForward : function(aEvent) 
