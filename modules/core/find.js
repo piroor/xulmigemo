@@ -634,13 +634,8 @@ mydump("getFindRangeSetIn "+aRangeParent);
 		var startPt = findRange.cloneRange();
 		var endPt = findRange.cloneRange();
 
-		var childCount = aRangeParent.childNodes.length;
-		var range;
-		var node;
-		var offset;
-
 		if (aFindFlag & this.FIND_SILENTLY) {
-			range = this.foundRange;
+			let range = this.foundRange;
 			let lastFoundEditable = this.lastFoundEditableMap.get(doc);
 			if (range) {
 				let editable = this.getParentEditableFromRange(range);
@@ -697,16 +692,16 @@ mydump("getFindRangeSetIn "+aRangeParent);
 
 			if (!(aFindFlag & this.FIND_DEFAULT) && count != 0) {
 				if (aFindFlag & this.FIND_FORWARD) {
-					range = selection.getRangeAt(count-1);
+					let range = selection.getRangeAt(count-1);
 					findRange.setStart(range.endContainer, range.endOffset);
 					startPt = range.cloneRange();
 					startPt.collapse(false);
 					endPt.collapse(false);
 				}
 				else if (aFindFlag & this.FIND_BACK) {
-					range = selection.getRangeAt(0);
+					let range = selection.getRangeAt(0);
 					findRange.setEnd(range.startContainer, range.startOffset);
-					startPt = foundRange.cloneRange();
+					startPt = range.cloneRange();
 					startPt.collapse(true);
 					endPt.collapse(true);
 				}
@@ -728,7 +723,7 @@ mydump("getFindRangeSetIn "+aRangeParent);
 				}
 				else {
 					if (aFindFlag & this.FIND_BACK) {
-						node = this.viewportStartPoint ||
+						let node = this.viewportStartPoint ||
 								MigemoTextUtils.findFirstVisibleNode(doc, true);
 						this.viewportStartPoint = node;
 						findRange.setEndAfter(node);
@@ -737,7 +732,7 @@ mydump("getFindRangeSetIn "+aRangeParent);
 						endPt.collapse(true);
 					}
 					else {
-						node = this.viewportEndPoint ||
+						let node = this.viewportEndPoint ||
 								MigemoTextUtils.findFirstVisibleNode(doc, false);
 						this.viewportEndPoint = node;
 						findRange.setStartBefore(node);
