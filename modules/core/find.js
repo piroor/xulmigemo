@@ -634,52 +634,9 @@ mydump("getFindRangeSetIn "+aRangeParent);
 		var startPt = findRange.cloneRange();
 		var endPt = findRange.cloneRange();
 
+		var foundRange;
 		if (aFindFlag & this.FIND_SILENTLY) {
-			let range = this.foundRange;
-			let lastFoundEditable = this.lastFoundEditableMap.get(doc);
-			if (range) {
-				let editable = this.getParentEditableFromRange(range);
-				if (editable) {
-					findRange = this.getFindRangeFromRangeInEditable(range);
-				}
-				startPt = findRange.cloneRange();
-				endPt = findRange.cloneRange();
-				if (aFindFlag & this.FIND_FORWARD) {
-					findRange.setStart(range.endContainer, range.endOffset);
-					startPt = range.cloneRange();
-					startPt.collapse(false);
-					endPt.collapse(false);
-				}
-				else if (aFindFlag & this.FIND_BACK) {
-					findRange.setEnd(range.startContainer, range.startOffset);
-					startPt = foundRange.cloneRange();
-					startPt.collapse(true);
-					endPt.collapse(true);
-				}
-			}
-			else if (lastFoundEditable) {
-				this.lastFoundEditableMap.delete(doc);
-				if (aFindFlag & this.FIND_BACK) {
-					findRange.setEndBefore(lastFoundEditable);
-					startPt = findRange.cloneRange();
-					startPt.collapse(false);
-				}
-				else {
-					findRange.setStartAfter(lastFoundEditable);
-					startPt = findRange.cloneRange();
-					startPt.collapse(true);
-				}
-			}
-			else {
-				if (aFindFlag & this.FIND_BACK) {
-					startPt.collapse(false);
-					endPt.collapse(true);
-				}
-				else {
-					startPt.collapse(true);
-					endPt.collapse(false);
-				}
-			}
+			foundRange = this.foundRange;
 		}
 		else {
 			let selection;
@@ -688,59 +645,88 @@ mydump("getFindRangeSetIn "+aRangeParent);
 				selection = aSelCon.getSelection(aSelCon.SELECTION_NORMAL);
 				count = selection.rangeCount;
 			}
-	mydump("count:"+count);
+			if (count > 0) {
+				if (aFindFlag & this.FIND_BACK)
+					foundRange = selection.getRangeAt(0);
+				else
+					foundRange = selection.getRangeAt(count-1);
+			}
+		}
 
-			if (!(aFindFlag & this.FIND_DEFAULT) && count != 0) {
-				if (aFindFlag & this.FIND_FORWARD) {
-					let range = selection.getRangeAt(count-1);
-					findRange.setStart(range.endContainer, range.endOffset);
-					startPt = range.cloneRange();
-					startPt.collapse(false);
-					endPt.collapse(false);
-				}
-				else if (aFindFlag & this.FIND_BACK) {
-					let range = selection.getRangeAt(0);
-					findRange.setEnd(range.startContainer, range.startOffset);
-					startPt = range.cloneRange();
-					startPt.collapse(true);
-					endPt.collapse(true);
-				}
+		var lastFoundEditable = this.lastFoundEditableMap.get(doc);
+		if (
+			(
+				aFindFlag & this.FIND_SILENTLY ||
+				!(aFindFlag & this.FIND_DEFAULT)
+			) &&
+			foundRange
+			) {
+			let editable = this.getParentEditableFromRange(foundRange);
+			if (editable) {
+				findRange = this.getFindRangeFromRangeInEditable(foundRange);
+			}
+			startPt = findRange.cloneRange();
+			endPt = findRange.cloneRange();
+			if (aFindFlag & this.FIND_BACK) {
+				findRange.setEnd(foundRange.startContainer, foundRange.startOffset);
+				startPt = foundRange.cloneRange();
+				startPt.collapse(true);
+				endPt.collapse(true);
 			}
 			else {
-				if (
-					aFindFlag & this.FIND_WRAP ||
-					String(aRangeParent.localName).toLowerCase() != 'body' ||
-					!this.startFromViewport
-					) {
-					if (aFindFlag & this.FIND_BACK) {
-						startPt.collapse(false);
-						endPt.collapse(true);
-					}
-					else {
-						startPt.collapse(true);
-						endPt.collapse(false);
-					}
+				findRange.setStart(foundRange.endContainer, foundRange.endOffset);
+				startPt = foundRange.cloneRange();
+				startPt.collapse(false);
+				endPt.collapse(false);
+			}
+		}
+		else if (aFindFlag & this.FIND_SILENTLY &&
+				lastFoundEditable) {
+			this.lastFoundEditableMap.delete(doc);
+			if (aFindFlag & this.FIND_BACK) {
+				findRange.setEndBefore(lastFoundEditable);
+				startPt = findRange.cloneRange();
+				startPt.collapse(false);
+			}
+			else {
+				findRange.setStartAfter(lastFoundEditable);
+				startPt = findRange.cloneRange();
+				startPt.collapse(true);
+			}
+		}
+		else if (
+				aFindFlag & this.FIND_SILENTLY ||
+				aFindFlag & this.FIND_WRAP ||
+				String(aRangeParent.localName).toLowerCase() != 'body' ||
+				!this.startFromViewport
+				) {
+				if (aFindFlag & this.FIND_BACK) {
+					startPt.collapse(false);
+					endPt.collapse(true);
 				}
 				else {
-					if (aFindFlag & this.FIND_BACK) {
-						let node = this.viewportStartPoint ||
-								MigemoTextUtils.findFirstVisibleNode(doc, true);
-						this.viewportStartPoint = node;
-						findRange.setEndAfter(node);
-						startPt.setStartAfter(node);
-						startPt.setEndAfter(node);
-						endPt.collapse(true);
-					}
-					else {
-						let node = this.viewportEndPoint ||
-								MigemoTextUtils.findFirstVisibleNode(doc, false);
-						this.viewportEndPoint = node;
-						findRange.setStartBefore(node);
-						startPt.setStartBefore(node);
-						startPt.setEndBefore(node);
-						endPt.collapse(false);
-					}
+					startPt.collapse(true);
+					endPt.collapse(false);
 				}
+		}
+		else {
+			if (aFindFlag & this.FIND_BACK) {
+				let node = this.viewportStartPoint ||
+						MigemoTextUtils.findFirstVisibleNode(doc, true);
+				this.viewportStartPoint = node;
+				findRange.setEndAfter(node);
+				startPt.setStartAfter(node);
+				startPt.setEndAfter(node);
+				endPt.collapse(true);
+			}
+			else {
+				let node = this.viewportEndPoint ||
+						MigemoTextUtils.findFirstVisibleNode(doc, false);
+				this.viewportEndPoint = node;
+				findRange.setStartBefore(node);
+				startPt.setStartBefore(node);
+				startPt.setEndBefore(node);
+				endPt.collapse(false);
 			}
 		}
 
