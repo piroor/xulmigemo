@@ -34,6 +34,7 @@ function MigemoFind()
 	this.foundRangeMap = new WeakMap();
 	this.foundEditableMap = new WeakMap();
 	this.lastFoundEditableMap = new WeakMap();
+	this.smoothScrollTasks = new WeakMap();
 }
 
 MigemoFind.NOTFOUND          = 0;
@@ -863,7 +864,7 @@ mydump("setSelectionAndScroll");
 		newSelCon.repaintSelection(newSelCon.SELECTION_NORMAL);
 
 		if (this.prefs.getPref('xulmigemo.scrollSelectionToCenter'))
-			this.scrollSelectionToCenter(aDocument.defaultView, false, editableParent);
+			this.scrollSelectionToCenter(editableParent || aDocument.defaultView, null, false);
 		else
 			newSelCon.scrollSelectionIntoView(
 				newSelCon.SELECTION_NORMAL,
@@ -871,50 +872,83 @@ mydump("setSelectionAndScroll");
 				true);
 	},
 	
-	scrollSelectionToCenter : function(aFrame, aPreventAnimation, aOwnerEditable) 
+	scrollSelectionToCenter : function(aScrollTarget, aAnchor, aPreventAnimation) 
 	{
-		if (!this.prefs.getPref('xulmigemo.scrollSelectionToCenter'))
+		if (!aScrollTarget ||
+			!this.prefs.getPref('xulmigemo.scrollSelectionToCenter'))
 			return;
 
-		if (aFrame)
-			aFrame.QueryInterface(Ci.nsIDOMWindow);
-
-		var frame = aFrame;
-		if (!frame && this.document) {
-			frame = this.document.commandDispatcher.focusedWindow;
-			if (!frame || frame.top == this.document.defaultView)
-				frame = this.window._content;
-			frame = this.getSelectionFrame(frame);
-		}
-		if (!frame)
-			return;
-
-		var selection = frame.getSelection();
-		if (
-			(!selection || !selection.rangeCount) &&
-			!aOwnerEditable
-			)
-			return;
-
-		var padding = Math.max(0, Math.min(100, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.padding')));
-
-		var startX = frame.scrollX;
-		var startY = frame.scrollY;
+		var startX;
+		var startY;
+		var viewW;
+		var viewH;
 		var targetX,
 			targetY,
 			targetW,
 			targetH;
+		var window = aScrollTarget;
+		if (aScrollTarget instanceof Ci.nsIDOMNSEditableElement) {
+			window = aScrollTarget.ownerDocument.defaultView;
 
-		var box = getBoxObjectFor(aOwnerEditable || selection.getRangeAt(0));
-		if (box.fixed)
-			return;
+			let selCon = this.getSelectionController(aScrollTarget);
+			let selection = selCon.getSelection(selCon.SELECTION_NORMAL);
+			if (!selection || !selection.rangeCount)
+				return;
 
-		targetX = box.x;
-		targetY = box.y;
-		targetW = box.width;
-		targetH = box.height;
+			let box = getBoxObjectFor(selection.getRangeAt(0));
+			let ownerBox = getBoxObjectFor(aScrollTarget);
+			if (!box || box.fixed || !ownerBox)
+				return;
 
-		var viewW = frame.innerWidth;
+			startX = aScrollTarget.scrollLeft;
+			startY = aScrollTarget.scrollTop;
+			viewW = ownerBox.width;
+			viewH = ownerBox.height;
+
+			targetX = box.screenX - ownerBox.screenX + startX;
+			targetY = box.screenY - ownerBox.screenY + startY;
+			targetW = box.width;
+			targetH = box.height;
+
+			// we should not do this if it is already visible...
+			this.scrollSelectionToCenter(window, aScrollTarget, aPreventAnimation);
+		}
+		else {
+			let frame = aScrollTarget;
+			if (!frame && this.document) {
+				frame = this.document.commandDispatcher.focusedWindow;
+				if (!frame || frame.top == this.document.defaultView)
+					frame = this.window._content;
+				frame = this.getSelectionFrame(frame);
+			}
+			if (!frame)
+				return;
+
+			if (!aAnchor) {
+				let selection = frame.getSelection();
+				if (selection && selection.rangeCount > 0)
+					aAnchor = selection.getRangeAt(0);
+			}
+			if (!aAnchor)
+				return;
+
+			let box = getBoxObjectFor(aAnchor);
+			if (!box || box.fixed)
+				return;
+
+			startX = frame.scrollX;
+			startY = frame.scrollY;
+			viewW = frame.innerWidth;
+			viewH = frame.innerHeight;
+
+			targetX = box.x;
+			targetY = box.y;
+			targetW = box.width;
+			targetH = box.height;
+		}
+
+		var padding = Math.max(0, Math.min(100, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.padding')));
+
 		var xUnit = viewW * (padding / 100);
 		var finalX = (targetX - startX < xUnit) ?
 						targetX - xUnit :
@@ -922,7 +956,6 @@ mydump("setSelectionAndScroll");
 						targetX + targetW - (viewW - xUnit) :
 						startX ;
 
-		var viewH = frame.innerHeight;
 		var yUnit = viewH * (padding / 100);
 		var finalY = (targetY - startY < yUnit ) ?
 						targetY - yUnit  :
@@ -930,24 +963,25 @@ mydump("setSelectionAndScroll");
 						targetY + targetH - (viewH - yUnit)  :
 						startY ;
 
-		if (frame.__xulmigemo__findSmoothScrollTask) {
-			this.animationManager.removeTask(frame.__xulmigemo__findSmoothScrollTask);
-			frame.__xulmigemo__findSmoothScrollTask = null;
+		var task = this.smoothScrollTasks.get(aScrollTarget);
+		if (task) {
+			this.animationManager.removeTask(task);
+			this.smoothScrollTasks.delete(aScrollTarget);
 		}
 
 		if (aPreventAnimation ||
 			!this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled')) {
-			frame.scrollTo(finalX, finalY);
+			aScrollTarget.scrollTo(finalX, finalY);
 			return;
 		}
 
 		var deltaX = finalX - startX;
 		var deltaY = finalY - startY;
 		var radian = 90 * Math.PI / 180;
-		frame.__xulmigemo__findSmoothScrollTask = function(aTime, aBeginning, aChange, aDuration) {
+		task = (function(aTime, aBeginning, aChange, aDuration) {
 			var x, y, finished;
 			if (aTime >= aDuration) {
-				frame.__xulmigemo__findSmoothScrollTask = null;
+				this.smoothScrollTasks.delete(aScrollTarget);
 				x = finalX;
 				y = finalY
 				finished = true;
@@ -957,13 +991,15 @@ mydump("setSelectionAndScroll");
 				y = startY + (deltaY * Math.sin(aTime / aDuration * radian));
 				finished = false;
 			}
-			frame.scrollTo(x, y);
+mydump('scrollSelectionToCenter '+aScrollTarget+' ('+x+', '+y+')');
+			aScrollTarget.scrollTo(x, y);
 			return finished;
-		};
+		}).bind(this);
+		this.smoothScrollTasks.set(aScrollTarget, task);
 		this.animationManager.addTask(
-			frame.__xulmigemo__findSmoothScrollTask,
+			task,
 			0, 0, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.duration'),
-			frame
+			window
 		);
 	},
  
