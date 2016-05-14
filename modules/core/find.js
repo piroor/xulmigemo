@@ -853,7 +853,8 @@ mydump("setSelectionAndScroll");
 		}, this);
 
 		// set new range
-		var newSelCon = this.getSelectionController(this.getParentEditableFromRange(aRange)) ||
+		var editableParent = this.getParentEditableFromRange(aRange);
+		var newSelCon = this.getSelectionController(editableParent) ||
 				this.getSelectionController(aDocument.defaultView);
 		var selection = newSelCon.getSelection(newSelCon.SELECTION_NORMAL);
 		selection.addRange(aRange);
@@ -862,18 +863,21 @@ mydump("setSelectionAndScroll");
 		newSelCon.repaintSelection(newSelCon.SELECTION_NORMAL);
 
 		if (this.prefs.getPref('xulmigemo.scrollSelectionToCenter'))
-			this.scrollSelectionToCenter(aDocument.defaultView);
+			this.scrollSelectionToCenter(aDocument.defaultView, false, editableParent);
 		else
 			newSelCon.scrollSelectionIntoView(
 				newSelCon.SELECTION_NORMAL,
-				newSelCon.SELECTION_FOCUS_REGION, true);
+				newSelCon.SELECTION_FOCUS_REGION,
+				true);
 	},
 	
-	scrollSelectionToCenter : function(aFrame, aPreventAnimation) 
+	scrollSelectionToCenter : function(aFrame, aPreventAnimation, aOwnerEditable) 
 	{
-		if (!this.prefs.getPref('xulmigemo.scrollSelectionToCenter')) return;
+		if (!this.prefs.getPref('xulmigemo.scrollSelectionToCenter'))
+			return;
 
-		if (aFrame) aFrame.QueryInterface(Ci.nsIDOMWindow);
+		if (aFrame)
+			aFrame.QueryInterface(Ci.nsIDOMWindow);
 
 		var frame = aFrame;
 		if (!frame && this.document) {
@@ -882,10 +886,15 @@ mydump("setSelectionAndScroll");
 				frame = this.window._content;
 			frame = this.getSelectionFrame(frame);
 		}
-		if (!frame) return;
+		if (!frame)
+			return;
 
 		var selection = frame.getSelection();
-		if (!selection || !selection.rangeCount) return;
+		if (
+			(!selection || !selection.rangeCount) &&
+			!aOwnerEditable
+			)
+			return;
 
 		var padding = Math.max(0, Math.min(100, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.padding')));
 
@@ -896,9 +905,9 @@ mydump("setSelectionAndScroll");
 			targetW,
 			targetH;
 
-		var foundEditable = this.foundEditableMap.get(frame.document);
-		var box = getBoxObjectFor(foundEditable || selection.getRangeAt(0));
-		if (box.fixed) return;
+		var box = getBoxObjectFor(aOwnerEditable || selection.getRangeAt(0));
+		if (box.fixed)
+			return;
 
 		targetX = box.x;
 		targetY = box.y;
