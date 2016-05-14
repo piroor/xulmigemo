@@ -878,6 +878,14 @@ mydump("setSelectionAndScroll");
 			!this.prefs.getPref('xulmigemo.scrollSelectionToCenter'))
 			return;
 
+		var task = this.smoothScrollTasks.get(aScrollTarget);
+		if (task) {
+			this.animationManager.removeTask(task);
+			this.smoothScrollTasks.delete(aScrollTarget);
+		}
+
+		var padding = Math.max(0, Math.min(100, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.padding')));
+
 		var startX;
 		var startY;
 		var viewW;
@@ -910,8 +918,10 @@ mydump("setSelectionAndScroll");
 			targetW = box.width;
 			targetH = box.height;
 
-			// we should not do this if it is already visible...
 			this.scrollSelectionToCenter(window, aScrollTarget, aPreventAnimation);
+
+			if (this.isBoxInViewport(box, aScrollTarget, padding))
+				return;
 		}
 		else {
 			let frame = aScrollTarget;
@@ -945,9 +955,10 @@ mydump("setSelectionAndScroll");
 			targetY = box.y;
 			targetW = box.width;
 			targetH = box.height;
-		}
 
-		var padding = Math.max(0, Math.min(100, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.padding')));
+			if (this.isBoxInViewport(box, frame, padding))
+				return;
+		}
 
 		var xUnit = viewW * (padding / 100);
 		var finalX = (targetX - startX < xUnit) ?
@@ -962,12 +973,6 @@ mydump("setSelectionAndScroll");
 					(targetY + targetH - startY > viewH - yUnit ) ?
 						targetY + targetH - (viewH - yUnit)  :
 						startY ;
-
-		var task = this.smoothScrollTasks.get(aScrollTarget);
-		if (task) {
-			this.animationManager.removeTask(task);
-			this.smoothScrollTasks.delete(aScrollTarget);
-		}
 
 		if (aPreventAnimation ||
 			!this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled')) {
@@ -1000,6 +1005,21 @@ mydump('scrollSelectionToCenter '+aScrollTarget+' ('+x+', '+y+')');
 			task,
 			0, 0, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.duration'),
 			window
+		);
+	},
+ 
+	isBoxInViewport : function(aBox, aFrame, aPadding)
+	{
+		aPadding = aPadding || 0;
+		var scrollX = aFrame.scrollX || aFrame.scrollLeft || 0;
+		var scrollY = aFrame.scrollY || aFrame.scrollTop || 0;
+		var viewPortWidth = aFrame.innerWidth || aFrame.offsetWidth || 0;
+		var viewPortHeight = aFrame.viewPortHeight || aFrame.offsetHeight || 0;
+		return !(
+			aBox.x > scrollX + viewPortWidth - aPadding ||
+			aBox.y > scrollY + viewPortHeight - aPadding ||
+			aBox.x + aBox.width < scrollX + aPadding ||
+			aBox.y + aBox.height < scrollY + aPadding
 		);
 	},
  
