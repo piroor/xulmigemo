@@ -1611,17 +1611,6 @@ return;
 
 		this.overrideExtensionsOnInitBefore(); // hacks.js
 /*
-		{
-			let browser = this.browser;
-			if (browser) {
-				XMigemoFind.target = browser;
-
-				if (browser.getAttribute('onkeypress'))
-					browser.setAttribute('onkeypress', '');
-
-				(document.getElementById('appcontent') || browser).addEventListener('keypress', this, true);
-			}
-		}
 
 		document.addEventListener('XMigemoFindAgain', this, false);
 */
@@ -1700,11 +1689,6 @@ return;
 		this.findBar.removeEventListener('XMigemoFindBarOpen', this, false);
 		this.findBar.removeEventListener('XMigemoFindBarClose', this, false);
 		document.removeEventListener('XMigemoFindAgain', this, false);
-
-		var browser = this.browser;
-		if (browser) {
-			(document.getElementById('appcontent') || browser).removeEventListener('keypress', this, true);
-		}
 
 		this.field.removeEventListener('blur', this, false);
 		this.field.removeEventListener('input', this, false);
