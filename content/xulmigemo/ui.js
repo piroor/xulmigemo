@@ -106,6 +106,13 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		var findbarMode = findbar.findMode;
 		return findbarMode == findbar.FIND_TYPEAHEAD || findbarMode == findbar.FIND_LINKS;
 	},
+
+	get currentFindContext()
+	{
+		return this.isQuickFind ?
+				MigemoConstants.FIND_CONTEXT_QUICK :
+				MigemoConstants.FIND_CONTEXT_NORMAL ;
+	},
  
 	get findMigemoBar() 
 	{
@@ -277,36 +284,10 @@ window.XMigemoUI = inherit(MigemoConstants, {
  
 	onChangeMode : function() 
 	{
-		if (!this.hidden && !this.inCancelingProcess) {
-			if (this.isQuickFind || this.findMode == this.FIND_MODE_NATIVE) {
-				this.cancel(true);
-			}
-			else {
-				this.start(true);
-			}
-		}
-		this.lastFindMode = this.findMode;
-		this.isModeChanged = true;
-		this.disableFindFieldIMEForCurrentMode();
-		if (!this.inCancelingProcess &&
-			!this.hidden) {
-			this.field.focus();
-		}
-	},
- 
-	// flip back to another find mode
-	onClickMode : function(aEvent) 
-	{
-		if (!aEvent.target.selected) return;
-
-		aEvent.stopPropagation();
-		aEvent.preventDefault();
-
-		window.setTimeout(function(aSelf, aValue) {
-			aSelf.findMode = aValue == aSelf.FIND_MODE_NATIVE ?
-				aSelf.FIND_MODE_MIGEMO :
-				aSelf.FIND_MODE_NATIVE ;
-		}, 0, this, aEvent.target.value);
+		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
+			context       : this.currentFindContext,
+			temporaryMode : this[this.findModeSelector.value]
+		});
 	},
  
 	onFindStartCommand : function() 
@@ -367,11 +348,8 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		var temporaryMode = this.readyToStartTemporaryFindMode;
 		this.readyToStartTemporaryFindMode = null;
 
-		var context = this.isQuickFind ?
-						MigemoConstants.FIND_CONTEXT_QUICK :
-						MigemoConstants.FIND_CONTEXT_NORMAL;
 		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
-			context     : context,
+			context     : this.currentFindContext,
 			nextMode    : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.always'),
 			defaultMode : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.default'),
 			temporaryMode : temporaryMode

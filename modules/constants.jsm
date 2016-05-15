@@ -58,7 +58,7 @@ MigemoConstants.FIND_MODE_FLAG_FROM_NAME = (function() {
 		'FIND_MODE_MIGEMO',
 		'FIND_MODE_REGEXP'
 	].forEach(function(aName) {
-		names[aName] = aName;
+		names[MigemoConstants[aName]] = aName;
 	});
 	return names;
 })();

@@ -18,24 +18,21 @@
 		pack="end"
 		hidden="true">
 		<radiogroup id="find-mode-selector"
-			value="1"
+			value="FIND_MODE_NATIVE"
 			orient="horizontal"
 			align="center"
 			pack="end"
-			onselect="XMigemoUI.onChangeMode();">
+			oncommand="XMigemoUI.onChangeMode();">
 			<radio value="FIND_MODE_NATIVE"
 				label="&ui.mode.normal.shortLabel;"
 				tooltiptext="&ui.mode.normal.tooltiptext;"
-				selected="true"
-				onclick="XMigemoUI.onClickMode(event);"/>
+				selected="true"/>
 			<radio value="FIND_MODE_REGEXP"
 				label="&ui.mode.regexp.shortLabel;"
-				tooltiptext="&ui.mode.regexp.tooltiptext;"
-				onclick="XMigemoUI.onClickMode(event);"/>
+				tooltiptext="&ui.mode.regexp.tooltiptext;"/>
 			<radio value="FIND_MODE_MIGEMO"
 				label="&ui.mode.migemo.shortLabel;"
-				tooltiptext="&ui.mode.migemo.tooltiptext;"
-				onclick="XMigemoUI.onClickMode(event);"/>
+				tooltiptext="&ui.mode.migemo.tooltiptext;"/>
 		</radiogroup>
 	</hbox>
 	<keyset id="xmigemo-shortcuts"/>
