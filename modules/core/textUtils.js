@@ -416,6 +416,10 @@ var MigemoTextUtils = {
 	{
 		var w = aDocument.defaultView;
 
+		// nodesFromRect() cannot find nodes from invisible window
+		if (w.innerWidth === 0 || w.innerHeight === 0)
+			return aDocument.documentElement;
+
 		var topY = getBoxObjectFor(aDocument.documentElement).screenY;
 
 		this.visibleNodeFilter.found       = false;
