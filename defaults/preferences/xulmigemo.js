@@ -1,6 +1,6 @@
 pref("xulmigemo.lang", "");
 
-// 1 = native find, 2 = migemo, 4 = regexp, otherwise = keep previous mode
+// 1 = native find, 2 = migemo, 4 = regexp, -1 = keep previous mode
 pref("xulmigemo.findMode.default", 2);
 pref("xulmigemo.findMode.always", -1);
 pref("xulmigemo.findMode.quick.default", 2);
