@@ -21,12 +21,14 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		return this.findBar.FIND_LINKS;
 	},
 
-	kDISABLE_IME    : '_moz-xmigemo-disable-ime',
-	kINACTIVATE_IME    : '_moz-xmigemo-inactivate-ime',
+	kDISABLE_IME    : 'data-xmigemo-disable-ime',
+	kINACTIVATE_IME    : 'data-xmigemo-inactivate-ime',
 	get IMEAttribute()
 	{
 		return XMigemoService.isLinux ? this.kDISABLE_IME : this.kINACTIVATE_IME ;
 	},
+
+	kFIND_MODE : 'data-xmigemo-find-mode',
   
 /* internal status */ 
 	
@@ -55,9 +57,6 @@ window.XMigemoUI = inherit(MigemoConstants, {
 
 		XMigemoService.setPref('xulmigemo.findMode.version', this.findModeVersion);
 	},
- 
-	disableIMEOnQuickFindFor  : 7, 
-	disableIMEOnNormalFindFor : 0,
  
 	_modeCirculation : 0, 
 	get modeCirculation()
@@ -154,25 +153,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	},
  
 /* utilities */ 
-	
-	disableFindFieldIME : function() 
-	{
-		var field = this.findBar._findField;
-		field.inputField.setAttribute(this.IMEAttribute, true);
-		window.setTimeout((function() {
-			field.inputField.removeAttribute(this.IMEAttribute);
-		}).bind(this), 100);
-	},
  
-	disableFindFieldIMEForCurrentMode : function() 
-	{
-		if (this.isQuickFind ?
-				(this.disableIMEOnQuickFindFor & this.findMode) :
-				(this.disableIMEOnNormalFindFor & this.findMode)
-			)
-			this.disableFindFieldIME();
-	},
-  
 	fireFindToolbarUpdateRequestEvent : function(aTarget) 
 	{
 		var event = document.createEvent('UIEvents');
@@ -194,8 +175,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		'xulmigemo.shortcut.startInTemporaryMode\n' +
 		'xulmigemo.shortcut.goDicManager\n' +
 		'xulmigemo.shortcut.modeCirculation\n' +
-		'xulmigemo.disableIME.quickFindFor\n' +
-		'xulmigemo.disableIME.normalFindFor',
+		'xulmigemo.disableIME.migemo',
  
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
@@ -236,12 +216,11 @@ window.XMigemoUI = inherit(MigemoConstants, {
 				this.modeCirculation = value;
 				return;
 
-			case 'xulmigemo.disableIME.quickFindFor':
-				this.disableIMEOnQuickFindFor = value;
-				return;
-
-			case 'xulmigemo.disableIME.normalFindFor':
-				this.disableIMEOnNormalFindFor = value;
+			case 'xulmigemo.disableIME.migemo':
+				if (value)
+					document.documentElement.setAttribute(this.IMEAttribute, 'FIND_MODE_MIGEMO');
+				else
+					document.documentElement.removeAttribute(this.IMEAttribute);
 				return;
 		}
 	},
@@ -287,9 +266,11 @@ window.XMigemoUI = inherit(MigemoConstants, {
  
 	onChangeMode : function() 
 	{
+		var findMode = this.findModeSelector.value;
+		this.findBar.setAttribute(this.kFIND_MODE, findMode);
 		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
 			context       : this.currentFindContext,
-			temporaryMode : this[this.findModeSelector.value]
+			temporaryMode : this[findMode]
 		});
 	},
  
@@ -351,6 +332,8 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		var temporaryMode = this.readyToStartTemporaryFindMode;
 		this.readyToStartTemporaryFindMode = null;
 
+		if (temporaryMode)
+			this.findBar.setAttribute(this.kFIND_MODE, temporaryMode);
 		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
 			context     : this.currentFindContext,
 			nextMode    : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.always'),
@@ -384,6 +367,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 			this.findBar.__xm__close = this.findBar.close;
 			this.findBar.close = function(...aArgs) {
 				XMigemoUI.findModeSelectorBox.hidden = true;
+				this.removeAttribute(XMigemoUI.kFIND_MODE);
 				return this.__xm__close(...aArgs);
 			};
 		}
@@ -473,11 +457,12 @@ window.XMigemoUI = inherit(MigemoConstants, {
 				console.log('Find Mode = '+this.findMode+'=>'+aMessage.json.mode);
 				var previousMode = this.findMode;
 				this.findMode = aMessage.json.mode;
-				this.findModeSelector.value = MigemoConstants.FIND_MODE_FLAG_FROM_NAME[this.findMode];
+				var findModeName = MigemoConstants.FIND_MODE_FLAG_FROM_NAME[this.findMode];
+				this.findModeSelector.value = findModeName;
+				this.findBar.setAttribute(this.kFIND_MODE, findModeName);
 				var modeChanged = this.findMode != previousMode;
 				if (modeChanged && this.findBar.getElement('highlight').checked)
 					this.findBar._setHighlightTimeout();
-				this.disableFindFieldIMEForCurrentMode();
 				return;
 		}
 	},

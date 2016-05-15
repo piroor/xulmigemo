@@ -1,10 +1,14 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-*|*[_moz-xmigemo-disable-ime="true"] {
+:root[data-xmigemo-disable-ime~="FIND_MODE_MIGEMO"]
+  findbar[data-xmigemo-find-mode="FIND_MODE_MIGEMO"]
+  html|input {
 	ime-mode: disabled !important;
 }
-*|*[_moz-xmigemo-inactivate-ime="true"] {
+:root[data-xmigemo-inactivate-ime~="FIND_MODE_MIGEMO"]
+  findbar[data-xmigemo-find-mode="FIND_MODE_MIGEMO"]
+  html|input {
 	ime-mode: inactive !important;
 }
 

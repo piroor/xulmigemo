@@ -6,9 +6,7 @@ pref("xulmigemo.findMode.always", -1);
 pref("xulmigemo.findMode.quick.default", 2);
 pref("xulmigemo.findMode.quick.always", -1);
 
-// 1 = normal find, 2 = migemo, 4 = regexp, 7 = all
-pref("xulmigemo.disableIME.normalFindFor",      2);
-pref("xulmigemo.disableIME.quickFindFor",       2);
+pref("xulmigemo.disableIME.migemo", true);
 
 pref("xulmigemo.startfromviewport",             true);
 pref("xulmigemo.linksonly",                     false);
