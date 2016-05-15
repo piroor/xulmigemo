@@ -100,6 +100,13 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	{
 		return window.gFindBar;
 	},
+
+	get isQuickFind()
+	{
+		var findbar = this.findBar;
+		var findbarMode = findbar.findMode;
+		return findbarMode == findbar.FIND_TYPEAHEAD || findbarMode == findbar.FIND_LINKS;
+	},
  
 	get findMigemoBar() 
 	{
@@ -123,28 +130,8 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	},
    
 /* status */ 
-	get findMode() 
-	{
-		return parseInt(this.findModeSelector.value || this.FIND_MODE_NATIVE);
-	},
-	set findMode(val)
-	{
-		var mode = parseInt(val);
-		switch (mode)
-		{
-			case this.FIND_MODE_MIGEMO:
-			case this.FIND_MODE_REGEXP:
-			case this.FIND_MODE_NATIVE:
-				this.findModeSelector.value = mode;
-				break;
 
-			default:
-				this.findModeSelector.value = mode = this.FIND_MODE_NATIVE;
-				break;
-		}
-		this.onChangeMode();
-		return mode;
-	},
+	findMode : MigemoConstants.FIND_MODE_NATIVE,
 
 	get hidden() 
 	{
@@ -164,17 +151,16 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	
 	disableFindFieldIME : function() 
 	{
-		if (!('imeMode' in this.field.style)) return;
-
-		this.field.inputField.setAttribute(this.IMEAttribute, true);
-		window.setTimeout(function(aSelf) {
-			aSelf.field.inputField.removeAttribute(aSelf.IMEAttribute);
-		}, 100, this);
+		var field = this.findBar._findField;
+		field.inputField.setAttribute(this.IMEAttribute, true);
+		window.setTimeout((function() {
+			field.inputField.removeAttribute(this.IMEAttribute);
+		}).bind(this), 100);
 	},
  
-	disableFindFieldIMEForCurrentMode : function(aQuickFind) 
+	disableFindFieldIMEForCurrentMode : function() 
 	{
-		if (aQuickFind ?
+		if (this.isQuickFind ?
 				(this.disableIMEOnQuickFindFor & this.findMode) :
 				(this.disableIMEOnNormalFindFor & this.findMode)
 			)
@@ -302,7 +288,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		}
 		this.lastFindMode = this.findMode;
 		this.isModeChanged = true;
-		this.disableFindFieldIMEForCurrentMode(this.isQuickFind);
+		this.disableFindFieldIMEForCurrentMode();
 		if (!this.inCancelingProcess &&
 			!this.hidden) {
 			this.field.focus();
@@ -377,15 +363,12 @@ window.XMigemoUI = inherit(MigemoConstants, {
   
 	onFindBarOpen : function(aEvent) 
 	{
-		var findbar = aEvent.originalTarget;
-		var findbarMode = findbar.findMode;
-		var isQuickFind = findbarMode == findbar.FIND_TYPEAHEAD || findbarMode == findbar.FIND_LINKS;
-		var suffix = isQuickFind ? '.quick' : '' ;
+		var suffix = this.isQuickFind ? '.quick' : '' ;
 
 		var temporaryMode = this.readyToStartTemporaryFindMode;
 		this.readyToStartTemporaryFindMode = null;
 
-		var context = isQuickFind ?
+		var context = this.isQuickFind ?
 						MigemoConstants.FIND_CONTEXT_QUICK :
 						MigemoConstants.FIND_CONTEXT_NORMAL;
 		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
@@ -485,7 +468,8 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		{
 			case MigemoConstants.COMMAND_REPORT_FIND_MODE:
 				console.log('Find Mode = '+aMessage.json.mode);
-				// this.findMode = aMessage.json.mode;
+				this.findMode = aMessage.json.mode;
+				this.disableFindFieldIMEForCurrentMode();
 				return;
 		}
 	},
