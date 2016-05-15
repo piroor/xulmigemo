@@ -1042,6 +1042,10 @@ window.XMigemoUI = {
   
 	onFindBarOpen : function(aEvent) 
 	{
+		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
+			mode : MigemoFind.FIND_MODE_MIGEMO // for development
+		});
+
 return;
 		var bar = this.findBar;
 
@@ -1602,14 +1606,13 @@ return;
 
 		window.messageManager.loadFrameScript(MigemoConstants.SCRIPT_URL, true);
 
-return;
 		window.addEventListener('findbaropen', this, true);
 
 		this.upgradePrefs();
 
 		this.overrideExtensionsOnInitBefore(); // hacks.js
-/*
 
+/*
 		document.addEventListener('XMigemoFindAgain', this, false);
 */
 
@@ -1681,9 +1684,9 @@ return;
 		});
 		window.messageManager.removeDelayedFrameScript(MigemoConstants.SCRIPT_URL);
 
-/*
 		window.removeEventListener('findbaropen', this, true);
 
+/*
 		this.findBar.removeEventListener('XMigemoFindBarOpen', this, false);
 		this.findBar.removeEventListener('XMigemoFindBarClose', this, false);
 		document.removeEventListener('XMigemoFindAgain', this, false);
@@ -1694,6 +1697,15 @@ return;
 */
 
 		window.removeEventListener('unload', this, false);
+	},
+
+	sendMessageToContent : function(aCommandType, aCommandParams)
+	{
+		var messageManager = gBrowser.selectedTab.linkedBrowser.messageManager;
+		messageManager.sendAsyncMessage(MigemoConstants.MESSAGE_TYPE, {
+			command : aCommandType,
+			params  : aCommandParams || {}
+		});
 	},
  
 	dummy : null

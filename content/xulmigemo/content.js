@@ -6,8 +6,9 @@
 
 	var { Services } = Cu.import('resource://gre/modules/Services.jsm', {});
 
-	var { MigemoConstants } = Components.utils.import('resource://xulmigemo-modules/constants.jsm', {});
-	Components.utils.import('resource://xulmigemo-modules/finder.jsm', {});
+	var { MigemoConstants } = Cu.import('resource://xulmigemo-modules/constants.jsm', {});
+	Cu.import('resource://xulmigemo-modules/finder.jsm', {});
+	Cu.import('resource://xulmigemo-modules/remoteFinder.jsm', {});
 
 	function free()
 	{
@@ -23,11 +24,8 @@
 	{
 		switch (aMessage.json.command)
 		{
-			case MigemoConstants.COMMAND_SET_FIND_MODE:
-				
-				return;
-
 			case MigemoConstants.COMMAND_SHUTDOWN:
+				global.removeMessageListener(MigemoConstants.MESSAGE_TYPE, handleMessage);
 				free();
 				return;
 		}
