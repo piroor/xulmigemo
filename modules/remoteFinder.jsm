@@ -28,25 +28,44 @@ Object.defineProperty(RemoteFinderListener.prototype, '_finder', {
 	},
 	set: function(aValue) {
 		this.__xm__finder = aValue;
+		this.__xm__init();
 		this.__xm__applyFindMode();
 		return this.__xm__finder;
 	}
 });
 
+RemoteFinderListener.prototype.__xm__init = function() {
+	if (this.__xm__initialized)
+		return;
+	this.__xm__nextFindMode = {};
+	this.__xm__defaultFindMode = {};
+	this.__xm__nextFindContext = MigemoConstants.FIND_CONTEXT_NORMAL;
+};
+
 RemoteFinderListener.prototype.__xm__applyFindMode = function() {
 	var migemoFinder = this._finder.__xm__migemoFinder;
-	var lastMode = migemoFinder.findMode;
+	var lastMode = this._finder.__xm__lastFindMode[this.__xm__nextFindContext];
 
-	if (this.__xm__nextFindMode &&
-		this.__xm__nextFindMode != MigemoConstants.FIND_MODE_KEEP)
-		migemoFinder.findMode = this.__xm__nextFindMode;
-	else if (this.__xm__defaultFindMode &&
-			lastMode == MigemoConstants.FIND_MODE_NOT_INITIALIZED)
-		migemoFinder.findMode = this.__xm__defaultFindMode;
+	var nextMode = this.__xm__nextFindMode[this.__xm__nextFindContext];
+	var defaultMode = this.__xm__defaultFindMode[this.__xm__nextFindContext];
+	if (nextMode &&
+		nextMode !== MigemoConstants.FIND_MODE_KEEP) {
+		this._finder.__xm__lastFindMode[this.__xm__nextFindContext] =
+			migemoFinder.findMode = nextMode;
+	}
+	else if (defaultMode &&
+			lastMode === MigemoConstants.FIND_MODE_NOT_INITIALIZED) {
+		this._finder.__xm__lastFindMode[this.__xm__nextFindContext] =
+			migemoFinder.findMode = defaultMode;
+	}
+	else if (lastMode !== migemoFinder.findMode) {
+		migemoFinder.findMode = lastMode;
+	}
 
 	if (this._global)
 		this._global.sendAsyncMessage(MigemoConstants.MESSAGE_TYPE, {
 			command : MigemoConstants.COMMAND_REPORT_FIND_MODE,
+			context : this.__xm__nextFindContext,
 			mode    : migemoFinder.findMode
 		});
 };
@@ -55,10 +74,13 @@ RemoteFinderListener.prototype.__xm__handleMessage = function(aMessage) {
 	switch (aMessage.json.command)
 	{
 		case MigemoConstants.COMMAND_SET_FIND_MODE:
+			this.__xm__init();
+			let context = aMessage.json.params.context;
 			if (aMessage.json.params.mode)
-				this.__xm__nextFindMode = aMessage.json.params.mode;
+				this.__xm__nextFindMode[context] = aMessage.json.params.mode;
 			if (aMessage.json.params.defaultMode)
-				this.__xm__defaultFindMode = aMessage.json.params.defaultMode;
+				this.__xm__defaultFindMode[context] = aMessage.json.params.defaultMode;
+			this.__xm__nextFindContext = context;
 			if (this._finder)
 				this.__xm__applyFindMode();
 			return;

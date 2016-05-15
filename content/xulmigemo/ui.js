@@ -1033,9 +1033,17 @@ window.XMigemoUI = inherit(MigemoConstants, {
   
 	onFindBarOpen : function(aEvent) 
 	{
+		var findbar = aEvent.originalTarget;
+		var mode = findbar.findMode;
+		var isQuickFind = mode == findbar.FIND_TYPEAHEAD || mode == findbar.FIND_LINKS;
+		var context = isQuickFind ?
+						MigemoConstants.FIND_CONTEXT_QUICK :
+						MigemoConstants.FIND_CONTEXT_NORMAL;
+		var suffix = isQuickFind ? '.quick' : '' ;
 		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
-			mode        : XMigemoService.getPref('xulmigemo.findMode.always'),
-			defaultMode : XMigemoService.getPref('xulmigemo.findMode.default')
+			context     : context,
+			mode        : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.always'),
+			defaultMode : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.default')
 		});
 
 return;

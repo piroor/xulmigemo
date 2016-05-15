@@ -8,6 +8,9 @@ var MigemoConstants = {
 	FIND_MODE_KEEP   : -1,
 	FIND_MODE_NOT_INITIALIZED : -2,
 
+	FIND_CONTEXT_NORMAL : 0,
+	FIND_CONTEXT_QUICK  : 1,
+
 	// find result
 	NOTFOUND          : 0,
 	FOUND             : 1 << 0,
