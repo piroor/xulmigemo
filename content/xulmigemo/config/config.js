@@ -1,4 +1,5 @@
 Components.utils.import('resource://xulmigemo-modules/service.jsm');
+Components.utils.import('resource://xulmigemo-modules/constants.jsm');
 Components.utils.import('resource://xulmigemo-modules/core/find.js');
 
 var gDisableIME;
