@@ -8,6 +8,19 @@ Components.utils.import('resource://xulmigemo-modules/api.jsm');
 window.XMigemoUI = inherit(MigemoConstants, { 
 	
 /* constants */ 
+	get FIND_NORMAL()
+	{
+		return this.findBar.FIND_NORMAL;
+	},
+	get FIND_TYPEAHEAD()
+	{
+		return this.findBar.FIND_TYPEAHEAD;
+	},
+	get FIND_LINKS()
+	{
+		return this.findBar.FIND_LINKS;
+	},
+
 	kDISABLE_IME    : '_moz-xmigemo-disable-ime',
 	kINACTIVATE_IME    : '_moz-xmigemo-inactivate-ime',
 	get IMEAttribute()
@@ -174,6 +187,12 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		event.initUIEvent('XMigemoFindBarUpdateRequest', true, true, window, 0);
 		(aTarget || document).dispatchEvent(event);
 	},
+
+	startInTemporaryMode : function(aFindMode, aFindBarMode)
+	{
+		this.readyToStartTemporaryFindMode = aFindMode;
+		this.findBar.startFind(aFindBarMode);
+	},
   
 /* preferences observer */ 
 	
@@ -243,10 +262,6 @@ window.XMigemoUI = inherit(MigemoConstants, {
 				this.onFindBarOpen(aEvent);
 				return;
 
-			case 'keypress':
-				this.onKeyPress(aEvent, this.getFindFieldFromContent(aEvent.originalTarget));
-				return;
-
 			case 'DOMContentLoaded':
 				this.overrideExtensionsPreInit();
 				window.removeEventListener('DOMContentLoaded', this, false);
@@ -272,68 +287,6 @@ window.XMigemoUI = inherit(MigemoConstants, {
 
 			default:
 		}
-	},
-	
-	onKeyPress : function(aEvent, aFromFindField) 
-	{
-		if (this.processFunctionalShortcuts(aEvent, aFromFindField))
-			return;
-	},
-	
-	processFunctionalShortcuts : function(aEvent, aFromFindField) 
-	{
-		if (
-			!aFromFindField &&
-			XMigemoService.isEventFiredInInputField(aEvent) &&
-			!(
-				aEvent.charCode == 0 ||
-				aEvent.altKey ||
-				aEvent.ctrlKey ||
-				aEvent.metaKey
-			)
-			)
-			return false;
-
-		if (aFromFindField && this.isActive && !this.isQuickFind)
-			return false;
-
-		var shouldGoDicManager   = XMigemoService.checkShortcutForKeyEvent(this.goDicManagerKey, aEvent);
-		var isStartKey           = XMigemoService.checkShortcutForKeyEvent(this.manualStartKey, aEvent);
-		var isStartKey2          = XMigemoService.checkShortcutForKeyEvent(this.manualStartKey2, aEvent);
-		var isStartKeyLinksOnly  = XMigemoService.checkShortcutForKeyEvent(this.manualStartLinksOnlyKey, aEvent);
-		var isStartKeyLinksOnly2 = XMigemoService.checkShortcutForKeyEvent(this.manualStartLinksOnlyKey2, aEvent);
-
-		if (shouldGoDicManager) {
-			XMigemoService.goDicManager(window);
-			aEvent.preventDefault();
-			return true;
-		}
-
-		if (!XMigemoService.isEventFiredInFindableDocument(aEvent))
-			return false;
-
-		if (
-			!this.isActive &&
-			(
-				(!this.autoStartQuickFind && !aFromFindField) ||
-				aEvent.charCode == 0 ||
-				aEvent.altKey ||
-				aEvent.ctrlKey ||
-				aEvent.metaKey
-			) &&
-			(
-				isStartKey ||
-				isStartKey2 ||
-				isStartKeyLinksOnly ||
-				isStartKeyLinksOnly2
-			)
-			) {
-			this.commandStart(aEvent, isStartKeyLinksOnly || isStartKeyLinksOnly2);
-			aEvent.preventDefault();
-			return true;
-		}
-
-		return false;
 	},
  
 	onChangeMode : function() 
@@ -425,16 +378,21 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	onFindBarOpen : function(aEvent) 
 	{
 		var findbar = aEvent.originalTarget;
-		var mode = findbar.findMode;
-		var isQuickFind = mode == findbar.FIND_TYPEAHEAD || mode == findbar.FIND_LINKS;
+		var findbarMode = findbar.findMode;
+		var isQuickFind = findbarMode == findbar.FIND_TYPEAHEAD || findbarMode == findbar.FIND_LINKS;
+		var suffix = isQuickFind ? '.quick' : '' ;
+
+		var temporaryMode = this.readyToStartTemporaryFindMode;
+		this.readyToStartTemporaryFindMode = null;
+
 		var context = isQuickFind ?
 						MigemoConstants.FIND_CONTEXT_QUICK :
 						MigemoConstants.FIND_CONTEXT_NORMAL;
-		var suffix = isQuickFind ? '.quick' : '' ;
 		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
 			context     : context,
-			mode        : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.always'),
-			defaultMode : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.default')
+			nextMode    : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.always'),
+			defaultMode : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.default'),
+			temporaryMode : temporaryMode
 		});
 	},
 

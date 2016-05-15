@@ -43,13 +43,13 @@
 	</hbox>
 	<commandset id="xmigemo-commands">
 		<command id="xmigemo-command-manualStart"
-			oncommand="XMigemoUI.commandStart(event);"/>
+			oncommand="XMigemoUI.startInTemporaryMode(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.FIND_TYPEAHEAD);"/>
 		<command id="xmigemo-command-manualStart2"
-			oncommand="XMigemoUI.commandStart(event);"/>
+			oncommand="XMigemoUI.startInTemporaryMode(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.FIND_TYPEAHEAD);"/>
 		<command id="xmigemo-command-manualStartLinksOnly"
-			oncommand="XMigemoUI.commandStart(event, true);"/>
+			oncommand="XMigemoUI.startInTemporaryMode(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.FIND_LINKS);"/>
 		<command id="xmigemo-command-manualStartLinksOnly2"
-			oncommand="XMigemoUI.commandStart(event, true);"/>
+			oncommand="XMigemoUI.startInTemporaryMode(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.FIND_LINKS);"/>
 		<command id="xmigemo-command-goDicManager"
 			oncommand="XMigemoService.goDicManager(window)"/>
 	</commandset>

@@ -48,8 +48,12 @@ RemoteFinderListener.prototype.__xm__applyFindMode = function() {
 
 	var nextMode = this.__xm__nextFindMode[this.__xm__nextFindContext];
 	var defaultMode = this.__xm__defaultFindMode[this.__xm__nextFindContext];
-	if (nextMode &&
-		nextMode !== MigemoConstants.FIND_MODE_KEEP) {
+	if (this.__xm__temporaryMode) {
+		migemoFinder.findMode = this.__xm__temporaryMode;
+		this.__xm__temporaryMode = null;
+	}
+	else if (nextMode &&
+			nextMode !== MigemoConstants.FIND_MODE_KEEP) {
 		this._finder.__xm__lastFindMode[this.__xm__nextFindContext] =
 			migemoFinder.findMode = nextMode;
 	}
@@ -76,11 +80,12 @@ RemoteFinderListener.prototype.__xm__handleMessage = function(aMessage) {
 		case MigemoConstants.COMMAND_SET_FIND_MODE:
 			this.__xm__init();
 			let context = aMessage.json.params.context;
-			if (aMessage.json.params.mode)
-				this.__xm__nextFindMode[context] = aMessage.json.params.mode;
+			if (aMessage.json.params.nextMode)
+				this.__xm__nextFindMode[context] = aMessage.json.params.nextMode;
 			if (aMessage.json.params.defaultMode)
 				this.__xm__defaultFindMode[context] = aMessage.json.params.defaultMode;
 			this.__xm__nextFindContext = context;
+			this.__xm__temporaryMode = aMessage.json.params.temporaryMode;
 			if (this._finder)
 				this.__xm__applyFindMode();
 			return;
