@@ -5,7 +5,7 @@ Components.utils.import('resource://xulmigemo-modules/api.jsm');
 	var { MigemoFind } = Components.utils.import('resource://xulmigemo-modules/core/find.js', {});
 	var XMigemoFind = new MigemoFind();
 
-	Components.utils.import('resource://xulmigemo-modules/finder.jsm');
+	Components.utils.import('resource://xulmigemo-modules/finder.jsm', {});
 
 	var { MigemoConstants } = Components.utils.import('resource://xulmigemo-modules/constants.jsm', {});
 	var { inherit } = Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm', {});
@@ -27,7 +27,6 @@ window.XMigemoUI = inherit(MigemoConstants, {
 
 	kXHTMLNS : 'http://www.w3.org/1999/xhtml',
 
-	nsITypeAheadFind : Components.interfaces.nsITypeAheadFind,
 	nsIDOMNSEditableElement : Components.interfaces.nsIDOMNSEditableElement,
 	
 	get textUtils() 
@@ -1035,7 +1034,8 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	onFindBarOpen : function(aEvent) 
 	{
 		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
-			mode : MigemoConstants.FIND_MODE_MIGEMO // for development
+			mode        : XMigemoService.getPref('xulmigemo.findMode.always'),
+			defaultMode : XMigemoService.getPref('xulmigemo.findMode.default')
 		});
 
 return;
@@ -1598,6 +1598,9 @@ return;
 
 		window.messageManager.loadFrameScript(MigemoConstants.SCRIPT_URL, true);
 
+		this.onMessage = this.onMessage.bind(this);
+		window.messageManager.addMessageListener(MigemoConstants.MESSAGE_TYPE, this.onMessage);
+
 		window.addEventListener('findbaropen', this, true);
 
 		this.upgradePrefs();
@@ -1610,8 +1613,6 @@ return;
 
 		XMigemoService.addPrefListener(this);
 		XMigemoService.firstListenPrefChange(this);
-
-		this.lastFindMode = this.FIND_MODE_NATIVE;
 
 /*
 		if (!('gFindBarInitialized' in window) || gFindBarInitialized) {
@@ -1671,6 +1672,7 @@ return;
 	{
 		XMigemoService.removePrefListener(this);
 
+		window.messageManager.removeMessageListener(MigemoConstants.MESSAGE_TYPE, this.onMessage);
 		window.messageManager.broadcastAsyncMessage(MigemoConstants.MESSAGE_TYPE, {
 			command : 'shutdown'
 		});
@@ -1698,6 +1700,17 @@ return;
 			command : aCommandType,
 			params  : aCommandParams || {}
 		});
+	},
+
+	onMessage : function(aMessage)
+	{
+		switch (aMessage.json.command)
+		{
+			case MigemoConstants.COMMAND_REPORT_FIND_MODE:
+				console.log('Find Mode = '+aMessage.json.mode);
+				// this.findMode = aMessage.json.mode;
+				return;
+		}
 	},
  
 	dummy : null

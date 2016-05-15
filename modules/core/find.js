@@ -95,8 +95,8 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 
 	startFromViewport : false,
  
-	lastResult        : MigemoConstants.NOTFOUND,
-	findMode : MigemoConstants.FIND_MODE_NATIVE,
+	lastResult : MigemoConstants.NOTFOUND,
+	findMode   : MigemoConstants.FIND_MODE_NOT_INITIALIZED,
  
 	set targetDocShell(val) 
 	{

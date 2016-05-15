@@ -30,7 +30,6 @@ Object.defineProperty(Finder.prototype, '__xm__migemoFinder', {
 	get: function() {
 		if (!this.__xm__migemoFinderInstance) {
 			this.__xm__migemoFinderInstance = new MigemoFind();
-			this.__xm__migemoFinderInstance.findMode = MigemoConstants.FIND_MODE_NATIVE;
 		}
 		return this.__xm__migemoFinderInstance;
 	}

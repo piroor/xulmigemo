@@ -28,19 +28,39 @@ Object.defineProperty(RemoteFinderListener.prototype, '_finder', {
 	},
 	set: function(aValue) {
 		this.__xm__finder = aValue;
-		if (this.__xm__findMode)
-			aValue.__xm__migemoFinder.findMode = this.__xm__findMode;
-		return aValue;;
+		this.__xm__applyFindMode();
+		return this.__xm__finder;
 	}
 });
+
+RemoteFinderListener.prototype.__xm__applyFindMode = function() {
+	var migemoFinder = this._finder.__xm__migemoFinder;
+	var lastMode = migemoFinder.findMode;
+
+	if (this.__xm__nextFindMode &&
+		this.__xm__nextFindMode != MigemoConstants.FIND_MODE_KEEP)
+		migemoFinder.findMode = this.__xm__nextFindMode;
+	else if (this.__xm__defaultFindMode &&
+			lastMode == MigemoConstants.FIND_MODE_NOT_INITIALIZED)
+		migemoFinder.findMode = this.__xm__defaultFindMode;
+
+	if (this._global)
+		this._global.sendAsyncMessage(MigemoConstants.MESSAGE_TYPE, {
+			command : MigemoConstants.COMMAND_REPORT_FIND_MODE,
+			mode    : migemoFinder.findMode
+		});
+};
 
 RemoteFinderListener.prototype.__xm__handleMessage = function(aMessage) {
 	switch (aMessage.json.command)
 	{
 		case MigemoConstants.COMMAND_SET_FIND_MODE:
-			this.__xm__findMode = aMessage.json.params.mode;
+			if (aMessage.json.params.mode)
+				this.__xm__nextFindMode = aMessage.json.params.mode;
+			if (aMessage.json.params.defaultMode)
+				this.__xm__defaultFindMode = aMessage.json.params.defaultMode;
 			if (this._finder)
-				this._finder.__xm__migemoFinder.findMode = aMessage.json.params.mode;
+				this.__xm__applyFindMode();
 			return;
 
 		case MigemoConstants.COMMAND_SHUTDOWN:

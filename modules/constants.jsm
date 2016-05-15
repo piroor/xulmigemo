@@ -5,6 +5,8 @@ var MigemoConstants = {
 	FIND_MODE_NATIVE : 1 << 0,
 	FIND_MODE_MIGEMO : 1 << 1,
 	FIND_MODE_REGEXP : 1 << 2,
+	FIND_MODE_KEEP   : -1,
+	FIND_MODE_NOT_INITIALIZED : -2,
 
 	// find result
 	NOTFOUND          : 0,
@@ -41,5 +43,7 @@ var MigemoConstants = {
 	SCRIPT_URL : 'chrome://xulmigemo/content/content.js',
 
 	COMMAND_SET_FIND_MODE : 'set-find-mode',
-	COMMAND_SHUTDOWN : 'shutdown'
+	COMMAND_SHUTDOWN : 'shutdown',
+
+	COMMAND_REPORT_FIND_MODE : 'report-find-mode'
 };
