@@ -25,14 +25,13 @@ function myResultToNativeResult(aFlag)
 	return Ci.nsITypeAheadFind.FIND_FOUND;
 }
 
-Object.defineProperty(Finder.prototype, '__xm__finder', {
+Object.defineProperty(Finder.prototype, '__xm__migemoFinder', {
 	get: function() {
-		if (!this.__xm__finderInstance) {
-			this.__xm__finderInstance = new MigemoFind();
-			// for development
-			this.__xm__finderInstance.findMode = MigemoFind.FIND_MODE_MIGEMO;
+		if (!this.__xm__migemoFinderInstance) {
+			this.__xm__migemoFinderInstance = new MigemoFind();
+			this.__xm__migemoFinderInstance.findMode = MigemoFind.FIND_MODE_NATIVE;
 		}
-		return this.__xm__finderInstance;
+		return this.__xm__migemoFinderInstance;
 	}
 });
 
@@ -47,11 +46,11 @@ Object.defineProperty(Finder.prototype, '__xm__nativeSearchString', {
 
 Object.defineProperty(Finder.prototype, '_fastFind', {
 	get: function() {
-		return this.__xm__fastFind;
+		return this.__xm__fastFindInstance;
 	},
 	set: function(aValue) {
-		var myFinder = this.__xm__finder;
-		this.__xm__fastFind = new ExtendedImmutable(aValue, {
+		var myFinder = this.__xm__migemoFinder;
+		this.__xm__fastFindInstance = new ExtendedImmutable(aValue, {
 			getFoundRange : function()
 			{
 				if (myFinder.findMode === MigemoFind.FIND_MODE_NATIVE)
@@ -65,7 +64,7 @@ Object.defineProperty(Finder.prototype, '_fastFind', {
 
 Finder.prototype.__xm__fastFind = Finder.prototype.fastFind;
 Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
-	var finder = this.__xm__finder;
+	var finder = this.__xm__migemoFinder;
 	if (finder.findMode === MigemoFind.FIND_MODE_NATIVE)
 		return this.__xm__fastFind(aSearchString, aLinksOnly, aDrawOutline);
 
@@ -94,7 +93,7 @@ Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
 
 Finder.prototype.__xm__findAgain = Finder.prototype.findAgain;
 Finder.prototype.findAgain = function(aFindBackwards, aLinksOnly, aDrawOutline) {
-	var finder = this.__xm__finder;
+	var finder = this.__xm__migemoFinder;
 	if (finder.findMode === MigemoFind.FIND_MODE_NATIVE)
 		return this.__xm__findAgain(aFindBackwards, aLinksOnly, aDrawOutline);
 
@@ -121,19 +120,19 @@ Finder.prototype.findAgain = function(aFindBackwards, aLinksOnly, aDrawOutline) 
 
 Finder.prototype.__xm__findIterator = Finder.prototype._findIterator;
 Finder.prototype._findIterator = function(aWord, aWindow) {
-	if (this.__xm__finder.findMode === MigemoFind.FIND_MODE_NATIVE)
+	if (this.__xm__migemoFinder.findMode === MigemoFind.FIND_MODE_NATIVE)
 		return this.__xm__findIterator(aWord, aWindow);
 	else
 		return this.__xm__findIterator_regexp(aWord, aWindow);
 };
 Finder.prototype.__xm__findIterator_regexp = function* (aWord, aWindow) {
 	var finder = new MigemoFind();
-	finder.findMode = this.__xm__finder.findMode;
+	finder.findMode = this.__xm__migemoFinder.findMode;
 	finder.targetDocShell = this._docShell;
 	finder.foundRange = null;
 	finder.lastKeyword = aWord
-	finder.caseSensitive = this.__xm__finder.caseSensitive;
-	finder.isLinksOnly = this.__xm__finder.isLinksOnly;
+	finder.caseSensitive = this.__xm__migemoFinder.caseSensitive;
+	finder.isLinksOnly = this.__xm__migemoFinder.isLinksOnly;
 	finder.isQuickFind = false;
 
 	while (!(finder.find({
