@@ -30,12 +30,6 @@ window.XMigemoUI = inherit(MigemoConstants, {
   
 /* internal status */ 
 	
-	forcedFindMode   : -1,
-	lastFindMode     : -1,
-	backupFindMode   : -1,
-
-	isModeChanged : false,
-	
 	findModeVersion : 2, 
 	findModeFrom1To2 : {
 		'0' : MigemoConstants.FIND_MODE_NATIVE,
@@ -134,7 +128,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
    
 /* status */ 
 
-	findMode : MigemoConstants.FIND_MODE_NATIVE,
+	findMode : MigemoConstants.FIND_MODE_NOT_INITIALIZED,
 
 	get hidden() 
 	{
@@ -449,9 +443,13 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		switch (aMessage.json.command)
 		{
 			case MigemoConstants.COMMAND_REPORT_FIND_MODE:
-				console.log('Find Mode = '+aMessage.json.mode);
+				console.log('Find Mode = '+this.findMode+'=>'+aMessage.json.mode);
+				var previousMode = this.findMode;
 				this.findMode = aMessage.json.mode;
 				this.findModeSelector.value = MigemoConstants.FIND_MODE_FLAG_FROM_NAME[this.findMode];
+				var modeChanged = this.findMode != previousMode;
+				if (modeChanged && this.findBar.getElement('highlight').checked)
+					this.findBar._setHighlightTimeout();
 				this.disableFindFieldIMEForCurrentMode();
 				return;
 		}
