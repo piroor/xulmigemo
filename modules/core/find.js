@@ -1014,7 +1014,7 @@ mydump('scrollSelectionToCenter '+aScrollTarget+' ('+x+', '+y+')');
 		var scrollX = aFrame.scrollX || aFrame.scrollLeft || 0;
 		var scrollY = aFrame.scrollY || aFrame.scrollTop || 0;
 		var viewPortWidth = aFrame.innerWidth || aFrame.offsetWidth || 0;
-		var viewPortHeight = aFrame.viewPortHeight || aFrame.offsetHeight || 0;
+		var viewPortHeight = aFrame.innerHeight || aFrame.offsetHeight || 0;
 		return !(
 			aBox.x > scrollX + viewPortWidth - aPadding ||
 			aBox.y > scrollY + viewPortHeight - aPadding ||
