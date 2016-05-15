@@ -2,9 +2,6 @@ content	xulmigemo	content/xulmigemo/
 
 overlay	chrome://browser/content/browser.xul	chrome://xulmigemo/content/browserOverlay.xul
 
-#overlay	chrome://global/content/viewSource.xul	chrome://xulmigemo/content/viewSourceOverlay.xul
-#overlay	chrome://global/content/viewPartialSource.xul	chrome://xulmigemo/content/viewSourceOverlay.xul
-
 #overlay	chrome://browser/content/browser.xul	chrome://xulmigemo/content/places/locationBarOverlay.xul
 #overlay	chrome://browser/content/bookmarks/bookmarksPanel.xul	chrome://xulmigemo/content/places/bookmarksPanelOverlay.xul
 #overlay	chrome://browser/content/history/history-panel.xul	chrome://xulmigemo/content/places/historyPanelOverlay.xul
