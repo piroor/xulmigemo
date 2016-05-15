@@ -6,8 +6,7 @@
 
 <window id="main-window">
 	<vbox id="browser-bottombox">
-		<hbox id="XMigemoFindToolbar"
-			insertbefore="FindToolbar"/>
+		<hbox id="XMigemoFindToolbar"/>
 	</vbox>
 
 	<script src="chrome://xulmigemo/content/tabPreviews.js" type="application/javascript"/>

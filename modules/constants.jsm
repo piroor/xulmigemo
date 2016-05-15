@@ -50,3 +50,15 @@ var MigemoConstants = {
 
 	COMMAND_REPORT_FIND_MODE : 'report-find-mode'
 };
+
+MigemoConstants.FIND_MODE_FLAG_FROM_NAME = (function() {
+	var names = {};
+	[
+		'FIND_MODE_NATIVE',
+		'FIND_MODE_MIGEMO',
+		'FIND_MODE_REGEXP'
+	].forEach(function(aName) {
+		names[aName] = aName;
+	});
+	return names;
+})();

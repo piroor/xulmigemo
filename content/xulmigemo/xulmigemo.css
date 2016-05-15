@@ -7,3 +7,24 @@
 *|*[_moz-xmigemo-inactivate-ime="true"] {
 	ime-mode: inactive !important;
 }
+
+#find-migemo-mode-box {
+	bottom: 0;
+	position: fixed;
+	top: auto;
+	transition: bottom 150ms ease-in-out,
+				opacity 150ms ease-in-out;
+}
+
+#find-migemo-mode-box[hidden="true"] {
+	display: -moz-box;
+	bottom: -1em;
+	opacity: 0;
+	top: auto;
+	visibility: collapse;
+	transition-delay: 0s, 0s;
+}
+
+#find-mode-selector {
+	width: 100%;
+}

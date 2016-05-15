@@ -90,15 +90,14 @@ window.XMigemoUI = inherit(MigemoConstants, {
   
 /* elements */ 
 	
-	get browser() 
-	{
-		return document.getElementById('content') || // Firefox
-			document.getElementById('messagepane'); // Thunderbird
-	},
-  
 	get findBar() 
 	{
 		return window.gFindBar;
+	},
+
+	get findBarClosebox()
+	{
+		return document.getAnonymousElementByAttribute(this.findBar, 'anonid', 'find-closebutton');
 	},
 
 	get isQuickFind()
@@ -110,23 +109,20 @@ window.XMigemoUI = inherit(MigemoConstants, {
  
 	get findMigemoBar() 
 	{
-		if (!this._findMigemoBar)
-			this._findMigemoBar = document.getElementById('XMigemoFindToolbar');
-		return this._findMigemoBar;
+		delete this.findMigemoBar;
+		return this.findMigemoBar = document.getElementById('XMigemoFindToolbar');
 	},
 	
 	get findModeSelectorBox() 
 	{
-		if (!this._findModeSelectorBox)
-			this._findModeSelectorBox = document.getElementById('find-migemo-mode-box');
-		return this._findModeSelectorBox;
+		delete this.findModeSelectorBox;
+		return this. findModeSelectorBox = document.getElementById('find-migemo-mode-box');
 	},
  
 	get findModeSelector() 
 	{
-		if (!this._findModeSelector)
-			this._findModeSelector = document.getElementById('find-mode-selector');
-		return this._findModeSelector;
+		delete this.findModeSelector;
+		return this.findModeSelector = document.getElementById('find-mode-selector');
 	},
    
 /* status */ 
@@ -248,6 +244,10 @@ window.XMigemoUI = inherit(MigemoConstants, {
 				this.onFindBarOpen(aEvent);
 				return;
 
+			case 'TabSelect':
+				this.onTabSelect();
+				return;
+
 			case 'DOMContentLoaded':
 				this.overrideExtensionsPreInit();
 				window.removeEventListener('DOMContentLoaded', this, false);
@@ -277,7 +277,6 @@ window.XMigemoUI = inherit(MigemoConstants, {
  
 	onChangeMode : function() 
 	{
-		this.clearTimer();
 		if (!this.hidden && !this.inCancelingProcess) {
 			if (this.isQuickFind || this.findMode == this.FIND_MODE_NATIVE) {
 				this.cancel(true);
@@ -377,6 +376,23 @@ window.XMigemoUI = inherit(MigemoConstants, {
 			defaultMode : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.default'),
 			temporaryMode : temporaryMode
 		});
+
+		this.findModeSelectorBox.hidden =
+			this.findMigemoBar.collapsed = false;
+		this.updateModeSelectorPosition();
+
+		if (!this.findBar.__xm__close) {
+			this.findBar.__xm__close = this.findBar.close;
+			this.findBar.close = function(...aArgs) {
+				this.__xm__close(...aArgs);
+				XMigemoUI.findModeSelectorBox.hidden = true;
+			};
+		}
+	},
+
+	onTabSelect : function()
+	{
+		XMigemoUI.findModeSelectorBox.hidden = this.findBar.hidden;
 	},
 
 /* UI */ 
@@ -385,29 +401,15 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	{
 		var box = this.findModeSelectorBox;
 		var findBarBox = this.findBar.boxObject;
-		var baseState = {
-				height : findBarBox.height,
-				width  : findBarBox.width,
-				x      : findBarBox.x,
-				y      : findBarBox.y
-			}.toSource();
-		if (!aForceUpdate && box.lastBaseState == baseState) return;
-		box.removeAttribute('hidden');
-		box.style.height = findBarBox.height+'px';
-		box.style.right = (
-				document.documentElement.boxObject.width
-				- findBarBox.x
-				- findBarBox.width
-			)+'px';
-		box.style.top = 'auto';
-		box.style.bottom = (
-				document.documentElement.boxObject.height
-				- findBarBox.y
-				- findBarBox.height
-			)+'px';
-		box.lastBaseState = baseState;
+		var closeboxBox = this.findBarClosebox.boxObject;
+		var findBarRightEdge = findBarBox.screenX + findBarBox.width;
+		var positionRightEdge = Math.min(findBarRightEdge, closeboxBox.screenX);
+
+		var style = box.style;
+		style.height = findBarBox.height+'px';
+		style.right = (findBarRightEdge - positionRightEdge + 5)+'px';
+		style.paddingTop = Math.floor((findBarBox.height - this.findModeSelector.boxObject.height) / 2)+'px';
 	},
-	rightMostOffset : 5,
   
 	init : function() 
 	{
@@ -420,6 +422,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		window.messageManager.addMessageListener(MigemoConstants.MESSAGE_TYPE, this.onMessage);
 
 		window.addEventListener('findbaropen', this, true);
+		window.addEventListener('TabSelect', this, false);
 
 		this.upgradePrefs();
 
@@ -449,6 +452,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		window.messageManager.removeDelayedFrameScript(MigemoConstants.SCRIPT_URL);
 
 		window.removeEventListener('findbaropen', this, true);
+		window.removeEventListener('TabSelect', this, false);
 
 		window.removeEventListener('unload', this, false);
 	},
@@ -469,6 +473,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 			case MigemoConstants.COMMAND_REPORT_FIND_MODE:
 				console.log('Find Mode = '+aMessage.json.mode);
 				this.findMode = aMessage.json.mode;
+				this.findModeSelector.value = MigemoConstants.FIND_MODE_FLAG_FROM_NAME[this.findMode];
 				this.disableFindFieldIMEForCurrentMode();
 				return;
 		}
