@@ -110,9 +110,6 @@
 		<preference id="xulmigemo.appearance.buttonLabelsMode"
 			name="xulmigemo.appearance.buttonLabelsMode"
 			type="int"/>
-		<preference id="xulmigemo.prefillwithselection"
-			name="xulmigemo.prefillwithselection"
-			type="bool"/>
 		<preference id="xulmigemo.findMode.always"
 			name="xulmigemo.findMode.always"
 			type="int"/>
@@ -138,16 +135,6 @@
 	</groupbox>
 	<groupbox orient="vertical">
 		<caption label="&config.findbar.permanentState;"/>
-		<hbox align="center">
-			<label value="&config.prefillwithselection;"/>
-			<radiogroup id="xulmigemo.prefillwithselection-radiogroup"
-				preference="xulmigemo.prefillwithselection"
-				orient="horizontal">
-				<radio value="true"  label="&config.prefillwithselection.true;"/>
-				<radio value="false" label="&config.prefillwithselection.false;"/>
-			</radiogroup>
-		</hbox>
-		<separator class="groove"/>
 		<hbox align="center">
 			<label value="&config.findMode.always.caption;"
 				control="xulmigemo.findMode.always-radio"/>

@@ -45,8 +45,6 @@ function commonSetUp(aURI)
 	XMigemoUI.autoExitQuickFindInherit = true;
 	XMigemoUI.autoExitQuickFind = true;
 	XMigemoUI.timeout = 2500;
-	XMigemoUI.prefillWithSelection = true;
-	XMigemoUI.workForAnyXMLDocuments = true;
 
 	findCommand = 'with (win) {'+
 		win.document.getElementById('cmd_find').getAttribute('oncommand')+

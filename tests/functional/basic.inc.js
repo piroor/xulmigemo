@@ -184,7 +184,6 @@ function testFillWithSelection()
 	}
 
 	assert.prefill = function(aMode, aPreFill) {
-		XMigemoUI.prefillWithSelection = aPreFill;
 		var selectedTerm = selectInContent();
 		gFindBar.open();
 		utils.wait(WAIT);

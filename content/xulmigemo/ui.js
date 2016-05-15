@@ -112,9 +112,6 @@ var XMigemoUI = {
 	CIRCULATE_MODE_NONE : 0,
 	CIRCULATE_MODE_EXIT : 256,
  
-	prefillWithSelection   : false, 
-	workForAnyXMLDocuments : true,
- 
 	kLABELS_SHOW : 0, 
 	kLABELS_AUTO : 1,
 	kLABELS_HIDE : 2,
@@ -466,7 +463,6 @@ var XMigemoUI = {
 		'xulmigemo.disableIME.normalFindFor\n' +
 		'xulmigemo.find_delay\n' +
 		'xulmigemo.ignore_find_links_only_behavior\n' +
-		'xulmigemo.prefillwithselection\n' +
 		'xulmigemo.work_for_any_xml_document',
 	preferencesFindBar :
 		'xulmigemo.appearance.buttonLabelsMode',
@@ -578,14 +574,6 @@ var XMigemoUI = {
 
 			case 'xulmigemo.ignore_find_links_only_behavior':
 				this.shouldIgnoreFindLinksOnlyBehavior = value;
-				return;
-
-			case 'xulmigemo.prefillwithselection':
-				this.prefillWithSelection = value;
-				return;
-
-			case 'xulmigemo.prefillwithselection':
-				this.workForAnyXMLDocuments = value;
 				return;
 		}
 	},
@@ -1148,42 +1136,10 @@ return;
 
 		this.updateCaseSensitiveCheck();
 
-		if (this.prefillWithSelection)
-			this.doPrefillWithSelection(aEvent.isQuickFind);
-
 		this.disableFindFieldIMEForCurrentMode(aEvent.isQuickFind);
 */
 	},
 	
-	doPrefillWithSelection : function(aShowMinimalUI) 
-	{
-		var win = document.commandDispatcher.focusedWindow;
-		if (!win || win.top == window.top) win = this.browser.contentWindow;
-		var sel = this.textUtils.trim(win && win.getSelection() ? win.getSelection().toString() : '' )
-					.replace(/\n/g, '');
-		if (!sel) return;
-
-		if (this.isActive || this.findMode != this.FIND_MODE_NATIVE) {
-			if (this.isQuickFind) return;
-			this.findTerm = sel;
-			if (
-				XMigemoFind.lastKeyword == sel ||
-				XMigemoFind.lastFoundWord == sel
-				)
-				return;
-			this.findAgain(sel, this.findMode);
-		}
-		else {
-			if (
-				 aShowMinimalUI ||
-				 this.findTerm == sel
-				 )
-				 return;
-			this.findTerm = sel;
-			this.findAgain(sel, this.FIND_MODE_NATIVE);
-		}
-	},
-   
 /* Migemo Find */ 
 	
 /* timer */ 
@@ -1498,10 +1454,6 @@ return;
 
 			setTimeout(XMigemoUI.delayedCloseFindBar.bind(XMigemoUI), 0);
 		};
-
-/*
-		this.findBar.prefillWithSelection = false; // disable Firefox's native feature
-*/
 	},
 	updateFindBarMethods : function()
 	{

@@ -5,7 +5,6 @@ pref("xulmigemo.autostart.regExpFind",          true);
 // 1 = normal find, 2 = migemo, 4 = regexp, 7 = all
 pref("xulmigemo.disableIME.quickFindFor",       2);
 pref("xulmigemo.disableIME.normalFindFor",      2);
-pref("xulmigemo.prefillwithselection",          true);
 pref("xulmigemo.startfromviewport",             true);
 pref("xulmigemo.linksonly",                     false);
 pref("xulmigemo.ignoreHiraKata",                true);

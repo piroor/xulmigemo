@@ -41,9 +41,6 @@
 <!ENTITY config.appearance.buttonLabelsMode.2 "Compact size">
 
 <!ENTITY config.findbar.permanentState           "Always apply these settings when the Find Toolbar is shown:">
-<!ENTITY config.prefillwithselection             "Find field contents:">
-<!ENTITY config.prefillwithselection.true        "Selected term">
-<!ENTITY config.prefillwithselection.false       "Last find term">
 <!ENTITY config.findMode.always.caption         "Find mode:">
 <!ENTITY config.findMode.always.undefined.label "Keep last mode">
 
