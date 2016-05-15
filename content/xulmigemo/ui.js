@@ -362,9 +362,9 @@ window.XMigemoUI = inherit(MigemoConstants, {
 			this.findMigemoBar.collapsed = false;
 		this.updateModeSelectorPosition();
 
-		if (!this.findBar.__xm__open) {
-			this.findBar.__xm__open = this.findBar.open;
-			this.findBar.open = function(...aArgs) {
+		if (!this.findBar.__xm__startFind) {
+			this.findBar.__xm__startFind = this.findBar.startFind;
+			this.findBar.startFind = function(...aArgs) {
 				if (!XMigemoUI.readyToStartTemporaryFindMode &&
 					!XMigemoUI.findModeSelectorBox.hidden) {
 					temporaryMode = XMigemoUI.getModeCirculationNext(XMigemoUI.findMode);
@@ -376,7 +376,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 					XMigemoUI.onChangeMode();
 					return;
 				}
-				return this.__xm__open(...aArgs);
+				return this.__xm__startFind(...aArgs);
 			};
 		}
 
