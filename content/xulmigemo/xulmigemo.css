@@ -13,22 +13,8 @@
 }
 
 
-findbar#FindToolbar[_moz-xmigemo-position="belowtabbar"],
-findbar#FindToolbar[_moz-xmigemo-position="belowtabbar"] > [anonid="findbar-container"] {
-	overflow: hidden;
-}
-
 #FindToolbar [anonid="find-status"],
 toolbar#FindToolbar label#find-status {
 	box-flex: 1;
 	-moz-box-flex: 1;
-}
-
-:root[splitbrowser-split="true"] #FindToolbar[_moz-xmigemo-position="belowtabbar"] [anonid="find-status"] {
-	font-size: 1px;
-	visibility: hidden;
-}
-
-toolbar#FindToolbar[_moz-xmigemo-position="belowtabbar"] {
-	-moz-binding: url("chrome://xulmigemo/content/xulmigemo.xml#find-toolbar");
 }

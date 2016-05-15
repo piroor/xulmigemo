@@ -29,9 +29,6 @@ pref("xulmigemo.enabletimeout",                 true);
 pref("xulmigemo.enableautoexit.inherit",        true);
 pref("xulmigemo.enableautoexit.nokeyword",      true);
 
-// 0 = below content area, 1 = above content area, 2 = between tab bar and content area
-pref("xulmigemo.appearance.findBarPosition", 0);
-
 pref("xulmigemo.shortcut.manualStart",           "/");
 pref("xulmigemo.shortcut.manualStart2",          "Accel+Shift+F");
 pref("xulmigemo.shortcut.manualStartLinksOnly",  "\\");

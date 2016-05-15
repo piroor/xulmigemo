@@ -35,10 +35,3 @@
 	background: #666;
 }
 
-#FindToolbar[_moz-xmigemo-position="abovecontent"],
-#FindToolbar[_moz-xmigemo-position="belowtabbar"] {
-	border-top: 0 none;
-	border-bottom: 1px solid ThreeDShadow;
-	-moz-border-bottom-colors: ThreeDShadow;
-}
-

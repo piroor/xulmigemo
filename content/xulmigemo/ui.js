@@ -1292,21 +1292,8 @@ return;
 	cleanUpOnFindBarHidden : function() 
 	{
 		if (!this.lastTarget) return;
-		switch (this.findBarPosition)
-		{
-			case this.kFINDBAR_POSITION_BELOW_TABS:
-				this.lastTargetBox.style.paddingTop = 0;
-
-			case this.kFINDBAR_POSITION_ABOVE_CONTENT:
-				this.lastTarget.contentWindow.scrollBy(0, -this.contentAreaYOffset);
-				this.lastTarget = null;
-				this.lastTargetBox = null;
-				this.contentAreaYOffset = 0;
-				return;
-
-			default:
-				return;
-		}
+		this.lastTarget = null;
+		this.lastTargetBox = null;
 	},
   
 /* Override FindBar */ 
