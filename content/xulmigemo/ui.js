@@ -137,29 +137,8 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		this._findMode.set(this.findBar, aValue);
 		return aValue;
 	},
-
-	get hidden() 
-	{
-		return (this.findBar.getAttribute('collapsed') == 'true' ||
-				this.findBar.getAttribute('hidden') == 'true');
-	},
-	set hidden(aValue)
-	{
-		if (aValue)
-			this.close();
-		else
-			this.open();
-		return aValue;
-	},
  
 /* utilities */ 
- 
-	fireFindToolbarUpdateRequestEvent : function(aTarget) 
-	{
-		var event = document.createEvent('UIEvents');
-		event.initUIEvent('XMigemoFindBarUpdateRequest', true, true, window, 0);
-		(aTarget || document).dispatchEvent(event);
-	},
 
 	startInTemporaryMode : function(aFindMode, aFindBarMode)
 	{
@@ -274,38 +253,6 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		});
 	},
  
-	onFindStartCommand : function() 
-	{
-		if (this.hidden || this.isQuickFind) return;
-
-		if (!this.focused) return;
-
-		window.setTimeout(function(aSelf) {
-			aSelf.onFindStartCommandCallback();
-		}, 0, this);
-	},
-	
-	onFindStartCommandCallback : function() 
-	{
-		var nextMode = this.getModeCirculationNext();
-		switch (nextMode)
-		{
-			case this.CIRCULATE_MODE_NONE:
-				break;
-
-			case this.CIRCULATE_MODE_EXIT:
-				nextMode = this.getModeCirculationNext(nextMode);
-				if (nextMode != this.CIRCULATE_MODE_EXIT) {
-					this.findMode = nextMode;
-				}
-				this.findBar.close();
-				break;
-
-			default:
-				this.findMode = nextMode;
-				break;
-		}
-	},
 	getModeCirculationNext : function(aCurrentMode)
 	{
 		if (!this.modeCirculationTable.length) {
