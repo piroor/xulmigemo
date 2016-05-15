@@ -454,8 +454,7 @@ var XMigemoUI = {
 		'xulmigemo.disableIME.quickFindFor\n' +
 		'xulmigemo.disableIME.normalFindFor\n' +
 		'xulmigemo.find_delay\n' +
-		'xulmigemo.ignore_find_links_only_behavior\n' +
-		'xulmigemo.work_for_any_xml_document',
+		'xulmigemo.ignore_find_links_only_behavior',
  
 	observe : function(aSubject, aTopic, aPrefName) 
 	{

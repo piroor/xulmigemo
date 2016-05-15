@@ -12,12 +12,10 @@ pref("xulmigemo.ignoreLatinModifiers",          true);
 pref("xulmigemo.ignoreAnyInvisibleNode",        false);
 pref("xulmigemo.splitTermsAutomatically",       false);
 pref("xulmigemo.scrollSelectionToCenter",       true);
-pref("xulmigemo.scrollSelectionToCenter",       true);
 pref("xulmigemo.scrollSelectionToCenter.padding", 30);
 pref("xulmigemo.scrollSelectionToCenter.smoothScroll.enabled", true);
 pref("xulmigemo.scrollSelectionToCenter.smoothScroll.duration", 350);
 pref("xulmigemo.ignore_find_links_only_behavior", true);
-pref("xulmigemo.work_for_any_xml_document",     true);
 
 // 1 = native, 2 = migemo, 4 = regexp
 pref("xulmigemo.findMode.always", -1);
