@@ -229,16 +229,6 @@ window.XMigemoUI = inherit(MigemoConstants, {
 				this.destroy();
 				return;
 
-			case 'resize':
-			case 'TreeStyleTabAutoHideStateChange':
-			case 'XMigemoFindBarUpdateRequest':
-				if (this.updatingFindBar) return;
-				this.updatingFindBar = true;
-				window.setTimeout(function(aSelf) {
-					aSelf.updatingFindBar = false;
-				}, 100, this);
-				return;
-
 			default:
 		}
 	},
