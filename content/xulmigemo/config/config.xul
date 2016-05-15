@@ -127,7 +127,8 @@
 			<radiogroup id="xulmigemo.findMode.always-radio"
 				orient="horizontal"
 				align="center"
-				preference="xulmigemo.findMode.always">
+				preference="xulmigemo.findMode.always"
+				oncommand="updateDefaultFindModeRadio('xulmigemo.findMode');">
 				<radio label="&config.findMode.previousMode;" value="-1"/>
 				<radio label="&ui.mode.normal.label;" value="1"/>
 				<radio label="&ui.mode.migemo.label;" value="2"/>
@@ -154,7 +155,8 @@
 			<radiogroup id="xulmigemo.findMode.quick.always-radio"
 				orient="horizontal"
 				align="center"
-				preference="xulmigemo.findMode.quick.always">
+				preference="xulmigemo.findMode.quick.always"
+				oncommand="updateDefaultFindModeRadio('xulmigemo.findMode.quick');">
 				<radio label="&config.findMode.previousMode;" value="-1"/>
 				<radio label="&ui.mode.normal.label;" value="1"/>
 				<radio label="&ui.mode.migemo.label;" value="2"/>

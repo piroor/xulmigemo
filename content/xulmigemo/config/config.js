@@ -37,6 +37,20 @@ function initDisableIMECheck()
 }
 
 
+function initModePane()
+{
+	updateDefaultFindModeRadio('xulmigemo.findMode');
+	updateDefaultFindModeRadio('xulmigemo.findMode.quick');
+}
+
+function updateDefaultFindModeRadio(aBase)
+{
+	var alwaysRadio = document.getElementById(aBase + '.always-radio');
+	var defaultRadio = document.getElementById(aBase + '.default-radio');
+	defaultRadio.disabled = alwaysRadio.value != -1;
+}
+
+
 
 var startInTemporaryMode = [];
 var startInTemporaryModeFields = [];
