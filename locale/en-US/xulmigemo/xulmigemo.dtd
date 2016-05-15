@@ -82,12 +82,9 @@
 <!ENTITY config.shortcut.modeCirculation.after1  "...">
 <!ENTITY config.shortcut.modeCirculation.after2  "">
 
-<!ENTITY config.shortcut.findForward    "Find Next">
-<!ENTITY config.shortcut.findBackward   "Find Backward">
 <!ENTITY config.shortcut.manualStart    "Start Quick Migemo Find">
 <!ENTITY config.shortcut.manualStartLinksOnly "Start Quick Migemo Find">
 <!ENTITY config.shortcut.manualStartLinksOnly2 "(find only links)">
-<!ENTITY config.shortcut.manualExit     "Exit Quick Migemo Find">
 <!ENTITY config.shortcut.goDicManager   "Show Dictionary Manager">
 
 <!ENTITY config.shortcut.set            "Set">

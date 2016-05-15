@@ -214,12 +214,6 @@
 		<preference id="xulmigemo.shortcut.modeCirculation"
 			name="xulmigemo.shortcut.modeCirculation"
 			type="int"/>
-		<preference id="xulmigemo.shortcut.findForward"
-			name="xulmigemo.shortcut.findForward"
-			type="string"/>
-		<preference id="xulmigemo.shortcut.findBackward"
-			name="xulmigemo.shortcut.findBackward"
-			type="string"/>
 		<preference id="xulmigemo.shortcut.manualStart"
 			name="xulmigemo.shortcut.manualStart"
 			type="string"/>
@@ -234,9 +228,6 @@
 			type="string"/>
 		<preference id="xulmigemo.shortcut.goDicManager"
 			name="xulmigemo.shortcut.goDicManager"
-			type="string"/>
-		<preference id="xulmigemo.shortcut.manualExit"
-			name="xulmigemo.shortcut.manualExit"
 			type="string"/>
 	</preferences>
 
@@ -285,36 +276,6 @@
 				<column/>
 			</columns>
 			<rows>
-				<row align="center">
-					<label value="&config.shortcut.findForward;"/>
-					<textbox id="shortcutFindForward"
-						readonly="true"
-						style="width: 10em;"
-						preference="xulmigemo.shortcut.findForward"
-						dialogMessage="&config.shortcut.dialog.message;"
-						dialogButton="&config.shortcut.dialog.button;"/>
-					<button label="&config.shortcut.set;"
-						style="min-width: 0;"
-						oncommand="setShortcut(shortcutFindForward);"/>
-					<button label="&config.shortcut.clear;"
-						style="min-width: 0;"
-						oncommand="clearShortcut(shortcutFindForward);"/>
-				</row>
-				<row align="center">
-					<label value="&config.shortcut.findBackward;"/>
-					<textbox id="shortcutFindBackward"
-						readonly="true"
-						style="width: 10em;"
-						preference="xulmigemo.shortcut.findBackward"
-						dialogMessage="&config.shortcut.dialog.message;"
-						dialogButton="&config.shortcut.dialog.button;"/>
-					<button label="&config.shortcut.set;"
-						style="min-width: 0;"
-						oncommand="setShortcut(shortcutFindBackward);"/>
-					<button label="&config.shortcut.clear;"
-						style="min-width: 0;"
-						oncommand="clearShortcut(shortcutFindBackward);"/>
-				</row>
 				<row align="center">
 					<label value="&config.shortcut.goDicManager;"/>
 					<textbox id="shortcutGoDicManager"
@@ -413,23 +374,6 @@
 								oncommand="clearShortcut(shortcutManualStartLinksOnly2);"/>
 						</hbox>
 					</vbox>
-				</row>
-				<row align="center">
-					<label value="&config.shortcut.manualExit;"/>
-					<hbox align="center">
-						<textbox id="shortcutManualExit"
-							readonly="true"
-							style="width: 10em;"
-							preference="xulmigemo.shortcut.manualExit"
-							dialogMessage="&config.shortcut.dialog.message;"
-							dialogButton="&config.shortcut.dialog.button;"/>
-						<button label="&config.shortcut.set;"
-							style="min-width: 0;"
-							oncommand="setShortcut(shortcutManualExit);"/>
-						<button label="&config.shortcut.clear;"
-							style="min-width: 0;"
-							oncommand="clearShortcut(shortcutManualExit);"/>
-					</hbox>
 				</row>
 			</rows>
 		</grid>

@@ -450,14 +450,11 @@ var XMigemoUI = {
 		'xulmigemo.enabletimeout\n' +
 		'xulmigemo.timeout\n' +
 		'xulmigemo.timeout.stopWhileScrolling\n' +
-		'xulmigemo.shortcut.findForward\n' +
-		'xulmigemo.shortcut.findBackward\n' +
 		'xulmigemo.shortcut.manualStart\n' +
 		'xulmigemo.shortcut.manualStart2\n' +
 		'xulmigemo.shortcut.manualStartLinksOnly\n' +
 		'xulmigemo.shortcut.manualStartLinksOnly2\n' +
 		'xulmigemo.shortcut.goDicManager\n' +
-		'xulmigemo.shortcut.manualExit\n' +
 		'xulmigemo.shortcut.modeCirculation\n' +
 		'xulmigemo.disableIME.quickFindFor\n' +
 		'xulmigemo.disableIME.normalFindFor\n' +
@@ -508,16 +505,6 @@ var XMigemoUI = {
 				this.stopTimerWhileScrolling = value;
 				return;
 
-			case 'xulmigemo.shortcut.findForward':
-				this.findForwardKey = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-findForward', this.findForwardKey, document);
-				return;
-
-			case 'xulmigemo.shortcut.findBackward':
-				this.findBackwardKey = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-findBackward', this.findBackwardKey, document);
-				return;
-
 			case 'xulmigemo.shortcut.manualStart':
 				this.manualStartKey = XMigemoService.parseShortcut(value);
 				XMigemoService.updateKey('xmigemo-shortcut-manualStart', this.manualStartKey, document);
@@ -536,11 +523,6 @@ var XMigemoUI = {
 			case 'xulmigemo.shortcut.manualStartLinksOnly2':
 				this.manualStartLinksOnlyKey2 = XMigemoService.parseShortcut(value);
 				XMigemoService.updateKey('xmigemo-shortcut-manualStartLinksOnly2', this.manualStartLinksOnlyKey2, document);
-				return;
-
-			case 'xulmigemo.shortcut.manualExit':
-				this.manualExitKey = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-manualExit', this.manualExitKey, document);
 				return;
 
 			case 'xulmigemo.shortcut.goDicManager':
@@ -713,13 +695,10 @@ var XMigemoUI = {
 			return false;
 
 		var shouldGoDicManager   = XMigemoService.checkShortcutForKeyEvent(this.goDicManagerKey, aEvent);
-		var isForwardKey         = XMigemoService.checkShortcutForKeyEvent(this.findForwardKey, aEvent);
-		var isBackwardKey        = XMigemoService.checkShortcutForKeyEvent(this.findBackwardKey, aEvent);
 		var isStartKey           = XMigemoService.checkShortcutForKeyEvent(this.manualStartKey, aEvent);
 		var isStartKey2          = XMigemoService.checkShortcutForKeyEvent(this.manualStartKey2, aEvent);
 		var isStartKeyLinksOnly  = XMigemoService.checkShortcutForKeyEvent(this.manualStartLinksOnlyKey, aEvent);
 		var isStartKeyLinksOnly2 = XMigemoService.checkShortcutForKeyEvent(this.manualStartLinksOnlyKey2, aEvent);
-		var isExitKey            = XMigemoService.checkShortcutForKeyEvent(this.manualExitKey, aEvent);
 
 		if (shouldGoDicManager) {
 			XMigemoService.goDicManager(window);
@@ -729,15 +708,6 @@ var XMigemoUI = {
 
 		if (!XMigemoService.isEventFiredInFindableDocument(aEvent))
 			return false;
-
-		if (isForwardKey || isBackwardKey) {
-			aEvent.preventDefault();
-			if (isForwardKey)
-				this.commandForward(aEvent);
-			else
-				this.commandBackward(aEvent);
-			return true;
-		}
 
 		if (
 			!this.isActive &&
@@ -757,13 +727,6 @@ var XMigemoUI = {
 			) {
 			this.commandStart(aEvent, isStartKeyLinksOnly || isStartKeyLinksOnly2);
 			aEvent.preventDefault();
-			return true;
-		}
-
-
-		if (isExitKey) {
-			aEvent.preventDefault();
-			this.commandExit(aEvent);
 			return true;
 		}
 

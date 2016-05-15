@@ -37,8 +37,6 @@ function initDisableIMECheck()
 
 
 
-var shortcutFindBackward;
-var shortcutFindForward;
 var shortcutManualStart;
 var shortcutManualStart2;
 var shortcutManualStartLinksOnly;
@@ -48,10 +46,6 @@ var shortcutGoDicManager;
 function initShortcutPane()
 {
 
-	shortcutFindForward = document.getElementById('shortcutFindForward');
-	shortcutFindForward.keyData = XMigemoService.parseShortcut(shortcutFindForward.value);
-	shortcutFindBackward = document.getElementById('shortcutFindBackward');
-	shortcutFindBackward.keyData = XMigemoService.parseShortcut(shortcutFindBackward.value);
 	shortcutManualStart = document.getElementById('shortcutManualStart');
 	shortcutManualStart.keyData = XMigemoService.parseShortcut(shortcutManualStart.value);
 	shortcutManualStart2 = document.getElementById('shortcutManualStart2');
@@ -60,8 +54,6 @@ function initShortcutPane()
 	shortcutManualStartLinksOnly.keyData = XMigemoService.parseShortcut(shortcutManualStartLinksOnly.value);
 	shortcutManualStartLinksOnly2 = document.getElementById('shortcutManualStartLinksOnly2');
 	shortcutManualStartLinksOnly2.keyData = XMigemoService.parseShortcut(shortcutManualStartLinksOnly2.value);
-	shortcutManualExit = document.getElementById('shortcutManualExit');
-	shortcutManualExit.keyData = XMigemoService.parseShortcut(shortcutManualExit.value);
 	shortcutGoDicManager = document.getElementById('shortcutGoDicManager');
 	shortcutGoDicManager.keyData = XMigemoService.parseShortcut(shortcutGoDicManager.value);;
 }
