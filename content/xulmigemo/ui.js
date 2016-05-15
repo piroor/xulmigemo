@@ -8,7 +8,7 @@ Components.utils.import('resource://xulmigemo-modules/api.jsm');
 	Components.utils.import('resource://xulmigemo-modules/finder.jsm');
 
 	var { MigemoConstants } = Components.utils.import('resource://xulmigemo-modules/constants.jsm', {});
-	var { inherit } = Components.utils.import('resource://xulmigemo-modules/lib.inherit.jsm', {});
+	var { inherit } = Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm', {});
  
 window.XMigemoUI = inherit(MigemoConstants, { 
 	
