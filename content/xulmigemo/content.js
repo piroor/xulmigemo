@@ -6,16 +6,15 @@
 
 	var { Services } = Cu.import('resource://gre/modules/Services.jsm', {});
 
+	var { MigemoConstants } = Components.utils.import('resource://xulmigemo-modules/constants.jsm', {});
 	Components.utils.import('resource://xulmigemo-modules/finder.jsm', {});
-
-	var MESSAGE_TYPE = '{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}';
 
 	function free()
 	{
 		free =
 			Cc = Ci = Cu = Cr =
 			Services =
-			MESSAGE_TYPE =
+			MigemoConstants =
 			handleMessage =
 				undefined;
 	}
@@ -24,10 +23,14 @@
 	{
 		switch (aMessage.json.command)
 		{
-			case 'shutdown':
+			case MigemoConstants.COMMAND_SET_FIND_MODE:
+				
+				return;
+
+			case MigemoConstants.COMMAND_SHUTDOWN:
 				free();
 				return;
 		}
 	}
-	global.addMessageListener(MESSAGE_TYPE, handleMessage);
+	global.addMessageListener(MigemoConstants.MESSAGE_TYPE, handleMessage);
 })(this);

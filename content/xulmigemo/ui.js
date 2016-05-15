@@ -1,16 +1,15 @@
 Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
 Components.utils.import('resource://xulmigemo-modules/api.jsm'); 
-var XMigemoFind;
+
 (function() {
-	let { MigemoFind } = Components.utils.import('resource://xulmigemo-modules/core/find.js', {});
-	XMigemoFind = new MigemoFind();
+	var { MigemoFind } = Components.utils.import('resource://xulmigemo-modules/core/find.js', {});
+	var XMigemoFind = new MigemoFind();
 
 	Components.utils.import('resource://xulmigemo-modules/finder.jsm');
-})();
+
+	var { MigemoConstants } = Components.utils.import('resource://xulmigemo-modules/constants.jsm', {});
  
-var XMigemoUI = { 
-	MESSAGE_TYPE : '{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}',
-	SCRIPT_URL : 'chrome://xulmigemo/content/content.js',
+window.XMigemoUI = { 
 	
 /* constants */ 
 
@@ -1601,7 +1600,7 @@ return;
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 
-		window.messageManager.loadFrameScript(this.SCRIPT_URL, true);
+		window.messageManager.loadFrameScript(MigemoConstants.SCRIPT_URL, true);
 
 return;
 		window.addEventListener('findbaropen', this, true);
@@ -1677,10 +1676,10 @@ return;
 	{
 		XMigemoService.removePrefListener(this);
 
-		window.messageManager.broadcastAsyncMessage(this.MESSAGE_TYPE, {
+		window.messageManager.broadcastAsyncMessage(MigemoConstants.MESSAGE_TYPE, {
 			command : 'shutdown'
 		});
-		window.messageManager.removeDelayedFrameScript(this.SCRIPT_URL);
+		window.messageManager.removeDelayedFrameScript(MigemoConstants.SCRIPT_URL);
 
 /*
 		window.removeEventListener('findbaropen', this, true);
@@ -1702,6 +1701,8 @@ return;
   
 window.addEventListener('load', XMigemoUI, false); 
 window.removeEventListener('DOMContentLoaded', XMigemoUI, false);
+
+})();
  
 //obsolete 
 function xmFind(){
