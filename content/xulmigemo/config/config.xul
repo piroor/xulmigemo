@@ -192,7 +192,6 @@
 			type="string"/>
 	</preferences>
 
-	<vbox flex="1" style="overflow:auto">
 	<vbox>
 		<label value="&config.shortcut.modeCirculation.before1;"/>
 		<hbox align="center">
@@ -228,8 +227,7 @@
 		</hbox>
 		<label value="&config.shortcut.modeCirculation.after2;"/>
 	</vbox>
-	<hbox>
-		<spacer flex="1"/>
+	<vbox flex="1" style="overflow:auto">
 		<grid>
 			<columns>
 				<column/>
@@ -255,11 +253,7 @@
 				</row>
 			</rows>
 		</grid>
-		<spacer flex="1"/>
-	</hbox>
-	<separator/>
-	<hbox>
-		<spacer flex="1"/>
+		<separator/>
 		<grid>
 			<columns>
 				<column/>
@@ -271,8 +265,6 @@
 			<rows id="startInTemporaryModeRows">
 			</rows>
 		</grid>
-		<spacer flex="1"/>
-	</hbox>
 	<textbox id="startInTemporaryMode-field"
 		style="visibility:collapse;-moz-user-focus:ignore;"
 		preference="xulmigemo.shortcut.startInTemporaryMode"/>
