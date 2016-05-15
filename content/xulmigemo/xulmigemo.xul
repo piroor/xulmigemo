@@ -41,18 +41,6 @@
 				onclick="XMigemoUI.onClickMode(event);"/>
 		</radiogroup>
 	</hbox>
-	<commandset id="xmigemo-commands">
-		<command id="xmigemo-command-manualStart"
-			oncommand="XMigemoUI.startInTemporaryMode(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.FIND_TYPEAHEAD);"/>
-		<command id="xmigemo-command-manualStart2"
-			oncommand="XMigemoUI.startInTemporaryMode(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.FIND_TYPEAHEAD);"/>
-		<command id="xmigemo-command-manualStartLinksOnly"
-			oncommand="XMigemoUI.startInTemporaryMode(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.FIND_LINKS);"/>
-		<command id="xmigemo-command-manualStartLinksOnly2"
-			oncommand="XMigemoUI.startInTemporaryMode(XMigemoUI.FIND_MODE_MIGEMO, XMigemoUI.FIND_LINKS);"/>
-		<command id="xmigemo-command-goDicManager"
-			oncommand="XMigemoService.goDicManager(window)"/>
-	</commandset>
 	<keyset id="xmigemo-shortcuts"/>
 </hbox>
 

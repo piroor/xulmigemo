@@ -199,10 +199,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	domain  : 'xulmigemo', 
  
 	preferences : 
-		'xulmigemo.shortcut.manualStart\n' +
-		'xulmigemo.shortcut.manualStart2\n' +
-		'xulmigemo.shortcut.manualStartLinksOnly\n' +
-		'xulmigemo.shortcut.manualStartLinksOnly2\n' +
+		'xulmigemo.shortcut.startInTemporaryMode\n' +
 		'xulmigemo.shortcut.goDicManager\n' +
 		'xulmigemo.shortcut.modeCirculation\n' +
 		'xulmigemo.disableIME.quickFindFor\n' +
@@ -215,29 +212,32 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		var value = XMigemoService.getPref(aPrefName);
 		switch (aPrefName)
 		{
-			case 'xulmigemo.shortcut.manualStart':
-				this.manualStartKey = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-manualStart', this.manualStartKey, document);
-				return;
-
-			case 'xulmigemo.shortcut.manualStart2':
-				this.manualStartKey2 = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-manualStart2', this.manualStartKey2, document);
-				return;
-
-			case 'xulmigemo.shortcut.manualStartLinksOnly':
-				this.manualStartLinksOnlyKey = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-manualStartLinksOnly', this.manualStartLinksOnlyKey, document);
-				return;
-
-			case 'xulmigemo.shortcut.manualStartLinksOnly2':
-				this.manualStartLinksOnlyKey2 = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-manualStartLinksOnly2', this.manualStartLinksOnlyKey2, document);
+			case 'xulmigemo.shortcut.startInTemporaryMode':
+				let prefix = 'xmigemo-shortcut-startInTemporaryMode-';
+				Array.forEach(document.querySelectorAll('[id^="' + prefix + '"]'), function(aNode) {
+					aNode.parentNode.removeChild(aNode);
+				});
+				JSON.parse(value).forEach(function(aDefinition, aIndex) {
+					XMigemoService.updateKey(
+						prefix + aIndex,
+						XMigemoService.parseShortcut(aDefinition.shortcut),
+						'XMigemoUI.startInTemporaryMode(XMigemoUI.' +
+							aDefinition.mode +
+							', XMigemoUI.' +
+							aDefinition.findbarMode +
+							');',
+						document
+					);
+				});
 				return;
 
 			case 'xulmigemo.shortcut.goDicManager':
-				this.goDicManagerKey = XMigemoService.parseShortcut(value);
-				XMigemoService.updateKey('xmigemo-shortcut-goDicManager', this.goDicManagerKey, document);
+				XMigemoService.updateKey(
+					'xmigemo-shortcut-goDicManager',
+					XMigemoService.parseShortcut(value),
+					'XMigemoService.goDicManager(window)',
+					document
+				);
 				return;
 
 			case 'xulmigemo.shortcut.modeCirculation':
