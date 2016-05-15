@@ -11,11 +11,7 @@ overlay	chrome://messenger/content/messenger.xul	chrome://xulmigemo/content/mail
 overlay	chrome://messenger/content/messageWindow.xul	chrome://xulmigemo/content/mailWindowOverlay.xul
 
 locale	xulmigemo	en-US	locale/en-US/xulmigemo/
-locale	xulmigemo-platform	en-US	locale/en-US/xulmigemo/
-locale	xulmigemo-platform	en-US	locale/en-US/xulmigemo-Darwin/ os=Darwin
 locale	xulmigemo	ja	locale/ja/xulmigemo/
-locale	xulmigemo-platform	ja	locale/ja/xulmigemo/
-locale	xulmigemo-platform	ja	locale/ja/xulmigemo-Darwin/ os=Darwin
 
 skin	xulmigemo	classic/1.0	skin/classic/xulmigemo/
 

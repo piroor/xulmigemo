@@ -4,8 +4,6 @@
 <!DOCTYPE overlay [
 <!ENTITY % mainDTD SYSTEM "chrome://xulmigemo/locale/xulmigemo.dtd">
 %mainDTD;
-<!ENTITY % platformDTD SYSTEM "chrome://xulmigemo-platform/locale/buttonLabels.dtd">
-%platformDTD;
 ]>
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
@@ -17,11 +15,7 @@
 	collapsed="true"
 	pack="end"
 	main-label-migemo-normal="&ui.label.migemo.normal;"
-	main-label-migemo-link="&ui.label.migemo.link;"
-	findNext-short-label="&ui.findNext.shortLabel;"
-	findPrevious-short-label="&ui.findPrevious.shortLabel;"
-	highlight-short-label="&ui.highlight.shortLabel;"
-	caseSensitive-short-label="&ui.caseSensitive.shortLabel;">
+	main-label-migemo-link="&ui.label.migemo.link;">
 	<hbox id="find-migemo-mode-box"
 		align="center"
 		pack="end"
@@ -33,22 +27,16 @@
 			onselect="XMigemoUI.onChangeMode();"
 			style="width: 100%; -moz-box-pack: end;">
 			<radio value="1"
-				label="&ui.mode.normal.label;"
-				long-label="&ui.mode.normal.label;"
-				short-label="&ui.mode.normal.shortLabel;"
+				label="&ui.mode.normal.shortLabel;"
 				tooltiptext="&ui.mode.normal.tooltiptext;"
 				selected="true"
 				onclick="XMigemoUI.onClickMode(event);"/>
 			<radio value="4"
-				label="&ui.mode.regexp.label;"
-				long-label="&ui.mode.regexp.label;"
-				short-label="&ui.mode.regexp.shortLabel;"
+				label="&ui.mode.regexp.shortLabel;"
 				tooltiptext="&ui.mode.regexp.tooltiptext;"
 				onclick="XMigemoUI.onClickMode(event);"/>
 			<radio value="2"
-				label="&ui.mode.migemo.label;"
-				long-label="&ui.mode.migemo.label;"
-				short-label="&ui.mode.migemo.shortLabel;"
+				label="&ui.mode.migemo.shortLabel;"
 				tooltiptext="&ui.mode.migemo.tooltiptext;"
 				onclick="XMigemoUI.onClickMode(event);"/>
 		</radiogroup>
