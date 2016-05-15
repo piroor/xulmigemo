@@ -8,32 +8,13 @@ var gQuickFind;
 
 function initGeneralPane()
 {
-	gDisableIME = document.getElementById('xulmigemo.disableIME-check');
-	gNormalFind = document.getElementById('xulmigemo.disableIME.normalFindFor-textbox');
-	gQuickFind = document.getElementById('xulmigemo.disableIME.quickFindFor-textbox');
+	gDisableIME = document.getElementById('xulmigemo.disableIME.migemo-check');
 	if (!XMigemoService.isWindows && !XMigemoService.isMac) {
 		gDisableIME.setAttribute('hidden', true);
 	}
 	else {
 		gDisableIME.removeAttribute('hidden');
-		initDisableIMECheck();
 	}
-}
-
-function onChangeDisableIMECheck()
-{
-	gNormalFind.value = gQuickFind.value = (gDisableIME.checked ? 2 : 0 );
-	[gNormalFind, gQuickFind].forEach(fireInputEvent);
-}
-function initDisableIMECheck()
-{
-	var normalFind = parseInt(gNormalFind.value);
-	var quickFind = parseInt(gQuickFind.value);
-
-	gDisableIME.checked = (
-		(normalFind & MigemoConstants.FIND_MODE_MIGEMO) &&
-		(quickFind & MigemoConstants.FIND_MODE_MIGEMO)
-	) ? true : false ;
 }
 
 

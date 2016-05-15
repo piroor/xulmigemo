@@ -40,12 +40,9 @@
 			name="xulmigemo.splitTermsAutomatically"
 			type="bool"/>
 
-		<preference id="xulmigemo.disableIME.quickFindFor"
-			name="xulmigemo.disableIME.quickFindFor"
-			type="int"/>
-		<preference id="xulmigemo.disableIME.normalFindFor"
-			name="xulmigemo.disableIME.normalFindFor"
-			type="int"/>
+		<preference id="xulmigemo.disableIME.migemo"
+			name="xulmigemo.disableIME.migemo"
+			type="bool"/>
 	</preferences>
 
 	<hbox align="center">
@@ -78,15 +75,9 @@
 		<checkbox id="xulmigemo.autostart.regExpFind-check" flex="1"
 			label="&config.autoStartRegExpFind;"
 			preference="xulmigemo.autostart.regExpFind"/>
-		<checkbox id="xulmigemo.disableIME-check" flex="1"
-			label="&config.disableIME;"
-			oncommand="onChangeDisableIMECheck();"/>
-		<box collapsed="true">
-			<textbox id="xulmigemo.disableIME.quickFindFor-textbox"
-				preference="xulmigemo.disableIME.quickFindFor"/>
-			<textbox id="xulmigemo.disableIME.normalFindFor-textbox"
-				preference="xulmigemo.disableIME.normalFindFor"/>
-		</box>
+		<checkbox id="xulmigemo.disableIME.migemo-check" flex="1"
+			preference="xulmigemo.disableIME.migemo"
+			label="&config.disableIME;"/>
 	</vbox>
 
 	<groupbox>
