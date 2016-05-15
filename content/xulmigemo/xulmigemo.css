@@ -1,20 +1,9 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-#FindToolbar[labelhidden="true"] toolbarbutton > label[value=""] {
-	visibility: collapse !important;
-}
-
 *|*[_moz-xmigemo-disable-ime="true"] {
 	ime-mode: disabled !important;
 }
 *|*[_moz-xmigemo-inactivate-ime="true"] {
 	ime-mode: inactive !important;
-}
-
-
-#FindToolbar [anonid="find-status"],
-toolbar#FindToolbar label#find-status {
-	box-flex: 1;
-	-moz-box-flex: 1;
 }
