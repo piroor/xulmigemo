@@ -128,7 +128,16 @@ window.XMigemoUI = inherit(MigemoConstants, {
    
 /* status */ 
 
-	findMode : MigemoConstants.FIND_MODE_NOT_INITIALIZED,
+	_findMode : new WeakMap(),
+	get findMode()
+	{
+		return this._findMode.get(this.findBar);
+	},
+	set findMode(aValue)
+	{
+		this._findMode.set(this.findBar, aValue);
+		return aValue;
+	},
 
 	get hidden() 
 	{
@@ -353,11 +362,29 @@ window.XMigemoUI = inherit(MigemoConstants, {
 			this.findMigemoBar.collapsed = false;
 		this.updateModeSelectorPosition();
 
+		if (!this.findBar.__xm__open) {
+			this.findBar.__xm__open = this.findBar.open;
+			this.findBar.open = function(...aArgs) {
+				if (!XMigemoUI.readyToStartTemporaryFindMode &&
+					!XMigemoUI.findModeSelectorBox.hidden) {
+					temporaryMode = XMigemoUI.getModeCirculationNext(XMigemoUI.findMode);
+					if (temporaryMode === XMigemoUI.CIRCULATE_MODE_EXIT) {
+						this.close();
+						return;
+					}
+					XMigemoUI.findModeSelector.value = MigemoConstants.FIND_MODE_FLAG_FROM_NAME[temporaryMode];
+					XMigemoUI.onChangeMode();
+					return;
+				}
+				return this.__xm__open(...aArgs);
+			};
+		}
+
 		if (!this.findBar.__xm__close) {
 			this.findBar.__xm__close = this.findBar.close;
 			this.findBar.close = function(...aArgs) {
-				this.__xm__close(...aArgs);
 				XMigemoUI.findModeSelectorBox.hidden = true;
+				return this.__xm__close(...aArgs);
 			};
 		}
 	},
