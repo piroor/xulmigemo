@@ -10,6 +10,9 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
+Components.utils.import('resource://xulmigemo-modules/constants.jsm');
+
 Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
 Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js');
 
@@ -21,23 +24,19 @@ const Prefs = Cc['@mozilla.org/preferences;1']
  
 function MigemoCache() {
 }
-MigemoCache.prototype = {
+MigemoCache.prototype = inherit(MigemoConstants, {
 	initialized : false, 
-
-	SYSTEM_DIC : 1 << 0, 
-	USER_DIC   : 1 << 1,
-	ALL_DIC    : (1 << 0 | 1 << 1),
  
 	memCache       : {}, 
 	diskCacheClone : {},
 	DICTIONARIES_ALL : [
-		1 << 0,
-		1 << 1,
-		(1 << 0 | 1 << 1)
+		MigemoConstants.SYSTEM_DIC,
+		MigemoConstants.USER_DIC,
+		MigemoConstants.ALL_DIC
 	],
 	DICTIONARIES_CHANGABLE : [
-		1 << 1,
-		(1 << 0 | 1 << 1)
+		MigemoConstants.USER_DIC,
+		MigemoConstants.ALL_DIC
 	],
 	encoding : 'UTF-8',
  
@@ -270,7 +269,7 @@ MigemoCache.prototype = {
 		return true;
 	}
   
-}; 
+}); 
 
 var MigemoCacheFactory = {
 	_instances : {},

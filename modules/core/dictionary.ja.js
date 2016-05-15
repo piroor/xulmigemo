@@ -11,6 +11,9 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
+Components.utils.import('resource://xulmigemo-modules/constants.jsm');
+
 Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
 Components.utils.import('resource://xulmigemo-modules/core/textTransform.ja.js');
 Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js');
@@ -22,19 +25,12 @@ const ObserverService = Cc['@mozilla.org/observer-service;1']
 const Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
-var MigemoDictionaryJa = {
+var MigemoDictionaryJa = inherit(MigemoConstants, {
 	lang : 'ja',
 
 	// MigemoDictionary 
 	
 	initialized : false, 
- 
-	RESULT_OK                      : MigemoDictionary.RESULT_OK, 
-	RESULT_ERROR_INVALID_INPUT     : MigemoDictionary.RESULT_ERROR_INVALID_INPUT,
-	RESULT_ERROR_ALREADY_EXIST     : MigemoDictionary.RESULT_ERROR_ALREADY_EXIST,
-	RESULT_ERROR_NOT_EXIST         : MigemoDictionary.RESULT_ERROR_NOT_EXIST,
-	RESULT_ERROR_NO_TARGET         : MigemoDictionary.RESULT_ERROR_NO_TARGET,
-	RESULT_ERROR_INVALID_OPERATION : MigemoDictionary.RESULT_ERROR_INVALID_OPERATION,
  
 /* File I/O */ 
 	
@@ -382,7 +378,7 @@ var MigemoDictionaryJa = {
 		}
 	}
   
-}; 
+}); 
   
 function mydump(aString) 
 {

@@ -23,21 +23,14 @@
 <!ENTITY config.splitTermsAutomatically "Recognize text segments automatically">
 
 
-<!ENTITY config.tab.quickfind           "Quick Migemo Find">
 
-<!ENTITY config.autostart               "Start the mode automatically for keytypes">
-<!ENTITY config.linksonly               "Find only links">
-<!ENTITY config.enabletimeout           "Exit the mode automatically with an timeout">
-<!ENTITY config.timeout.before          "after">
-<!ENTITY config.timeout.after           "msec">
+<!ENTITY config.tab.findMode             "Find Mode">
 
-
-
-<!ENTITY config.tab.findbar             "Find Toolbar">
-
-<!ENTITY config.findbar.permanentState           "Always apply these settings when the Find Toolbar is shown:">
-<!ENTITY config.findMode.always.caption         "Find mode:">
-<!ENTITY config.findMode.always.undefined.label "Keep last mode">
+<!ENTITY config.findMode.always.caption  "for Find in the current page">
+<!ENTITY config.findMode.default.caption "Default find mode on startup:">
+<!ENTITY config.findMode.quick.always.caption  "for Quick Find">
+<!ENTITY config.findMode.quick.default.caption "Default find mode on startup:">
+<!ENTITY config.findMode.previousMode   "Keep last mode">
 
 
 <!ENTITY config.dictionary.button         "Dictionary Configuration...">

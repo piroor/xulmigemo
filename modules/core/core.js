@@ -13,10 +13,11 @@ const Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
 Components.utils.import('resource://gre/modules/Timer.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
+Components.utils.import('resource://xulmigemo-modules/constants.jsm');
+
 Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
 Components.utils.import('resource://xulmigemo-modules/core/cache.js');
-
-var timer = {};
 
 const ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);;
@@ -27,11 +28,7 @@ const Prefs = Cc['@mozilla.org/preferences;1']
 function MigemoCore(aLang) {
 	this.init(aLang);
 }
-MigemoCore.prototype = {
-
-	SYSTEM_DIC : 1 << 0, 
-	USER_DIC   : 1 << 1,
-	ALL_DIC    : (1 << 0 | 1 << 1),
+MigemoCore.prototype = inherit(MigemoConstants, {
  
 	get cache() 
 	{
@@ -594,7 +591,7 @@ MigemoCore.prototype = {
 		pbi.removeObserver(this.domain, this, false);
 	}
  
-}; 
+}); 
 
 var MigemoCoreFactory = {
 	_instances : {},

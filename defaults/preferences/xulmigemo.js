@@ -1,31 +1,26 @@
 pref("xulmigemo.lang", "");
 
-pref("xulmigemo.autostart",                     false);
-pref("xulmigemo.autostart.regExpFind",          true);
+// 1 = native find, 2 = migemo, 4 = regexp, otherwise = keep previous mode
+pref("xulmigemo.findMode.default", 2);
+pref("xulmigemo.findMode.always", -1);
+pref("xulmigemo.findMode.quick.default", 2);
+pref("xulmigemo.findMode.quick.always", -1);
+
 // 1 = normal find, 2 = migemo, 4 = regexp, 7 = all
-pref("xulmigemo.disableIME.quickFindFor",       2);
 pref("xulmigemo.disableIME.normalFindFor",      2);
+pref("xulmigemo.disableIME.quickFindFor",       2);
+
 pref("xulmigemo.startfromviewport",             true);
 pref("xulmigemo.linksonly",                     false);
 pref("xulmigemo.ignoreHiraKata",                true);
 pref("xulmigemo.ignoreLatinModifiers",          true);
 pref("xulmigemo.ignoreAnyInvisibleNode",        false);
 pref("xulmigemo.splitTermsAutomatically",       false);
+
 pref("xulmigemo.scrollSelectionToCenter",       true);
 pref("xulmigemo.scrollSelectionToCenter.padding", 30);
 pref("xulmigemo.scrollSelectionToCenter.smoothScroll.enabled", true);
 pref("xulmigemo.scrollSelectionToCenter.smoothScroll.duration", 350);
-pref("xulmigemo.ignore_find_links_only_behavior", true);
-
-// 1 = native, 2 = migemo, 4 = regexp
-pref("xulmigemo.findMode.always", -1);
-pref("xulmigemo.findMode.default", 1);
-
-pref("xulmigemo.timeout",                       4000);
-pref("xulmigemo.timeout.stopWhileScrolling",    true);
-pref("xulmigemo.enabletimeout",                 true);
-pref("xulmigemo.enableautoexit.inherit",        true);
-pref("xulmigemo.enableautoexit.nokeyword",      true);
 
 pref("xulmigemo.shortcut.manualStart",           "/");
 pref("xulmigemo.shortcut.manualStart2",          "Accel+Shift+F");

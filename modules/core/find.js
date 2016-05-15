@@ -10,6 +10,9 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
+Components.utils.import('resource://xulmigemo-modules/constants.jsm');
+
 Components.utils.import('resource://xulmigemo-modules/core/core.js');
 Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
 
@@ -37,26 +40,7 @@ function MigemoFind()
 	this.smoothScrollTasks = new WeakMap();
 }
 
-MigemoFind.NOTFOUND          = 0;
-MigemoFind.FOUND             = 1 << 0;
-MigemoFind.WRAPPED           = 1 << 1;
-MigemoFind.FOUND_IN_LINK     = 1 << 2;
-MigemoFind.FOUND_IN_EDITABLE = 1 << 3;
-MigemoFind.FINISH_FIND       = 1 << 4;
- 
-MigemoFind.FIND_DEFAULT     = 1 << 0;
-MigemoFind.FIND_BACK        = 1 << 1;
-MigemoFind.FIND_FORWARD     = 1 << 2;
-MigemoFind.FIND_WRAP        = 1 << 3;
-MigemoFind.FIND_IN_LINK     = 1 << 7;
-MigemoFind.FIND_IN_EDITABLE = 1 << 8;
-MigemoFind.FIND_SILENTLY    = 1 << 9; // for internal use
-
-MigemoFind.FIND_MODE_NATIVE = 1 << 0;
-MigemoFind.FIND_MODE_MIGEMO = 1 << 1;
-MigemoFind.FIND_MODE_REGEXP = 1 << 2;
-
-MigemoFind.prototype = {	
+MigemoFind.prototype = inherit(MigemoConstants, {
 	lastKeyword     : '', 
 	previousKeyword : '',
 	lastFoundWord   : '',
@@ -111,26 +95,8 @@ MigemoFind.prototype = {
 
 	startFromViewport : false,
  
-	lastResult        : MigemoFind.NOTFOUND,
-	NOTFOUND          : MigemoFind.NOTFOUND,
-	FOUND             : MigemoFind.FOUND,
-	WRAPPED           : MigemoFind.WRAPPED,
-	FOUND_IN_LINK     : MigemoFind.FOUND_IN_LINK,
-	FOUND_IN_EDITABLE : MigemoFind.FOUND_IN_EDITABLE,
-	FINISH_FIND       : MigemoFind.FINISH_FIND,
-
-	FIND_DEFAULT     : MigemoFind.FIND_DEFAULT,
-	FIND_BACK        : MigemoFind.FIND_BACK,
-	FIND_FORWARD     : MigemoFind.FIND_FORWARD,
-	FIND_WRAP        : MigemoFind.FIND_WRAP,
-	FIND_IN_LINK     : MigemoFind.FIND_IN_LINK,
-	FIND_IN_EDITABLE : MigemoFind.FIND_IN_EDITABLE,
-	FIND_SILENTLY    : MigemoFind.FIND_SILENTLY,
-
-	FIND_MODE_NATIVE : MigemoFind.FIND_MODE_NATIVE,
-	FIND_MODE_MIGEMO : MigemoFind.FIND_MODE_MIGEMO,
-	FIND_MODE_REGEXP : MigemoFind.FIND_MODE_REGEXP,
-	findMode : MigemoFind.FIND_MODE_NATIVE,
+	lastResult        : MigemoConstants.NOTFOUND,
+	findMode : MigemoConstants.FIND_MODE_NATIVE,
  
 	set targetDocShell(val) 
 	{
@@ -1318,7 +1284,7 @@ mydump('scrollSelectionToCenter '+aScrollTarget+' ('+x+', '+y+')');
 		}
 	}
  
-}; 
+}); 
   
 /* DocShell Traversal */ 
 function DocShellIterator(aDocShell, aFromBack)

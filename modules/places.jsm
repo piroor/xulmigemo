@@ -41,7 +41,7 @@ var XMigemoPlaces = {
 		var info = {
 				input            : aInput,
 				findFlag         : 0,
-				findMode         : MigemoFind.FIND_MODE_NATIVE,
+				findMode         : MigemoConstants.FIND_MODE_NATIVE,
 				findRegExps      : [],
 				termsRegExp      : null,
 				exceptionsRegExp : null
@@ -59,7 +59,7 @@ var XMigemoPlaces = {
 			var source = MigemoTextUtils.extractRegExpSource(findInput);
 			info.termsRegExp = new RegExp(source, flags);
 			info.findRegExps = [info.termsRegExp];
-			info.findMode = MigemoFind.FIND_MODE_REGEXP;
+			info.findMode = MigemoConstants.FIND_MODE_REGEXP;
 		}
 		else {
 			let termsRegExp = {};
@@ -70,7 +70,7 @@ var XMigemoPlaces = {
 								});
 			info.termsRegExp = termsRegExp.value ? new RegExp(termsRegExp.value, 'gim') : null ;
 			info.exceptionsRegExp = exceptionsRegExp.value ? new RegExp(exceptionsRegExp.value, 'im') : null ;
-			info.findMode = MigemoFind.FIND_MODE_MIGEMO;
+			info.findMode = MigemoConstants.FIND_MODE_MIGEMO;
 		}
 
 		return info;

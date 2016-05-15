@@ -105,84 +105,75 @@
 </prefpane>
 
 
-<prefpane id="prefpane-findbar" label="&config.tab.findbar;" flex="1">
+<prefpane id="prefpane-findMode" label="&config.tab.findMode;" flex="1">
 	<preferences>
 		<preference id="xulmigemo.findMode.always"
 			name="xulmigemo.findMode.always"
 			type="int"/>
+		<preference id="xulmigemo.findMode.default"
+			name="xulmigemo.findMode.default"
+			type="int"/>
+		<preference id="xulmigemo.findMode.quick.always"
+			name="xulmigemo.findMode.quick.always"
+			type="int"/>
+		<preference id="xulmigemo.findMode.quick.default"
+			name="xulmigemo.findMode.quick.default"
+			type="int"/>
 	</preferences>
 
 	<groupbox orient="vertical">
-		<caption label="&config.findbar.permanentState;"/>
+		<caption label="&config.findMode.always.caption;"/>
 		<hbox align="center">
-			<label value="&config.findMode.always.caption;"
-				control="xulmigemo.findMode.always-radio"/>
 			<radiogroup id="xulmigemo.findMode.always-radio"
 				orient="horizontal"
 				align="center"
 				preference="xulmigemo.findMode.always">
-				<radio label="&config.findMode.always.undefined.label;" value="-1"/>
+				<radio label="&config.findMode.previousMode;" value="-1"/>
 				<radio label="&ui.mode.normal.label;" value="1"/>
-				<radio label="&ui.mode.regexp.label;" value="4"/>
 				<radio label="&ui.mode.migemo.label;" value="2"/>
+				<radio label="&ui.mode.regexp.label;" value="4"/>
+			</radiogroup>
+		</hbox>
+		<hbox align="center">
+			<label value="&config.findMode.default.caption;"
+				control="xulmigemo.findMode.default-radio"/>
+			<radiogroup id="xulmigemo.findMode.default-radio"
+				orient="horizontal"
+				align="center"
+				preference="xulmigemo.findMode.default">
+				<radio label="&ui.mode.normal.label;" value="1"/>
+				<radio label="&ui.mode.migemo.label;" value="2"/>
+				<radio label="&ui.mode.regexp.label;" value="4"/>
 			</radiogroup>
 		</hbox>
 	</groupbox>
 
-	<hbox align="center">
-		<spacer flex="1"/>
-		<button label="&config.findbar.advanced.button;"
-			oncommand="document.documentElement.openSubDialog('config-findbar-advanced.xul', 'modal');"/>
-	</hbox>
-
-</prefpane>
-
-
-<prefpane id="prefpane-quickfind" label="&config.tab.quickfind;" flex="1">
-	<preferences>
-		<preference id="xulmigemo.autostart"
-			name="xulmigemo.autostart"
-			type="bool"/>
-		<preference id="xulmigemo.linksonly"
-			name="xulmigemo.linksonly"
-			type="bool"/>
-
-		<preference id="xulmigemo.enabletimeout"
-			name="xulmigemo.enabletimeout"
-			type="bool"/>
-		<preference id="xulmigemo.timeout"
-			name="xulmigemo.timeout"
-			type="int"/>
-	</preferences>
-
-	<vbox>
-	<checkbox id="xulmigemo.autostart-check" flex="1"
-		label="&config.autostart;"
-		preference="xulmigemo.autostart"/>
-	<checkbox id="xulmigemo.linksonly-check" flex="1"
-		label="&config.linksonly;"
-		preference="xulmigemo.linksonly"/>
-	<checkbox id="xulmigemo.enabletimeout-check" flex="1"
-		label="&config.enabletimeout;"
-		preference="xulmigemo.enabletimeout"/>
-	</vbox>
-	<hbox align="center">
-		<spacer style="width:1em;"/>
-		<label value="&config.timeout.before;"
-			control="xulmigemo.timeout-textbox"/>
-		<textbox id="xulmigemo.timeout-textbox"
-			preference="xulmigemo.timeout"
-			style="width: 5em;"
-			type="number" min="1" increment="1"/>
-		<label value="&config.timeout.after;"
-			control="xulmigemo.timeout-textbox"/>
-	</hbox>
-
-	<hbox align="center">
-		<spacer flex="1"/>
-		<button label="&config.quickfind.advanced.button;"
-			oncommand="document.documentElement.openSubDialog('config-quickfind-advanced.xul', 'modal');"/>
-	</hbox>
+	<groupbox orient="vertical">
+		<caption label="&config.findMode.quick.always.caption;"/>
+		<hbox align="center">
+			<radiogroup id="xulmigemo.findMode.quick.always-radio"
+				orient="horizontal"
+				align="center"
+				preference="xulmigemo.findMode.quick.always">
+				<radio label="&config.findMode.previousMode;" value="-1"/>
+				<radio label="&ui.mode.normal.label;" value="1"/>
+				<radio label="&ui.mode.migemo.label;" value="2"/>
+				<radio label="&ui.mode.regexp.label;" value="4"/>
+			</radiogroup>
+		</hbox>
+		<hbox align="center">
+			<label value="&config.findMode.quick.default.caption;"
+				control="xulmigemo.findMode.quick.default-radio"/>
+			<radiogroup id="xulmigemo.findMode.quick.default-radio"
+				orient="horizontal"
+				align="center"
+				preference="xulmigemo.findMode.quick.default">
+				<radio label="&ui.mode.normal.label;" value="1"/>
+				<radio label="&ui.mode.migemo.label;" value="2"/>
+				<radio label="&ui.mode.regexp.label;" value="4"/>
+			</radiogroup>
+		</hbox>
+	</groupbox>
 
 </prefpane>
 

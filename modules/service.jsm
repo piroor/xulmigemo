@@ -3,15 +3,16 @@ var EXPORTED_SYMBOLS = ['XMigemoService', 'XMigemoCore', 'xulMigemoCore'];
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
-Components.utils.import('resource://xulmigemo-modules/api.jsm');
-Components.utils.import('resource://xulmigemo-modules/core/core.js');
-Components.utils.import('resource://xulmigemo-modules/core/engine.js');
-Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
+Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
+Components.utils.import('resource://xulmigemo-modules/constants.jsm');
 
 Components.utils.import('resource://xulmigemo-modules/lib/prefs.js');
 Components.utils.import('resource://xulmigemo-modules/lib/animationManager.js');
 Components.utils.import('resource://xulmigemo-modules/lib/stringBundle.js');
-Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
+
+Components.utils.import('resource://xulmigemo-modules/api.jsm');
+Components.utils.import('resource://xulmigemo-modules/core/core.js');
+Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
  
 var XMigemoService = inherit(prefs, { 
 	DEBUG : true, 
@@ -306,7 +307,7 @@ var XMigemoService = inherit(prefs, {
 }); 
   
 var XMigemoCore = inherit(MigemoAPI, { 
-	dictionaries : MigemoEngine.ALL_DIC, 
+	dictionaries : MigemoConstants.ALL_DIC, 
 	
 	getRegExp : function(aInput) 
 	{

@@ -1,4 +1,5 @@
-Components.utils.import('resource://xulmigemo-modules/places.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/constants.jsm');
+Components.utils.import('resource://xulmigemo-modules/places.jsm');
 Components.utils.import('resource://xulmigemo-modules/api.jsm');
 Components.utils.import('resource://xulmigemo-modules/core/find.js'); 
  
@@ -45,9 +46,9 @@ var XMigemoLocationBarOverlay = {
 	delay     : 250,
 	useThread : false,
 
-	FIND_MODE_NATIVE : MigemoFind.FIND_MODE_NATIVE,
-	FIND_MODE_MIGEMO : MigemoFind.FIND_MODE_MIGEMO,
-	FIND_MODE_REGEXP : MigemoFind.FIND_MODE_REGEXP,
+	FIND_MODE_NATIVE : MigemoConstants.FIND_MODE_NATIVE,
+	FIND_MODE_MIGEMO : MigemoConstants.FIND_MODE_MIGEMO,
+	FIND_MODE_REGEXP : MigemoConstants.FIND_MODE_REGEXP,
 
 	kITEM_ACCEPT  : 1,
 	kITEM_SKIP    : 2,

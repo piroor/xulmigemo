@@ -8,8 +8,9 @@ Components.utils.import('resource://xulmigemo-modules/api.jsm');
 	Components.utils.import('resource://xulmigemo-modules/finder.jsm');
 
 	var { MigemoConstants } = Components.utils.import('resource://xulmigemo-modules/constants.jsm', {});
+	var { inherit } = Components.utils.import('resource://xulmigemo-modules/lib.inherit.jsm', {});
  
-window.XMigemoUI = { 
+window.XMigemoUI = inherit(MigemoConstants, { 
 	
 /* constants */ 
 
@@ -41,10 +42,6 @@ window.XMigemoUI = {
   
 /* internal status */ 
 	
-	FIND_MODE_NATIVE : XMigemoFind.FIND_MODE_NATIVE, 
-	FIND_MODE_MIGEMO : XMigemoFind.FIND_MODE_MIGEMO,
-	FIND_MODE_REGEXP : XMigemoFind.FIND_MODE_REGEXP,
-
 	forcedFindMode   : -1,
 	lastFindMode     : -1,
 	backupFindMode   : -1,
@@ -53,9 +50,9 @@ window.XMigemoUI = {
 	
 	findModeVersion : 2, 
 	findModeFrom1To2 : {
-		'0' : XMigemoFind.FIND_MODE_NATIVE,
-		'1' : XMigemoFind.FIND_MODE_MIGEMO,
-		'2' : XMigemoFind.FIND_MODE_REGEXP
+		'0' : MigemoConstants.FIND_MODE_NATIVE,
+		'1' : MigemoConstants.FIND_MODE_MIGEMO,
+		'2' : MigemoConstants.FIND_MODE_REGEXP
 	},
 	upgradePrefs : function()
 	{
@@ -452,8 +449,7 @@ window.XMigemoUI = {
 		'xulmigemo.shortcut.modeCirculation\n' +
 		'xulmigemo.disableIME.quickFindFor\n' +
 		'xulmigemo.disableIME.normalFindFor\n' +
-		'xulmigemo.find_delay\n' +
-		'xulmigemo.ignore_find_links_only_behavior',
+		'xulmigemo.find_delay',
  
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
@@ -535,10 +531,6 @@ window.XMigemoUI = {
 
 			case 'xulmigemo.find_delay':
 				this.delayedFindDelay = value;
-				return;
-
-			case 'xulmigemo.ignore_find_links_only_behavior':
-				this.shouldIgnoreFindLinksOnlyBehavior = value;
 				return;
 		}
 	},
@@ -1043,7 +1035,7 @@ window.XMigemoUI = {
 	onFindBarOpen : function(aEvent) 
 	{
 		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
-			mode : MigemoFind.FIND_MODE_MIGEMO // for development
+			mode : MigemoConstants.FIND_MODE_MIGEMO // for development
 		});
 
 return;
@@ -1381,7 +1373,7 @@ return;
 		if ('nsBrowserStatusHandler' in window)
 			eval('nsBrowserStatusHandler.prototype.onLocationChange = '+
 				nsBrowserStatusHandler.prototype.onLocationChange.toSource()
-					.replace(/([^\.\s]+\.)+findString/, '((XMigemoUI.findMode != XMigemoUI.FIND_MODE_NATIVE) ? XMigemoFind.lastKeyword : $1findString)')
+					.replace(/([^\.\s]+\.)+findString/, '((XMigemoUI.findMode != MigemoConstants.FIND_MODE_NATIVE) ? XMigemoFind.lastKeyword : $1findString)')
 			);
 
 		var findNext = this.findNextButton;
@@ -1520,7 +1512,7 @@ return;
 	{
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindAgain', true, false);
-		event.direction = XMigemoFind.FIND_FORWARD;
+		event.direction = MigemoConstants.FIND_FORWARD;
 		document.dispatchEvent(event);
 
 		var keyword = XMigemoUI.findTerm;
@@ -1550,7 +1542,7 @@ return;
 	{
 		var event = document.createEvent('Events');
 		event.initEvent('XMigemoFindAgain', true, false);
-		event.direction = XMigemoFind.FIND_BACK;
+		event.direction = MigemoConstants.FIND_BACK;
 		document.dispatchEvent(event);
 
 		var keyword = XMigemoUI.findTerm;
@@ -1709,7 +1701,7 @@ return;
 	},
  
 	dummy : null
-}; 
+}); 
   
 window.addEventListener('load', XMigemoUI, false); 
 window.removeEventListener('DOMContentLoaded', XMigemoUI, false);

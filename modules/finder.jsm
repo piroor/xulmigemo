@@ -10,16 +10,17 @@ Cu.import('resource://gre/modules/Finder.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 
 Cu.import('resource://xulmigemo-modules/lib/extended-immutable.js');
+Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/service.jsm');
 Cu.import('resource://xulmigemo-modules/core/find.js');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 
 function myResultToNativeResult(aFlag)
 {
-	if (aFlag === MigemoFind.NOTFOUND)
+	if (aFlag === MigemoConstants.NOTFOUND)
 		return Ci.nsITypeAheadFind.FIND_NOTFOUND;
 
-	if (aFlag & MigemoFind.WRAPPED)
+	if (aFlag & MigemoConstants.WRAPPED)
 		return Ci.nsITypeAheadFind.FIND_WRAPPED;
 
 	return Ci.nsITypeAheadFind.FIND_FOUND;
@@ -29,7 +30,7 @@ Object.defineProperty(Finder.prototype, '__xm__migemoFinder', {
 	get: function() {
 		if (!this.__xm__migemoFinderInstance) {
 			this.__xm__migemoFinderInstance = new MigemoFind();
-			this.__xm__migemoFinderInstance.findMode = MigemoFind.FIND_MODE_NATIVE;
+			this.__xm__migemoFinderInstance.findMode = MigemoConstants.FIND_MODE_NATIVE;
 		}
 		return this.__xm__migemoFinderInstance;
 	}
@@ -53,7 +54,7 @@ Object.defineProperty(Finder.prototype, '_fastFind', {
 		this.__xm__fastFindInstance = new ExtendedImmutable(aValue, {
 			getFoundRange : function()
 			{
-				if (myFinder.findMode === MigemoFind.FIND_MODE_NATIVE)
+				if (myFinder.findMode === MigemoConstants.FIND_MODE_NATIVE)
 					return aValue.getFoundRange();
 				return myFinder.foundRange;
 			}
@@ -65,7 +66,7 @@ Object.defineProperty(Finder.prototype, '_fastFind', {
 Finder.prototype.__xm__fastFind = Finder.prototype.fastFind;
 Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
 	var finder = this.__xm__migemoFinder;
-	if (finder.findMode === MigemoFind.FIND_MODE_NATIVE)
+	if (finder.findMode === MigemoConstants.FIND_MODE_NATIVE)
 		return this.__xm__fastFind(aSearchString, aLinksOnly, aDrawOutline);
 
 	this.__xm__nativeSearchString = aSearchString;
@@ -94,7 +95,7 @@ Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
 Finder.prototype.__xm__findAgain = Finder.prototype.findAgain;
 Finder.prototype.findAgain = function(aFindBackwards, aLinksOnly, aDrawOutline) {
 	var finder = this.__xm__migemoFinder;
-	if (finder.findMode === MigemoFind.FIND_MODE_NATIVE)
+	if (finder.findMode === MigemoConstants.FIND_MODE_NATIVE)
 		return this.__xm__findAgain(aFindBackwards, aLinksOnly, aDrawOutline);
 
 	if (finder.targetDocShell !== this._docShell)
@@ -120,7 +121,7 @@ Finder.prototype.findAgain = function(aFindBackwards, aLinksOnly, aDrawOutline) 
 
 Finder.prototype.__xm__findIterator = Finder.prototype._findIterator;
 Finder.prototype._findIterator = function(aWord, aWindow) {
-	if (this.__xm__migemoFinder.findMode === MigemoFind.FIND_MODE_NATIVE)
+	if (this.__xm__migemoFinder.findMode === MigemoConstants.FIND_MODE_NATIVE)
 		return this.__xm__findIterator(aWord, aWindow);
 	else
 		return this.__xm__findIterator_regexp(aWord, aWindow);
@@ -137,7 +138,7 @@ Finder.prototype.__xm__findIterator_regexp = function* (aWord, aWindow) {
 
 	while (!(finder.find({
 			keyword : aWord
-		}) & MigemoFind.WRAPPED))
+		}) & MigemoConstants.WRAPPED))
 	{
 		var range = finder.foundRange;
 		if (!range)

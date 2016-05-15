@@ -10,6 +10,8 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
  
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
+Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
+Components.utils.import('resource://xulmigemo-modules/constants.jsm');
 
 Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
 Components.utils.import('resource://xulmigemo-modules/core/textTransform.ja.js');
@@ -18,13 +20,9 @@ Components.utils.import('resource://xulmigemo-modules/core/dictionary.ja.js');
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
  
-var MigemoEngineJa = {
+var MigemoEngineJa = inherit(MigemoConstants, {
 	lang : 'ja',
 	
-	SYSTEM_DIC : 1 << 0, 
-	USER_DIC   : 1 << 1,
-	ALL_DIC    : (1 << 0 | 1 << 1),
-
 	textTransform : MigemoTextTransformJa,
 	dictionary : MigemoDictionaryJa,
  
@@ -230,7 +228,7 @@ var MigemoEngineJa = {
 		return lines;
 	}
  
-}; 
+}); 
  
 function mydump(aString) 
 {
