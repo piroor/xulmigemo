@@ -107,32 +107,11 @@
 
 <prefpane id="prefpane-findbar" label="&config.tab.findbar;" flex="1">
 	<preferences>
-		<preference id="xulmigemo.appearance.buttonLabelsMode"
-			name="xulmigemo.appearance.buttonLabelsMode"
-			type="int"/>
 		<preference id="xulmigemo.findMode.always"
 			name="xulmigemo.findMode.always"
 			type="int"/>
 	</preferences>
 
-	<groupbox orient="vertical">
-		<caption label="&config.appearance.buttonLabelsMode;"/>
-		<radiogroup id="xulmigemo.appearance.buttonLabelsMode-radiogroup"
-			preference="xulmigemo.appearance.buttonLabelsMode"
-			orient="vertical">
-			<radio value="1" label="&config.appearance.buttonLabelsMode.1;"
-				class="image" align="center"
-				src="chrome://xulmigemo/content/res/label-auto.png"/>
-			<hbox align="center">
-			<radio value="0" label="&config.appearance.buttonLabelsMode.0;"
-				class="image" align="center"
-				src="chrome://xulmigemo/content/res/label-long.png"/>
-			<radio value="2" label="&config.appearance.buttonLabelsMode.2;"
-				class="image" align="center"
-				src="chrome://xulmigemo/content/res/label-short.png"/>
-			</hbox>
-		</radiogroup>
-	</groupbox>
 	<groupbox orient="vertical">
 		<caption label="&config.findbar.permanentState;"/>
 		<hbox align="center">

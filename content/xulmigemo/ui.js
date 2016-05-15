@@ -111,11 +111,6 @@ var XMigemoUI = {
 	modeCirculationTable : [],
 	CIRCULATE_MODE_NONE : 0,
 	CIRCULATE_MODE_EXIT : 256,
- 
-	kLABELS_SHOW : 0, 
-	kLABELS_AUTO : 1,
-	kLABELS_HIDE : 2,
-	buttonLabelsMode : 1,
   
 /* elements */ 
 	
@@ -461,8 +456,6 @@ var XMigemoUI = {
 		'xulmigemo.find_delay\n' +
 		'xulmigemo.ignore_find_links_only_behavior\n' +
 		'xulmigemo.work_for_any_xml_document',
-	preferencesFindBar :
-		'xulmigemo.appearance.buttonLabelsMode',
  
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
@@ -532,14 +525,6 @@ var XMigemoUI = {
 
 			case 'xulmigemo.shortcut.modeCirculation':
 				this.modeCirculation = value;
-				return;
-
-			case 'xulmigemo.appearance.buttonLabelsMode':
-				this.buttonLabelsMode = value;
-				if (value == this.kLABELS_AUTO)
-					this.onChangeFindBarSize();
-				else
-					this.showHideLabels(value != this.kLABELS_HIDE);
 				return;
 
 			case 'xulmigemo.disableIME.quickFindFor':
@@ -619,7 +604,6 @@ var XMigemoUI = {
 			case 'XMigemoFindBarUpdateRequest':
 				if (this.updatingFindBar) return;
 				this.updatingFindBar = true;
-				this.onChangeFindBarSize(aEvent);
 				window.setTimeout(function(aSelf) {
 					aSelf.updatingFindBar = false;
 				}, 100, this);
@@ -965,23 +949,6 @@ var XMigemoUI = {
 		}
 	},
  
-	onChangeFindBarSize : function(aEvent) 
-	{
-		var shouldUpdatePosition = false;
-		if (this.buttonLabelsMode == this.kLABELS_AUTO) {
-			this.showHideLabels(true);
-			var box = this.caseSensitiveCheck.boxObject;
-			if (box.x + box.width > this.findModeSelector.boxObject.x - 25) {
-				this.showHideLabels(false);
-				shouldUpdatePosition = true;
-			}
-			else {
-				this.showHideLabels(true);
-			}
-		}
-		this.updateModeSelectorPosition(shouldUpdatePosition);
-	},
- 
 	onChangeMode : function() 
 	{
 		this.clearTimer();
@@ -1092,10 +1059,6 @@ return;
 		this.startListen();
 
 		this.updateModeSelectorPosition(true);
-		if (this.lastWindowWidth != window.innerWidth) {
-			this.onChangeFindBarSize();
-			this.lastWindowWidth = window.innerWidth;
-		}
 
 		this.updateCaseSensitiveCheck();
 
@@ -1721,7 +1684,6 @@ return;
 		this.findBar.addEventListener('XMigemoFindBarClose', this, false);
 
 		this.overrideFindBar();
-		XMigemoService.firstListenPrefChange(this, this.preferencesFindBar);
 
 		window.setTimeout(function(aSelf) {
 			window.setTimeout("XMigemoUI.field.addEventListener('blur', XMigemoUI, false);", 0);

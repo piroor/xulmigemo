@@ -35,11 +35,6 @@
 
 <!ENTITY config.tab.findbar             "Find Toolbar">
 
-<!ENTITY config.appearance.buttonLabelsMode "Appearance of Find Toolbar Buttons">
-<!ENTITY config.appearance.buttonLabelsMode.0 "Full size">
-<!ENTITY config.appearance.buttonLabelsMode.1 "Auto fit to width">
-<!ENTITY config.appearance.buttonLabelsMode.2 "Compact size">
-
 <!ENTITY config.findbar.permanentState           "Always apply these settings when the Find Toolbar is shown:">
 <!ENTITY config.findMode.always.caption         "Find mode:">
 <!ENTITY config.findMode.always.undefined.label "Keep last mode">
