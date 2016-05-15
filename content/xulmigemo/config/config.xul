@@ -184,23 +184,15 @@
 		<preference id="xulmigemo.shortcut.modeCirculation"
 			name="xulmigemo.shortcut.modeCirculation"
 			type="int"/>
-		<preference id="xulmigemo.shortcut.manualStart"
-			name="xulmigemo.shortcut.manualStart"
-			type="string"/>
-		<preference id="xulmigemo.shortcut.manualStart2"
-			name="xulmigemo.shortcut.manualStart2"
-			type="string"/>
-		<preference id="xulmigemo.shortcut.manualStartLinksOnly"
-			name="xulmigemo.shortcut.manualStartLinksOnly"
-			type="string"/>
-		<preference id="xulmigemo.shortcut.manualStartLinksOnly2"
-			name="xulmigemo.shortcut.manualStartLinksOnly2"
-			type="string"/>
 		<preference id="xulmigemo.shortcut.goDicManager"
 			name="xulmigemo.shortcut.goDicManager"
 			type="string"/>
+		<preference id="xulmigemo.shortcut.startInTemporaryMode"
+			name="xulmigemo.shortcut.startInTemporaryMode"
+			type="string"/>
 	</preferences>
 
+	<vbox flex="1" style="overflow:auto">
 	<vbox>
 		<label value="&config.shortcut.modeCirculation.before1;"/>
 		<hbox align="center">
@@ -272,83 +264,57 @@
 			<columns>
 				<column/>
 				<column/>
+				<column/>
+				<column/>
+				<column/>
 			</columns>
-			<rows>
-				<row>
-					<vbox>
-						<label value="&config.shortcut.manualStart;"/>
-					</vbox>
-					<vbox>
-						<hbox align="center">
-							<textbox id="shortcutManualStart"
-								readonly="true"
-								style="width: 10em;"
-								preference="xulmigemo.shortcut.manualStart"
-								dialogMessage="&config.shortcut.dialog.message;"
-								dialogButton="&config.shortcut.dialog.button;"/>
-							<button label="&config.shortcut.set;"
-								style="min-width: 0;"
-								oncommand="setShortcut(shortcutManualStart);"/>
-							<button label="&config.shortcut.clear;"
-								style="min-width: 0;"
-								oncommand="clearShortcut(shortcutManualStart);"/>
-						</hbox>
-						<hbox align="center">
-							<textbox id="shortcutManualStart2"
-								readonly="true"
-								style="width: 10em;"
-								preference="xulmigemo.shortcut.manualStart2"
-								dialogMessage="&config.shortcut.dialog.message;"
-								dialogButton="&config.shortcut.dialog.button;"/>
-							<button label="&config.shortcut.set;"
-								style="min-width: 0;"
-								oncommand="setShortcut(shortcutManualStart2);"/>
-							<button label="&config.shortcut.clear;"
-								style="min-width: 0;"
-								oncommand="clearShortcut(shortcutManualStart2);"/>
-						</hbox>
-					</vbox>
-				</row>
-				<row>
-					<vbox>
-						<label value="&config.shortcut.manualStartLinksOnly;"/>
-						<label value="&config.shortcut.manualStartLinksOnly2;"/>
-					</vbox>
-					<vbox>
-						<hbox align="center">
-							<textbox id="shortcutManualStartLinksOnly"
-								readonly="true"
-								style="width: 10em;"
-								preference="xulmigemo.shortcut.manualStartLinksOnly"
-								dialogMessage="&config.shortcut.dialog.message;"
-								dialogButton="&config.shortcut.dialog.button;"/>
-							<button label="&config.shortcut.set;"
-								style="min-width: 0;"
-								oncommand="setShortcut(shortcutManualStartLinksOnly);"/>
-							<button label="&config.shortcut.clear;"
-								style="min-width: 0;"
-								oncommand="clearShortcut(shortcutManualStartLinksOnly);"/>
-						</hbox>
-						<hbox align="center">
-							<textbox id="shortcutManualStartLinksOnly2"
-								readonly="true"
-								style="width: 10em;"
-								preference="xulmigemo.shortcut.manualStartLinksOnly2"
-								dialogMessage="&config.shortcut.dialog.message;"
-								dialogButton="&config.shortcut.dialog.button;"/>
-							<button label="&config.shortcut.set;"
-								style="min-width: 0;"
-								oncommand="setShortcut(shortcutManualStartLinksOnly2);"/>
-							<button label="&config.shortcut.clear;"
-								style="min-width: 0;"
-								oncommand="clearShortcut(shortcutManualStartLinksOnly2);"/>
-						</hbox>
-					</vbox>
-				</row>
+			<rows id="startInTemporaryModeRows">
 			</rows>
 		</grid>
 		<spacer flex="1"/>
 	</hbox>
+	<textbox id="startInTemporaryMode-field"
+		style="visibility:collapse;-moz-user-focus:ignore;"
+		preference="xulmigemo.shortcut.startInTemporaryMode"/>
+	<button label="&config.shortcut.mode.add;"
+		oncommand="addStartInTemporaryModeRow({})"/>
+	<row id="startInTemporaryModeRow-template"
+		align="center"
+		data-index="-1">
+		<label value="&config.shortcut.mode.caption;"/>
+		<menulist value="FIND_MODE_NATIVE"
+			oncommand="startInTemporaryMode[this.parentNode.getAttribute('data-index')].mode = this.value;
+						saveStartInTemporaryMode();">
+			<menupopup>
+				<menuitem value="FIND_MODE_NATIVE" label="&ui.mode.normal.label;"/>
+				<menuitem value="FIND_MODE_MIGEMO" label="&ui.mode.migemo.label;"/>
+				<menuitem value="FIND_MODE_REGEXP" label="&ui.mode.regexp.label;"/>
+			</menupopup>
+		</menulist>
+		<menulist value="FIND_NORMAL"
+			oncommand="startInTemporaryMode[this.parentNode.getAttribute('data-index')].findbarMode = this.value;
+						saveStartInTemporaryMode();">
+			<menupopup>
+				<menuitem value="FIND_NORMAL"    label="&config.shortcut.findbarMode.normal;"/>
+				<menuitem value="FIND_TYPEAHEAD" label="&config.shortcut.findbarMode.typeAhead;"/>
+				<menuitem value="FIND_LINKS"     label="&config.shortcut.findbarMode.linksOnly;"/>
+			</menupopup>
+		</menulist>
+		<textbox readonly="true"
+			style="width: 10em;"
+			dialogMessage="&config.shortcut.dialog.message;"
+			dialogButton="&config.shortcut.dialog.button;"/>
+		<button label="&config.shortcut.set;"
+			style="min-width: 0;"
+			oncommand="var index = this.parentNode.getAttribute('data-index');
+						setShortcut(startInTemporaryModeFields[index]);
+						startInTemporaryMode[index].shortcut = startInTemporaryModeFields[index].value;
+						saveStartInTemporaryMode();"/>
+		<button label="&config.shortcut.mode.delete;"
+			style="min-width: 0;"
+			oncommand="removeStartInTemporaryModeRow(this.parentNode.getAttribute('data-index'));"/>
+	</row>
+	</vbox>
 
 </prefpane>
 

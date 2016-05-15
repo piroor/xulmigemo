@@ -68,15 +68,18 @@
 <!ENTITY config.shortcut.modeCirculation.after1  "...と切り替える">
 <!ENTITY config.shortcut.modeCirculation.after2  "">
 
-<!ENTITY config.shortcut.manualStart    "クイックMigemo検索を開始">
-<!ENTITY config.shortcut.manualStartLinksOnly "クイックMigemo検索を開始">
-<!ENTITY config.shortcut.manualStartLinksOnly2 "（リンク文字列のみ検索）">
 <!ENTITY config.shortcut.goDicManager   "辞書マネージャを開く">
+<!ENTITY config.shortcut.mode.caption          "検索モード:">
+<!ENTITY config.shortcut.findbarMode.normal    "タイムアウトなし">
+<!ENTITY config.shortcut.findbarMode.typeAhead "タイムアウトあり">
+<!ENTITY config.shortcut.findbarMode.linksOnly "タイムアウトあり・リンクのみ">
 
 <!ENTITY config.shortcut.set            "変更">
 <!ENTITY config.shortcut.clear          "消去">
 <!ENTITY config.shortcut.dialog.message "ショートカットに使いたいキーを押してください">
 <!ENTITY config.shortcut.dialog.button  "キャンセル">
+<!ENTITY config.shortcut.mode.add       "ショートカットを追加">
+<!ENTITY config.shortcut.mode.delete    "削除">
 
 
 <!ENTITY config.tab.combination         "連携">

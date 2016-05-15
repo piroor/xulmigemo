@@ -70,15 +70,18 @@
 <!ENTITY config.shortcut.modeCirculation.after1  "...">
 <!ENTITY config.shortcut.modeCirculation.after2  "">
 
-<!ENTITY config.shortcut.manualStart    "Start Quick Migemo Find">
-<!ENTITY config.shortcut.manualStartLinksOnly "Start Quick Migemo Find">
-<!ENTITY config.shortcut.manualStartLinksOnly2 "(find only links)">
-<!ENTITY config.shortcut.goDicManager   "Show Dictionary Manager">
+<!ENTITY config.shortcut.goDicManager   "Show  Dictionary Manager">
+<!ENTITY config.shortcut.mode.caption          "Find mode:">
+<!ENTITY config.shortcut.findbarMode.normal    "without timeout">
+<!ENTITY config.shortcut.findbarMode.typeAhead "with timeout">
+<!ENTITY config.shortcut.findbarMode.linksOnly "with timeout, only Links">
 
 <!ENTITY config.shortcut.set            "Set">
 <!ENTITY config.shortcut.clear          "Clear">
 <!ENTITY config.shortcut.dialog.message "Press new shortcut">
 <!ENTITY config.shortcut.dialog.button  "Cancel">
+<!ENTITY config.shortcut.mode.add       "Add Shortcut">
+<!ENTITY config.shortcut.mode.delete    "Delete">
 
 
 <!ENTITY config.tab.combination         "Combination">

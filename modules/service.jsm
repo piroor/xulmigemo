@@ -126,7 +126,7 @@ var XMigemoService = inherit(prefs, {
 		};
 	},
  
-	updateKey : function(aID, aInfo, aXULDocument) 
+	updateKey : function(aID, aInfo, aCommand, aXULDocument) 
 	{
 		var keyset = aXULDocument.getElementById('xmigemo-shortcuts');
 		var node = aXULDocument.getElementById(aID);
@@ -137,7 +137,7 @@ var XMigemoService = inherit(prefs, {
 
 		node = aXULDocument.createElement('key');
 		node.setAttribute('id', aID);
-		node.setAttribute('command', aID.replace('shortcut', 'command'));
+		node.setAttribute('oncommand', aCommand);
 
 		if (aInfo.key)
 			node.setAttribute('key', aInfo.key);

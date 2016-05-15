@@ -22,10 +22,7 @@ pref("xulmigemo.scrollSelectionToCenter.padding", 30);
 pref("xulmigemo.scrollSelectionToCenter.smoothScroll.enabled", true);
 pref("xulmigemo.scrollSelectionToCenter.smoothScroll.duration", 350);
 
-pref("xulmigemo.shortcut.manualStart",           "/");
-pref("xulmigemo.shortcut.manualStart2",          "Accel+Shift+F");
-pref("xulmigemo.shortcut.manualStartLinksOnly",  "\\");
-pref("xulmigemo.shortcut.manualStartLinksOnly2", "");
+pref("xulmigemo.shortcut.startInTemporaryMode",  '[{"mode":"FIND_MODE_MIGEMO","findbarMode":"FIND_TYPEAHEAD","shortcut":"/"},{"mode":"FIND_MODE_MIGEMO","findbarMode":"FIND_TYPEAHEAD","shortcut":"Accel+Shift+F"},{"mode":"FIND_MODE_MIGEMO","findbarMode":"FIND_LINKS","shortcut":"\\\\"}]');
 pref("xulmigemo.shortcut.goDicManager",          "Accel+Shift+F7");
 // 0 = do nothing
 // 1 = normal find

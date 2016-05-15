@@ -10,3 +10,7 @@ description[value=""]:empty,
 	display: none;
 }
 
+
+#startInTemporaryModeRow-template {
+	display: none;
+}

@@ -38,25 +38,84 @@ function initDisableIMECheck()
 
 
 
-var shortcutManualStart;
-var shortcutManualStart2;
-var shortcutManualStartLinksOnly;
-var shortcutManualStartLinksOnly2;
+var startInTemporaryMode = [];
+var startInTemporaryModeFields = [];
 var shortcutGoDicManager;
 
 function initShortcutPane()
 {
-
-	shortcutManualStart = document.getElementById('shortcutManualStart');
-	shortcutManualStart.keyData = XMigemoService.parseShortcut(shortcutManualStart.value);
-	shortcutManualStart2 = document.getElementById('shortcutManualStart2');
-	shortcutManualStart2.keyData = XMigemoService.parseShortcut(shortcutManualStart2.value);
-	shortcutManualStartLinksOnly = document.getElementById('shortcutManualStartLinksOnly');
-	shortcutManualStartLinksOnly.keyData = XMigemoService.parseShortcut(shortcutManualStartLinksOnly.value);
-	shortcutManualStartLinksOnly2 = document.getElementById('shortcutManualStartLinksOnly2');
-	shortcutManualStartLinksOnly2.keyData = XMigemoService.parseShortcut(shortcutManualStartLinksOnly2.value);
 	shortcutGoDicManager = document.getElementById('shortcutGoDicManager');
-	shortcutGoDicManager.keyData = XMigemoService.parseShortcut(shortcutGoDicManager.value);;
+	shortcutGoDicManager.keyData = XMigemoService.parseShortcut(shortcutGoDicManager.value);
+	buildStartInTemporaryModeRows();
+}
+function buildStartInTemporaryModeRows()
+{
+	var range = document.createRange();
+	range.selectNodeContents(document.getElementById('startInTemporaryModeRows'));
+	range.deleteContents();
+	range.detach();
+
+	startInTemporaryMode = [];
+	startInTemporaryModeFields = [];
+
+	var field = document.getElementById('startInTemporaryMode-field');
+	var shortcuts = field.value;
+	JSON.parse(shortcuts).forEach(addStartInTemporaryModeRow);
+}
+
+function addStartInTemporaryModeRow(aDefinition)
+{
+	var index = startInTemporaryModeFields.length;
+
+	startInTemporaryMode.push(aDefinition);
+
+	var template = document.getElementById('startInTemporaryModeRow-template');
+	var row = template.cloneNode(true);
+	row.setAttribute('id', 'startInTemporaryModeRow' + index);
+	row.setAttribute('data-index', index);
+
+	if (aDefinition.mode)
+		row.childNodes[1].setAttribute('value', aDefinition.mode);
+	else
+		aDefinition.mode = row.childNodes[1].getAttribute('value');
+
+	if (aDefinition.findbarMode)
+		row.childNodes[2].setAttribute('value', aDefinition.findbarMode);
+	else
+		aDefinition.findbarMode = row.childNodes[2].getAttribute('value');
+
+	var field = row.childNodes[3];
+	field.setAttribute('value', aDefinition.shortcut || '');
+	field.keyData = XMigemoService.parseShortcut(aDefinition.shortcut || '');
+
+	document.getElementById('startInTemporaryModeRows').appendChild(row);
+	startInTemporaryModeFields.push(field);
+}
+
+function removeStartInTemporaryModeRow(aIndex)
+{
+	startInTemporaryMode.splice(aIndex, 1);
+	startInTemporaryModeFields.splice(aIndex, 1);
+	saveStartInTemporaryMode();
+	buildStartInTemporaryModeRows();
+}
+
+function saveStartInTemporaryMode()
+{
+	console.log(startInTemporaryMode);
+	var definitions = startInTemporaryMode.filter(function(aDefinition) {
+		return (
+			aDefinition.mode &&
+			aDefinition.findbarMode &&
+			aDefinition.shortcut
+		);
+	});
+	var field = document.getElementById('startInTemporaryMode-field');
+	field.value = JSON.stringify(definitions);
+	console.log(field.value);
+	var event = document.createEvent('UIEvents');
+	event.initUIEvent('input', true, false, window, 0);
+	field.dispatchEvent(event);
 }
 
 function setShortcut(aNode)
