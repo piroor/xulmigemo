@@ -345,6 +345,29 @@ window.XMigemoUI = inherit(MigemoConstants, {
 				return this.__xm__close(...aArgs);
 			};
 		}
+
+		setTimeout((function() {	
+			var report = this.finder.__xm__lastFindModeReport;
+			if (report)
+				this.handleFindModeReport(report);
+		}).bind(this), 10);
+	},
+
+	handleFindModeReport : function(aReport)
+	{
+		console.log('Find Mode = '+this.findMode+'=>'+aReport.mode);
+
+		var previousMode = this.findMode;
+
+		this.findMode = aReport.mode;
+
+		var findModeName = MigemoConstants.FIND_MODE_FLAG_FROM_NAME[this.findMode];
+		this.findModeSelector.value = findModeName;
+		this.findBar.setAttribute(this.kFIND_MODE, findModeName);
+
+		var modeChanged = this.findMode != previousMode;
+		if (modeChanged && this.findBar.getElement('highlight').checked)
+			this.findBar._setHighlightTimeout();
 	},
 
 	onTabSelect : function()
@@ -452,15 +475,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		switch (aMessage.json.command)
 		{
 			case MigemoConstants.COMMAND_REPORT_FIND_MODE:
-				console.log('Find Mode = '+this.findMode+'=>'+aMessage.json.mode);
-				var previousMode = this.findMode;
-				this.findMode = aMessage.json.mode;
-				var findModeName = MigemoConstants.FIND_MODE_FLAG_FROM_NAME[this.findMode];
-				this.findModeSelector.value = findModeName;
-				this.findBar.setAttribute(this.kFIND_MODE, findModeName);
-				var modeChanged = this.findMode != previousMode;
-				if (modeChanged && this.findBar.getElement('highlight').checked)
-					this.findBar._setHighlightTimeout();
+				this.handleFindModeReport(aMessage.json);
 				return;
 		}
 	},

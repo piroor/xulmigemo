@@ -19,6 +19,7 @@ RemoteFinder.prototype.__xm__setFindMode = function(aParams) {
 		command : MigemoConstants.COMMAND_SET_FIND_MODE,
 		params  : aParams
 	});
+	this.__xm__lastFindModeReport = null;
 };
 
 

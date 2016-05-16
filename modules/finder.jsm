@@ -110,6 +110,11 @@ Finder.prototype.__xm__setFindMode = function(aParams) {
 	else if (lastMode !== finder.findMode) {
 		finder.findMode = lastMode;
 	}
+
+	this.__xm__lastFindModeReport = {
+		context : context,
+		mode    : finder.findMode
+	};
 	Services.console.logStringMessage('finder.findMode => '+finder.findMode);
 };
 
