@@ -337,7 +337,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		return modes[index];
 	},
 
-	onFindStart : function()
+	onStartFind : function()
 	{
 		if (!this.readyToStartTemporaryFindMode &&
 			this.isFocused) {
@@ -405,7 +405,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 			this.finder.__xm__setFindMode(params);
 			this.handleFindModeReportWithDelay();
 		}
-		// otherwise, the find mode is already initialized by onFindStart().
+		// otherwise, the find mode is already initialized by onStartFind().
 
 		this.findModeSelectorBox.hidden =
 			this.findMigemoBar.collapsed = false;
@@ -458,7 +458,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		if (!this.findBar.__xm__startFind) {
 			this.findBar.__xm__startFind = this.findBar.startFind;
 			this.findBar.startFind = function(...aArgs) {
-				if (XMigemoUI.onFindStart())
+				if (XMigemoUI.onStartFind())
 					return;
 				return this.__xm__startFind(...aArgs);
 			};
