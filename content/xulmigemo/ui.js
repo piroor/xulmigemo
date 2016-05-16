@@ -94,6 +94,11 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		return document.getAnonymousElementByAttribute(this.findBar, 'anonid', 'find-closebutton');
 	},
 
+	get field()
+	{
+		return this.findBar._findField;
+	},
+
 	get isQuickFind()
 	{
 		var findbar = this.findBar;
@@ -340,19 +345,18 @@ window.XMigemoUI = inherit(MigemoConstants, {
 
 	onInput : function(aEvent)
 	{
-		if (!this.isEventFiredInFindBar(aEvent))
+		if (!this.isEventFiredInFindBar(aEvent) ||
+			!this.autoStartRegExp)
 			return;
 
-		if (!this.autoStartRegExp)
-			return;
-
-		if (MigemoTextUtils.isRegExp(this.findBar._findField.value)) {
+		if (MigemoTextUtils.isRegExp(this.field.value)) {
 			if (!this.lastFindMode)
 				this.lastFindMode = this.findMode;
 			this.setFindMode(MigemoConstants.FIND_MODE_REGEXP);
 		}
 		else {
-			this.setFindMode(this.lastFindMode);
+			if (this.lastFindMode)
+				this.setFindMode(this.lastFindMode);
 			this.lastFindMode = null;
 		}
 	},
