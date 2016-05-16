@@ -3,6 +3,7 @@ Components.utils.import('resource://xulmigemo-modules/api.jsm');
 
 (function() {
 	var { MigemoConstants } = Components.utils.import('resource://xulmigemo-modules/constants.jsm', {});
+	var { MigemoTextUtils } = Components.utils.import('resource://xulmigemo-modules/core/textUtils.js', {});
 	var { inherit } = Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm', {});
  
 window.XMigemoUI = inherit(MigemoConstants, { 
@@ -137,6 +138,18 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		this._findMode.set(this.findBar, aValue);
 		return aValue;
 	},
+
+	_lasfFindMode : new WeakMap(),
+	get lasfFindMode()
+	{
+		return this._lasfFindMode.get(this.findBar);
+	},
+	set lasfFindMode(aValue)
+	{
+		this._lasfFindMode.set(this.findBar, aValue);
+		return aValue;
+	},
+ 
  
 /* utilities */ 
 
@@ -154,6 +167,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		'xulmigemo.shortcut.startInTemporaryMode\n' +
 		'xulmigemo.shortcut.goDicManager\n' +
 		'xulmigemo.shortcut.modeCirculation\n' +
+		'xulmigemo.autostart.regExpFind\n' +
 		'xulmigemo.disableIME.migemo',
  
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -201,6 +215,10 @@ window.XMigemoUI = inherit(MigemoConstants, {
 				else
 					document.documentElement.removeAttribute(this.IMEAttribute);
 				return;
+
+			case 'xulmigemo.autostart.regExpFind':
+				this.autoStartRegExp = value;
+				return;
 		}
 	},
   
@@ -214,6 +232,10 @@ window.XMigemoUI = inherit(MigemoConstants, {
 
 			case 'TabSelect':
 				this.onTabSelect();
+				return;
+
+			case 'input':
+				this.onInput(aEvent);
 				return;
 
 			case 'DOMContentLoaded':
@@ -233,13 +255,14 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		}
 	},
  
-	onChangeMode : function() 
+	setFindMode : function(aMode) 
 	{
-		var findMode = this.findModeSelector.value;
-		this.findBar.setAttribute(this.kFIND_MODE, findMode);
+		var name = MigemoConstants.FIND_MODE_FLAG_FROM_NAME[aMode];
+		this.findModeSelector.value = name;
+		this.findBar.setAttribute(this.kFIND_MODE, name);
 		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
 			context       : this.currentFindContext,
-			temporaryMode : this[findMode]
+			temporaryMode : aMode
 		});
 	},
  
@@ -292,8 +315,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 						this.close();
 						return;
 					}
-					XMigemoUI.findModeSelector.value = MigemoConstants.FIND_MODE_FLAG_FROM_NAME[temporaryMode];
-					XMigemoUI.onChangeMode();
+					XMigemoUI.setFindMode(temporaryMode);
 					return;
 				}
 				return this.__xm__startFind(...aArgs);
@@ -313,6 +335,38 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	onTabSelect : function()
 	{
 		XMigemoUI.findModeSelectorBox.hidden = this.findBar.hidden;
+	},
+
+	onInput : function(aEvent)
+	{
+		if (!this.isEventFiredInFindBar(aEvent))
+			return;
+
+		if (!this.autoStartRegExp)
+			return;
+
+		if (MigemoTextUtils.isRegExp(this.findBar._findField.value)) {
+			if (!this.lastFindMode)
+				this.lastFindMode = this.findMode;
+			this.setFindMode(MigemoConstants.FIND_MODE_REGEXP);
+		}
+		else {
+			this.setFindMode(this.lastFindMode);
+			this.lastFindMode = null;
+		}
+	},
+
+	isEventFiredInFindBar : function(aEvent)
+	{
+		var node = aEvent.originalTarget;
+		var findBar = this.findBar;
+		while (node)
+		{
+			if (node == findBar)
+				return true;
+			node = node.parentNode;
+		}
+		return false;
 	},
 
 /* UI */ 
@@ -343,6 +397,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 
 		window.addEventListener('findbaropen', this, true);
 		window.addEventListener('TabSelect', this, false);
+		gBrowser.addEventListener('input', this, true);
 
 		this.upgradePrefs();
 
@@ -373,6 +428,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 
 		window.removeEventListener('findbaropen', this, true);
 		window.removeEventListener('TabSelect', this, false);
+		gBrowser.removeEventListener('input', this, true);
 
 		window.removeEventListener('unload', this, false);
 	},

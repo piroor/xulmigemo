@@ -14,6 +14,7 @@ pref("xulmigemo.ignoreHiraKata",                true);
 pref("xulmigemo.ignoreLatinModifiers",          true);
 pref("xulmigemo.ignoreAnyInvisibleNode",        false);
 pref("xulmigemo.splitTermsAutomatically",       false);
+pref("xulmigemo.autostart.regExpFind",          true);
 
 pref("xulmigemo.scrollSelectionToCenter",       true);
 pref("xulmigemo.scrollSelectionToCenter.padding", 30);
@@ -35,7 +36,6 @@ pref("xulmigemo.dicpath-relative",              "");
 pref("xulmigemo.cache.update.time",             100);
 //pref("xulmigemo.cache.override.ja",             "migemocache.txt");
 //pref("xulmigemo.cache.override.ja.encoding",    "Shift_JIS");
-pref("xulmigemo.find_delay",                    50);
 
 
 pref("xulmigemo.ANDFind.enabled", true);
