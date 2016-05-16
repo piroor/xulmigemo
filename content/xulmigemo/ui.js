@@ -162,7 +162,17 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		this._lastFindMode.set(this.findBar, aValue);
 		return aValue;
 	},
- 
+
+	_delayedHandleFindModeReport : new WeakMap(),
+	get delayedHandleFindModeReport()
+	{
+		return this._delayedHandleFindModeReport.get(this.findBar);
+	},
+	set delayedHandleFindModeReport(aValue)
+	{
+		this._delayedHandleFindModeReport.set(this.findBar, aValue);
+		return aValue;
+	},
  
 /* utilities */ 
 
@@ -277,6 +287,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 			context       : this.currentFindContext,
 			temporaryMode : aMode
 		});
+		this.handleFindModeReportWithDelay();
 	},
  
 	getModeCirculationNext : function(aCurrentMode)
@@ -314,6 +325,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 			defaultMode : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.default'),
 			temporaryMode : temporaryMode
 		});
+		this.handleFindModeReportWithDelay();
 
 		this.findModeSelectorBox.hidden =
 			this.findMigemoBar.collapsed = false;
@@ -345,12 +357,20 @@ window.XMigemoUI = inherit(MigemoConstants, {
 				return this.__xm__close(...aArgs);
 			};
 		}
+	},
 
-		setTimeout((function() {	
+	handleFindModeReportWithDelay : function()
+	{
+		if (this.delayedHandleFindModeReport)
+			clearTimeout(this.delayedHandleFindModeReport);
+
+		this.delayedHandleFindModeReport = setTimeout((function() {	
+			this.delayedHandleFindModeReport = null;
 			var report = this.finder.__xm__lastFindModeReport;
 			if (report)
 				this.handleFindModeReport(report);
 		}).bind(this), 10);
+
 	},
 
 	handleFindModeReport : function(aReport)
