@@ -1,5 +1,11 @@
 var EXPORTED_SYMBOLS = ['XMigemoService', 'XMigemoCore', 'xulMigemoCore']; 
 
+var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cu = Components.utils;
@@ -281,29 +287,7 @@ var XMigemoService = inherit(prefs, {
 			'chrome,all,dependent',
 			null
 		);
-	},
- 
-/* Debug */ 
-	
-	mydump : function(str) 
-	{
-		if(this.DEBUG==true){
-			if(str.length>30){
-				str=str.substring(0,30);
-			}
-			const UConvID = '@mozilla.org/intl/scriptableunicodeconverter';
-			const UConvIF  = Ci.nsIScriptableUnicodeConverter;
-			const UConv = Cc[UConvID].getService(UConvIF);
-			UConv.charset = 'Shift_JIS';
-			sjis_str = UConv.ConvertFromUnicode(str);
-			dump(sjis_str+"\n");
-			return;
-		}else{
-			return;
-		}
-	},
-  
-	dummy : null
+	}
 }); 
   
 var XMigemoCore = inherit(MigemoAPI, { 

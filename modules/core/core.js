@@ -7,6 +7,11 @@ var EXPORTED_SYMBOLS = ['MigemoCore', 'MigemoCoreFactory'];
 	MigemoTextUtils
 */
 var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -83,7 +88,7 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 		// 入力を切って、文節として個別に正規表現を生成する
 		var romanTerm;
 		var romanTerms = this.engine.splitInput(aInput);
-		mydump('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n');
+		log('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n');
 
 		var pattern, romanTermPart, nextPart;
 		for (var i = 0, maxi = romanTerms.length; i < maxi; i++)
@@ -125,7 +130,7 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 					.replace(/([^\\]|^)\(\|/g, '$1(')
 					.replace(/([^\\]|^)\|\)/g, '$1)');
 
-		mydump('created pattern: '+encodeURIComponent(myExp));
+		log('created pattern: '+encodeURIComponent(myExp));
 
 		return myExp;
 	},
@@ -151,7 +156,7 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 		var cache = this.cache;
 		var cacheText = cache.getCacheFor(aInput, aTargetDic);
 		if (cacheText) {
-			mydump('cache:'+encodeURIComponent(cacheText));
+			log('cache:'+encodeURIComponent(cacheText));
 			return cacheText.replace(/\n/g, '');
 		}
 
@@ -159,20 +164,20 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 
 		var regexpPattern = this.engine.getRegExpFor(aInput, aTargetDic);
 
-		mydump('created:'+encodeURIComponent(regexpPattern));
+		log('created:'+encodeURIComponent(regexpPattern));
 
 		var date2 = Date.now();
 		if ((date2 - date1) > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Prefs.getIntPref('xulmigemo.cache.update.time'))) {
 			// 遅かったらキャッシュします
 			cache.setDiskCache(aInput, regexpPattern, aTargetDic);
 			cache.setMemCache(aInput, regexpPattern, aTargetDic);
-			mydump('CacheWasSaved');
+			log('CacheWasSaved');
 		}
 		else{
 			cache.setMemCache(aInput, regexpPattern, aTargetDic);//メモリキャッシュ
-			mydump('memCacheWasSaved');
+			log('memCacheWasSaved');
 		}
-		mydump(date2 - date1);
+		log(date2 - date1);
 
 		return regexpPattern;
 	},
@@ -605,10 +610,3 @@ var MigemoCoreFactory = {
 		return this._instances[aLang];
 	}
 };
-
-function mydump(aString) 
-{
-	if (DEBUG)
-		dump((aString.length > 1024 ? aString.substring(0, 1024) : aString )+'\n');
-}
- 

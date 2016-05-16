@@ -1,5 +1,11 @@
 var EXPORTED_SYMBOLS = ['XMigemoPlaces']; 
 
+var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cu = Components.utils;

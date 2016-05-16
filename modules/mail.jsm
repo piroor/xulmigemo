@@ -1,7 +1,12 @@
-var TEST = false; 
-
 var EXPORTED_SYMBOLS = ['XMigemoMail'];
 
+var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
+var TEST = false; 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cu = Components.utils;

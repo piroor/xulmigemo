@@ -1,6 +1,11 @@
 var EXPORTED_SYMBOLS = ['MigemoAPI']; 
 
-var DEBUG = false; 
+var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -295,10 +300,3 @@ var MigemoAPI = {
 }; 
  
 ObserverService.addObserver(MigemoAPI, 'XMigemo:initialized', false);
- 
-function mydump(aString) 
-{
-	if (DEBUG)
-		dump((aString.length > 1024 ? aString.substring(0, 1024) : aString )+'\n');
-}
- 

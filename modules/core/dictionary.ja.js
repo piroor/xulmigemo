@@ -6,6 +6,11 @@ var EXPORTED_SYMBOLS = ['MigemoDictionaryJa'];
 	MigemoTextTransformJa
 */
 var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -71,7 +76,7 @@ var MigemoDictionaryJa = inherit(MigemoConstants, {
 				file.append(this.cList[i] + 'a2.txt');
 			}
 			if (file && file.exists()) {
-				mydump(this.cList[i]);
+				log(this.cList[i]);
 				this.list[this.cList[i]] = MigemoFileAccess.readFrom(file, 'Shift_JIS');
 			}
 			else {
@@ -87,7 +92,7 @@ var MigemoDictionaryJa = inherit(MigemoConstants, {
 				file.append(this.cList[i] + 'a2.user.txt');
 			}
 			if (file && file.exists()) {
-				mydump(this.cList[i] + '-user');
+				log(this.cList[i] + '-user');
 				this.list[this.cList[i] + '-user'] = MigemoFileAccess.readFrom(file, 'Shift_JIS');
 			}
 			else {
@@ -96,7 +101,7 @@ var MigemoDictionaryJa = inherit(MigemoConstants, {
 		}
 
 		this.initialized = true;
-		mydump('MigemoDictionary: loaded');
+		log('MigemoDictionary: loaded');
 
 		return !error;
 	},
@@ -271,7 +276,7 @@ var MigemoDictionaryJa = inherit(MigemoConstants, {
 					case 'remove':
 						if (term) {
 							terms = terms.replace(regexp, '').replace(/\n\n+/g, '\n').split('\n').join('\t');
-							mydump('terms:'+terms.replace(/\t/g, ' / '));
+							log('terms:'+terms.replace(/\t/g, ' / '));
 							if (terms) {
 								regexp = new RegExp('^('+yomi+'\t.+)$', 'm');
 								regexp.test(userDic);
@@ -319,7 +324,7 @@ var MigemoDictionaryJa = inherit(MigemoConstants, {
 
 		this.saveUserDicFor(key);
 
-		mydump('XMigemo:dictionaryModified('+aOperation+') '+entry);
+		log('XMigemo:dictionaryModified('+aOperation+') '+entry);
 		ObserverService.notifyObservers(this, 'XMigemo:dictionaryModified',
 			[
 				key,
@@ -381,10 +386,3 @@ var MigemoDictionaryJa = inherit(MigemoConstants, {
 	}
   
 }); 
-  
-function mydump(aString) 
-{
-	if (DEBUG)
-		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
-}
- 

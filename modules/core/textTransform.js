@@ -1,5 +1,11 @@
 var EXPORTED_SYMBOLS = ['MigemoTextTransform'];
 
+var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
 // for ASCII 
 var TEST = false;
 var Cc = Components.classes;

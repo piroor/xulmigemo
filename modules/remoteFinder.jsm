@@ -1,8 +1,14 @@
 var EXPORTED_SYMBOLS = ['MigemoRemoteFinder']; 
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/RemoteFinder.jsm');

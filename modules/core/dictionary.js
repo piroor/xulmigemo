@@ -6,6 +6,11 @@ var EXPORTED_SYMBOLS = ['MigemoDictionary'];
 	MigemoTextTransform
 */
 var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -92,7 +97,7 @@ var MigemoDictionary = inherit(MigemoConstants, {
 
 
 		this.initialized = true;
-		mydump('MigemoDictionary: loaded');
+		log('MigemoDictionary: loaded');
 
 		return !error;
 	},
@@ -204,7 +209,7 @@ var MigemoDictionary = inherit(MigemoConstants, {
 					case 'remove':
 						if (term) {
 							terms = terms.replace(regexp, '').replace(/\n\n+/g, '\n').split('\n').join('\t');
-							mydump('terms:'+terms.replace(/\t/g, ' / '));
+							log('terms:'+terms.replace(/\t/g, ' / '));
 							if (terms) {
 								regexp = new RegExp('^('+input+'\t.+)$', 'm');
 								regexp.test(userDic);
@@ -252,7 +257,7 @@ var MigemoDictionary = inherit(MigemoConstants, {
 
 		this.saveUserDic();
 
-		mydump('XMigemo:dictionaryModified('+aOperation+') '+entry);
+		log('XMigemo:dictionaryModified('+aOperation+') '+entry);
 		ObserverService.notifyObservers(this, 'XMigemo:dictionaryModified',
 			[
 				'',
@@ -264,10 +269,3 @@ var MigemoDictionary = inherit(MigemoConstants, {
 	}
   
 }); 
-
-function mydump(aString) 
-{
-	if (DEBUG)
-		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
-}
- 

@@ -5,6 +5,11 @@ var EXPORTED_SYMBOLS = ['MigemoEngine'];
 	MigemoTextTransform
 */
 var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -34,7 +39,7 @@ var MigemoEngine = inherit(MigemoConstants, {
 
 		aInput = aInput.toLowerCase();
 
-		mydump('noCache');
+		log('noCache');
 		var str = MigemoTextUtils.sanitize(aInput);
 
 		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
@@ -57,11 +62,11 @@ var MigemoEngine = inherit(MigemoConstants, {
 			pattern += (pattern ? '|' : '') + str;
 
 			pattern = pattern.replace(/\n/g, '');
-			mydump('pattern:'+pattern);
+			log('pattern:'+pattern);
 		}
 		else { // 辞書に引っかからなかった模様なので自前の文字列だけ
 			pattern = str;
-			mydump('pattern:'+pattern);
+			log('pattern:'+pattern);
 		}
 
 		return pattern.replace(/\n|^\||\|$/g, '')
@@ -109,14 +114,14 @@ var MigemoEngine = inherit(MigemoConstants, {
 			var lineU = mydicU.match(exp);
 			if (lineU) {
 				lines = lines.concat(lineU);
-				mydump(' found '+lineU.length+' terms');
+				log(' found '+lineU.length+' terms');
 			}
 		}
 		if (mydic) {
 			var line = mydic.match(exp);//アルファベットの辞書を検索
 			if (line) {
 				lines = lines.concat(line);
-				mydump(' found '+line.length+' terms');
+				log(' found '+line.length+' terms');
 			}
 		}
 
@@ -128,10 +133,3 @@ var MigemoEngine = inherit(MigemoConstants, {
 	}
  
 }); 
- 
-function mydump(aString) 
-{
-	if (DEBUG)
-		dump((aString.length > 1024 ? aString.substring(0, 1024) : aString )+'\n');
-}
- 

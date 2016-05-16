@@ -5,6 +5,11 @@ var EXPORTED_SYMBOLS = ['MigemoFind'];
 	MigemoTextUtils
 */
 var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -217,7 +222,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		if (!this.targetDocShell)
 			new Error('not initialized yet');
 
-mydump("find");
+log("find");
 		if (!aKeyword) {
 			this.lastResult = this.NOTFOUND;
 			return this.lastResult;
@@ -281,7 +286,7 @@ mydump("find");
 	
 	findInDocument : function(aFindFlag, aFindTerm, aDocShellIterator, aOptions) 
 	{
-mydump("findInDocument ==========================================");
+log("findInDocument ==========================================");
 		aOptions = aOptions || {};
 
 		var rangeSet;
@@ -442,7 +447,7 @@ mydump("findInDocument ==========================================");
   
 	findInRange : function(aFindFlag, aTerm, aRangeSet) 
 	{
-mydump("findInRange");
+log("findInRange");
 		var result = {
 				flag          : this.NOTFOUND,
 				range         : null,
@@ -485,7 +490,7 @@ mydump("findInRange");
    
 	getParentLinkFromRange : function(aRange) 
 	{
-mydump("getParentLinkFromRange");
+log("getParentLinkFromRange");
 		//後でXLinkを考慮したコードに直す
 		if (!aRange) return null;
 		var node = aRange.commonAncestorContainer;
@@ -501,7 +506,7 @@ mydump("getParentLinkFromRange");
  
 	getParentEditableFromRange : function(aRange) 
 	{
-mydump('getParentEditableFromRange');
+log('getParentEditableFromRange');
 		if (aRange) aRange.QueryInterface(Ci.nsIDOMRange);
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
@@ -535,7 +540,7 @@ mydump('getParentEditableFromRange');
 	
 	getFindRangeSet : function(aFindFlag, aDocShellIterator) 
 	{
-mydump("getFindRangeSet");
+log("getFindRangeSet");
 		var doc       = aDocShellIterator.document;
 		var docShell  = aDocShellIterator.current;
 		var docSelCon = this.getSelectionController(aDocShellIterator.view);
@@ -593,7 +598,7 @@ mydump("getFindRangeSet");
 	
 	getFindRangeSetIn : function(aFindFlag, aDocShellIterator, aRangeParent, aSelCon) 
 	{
-mydump("getFindRangeSetIn "+aRangeParent);
+log("getFindRangeSetIn "+aRangeParent);
 		var doc = aDocShellIterator.document;
 
 		var findRange = doc.createRange();
@@ -725,7 +730,7 @@ mydump("getFindRangeSetIn "+aRangeParent);
   
 	resetFindRangeSet : function(aRangeSet, aFoundRange, aFindFlag, aDocument) 
 	{
-mydump("resetFindRangeSet");
+log("resetFindRangeSet");
 /*
 		var win = this.document.commandDispatcher.focusedWindow;
 		var theDoc = (win && win.top != this.window.top) ?
@@ -802,7 +807,7 @@ mydump("resetFindRangeSet");
  
 	setSelectionAndScroll : function(aRange, aDocument) 
 	{
-mydump("setSelectionAndScroll");
+log("setSelectionAndScroll");
 		if (!aRange && !aDocument) return;
 
 		if (!aDocument)
@@ -964,7 +969,7 @@ mydump("setSelectionAndScroll");
 				y = startY + (deltaY * Math.sin(aTime / aDuration * radian));
 				finished = false;
 			}
-mydump('scrollSelectionToCenter '+aScrollTarget+' ('+x+', '+y+')');
+log('scrollSelectionToCenter '+aScrollTarget+' ('+x+', '+y+')');
 			aScrollTarget.scrollTo(x, y);
 			return finished;
 		}).bind(this);
@@ -1513,10 +1518,3 @@ DocShellIterator.prototype = {
 	}
  
 }; 
- 
-function mydump(aString) 
-{
-	if (DEBUG)
-		dump((aString.length > 1024 ? aString.substring(0, 1024) : aString )+'\n');
-}
- 

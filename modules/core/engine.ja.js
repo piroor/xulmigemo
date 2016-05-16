@@ -5,6 +5,11 @@ var EXPORTED_SYMBOLS = ['MigemoEngineJa'];
 	MigemoTextTransformJa
 */
 var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -36,7 +41,7 @@ var MigemoEngineJa = inherit(MigemoConstants, {
 
 		var transform = this.textTransform;
 
-		mydump('noCache');
+		log('noCache');
 
 		var hira = transform.expand(
 				MigemoTextUtils.sanitizeForTransformOutput(
@@ -72,10 +77,10 @@ var MigemoEngineJa = inherit(MigemoConstants, {
 					transform.KANA_ALL
 				) :
 				hira + '|' + kana ;
-		mydump('hiraAndKana: '+encodeURIComponent(hiraAndKana));
+		log('hiraAndKana: '+encodeURIComponent(hiraAndKana));
 
 		var zen = transform.roman2zen(aInput); // aInput ?
-		mydump('zen: '+encodeURIComponent(zen));
+		log('zen: '+encodeURIComponent(zen));
 
 		var lines = this.gatherEntriesFor(aInput, aTargetDic);
 
@@ -122,13 +127,13 @@ var MigemoEngineJa = inherit(MigemoConstants, {
 			pattern += (pattern ? '|' : '') + original;
 			pattern = pattern.replace(/\n/g, '');
 
-			mydump('pattern(from dic):'+encodeURIComponent(pattern));
+			log('pattern(from dic):'+encodeURIComponent(pattern));
 		}
 		else { // 辞書に引っかからなかった模様なので自前の文字列だけ
 			pattern = original;
 			if (original != zen) pattern += '|' + zen;
 			if (original != hiraAndKana) pattern += '|' + hiraAndKana;
-			mydump('pattern:'+encodeURIComponent(pattern));
+			log('pattern:'+encodeURIComponent(pattern));
 		}
 
 		return pattern.replace(/\n|^\||\|$/g, '')
@@ -185,7 +190,7 @@ var MigemoEngineJa = inherit(MigemoConstants, {
 
 		var firstlet = '';
 		firstlet = aInput.charAt(0);//最初の文字
-		mydump(firstlet+' dic loaded');
+		log(firstlet+' dic loaded');
 
 		var lines = [];
 
@@ -196,34 +201,34 @@ var MigemoEngineJa = inherit(MigemoConstants, {
 
 		if (mydicAU) {
 			var lineAU = mydicAU.match(expA);
-			mydump('searchEnDic (user)');
+			log('searchEnDic (user)');
 			if (lineAU) {
 				lines = lines.concat(lineAU);
-				mydump(' found '+lineAU.length+' terms');
+				log(' found '+lineAU.length+' terms');
 			}
 		}
 		if (mydicA) {
 			var lineA = mydicA.match(expA);//アルファベットの辞書を検索
-			mydump('searchEnDic');
+			log('searchEnDic');
 			if (lineA) {
 				lines = lines.concat(lineA);
-				mydump(' found '+lineA.length+' terms');
+				log(' found '+lineA.length+' terms');
 			}
 		}
 		if (mydicU) {
 			var lineU = mydicU.match(exp);
-			mydump('searchJpnDic (user)');
+			log('searchJpnDic (user)');
 			if (lineU) {
 				lines = lines.concat(lineU);
-				mydump(' found '+lineU.length+' terms');
+				log(' found '+lineU.length+' terms');
 			}
 		}
 		if (mydic) {
 			var line = mydic.match(exp);//日本語の辞書を検索
-			mydump('searchJpnDic');
+			log('searchJpnDic');
 			if (line) {
 				lines = lines.concat(line);
-				mydump(' found '+line.length+' terms');
+				log(' found '+line.length+' terms');
 			}
 		}
 
@@ -231,10 +236,3 @@ var MigemoEngineJa = inherit(MigemoConstants, {
 	}
  
 }); 
- 
-function mydump(aString) 
-{
-	if (DEBUG)
-		dump((aString.length > 1024 ? aString.substring(0, 1024) : aString )+'\n');
-}
- 

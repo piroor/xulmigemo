@@ -5,6 +5,11 @@ var EXPORTED_SYMBOLS = ['MigemoDicManager'];
 	MigemoCache
 */
 var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -280,10 +285,4 @@ var MigemoDicManager = {
 	}
  
 }; 
- 
-function mydump(aString) 
-{
-	if (DEBUG)
-		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
-}
  

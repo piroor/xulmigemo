@@ -5,6 +5,11 @@ var EXPORTED_SYMBOLS = ['MigemoCache', 'MigemoCacheFactory'];
 	MigemoTextUtils
 */
 var DEBUG = false;
+function log(...aArgs) 
+{
+	if (DEBUG) Services.console.logStringMessage(...aArgs);
+}
+
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -77,11 +82,11 @@ MigemoCache.prototype = inherit(MigemoConstants, {
 		aTargetDic = aTargetDic || this.ALL_DIC;
 		var miexp = new RegExp('(^'+MigemoTextUtils.sanitize(aRoman)+'\t.+\n)', 'im');
 		if (this.memCache[aTargetDic].match(miexp)) {
-			mydump('use memCache');
+			log('use memCache');
 			return RegExp.$1.split('\t')[1];
 		}
 		else if (this.diskCacheClone[aTargetDic].match(miexp)) {
-			mydump('use diskCacheClone');
+			log('use diskCacheClone');
 			return RegExp.$1.split('\t')[1];
 		}
 		return '';
@@ -114,11 +119,11 @@ MigemoCache.prototype = inherit(MigemoConstants, {
 		this.DICTIONARIES_CHANGABLE.forEach(function(aType) {
 			var cache = this.memCache[aType] || '';
 			this.memCache[aType] = cache.replace(miexp, '');
-			if (RegExp.$1) mydump('update memCache for "'+aRoman+'"');
+			if (RegExp.$1) log('update memCache for "'+aRoman+'"');
 
 			cache = this.diskCacheClone[aType] || '';
 			this.diskCacheClone[aType] = cache.replace(miexp, '');
-			if (RegExp.$1) mydump('update diskCache for "'+aRoman+'"');
+			if (RegExp.$1) log('update diskCache for "'+aRoman+'"');
 		}, this);
 	},
  
@@ -150,7 +155,7 @@ MigemoCache.prototype = inherit(MigemoConstants, {
 		}
 		else {
 			this.memCache[aTargetDic] = cache + aRoman + '\t' + aRegExp + '\n';
-			//mydump(this.memCache);
+			//log(this.memCache);
 
 			ObserverService.notifyObservers(null, 'XMigemo:memCacheAdded', aRoman+'\n'+aRegExp);
 
@@ -223,7 +228,7 @@ MigemoCache.prototype = inherit(MigemoConstants, {
 		}
 		this.initialized = this.DICTIONARIES_ALL.every(this.getCacheFile, this);
 		if (this.initialized) {
-			mydump('MigemoCache: loaded');
+			log('MigemoCache: loaded');
 			return true;
 		}
 		else {
@@ -303,10 +308,3 @@ var MigemoCacheFactory = {
 		return this._instances[aKey];
 	}
 };
-
-function mydump(aString) 
-{
-	if (DEBUG)
-		dump((aString.length > 80 ? aString.substring(0, 80) : aString )+'\n');
-}
- 
