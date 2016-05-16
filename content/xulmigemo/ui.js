@@ -139,14 +139,14 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		return aValue;
 	},
 
-	_lasfFindMode : new WeakMap(),
-	get lasfFindMode()
+	_lastFindMode : new WeakMap(),
+	get lastFindMode()
 	{
-		return this._lasfFindMode.get(this.findBar);
+		return this._lastFindMode.get(this.findBar);
 	},
-	set lasfFindMode(aValue)
+	set lastFindMode(aValue)
 	{
-		this._lasfFindMode.set(this.findBar, aValue);
+		this._lastFindMode.set(this.findBar, aValue);
 		return aValue;
 	},
  
@@ -326,6 +326,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 			this.findBar.__xm__close = this.findBar.close;
 			this.findBar.close = function(...aArgs) {
 				XMigemoUI.findModeSelectorBox.hidden = true;
+				XMigemoUI.lastFindMode = null;
 				this.removeAttribute(XMigemoUI.kFIND_MODE);
 				return this.__xm__close(...aArgs);
 			};
