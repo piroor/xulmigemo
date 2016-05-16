@@ -96,7 +96,8 @@
 </prefpane>
 
 
-<prefpane id="prefpane-findMode" label="&config.tab.findMode;" flex="1">
+<prefpane id="prefpane-findMode" label="&config.tab.findMode;" flex="1"
+	onpaneload="initModePane();">
 	<preferences>
 		<preference id="xulmigemo.findMode.always"
 			name="xulmigemo.findMode.always"
