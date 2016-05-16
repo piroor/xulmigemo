@@ -6,13 +6,15 @@ var EXPORTED_SYMBOLS = ['MigemoDicManager'];
 */
 var DEBUG = false;
 var TEST = false;
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
+
+Cu.import('resource://gre/modules/Services.jsm');
  
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
-Components.utils.import('resource://xulmigemo-modules/core/core.js');
-Components.utils.import('resource://xulmigemo-modules/core/cache.js');
-Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js');
+Cu.import('resource://xulmigemo-modules/core/core.js');
+Cu.import('resource://xulmigemo-modules/core/cache.js');
+Cu.import('resource://xulmigemo-modules/core/fileAccess.js');
 
 const ObserverService = Cc['@mozilla.org/observer-service;1']
 		.getService(Ci.nsIObserverService);;

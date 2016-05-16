@@ -3,8 +3,9 @@ var EXPORTED_SYMBOLS = ['MigemoFileAccess'];
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
+var Cu = Components.utils;
 
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Cu.import('resource://gre/modules/Services.jsm');
 
 var UConv = Cc['@mozilla.org/intl/scriptableunicodeconverter']
 		.getService(Ci.nsIScriptableUnicodeConverter);

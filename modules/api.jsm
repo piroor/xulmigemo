@@ -2,16 +2,17 @@ var EXPORTED_SYMBOLS = ['MigemoAPI'];
 
 var DEBUG = false; 
 var TEST = false;
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
 var MAX_CACHE_COUNT = 100;
 
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Cu.import('resource://gre/modules/Services.jsm');
 
-Components.utils.import('resource://xulmigemo-modules/core/core.js');
-Components.utils.import('resource://xulmigemo-modules/core/engine.js');
-Components.utils.import('resource://xulmigemo-modules/core/cache.js');
+Cu.import('resource://xulmigemo-modules/core/core.js');
+Cu.import('resource://xulmigemo-modules/core/engine.js');
+Cu.import('resource://xulmigemo-modules/core/cache.js');
 
 const ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);

@@ -1,19 +1,19 @@
 var EXPORTED_SYMBOLS = ['MigemoFinder']; 
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
-
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('resource://gre/modules/Finder.jsm');
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
 Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/Finder.jsm');
 
 Cu.import('resource://xulmigemo-modules/lib/extended-immutable.js');
+
 Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/service.jsm');
 Cu.import('resource://xulmigemo-modules/core/find.js');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
+
 
 function myResultToNativeResult(aFlag)
 {

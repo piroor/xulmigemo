@@ -8,14 +8,16 @@ var DEBUG = false;
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
- 
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
-Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
-Components.utils.import('resource://xulmigemo-modules/constants.jsm');
+var Cu = Components.utils;
 
-Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
-Components.utils.import('resource://xulmigemo-modules/core/textTransform.ja.js');
-Components.utils.import('resource://xulmigemo-modules/core/dictionary.ja.js');
+Cu.import('resource://gre/modules/Services.jsm');
+
+Cu.import('resource://xulmigemo-modules/lib/inherit.jsm');
+
+Cu.import('resource://xulmigemo-modules/constants.jsm');
+Cu.import('resource://xulmigemo-modules/core/textUtils.js');
+Cu.import('resource://xulmigemo-modules/core/textTransform.ja.js');
+Cu.import('resource://xulmigemo-modules/core/dictionary.ja.js');
 
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);

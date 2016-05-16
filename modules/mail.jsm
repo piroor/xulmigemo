@@ -2,30 +2,21 @@ var TEST = false;
 
 var EXPORTED_SYMBOLS = ['XMigemoMail'];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
-Components.utils.import('resource://xulmigemo-modules/service.jsm');
+Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource:///modules/quickFilterManager.js');
 
-
-try { // -Thunderbird 3.0
-	Components.utils.import('resource:///modules/quickSearchManager.js');
-}
-catch(e) {
-}
-
-try { // Thunderbird 3.1-
-	Components.utils.import('resource:///modules/quickFilterManager.js');
-}
-catch(e) {
-}
+Cu.import('resource://xulmigemo-modules/service.jsm');
 
 
 var XMigemoMail = {
 	get DBConnection()
 	{
 		if (typeof GlodaDatastore === 'undefined')
-			Components.utils.import('resource:///modules/gloda/datastore.js');
+			Cu.import('resource:///modules/gloda/datastore.js');
 
 		return GlodaDatastore.syncConnection;
 	},

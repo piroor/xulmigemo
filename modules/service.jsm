@@ -1,18 +1,20 @@
 var EXPORTED_SYMBOLS = ['XMigemoService', 'XMigemoCore', 'xulMigemoCore']; 
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
-Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
-Components.utils.import('resource://xulmigemo-modules/constants.jsm');
+Cu.import('resource://gre/modules/Services.jsm');
 
-Components.utils.import('resource://xulmigemo-modules/lib/prefs.js');
-Components.utils.import('resource://xulmigemo-modules/lib/animationManager.js');
-Components.utils.import('resource://xulmigemo-modules/lib/stringBundle.js');
+Cu.import('resource://xulmigemo-modules/lib/inherit.jsm');
+Cu.import('resource://xulmigemo-modules/lib/prefs.js');
+Cu.import('resource://xulmigemo-modules/lib/animationManager.js');
+Cu.import('resource://xulmigemo-modules/lib/stringBundle.js');
 
-Components.utils.import('resource://xulmigemo-modules/api.jsm');
-Components.utils.import('resource://xulmigemo-modules/core/core.js');
-Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
+Cu.import('resource://xulmigemo-modules/constants.jsm');
+Cu.import('resource://xulmigemo-modules/api.jsm');
+Cu.import('resource://xulmigemo-modules/core/core.js');
+Cu.import('resource://xulmigemo-modules/core/textUtils.js');
  
 var XMigemoService = inherit(prefs, { 
 	DEBUG : true, 
@@ -42,13 +44,11 @@ var XMigemoService = inherit(prefs, {
  
 	get animationManager() { 
 		delete this.animationManager;
-		let { animationManager } = Components.utils.import('resource://xulmigemo-modules/lib/animationManager.js', {});
 		return this.animationManager = animationManager;
 	},
  
 	get stringBundle() { 
 		delete this.stringBundle;
-		let { stringBundle } = Components.utils.import('resource://xulmigemo-modules/lib/stringBundle.js', {});
 		return this.stringBundle = stringBundle;
 	},
  

@@ -4,9 +4,11 @@ var EXPORTED_SYMBOLS = ['MigemoTextTransform'];
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
+var Cu = Components.utils;
 
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
+Cu.import('resource://gre/modules/Services.jsm');
+
+Cu.import('resource://xulmigemo-modules/core/textUtils.js');
  
 var MigemoTextTransform = {
 	nonAsciiRegExp : /[^a-zA-Z0-9\!\_\-\?\/\\\~\|\{\}\(\)\'\"\&\%\$\<\>\[\]\@\`\+\*\;\:]/gi, 

@@ -8,16 +8,18 @@ var EXPORTED_SYMBOLS = ['MigemoCore', 'MigemoCoreFactory'];
 */
 var DEBUG = false;
 var TEST = false;
-const Cc = Components.classes;
-const Ci = Components.interfaces;
- 
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
-Components.utils.import('resource://gre/modules/Timer.jsm'); 
-Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
-Components.utils.import('resource://xulmigemo-modules/constants.jsm');
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
-Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
-Components.utils.import('resource://xulmigemo-modules/core/cache.js');
+Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/Timer.jsm'); 
+
+Cu.import('resource://xulmigemo-modules/lib/inherit.jsm');
+
+Cu.import('resource://xulmigemo-modules/constants.jsm');
+Cu.import('resource://xulmigemo-modules/core/cache.js');
+Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 
 const ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);;

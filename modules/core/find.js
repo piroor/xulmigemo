@@ -8,13 +8,15 @@ var DEBUG = false;
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
- 
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm'); 
-Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
-Components.utils.import('resource://xulmigemo-modules/constants.jsm');
+var Cu = Components.utils;
 
-Components.utils.import('resource://xulmigemo-modules/core/core.js');
-Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
+Cu.import('resource://gre/modules/Services.jsm');
+ 
+Cu.import('resource://xulmigemo-modules/lib/inherit.jsm');
+
+Cu.import('resource://xulmigemo-modules/constants.jsm');
+Cu.import('resource://xulmigemo-modules/core/core.js');
+Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 
 var nsIDocShellTreeItem = Ci.nsIDocShellTreeNode || Ci.nsIDocShellTreeItem; // nsIDocShellTreeNode is merged to nsIDocShellTreeItem by https://bugzilla.mozilla.org/show_bug.cgi?id=331376
 

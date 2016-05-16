@@ -1,12 +1,14 @@
 var EXPORTED_SYMBOLS = ['MigemoTextUtils'];
 
 var TEST = false; 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('resource://gre/modules/Timer.jsm');
-Components.utils.import('resource://xulmigemo-modules/lib/here.js');
+Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/Timer.jsm');
+
+Cu.import('resource://xulmigemo-modules/lib/here.js');
 
 const Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);

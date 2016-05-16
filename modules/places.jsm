@@ -1,16 +1,18 @@
 var EXPORTED_SYMBOLS = ['XMigemoPlaces']; 
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
-Components.utils.import('resource://gre/modules/Timer.jsm');
+Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/Timer.jsm');
 
-Components.utils.import('resource://xulmigemo-modules/lib/here.js');
+Cu.import('resource://xulmigemo-modules/lib/here.js');
 
-Components.utils.import('resource://xulmigemo-modules/service.jsm');
-Components.utils.import('resource://xulmigemo-modules/api.jsm');
-Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
-Components.utils.import('resource://xulmigemo-modules/core/find.js');
+Cu.import('resource://xulmigemo-modules/service.jsm');
+Cu.import('resource://xulmigemo-modules/api.jsm');
+Cu.import('resource://xulmigemo-modules/core/textUtils.js');
+Cu.import('resource://xulmigemo-modules/core/find.js');
  
 var XMigemoPlaces = { 
 	

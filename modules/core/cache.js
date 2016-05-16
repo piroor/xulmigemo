@@ -6,15 +6,17 @@ var EXPORTED_SYMBOLS = ['MigemoCache', 'MigemoCacheFactory'];
 */
 var DEBUG = false;
 var TEST = false;
-const Cc = Components.classes;
-const Ci = Components.interfaces;
- 
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm');
-Components.utils.import('resource://xulmigemo-modules/constants.jsm');
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+var Cu = Components.utils;
 
-Components.utils.import('resource://xulmigemo-modules/core/textUtils.js');
-Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js');
+Cu.import('resource://gre/modules/Services.jsm');
+ 
+Cu.import('resource://xulmigemo-modules/lib/inherit.jsm');
+
+Cu.import('resource://xulmigemo-modules/constants.jsm');
+Cu.import('resource://xulmigemo-modules/core/textUtils.js');
+Cu.import('resource://xulmigemo-modules/core/fileAccess.js');
 
 const ObserverService = Cc['@mozilla.org/observer-service;1']
 			.getService(Ci.nsIObserverService);
