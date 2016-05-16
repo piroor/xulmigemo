@@ -396,6 +396,17 @@ window.XMigemoUI = inherit(MigemoConstants, {
   
 	onFindBarOpen : function(aEvent) 
 	{
+		var params = this.getFindModeParams();
+		if (params.mode !== this.findMode) {
+			// started withtout gFindBar.startFind()
+			// (for example, starting of Find As You Type by gFindBar._onBrowserKeypress())
+			this.findModeSelector.value = params.modeName;
+			this.findBar.setAttribute(this.kFIND_MODE, params.modeName);
+			this.finder.__xm__setFindMode(params);
+			this.handleFindModeReportWithDelay();
+		}
+		// otherwise, the find mode is already initialized by onFindStart().
+
 		this.findModeSelectorBox.hidden =
 			this.findMigemoBar.collapsed = false;
 		this.updateModeSelectorPosition();
