@@ -1,10 +1,10 @@
 pref("xulmigemo.lang", "");
 
 // 1 = native find, 2 = migemo, 4 = regexp, -1 = keep previous mode
-pref("xulmigemo.findMode.default", 2);
-pref("xulmigemo.findMode.always", -1);
-pref("xulmigemo.findMode.quick.default", 2);
-pref("xulmigemo.findMode.quick.always", -1);
+pref("xulmigemo.findMode.default", 1);
+pref("xulmigemo.findMode.always", 1);
+pref("xulmigemo.findMode.quick.default", 1);
+pref("xulmigemo.findMode.quick.always", 1);
 
 pref("xulmigemo.disableIME.migemo", true);
 
@@ -20,7 +20,7 @@ pref("xulmigemo.scrollSelectionToCenter.padding", 30);
 pref("xulmigemo.scrollSelectionToCenter.smoothScroll.enabled", true);
 pref("xulmigemo.scrollSelectionToCenter.smoothScroll.duration", 350);
 
-pref("xulmigemo.shortcut.startInTemporaryMode",  '[{"mode":"FIND_MODE_MIGEMO","findbarMode":"FIND_TYPEAHEAD","shortcut":"/"},{"mode":"FIND_MODE_MIGEMO","findbarMode":"FIND_TYPEAHEAD","shortcut":"Accel+Shift+F"},{"mode":"FIND_MODE_MIGEMO","findbarMode":"FIND_LINKS","shortcut":"\\\\"}]');
+pref("xulmigemo.shortcut.startInTemporaryMode",  '[{"mode":"FIND_MODE_MIGEMO","findbarMode":"FIND_NORMAL","shortcut":"Accel+Shift+F"},{"mode":"FIND_MODE_MIGEMO","findbarMode":"FIND_TYPEAHEAD","shortcut":"\\\\"}]');
 pref("xulmigemo.shortcut.goDicManager",          "Accel+Shift+F7");
 // 0 = do nothing
 // 1 = normal find
