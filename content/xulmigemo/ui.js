@@ -1,13 +1,13 @@
-Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
-Components.utils.import('resource://xulmigemo-modules/api.jsm'); 
+Cu.import('resource://xulmigemo-modules/service.jsm'); 
+Cu.import('resource://xulmigemo-modules/api.jsm'); 
 
 (function() {
-Components.utils.import('resource://xulmigemo-modules/finder.jsm', {});
-Components.utils.import('resource://xulmigemo-modules/remoteFinder.jsm', {});
+Cu.import('resource://xulmigemo-modules/finder.jsm', {});
+Cu.import('resource://xulmigemo-modules/remoteFinder.jsm', {});
 
-	var { MigemoConstants } = Components.utils.import('resource://xulmigemo-modules/constants.jsm', {});
-	var { MigemoTextUtils } = Components.utils.import('resource://xulmigemo-modules/core/textUtils.js', {});
-	var { inherit } = Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm', {});
+var { MigemoConstants } = Cu.import('resource://xulmigemo-modules/constants.jsm', {});
+var { MigemoTextUtils } = Cu.import('resource://xulmigemo-modules/core/textUtils.js', {});
+var { inherit } = Cu.import('resource://xulmigemo-modules/lib/inherit.jsm', {});
  
 window.XMigemoUI = inherit(MigemoConstants, { 
 	
