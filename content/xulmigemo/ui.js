@@ -301,12 +301,21 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	getFindModeParams : function()
 	{
 		var suffix = this.isQuickFind ? '.quick' : '' ;
-		return {
+		var params = {
 			context       : this.currentFindContext,
 			nextMode      : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.always'),
 			defaultMode   : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.default'),
 			temporaryMode : this.readyToStartTemporaryFindMode
 		};
+
+		var mode = params.temporaryMode || params.nextMode;
+		if (mode === MigemoConstants.FIND_MODE_KEEP)
+			mode = params.defaultMode;
+		var name = MigemoConstants.FIND_MODE_FLAG_FROM_NAME[mode];
+		params.mode = mode;
+		params.modeName = name;
+
+		return params;
 	},
  
 	getModeCirculationNext : function(aCurrentMode)
@@ -327,22 +336,25 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		while (this.modeCirculationTable.indexOf(modes[index]) < 0)
 		return modes[index];
 	},
-  
-	onFindBarOpen : function(aEvent) 
+
+	onFindStart : function()
 	{
+		if (!this.readyToStartTemporaryFindMode &&
+			this.isFocused) {
+			let mode = this.getModeCirculationNext(this.findMode);
+			if (mode === this.CIRCULATE_MODE_EXIT)
+				this.close();
+			else
+				this.setFindMode(mode);
+			return true;
+		}
 		var params = this.getFindModeParams();
-		params.temporaryMode = this.readyToStartTemporaryFindMode;
 		this.readyToStartTemporaryFindMode = null;
-
-		if (params.temporaryMode)
-			this.findBar.setAttribute(this.kFIND_MODE, params.temporaryMode);
-
+		this.findModeSelector.value = params.modeName;
+		this.findBar.setAttribute(this.kFIND_MODE, params.modeName);
 		this.finder.__xm__setFindMode(params);
 		this.handleFindModeReportWithDelay();
-
-		this.findModeSelectorBox.hidden =
-			this.findMigemoBar.collapsed = false;
-		this.updateModeSelectorPosition();
+		return false;
 	},
 
 	handleFindModeReportWithDelay : function()
@@ -356,7 +368,6 @@ window.XMigemoUI = inherit(MigemoConstants, {
 			if (report)
 				this.handleFindModeReport(report);
 		}).bind(this), 10);
-
 	},
 
 	handleFindModeReport : function(aReport)
@@ -374,6 +385,20 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		var modeChanged = this.findMode != previousMode;
 		if (modeChanged && this.findBar.getElement('highlight').checked)
 			this.findBar._setHighlightTimeout();
+	},
+
+	onFindFinish : function()
+	{
+		this.findModeSelectorBox.hidden = true;
+		this.lastFindMode = null;
+		this.findBar.removeAttribute(this.kFIND_MODE);
+	},
+  
+	onFindBarOpen : function(aEvent) 
+	{
+		this.findModeSelectorBox.hidden =
+			this.findMigemoBar.collapsed = false;
+		this.updateModeSelectorPosition();
 	},
 
 	onTabSelect : function()
@@ -422,16 +447,8 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		if (!this.findBar.__xm__startFind) {
 			this.findBar.__xm__startFind = this.findBar.startFind;
 			this.findBar.startFind = function(...aArgs) {
-				if (!XMigemoUI.readyToStartTemporaryFindMode &&
-					XMigemoUI.isFocused) {
-					temporaryMode = XMigemoUI.getModeCirculationNext(XMigemoUI.findMode);
-					if (temporaryMode === XMigemoUI.CIRCULATE_MODE_EXIT) {
-						this.close();
-						return;
-					}
-					XMigemoUI.setFindMode(temporaryMode);
+				if (XMigemoUI.onFindStart())
 					return;
-				}
 				return this.__xm__startFind(...aArgs);
 			};
 		}
@@ -439,9 +456,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		if (!this.findBar.__xm__close) {
 			this.findBar.__xm__close = this.findBar.close;
 			this.findBar.close = function(...aArgs) {
-				XMigemoUI.findModeSelectorBox.hidden = true;
-				XMigemoUI.lastFindMode = null;
-				this.removeAttribute(XMigemoUI.kFIND_MODE);
+				XMigemoUI.onFindFinish();
 				return this.__xm__close(...aArgs);
 			};
 		}
