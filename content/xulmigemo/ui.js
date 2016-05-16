@@ -352,6 +352,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		this.readyToStartTemporaryFindMode = null;
 		this.findModeSelector.value = params.modeName;
 		this.findBar.setAttribute(this.kFIND_MODE, params.modeName);
+		this.findBar.findMode = params.mode;
 		this.finder.__xm__setFindMode(params);
 		this.handleFindModeReportWithDelay();
 		return false;
