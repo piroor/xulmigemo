@@ -114,6 +114,14 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		return findbarMode == findbar.FIND_TYPEAHEAD || findbarMode == findbar.FIND_LINKS;
 	},
 
+	get isFocused()
+	{
+		var focusedElement = Cc['@mozilla.org/focus-manager;1']
+							.getService(Ci.nsIFocusManager)
+							.focusedElement;
+		return this.isInFindBar(focusedElement);
+	},
+
 	get currentFindContext()
 	{
 		return this.isQuickFind ?
@@ -289,6 +297,17 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		});
 		this.handleFindModeReportWithDelay();
 	},
+
+	getFindModeParams : function()
+	{
+		var suffix = this.isQuickFind ? '.quick' : '' ;
+		return {
+			context       : this.currentFindContext,
+			nextMode      : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.always'),
+			defaultMode   : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.default'),
+			temporaryMode : this.readyToStartTemporaryFindMode
+		};
+	},
  
 	getModeCirculationNext : function(aCurrentMode)
 	{
@@ -311,52 +330,19 @@ window.XMigemoUI = inherit(MigemoConstants, {
   
 	onFindBarOpen : function(aEvent) 
 	{
-		var suffix = this.isQuickFind ? '.quick' : '' ;
-
-		var temporaryMode = this.readyToStartTemporaryFindMode;
+		var params = this.getFindModeParams();
+		params.temporaryMode = this.readyToStartTemporaryFindMode;
 		this.readyToStartTemporaryFindMode = null;
 
-		if (temporaryMode)
-			this.findBar.setAttribute(this.kFIND_MODE, temporaryMode);
+		if (params.temporaryMode)
+			this.findBar.setAttribute(this.kFIND_MODE, params.temporaryMode);
 
-		this.finder.__xm__setFindMode({
-			context     : this.currentFindContext,
-			nextMode    : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.always'),
-			defaultMode : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.default'),
-			temporaryMode : temporaryMode
-		});
+		this.finder.__xm__setFindMode(params);
 		this.handleFindModeReportWithDelay();
 
 		this.findModeSelectorBox.hidden =
 			this.findMigemoBar.collapsed = false;
 		this.updateModeSelectorPosition();
-
-		if (!this.findBar.__xm__startFind) {
-			this.findBar.__xm__startFind = this.findBar.startFind;
-			this.findBar.startFind = function(...aArgs) {
-				if (!XMigemoUI.readyToStartTemporaryFindMode &&
-					!XMigemoUI.findModeSelectorBox.hidden) {
-					temporaryMode = XMigemoUI.getModeCirculationNext(XMigemoUI.findMode);
-					if (temporaryMode === XMigemoUI.CIRCULATE_MODE_EXIT) {
-						this.close();
-						return;
-					}
-					XMigemoUI.setFindMode(temporaryMode);
-					return;
-				}
-				return this.__xm__startFind(...aArgs);
-			};
-		}
-
-		if (!this.findBar.__xm__close) {
-			this.findBar.__xm__close = this.findBar.close;
-			this.findBar.close = function(...aArgs) {
-				XMigemoUI.findModeSelectorBox.hidden = true;
-				XMigemoUI.lastFindMode = null;
-				this.removeAttribute(XMigemoUI.kFIND_MODE);
-				return this.__xm__close(...aArgs);
-			};
-		}
 	},
 
 	handleFindModeReportWithDelay : function()
@@ -392,12 +378,13 @@ window.XMigemoUI = inherit(MigemoConstants, {
 
 	onTabSelect : function()
 	{
-		XMigemoUI.findModeSelectorBox.hidden = this.findBar.hidden;
+		this.updateFindBar();
+		this.findModeSelectorBox.hidden = this.findBar.hidden;
 	},
 
 	onInput : function(aEvent)
 	{
-		if (!this.isEventFiredInFindBar(aEvent) ||
+		if (!this.isInFindBar(aEvent.originalTarget) ||
 			!this.autoStartRegExp)
 			return;
 
@@ -413,13 +400,15 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		}
 	},
 
-	isEventFiredInFindBar : function(aEvent)
+	isInFindBar : function(aNode)
 	{
-		var node = aEvent.originalTarget;
-		var findBar = this.findBar;
+		var node = aNode;
+		if (!aNode)
+			return false;
+		var field = this.field;
 		while (node)
 		{
-			if (node == findBar)
+			if (node == field)
 				return true;
 			node = node.parentNode;
 		}
@@ -428,6 +417,36 @@ window.XMigemoUI = inherit(MigemoConstants, {
 
 /* UI */ 
  
+	updateFindBar : function()
+	{
+		if (!this.findBar.__xm__startFind) {
+			this.findBar.__xm__startFind = this.findBar.startFind;
+			this.findBar.startFind = function(...aArgs) {
+				if (!XMigemoUI.readyToStartTemporaryFindMode &&
+					XMigemoUI.isFocused) {
+					temporaryMode = XMigemoUI.getModeCirculationNext(XMigemoUI.findMode);
+					if (temporaryMode === XMigemoUI.CIRCULATE_MODE_EXIT) {
+						this.close();
+						return;
+					}
+					XMigemoUI.setFindMode(temporaryMode);
+					return;
+				}
+				return this.__xm__startFind(...aArgs);
+			};
+		}
+
+		if (!this.findBar.__xm__close) {
+			this.findBar.__xm__close = this.findBar.close;
+			this.findBar.close = function(...aArgs) {
+				XMigemoUI.findModeSelectorBox.hidden = true;
+				XMigemoUI.lastFindMode = null;
+				this.removeAttribute(XMigemoUI.kFIND_MODE);
+				return this.__xm__close(...aArgs);
+			};
+		}
+	},
+
 	updateModeSelectorPosition : function(aForceUpdate) 
 	{
 		var box = this.findModeSelectorBox;
@@ -471,6 +490,8 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		}, 0, this);
 
 		this.overrideExtensionsOnInitAfter(); // hacks.js
+
+		this.updateFindBar();
 	},
   
 	destroy : function() 
