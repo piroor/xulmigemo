@@ -10,6 +10,20 @@ Cu.import('resource://gre/modules/RemoteFinder.jsm');
 
 Cu.import('resource://xulmigemo-modules/constants.jsm');
 
+
+// sender
+
+RemoteFinder.prototype.__xm__setFindMode = function(aParams) {
+	Services.console.logStringMessage('setFindMode => '+JSON.stringify(aParams));
+	this._browser.messageManager.sendAsyncMessage(MigemoConstants.MESSAGE_TYPE, {
+		command : MigemoConstants.COMMAND_SET_FIND_MODE,
+		params  : aParams
+	});
+};
+
+
+// listener
+
 Object.defineProperty(RemoteFinderListener.prototype, '_global', {
 	get: function() {
 		return this.__xm__global;
@@ -18,7 +32,7 @@ Object.defineProperty(RemoteFinderListener.prototype, '_global', {
 		this.__xm__global = aValue;
 		this.__xm__handleMessageBound = this.__xm__handleMessage.bind(this);
 		aValue.addMessageListener(MigemoConstants.MESSAGE_TYPE, this.__xm__handleMessageBound);
-		return aValue;;
+		return aValue;
 	}
 });
 
@@ -28,66 +42,40 @@ Object.defineProperty(RemoteFinderListener.prototype, '_finder', {
 	},
 	set: function(aValue) {
 		this.__xm__finder = aValue;
-		this.__xm__init();
-		this.__xm__applyFindMode();
+		if (this.__xm__findModeParams) {
+			this.__xm__setFindMode(this.__xm__findModeParams);
+			delete this.__xm__findModeParams;
+			this.__xm__reportFindMode();
+		}
 		return this.__xm__finder;
 	}
 });
 
-RemoteFinderListener.prototype.__xm__init = function() {
-	if (this.__xm__initialized)
+RemoteFinderListener.prototype.__xm__reportFindMode = function() {
+	if (!this._global)
 		return;
-	this.__xm__nextFindMode = {};
-	this.__xm__defaultFindMode = {};
-	this.__xm__nextFindContext = MigemoConstants.FIND_CONTEXT_NORMAL;
-};
-
-RemoteFinderListener.prototype.__xm__applyFindMode = function() {
-	var migemoFinder = this._finder.__xm__migemoFinder;
-	var lastMode = this._finder.__xm__lastFindMode[this.__xm__nextFindContext];
-
-	var nextMode = this.__xm__nextFindMode[this.__xm__nextFindContext];
-	var defaultMode = this.__xm__defaultFindMode[this.__xm__nextFindContext];
-	if (this.__xm__temporaryMode) {
-		migemoFinder.findMode = this.__xm__temporaryMode;
-		this.__xm__temporaryMode = null;
-	}
-	else if (nextMode &&
-			nextMode !== MigemoConstants.FIND_MODE_KEEP) {
-		this._finder.__xm__lastFindMode[this.__xm__nextFindContext] =
-			migemoFinder.findMode = nextMode;
-	}
-	else if (defaultMode &&
-			lastMode === MigemoConstants.FIND_MODE_NOT_INITIALIZED) {
-		this._finder.__xm__lastFindMode[this.__xm__nextFindContext] =
-			migemoFinder.findMode = defaultMode;
-	}
-	else if (lastMode !== migemoFinder.findMode) {
-		migemoFinder.findMode = lastMode;
-	}
-
-	if (this._global)
-		this._global.sendAsyncMessage(MigemoConstants.MESSAGE_TYPE, {
-			command : MigemoConstants.COMMAND_REPORT_FIND_MODE,
-			context : this.__xm__nextFindContext,
-			mode    : migemoFinder.findMode
-		});
+	this._global.sendAsyncMessage(MigemoConstants.MESSAGE_TYPE, {
+		command : MigemoConstants.COMMAND_REPORT_FIND_MODE,
+		context : this._finder.__xm__nextFindContext,
+		mode    : this._finder.__xm__migemoFinder.findMode
+	});
 };
 
 RemoteFinderListener.prototype.__xm__handleMessage = function(aMessage) {
 	switch (aMessage.json.command)
 	{
 		case MigemoConstants.COMMAND_SET_FIND_MODE:
-			this.__xm__init();
-			let context = aMessage.json.params.context;
-			if (aMessage.json.params.nextMode)
-				this.__xm__nextFindMode[context] = aMessage.json.params.nextMode;
-			if (aMessage.json.params.defaultMode)
-				this.__xm__defaultFindMode[context] = aMessage.json.params.defaultMode;
-			this.__xm__nextFindContext = context;
-			this.__xm__temporaryMode = aMessage.json.params.temporaryMode;
-			if (this._finder)
-				this.__xm__applyFindMode();
+			if (this._finder) {
+				this._finder.__xm__setFindMode(aMessage.json.params);
+				this.__xm__reportFindMode();
+			}
+			else {
+				let params = this.__xm__findModeParams || {};
+				Object.keys(aMessage.json.params).forEach(function(aKey) {
+					params[aKey] = aMessage.json.params[aKey];
+				});
+				this.__xm__findModeParams = params;
+			}
 			return;
 
 		case MigemoConstants.COMMAND_SHUTDOWN:

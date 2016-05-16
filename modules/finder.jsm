@@ -26,13 +26,24 @@ function myResultToNativeResult(aFlag)
 	return Ci.nsITypeAheadFind.FIND_FOUND;
 }
 
+Finder.prototype.__xm__init = function() {
+	if (this.__xm__nextFindMode)
+		return;
+
+	this.__xm__lastFindMode = {};
+	this.__xm__lastFindMode[MigemoConstants.FIND_CONTEXT_NORMAL] = MigemoConstants.FIND_MODE_NOT_INITIALIZED;
+	this.__xm__lastFindMode[MigemoConstants.FIND_CONTEXT_QUICK] = MigemoConstants.FIND_MODE_NOT_INITIALIZED;
+
+	this.__xm__nextFindMode = {};
+	this.__xm__defaultFindMode = {};
+	this.__xm__nextFindContext = MigemoConstants.FIND_CONTEXT_NORMAL;
+};
+
 Object.defineProperty(Finder.prototype, '__xm__migemoFinder', {
 	get: function() {
 		if (!this.__xm__migemoFinderInstance) {
+			this.__xm__init();
 			this.__xm__migemoFinderInstance = new MigemoFind();
-			this.__xm__lastFindMode = {};
-			this.__xm__lastFindMode[MigemoConstants.FIND_CONTEXT_NORMAL] = MigemoConstants.FIND_MODE_NOT_INITIALIZED;
-			this.__xm__lastFindMode[MigemoConstants.FIND_CONTEXT_QUICK] = MigemoConstants.FIND_MODE_NOT_INITIALIZED;
 		}
 		return this.__xm__migemoFinderInstance;
 	}
@@ -64,6 +75,43 @@ Object.defineProperty(Finder.prototype, '_fastFind', {
 		return aValue;
 	}
 });
+
+Finder.prototype.__xm__setFindMode = function(aParams) {
+	this.__xm__init();
+
+	var context = aParams.context || MigemoConstants.FIND_CONTEXT_NORMAL;
+	if (aParams.nextMode)
+		this.__xm__nextFindMode[context] = aParams.nextMode;
+	if (aParams.defaultMode)
+		this.__xm__defaultFindMode[context] = aParams.defaultMode;
+	this.__xm__nextFindContext = context;
+	this.__xm__temporaryMode = aParams.temporaryMode || null;
+
+	var finder = this.__xm__migemoFinder;
+
+	var lastMode = this.__xm__lastFindMode[context];
+	var nextMode = this.__xm__nextFindMode[context];
+	var defaultMode = this.__xm__defaultFindMode[context];
+
+	if (this.__xm__temporaryMode) {
+		finder.findMode = this.__xm__temporaryMode;
+		this.__xm__temporaryMode = null;
+	}
+	else if (nextMode &&
+			nextMode !== MigemoConstants.FIND_MODE_KEEP) {
+		this.__xm__lastFindMode[context] =
+			finder.findMode = nextMode;
+	}
+	else if (defaultMode &&
+			lastMode === MigemoConstants.FIND_MODE_NOT_INITIALIZED) {
+		this.__xm__lastFindMode[context] =
+			finder.findMode = defaultMode;
+	}
+	else if (lastMode !== finder.findMode) {
+		finder.findMode = lastMode;
+	}
+	Services.console.logStringMessage('finder.findMode => '+finder.findMode);
+};
 
 Finder.prototype.__xm__fastFind = Finder.prototype.fastFind;
 Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {

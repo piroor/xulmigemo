@@ -2,6 +2,9 @@ Components.utils.import('resource://xulmigemo-modules/service.jsm');
 Components.utils.import('resource://xulmigemo-modules/api.jsm'); 
 
 (function() {
+Components.utils.import('resource://xulmigemo-modules/finder.jsm', {});
+Components.utils.import('resource://xulmigemo-modules/remoteFinder.jsm', {});
+
 	var { MigemoConstants } = Components.utils.import('resource://xulmigemo-modules/constants.jsm', {});
 	var { MigemoTextUtils } = Components.utils.import('resource://xulmigemo-modules/core/textUtils.js', {});
 	var { inherit } = Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm', {});
@@ -97,6 +100,11 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	get field()
 	{
 		return this.findBar._findField;
+	},
+
+	get finder()
+	{
+		return this.findBar._browser.finder;
 	},
 
 	get isQuickFind()
@@ -265,7 +273,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		var name = MigemoConstants.FIND_MODE_FLAG_FROM_NAME[aMode];
 		this.findModeSelector.value = name;
 		this.findBar.setAttribute(this.kFIND_MODE, name);
-		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
+		this.finder.__xm__setFindMode({
 			context       : this.currentFindContext,
 			temporaryMode : aMode
 		});
@@ -299,7 +307,8 @@ window.XMigemoUI = inherit(MigemoConstants, {
 
 		if (temporaryMode)
 			this.findBar.setAttribute(this.kFIND_MODE, temporaryMode);
-		this.sendMessageToContent(MigemoConstants.COMMAND_SET_FIND_MODE, {
+
+		this.finder.__xm__setFindMode({
 			context     : this.currentFindContext,
 			nextMode    : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.always'),
 			defaultMode : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.default'),
@@ -436,15 +445,6 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		gBrowser.removeEventListener('input', this, true);
 
 		window.removeEventListener('unload', this, false);
-	},
-
-	sendMessageToContent : function(aCommandType, aCommandParams)
-	{
-		var messageManager = gBrowser.selectedTab.linkedBrowser.messageManager;
-		messageManager.sendAsyncMessage(MigemoConstants.MESSAGE_TYPE, {
-			command : aCommandType,
-			params  : aCommandParams || {}
-		});
 	},
 
 	onMessage : function(aMessage)
