@@ -79,13 +79,13 @@ window.XMigemoLocationBarOverlay = {
 						return;
 
 					var found = {};
-						terms = Array.slice(terms, 0).filter(function(aTerm) {
-							if (found[aTerm])
-								return false;
-							return found[aTerm] = true;
-						}).join(' ');
-						log('item' + aIndex + ': highlight => '+terms);
-						aItem.setAttribute('text', terms);
+					terms = Array.slice(terms, 0).filter(function(aTerm) {
+						if (found[aTerm])
+							return false;
+						return found[aTerm] = true;
+					}).join(' ');
+					log('item' + aIndex + ': highlight => '+terms);
+					aItem.setAttribute('text', terms);
 
 					// we must reset all other attributes also, to reset emphasys
 					aItem.setAttribute('image', controller.getImageAt(aIndex));
@@ -93,7 +93,7 @@ window.XMigemoLocationBarOverlay = {
 					aItem.setAttribute('url', controller.getValueAt(aIndex));
 					aItem.setAttribute('type', controller.getStyleAt(aIndex));
 
-						aItem._adjustAcItem();
+					aItem._adjustAcItem();
 				});
 			}
 			return result;
