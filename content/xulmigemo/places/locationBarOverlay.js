@@ -903,12 +903,13 @@ window.XMigemoLocationBarOverlay = {
 		}
 
 		var panel = this.panel;
-		eval('panel._appendCurrentResult = '+
-			panel._appendCurrentResult.toSource().replace(
-				'{',
-				'{ if (XMigemoLocationBarOverlay.isMigemoActive) return;'
-			)
-		);
+
+		panel.__xm__appendCurrentResult = panel._appendCurrentResult;
+		panel._appendCurrentResult = function(...aArgs) {
+			if (XMigemoLocationBarOverlay.isMigemoActive)
+				return;
+			return this.__xm__appendCurrentResult(...aArgs);
+		};
 		panel.__defineGetter__('overrideValue', function() {
 			return this.mXMigemoOverrideValue;
 		});
