@@ -3,9 +3,9 @@ content	xulmigemo	content/xulmigemo/
 overlay	chrome://browser/content/browser.xul	chrome://xulmigemo/content/browserOverlay.xul
 
 overlay	chrome://browser/content/browser.xul	chrome://xulmigemo/content/places/locationBarOverlay.xul
-#overlay	chrome://browser/content/bookmarks/bookmarksPanel.xul	chrome://xulmigemo/content/places/bookmarksPanelOverlay.xul
-#overlay	chrome://browser/content/history/history-panel.xul	chrome://xulmigemo/content/places/historyPanelOverlay.xul
-#overlay	chrome://browser/content/places/places.xul	chrome://xulmigemo/content/places/organizerOverlay.xul
+overlay	chrome://browser/content/bookmarks/bookmarksPanel.xul	chrome://xulmigemo/content/places/bookmarksPanelOverlay.xul
+overlay	chrome://browser/content/history/history-panel.xul	chrome://xulmigemo/content/places/historyPanelOverlay.xul
+overlay	chrome://browser/content/places/places.xul	chrome://xulmigemo/content/places/organizerOverlay.xul
 
 overlay	chrome://messenger/content/messenger.xul	chrome://xulmigemo/content/mailWindowOverlay.xul
 overlay	chrome://messenger/content/messageWindow.xul	chrome://xulmigemo/content/mailWindowOverlay.xul
