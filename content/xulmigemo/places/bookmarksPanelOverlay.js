@@ -14,7 +14,7 @@ var XMigemoBookmarksPanelOverlay = {
 			tree.applyFilter.toSource().replace(
 				'this.load([query], options);',
 				' \
-				if (XMigemoService.getPref('xulmigemo.places.bookmarksPanel') && \
+				if (XMigemoService.getPref("xulmigemo.places.bookmarksPanel") && \
 					XMigemoPlaces.isValidInput(query.searchTerms)) \
 					XMigemoPlaces.startProgressiveLoad(query, options, this, \
 						XMigemoPlaces.bookmarksInRangeSQL); \
