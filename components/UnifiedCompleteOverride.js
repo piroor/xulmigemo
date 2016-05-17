@@ -2,18 +2,6 @@ Components.classes['@mozilla.org/moz/jssubscript-loader;1']
 	.getService(Components.interfaces.mozIJSSubScriptLoader)
 	.loadSubScript('resource://gre/components/UnifiedComplete.js');
 
-var OriginalSearch = Search;
-Search = function(aSearchString, aSearchParam, aAutocompleteListener,
-					aResultListener, aAutocompleteSearch,
-					aProhibitSearchSuggestions,
-					...aArgs) {
-	OriginalSearch.call(this, aSearchString, aSearchParam, aAutocompleteListener,
-						aResultListener.__xm__outer, aAutocompleteSearch.__xm__outer,
-						aProhibitSearchSuggestions,
-						...aArgs);
-};
-Search.prototype = OriginalSearch.prototype;
-
 function log(...aArgs) 
 {
 	if (Services.prefs.getBoolPref('xulmigemo.debug.all') ||
@@ -21,6 +9,98 @@ function log(...aArgs)
 		Services.console.logStringMessage('unifiedcomplete: ' + aArgs.join(', '));
 }
 dump = log;
+
+var { XMigemoPlaces } = Cu.import('resource://xulmigemo-modules/places.jsm', {});
+var { MigemoTextUtils } = Cu.import('resource://xulmigemo-modules/core/textUtils.js', {}); 
+
+var OriginalSearch = Search;
+Search = function(aSearchString, aSearchParam, aAutocompleteListener,
+					aResultListener, aAutocompleteSearch,
+					aProhibitSearchSuggestions,
+					...aArgs) {
+	if (Services.prefs.getBoolPref('xulmigemo.places.locationBar') &&
+		XMigemoPlaces.isValidInput(aSearchString)) {
+		this.__xm__findInfo = XMigemoPlaces.parseInput(aSearchString);
+		log('Search: '+uneval(this.__xm__findInfo));
+	}
+	OriginalSearch.call(this, aSearchString, aSearchParam, aAutocompleteListener,
+						aResultListener.__xm__outer, aAutocompleteSearch.__xm__outer,
+						aProhibitSearchSuggestions,
+						...aArgs);
+};
+
+Search.prototype = OriginalSearch.prototype;
+
+Object.defineProperty(Search.prototype, '__xm__searchQuery',
+	Object.getOwnPropertyDescriptor(OriginalSearch.prototype, '_searchQuery'));
+Object.defineProperty(Search.prototype, '_searchQuery', {
+	get: function() {
+		var query = this.__xm__searchQuery;
+		if (this.__xm__findInfo) {
+			query[1].searchString = ':';
+			query[1].maxResults = -1;
+		}
+		return query;
+	}
+});
+
+Object.defineProperty(Search.prototype, '__xm__switchToTabQuery',
+	Object.getOwnPropertyDescriptor(OriginalSearch.prototype, '_switchToTabQuery'));
+Object.defineProperty(Search.prototype, '_switchToTabQuery', {
+	get: function() {
+		var query = this.__xm__switchToTabQuery;
+		if (this.__xm__findInfo) {
+			query[1].searchString = ':';
+			query[1].maxResults = -1;
+		}
+		return query;
+	}
+});
+
+Object.defineProperty(Search.prototype, '__xm__adaptiveQuery',
+	Object.getOwnPropertyDescriptor(OriginalSearch.prototype, '_adaptiveQuery'));
+Object.defineProperty(Search.prototype, '_adaptiveQuery', {
+	get: function() {
+		var query = this.__xm__adaptiveQuery;
+		if (this.__xm__findInfo) {
+			query[1].search_string = ':';
+		}
+		return query;
+	}
+});
+
+Search.prototype.__xm__onResultRow = Search.prototype._onResultRow;
+Search.prototype._onResultRow = function(aRow) {
+	var type = aRow.getResultByIndex(QUERYINDEX_QUERYTYPE);
+	this.__xm__shoudCheckMatch = (type === QUERYTYPE_FILTERED);
+	var result = this.__xm__onResultRow(aRow);
+	this.__xm__shoudCheckMatch = false;
+	return result;
+};
+
+Search.prototype.__xm__addMatch = Search.prototype._addMatch;
+Search.prototype._addMatch = function(aMatch) {
+	log(' shouldCheck: '+this.__xm__shoudCheckMatch);
+	if (this.__xm__findInfo &&
+		this.__xm__shoudCheckMatch) {
+		let source = [
+			aMatch.value,
+			aMatch.comment,
+			aMatch.finalCompleteValue
+		].join('\n');
+		log(' check match: '+source);
+		let matched = this.__xm__findInfo.findRegExps.every(function(aRegExp) {
+				return aRegExp.test(source);
+			});
+		if (!matched)
+			return;
+		if (this.__xm__findInfo.exceptionsRegExp &&
+			this.__xm__findInfo.exceptionsRegExp.test(source))
+			return;
+	}
+	return this.__xm__addMatch(aMatch);
+};
+
 
 function XMigemoUnifiedComplete() {
 	log('initialize');
