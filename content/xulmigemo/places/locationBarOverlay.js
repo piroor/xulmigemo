@@ -810,6 +810,11 @@ window.XMigemoLocationBarOverlay = {
 		log('progressiveBuild: resultsOverride = '+this.foundItems.length);
 		controller.resultsOverride = this.foundItems;
 		controller.matchCountOverride = this.foundItems.length;
+
+		if (this.builtCount === 0 &&
+			typeof this.panel.onResultsAdded == 'function')
+			this.panel.onResultsAdded();
+
 		this.panel.adjustHeight();
 		this.bar.openPopup();
 		this.builtCount = this.foundItems.length;
