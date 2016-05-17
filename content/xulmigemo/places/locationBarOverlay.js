@@ -359,6 +359,7 @@ window.XMigemoLocationBarOverlay = {
 	
 	delayedStart : function() 
 	{
+		log('delayedStart');
 		this.bar.controller.stopSearch();
 
 		var findInfo = XMigemoPlaces.parseInput(this.lastInput);
@@ -374,11 +375,13 @@ window.XMigemoLocationBarOverlay = {
 			this.threadDone = false;
 			var maxResults = this.panel.maxResults;
 			this.progressiveBuildTimer = window.setInterval(function(aSelf) {
+				log('progressiveBuild:start');
 				if (aSelf.isMigemoActive)
 					aSelf.progressiveBuild();
 				if (!aSelf.isMigemoActive ||
 					aSelf.threadDone ||
 					aSelf.foundItems.length >= maxResults) {
+					log('progressiveBuild:stop');
 					aSelf.busy = false;
 					aSelf.stopProgressiveBuild();
 				}
@@ -427,6 +430,7 @@ window.XMigemoLocationBarOverlay = {
 			var runner = DelayedRunner(this);
 
 			this.progressiveBuildTimer = window.setInterval(function(aSelf) {
+				log('progressiveBuild:start aSelf.isMigemoActive = '+aSelf.isMigemoActive);
 				try {
 					if (aSelf.isMigemoActive) {
 						runner.next();
@@ -434,7 +438,9 @@ window.XMigemoLocationBarOverlay = {
 					}
 				}
 				catch(e) {
+					log(' => '+e);
 				}
+				log('progressiveBuild:stop');
 				aSelf.busy = false;
 				aSelf.stopProgressiveBuild();
 			}, 1, this);
@@ -451,6 +457,7 @@ window.XMigemoLocationBarOverlay = {
 	// nsIRunnable 
 	run : function()
 	{
+		log('run');
 		var maxResults = this.panel.maxResults;
 		var current;
 		var deferedItems = [];
@@ -515,6 +522,7 @@ window.XMigemoLocationBarOverlay = {
 						}, this)
 						.slice(0, this.MAX_TERMS_COUNT) :
 					this.getMatchedTermsFromRegExps(aFindInfo.findRegExps, sources);
+		log('findItemsFromRange: terms => '+terms);
 		if (!terms || !terms.length) return result;
 
 		var exceptions = [];
@@ -528,6 +536,7 @@ window.XMigemoLocationBarOverlay = {
 					return this.textUtils.trim(aTerm);
 				}, this);
 		}
+		log('findItemsFromRange: exceptions => '+exceptions);
 
 		var foundItems = this.findItemsFromRangeByTerms(
 				aFindInfo,
@@ -537,6 +546,7 @@ window.XMigemoLocationBarOverlay = {
 				terms,
 				exceptions
 			);
+		log('foundItems => '+JSON.stringify(foundItems));
 		result.items = foundItems.items;
 		result.deferedItems = foundItems.deferedItems;
 		return result;
@@ -774,10 +784,15 @@ window.XMigemoLocationBarOverlay = {
 	
 	progressiveBuild : function() 
 	{
-		if (!this.foundItems.length) return;
-		this.foundItems = this.foundItems.slice(0, this.panel.maxResults);
-		if (this.foundItems.length == this.builtCount)
+		if (!this.foundItems.length) {
+			log('progressiveBuild: not found');
 			return;
+		}
+		this.foundItems = this.foundItems.slice(0, this.panel.maxResults);
+		if (this.foundItems.length == this.builtCount) {
+			log('progressiveBuild: already built');
+			return;
+		}
 
 		var controller = this.bar.controller;
 		if (!this.builtCount) {
@@ -789,6 +804,7 @@ window.XMigemoLocationBarOverlay = {
 			this.buildItemAt(i);
 		}
 		this.stopDelayedClose();
+		log('progressiveBuild: resultsOverride = '+this.foundItems.length);
 		controller.resultsOverride = this.foundItems;
 		controller.matchCountOverride = this.foundItems.length;
 		this.panel.adjustHeight();
@@ -1034,6 +1050,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	handleEvent : function(aEvent) 
 	{
+		log('controller: handleEvent '+aEvent.type);
 		switch (aEvent.type)
 		{
 			case 'popupshowing':
@@ -1043,6 +1060,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	doCompleteDefaultIndex : function() 
 	{
+		log('controller: doCompleteDefaultIndex');
 		var input = this.input;
 		if (!this.isMigemoResult || !input.completeDefaultIndex)
 			return;
@@ -1074,6 +1092,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
 	},
 	set input(aValue)
 	{
+		log('controller: input = '+aValue);
 		if (this.controller.input) {
 			try {
 				this.controller.input.popup.removeEventListener('popupshowing', this, false);
@@ -1101,7 +1120,8 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	startSearch : function(aString) 
 	{
-		if (!this.service.textUtils.trim(aString) &&
+		log('controller: startSearch '+aString);
+		if (!MigemoTextUtils.trim(aString) &&
 			this.service.isActive) {
 			this.service.clearListbox();
 			this.service.isActive = false;
@@ -1117,6 +1137,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	handleText : function(aIgnoreSelection) 
 	{
+		log('controller: handleText');
 		this.service.isActive = true;
 		if (this.service.isMigemoActive) {
 			this.service.onSearchBegin();
@@ -1131,6 +1152,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	handleEnter : function(aIsPopupSelection) 
 	{
+		log('controller: handleEnter');
 		var popup = this.input.popup;
 		var index = popup.selectedIndex;
 		if (this.isMigemoResult &&
@@ -1150,6 +1172,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	handleEscape : function() 
 	{
+		log('controller: handleEscape');
 		this.service.clear();
 		var isPopupOpen = this.controller.handleEscape();
 		if (isPopupOpen) { // back to input
@@ -1178,6 +1201,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	handleKeyNavigation : function(aKey) 
 	{
+		log('controller: handleKeyNavigation '+aKey);
 		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
 		var input = this.input;
 		var popup = input.popup;
@@ -1257,6 +1281,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	handleDelete : function() 
 	{
+		log('controller: handleDelete');
 		var popup = this.input.popup;
 		var index = popup.selectedIndex;
 		if (this.isMigemoResult &&
@@ -1291,6 +1316,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	getValueAt : function(aIndex) 
 	{
+		log('controller: getValueAt '+aIndex+' / migemo='+this.isMigemoResult);
 		if (this.isMigemoResult)
 			return this.resultsOverride[aIndex].uri;
 		return this.controller.getValueAt(aIndex);
@@ -1298,6 +1324,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	getCommentAt : function(aIndex) 
 	{
+		log('controller: getCommentAt '+aIndex+' / migemo='+this.isMigemoResult);
 		if (this.isMigemoResult)
 			return this.resultsOverride[aIndex].title;
 		return this.controller.getCommentAt(aIndex);
@@ -1305,6 +1332,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	getStyleAt : function(aIndex) 
 	{
+		log('controller: getStyleAt '+aIndex+' / migemo='+this.isMigemoResult);
 		if (this.isMigemoResult)
 			return this.resultsOverride[aIndex].style;
 		return this.controller.getStyleAt(aIndex);
@@ -1312,6 +1340,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	getImageAt : function(aIndex) 
 	{
+		log('controller: getImageAt '+aIndex+' / migemo='+this.isMigemoResult);
 		if (this.isMigemoResult)
 			return this.resultsOverride[aIndex].icon;
 		return this.controller.getImageAt(aIndex);
