@@ -18,6 +18,7 @@ Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource:///modules/quickFilterManager.js');
 
 Cu.import('resource://xulmigemo-modules/service.jsm');
+Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 
 
 var XMigemoMail = {
@@ -52,9 +53,9 @@ var XMigemoMail = {
 				let regexp;
 				if (
 					XMigemoService.getPref('xulmigemo.autostart.regExpFind') &&
-					XMigemoService.textUtils.isRegExp(aInput)
+					MigemotextUtils.isRegExp(aInput)
 					) {
-					regexp = XMigemoService.textUtils.extractRegExpSource(aInput);
+					regexp = MigemotextUtils.extractRegExpSource(aInput);
 					regexp = new RegExp(regexp, 'ig');
 				}
 				else {
@@ -82,7 +83,7 @@ var XMigemoMail = {
 
 				terms = sources.replace(/\n/g, ' ').match(regexp);
 				if (terms && terms.length)
-					terms = XMigemoService.textUtils.brushUpTerms(terms);
+					terms = MigemotextUtils.brushUpTerms(terms);
 			}
 		}
 		catch(e) {
@@ -93,55 +94,12 @@ var XMigemoMail = {
 
 	init : function()
 	{
-		// -Thunderbird 3.0
-		if (typeof QuickSearchManager != 'undefined' &&
-			!('__xmigemo_original_createSearchTerms' in QuickSearchManager)) {
-			QuickSearchManager.__xmigemo_original_createSearchTerms = QuickSearchManager.createSearchTerms;
-			QuickSearchManager.createSearchTerms = this.QuickSearchManager_createSearchTerms;
-		}
-
-		// Thunderbird 3.1-
 		if (typeof MessageTextFilter != 'undefined' &&
 			!('__xmigemo_original_appendTerms' in MessageTextFilter)) {
 			MessageTextFilter.__xmigemo_original_appendTerms = MessageTextFilter.appendTerms;
 			MessageTextFilter.appendTerms = this.MessageTextFilter_appendTerms;
 		}
 	},
-
-	// -Thunderbird 3.0
-	QuickSearchManager_createSearchTerms : function(aTermCreator, aSearchMode, aSearchString)
-	{
-		if (aTermCreator.window &&
-			XMigemoService.getPref('xulmigemo.mailnews.threadsearch.enabled')) {
-			let targets = 0;
-			if (aSearchMode == QuickSearchConstants.kQuickSearchSubjectFromOrRecipient ||
-				aSearchMode == QuickSearchConstants.kQuickSearchFromOrSubject ||
-				aSearchMode == QuickSearchConstants.kQuickSearchRecipientOrSubject ||
-				aSearchMode == QuickSearchConstants.kQuickSearchSubject)
-				targets |= XMigemoMail.FIND_SUBJECT;
-			if (aSearchMode == QuickSearchConstants.kQuickSearchBody)
-				targets |= XMigemoMail.FIND_BODY;
-			if (aSearchMode == QuickSearchConstants.kQuickSearchSubjectFromOrRecipient ||
-				aSearchMode == QuickSearchConstants.kQuickSearchFromOrSubject ||
-				aSearchMode == QuickSearchConstants.kQuickSearchFrom)
-				targets |= XMigemoMail.FIND_AUTHOR;
-			if (aSearchMode == QuickSearchConstants.kQuickSearchSubjectFromOrRecipient ||
-				aSearchMode == QuickSearchConstants.kQuickSearchRecipientOrSubject ||
-				aSearchMode == QuickSearchConstants.kQuickSearchRecipient)
-				targets |= XMigemoMail.FIND_RECIPIENT;
-			let terms = XMigemoMail.getTermsList(
-					aSearchString,
-					targets,
-					aTermCreator.window.domWindow.gDBView.msgFolder
-				);
-			if (terms.length)
-				aSearchString = terms.join('|');
-		}
-
-		return this.__xmigemo_original_createSearchTerms(aTermCreator, aSearchMode, aSearchString);
-	},
-
-	// Thunderbird 3.1-
 	MessageTextFilter_appendTerms : function(aTermCreator, aTerms, aFilterValue)
 	{
 		var activeWindow = Cc['@mozilla.org/focus-manager;1']

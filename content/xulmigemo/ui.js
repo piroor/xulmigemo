@@ -87,9 +87,16 @@ window.XMigemoUI = inherit(MigemoConstants, {
   
 /* elements */ 
 	
+	get findBarsContainer()
+	{
+		return window.gBrowser || // Firefox
+				document.getElementById('messagepane'); // Thunderbird
+	},
+
 	get findBar() 
 	{
-		return window.gFindBar;
+		return window.gFindBar || // Firefox
+				document.getElementById('FindToolbar'); // Thunderbird
 	},
 
 	get findBarClosebox()
@@ -501,7 +508,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 
 		window.addEventListener('findbaropen', this, true);
 		window.addEventListener('TabSelect', this, false);
-		gBrowser.addEventListener('input', this, true);
+		this.findBarsContainer.addEventListener('input', this, true);
 
 		this.upgradePrefs();
 
@@ -534,7 +541,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 
 		window.removeEventListener('findbaropen', this, true);
 		window.removeEventListener('TabSelect', this, false);
-		gBrowser.removeEventListener('input', this, true);
+		this.findBarsContainer.removeEventListener('input', this, true);
 
 		window.removeEventListener('unload', this, false);
 	},
