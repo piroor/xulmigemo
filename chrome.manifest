@@ -21,3 +21,6 @@ component	{28a475d0-1c24-11dd-bd0b-0800200c9a66}	components/Startup.js
 contract	@piro.sakura.ne.jp/xmigemo/startup;1	{28a475d0-1c24-11dd-bd0b-0800200c9a66}
 category	profile-after-change	XMigemoStartupService	@piro.sakura.ne.jp/xmigemo/startup;1
 
+component	{55291630-edfe-41f2-bf6b-57d00882382e}	components/UnifiedCompleteOverride.js
+contract	@mozilla.org/autocomplete/search;1?name=unifiedcomplete	{55291630-edfe-41f2-bf6b-57d00882382e}
+
