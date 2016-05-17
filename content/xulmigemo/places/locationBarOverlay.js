@@ -274,7 +274,10 @@ window.XMigemoLocationBarOverlay = {
 			this.enabled &&
 			this.isActive &&
 			!this.bar.disableAutoComplete &&
-			XMigemoPlaces.isValidInput(input)
+			(
+				!this.bar.valueIsTyped ||
+				XMigemoPlaces.isValidInput(input)
+			)
 			);
 	},
   
