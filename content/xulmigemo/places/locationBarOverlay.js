@@ -103,8 +103,8 @@ window.XMigemoLocationBarOverlay = {
 				var index = input.search(/\s/);
 				if (index < 0) index = input.length;
 				return {
-					keyword : XMigemoPlaces.textUtils.trim(input.substring(0, index)),
-					terms   : XMigemoPlaces.textUtils.trim(input.substring(index+1))
+					keyword : MigemoTextUtils.trim(input.substring(0, index)),
+					terms   : MigemoTextUtils.trim(input.substring(index+1))
 						.replace(/\+/g, '%2B')
 						.replace(/\s+/g, '+')
 				};
@@ -142,12 +142,12 @@ window.XMigemoLocationBarOverlay = {
 				var target = XMigemoPlaces.getFindTargetsFromFlag(aItem, aFindFlag);
 				this.regexp = new RegExp(
 					'^(?:'+aTerms.map(function(aTerm) {
-						return XMigemoPlaces.textUtils.sanitize(aTerm);
+						return MigemoTextUtils.sanitize(aTerm);
 					}).join('|')+')',
 					'gim'
 				);
-				var matched = XMigemoPlaces.textUtils.brushUpTerms(
-							XMigemoPlaces.textUtils
+				var matched = MigemoTextUtils.brushUpTerms(
+							MigemoTextUtils
 								.splitByBoundaries(target.join('\n'))
 						).join('\n').match(this.regexp);
 				return (matched && matched.length >= aTerms.length) ?
@@ -186,7 +186,7 @@ window.XMigemoLocationBarOverlay = {
 				var target = XMigemoPlaces.getFindTargetsFromFlag(aItem, aFindFlag);
 				this.regexp = new RegExp(
 					'^(?:'+aTerms.map(function(aTerm) {
-						return XMigemoPlaces.textUtils.sanitize(aTerm);
+						return MigemoTextUtils.sanitize(aTerm);
 					}).join('|')+')',
 					'gim'
 				);
@@ -206,12 +206,6 @@ window.XMigemoLocationBarOverlay = {
 	ThreadManager : Components
 			.classes['@mozilla.org/thread-manager;1']
 			.getService(Components.interfaces.nsIThreadManager),
-	get textUtils()
-	{
-		delete this.textUtils
-		let { MigemoTextUtils } = Components.utils.import('resource://xulmigemo-modules/core/textUtils.js', {});
-		return this.textUtils = MigemoTextUtils;
-	},
 
 	kXULNS : 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
  
@@ -516,9 +510,9 @@ window.XMigemoLocationBarOverlay = {
 		}
 
 		var terms = aSource.termsGetter ?
-					this.textUtils.brushUpTerms(aSource.termsGetter(aFindInfo.input, sources) || [])
+					MigemoTextUtils.brushUpTerms(aSource.termsGetter(aFindInfo.input, sources) || [])
 						.filter(function(aTerm) {
-							return this.textUtils.trim(aTerm);
+							return MigemoTextUtils.trim(aTerm);
 						}, this)
 						.slice(0, this.MAX_TERMS_COUNT) :
 					this.getMatchedTermsFromRegExps(aFindInfo.findRegExps, sources);
@@ -531,9 +525,9 @@ window.XMigemoLocationBarOverlay = {
 		}
 		else if (aFindInfo.exceptionsRegExp) {
 			exceptions = sources.match(aFindInfo.exceptionsRegExp) || [];
-			exceptions = this.textUtils.brushUpTerms(exceptions)
+			exceptions = MigemoTextUtils.brushUpTerms(exceptions)
 				.filter(function(aTerm) {
-					return this.textUtils.trim(aTerm);
+					return MigemoTextUtils.trim(aTerm);
 				}, this);
 		}
 		log('findItemsFromRange: exceptions => '+exceptions);
@@ -554,7 +548,7 @@ window.XMigemoLocationBarOverlay = {
 	getMatchedTermsFromRegExps : function(aRegExps, aSources)
 	{
 		if (!aRegExps || !aRegExps.length || !aSources) return null;
-		var utils = this.textUtils;
+		var utils = MigemoTextUtils;
 		var terms = [];
 		return aRegExps
 				.some(function(aRegExp) {
@@ -686,7 +680,7 @@ window.XMigemoLocationBarOverlay = {
 				statement.bindDoubleParameter(termsCount+exceptionsCount+offset+1, Math.max(0, aRange));
 			}
 			var item, bookmark, terms;
-			var utils = this.textUtils;
+			var utils = MigemoTextUtils;
 			var maxNum = XMigemoService.getPref('browser.urlbar.maxRichResults');
 			var uri;
 			while(statement.executeStep())
@@ -695,7 +689,7 @@ window.XMigemoLocationBarOverlay = {
 				if (uri in aFindInfo.blackList) continue;
 				aFindInfo.blackList[uri] = true;
 
-				terms = this.textUtils.brushUpTerms(
+				terms = MigemoTextUtils.brushUpTerms(
 						statement.getString(5).match(aFindInfo.termsRegExp) ||
 						[]
 					).filter(function(aTerm) {
