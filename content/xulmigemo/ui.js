@@ -9,6 +9,13 @@ var { MigemoConstants } = Cu.import('resource://xulmigemo-modules/constants.jsm'
 var { MigemoTextUtils } = Cu.import('resource://xulmigemo-modules/core/textUtils.js', {});
 var { inherit } = Cu.import('resource://xulmigemo-modules/lib/inherit.jsm', {});
  
+function log(...aArgs) 
+{
+	if (Services.prefs.getBoolPref('xulmigemo.debug.all') ||
+		Services.prefs.getBoolPref('xulmigemo.debug.ui'))
+		Services.console.logStringMessage(aArgs.join(', '));
+}
+
 window.XMigemoUI = inherit(MigemoConstants, { 
 	
 /* constants */ 

@@ -67,6 +67,8 @@ pref("xulmigemo.dictionary.download.uri.en-US",  "https://piro.sakura.ne.jp/xul/
 
 pref("xulmigemo.debug.all", false);
 
+pref("xulmigemo.debug.ui", false);
+
 pref("xulmigemo.debug.api", false);
 pref("xulmigemo.debug.finder", false);
 pref("xulmigemo.debug.mail", false);
