@@ -1,12 +1,22 @@
-Components.utils.import('resource://xulmigemo-modules/constants.jsm');
-Components.utils.import('resource://xulmigemo-modules/places.jsm');
-Components.utils.import('resource://xulmigemo-modules/api.jsm');
-Components.utils.import('resource://xulmigemo-modules/core/find.js'); 
+(function() {
+function log(...aArgs) 
+{
+	if (Services.prefs.getBoolPref('xulmigemo.debug.all') ||
+		Services.prefs.getBoolPref('xulmigemo.debug.places'))
+		Services.console.logStringMessage('locationbar: ' + aArgs.join(', '));
+}
+
+var { ExtendedImmutable } = Cu.import('resource://xulmigemo-modules/lib/extended-immutable.js', {});
+var { inherit } = Cu.import('resource://xulmigemo-modules/lib/inherit.jsm', {}); 
+
+var { MigemoConstants } = Cu.import('resource://xulmigemo-modules/constants.jsm', {});
+var { XMigemoPlaces } = Cu.import('resource://xulmigemo-modules/places.jsm', {});
+var { MigemoAPI } = Cu.import('resource://xulmigemo-modules/api.jsm', {});
+var { MigemoTextUtils } = Cu.import('resource://xulmigemo-modules/core/textUtils.js', {}); 
  
-var XMigemoLocationBarSearchSource = { 
+window.XMigemoLocationBarSearchSource = { 
 	create : function(aDefinition)
 	{
-		let { inherit } = Components.utils.import('resource://xulmigemo-modules/lib/inherit.jsm', {});
 		return inherit(this, aDefinition);
 	},
 	isAvailable : function(aFindMode)
@@ -35,7 +45,7 @@ var XMigemoLocationBarSearchSource = {
 	style : null
 };
  
-var XMigemoLocationBarOverlay = { 
+window.XMigemoLocationBarOverlay = { 
 	
 	foundItems : [], 
 	lastInput : '',
@@ -945,16 +955,25 @@ var XMigemoLocationBarOverlay = {
  
 window.addEventListener('load', XMigemoLocationBarOverlay, false); 
   
-function XMigemoAutoCompletePopupController(aBaseController) 
-{
-	this.init(aBaseController);
-}
+window.XMigemoAutoCompletePopupController = function(aBaseController) {
+	XMigemoAutoCompletePopupController.customProperties.init(aBaseController);
+	return new ExtendedImmutable(aBaseController, XMigemoAutoCompletePopupController.customProperties);
+};
+window.XMigemoAutoCompletePopupController.customProperties = {
+	// these properties must be accessed via getter/setter,
+	// because ExtendedImmutable doesn't set new property values
+	// to the property-definition object (here) directly.
+	_searchStringOverride : '', 
+	get searchStringOverride() { return this._searchStringOverride; },
+	set searchStringOverride(aValue) { return this._searchStringOverride = aValue; },
 
-XMigemoAutoCompletePopupController.prototype = {
-	
-	searchStringOverride : '', 
-	matchCountOverride   : 0,
-	resultsOverride      : [],
+	_matchCountOverride   : 0,
+	get matchCountOverride() { return this._matchCountOverride; },
+	set matchCountOverride(aValue) { return this._matchCountOverride = aValue; },
+
+	_resultsOverride      : [],
+	get resultsOverride() { return this._resultsOverride; },
+	set resultsOverride(aValue) { return this._resultsOverride = aValue; },
  
 	get service() 
 	{
@@ -1316,4 +1335,5 @@ XMigemoAutoCompletePopupController.prototype = {
 	}
  
 }; 
-  
+
+})();
