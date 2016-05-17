@@ -557,9 +557,9 @@ var XMigemoPlaces = {
 		  FROM moz_bookmarks b
 		       JOIN moz_bookmarks t
 		       ON t.id = b.parent
-		       AND t.parent != (SELECT folder_id
-		                          FROM moz_bookmarks_roots
-		                         WHERE root_name = 'tags')
+		       AND t.parent != (SELECT id
+		                          FROM moz_bookmarks
+		                         WHERE guid = 'tags________')
 		 WHERE b.type = 1 AND b.fk = p.id
 		 ORDER BY b.lastModified DESC LIMIT 1) bookmark
 	*/),
@@ -569,9 +569,9 @@ var XMigemoPlaces = {
 		  FROM moz_bookmarks b
 		       JOIN moz_bookmarks t
 		       ON t.id = b.parent
-		       AND t.parent = (SELECT folder_id
-		                         FROM moz_bookmarks_roots
-		                        WHERE root_name = 'tags')
+		       AND t.parent = (SELECT id
+		                          FROM moz_bookmarks
+		                         WHERE guid = 'tags________')
 		 WHERE b.type = 1 AND b.fk = p.id) tags
 	*/),
   
@@ -614,7 +614,7 @@ var XMigemoPlaces = {
 			}
 			catch(e) {
 				this.getSingleStringFromRange_lastSQL = null;
-				dump(e+'\n'+aSQL+'\n');
+				log(e+'\n'+aSQL+'\n');
 				throw e;
 			}
 		}
