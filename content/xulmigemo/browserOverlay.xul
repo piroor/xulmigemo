@@ -8,8 +8,6 @@
 	<vbox id="browser-bottombox">
 		<hbox id="XMigemoFindToolbar"/>
 	</vbox>
-
-	<script src="chrome://xulmigemo/content/tabPreviews.js" type="application/javascript"/>
 </window>
 
 </overlay>

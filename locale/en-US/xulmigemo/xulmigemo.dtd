@@ -94,8 +94,6 @@
 <!ENTITY config.places.historyPanel   "History Sidebar">
 <!ENTITY config.places.organizer      "Library">
 
-<!ENTITY config.ctrlTab.enabled "Activate for Tab Previews">
-
 <!ENTITY config.caption.mailnews        "Thunderbird">
 <!ENTITY config.mailnews.threadsearch.enabled "Activate for quick mail search">
 

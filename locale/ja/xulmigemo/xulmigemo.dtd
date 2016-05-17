@@ -92,8 +92,6 @@
 <!ENTITY config.places.historyPanel   "履歴サイドバー">
 <!ENTITY config.places.organizer      "履歴とブックマークの管理">
 
-<!ENTITY config.ctrlTab.enabled "タブのプレビューの検索で有効にする">
-
 <!ENTITY config.caption.mailnews        "Thunderbird">
 <!ENTITY config.mailnews.threadsearch.enabled "メールのクイック検索で有効にする">
 
