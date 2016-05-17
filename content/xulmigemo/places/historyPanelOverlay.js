@@ -1,6 +1,14 @@
+Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
 Components.utils.import('resource://xulmigemo-modules/places.jsm');
- 
+
+function log(...aArgs) 
+{
+	if (Services.prefs.getBoolPref('xulmigemo.debug.all') ||
+		Services.prefs.getBoolPref('xulmigemo.debug.places'))
+		Services.console.logStringMessage('history: ' + aArgs.join(', '));
+}
+
 var XMigemoHistoryPanelOverlay = { 
 	 
 	handleEvent : function(aEvent) 
@@ -23,6 +31,7 @@ var XMigemoHistoryPanelOverlay = {
 				'
 			)
 		);
+		log('window.searchHistory => '+window.searchHistory.toSource());
 
 		eval('tree.applyFilter = '+
 			tree.applyFilter.toSource().replace(
@@ -37,6 +46,7 @@ var XMigemoHistoryPanelOverlay = {
 				'
 			)
 		);
+		log('tree.applyFilter => '+tree.applyFilter.toSource());
 	}
  
 }; 
