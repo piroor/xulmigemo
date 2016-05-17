@@ -33,7 +33,6 @@ var XMigemoPlaces = {
 	excludeJavaScript : true,
 	matchBehavior : 1,
 	defaultBehavior : 0,
-	openPageAvailable : false,
  
 	isValidInput : function(aInput) 
 	{
@@ -234,11 +233,8 @@ var XMigemoPlaces = {
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						this.insertTaggedCondition(
-							this.insertOpenPageCondition(
-								this.insertFilter(
-									sql,
-									aFindFlag
-								),
+							this.insertFilter(
+								sql,
 								aFindFlag
 							),
 							aFindFlag
@@ -266,7 +262,6 @@ var XMigemoPlaces = {
 		               %EXCLUDE_JAVASCRIPT%
 		               %ONLY_TYPED%
 		               %ONLY_TAGGED%
-		               %ONLY_OPENPAGE%
 		         ORDER BY frecency DESC
 		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
 	*/),
@@ -282,11 +277,8 @@ var XMigemoPlaces = {
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						this.insertTaggedCondition(
-							this.insertOpenPageCondition(
-								this.insertFilter(
-									sql,
-									aFindFlag
-								),
+							this.insertFilter(
+								sql,
 								aFindFlag
 							),
 							aFindFlag
@@ -317,7 +309,6 @@ var XMigemoPlaces = {
 		                 %EXCLUDE_JAVASCRIPT%
 		                 %ONLY_TYPED%
 		                 %ONLY_TAGGED%
-		                 %ONLY_OPENPAGE%
 		           ORDER BY frecency DESC
 		           %SOURCES_LIMIT_PART%)
 		   GROUP BY uri)
@@ -335,11 +326,8 @@ var XMigemoPlaces = {
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						this.insertTaggedCondition(
-							this.insertOpenPageCondition(
-								this.insertFilter(
-									sql,
-									aFindFlag
-								),
+							this.insertFilter(
+								sql,
 								aFindFlag
 							),
 							aFindFlag
@@ -376,7 +364,6 @@ var XMigemoPlaces = {
 		         WHERE 1 %EXCLUDE_JAVASCRIPT%
 		                 %ONLY_TYPED%
 		                 %ONLY_TAGGED%
-		                 %ONLY_OPENPAGE%
 		         ORDER BY rank DESC, frecency DESC
 		         LIMIT %PLACE_FOR_START%,%PLACE_FOR_RANGE%)
 	*/),
@@ -390,11 +377,8 @@ var XMigemoPlaces = {
 		sql = this.insertJavaScriptCondition(
 					this.insertTypedCondition(
 						this.insertTaggedCondition(
-							this.insertOpenPageCondition(
-								this.insertFilter(
-									sql,
-									aFindFlag
-								),
+							this.insertFilter(
+								sql,
 								aFindFlag
 							),
 							aFindFlag
@@ -435,7 +419,6 @@ var XMigemoPlaces = {
 		           WHERE 1 %EXCLUDE_JAVASCRIPT%
 		                   %ONLY_TYPED%
 		                   %ONLY_TAGGED%
-		                   %ONLY_OPENPAGE%
 		           %SOURCES_LIMIT_PART%)
 		   GROUP BY uri
 		   ORDER BY rank DESC, frecency DESC)
@@ -569,31 +552,6 @@ var XMigemoPlaces = {
 			);
 	},
  
-	insertOpenPageCondition : function(aSQL, aFindFlag) 
-	{
-		return aSQL.replace(
-				'%ONLY_OPENPAGE%',
-				(
-					this.openPageAvailable &&
-					(aFindFlag & this.kRESTRICT_OPENPAGE)
-				) ?
-					'AND o.open_count IS NOT NULL AND o.open_count > 0' :
-					''
-			);
-	},
- 
-	parentFolderSQLFragment : here(/*
-		SELECT b.parent
-		  FROM moz_bookmarks b
-		       JOIN moz_bookmarks t
-		       ON t.id = b.parent
-		       AND t.parent != (SELECT folder_id
-		                          FROM moz_bookmarks_roots
-		                         WHERE root_name = 'tags')
-		 WHERE b.type = 1 AND b.fk = p.id
-		 ORDER BY b.lastModified DESC LIMIT 1
-	*/),
- 
 	bookmarkTitleSQLFragment : here(/*
 		(SELECT b.title
 		  FROM moz_bookmarks b
@@ -616,10 +574,6 @@ var XMigemoPlaces = {
 		                        WHERE root_name = 'tags')
 		 WHERE b.type = 1 AND b.fk = p.id) tags
 	*/),
- 
-	openCountColumnSQLFragment      : ', o.open_count open_count', 
-	openCountFinalColumnSQLFragment : ', open_count',
-	openCountSourceSQLFragment      : ' LEFT OUTER JOIN moz_openpages_temp o ON o.place_id = p.id',
   
 	/* output of the SQL must be:
 		SELECT single_string
@@ -682,7 +636,7 @@ var XMigemoPlaces = {
 			statement.bindDoubleParameter(offsets.PLACE_FOR_RANGE, aRange);
 
 		var sources;
-		while(statement.executeStep())
+		while (statement.executeStep())
 		{
 			sources = statement.getString(0);
 		}
@@ -932,15 +886,6 @@ var XMigemoPlaces = {
   
 	init : function() 
 	{
-		// this.openPageAvailable = XMigemoService.Comparator.compare(XMigemoService.XULAppInfo.version, '3.7a6pre') >= 0;
-		// this feature doesn't work, so disabled. see: https://github.com/piroor/xulmigemo/issues/4
-		this.openPageAvailable = false;
-		if (!this.openPageAvailable) {
-			this.openCountColumnSQLFragment = '';
-			this.openCountFinalColumnSQLFragment = '';
-			this.openCountSourceSQLFragment = '';
-		}
-
 		XMigemoService.addPrefListener(this);
 		XMigemoService.firstListenPrefChange(this);
 	}
