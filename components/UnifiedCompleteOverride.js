@@ -69,20 +69,9 @@ Object.defineProperty(Search.prototype, '_adaptiveQuery', {
 	}
 });
 
-Search.prototype.__xm__onResultRow = Search.prototype._onResultRow;
-Search.prototype._onResultRow = function(aRow) {
-	var type = aRow.getResultByIndex(QUERYINDEX_QUERYTYPE);
-	this.__xm__shoudCheckMatch = (type === QUERYTYPE_FILTERED);
-	var result = this.__xm__onResultRow(aRow);
-	this.__xm__shoudCheckMatch = false;
-	return result;
-};
-
 Search.prototype.__xm__addMatch = Search.prototype._addMatch;
 Search.prototype._addMatch = function(aMatch) {
-	log(' shouldCheck: '+this.__xm__shoudCheckMatch);
-	if (this.__xm__findInfo &&
-		this.__xm__shoudCheckMatch) {
+	if (this.__xm__findInfo) {
 		let source = [
 			aMatch.value,
 			aMatch.comment,
