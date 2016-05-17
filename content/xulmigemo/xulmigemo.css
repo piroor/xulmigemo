@@ -16,17 +16,19 @@
 	bottom: 0;
 	position: fixed;
 	top: auto;
-	transition: bottom 150ms ease-in-out,
+	transform: translate(0, 0);
+	transition: transform 150ms ease-in-out,
 				opacity 150ms ease-in-out;
 }
 
 #find-migemo-mode-box[hidden="true"] {
 	display: -moz-box;
-	bottom: -1em;
 	opacity: 0;
+	pointer-events: ignore;
 	top: auto;
-	visibility: collapse;
+	transform: translate(0, 1em);
 	transition-delay: 0s, 0s;
+	visibility: collapse;
 }
 
 #find-mode-selector {

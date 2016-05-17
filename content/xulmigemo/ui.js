@@ -488,12 +488,20 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		var findBarBox = this.findBar.boxObject;
 		var closeboxBox = this.findBarClosebox.boxObject;
 		var findBarRightEdge = findBarBox.screenX + findBarBox.width;
+
+		var findBarParentBox = this.findBar.parentNode.boxObject;
+		var findBarBottomEdge = findBarParentBox.screenY + findBarParentBox.height;
+
+		var rootBox = document.documentElement.boxObject;
+		var windowBottomEdge = rootBox.screenY + rootBox.height;
+
 		var positionRightEdge = Math.min(findBarRightEdge, closeboxBox.screenX);
 
 		var style = box.style;
 		style.height = findBarBox.height+'px';
 		style.right = (findBarRightEdge - positionRightEdge + 5)+'px';
 		style.paddingTop = Math.floor((findBarBox.height - this.findModeSelector.boxObject.height) / 2)+'px';
+		style.bottom = (windowBottomEdge - findBarBottomEdge)+'px';
 	},
   
 	init : function() 
