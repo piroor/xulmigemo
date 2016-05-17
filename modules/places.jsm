@@ -729,19 +729,23 @@ var XMigemoPlaces = {
 
 		var current = 0;
 		var lastQueriesCount = 0;
-		this.progressiveLoadTimer = setInterval(function(aSelf) {
-			if (aSelf.updateQuery(aBaseQuery, aSourceSQL, current, aSelf.chunk)) {
-				if (aSelf.lastQueries.length != lastQueriesCount) {
-					aTree.load(aSelf.lastQueries, aOptions);
-					if (aSaveCommand) aSaveCommand.removeAttribute('disabled');
-					lastQueriesCount = aSelf.lastQueries.length;
+		this.progressiveLoadTimer = setInterval((function() {
+			try {
+				if (this.updateQuery(aBaseQuery, aSourceSQL, current, this.chunk)) {
+					if (this.lastQueries.length != lastQueriesCount) {
+						aTree.load(this.lastQueries, aOptions);
+						if (aSaveCommand) aSaveCommand.removeAttribute('disabled');
+						lastQueriesCount = this.lastQueries.length;
+					}
+					current += this.chunk;
+					return;
 				}
-				current += aSelf.chunk;
 			}
-			else {
-				aSelf.stopProgressiveLoad();
+			catch(e) {
+				log(e);
+				this.stopProgressiveLoad();
 			}
-		}, 1, this);
+		}).bind(this), 1);
 	},
 	
 	stopProgressiveLoad : function() 
