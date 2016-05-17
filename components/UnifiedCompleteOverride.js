@@ -63,7 +63,7 @@ Object.defineProperty(Search.prototype, '_adaptiveQuery', {
 	get: function() {
 		var query = this.__xm__adaptiveQuery;
 		if (this.__xm__findInfo) {
-			query[1].search_string = ':';
+			query[1].search_string = ' ';
 		}
 		return query;
 	}
