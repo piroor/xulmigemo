@@ -37,7 +37,7 @@ Object.defineProperty(Search.prototype, '_searchQuery', {
 	get: function() {
 		var query = this.__xm__searchQuery;
 		if (this.__xm__findInfo) {
-			query[1].searchString = ':';
+			query[1].searchString = ' ';
 			query[1].maxResults = -1;
 		}
 		return query;
@@ -50,7 +50,7 @@ Object.defineProperty(Search.prototype, '_switchToTabQuery', {
 	get: function() {
 		var query = this.__xm__switchToTabQuery;
 		if (this.__xm__findInfo) {
-			query[1].searchString = ':';
+			query[1].searchString = ' ';
 			query[1].maxResults = -1;
 		}
 		return query;
