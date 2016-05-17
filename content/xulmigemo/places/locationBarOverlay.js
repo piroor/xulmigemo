@@ -69,13 +69,16 @@ window.XMigemoLocationBarOverlay = {
 			var result = this.__xm__appendCurrentResult(...aArgs);
 			if (XMigemoLocationBarOverlay.isMigemoActive) {
 				let findInfo = XMigemoPlaces.parseInput(XMigemoLocationBarOverlay.input);
+				let controller = this.mInput.controller;
 				Array.forEach(XMigemoLocationBarOverlay.items, function(aItem, aIndex) {
 					if (!aItem.getAttribute('text'))
 						return;
 					var source = [aItem.getAttribute('url'), aItem.getAttribute('title')].join('\n');
 					var terms = source.match(findInfo.termsRegExp);
-					if (terms) {
-						let found = {};
+					if (!terms)
+						return;
+
+					var found = {};
 						terms = Array.slice(terms, 0).filter(function(aTerm) {
 							if (found[aTerm])
 								return false;
@@ -83,8 +86,14 @@ window.XMigemoLocationBarOverlay = {
 						}).join(' ');
 						log('item' + aIndex + ': highlight => '+terms);
 						aItem.setAttribute('text', terms);
+
+					// we must reset all other attributes also, to reset emphasys
+					aItem.setAttribute('image', controller.getImageAt(aIndex));
+					aItem.setAttribute('title', controller.getCommentAt(aIndex));
+					aItem.setAttribute('url', controller.getValueAt(aIndex));
+					aItem.setAttribute('type', controller.getStyleAt(aIndex));
+
 						aItem._adjustAcItem();
-					}
 				});
 			}
 			return result;
