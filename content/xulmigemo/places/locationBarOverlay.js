@@ -1006,7 +1006,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
  
 	get isMigemoResult() 
 	{
-		return this.service.isActive && this.resultsOverride.length;
+		return this.service.isMigemoActive && this.resultsOverride.length > 0;
 	},
  
 	get defaultIndexForComplete()
