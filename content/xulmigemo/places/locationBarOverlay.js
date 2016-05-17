@@ -336,15 +336,21 @@ window.XMigemoLocationBarOverlay = {
  
 	onSearchBegin : function() 
 	{
-		if (this.lastInput == this.input)
+		log('onSearchBegin');
+		if (this.lastInput == this.input) {
+			log(' => do nothign for same input');
 			return;
+		}
 
 		this.bar.controller.clearOverride();
 		this.clear();
 		this.stopDelayedClose();
 		this.delayedClose();
 
-		if (!this.isMigemoActive) return;
+		if (!this.isMigemoActive) {
+			log(' => inactive');
+			return;
+		}
 
 		this.delayedStartTimer = window.setTimeout(function(aSelf) {
 			aSelf.clear();
