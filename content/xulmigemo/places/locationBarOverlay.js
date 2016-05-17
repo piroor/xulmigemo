@@ -1038,7 +1038,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
 		}
 		catch(e) {
 		}
-		this.stopSearch();
+		this.controller.stopSearch();
 		delete this.searchStringOverride;
 		delete this.matchCountOverride;
 		delete this.resultsOverride;
@@ -1085,11 +1085,6 @@ window.XMigemoAutoCompletePopupController.customProperties = {
 		input.selectTextRange(term.length, input.textValue.length);
 	},
  
-	STATUS_NONE              : Components.interfaces.nsIAutoCompleteController.STATUS_NONE, 
-	STATUS_SEARCHING         : Components.interfaces.nsIAutoCompleteController.STATUS_SEARCHING,
-	STATUS_COMPLETE_NO_MATCH : Components.interfaces.nsIAutoCompleteController.STATUS_COMPLETE_NO_MATCH,
-	STATUS_COMPLETE_MATCH    : Components.interfaces.nsIAutoCompleteController.STATUS_COMPLETE_MATCH,
- 
 	get input() 
 	{
 		return this.controller.input;
@@ -1104,15 +1099,10 @@ window.XMigemoAutoCompletePopupController.customProperties = {
 			catch(e) {
 			}
 		}
-		if(aValue) {
+		if (aValue) {
 			aValue.popup.addEventListener('popupshowing', this, false);
 		}
 		return this.controller.input = aValue;
-	},
- 
-	get searchStatus() 
-	{
-		return this.controller.searchStatus;
 	},
  
 	get matchCount() 
@@ -1132,11 +1122,6 @@ window.XMigemoAutoCompletePopupController.customProperties = {
 			this.controller.searchString = '';
 		}
 		return this.controller.startSearch(aString);
-	},
- 
-	stopSearch : function() 
-	{
-		return this.controller.stopSearch();
 	},
  
 	handleText : function(aIgnoreSelection) 
@@ -1186,21 +1171,6 @@ window.XMigemoAutoCompletePopupController.customProperties = {
 			this.searchStringOverride = '';
 		}
 		return isPopupOpen;
-	},
- 
-	handleStartComposition : function() 
-	{
-		return this.controller.handleStartComposition();
-	},
- 
-	handleEndComposition : function() 
-	{
-		return this.controller.handleEndComposition();
-	},
- 
-	handleTab : function() 
-	{
-		return this.controller.handleTab();
 	},
  
 	handleKeyNavigation : function(aKey) 
@@ -1357,16 +1327,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
 	set searchString(aValue)
 	{
 		return this.controller.searchString = aValue;
-	},
- 
-	QueryInterface : function(aIID) 
-	{
-		if (aIID.equals(Components.interfaces.nsIAutoCompleteController) ||
-			aIID.equals(Components.interfaces.nsISupports))
-			return this;
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	}
- 
+	} 
 }; 
 
 })();
