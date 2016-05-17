@@ -236,7 +236,7 @@ window.XMigemoLocationBarOverlay = {
  
 	get listbox() 
 	{
-		return document.getAnonymousNodes(this.panel)[0];
+		return this.panel.richlistbox;
 	},
  
 	get items() 
