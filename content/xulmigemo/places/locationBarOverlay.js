@@ -1297,7 +1297,8 @@ window.XMigemoAutoCompletePopupController.customProperties = {
 	{
 		log('controller: getValueAt '+aIndex+' / migemo='+this.isMigemoResult);
 		if (this.isMigemoResult)
-			return this.resultsOverride[aIndex].uri;
+			return this.resultsOverride[aIndex].uri;;
+		log(' => '+this.controller.getValueAt(aIndex));
 		return this.controller.getValueAt(aIndex);
 	},
  
@@ -1306,6 +1307,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
 		log('controller: getCommentAt '+aIndex+' / migemo='+this.isMigemoResult);
 		if (this.isMigemoResult)
 			return this.resultsOverride[aIndex].title;
+		log(' => '+this.controller.getCommentAt(aIndex));
 		return this.controller.getCommentAt(aIndex);
 	},
  
@@ -1314,6 +1316,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
 		log('controller: getStyleAt '+aIndex+' / migemo='+this.isMigemoResult);
 		if (this.isMigemoResult)
 			return this.resultsOverride[aIndex].style;
+		log(' => '+this.controller.getStyleAt(aIndex));
 		return this.controller.getStyleAt(aIndex);
 	},
  
@@ -1322,6 +1325,7 @@ window.XMigemoAutoCompletePopupController.customProperties = {
 		log('controller: getImageAt '+aIndex+' / migemo='+this.isMigemoResult);
 		if (this.isMigemoResult)
 			return this.resultsOverride[aIndex].icon;
+		log(' => '+this.controller.getImageAt(aIndex));
 		return this.controller.getImageAt(aIndex);
 	},
  
