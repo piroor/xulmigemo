@@ -63,3 +63,26 @@ pref("xulmigemo.combination.autocompletemanager", true);
 pref("xulmigemo.dictionary.useInitializeWizard", true);
 pref("xulmigemo.dictionary.download.uri.ja",     "https://piro.sakura.ne.jp/xul/xpi/xulmigemodic.zip");
 pref("xulmigemo.dictionary.download.uri.en-US",  "https://piro.sakura.ne.jp/xul/xpi/xulmigemodic.en-US.zip");
+
+
+pref("xulmigemo.debug.all", false);
+
+pref("xulmigemo.debug.api", false);
+pref("xulmigemo.debug.finder", false);
+pref("xulmigemo.debug.mail", false);
+pref("xulmigemo.debug.places", false);
+pref("xulmigemo.debug.remoteFinder", false);
+pref("xulmigemo.debug.service", false);
+
+pref("xulmigemo.debug.cache", false);
+pref("xulmigemo.debug.core", false);
+pref("xulmigemo.debug.dicManager", false);
+pref("xulmigemo.debug.dictionary.ja", false);
+pref("xulmigemo.debug.dictionary", false);
+pref("xulmigemo.debug.engine.ja", false);
+pref("xulmigemo.debug.engine", false);
+pref("xulmigemo.debug.fileAccess", false);
+pref("xulmigemo.debug.find", false);
+pref("xulmigemo.debug.textTransform.ja", false);
+pref("xulmigemo.debug.textTransform", false);
+pref("xulmigemo.debug.textUtils", false);

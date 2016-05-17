@@ -3,7 +3,10 @@ var EXPORTED_SYMBOLS = ['MigemoFileAccess'];
 var DEBUG = false;
 function log(...aArgs) 
 {
-	if (DEBUG) Services.console.logStringMessage(...aArgs);
+	if (DEBUG ||
+		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
+		Services.prefs.getBoolPref('xulmigemo.debug.fileAccess'))
+		Services.console.logStringMessage(aArgs.join(', '));
 }
 
 var TEST = false;

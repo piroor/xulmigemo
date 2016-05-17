@@ -8,7 +8,10 @@ var EXPORTED_SYMBOLS = ['MigemoDictionary'];
 var DEBUG = false;
 function log(...aArgs) 
 {
-	if (DEBUG) Services.console.logStringMessage(...aArgs);
+	if (DEBUG ||
+		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
+		Services.prefs.getBoolPref('xulmigemo.debug.dictionary'))
+		Services.console.logStringMessage(aArgs.join(', '));
 }
 
 var TEST = false;

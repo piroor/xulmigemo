@@ -3,7 +3,10 @@ var EXPORTED_SYMBOLS = ['XMigemoPlaces'];
 var DEBUG = false;
 function log(...aArgs) 
 {
-	if (DEBUG) Services.console.logStringMessage(...aArgs);
+	if (DEBUG ||
+		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
+		Services.prefs.getBoolPref('xulmigemo.debug.places'))
+		Services.console.logStringMessage(aArgs.join(', '));
 }
 
 var Cc = Components.classes;
@@ -15,6 +18,7 @@ Cu.import('resource://gre/modules/Timer.jsm');
 
 Cu.import('resource://xulmigemo-modules/lib/here.js');
 
+Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/service.jsm');
 Cu.import('resource://xulmigemo-modules/api.jsm');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');

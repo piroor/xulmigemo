@@ -7,7 +7,10 @@ var EXPORTED_SYMBOLS = ['MigemoCache', 'MigemoCacheFactory'];
 var DEBUG = false;
 function log(...aArgs) 
 {
-	if (DEBUG) Services.console.logStringMessage(...aArgs);
+	if (DEBUG ||
+		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
+		Services.prefs.getBoolPref('xulmigemo.debug.cache'))
+		Services.console.logStringMessage(aArgs.join(', '));
 }
 
 var TEST = false;

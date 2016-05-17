@@ -3,7 +3,10 @@ var EXPORTED_SYMBOLS = ['MigemoRemoteFinder'];
 var DEBUG = false;
 function log(...aArgs) 
 {
-	if (DEBUG) Services.console.logStringMessage(...aArgs);
+	if (DEBUG ||
+		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
+		Services.prefs.getBoolPref('xulmigemo.debug.remoteFinder'))
+		Services.console.logStringMessage(aArgs.join(', '));
 }
 
 var Cc = Components.classes;
