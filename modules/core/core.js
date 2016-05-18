@@ -569,10 +569,10 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 
 		this.initialized = true;
 
-		var lang = aLang || Prefs.getCharPref('xulmigemo.lang');
+		var lang = aLang || Prefs.getCharPref('xulmigemo.lang') || '';
 		var leafNameSuffix = '';
 		var moduleNameSuffix = '';
-		if (lang) {
+		if (lang.indexOf('en') !== 0) {
 			leafNameSuffix = '.' + lang;
 			moduleNameSuffix = lang.charAt(0).toUpperCase() + lang.slice(1);
 		}
