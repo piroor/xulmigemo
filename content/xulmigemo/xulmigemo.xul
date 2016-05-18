@@ -22,7 +22,7 @@
 			orient="horizontal"
 			align="center"
 			pack="end"
-			oncommand="XMigemoUI.setFindMode(XMigemoUI[this.selectedItem.value]);">
+			oncommand="XMigemoUI.setTemporaryFindMode(XMigemoUI[this.selectedItem.value]);">
 			<radio value="FIND_MODE_NATIVE"
 				label="&ui.mode.normal.shortLabel;"
 				tooltiptext="&ui.mode.normal.tooltiptext;"
