@@ -541,9 +541,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 				this.handleFindModeReport(aMessage.json);
 				return;
 		}
-	},
- 
-	dummy : null
+	}
 }); 
   
 window.addEventListener('load', XMigemoUI, false); 
