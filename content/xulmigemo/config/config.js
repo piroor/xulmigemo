@@ -187,13 +187,6 @@ function initCombinationPane()
 	else
 		placesBox.setAttribute('collapsed', true);
 
-	var ctrlTabBox = document.getElementById('xulmigemo.ctrlTab.enabled-check');
-	if (XULAppInfo.ID == kID_FIREFOX &&
-		comparator.compare(XULAppInfo.version, '3.6a1pre') >= 0)
-		ctrlTabBox.removeAttribute('collapsed');
-	else
-		ctrlTabBox.setAttribute('collapsed', true);
-
 	var thunderbirdBox = document.getElementById('combination-thunderbird');
 	if (XULAppInfo.ID == kID_THUNDERBIRD)
 		thunderbirdBox.removeAttribute('collapsed');
