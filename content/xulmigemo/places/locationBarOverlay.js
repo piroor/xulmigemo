@@ -7,6 +7,7 @@ function log(...aArgs)
 }
 
 var { XMigemoPlaces } = Cu.import('resource://xulmigemo-modules/places.jsm', {});
+var { MigemoTextUtils } = Cu.import('resource://xulmigemo-modules/core/textUtils.js', {});
 
 window.XMigemoLocationBarOverlay = { 
 	get bar() 
@@ -78,12 +79,7 @@ window.XMigemoLocationBarOverlay = {
 					if (!terms)
 						return;
 
-					var found = {};
-					terms = Array.slice(terms, 0).filter(function(aTerm) {
-						if (found[aTerm])
-							return false;
-						return found[aTerm] = true;
-					}).join(' ');
+					terms = MigemoTextUtils.brushUpTerms(terms);
 					log('item' + aIndex + ': highlight => '+terms);
 					aItem.setAttribute('text', terms);
 
