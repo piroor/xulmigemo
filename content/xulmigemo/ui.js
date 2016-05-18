@@ -43,32 +43,6 @@ window.XMigemoUI = inherit(MigemoConstants, {
   
 /* internal status */ 
 	
-	findModeVersion : 2, 
-	findModeFrom1To2 : {
-		'0' : MigemoConstants.FIND_MODE_NATIVE,
-		'1' : MigemoConstants.FIND_MODE_MIGEMO,
-		'2' : MigemoConstants.FIND_MODE_REGEXP
-	},
-	upgradePrefs : function()
-	{
-		var current = XMigemoService.getPref('xulmigemo.findMode.version') || 1;
-		if (current == this.findModeVersion) return;
-
-		var table = 'findModeFrom'+current+'To'+this.findModeVersion;
-		if (table in this) {
-			table = this[table];
-			'xulmigemo.findMode.default xulmigemo.findMode.always'
-				.split(' ')
-				.forEach(function(aPref) {
-					var value = XMigemoService.getPref(aPref);
-					if (value != XMigemoService.getDefaultPref(aPref) && value in table)
-						XMigemoService.setPref(aPref, table[value]);
-				}, this);
-		}
-
-		XMigemoService.setPref('xulmigemo.findMode.version', this.findModeVersion);
-	},
- 
 	_modeCirculation : 0, 
 	get modeCirculation()
 	{
@@ -524,8 +498,6 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		window.addEventListener('findbaropen', this, true);
 		window.addEventListener('TabSelect', this, false);
 		this.findBarsContainer.addEventListener('input', this, true);
-
-		this.upgradePrefs();
 
 		this.overrideExtensionsOnInitBefore(); // hacks.js
 
