@@ -6,7 +6,7 @@ function log(...aArgs)
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
 		Services.prefs.getBoolPref('xulmigemo.debug.mail'))
-		Services.console.logStringMessage(aArgs.join(', '));
+		Services.console.logStringMessage('mail '+aArgs.join(', '));
 }
 
 var TEST = false; 
@@ -30,10 +30,35 @@ var XMigemoMail = {
 		return GlodaDatastore.syncConnection;
 	},
 
-	FIND_SUBJECT   : (1 << 0),
-	FIND_BODY      : (1 << 1),
-	FIND_AUTHOR    : (1 << 2),
-	FIND_RECIPIENT : (1 << 3),
+	FIND_SUBJECT    : (1 << 0),
+	FIND_BODY       : (1 << 1),
+	FIND_AUTHOR     : (1 << 2),
+	FIND_RECIPIENT  : (1 << 3),
+	FIND_ATTACHMENT : (1 << 4),
+
+	columnNames : {},
+
+	getActualColumnNames : function()
+	{
+		var statement = this.DBConnection.createStatement('PRAGMA TABLE_INFO(messagesText_content)');
+		var columns = {};
+		while (statement.executeStep())
+		{
+			let name = statement.getString(1);
+			if (name.indexOf('subject') > -1)
+				columns[this.FIND_SUBJECT] = name;
+			else if (name.indexOf('body') > -1)
+				columns[this.FIND_BODY] = name;
+			else if (name.indexOf('author') > -1)
+				columns[this.FIND_AUTHOR] = name;
+			else if (name.indexOf('recipients') > -1)
+				columns[this.FIND_RECIPIENT] = name;
+			else if (name.indexOf('attachmentNames') > -1)
+				columns[this.FIND_ATTACHMENT] = name;
+		}
+		statement.reset();
+		return columns;
+	},
  
 	getTermsList : function(aInput, aFindTargets, aFolder) 
 	{
@@ -41,10 +66,10 @@ var XMigemoMail = {
 		var terms = [];
 		try {
 			var columns = [];
-			if (aFindTargets & this.FIND_SUBJECT) columns.push('c.c1subject');
-			if (aFindTargets & this.FIND_BODY) columns.push('c.c0body');
-			if (aFindTargets & this.FIND_AUTHOR) columns.push('c.c3author');
-			if (aFindTargets & this.FIND_RECIPIENT) columns.push('c.c4recipients');
+			Object.keys(this.columnNames).forEach(function(aColumn) {
+				if (aFindTargets & aColumn)
+					columns.push('c.' + this.columnNames[aColumn]);
+			}, this);
 			if (columns.length) {
 				columns = columns.map(function(aColumn) {
 					return 'COALESCE(' + aColumn + ', "")';
@@ -70,12 +95,13 @@ var XMigemoMail = {
 					       LEFT JOIN folderLocations f ON f.id = m.folderID \
 					  WHERE f.folderURI = ?2 \
 					'.replace('%COLUMNS%', columns.join(' || '));
+				log('  sql => '+sql);
 				let statement = this.DBConnection.createStatement(sql);
 				statement.bindStringParameter(0, '\n');
 				statement.bindStringParameter(1, aFolder.folderURL);
 
 				var sources;
-				while(statement.executeStep())
+				while (statement.executeStep())
 				{
 					sources = statement.getString(0);
 				}
@@ -101,6 +127,9 @@ var XMigemoMail = {
 			MessageTextFilter.__xm__appendTerms = MessageTextFilter.appendTerms;
 			MessageTextFilter.appendTerms = this.MessageTextFilter_appendTerms;
 		}
+
+		this.columnNames = this.getActualColumnNames();
+		log('columnNames => '+JSON.stringify(this.columnNames));
 	},
 	MessageTextFilter_appendTerms : function(aTermCreator, aTerms, aFilterValue)
 	{
@@ -123,6 +152,8 @@ var XMigemoMail = {
 				targets |= XMigemoMail.FIND_AUTHOR;
 			if (aFilterValue.states.recipients)
 				targets |= XMigemoMail.FIND_RECIPIENT;
+			if (aFilterValue.states.attachment)
+				targets |= XMigemoMail.FIND_ATTACHMENT;
 			let terms = XMigemoMail.getTermsList(
 					aFilterValue.text,
 					targets,
