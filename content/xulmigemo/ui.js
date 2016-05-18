@@ -71,7 +71,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	get findBarsContainer()
 	{
 		return window.gBrowser || // Firefox
-				document.getElementById('messagepane'); // Thunderbird
+				document.getElementById('singlemessage'); // Thunderbird
 	},
 
 	get findBar() 
@@ -155,13 +155,22 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		return findbarMode == findbar.FIND_TYPEAHEAD || findbarMode == findbar.FIND_LINKS;
 	},
 
-	get isFocused()
+	get hasFocus()
 	{
-		var focusedElement = Cc['@mozilla.org/focus-manager;1']
-							.getService(Ci.nsIFocusManager)
-							.focusedElement;
-		return this.isInFindBar(focusedElement);
+		if (this.trustFocusManager) {
+			let focusedElement = Cc['@mozilla.org/focus-manager;1']
+								.getService(Ci.nsIFocusManager)
+								.focusedElement;
+			return this.isInFindBar(focusedElement);
+		}
+		else {
+			return this.focused;
+		}
 	},
+	get trustFocusManager() { // on Thunderbird, focus manager does not work as expected...
+		return location.href.indexOf('chrome://browser/') === 0;
+	},
+	focused : false,
 
 	get currentFindContext()
 	{
@@ -362,6 +371,21 @@ window.XMigemoUI = inherit(MigemoConstants, {
 				this.onInput(aEvent);
 				return;
 
+			case 'focus':
+				if (aEvent.target == this.findBar)
+					this.focused = true;
+				return;
+
+			case 'blur':
+				if (aEvent.target == this.findBar) {
+					// Thunderbird always focus to the message pane before start find,
+					// thus we need to consider still the find bar is focused now.
+					setTimeout((function() {
+						this.focused = false;
+					}).bind(this), 10);
+				}
+				return;
+
 			case 'DOMContentLoaded':
 				this.overrideExtensionsPreInit();
 				window.removeEventListener('DOMContentLoaded', this, false);
@@ -382,7 +406,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	// for Ctrl-F shortcuts
 	onFindCommand : function()
 	{
-		if (!this.isFocused)
+		if (!this.hasFocus)
 			return false;
 
 		var mode = this.getModeCirculationNext(this.findMode);
@@ -483,6 +507,10 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		window.addEventListener('findbaropen', this, true);
 		window.addEventListener('TabSelect', this, false);
 		this.findBarsContainer.addEventListener('input', this, true);
+		if (!this.trustFocusManager) {
+			this.findBarsContainer.addEventListener('focus', this, true);
+			this.findBarsContainer.addEventListener('blur', this, true);
+		}
 
 		this.overrideExtensionsOnInitBefore(); // hacks.js
 
@@ -542,6 +570,10 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		window.removeEventListener('findbaropen', this, true);
 		window.removeEventListener('TabSelect', this, false);
 		this.findBarsContainer.removeEventListener('input', this, true);
+		if (!this.trustFocusManager) {
+			this.findBarsContainer.removeEventListener('focus', this, true);
+			this.findBarsContainer.removeEventListener('blur', this, true);
+		}
 
 		window.removeEventListener('unload', this, false);
 	},
