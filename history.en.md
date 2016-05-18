@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 0.14.0 (2016.5.19)
    * Works on Firefox 45, Nightly 49.0a1 and Thunderbird 45.
    * Keyboard shortcuts to start find with specific mode are now defined as you like now.
    * Out-of-purpose features like auto highlighting are now removed.
