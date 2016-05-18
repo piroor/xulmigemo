@@ -55,7 +55,6 @@ pref("xulmigemo.places.organizer",             true);
 pref("xulmigemo.ctrlTab.enabled", true);
 
 pref("xulmigemo.mailnews.threadsearch.enabled", true);
-pref("xulmigemo.mailnews.threadsearch.body",    false);
 
 pref("xulmigemo.combination.autocompletemanager", true);
 
