@@ -115,6 +115,8 @@ var MigemoDicManager = {
 
 			var ns = Components.utils.import('resource://xulmigemo-modules/core/dictionary' + leafNameSuffix + '.js', {});
 			this._dictionary = ns['MigemoDictionary' + moduleNameSuffix];
+			if (!this._dictionary.lang)
+				this._dictionary.lang = lang;
 		}
 		return this._dictionary;
 	},
