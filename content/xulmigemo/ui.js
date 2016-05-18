@@ -351,24 +351,27 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		return modes[index];
 	},
 
+	onFindCommand : function()
+	{
+		if (!this.isFocused)
+			return false;
+
+		var mode = this.getModeCirculationNext(this.findMode);
+		if (mode === this.CIRCULATE_MODE_EXIT)
+			this.close();
+		else
+			this.setFindMode(mode);
+		return true;
+	},
+
 	onStartFind : function()
 	{
-		if (!this.readyToStartTemporaryFindMode &&
-			this.isFocused) {
-			let mode = this.getModeCirculationNext(this.findMode);
-			if (mode === this.CIRCULATE_MODE_EXIT)
-				this.close();
-			else
-				this.setFindMode(mode);
-			return true;
-		}
 		var params = this.getFindModeParams();
 		this.findModeSelector.value = params.modeName;
 		this.findBar.setAttribute(this.kFIND_MODE, params.modeName);
 		this.findMode = params.mode;
 		this.finder.__xm__setFindMode(params);
 		this.handleFindModeReportWithDelay();
-		return false;
 	},
 
 	handleFindModeReportWithDelay : function()
@@ -471,11 +474,19 @@ window.XMigemoUI = inherit(MigemoConstants, {
  
 	updateFindBar : function()
 	{
+		if (!this.findBar.__xm__onFindCommand) {
+			this.findBar.__xm__onFindCommand = this.findBar.onFindCommand;
+			this.findBar.onFindCommand = function(...aArgs) {
+				if (XMigemoUI.onFindCommand())
+					return;
+				return this.__xm__onFindCommand(...aArgs);
+			};
+		}
+
 		if (!this.findBar.__xm__startFind) {
 			this.findBar.__xm__startFind = this.findBar.startFind;
 			this.findBar.startFind = function(...aArgs) {
-				if (XMigemoUI.onStartFind())
-					return;
+				XMigemoUI.onStartFind();
 				return this.__xm__startFind(...aArgs);
 			};
 		}
