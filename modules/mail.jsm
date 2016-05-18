@@ -41,8 +41,8 @@ var XMigemoMail = {
 		var terms = [];
 		try {
 			var columns = [];
-			if (aFindTargets & this.FIND_SUBJECT) columns.push('c.c0subject');
-			if (aFindTargets & this.FIND_BODY) columns.push('c.c1body');
+			if (aFindTargets & this.FIND_SUBJECT) columns.push('c.c1subject');
+			if (aFindTargets & this.FIND_BODY) columns.push('c.c0body');
 			if (aFindTargets & this.FIND_AUTHOR) columns.push('c.c3author');
 			if (aFindTargets & this.FIND_RECIPIENT) columns.push('c.c4recipients');
 			if (columns.length) {
@@ -53,9 +53,9 @@ var XMigemoMail = {
 				let regexp;
 				if (
 					XMigemoService.getPref('xulmigemo.autostart.regExpFind') &&
-					MigemotextUtils.isRegExp(aInput)
+					MigemoTextUtils.isRegExp(aInput)
 					) {
-					regexp = MigemotextUtils.extractRegExpSource(aInput);
+					regexp = MigemoTextUtils.extractRegExpSource(aInput);
 					regexp = new RegExp(regexp, 'ig');
 				}
 				else {
@@ -83,10 +83,11 @@ var XMigemoMail = {
 
 				terms = sources.replace(/\n/g, ' ').match(regexp);
 				if (terms && terms.length)
-					terms = MigemotextUtils.brushUpTerms(terms);
+					terms = MigemoTextUtils.brushUpTerms(terms);
 			}
 		}
 		catch(e) {
+			log('getTermsList: '+e);
 		}
 		terms = terms || [];
 		return terms;
@@ -94,9 +95,10 @@ var XMigemoMail = {
 
 	init : function()
 	{
+		log('typeof MessageTextFilter => '+(typeof MessageTextFilter));
 		if (typeof MessageTextFilter != 'undefined' &&
-			!('__xmigemo_original_appendTerms' in MessageTextFilter)) {
-			MessageTextFilter.__xmigemo_original_appendTerms = MessageTextFilter.appendTerms;
+			!('__xm__appendTerms' in MessageTextFilter)) {
+			MessageTextFilter.__xm__appendTerms = MessageTextFilter.appendTerms;
 			MessageTextFilter.appendTerms = this.MessageTextFilter_appendTerms;
 		}
 	},
@@ -105,6 +107,7 @@ var XMigemoMail = {
 		var activeWindow = Cc['@mozilla.org/focus-manager;1']
 							.getService(Ci.nsIFocusManager)
 							.activeWindow;
+		log('MessageTextFilter_appendTerms '+[activeWindow, aFilterValue.text, aFilterValue.states]);
 		if (
 			activeWindow &&
 			aFilterValue.text &&
@@ -125,11 +128,12 @@ var XMigemoMail = {
 					targets,
 					activeWindow.gDBView.msgFolder
 				);
+			log('  terms => '+terms);
 			if (terms.length)
-				aFilterValue.text = terms.join(' ');
+				aFilterValue.text = terms.join(' | ');
 		}
 
-		return this.__xmigemo_original_appendTerms(aTermCreator, aTerms, aFilterValue);
+		return this.__xm__appendTerms(aTermCreator, aTerms, aFilterValue);
 	}
 };
 
