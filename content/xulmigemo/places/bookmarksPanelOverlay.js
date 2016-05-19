@@ -16,22 +16,23 @@ var XMigemoBookmarksPanelOverlay = {
 		window.removeEventListener('load', this, false);
 
 		var tree = document.getElementById('bookmarks-view');
-		if (!('applyFilter' in tree)) return;
-
-		eval('tree.applyFilter = '+
-			tree.applyFilter.toSource().replace(
-				'this.load([query], options);',
-				' \
-				if (XMigemoService.getPref("xulmigemo.places.bookmarksPanel") && \
-					XMigemoPlaces.isValidInput(query.searchTerms)) \
-					XMigemoPlaces.startProgressiveLoad(query, options, this, \
-						XMigemoPlaces.bookmarksInRangeSQL); \
-				else \
-					$& \
-				'
-			)
-		);
-		log('tree.applyFilter => '+tree.applyFilter.toSource());
+		tree.__xm__load = tree.load;
+		tree.load = function(aQueries, aOptions) {
+			if (!this.__xm__callingFromProgressiveLoad)
+				XMigemoPlaces.stopProgressiveLoad(this);
+			if (!this.__xm__callingFromProgressiveLoad &&
+				aQueries.length == 1 &&
+				XMigemoService.getPref('xulmigemo.places.bookmarksPanel') &&
+				XMigemoPlaces.isValidInput(aQueries[0].searchTerms)) {
+				log(' => override');
+				XMigemoPlaces.startProgressiveLoad(aQueries[0], aOptions, this,
+					XMigemoPlaces.bookmarksInRangeSQ);
+			}
+			else {
+				log(' => default');
+				return this.__xm__load(aQueries, aOptions);
+			}
+		};
 	}
  
 }; 

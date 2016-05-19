@@ -35,7 +35,8 @@ var XMigemoOrganizerOverlay = {
 
 		aView.__xm__load = aView.load;
 		aView.load = function(aQueries, aOptions) {
-			log('load: '+uneval(aQueries)+' / '+uneval(aOptions));
+			if (!this.__xm__callingFromProgressiveLoad)
+				XMigemoPlaces.stopProgressiveLoad(this);
 			if (!this.__xm__callingFromProgressiveLoad &&
 				aQueries.length == 1 &&
 				XMigemoService.getPref('xulmigemo.places.organizer') &&
