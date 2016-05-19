@@ -692,7 +692,7 @@ var XMigemoPlaces = {
   
 	startProgressiveLoad : function(aBaseQuery, aOptions, aTree, aSourceSQL, aSaveCommand) 
 	{
-		this.stopProgressiveLoad();
+		this.stopProgressiveLoad(aTree);
 		if (!aBaseQuery || !aOptions || !aTree || !aSourceSQL) return;
 
 		// clear now
@@ -747,12 +747,12 @@ var XMigemoPlaces = {
 			}
 			catch(e) {
 				log(e);
-				this.stopProgressiveLoad();
+				this.stopProgressiveLoad(aTree);
 			}
 		}).bind(this), 1);
 	},
 	
-	stopProgressiveLoad : function() 
+	stopProgressiveLoad : function(aTree) 
 	{
 		if (!this.progressiveLoadTimer) return;
 		clearInterval(this.progressiveLoadTimer);
