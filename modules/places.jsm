@@ -705,9 +705,10 @@ var XMigemoPlaces = {
 
 		if (aSaveCommand) aSaveCommand.setAttribute('disabled', true);
 
-		this.lastFindRegExp = null;
-		this.lastTermsRegExp = null;
-		this.lastExceptionsRegExp = null;
+		var context = this.contexts.get(aTree) || {};
+		context.lastFindRegExp = null;
+		context.lastTermsRegExp = null;
+		context.lastExceptionsRegExp = null;
 
 		if (
 			this.autoStartRegExpFind &&
@@ -715,31 +716,32 @@ var XMigemoPlaces = {
 			) {
 			var flags = 'gm';
 			if (/\/[^\/]*i[^\/]*$/.test(aBaseQuery.searchTerms)) flags += 'i';
-			this.lastFindRegExp =
-				this.lastTermsRegExp = new RegExp(MigemoTextUtils.extractRegExpSource(aBaseQuery.searchTerms), flags);
+			context.lastFindRegExp =
+				context.lastTermsRegExp = new RegExp(MigemoTextUtils.extractRegExpSource(aBaseQuery.searchTerms), flags);
 		}
 		else {
 			let termsRegExp = {};
 			let exceptionsRegExp = {};
-			this.lastFindRegExp = XMigemoCore.getRegExpFunctional(aBaseQuery.searchTerms, termsRegExp, exceptionsRegExp);
-			this.lastFindRegExp = new RegExp(this.lastFindRegExp, 'gim');
-			this.lastTermsRegExp = termsRegExp.value ? new RegExp(termsRegExp.value, 'gim') : null ;
-//			this.lastExceptionsRegExp = exceptionsRegExp.value ? new RegExp(exceptionsRegExp.value, 'im') : null ;
+			context.lastFindRegExp = XMigemoCore.getRegExpFunctional(aBaseQuery.searchTerms, termsRegExp, exceptionsRegExp);
+			context.lastFindRegExp = new RegExp(context.lastFindRegExp, 'gim');
+			context.lastTermsRegExp = termsRegExp.value ? new RegExp(termsRegExp.value, 'gim') : null ;
+//			context.lastExceptionsRegExp = exceptionsRegExp.value ? new RegExp(exceptionsRegExp.value, 'im') : null ;
 		}
-		this.lastTermSets = [];
-		this.lastQueries = [];
+		context.lastTermSets = [];
+		context.lastQueries = [];
+		this.contexts.set(aTree, context);
 
 		var current = 0;
 		var lastQueriesCount = 0;
-		this.progressiveLoadTimer = setInterval((function() {
+		var timer = setInterval((function() {
 			try {
-				if (this.updateQuery(aBaseQuery, aSourceSQL, current, this.chunk)) {
-					if (this.lastQueries.length != lastQueriesCount) {
+				if (this.updateQuery(context, aBaseQuery, aSourceSQL, current, this.chunk)) {
+					if (context.lastQueries.length != lastQueriesCount) {
 						aTree.__xm__callingFromProgressiveLoad = true;
 						aTree.load(this.lastQueries, aOptions);
 						aTree.__xm__callingFromProgressiveLoad = false;
 						if (aSaveCommand) aSaveCommand.removeAttribute('disabled');
-						lastQueriesCount = this.lastQueries.length;
+						lastQueriesCount = context.lastQueries.length;
 					}
 					current += this.chunk;
 					return;
@@ -750,28 +752,33 @@ var XMigemoPlaces = {
 				this.stopProgressiveLoad(aTree);
 			}
 		}).bind(this), 1);
+		this.progressiveLoadTimers.set(aTree, timer);
 	},
+	contexts : new WakMap(),
 	
 	stopProgressiveLoad : function(aTree) 
 	{
-		if (!this.progressiveLoadTimer) return;
-		clearInterval(this.progressiveLoadTimer);
-		this.progressiveLoadTimer = null;
+		var timer = this.progressiveLoadTimers.get(aTree);
+		if (!timer)
+			return;
+		clearInterval(timer);
+		this.progressiveLoadTimers.delete(aTree);
+		this.contexts.delete(aTree);
 	},
-	progressiveLoadTimer : null,
+	progressiveLoadTimers : new WeakMap(),
  
-	updateQuery : function(aBaseQuery, aSourceSQL, aStart, aRange) 
+	updateQuery : function(aContext, aBaseQuery, aSourceSQL, aStart, aRange) 
 	{
 		var source = this.getSingleStringFromRange(aSourceSQL, aStart, aRange);
 		if (!source) return false;
 
-//		if (this.lastExceptionsRegExp)
-//			source = source.replace(this.lastExceptionsRegExp, '');
+//		if (aContext.lastExceptionsRegExp)
+//			source = source.replace(aContext.lastExceptionsRegExp, '');
 
-		var termSets = source.match(this.lastFindRegExp);
+		var termSets = source.match(aContext.lastFindRegExp);
 		if (!termSets) return true;
 
-		var regexp = this.lastTermsRegExp;
+		var regexp = aContext.lastTermsRegExp;
 		var utils = MigemoTextUtils;
 		termSets = MigemoTextUtils.brushUpTerms(termSets)
 			.map(function(aTermSet) {
@@ -785,8 +792,8 @@ var XMigemoPlaces = {
 				return utils.trim(aTerm);
 			});
 
-		this.lastTermSets = MigemoTextUtils.brushUpTerms(this.lastTermSets.concat(termSets));
-		this.lastQueries = this.lastTermSets.map(function(aTermSet) {
+		aContext.lastTermSets = MigemoTextUtils.brushUpTerms(aContext.lastTermSets.concat(termSets));
+		aContext.lastQueries = aContext.lastTermSets.map(function(aTermSet) {
 			var newQuery = aBaseQuery.clone();
 			newQuery.searchTerms = aTermSet;
 			return newQuery;
