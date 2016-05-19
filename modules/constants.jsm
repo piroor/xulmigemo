@@ -24,7 +24,6 @@ var MigemoConstants = {
 	FIND_DEFAULT     : 1 << 0,
 	FIND_BACK        : 1 << 1,
 	FIND_FORWARD     : 1 << 2,
-	FIND_WRAP        : 1 << 3,
 	FIND_IN_LINK     : 1 << 7,
 	FIND_IN_EDITABLE : 1 << 8,
 	FIND_SILENTLY    : 1 << 9, // for internal use
