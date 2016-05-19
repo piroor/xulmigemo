@@ -754,7 +754,7 @@ var XMigemoPlaces = {
 		}).bind(this), 1);
 		this.progressiveLoadTimers.set(aTree, timer);
 	},
-	contexts : new WakMap(),
+	contexts : new WeakMap(),
 	
 	stopProgressiveLoad : function(aTree) 
 	{
