@@ -386,7 +386,7 @@ log("findInRange");
 			result.flag |= this.FOUND_IN_EDITABLE;
 		}
 		if (aFindFlag & this.FIND_IN_LINK &&
-			result.foundLink = this.getParentLinkFromRange(result.range)) {
+			(result.foundLink = this.getParentLinkFromRange(result.range))) {
 			result.flag |= this.FOUND_IN_LINK;
 		}
 
