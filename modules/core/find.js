@@ -588,15 +588,16 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 				aFindFlag & this.FIND_WRAP ||
 				String(aRangeParent.localName).toLowerCase() != 'body' ||
 				!this.startFromViewport
-				) {
-				if (aFindFlag & this.FIND_BACK) {
-					startPt.collapse(false);
-					endPt.collapse(true);
-				}
-				else {
-					startPt.collapse(true);
-					endPt.collapse(false);
-				}
+			) {
+			log('FIND RANGE FROM WHOlE DOCUMENT');
+			if (aFindFlag & this.FIND_BACK) {
+				startPt.collapse(false);
+				endPt.collapse(true);
+			}
+			else {
+				startPt.collapse(true);
+				endPt.collapse(false);
+			}
 		}
 		else {
 			log('FIND RANGE FROM VIEW PORT <'+!!this.viewportStartPoint+' / '+!!this.viewportEndPoint+'>');
@@ -1104,7 +1105,9 @@ DocShellIterator.prototype = {
 	{
 		aNode.QueryInterface(nsIDocShellTreeItem);
 		// 子がある場合、最初の子を返す
-		if (aNode.childCount) return aNode.getChildAt(0);
+		if (aNode.childCount > 0)
+			return aNode.getChildAt(0);
+
 		var curNode = aNode;
 		var curItem;
 		var parentNode;
@@ -1115,7 +1118,8 @@ DocShellIterator.prototype = {
 			// このノードが最上位である場合、検索終了
 			curItem = curNode.QueryInterface(Ci.nsIDocShellTreeItem);
 			var parentItem = curItem.sameTypeParent;
-			if (!parentItem) return null;
+			if (!parentItem)
+				return null;
 
 			// nextSiblingに相当するノードを取得して返す
 			childOffset = this.getChildOffsetFromDocShellNode(curNode);
