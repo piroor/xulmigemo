@@ -692,8 +692,12 @@ var XMigemoPlaces = {
   
 	startProgressiveLoad : function(aBaseQuery, aOptions, aTree, aSourceSQL, aSaveCommand) 
 	{
+		log('startProgressiveLoad');
 		this.stopProgressiveLoad(aTree);
-		if (!aBaseQuery || !aOptions || !aTree || !aSourceSQL) return;
+		if (!aBaseQuery || !aOptions || !aTree || !aSourceSQL) {
+			log(' => missing parameter');
+			return;
+		}
 
 		// clear now
 		var blankQuery = aBaseQuery.clone();
@@ -714,7 +718,7 @@ var XMigemoPlaces = {
 			this.autoStartRegExpFind &&
 			MigemoTextUtils.isRegExp(aBaseQuery.searchTerms)
 			) {
-			var flags = 'gm';
+			let flags = 'gm';
 			if (/\/[^\/]*i[^\/]*$/.test(aBaseQuery.searchTerms)) flags += 'i';
 			context.lastFindRegExp =
 				context.lastTermsRegExp = new RegExp(MigemoTextUtils.extractRegExpSource(aBaseQuery.searchTerms), flags);
@@ -729,6 +733,7 @@ var XMigemoPlaces = {
 		}
 		context.lastTermSets = [];
 		context.lastQueries = [];
+		log(' => context ' + uneval(context));
 		this.contexts.set(aTree, context);
 
 		var current = 0;
@@ -737,8 +742,9 @@ var XMigemoPlaces = {
 			try {
 				if (this.updateQuery(context, aBaseQuery, aSourceSQL, current, this.chunk)) {
 					if (context.lastQueries.length != lastQueriesCount) {
+						log(' => query modified');
 						aTree.__xm__callingFromProgressiveLoad = true;
-						aTree.load(this.lastQueries, aOptions);
+						aTree.load(context.lastQueries, aOptions);
 						aTree.__xm__callingFromProgressiveLoad = false;
 						if (aSaveCommand) aSaveCommand.removeAttribute('disabled');
 						lastQueriesCount = context.lastQueries.length;
