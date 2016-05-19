@@ -143,9 +143,11 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 
 		if (aScrollToFound) {
 			log('========================find============================');
+			this.logPrefix = '[regular] ';
 		}
 		else {
 			log('=====================silent find========================');
+			this.logPrefix = '[silent] ';
 		}
 		if (!aKeyword) {
 			this.lastResult = this.NOTFOUND;
@@ -215,7 +217,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 	
 	findInDocument : function(aFindFlag, aFindTerm, aDocShellIterator, aOptions) 
 	{
-		log('findInDocument ==========================================');
+		log(this.logPrefix+'findInDocument ==========================================');
 		aOptions = aOptions || {};
 
 		var rangeSet;
@@ -378,7 +380,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		if (!aTerm) {
 			return result;
 		}
-		log('findInRange <'+aTerm+'> from <'+aRangeSet.range+'>');
+		log(this.logPrefix+'findInRange <'+aTerm+'> from <'+aRangeSet.range+'>');
 
 		this.mFind.findBackwards = Boolean(aFindFlag & this.FIND_BACK);
 		this.mFind.caseSensitive = true;
@@ -405,7 +407,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 	{
 		//後でXLinkを考慮したコードに直す
 		if (!aRange) return null;
-		log('getParentLinkFromRange <'+aRange+'>');
+		log(this.logPrefix+'getParentLinkFromRange <'+aRange+'>');
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
 		{
@@ -419,7 +421,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
  
 	getParentEditableFromRange : function(aRange) 
 	{
-		log('getParentEditableFromRange <'+aRange+'>');
+		log(this.logPrefix+'getParentEditableFromRange <'+aRange+'>');
 		if (aRange) aRange.QueryInterface(Ci.nsIDOMRange);
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
@@ -456,7 +458,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		var doc       = aDocShellIterator.document;
 		var docShell  = aDocShellIterator.current;
 		var docSelCon = this.getSelectionController(aDocShellIterator.view);
-		log('getFindRangeSet for '+doc.defaultView.location.origin);
+		log(this.logPrefix+'getFindRangeSet for '+doc.defaultView.location.origin);
 
 		if (aFindFlag & this.FIND_SILENTLY) {
 			let range = this.foundRange;
@@ -548,7 +550,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			) &&
 			foundRange
 			) {
-			log('FIND RANGE FROM LAST FOUND RANGE');
+			log(this.logPrefix+'FIND RANGE FROM LAST FOUND RANGE');
 			let editable = this.getParentEditableFromRange(foundRange);
 			if (editable) {
 				findRange = this.getFindRangeFromRangeInEditable(foundRange);
@@ -570,7 +572,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		}
 		else if (aFindFlag & this.FIND_SILENTLY &&
 				lastFoundEditable) {
-			log('FIND RANGE FROM LAST EDITABLE');
+			log(this.logPrefix+'FIND RANGE FROM LAST EDITABLE');
 			this.lastFoundEditableMap.delete(doc);
 			if (aFindFlag & this.FIND_BACK) {
 				findRange.setEndBefore(lastFoundEditable);
@@ -589,7 +591,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 				String(aRangeParent.localName).toLowerCase() != 'body' ||
 				!this.startFromViewport
 			) {
-			log('FIND RANGE FROM WHOLE DOCUMENT');
+			log(this.logPrefix+'FIND RANGE FROM WHOLE DOCUMENT');
 			if (aFindFlag & this.FIND_BACK) {
 				startPt.collapse(false);
 				endPt.collapse(true);
@@ -600,7 +602,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			}
 		}
 		else {
-			log('FIND RANGE FROM VIEW PORT <'+!!this.viewportStartPoint+' / '+!!this.viewportEndPoint+'>');
+			log(this.logPrefix+'FIND RANGE FROM VIEW PORT <'+!!this.viewportStartPoint+' / '+!!this.viewportEndPoint+'>');
 			if (aFindFlag & this.FIND_BACK) {
 				let node = this.viewportStartPoint ||
 						MigemoTextUtils.findFirstVisibleNode(doc, true);
@@ -649,7 +651,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
   
 	resetFindRangeSet : function(aRangeSet, aFoundRange, aFindFlag, aDocument) 
 	{
-		log('resetFindRangeSet for '+aDocument.defaultView.location.origin);
+		log(this.logPrefix+'resetFindRangeSet for '+aDocument.defaultView.location.origin);
 		var theDoc = aDocument;
 
 		var root = DocShellIterator.prototype.getDocumentBody(theDoc);
