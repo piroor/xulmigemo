@@ -174,7 +174,10 @@ log("find");
 		}
 
 		var findFlag = 0;
-		if (this.previousKeyword != aKeyword) findFlag |= this.FIND_DEFAULT;
+		if (this.previousKeyword != aKeyword) {
+			findFlag |= this.FIND_DEFAULT;
+			this.foundRange = null;
+		}
 
 		findFlag |= aBackward ? this.FIND_BACK : this.FIND_FORWARD ;
 
