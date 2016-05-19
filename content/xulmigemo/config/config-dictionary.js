@@ -1,5 +1,8 @@
+Components.utils.import('resource://gre/modules/Services.jsm');
+
 Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
 Components.utils.import('resource://xulmigemo-modules/core/core.js');
+Components.utils.import('resource://xulmigemo-modules/core/dicManager.js');
 Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js'); 
 
 var XMigemo = MigemoCoreFactory.get(XMigemoService.getPref('xulmigemo.lang'));
@@ -10,7 +13,7 @@ var gRelativePath;
 function getDP()
 {
 	var path = gAbsolutePath.value;
-	var folderPath = XMigemo.dictionaryManager.showDirectoryPicker(path);
+	var folderPath = MigemoDicManager.showDirectoryPicker(path);
 	if (!folderPath || gAbsolutePath.value == folderPath) return;
 
 	gAbsolutePath.value = folderPath;
@@ -26,10 +29,7 @@ function getDP()
 
 function goInitializeWizard()
 {
-	var wizard = Components
-			.classes['@mozilla.org/appshell/window-mediator;1']
-			.getService(Components.interfaces.nsIWindowMediator)
-			.getMostRecentWindow('xulmigemo:initializer');
+	var wizard = Services.wm.getMostRecentWindow('xulmigemo:initializer');
 	if (wizard) {
 		wizard.focus();
 		return;
