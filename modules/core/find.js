@@ -1186,7 +1186,7 @@ DocShellIterator.prototype = {
 				return false;
 
 			default:
-				return true;
+				return doc.defaultView.innerWidth > 0 && doc.defaultView.innerHeight > 0;
 		}
 	},
  
