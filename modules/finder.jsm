@@ -79,6 +79,11 @@ Object.defineProperty(Finder.prototype, '_fastFind', {
 				if (myFinder.findMode === MigemoConstants.FIND_MODE_NATIVE)
 					return aValue.getFoundRange();
 				return myFinder.foundRange;
+			},
+			get foundLink() {
+				if (myFinder.findMode === MigemoConstants.FIND_MODE_NATIVE)
+					return aValue.foundLink;
+				return myFinder.foundLink;
 			}
 		});
 		return aValue;

@@ -129,6 +129,13 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			this.targetDocShell.QueryInterface(Ci.nsIWebNavigation).document
 		);
 	},
+
+	get foundLink()
+	{
+		if (this.foundRange)
+			return this.getParentLinkFromRange(this.foundRange);
+		return null;
+	},
 	
 /*
 	get document() 
