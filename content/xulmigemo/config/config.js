@@ -179,7 +179,7 @@ function initCombinationPane()
 
 	var placesBox = document.getElementById('combination-places');
 	if (Services.appinfo.ID == kID_FIREFOX &&
-		Service.vc.compare(Services.appinfo.version, '3.0') >= 0)
+		Services.vc.compare(Services.appinfo.version, '3.0') >= 0)
 		placesBox.removeAttribute('collapsed');
 	else
 		placesBox.setAttribute('collapsed', true);
