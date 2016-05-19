@@ -77,16 +77,6 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			return this.getParentLinkFromRange(this.foundRange);
 		return null;
 	},
-	
-/*
-	get document() 
-	{
-		if (!this.target)
-			throw new Error('not initialized yet');
-
-		return this.target.ownerDocument;
-	},
-*/
   
 	set core(val) 
 	{
