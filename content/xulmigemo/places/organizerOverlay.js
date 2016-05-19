@@ -15,44 +15,45 @@ var XMigemoOrganizerOverlay = {
 	{
 		window.removeEventListener('load', this, false);
 
-		eval('PlacesSearchBox.search = '+
-			PlacesSearchBox.search.toSource().replace(
-				'content.load([query], options)',
-				' \
-				if (XMigemoService.getPref("xulmigemo.places.organizer") && \
-					XMigemoPlaces.isValidInput(query.searchTerms)) \
-					XMigemoPlaces.startProgressiveLoad(query, options, content, \
-						XMigemoPlaces.historyInRangeSQL); \
-				else \
-					$& \
-				'
-			)
-		);
-		log('PlacesSearchBox.search => '+PlacesSearchBox.search.toSource());
+		Object.defineProperty(ContentArea, '__xm__currentView',
+			Object.getOwnPropertyDescriptor(ContentArea, 'currentView'));
+		Object.defineProperty(ContentArea, 'currentView', {
+			get: function() {
+				XMigemoOrganizerOverlay.updateView(this.__xm__currentView);
+				return this.__xm__currentView;
+			},
+			set: function(aNewView) {
+				return this.__xm__currentView = aNewView;
+			}
+		});
+	},
 
-		var tree = document.getElementById('placeContent');
-		eval('tree.applyFilter = '+
-			tree.applyFilter.toSource().replace(
-				'this.load([query], options);',
-				' \
-				if (XMigemoService.getPref("xulmigemo.places.organizer") && \
-					XMigemoPlaces.isValidInput(query.searchTerms)) { \
-					XMigemoPlaces.startProgressiveLoad(query, options, this, \
-						options.queryType == Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY ? \
-							XMigemoPlaces.historyInRangeSQL : \
-							XMigemoPlaces.bookmarksInRangeSQL, \
-						XMigemoOrganizerOverlay.saveCommand \
-					); \
-				} \
-				else { \
-					if (XMigemoOrganizerOverlay.saveCommand) \
-						XMigemoOrganizerOverlay.saveCommand.removeAttribute("disabled"); \
-					$& \
-				} \
-				'
-			)
-		);
-		log('tree.applyFilter => '+tree.applyFilter.toSource());
+	updateView : function(aView)
+	{
+		if (aView.__xm__load)
+			return;
+
+		aView.__xm__load = aView.load;
+		aView.load = function(aQueries, aOptions) {
+			log('load: '+uneval(aQueries)+' / '+uneval(aOptions));
+			if (!this.__xm__callingFromProgressiveLoad &&
+				aQueries.length == 1 &&
+				XMigemoService.getPref('xulmigemo.places.organizer') &&
+				XMigemoPlaces.isValidInput(aQueries[0].searchTerms)) {
+				log(' => override');
+				XMigemoPlaces.startProgressiveLoad(aQueries[0], aOptions, this,
+					aOptions.queryType == Ci.nsINavHistoryQueryOptions.QUERY_TYPE_HISTORY ?
+						XMigemoPlaces.historyInRangeSQL :
+						XMigemoPlaces.bookmarksInRangeSQL,
+					XMigemoOrganizerOverlay.saveCommand);
+			}
+			else {
+				log(' => default');
+				if (XMigemoOrganizerOverlay.saveCommand)
+					XMigemoOrganizerOverlay.saveCommand.removeAttribute('disabled');
+				return this.__xm__load(aQueries, aOptions);
+			}
+		};
 	},
 
 	get saveCommand()

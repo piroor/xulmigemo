@@ -699,7 +699,9 @@ var XMigemoPlaces = {
 		var blankQuery = aBaseQuery.clone();
 		blankQuery.maxVisits = 0;
 		blankQuery.minVisits = 1;
+		aTree.__xm__callingFromProgressiveLoad = true;
 		aTree.load([blankQuery], aOptions);
+		aTree.__xm__callingFromProgressiveLoad = false;
 
 		if (aSaveCommand) aSaveCommand.setAttribute('disabled', true);
 
@@ -714,7 +716,7 @@ var XMigemoPlaces = {
 			var flags = 'gm';
 			if (/\/[^\/]*i[^\/]*$/.test(aBaseQuery.searchTerms)) flags += 'i';
 			this.lastFindRegExp =
-				this.lastTermsRegExp = new RegExp(MigemoTextUtils.extractRegExpSource(aQuery.searchTerms), flags);
+				this.lastTermsRegExp = new RegExp(MigemoTextUtils.extractRegExpSource(aBaseQuery.searchTerms), flags);
 		}
 		else {
 			let termsRegExp = {};
@@ -733,7 +735,9 @@ var XMigemoPlaces = {
 			try {
 				if (this.updateQuery(aBaseQuery, aSourceSQL, current, this.chunk)) {
 					if (this.lastQueries.length != lastQueriesCount) {
+						aTree.__xm__callingFromProgressiveLoad = true;
 						aTree.load(this.lastQueries, aOptions);
+						aTree.__xm__callingFromProgressiveLoad = false;
 						if (aSaveCommand) aSaveCommand.removeAttribute('disabled');
 						lastQueriesCount = this.lastQueries.length;
 					}
