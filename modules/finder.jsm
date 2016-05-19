@@ -143,14 +143,10 @@ Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
 	if (finder.targetDocShell !== this._docShell)
 		finder.targetDocShell = this._docShell;
 
-	if (finder.lastKeyword != aSearchString)
-		finder.lastKeyword = aSearchString
-
 	finder.caseSensitive = this._fastFind.caseSensitive;
 	finder.isLinksOnly = aLinksOnly;
-	finder.isQuickFind = !aDrawOutline;
 	var result = finder.find({
-		keyword : finder.lastKeyword,
+		keyword : aSearchString,
 		scroll  : true
 	});
 	this._notify(
@@ -170,14 +166,11 @@ Finder.prototype.findAgain = function(aFindBackwards, aLinksOnly, aDrawOutline) 
 	if (finder.targetDocShell !== this._docShell)
 		finder.targetDocShell = this._docShell;
 
-	this.__xm__nativeSearchString = finder.lastKeyword;
-
 	finder.caseSensitive = this._fastFind.caseSensitive;
 	finder.isLinksOnly = aLinksOnly;
-	finder.isQuickFind = !aDrawOutline;
 	var result = finder.find({
 		backward : aFindBackwards,
-		keyword  : finder.lastKeyword,
+		keyword  : this.__xm__nativeSearchString,
 		scroll   : true
 	});
 	this._notify(
@@ -200,10 +193,8 @@ Finder.prototype.__xm__findIterator_regexp = function* (aWord, aWindow) {
 	finder.findMode = this.__xm__migemoFinder.findMode;
 	finder.targetDocShell = this._docShell;
 	finder.foundRange = null;
-	finder.lastKeyword = aWord
 	finder.caseSensitive = this.__xm__migemoFinder.caseSensitive;
 	finder.isLinksOnly = this.__xm__migemoFinder.isLinksOnly;
-	finder.isQuickFind = false;
 
 	while (!(finder.find({
 			keyword : aWord

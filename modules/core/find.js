@@ -48,79 +48,20 @@ function MigemoFind()
 	this.foundEditableMap = new WeakMap();
 	this.lastFoundEditableMap = new WeakMap();
 	this.smoothScrollTasks = new WeakMap();
+	this.startFromViewport = this.prefs.getPref('xulmigemo.startfromviewport');
+	this.core;
 }
 
 MigemoFind.prototype = inherit(MigemoConstants, {
-	lastKeyword     : '', 
 	previousKeyword : '',
-	lastFoundWord   : '',
-	
-	appendKeyword : function(aString) 
-	{
-		if (!this.targetDocShell)
-			throw new Error('not initialized yet');
 
-		this.lastKeyword += aString;
-		return this.lastKeyword;
-	},
- 
-	replaceKeyword : function(aString) 
-	{
-		if (!this.targetDocShell)
-			throw new Error('not initialized yet');
-
-		this.lastKeyword = aString;
-		return this.lastKeyword;
-	},
- 
-	removeKeyword : function(aLength) 
-	{
-		if (!this.targetDocShell)
-			throw new Error('not initialized yet');
-
-		this.lastKeyword = this.lastKeyword.substr(0, this.lastKeyword.length - aLength);
-		return this.lastKeyword;
-	},
- 
-	shiftLastKeyword : function() 
-	{
-		if (!this.targetDocShell)
-			throw new Error('not initialized yet');
-
-		this.previousKeyword = this.lastKeyword;
-	},
-  
-	get isLinksOnly() 
-	{
-		return this.manualLinksOnly ||
-			(this.isQuickFind && this.prefs.getPref('xulmigemo.linksonly'));
-	},
-	set isLinksOnly(val)
-	{
-		this.manualLinksOnly = val;
-		return this.isLinksOnly;
-	},
-	isQuickFind     : false,
-	manualLinksOnly : false,
-
+	isLinksOnly       : false,
 	startFromViewport : false,
  
 	lastResult : MigemoConstants.NOTFOUND,
 	findMode   : MigemoConstants.FIND_MODE_NOT_INITIALIZED,
- 
-	set targetDocShell(val) 
-	{
-		if (val) {
-			this._targetDocShell = val;
-			this.init();
-		}
-		return this._targetDocShell;
-	},
-	get targetDocShell()
-	{
-		return this._targetDocShell;
-	},
-	_targetDocShell : null,
+
+	targetDocShell : null,
 
 	get targetDocument()
 	{
@@ -144,11 +85,6 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			throw new Error('not initialized yet');
 
 		return this.target.ownerDocument;
-	},
- 
-	get window() 
-	{
-		return this.document.defaultView;
 	},
 */
   
@@ -205,28 +141,11 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 	},
 	_caseSensitive : false,
  
-	findNext : function(aForceFocus) 
-	{
-		if (!this.targetDocShell)
-			throw new Error('not initialized yet');
-
-		this.find(false, this.lastKeyword || this.previousKeyword, aForceFocus);
-	},
- 
-	findPrevious : function(aForceFocus) 
-	{
-		if (!this.targetDocShell)
-			throw new Error('not initialized yet');
-
-		this.find(true, this.lastKeyword || this.previousKeyword, aForceFocus);
-	},
- 
 	find : function(aParams) 
 	{
 		aParams = aParams || {};
 		var aBackward      = aParams.backward || false;
 		var aKeyword       = aParams.keyword || '';
-		var aForceFocus    = aParams.forceFocus || false;
 		var aScrollToFound = aParams.scroll || false;
 
 		if (!this.targetDocShell)
@@ -400,7 +319,6 @@ log("findInDocument ==========================================");
 					continue;
 				}
 				this.foundRange = rangeFindResult.range;
-				this.lastFoundWord = this.foundRange.toString();
 				doc = this.foundRange.commonAncestorContainer;
 				if (doc.parentNode) doc = doc.parentNode;
 				if (doc.ownerDocument) doc = doc.ownerDocument;
@@ -412,10 +330,6 @@ log("findInDocument ==========================================");
 					this.foundEditableMap.delete(doc);
 				}
 				if (!(aFindFlag & this.FIND_SILENTLY)) {
-					if (aOptions.forceFocus)
-						doc.defaultView.focus();
-					if (rangeFindResult.flag & this.FOUND_IN_LINK)
-						this.focusToLink(aOptions.forceFocus);
 					this.setSelectionAndScroll(this.foundRange, aRangeSet.range.startContainer.ownerDocument || aRangeSet.range.startContainer);
 				}
 				rangeFindResult.flag |= this.FINISH_FIND;
@@ -486,16 +400,6 @@ log("findInRange");
 		}
 
 		return result;
-	},
-	
-	focusToLink : function(aForceFocus) 
-	{
-		var link = this.getParentLinkFromRange(this.foundRange);
-		if (link && aForceFocus) {
-			link.focus();
-		}
-		this.updateStatusBarWithDelay(link);
-		return link;
 	},
    
 	getParentLinkFromRange : function(aRange) 
@@ -1046,154 +950,6 @@ log('scrollSelectionToCenter '+aScrollTarget+' ('+x+', '+y+')');
 		if (sel) sel.removeAllRanges();
 	},
  
-	updateStatusBar : function(aLink) 
-	{
-		var xulBrowserWindow;
-		try {
-			xulBrowserWindow = this.window
-					.QueryInterface(Ci.nsIInterfaceRequestor)
-					.getInterface(Ci.nsIWebNavigation)
-					.QueryInterface(Ci.nsIDocShellTreeItem)
-					.treeOwner
-					.QueryInterface(Ci.nsIInterfaceRequestor)
-					.getInterface(Ci.nsIXULWindow)
-					.XULBrowserWindow;
-		}
-		catch(e) {
-		}
-		if (!xulBrowserWindow) return;
-
-		if (!aLink || !aLink.href) {
-			xulBrowserWindow.setOverLink('', null);
-		}
-		else {
-			var charset = aLink.ownerDocument.characterSet;
-			var uri = Cc['@mozilla.org/intl/texttosuburi;1']
-						.getService(Ci.nsITextToSubURI)
-						.unEscapeURIForUI(charset, aLink.href);
-			xulBrowserWindow.setOverLink(uri, null);
-		}
-	},
-	
-	updateStatusBarWithDelay : function(aLink) 
-	{
-		this.cancelUpdateStatusBarTimer();
-		this.updateStatusBarTimer = Cc['@mozilla.org/timer;1']
-				.createInstance(Ci.nsITimer);
-		this.updateStatusBarTimer.init(
-			this.createDelayedUpdateStatusBarObserver(aLink),
-			1,
-			Ci.nsITimer.TYPE_ONE_SHOT
-		);
-	},
-	cancelUpdateStatusBarTimer : function(aLink)
-	{
-		try {
-			if (this.updateStatusBarTimer) {
-				this.updateStatusBarTimer.cancel();
-				this.updateStatusBarTimer = null;
-			}
-		}
-		catch(e) {
-		}
-	},
-	createDelayedUpdateStatusBarObserver : function(aLink)
-	{
-		return ({
-				owner   : this,
-				link    : aLink,
-				observe : function(aSubject, aTopic, aData)
-				{
-					this.owner.updateStatusBar(this.link);
-					this.link = null;
-					this.owner.cancelUpdateStatusBarTimer();
-					this.owner = null;
-				}
-			});
-	},
-   
-	clear : function(aFocusToFoundTarget) 
-	{
-		if (!this.targetDocShell)
-			throw new Error('not initialized yet');
-
-		this.lastKeyword        = '';
-		this.viewportStartPoint = null;
-		this.viewportEndPoint   = null;
-		this.lastFoundWord      = '';
-
-/*
-		var win = this.document.commandDispatcher.focusedWindow;
-		var doc = (win != this.window) ?
-					win.document :
-					this.target.contentDocument;
-*/
-		var doc = this.targetDocument;
-
-		this.exitFind(aFocusToFoundTarget);
-
-		this.foundEditableMap.delete(doc);
-		this.lastFoundEditableMap.delete(doc);
-	},
- 
-	exitFind : function(aFocusToFoundTarget) 
-	{
-		if (!this.targetDocShell)
-			throw new Error('not initialized yet');
-
-/*
-		var win = this.document.commandDispatcher.focusedWindow;
-		var doc = (win != this.window) ?
-					win.document :
-					this.target.contentDocument;
-*/
-		var doc = this.targetDocument;
-
-		this.clearSelectionLook(doc);
-
-		if (!aFocusToFoundTarget) return;
-
-		var WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
-				.getService(Ci.nsIWindowWatcher);
-		if (this.window != WindowWatcher.activeWindow) return;
-
-/*
-		win = doc.defaultView;
-		if (!this.focusToFound(win))
-			win.focus();
-*/
-	},
-	
-	focusToFound : function(aFrame) 
-	{
-		if (Array.slice(aFrame.frames).some(function(aFrame) {
-				return this.focusToFound(aFrame);
-			}, this))
-			return true;
-
-		var range = this.getFoundRange(aFrame);
-		if (range) {
-			range.QueryInterface(Ci.nsIDOMRange);
-			var foundLink = this.getParentLinkFromRange(range);
-			var foundEditable = this.getParentEditableFromRange(range);
-			var target = foundLink || foundEditable;
-			if (target) {
-				if ('focus' in target)
-					target.focus();
-				if (!foundLink) {
-					var selCon = this.getSelectionController(foundEditable);
-					var selection = selCon.getSelection(selCon.SELECTION_NORMAL);
-					if (selection && selection.rangeCount)
-						selection.collapseToStart();
-				}
-				return true;
-			}
-			aFrame.focus();
-			return true;
-		}
-		return false;
-	},
- 
 	getFoundRange : function(aFrame) 
 	{
 		var range;
@@ -1234,73 +990,7 @@ log('scrollSelectionToCenter '+aScrollTarget+' ('+x+', '+y+')');
 			return frame;
 
 		return null;
-	},
-  
-/* nsIPrefListener(?) */ 
-	
-	domain  : 'xulmigemo', 
- 
-	observe : function(aSubject, aTopic, aData) 
-	{
-		switch (aTopic)
-		{
-			case 'nsPref:changed':
-				switch (aData)
-				{
-					case 'xulmigemo.startfromviewport':
-						this.startFromViewport = this.prefs.getPref('xulmigemo.startfromviewport');
-						return;
-				}
-				return;
-
-			default:
-				switch (aData)
-				{
-					case 'quit-application':
-						this.destroy();
-						return;
-				}
-				return;
-		}
-	},
-
-  
-	init : function() 
-	{
-		if (this.initialized) return;
-
-		this.initialized = true;
-
-		try {
-			this.prefs.addPrefListener(this);
-		}
-		catch(e) {
-		}
-
-		this.observe(null, 'nsPref:changed', 'xulmigemo.startfromviewport');
-
-
-/*
-		var service = this;
-		this.window.addEventListener('unload', function() {
-			service.window.removeEventListener('unload', arguments.callee, false);
-			service.destroy();
-		}, false);
-*/
-
-		// Initialize
-		this.core;
-	},
- 
-	destroy : function() 
-	{
-		try {
-			this.prefs.removePrefListener(this);
-		}
-		catch(e) {
-		}
-	}
- 
+	} 
 }); 
   
 /* DocShell Traversal */ 

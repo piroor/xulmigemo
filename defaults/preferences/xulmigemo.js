@@ -9,7 +9,6 @@ pref("xulmigemo.findMode.quick.always", 1);
 pref("xulmigemo.disableIME.migemo", true);
 
 pref("xulmigemo.startfromviewport",             true);
-pref("xulmigemo.linksonly",                     false);
 pref("xulmigemo.ignoreHiraKata",                true);
 pref("xulmigemo.ignoreLatinModifiers",          true);
 pref("xulmigemo.ignoreAnyInvisibleNode",        false);
