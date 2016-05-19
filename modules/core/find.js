@@ -385,7 +385,8 @@ log("findInRange");
 		if (result.foundEditable = this.getParentEditableFromRange(result.range)) {
 			result.flag |= this.FOUND_IN_EDITABLE;
 		}
-		if (result.foundLink = this.getParentLinkFromRange(result.range)) {
+		if (aFindFlag & this.FIND_IN_LINK &&
+			result.foundLink = this.getParentLinkFromRange(result.range)) {
 			result.flag |= this.FOUND_IN_LINK;
 		}
 
