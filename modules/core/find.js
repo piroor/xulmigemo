@@ -141,7 +141,12 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		if (!this.targetDocShell)
 			new Error('not initialized yet');
 
-log("find");
+		if (aScrollToFound) {
+			log('========================find============================');
+		}
+		else {
+			log('=====================silent find========================');
+		}
 		if (!aKeyword) {
 			this.lastResult = this.NOTFOUND;
 			return this.lastResult;
@@ -211,7 +216,7 @@ log("find");
 	
 	findInDocument : function(aFindFlag, aFindTerm, aDocShellIterator, aOptions) 
 	{
-log("findInDocument ==========================================");
+		log('findInDocument ==========================================');
 		aOptions = aOptions || {};
 
 		var rangeSet;
@@ -367,7 +372,6 @@ log("findInDocument ==========================================");
   
 	findInRange : function(aFindFlag, aTerm, aRangeSet) 
 	{
-log("findInRange");
 		var result = {
 				flag          : this.NOTFOUND,
 				range         : null,
@@ -377,6 +381,7 @@ log("findInRange");
 		if (!aTerm) {
 			return result;
 		}
+		log('findInRange <'+aTerm+'> from <'+aRangeSet.range+'>');
 
 		this.mFind.findBackwards = Boolean(aFindFlag & this.FIND_BACK);
 		this.mFind.caseSensitive = true;
@@ -401,9 +406,9 @@ log("findInRange");
    
 	getParentLinkFromRange : function(aRange) 
 	{
-log("getParentLinkFromRange");
 		//後でXLinkを考慮したコードに直す
 		if (!aRange) return null;
+		log('getParentLinkFromRange <'+aRange+'>');
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
 		{
@@ -417,7 +422,7 @@ log("getParentLinkFromRange");
  
 	getParentEditableFromRange : function(aRange) 
 	{
-log('getParentEditableFromRange');
+		log('getParentEditableFromRange <'+aRange+'>');
 		if (aRange) aRange.QueryInterface(Ci.nsIDOMRange);
 		var node = aRange.commonAncestorContainer;
 		while (node && node.parentNode)
@@ -451,10 +456,10 @@ log('getParentEditableFromRange');
 	
 	getFindRangeSet : function(aFindFlag, aDocShellIterator) 
 	{
-log("getFindRangeSet");
 		var doc       = aDocShellIterator.document;
 		var docShell  = aDocShellIterator.current;
 		var docSelCon = this.getSelectionController(aDocShellIterator.view);
+		log('getFindRangeSet for '+doc.defaultView.location.origin);
 
 		if (aFindFlag & this.FIND_SILENTLY) {
 			let range = this.foundRange;
@@ -509,7 +514,6 @@ log("getFindRangeSet");
 	
 	getFindRangeSetIn : function(aFindFlag, aDocShellIterator, aRangeParent, aSelCon) 
 	{
-log("getFindRangeSetIn "+aRangeParent);
 		var doc = aDocShellIterator.document;
 
 		var findRange = doc.createRange();
@@ -544,6 +548,7 @@ log("getFindRangeSetIn "+aRangeParent);
 			) &&
 			foundRange
 			) {
+			log('FIND RANGE FROM LAST FOUND RANGE');
 			let editable = this.getParentEditableFromRange(foundRange);
 			if (editable) {
 				findRange = this.getFindRangeFromRangeInEditable(foundRange);
@@ -565,6 +570,7 @@ log("getFindRangeSetIn "+aRangeParent);
 		}
 		else if (aFindFlag & this.FIND_SILENTLY &&
 				lastFoundEditable) {
+			log('FIND RANGE FROM LAST EDITABLE');
 			this.lastFoundEditableMap.delete(doc);
 			if (aFindFlag & this.FIND_BACK) {
 				findRange.setEndBefore(lastFoundEditable);
@@ -593,6 +599,7 @@ log("getFindRangeSetIn "+aRangeParent);
 				}
 		}
 		else {
+			log('FIND RANGE FROM VIEW PORT <'+!!this.viewportStartPoint+' / '+!!this.viewportEndPoint+'>');
 			if (aFindFlag & this.FIND_BACK) {
 				let node = this.viewportStartPoint ||
 						MigemoTextUtils.findFirstVisibleNode(doc, true);
@@ -641,13 +648,7 @@ log("getFindRangeSetIn "+aRangeParent);
   
 	resetFindRangeSet : function(aRangeSet, aFoundRange, aFindFlag, aDocument) 
 	{
-log("resetFindRangeSet");
-/*
-		var win = this.document.commandDispatcher.focusedWindow;
-		var theDoc = (win && win.top != this.window.top) ?
-					win.document :
-					aDocument ;
-*/
+		log('resetFindRangeSet for '+aDocument.defaultView.location.origin);
 		var theDoc = aDocument;
 
 		var root = DocShellIterator.prototype.getDocumentBody(theDoc);
@@ -718,7 +719,7 @@ log("resetFindRangeSet");
  
 	setSelectionAndScroll : function(aRange, aDocument) 
 	{
-log("setSelectionAndScroll");
+		log('setSelectionAndScroll <'+aRange+'>');
 		if (!aRange && !aDocument) return;
 
 		if (!aDocument)
@@ -880,7 +881,7 @@ log("setSelectionAndScroll");
 				y = startY + (deltaY * Math.sin(aTime / aDuration * radian));
 				finished = false;
 			}
-log('scrollSelectionToCenter '+aScrollTarget+' ('+x+', '+y+')');
+			log('scrollSelectionToCenter <'+aScrollTarget+'> ('+x+', '+y+')');
 			aScrollTarget.scrollTo(x, y);
 			return finished;
 		}).bind(this);
