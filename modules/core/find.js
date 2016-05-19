@@ -589,7 +589,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 				String(aRangeParent.localName).toLowerCase() != 'body' ||
 				!this.startFromViewport
 			) {
-			log('FIND RANGE FROM WHOlE DOCUMENT');
+			log('FIND RANGE FROM WHOLE DOCUMENT');
 			if (aFindFlag & this.FIND_BACK) {
 				startPt.collapse(false);
 				endPt.collapse(true);
