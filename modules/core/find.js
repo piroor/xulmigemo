@@ -201,11 +201,10 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			if (lastFrame.top.document !== this.targetDocument)
 				lastFrame = null;
 		}
-		if (!lastFrame) {
+		if (!lastFrame)
 			lastFrame = this.getLastFindTargetFrame(this.targetDocument.defaultView);
-			if (lastFrame)
-				targetDocShell = DocShellIterator.prototype.getDocShellFromFrame(lastFrame);
-		}
+		if (lastFrame)
+			targetDocShell = DocShellIterator.prototype.getDocShellFromFrame(lastFrame);
 
 		var iterator = new DocShellIterator(targetDocShell, aBackward);
 		this.lastResult = this.findInDocument(findFlag, myExp, iterator, aParams);
@@ -524,6 +523,9 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		var foundRange;
 		if (aFindFlag & this.FIND_SILENTLY) {
 			foundRange = this.foundRange;
+			if (foundRange &&
+				foundRange.startContainer.ownerDocument !== doc)
+				foundRange = null;
 		}
 		else {
 			let selection;
