@@ -186,14 +186,17 @@ log("find");
 
 		var targetDocShell = this.targetDocShell;
 
-		if (aScrollToFound) {
-			let win = this.targetDocument.defaultView;
-			let sel = win.getSelection();
-			if (sel && !sel.rangeCount) {
-				let lastFrame = this.getLastFindTargetFrame(win.top);
-				if (lastFrame)
-					targetDocShell = DocShellIterator.prototype.getDocShellFromFrame(lastFrame);
-			}
+		var lastFrame;
+		var foundRange = this.foundRange;
+		if (foundRange) {
+			lastFrame = (foundRange.startContainer.ownerDocument || foundRange.startContainer).defaultView;
+			if (lastFrame.top.document !== this.targetDocument)
+				lastFrame = null;
+		}
+		if (!lastFrame) {
+			lastFrame = this.getLastFindTargetFrame(this.targetDocument.defaultView);
+			if (lastFrame)
+				targetDocShell = DocShellIterator.prototype.getDocShellFromFrame(lastFrame);
 		}
 
 		var iterator = new DocShellIterator(targetDocShell, aBackward);
