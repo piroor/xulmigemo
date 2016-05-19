@@ -28,24 +28,6 @@ Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 var XMigemoService = inherit(prefs, { 
 	DEBUG : true, 
  
-	get ObserverService() 
-	{
-		delete this.ObserverService;
-		return this.ObserverService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
-	},
- 
-	get WindowManager() 
-	{
-		delete this.WindowManager;
-		return this.WindowManager = Cc['@mozilla.org/appshell/window-mediator;1'].getService(Ci.nsIWindowMediator);
-	},
- 
-	get WindowWatcher() 
-	{
-		delete this.WindowWatcher;
-		return this.WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1'].getService(Ci.nsIWindowWatcher);
-	},
- 
 	get textUtils() { 
 		delete this.textUtils;
 		return this.textUtils = MigemoTextUtils;
@@ -61,29 +43,17 @@ var XMigemoService = inherit(prefs, {
 		return this.stringBundle = stringBundle;
 	},
  
-	get XULAppInfo() { 
-		delete this.XULAppInfo;
-		return this.XULAppInfo = Cc['@mozilla.org/xre/app-info;1']
-								.getService(Ci.nsIXULAppInfo)
-								.QueryInterface(Ci.nsIXULRuntime);
-	},
- 
 	get isWindows() { 
 		delete this.isWindows;
-		return this.isWindows = this.XULAppInfo.OS.toLowerCase().indexOf('win') > -1;
+		return this.isWindows = Services.appinfo.OS.toLowerCase().indexOf('win') > -1;
 	},
 	get isMac() { 
 		delete this.isMac;
-		return this.isMac = this.XULAppInfo.OS.toLowerCase().indexOf('darwin') > -1;
+		return this.isMac = Services.appinfo.OS.toLowerCase().indexOf('darwin') > -1;
 	},
 	get isLinux() { 
 		delete this.isLinux;
-		return this.isLinux = this.XULAppInfo.OS.toLowerCase().indexOf('linux') > -1;
-	},
- 
-	get Comparator() {
-		delete this.Comparator;
-		return this.Comparator = Cc['@mozilla.org/xpcom/version-comparator;1'].getService(Ci.nsIVersionComparator);
+		return this.isLinux = Services.appinfo.OS.toLowerCase().indexOf('linux') > -1;
 	},
  
 	get strbundle() 
@@ -270,7 +240,7 @@ var XMigemoService = inherit(prefs, {
 	goDicManager : function(aOwner) 
 	{
 		var uri = 'chrome://xulmigemo/content/dicManager/dicManager.xul';
-		var targets = this.WindowManager.getEnumerator('xulmigemo:dictionaryManager', true),
+		var targets = Services.wm.getEnumerator('xulmigemo:dictionaryManager', true),
 			target;
 		while (targets.hasMoreElements())
 		{
@@ -283,7 +253,7 @@ var XMigemoService = inherit(prefs, {
 			}
 		}
 
-		this.WindowWatcher.openWindow(
+		Services.ww.openWindow(
 			aOwner || null,
 			uri,
 			'XMigemoDicManager',

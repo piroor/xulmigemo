@@ -25,12 +25,6 @@ Cu.import('resource://xulmigemo-modules/lib/inherit.jsm');
 Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 Cu.import('resource://xulmigemo-modules/core/fileAccess.js');
-
-const ObserverService = Cc['@mozilla.org/observer-service;1']
-			.getService(Ci.nsIObserverService);
-
-const Prefs = Cc['@mozilla.org/preferences;1']
-			.getService(Ci.nsIPrefBranch);
  
 function MigemoCache() {
 }
@@ -105,7 +99,7 @@ MigemoCache.prototype = inherit(MigemoConstants, {
 			this.clearCacheSilentlyFor(key);
 		}
 		this.save();
-		ObserverService.notifyObservers(null, 'XMigemo:cacheCleared', patterns.join('\n'));
+		Services.obs.notifyObservers(null, 'XMigemo:cacheCleared', patterns.join('\n'));
 	},
  
 	clearCacheFor : function (aRoman) 
@@ -113,7 +107,7 @@ MigemoCache.prototype = inherit(MigemoConstants, {
 		this.clearCacheSilentlyFor(aRoman);
 
 		this.save();
-		ObserverService.notifyObservers(null, 'XMigemo:cacheCleared', aRoman);
+		Services.obs.notifyObservers(null, 'XMigemo:cacheCleared', aRoman);
 	},
  
 	clearCacheSilentlyFor : function (aRoman) 
@@ -160,7 +154,7 @@ MigemoCache.prototype = inherit(MigemoConstants, {
 			this.memCache[aTargetDic] = cache + aRoman + '\t' + aRegExp + '\n';
 			//log(this.memCache);
 
-			ObserverService.notifyObservers(null, 'XMigemo:memCacheAdded', aRoman+'\n'+aRegExp);
+			Services.obs.notifyObservers(null, 'XMigemo:memCacheAdded', aRoman+'\n'+aRegExp);
 
 			return;
 		}
@@ -208,13 +202,13 @@ MigemoCache.prototype = inherit(MigemoConstants, {
 	get dicpath() 
 	{
 		var fullPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')))
+				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath')))
 			);
 		var relPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
+				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath-relative')))
 			);
 		if (relPath && (!fullPath || fullPath != relPath))
-			Prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
+			Services.prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
 
 		return fullPath || relPath;
 	},
@@ -288,11 +282,11 @@ var MigemoCacheFactory = {
 		if (!this._instances[aKey]) {
 			this._instances[aKey] = new MigemoCache();
 
-			var lang = Prefs.getCharPref('xulmigemo.lang');
+			var lang = Services.prefs.getCharPref('xulmigemo.lang');
 
 			var fileNameOverride;
 			try {
-				fileNameOverride = Prefs.getCharPref('xulmigemo.cache.override.'+lang);
+				fileNameOverride = Services.prefs.getCharPref('xulmigemo.cache.override.'+lang);
 			}
 			catch(e) {
 			}
@@ -300,7 +294,7 @@ var MigemoCacheFactory = {
 
 			var encodingOverride;
 			try {
-				encodingOverride = Prefs.getCharPref('xulmigemo.cache.override.'+lang+'.encoding');
+				encodingOverride = Services.prefs.getCharPref('xulmigemo.cache.override.'+lang+'.encoding');
 			}
 			catch(e) {
 			}

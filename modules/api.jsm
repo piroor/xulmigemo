@@ -22,12 +22,6 @@ Cu.import('resource://xulmigemo-modules/core/core.js');
 Cu.import('resource://xulmigemo-modules/core/engine.js');
 Cu.import('resource://xulmigemo-modules/core/cache.js');
 
-const ObserverService = Cc['@mozilla.org/observer-service;1']
-			.getService(Ci.nsIObserverService);
-
-const Prefs = Cc['@mozilla.org/preferences;1']
-			.getService(Ci.nsIPrefBranch);
-
 
 var MigemoAPI = {
 	dictionaries : MigemoEngine.SYSTEM_DIC, 
@@ -263,7 +257,7 @@ var MigemoAPI = {
 		if (!this._XMigemo) {
 			this._lang = '';
 			try {
-				this._lang = Prefs.getCharPref('xulmigemo.lang');
+				this._lang = Services.prefs.getCharPref('xulmigemo.lang');
 			}
 			catch(e) {
 			}
@@ -279,12 +273,12 @@ var MigemoAPI = {
 		switch (aTopic)
 		{
 			case 'XMigemo:initialized':
-				ObserverService.removeObserver(this, 'XMigemo:initialized');
+				Services.obs.removeObserver(this, 'XMigemo:initialized');
 				this._lang = '';
 				this._XMigemo = null;
 				this.initCache();
 				this.initProperties();
-				Prefs.QueryInterface(Ci.nsIPrefBranchInternal)
+				Services.prefs.QueryInterface(Ci.nsIPrefBranchInternal)
 					.addObserver('xulmigemo.', this, false);
 				return;
 
@@ -302,4 +296,4 @@ var MigemoAPI = {
 	} 
 }; 
  
-ObserverService.addObserver(MigemoAPI, 'XMigemo:initialized', false);
+Services.obs.addObserver(MigemoAPI, 'XMigemo:initialized', false);

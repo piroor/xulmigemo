@@ -2,6 +2,7 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/Services.jsm');
  
 function XMigemoStartupService() { 
 }
@@ -24,22 +25,22 @@ XMigemoStartupService.prototype = {
 		{
 			case 'app-startup':
 				if (!this.initialized) {
-					this.ObserverService.addObserver(this, 'profile-after-change', false);
+					Services.obs.addObserver(this, 'profile-after-change', false);
 					this.initialized = true;
 				}
 				return;
 
 			case 'profile-after-change':
-				this.ObserverService.addObserver(this, 'final-ui-startup', false);
+				Services.obs.addObserver(this, 'final-ui-startup', false);
 				if (this.initialized) {
-					this.ObserverService.removeObserver(this, 'profile-after-change');
+					Services.obs.removeObserver(this, 'profile-after-change');
 					this.initialized = false;
 				}
 				this.init();
 				return;
 
 			case 'final-ui-startup':
-				this.ObserverService.removeObserver(this, 'final-ui-startup');
+				Services.obs.removeObserver(this, 'final-ui-startup');
 				this.postInit();
 				return;
 		}
@@ -49,8 +50,8 @@ XMigemoStartupService.prototype = {
 	{
 		this.updateGlobalStyleSheets();
 
-		if (this.Prefs.getCharPref('xulmigemo.lang') == '') {
-			this.WindowWatcher.openWindow(
+		if (Services.prefs.getCharPref('xulmigemo.lang') == '') {
+			Services.ww.openWindow(
 				null,
 				'chrome://xulmigemo/content/initializer/langchooser.xul',
 				'xulmigemo:langchooser',
@@ -62,9 +63,9 @@ XMigemoStartupService.prototype = {
  
 	postInit : function() 
 	{
-		this.ObserverService.notifyObservers(null, 'XMigemo:initialized', null);
+		Services.obs.notifyObservers(null, 'XMigemo:initialized', null);
 
-		if (this.Prefs.getCharPref('xulmigemo.lang')) {
+		if (Services.prefs.getCharPref('xulmigemo.lang')) {
 			let { MigemoDicManager } = Components.utils.import('resource://xulmigemo-modules/core/dicManager.js', {});
 			MigemoDicManager.init(null, null);
 		}
@@ -75,36 +76,11 @@ XMigemoStartupService.prototype = {
 		var sheets = [
 			];
 		sheets.forEach(function(aSheet) {
-			var sheet = this.IOService.newURI(aSheet, null, null);
+			var sheet = Services.io.newURI(aSheet, null, null);
 			if (!this.SSS.sheetRegistered(sheet, this.SSS.AGENT_SHEET)) {
 				this.SSS.loadAndRegisterSheet(sheet, this.SSS.AGENT_SHEET);
 			}
 		}, this);
-	},
-	
-	get ObserverService() 
-	{
-		if (this._ObserverService === void(0))
-			this._ObserverService = Cc['@mozilla.org/observer-service;1'].getService(Ci.nsIObserverService);
-		return this._ObserverService;
-	},
-	get IOService()
-	{
-		if (this._IOService === void(0))
-			this._IOService = Cc['@mozilla.org/network/io-service;1'].getService(Ci.nsIIOService);
-		return this._IOService;
-	},
-	get Prefs()
-	{
-		if (this._Prefs === void(0))
-			this._Prefs = Cc['@mozilla.org/preferences;1'].getService(Ci.nsIPrefBranch);
-		return this._Prefs;
-	},
-	get WindowWatcher()
-	{
-		if (this._WindowWatcher === void(0))
-			this._WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1'].getService(Ci.nsIWindowWatcher);
-		return this._WindowWatcher;
 	},
 	get SSS()
 	{

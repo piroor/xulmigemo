@@ -23,15 +23,6 @@ Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://xulmigemo-modules/core/core.js');
 Cu.import('resource://xulmigemo-modules/core/cache.js');
 Cu.import('resource://xulmigemo-modules/core/fileAccess.js');
-
-const ObserverService = Cc['@mozilla.org/observer-service;1']
-		.getService(Ci.nsIObserverService);;
-
-const Prefs = Cc['@mozilla.org/preferences;1']
-		.getService(Ci.nsIPrefBranch);
-
-const WindowManager = Cc['@mozilla.org/appshell/window-mediator;1']
-		.getService(Ci.nsIWindowMediator);
  	
 var MigemoDicManager = {
 	available : false,
@@ -65,7 +56,7 @@ var MigemoDicManager = {
 				var input = RegExp.$2;
 				var term = RegExp.$3;
 
-				var lang = Prefs.getCharPref('xulmigemo.lang');
+				var lang = Services.prefs.getCharPref('xulmigemo.lang');
 				var core = MigemoCoreFactory.get(lang);
 				this.cache.clearCacheForAllPatterns(core.textTransform.normalizeKeyInput(input));
 				return;
@@ -82,14 +73,14 @@ var MigemoDicManager = {
 	get dicpath() 
 	{
 		var fullPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')))
+				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath')))
 			);
 		var relPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
+				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath-relative')))
 			);
 		if (relPath && (!fullPath || fullPath != relPath)) {
 			this.autoReloadDisabled = true;
-			Prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
+			Services.prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
 			this.autoReloadDisabled = false;
 		}
 
@@ -104,7 +95,7 @@ var MigemoDicManager = {
 	get dictionary()
 	{
 		if (!this._dictionary) { // default dictionary; can be overridden.
-			var lang = Prefs.getCharPref('xulmigemo.lang') || '';
+			var lang = Services.prefs.getCharPref('xulmigemo.lang') || '';
 
 			var leafNameSuffix = '';
 			var moduleNameSuffix = '';
@@ -130,7 +121,7 @@ var MigemoDicManager = {
 	get cache()
 	{
 		if (!this._cache) { // default cache; can be overridden.
-			var lang = Prefs.getCharPref('xulmigemo.lang');
+			var lang = Services.prefs.getCharPref('xulmigemo.lang');
 			this._cache = MigemoCacheFactory.get(lang);
 		}
 		return this._cache;
@@ -159,7 +150,7 @@ var MigemoDicManager = {
 		}
 
 		filePicker.init(
-			WindowManager.getMostRecentWindow(null),
+			Services.wm.getMostRecentWindow(null),
 			this.strbundle.getString('dic.picker.title'),
 			filePicker.modeGetFolder
 		);
@@ -208,15 +199,13 @@ var MigemoDicManager = {
  
 	showInitializeWizard : function(aOwner) 
 	{
-		var existing = WindowManager.getMostRecentWindow('xulmigemo:initializer');
+		var existing = Services.wm.getMostRecentWindow('xulmigemo:initializer');
 		if (existing) {
 			existing.focus();
 			return;
 		}
 
-		var WindowWatcher = Cc['@mozilla.org/embedcomp/window-watcher;1']
-			.getService(Ci.nsIWindowWatcher);
-		WindowWatcher.openWindow(
+		Services.ww.openWindow(
 			aOwner,
 			'chrome://xulmigemo/content/initializer/initializer.xul',
 			'xulmigemo:initializer',
@@ -239,27 +228,27 @@ var MigemoDicManager = {
 		}
 
 		try {
-			var pbi = Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
+			var pbi = Services.prefs.QueryInterface(Ci.nsIPrefBranchInternal);
 			pbi.addObserver(this.domain, this, false);
 		}
 		catch(e) {
 		}
 
-		ObserverService.addObserver(this, 'quit-application', false);
-		ObserverService.addObserver(this, 'XMigemo:dictionaryModified', false);
+		Services.obs.addObserver(this, 'quit-application', false);
+		Services.obs.addObserver(this, 'XMigemo:dictionaryModified', false);
 
 		if (
 			this.dicpath &&
 			this.dictionary.load() &&
 			this.cache.load()
 			) {
-			var relPath = Prefs.getCharPref('xulmigemo.dicpath-relative');
+			var relPath = Services.prefs.getCharPref('xulmigemo.dicpath-relative');
 			if (!relPath) {
 				relPath = this.dicpath;
 				relPath = MigemoFileAccess.getRelativePath(relPath);
 				if (relPath && relPath != this.dicpath) {
 					this.autoReloadDisabled = true;
-					Prefs.setCharPref('xulmigemo.dicpath-relative', unescape(encodeURIComponent(relPath)));
+					Services.prefs.setCharPref('xulmigemo.dicpath-relative', unescape(encodeURIComponent(relPath)));
 					this.autoReloadDisabled = false;
 				}
 			}
@@ -272,14 +261,14 @@ var MigemoDicManager = {
 	destroy : function() 
 	{
 		try {
-			var pbi = Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
+			var pbi = Services.prefs.QueryInterface(Ci.nsIPrefBranchInternal);
 			pbi.removeObserver(this.domain, this, false);
 		}
 		catch(e) {
 		}
 
-		ObserverService.removeObserver(this, 'quit-application');
-		ObserverService.removeObserver(this, 'XMigemo:dictionaryModified');
+		Services.obs.removeObserver(this, 'quit-application');
+		Services.obs.removeObserver(this, 'XMigemo:dictionaryModified');
 	},
  
 	get strbundle() 

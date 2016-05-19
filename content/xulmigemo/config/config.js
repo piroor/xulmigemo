@@ -1,3 +1,5 @@
+Components.utils.import('resource://gre/modules/Services.jsm');
+
 Components.utils.import('resource://xulmigemo-modules/service.jsm');
 Components.utils.import('resource://xulmigemo-modules/constants.jsm');
 Components.utils.import('resource://xulmigemo-modules/core/find.js');
@@ -172,23 +174,18 @@ function writeModeCirculationPref(aCheckbox)
 
 function initCombinationPane()
 {
-	const XULAppInfo = Components.classes['@mozilla.org/xre/app-info;1']
-			.getService(Components.interfaces.nsIXULAppInfo);
-	const comparator = Components.classes['@mozilla.org/xpcom/version-comparator;1']
-						.getService(Components.interfaces.nsIVersionComparator);
-
 	const kID_FIREFOX = '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}';
 	const kID_THUNDERBIRD = '{3550f703-e582-4d05-9a08-453d09bdfdc6}';
 
 	var placesBox = document.getElementById('combination-places');
-	if (XULAppInfo.ID == kID_FIREFOX &&
-		comparator.compare(XULAppInfo.version, '3.0') >= 0)
+	if (Services.appinfo.ID == kID_FIREFOX &&
+		Service.vc.compare(Services.appinfo.version, '3.0') >= 0)
 		placesBox.removeAttribute('collapsed');
 	else
 		placesBox.setAttribute('collapsed', true);
 
 	var thunderbirdBox = document.getElementById('combination-thunderbird');
-	if (XULAppInfo.ID == kID_THUNDERBIRD)
+	if (Services.appinfo.ID == kID_THUNDERBIRD)
 		thunderbirdBox.removeAttribute('collapsed');
 	else
 		thunderbirdBox.setAttribute('collapsed', true);

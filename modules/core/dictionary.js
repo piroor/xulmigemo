@@ -28,11 +28,6 @@ Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 Cu.import('resource://xulmigemo-modules/core/textTransform.js');
 Cu.import('resource://xulmigemo-modules/core/fileAccess.js');
 
-var ObserverService = Cc['@mozilla.org/observer-service;1']
-			.getService(Ci.nsIObserverService);
-
-var Prefs = Cc['@mozilla.org/preferences;1']
-			.getService(Ci.nsIPrefBranch);
 
 var MigemoDictionary = inherit(MigemoConstants, {
 	lang : '',
@@ -46,13 +41,13 @@ var MigemoDictionary = inherit(MigemoConstants, {
 	get dicpath() 
 	{
 		var fullPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath')))
+				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath')))
 			);
 		var relPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Prefs.getCharPref('xulmigemo.dicpath-relative')))
+				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath-relative')))
 			);
 		if (relPath && (!fullPath || fullPath != relPath))
-			Prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
+			Services.prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
 
 		return fullPath || relPath;
 	},
@@ -261,7 +256,7 @@ var MigemoDictionary = inherit(MigemoConstants, {
 		this.saveUserDic();
 
 		log('XMigemo:dictionaryModified('+aOperation+') '+entry);
-		ObserverService.notifyObservers(this, 'XMigemo:dictionaryModified',
+		Services.obs.notifyObservers(this, 'XMigemo:dictionaryModified',
 			[
 				'',
 				aOperation + '\t' + input + '\t' + term,
