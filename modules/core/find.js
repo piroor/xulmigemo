@@ -251,9 +251,8 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 				resultFlag = this.findInDocumentInternal(aFindFlag, aFindTerm, rangeSet, doc, aOptions);
 			}
 
-			if (resultFlag & this.FINISH_FIND) {
+			if (resultFlag & this.FINISH_FIND)
 				break;
-			}
 
 			if (!(aFindFlag & this.FIND_SILENTLY) &&
 				aDocShellIterator.isFindable) {
@@ -320,8 +319,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 				}
 				this.foundRange = rangeFindResult.range;
 				doc = this.foundRange.commonAncestorContainer;
-				if (doc.parentNode) doc = doc.parentNode;
-				if (doc.ownerDocument) doc = doc.ownerDocument;
+				doc = doc.ownerDocument || doc;
 				if (rangeFindResult.flag & this.FOUND_IN_EDITABLE) {
 					this.foundEditableMap.set(doc, rangeFindResult.foundEditable);
 					this.lastFoundEditableMap.set(doc, rangeFindResult.foundEditable);
