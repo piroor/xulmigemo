@@ -26,7 +26,7 @@ var XMigemoBookmarksPanelOverlay = {
 				XMigemoPlaces.isValidInput(aQueries[0].searchTerms)) {
 				log(' => override');
 				XMigemoPlaces.startProgressiveLoad(aQueries[0], aOptions, this,
-					XMigemoPlaces.bookmarksInRangeSQ);
+					XMigemoPlaces.bookmarksInRangeSQL);
 			}
 			else {
 				log(' => default');
