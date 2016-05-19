@@ -1,11 +1,9 @@
+Components.utils.import('resource://gre/modules/Services.jsm');
+
 Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
 
-const Prefs = Components
-	.classes['@mozilla.org/preferences;1']
-	.getService(Components.interfaces.nsIPrefBranch);
-
-var XMigemo = XMigemoService.XMigemo.engine;
-var XMigemoDic = XMigemo.dictionary;
+var XMigemo = XMigemoCore.XMigemo.engine;
+var XMigemoDic = XMigemoCore.XMigemo.dictionary;
 
 function addTerm(aStatus)
 {
@@ -53,7 +51,7 @@ function updateStatus(aStatus, aResult)
 			break;
 
 		case XMigemoDic.RESULT_ERROR_INVALID_INPUT:
-			message = node.getAttribute('statusErrorInvalid-'+Prefs.getCharPref('xulmigemo.lang')) ||
+			message = node.getAttribute('statusErrorInvalid-'+Services.prefs.getCharPref('xulmigemo.lang')) ||
 						node.getAttribute('statusErrorInvalid');
 			break;
 
@@ -421,7 +419,7 @@ function initListContext(aPopup)
 
 function opener()
 {
-	return XMigemoService.WindowManager.getMostRecentWindow('navigator:browser');
+	return Services.wm.getMostRecentWindow('navigator:browser');
 }
 
 function Startup()
