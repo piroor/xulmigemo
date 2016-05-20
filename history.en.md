@@ -3,6 +3,7 @@
  - master/HEAD
    * Dictionary manager works again.
    * Works correctly on the Places Organizer.
+   * Works correctly for webpages with inline frames or scrollable elements.
  - 0.14.1 (2016.5.19)
    * Works correctly in English mode
  - 0.14.0 (2016.5.19)
