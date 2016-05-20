@@ -1073,7 +1073,7 @@ FindRangeIterator.prototype = {
 		var frame = null;
 		while (frame = this.getNextFrame(parentDoc, frame))
 		{
-			if (frame.contentDocument == doc)
+			if (frame.contentDocument == aDocument)
 				return frame;
 		}
 
