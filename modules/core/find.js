@@ -783,6 +783,10 @@ FindRangeIterator.prototype = {
 	{
 		return this.getDocShellFromDocument(this.document);
 	},
+	get body() 
+	{
+		return this.getDocumentBody(this.document);
+	},
 
 	getDocumentFromDocShell : function(aDocShell)
 	{
@@ -804,11 +808,6 @@ FindRangeIterator.prototype = {
 	{
 		return this.getDocShellFromDocument(aFrame.document);
 	},
-  
-	get body() 
-	{
-		return this.getDocumentBody(this.document);
-	},
 	
 	getDocumentBody : function(aDocument) 
 	{
@@ -825,6 +824,64 @@ FindRangeIterator.prototype = {
 		catch(e) {
 		}
 		return aDocument.documentElement;
+	},
+
+	getParentEditableFromRange : function(aRange) 
+	{
+		var node = aRange.commonAncestorContainer;
+		while (node && node.parentNode)
+		{
+			var isEditable = false;
+			try {
+				node = node.QueryInterface(Ci.nsIDOMNSEditableElement);
+				if (node.editor)
+					return node;
+			}
+			catch(e) {
+			}
+			node = node.parentNode;
+		}
+		return null;
+	},
+
+	getWholeFindRangeFromRangeInEditable : function(aRange) 
+	{
+		var owner = this.getParentEditableFromRange(aRange);
+		if (!owner)
+			return null;
+
+		var lastContainer = aRange.startContainer;
+		while (lastContainer.parentNode != owner)
+		{
+			lastContainer = lastContainer.parentNode;
+		}
+		var range = lastContainer.ownerDocument.createRange();
+		range.selectNodeContents(lastContainer);
+		return range;
+	},
+
+	getOwnerDocumentFromRange : function(aRange)
+	{
+		return aRange.startContainer.ownerDocument || aRange.startContainer;
+	},
+
+	getOwnerFrameFromContentDocument : function(aDocument)
+	{
+		let parent = this.getDocShellFromDocument(aDocument)
+						.QueryInterface(Ci.nsIDocShellTreeItem)
+						.sameTypeParent;
+		if (!parent)
+			return null;
+
+		var parentDoc = this.getDocumentFromDocShell(parent);
+		var frame = null;
+		while (frame = this.getNextFrame(parentDoc, frame))
+		{
+			if (frame.contentDocument == aDocument)
+				return frame;
+		}
+
+		return null;
 	},
 
 	createAnchorInDocument : function(aDocument)
@@ -1006,40 +1063,6 @@ FindRangeIterator.prototype = {
 		return null;
 	},
 
-	getParentEditableFromRange : function(aRange) 
-	{
-		var node = aRange.commonAncestorContainer;
-		while (node && node.parentNode)
-		{
-			var isEditable = false;
-			try {
-				node = node.QueryInterface(Ci.nsIDOMNSEditableElement);
-				if (node.editor)
-					return node;
-			}
-			catch(e) {
-			}
-			node = node.parentNode;
-		}
-		return null;
-	},
-
-	getWholeFindRangeFromRangeInEditable : function(aRange) 
-	{
-		var owner = this.getParentEditableFromRange(aRange);
-		if (!owner)
-			return null;
-
-		var lastContainer = aRange.startContainer;
-		while (lastContainer.parentNode != owner)
-		{
-			lastContainer = lastContainer.parentNode;
-		}
-		var range = lastContainer.ownerDocument.createRange();
-		range.selectNodeContents(lastContainer);
-		return range;
-	},
-
 	isFindableDocument : function(aDocument) 
 	{
 		switch (aDocument.documentElement.namespaceURI)
@@ -1054,30 +1077,6 @@ FindRangeIterator.prototype = {
 					aDocument.defaultView.innerHeight > 0
 				);
 		}
-	},
-
-	getOwnerDocumentFromRange : function(aRange)
-	{
-		return aRange.startContainer.ownerDocument || aRange.startContainer;
-	},
-
-	getOwnerFrameFromContentDocument : function(aDocument)
-	{
-		let parent = this.getDocShellFromDocument(aDocument)
-						.QueryInterface(Ci.nsIDocShellTreeItem)
-						.sameTypeParent;
-		if (!parent)
-			return null;
-
-		var parentDoc = this.getDocumentFromDocShell(parent);
-		var frame = null;
-		while (frame = this.getNextFrame(parentDoc, frame))
-		{
-			if (frame.contentDocument == aDocument)
-				return frame;
-		}
-
-		return null;
 	},
 
 	checkLoop : function()
