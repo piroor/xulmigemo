@@ -61,7 +61,15 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 	lastResult : MigemoConstants.NOTFOUND,
 	findMode   : MigemoConstants.FIND_MODE_NOT_INITIALIZED,
 
-	targetDocShell : null,
+	_targetDocShell : null,
+	get targetDocShell()
+	{
+		return this._targetDocShell;
+	},
+	set targetDocShell(aValue)
+	{
+		return this._targetDocShell = aValue;
+	},
 
 	get targetDocument()
 	{
@@ -69,6 +77,21 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			this.targetDocShell &&
 			this.targetDocShell.QueryInterface(Ci.nsIWebNavigation).document
 		);
+	},
+	set targetDocument(aValue)
+	{
+		this.targetDocShell = FindRangeIterator.prototype.getDocShellFromDocument(aValue);
+		return aValue;
+	},
+
+	get targetWindow()
+	{
+		return this.targetDocument.defaultView;
+	},
+	set targetWindow(aValue)
+	{
+		this.targetDocument = aValue.document;
+		return aValue;
 	},
 
 	get foundLink()
@@ -137,6 +160,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		var aBackward      = aParams.backward || false;
 		var aKeyword       = aParams.keyword || '';
 		var aScrollToFound = aParams.scroll || false;
+		var aSkipSubframes = aParams.skipSubframes || false;
 
 		if (!this.targetDocShell)
 			new Error('not initialized yet');
@@ -191,9 +215,14 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		if (!aScrollToFound)
 			findFlag |= this.FIND_SILENTLY;
 
-		var startPoint;
-
 		var foundRange = this.foundRange;
+		if (aSkipSubframes &&
+			foundRange &&
+			FindRangeIterator.prototype.getOwnerDocumentFromRange(foundRange) != this.targetDocument) {
+			this.foundRange = foundRange = null;
+		}
+
+		var startPoint;
 		if (aScrollToFound &&
 			this.startFromViewport &&
 			!foundRange) {
@@ -213,7 +242,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 				startPoint = foundRange.cloneRange();
 				startPoint.collapse(aBackward);
 			}
-			else if (aScrollToFound) {
+			else if (aScrollToFound && !aSkipSubframes) {
 				let frame = this.getLastFindTargetFrame(this.targetDocument.defaultView);
 				let selection = frame.getSelection();
 				if (selection.rangeCount > 0) {
@@ -228,7 +257,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 				log(this.logPrefix + 'from document edge (silent)');
 			}
 		}
-		var iterator = new FindRangeIterator(this.targetDocShell, startPoint, aBackward);
+		var iterator = new FindRangeIterator(this.targetDocShell, startPoint, aBackward, aSkipSubframes);
 		var result = this.findWithRangeIterator(findFlag, myExp, iterator);
 		iterator.destroy();
 		this.previousKeyword = aKeyword;
@@ -751,9 +780,10 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 	} 
 }); 
   
-function FindRangeIterator(aRootDocShell, aStartPoint, aBackward)
+function FindRangeIterator(aRootDocShell, aStartPoint, aBackward, aSkipSubframes)
 {
 	this.backward = aBackward;
+	this.mSkipSubframes = aSkipSubframes;
 	this.mRootDocShell = aRootDocShell;
 	if (aStartPoint) {
 		this.mStartPoint = aStartPoint.cloneRange();
@@ -1012,6 +1042,9 @@ FindRangeIterator.prototype = {
 
 	getNextFrame : function(aDocument, aContext) 
 	{
+		if (this.mSkipSubframes)
+			return null;
+
 		try {
 			var xpathResult = aDocument.evaluate(
 					'following::*' + this.FRAME_CONDITION + ' | descendant::*' + this.FRAME_CONDITION,
@@ -1036,6 +1069,9 @@ FindRangeIterator.prototype = {
 
 	getPreviousFrame : function(aDocument, aContext) 
 	{
+		if (this.mSkipSubframes)
+			return null;
+
 		try {
 			var xpathResult = aDocument.evaluate(
 					'preceding::*' + this.FRAME_CONDITION + ' | ancestor::*' + this.FRAME_CONDITION,

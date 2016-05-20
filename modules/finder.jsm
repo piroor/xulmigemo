@@ -6,7 +6,7 @@ function log(...aArgs)
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
 		Services.prefs.getBoolPref('xulmigemo.debug.finder'))
-		Services.console.logStringMessage(aArgs.join(', '));
+		Services.console.logStringMessage('finder: '+aArgs.join(', '));
 }
 
 var Cc = Components.classes;
@@ -189,18 +189,21 @@ Finder.prototype._findIterator = function(aWord, aWindow) {
 		return this.__xm__findIterator_regexp(aWord, aWindow);
 };
 Finder.prototype.__xm__findIterator_regexp = function* (aWord, aWindow) {
+	log('new finder for '+aWindow.location.origin);
 	var finder = new MigemoFind();
 	finder.findMode = this.__xm__migemoFinder.findMode;
-	finder.targetDocShell = this._docShell;
+	finder.targetWindow = aWindow;
 	finder.foundRange = null;
 	finder.caseSensitive = this.__xm__migemoFinder.caseSensitive;
 	finder.isLinksOnly = this.__xm__migemoFinder.isLinksOnly;
 
 	while (!(finder.find({
-			keyword : aWord
+			keyword : aWord,
+			skipSubframes : true
 		}) & MigemoConstants.WRAPPED))
 	{
 		var range = finder.foundRange;
+		log('  found => '+range);
 		if (!range)
 			break;
 		yield range;
