@@ -446,7 +446,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 							.editor
 							.selectionController :
 					(typeof aTarget.Window == 'function' && aTarget instanceof aTarget.Window) ?
-						FindRangeIterator.prototype.getDocShellFromFrame(aTarget)
+						FindRangeIterator.prototype.getDocShellFromDocument(aTarget.document)
 							.QueryInterface(Ci.nsIInterfaceRequestor)
 							.getInterface(Ci.nsISelectionDisplay)
 							.QueryInterface(Ci.nsISelectionController) :
@@ -802,11 +802,6 @@ FindRangeIterator.prototype = {
 			.QueryInterface(Ci.nsIInterfaceRequestor)
 			.getInterface(Ci.nsIWebNavigation)
 			.QueryInterface(Ci.nsIDocShell);
-	},
-	
-	getDocShellFromFrame : function(aFrame) 
-	{
-		return this.getDocShellFromDocument(aFrame.document);
 	},
 	
 	getDocumentBody : function(aDocument) 
