@@ -837,6 +837,9 @@ FindRangeIterator.prototype = {
  
 	iterateNext : function() 
 	{
+		if (this.looped)
+			return {};
+
 		this.wrapped = false;
 
 		var doc = this.document;
