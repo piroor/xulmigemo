@@ -879,8 +879,8 @@ FindRangeIterator.prototype = {
 
 			let ownerFrame = this.getFrameFromContentDocument(doc);
 			if (ownerFrame) {
-				this.mAnchor = parentFrame.ownerDocument.createRange();
-				this.mAnchor.selectNode(parentFrame);
+				this.mAnchor = ownerFrame.ownerDocument.createRange();
+				this.mAnchor.selectNode(ownerFrame);
 				this.mAnchor.collapse(true);
 				this.checkLoop();
 				return this.createRangeSet(range);
@@ -926,8 +926,8 @@ FindRangeIterator.prototype = {
 
 			let ownerFrame = this.getFrameFromContentDocument(doc);
 			if (ownerFrame) {
-				this.mAnchor = parentFrame.ownerDocument.createRange();
-				this.mAnchor.selectNode(parentFrame);
+				this.mAnchor = ownerFrame.ownerDocument.createRange();
+				this.mAnchor.selectNode(ownerFrame);
 				this.mAnchor.collapse(false);
 				this.checkLoop();
 				return this.createRangeSet(range);
