@@ -877,7 +877,7 @@ FindRangeIterator.prototype = {
 			let range = this.mAnchor.cloneRange();
 			range.setStartBefore(root.firstChild || root);
 
-			let ownerFrame = this.getFrameFromContentDocument(doc);
+			let ownerFrame = this.getOwnerFrameFromContentDocument(doc);
 			if (ownerFrame) {
 				this.mAnchor = ownerFrame.ownerDocument.createRange();
 				this.mAnchor.selectNode(ownerFrame);
@@ -924,7 +924,7 @@ FindRangeIterator.prototype = {
 			let range = this.mAnchor.cloneRange();
 			range.setEndAfter(root.lastChild || root);
 
-			let ownerFrame = this.getFrameFromContentDocument(doc);
+			let ownerFrame = this.getOwnerFrameFromContentDocument(doc);
 			if (ownerFrame) {
 				this.mAnchor = ownerFrame.ownerDocument.createRange();
 				this.mAnchor.selectNode(ownerFrame);
@@ -1061,7 +1061,7 @@ FindRangeIterator.prototype = {
 		return aRange.startContainer.ownerDocument || aRange.startContainer;
 	},
 
-	getFrameFromContentDocument : function(aDocument)
+	getOwnerFrameFromContentDocument : function(aDocument)
 	{
 		let parent = this.getDocShellFromDocument(aDocument)
 						.QueryInterface(Ci.nsIDocShellTreeItem)
