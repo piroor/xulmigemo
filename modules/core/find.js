@@ -855,12 +855,16 @@ FindRangeIterator.prototype = {
 				editableRange.setEnd(this.mAnchor.startContainer, this.mAnchor.startOffset);
 				let editable = this.getParentEditableFromRange(this.mAnchor);
 				this.mAnchor = doc.createRange();
-				this.mAnchor.setEndBefore(editable);
+				this.mAnchor.selectNode(editable);
+				this.mAnchor.collapse(true);
 				this.checkLoop();
 				return this.createRangeSet(editableRange);
 			}
 
-			let previousFrame = this.getPreviousFrame(doc, this.mAnchor.startContainer);
+			let anchor = doc.createComment('');
+			this.mAnchor.insertNode(anchor);
+			let previousFrame = this.getPreviousFrame(doc, anchor);
+			anchor.parentNode.removeChild(anchor);
 			if (previousFrame) {
 				let range = this.mAnchor.cloneRange();
 				range.setStartAfter(nextFrame);
@@ -873,26 +877,18 @@ FindRangeIterator.prototype = {
 			let range = this.mAnchor.cloneRange();
 			range.setStartBefore(root.firstChild || root);
 
-			let parent = this.docShell.QueryInterface(Ci.nsIDocShellTreeItem)
-							.sameTypeParent;
-			if (parent) {
-				let parentDoc = this.getDocumentFromDocShell(parent);
-				let frame = null;
-				this.mAnchor = null;
-				while (frame = this.getPreviousFrame(parentDoc, frame))
-				{
-					if (frame.contentDocument != doc)
-						continue;
-					this.mAnchor = parentDoc.createRange();
-					this.mAnchor.setStartBefore(frame);
-					break;
-				}
+			let ownerFrame = this.getFrameFromContentDocument(doc);
+			if (ownerFrame) {
+				this.mAnchor = parentFrame.ownerDocument.createRange();
+				this.mAnchor.selectNode(parentFrame);
+				this.mAnchor.collapse(true);
+				this.checkLoop();
+				return this.createRangeSet(range);
 			}
-			else {
-				doc = this.getDocumentFromDocShell(this.mRootDocShell);
-				this.mAnchor = this.createAnchorInDocument(doc);
-				this.mWillWrapBackward = true;
-			}
+
+			doc = this.getDocumentFromDocShell(this.mRootDocShell);
+			this.mAnchor = this.createAnchorInDocument(doc);
+			this.mWillWrapBackward = true;
 			this.checkLoop();
 			return this.createRangeSet(range);
 		}
@@ -906,12 +902,16 @@ FindRangeIterator.prototype = {
 				editableRange.setStart(this.mAnchor.endContainer, this.mAnchor.endOffset);
 				let editable = this.getParentEditableFromRange(this.mAnchor);
 				this.mAnchor = doc.createRange();
-				this.mAnchor.setStartAfter(editable);
+				this.mAnchor.selectNode(editable);
+				this.mAnchor.collapse(false);
 				this.checkLoop();
 				return this.createRangeSet(editableRange);
 			}
 
-			let nextFrame = this.getNextFrame(doc, this.mAnchor.endContainer);
+			let anchor = doc.createComment('');
+			this.mAnchor.insertNode(anchor);
+			let nextFrame = this.getNextFrame(doc, anchor);
+			anchor.parentNode.removeChild(anchor);
 			if (nextFrame) {
 				let range = this.mAnchor.cloneRange();
 				range.setEndBefore(nextFrame);
@@ -924,26 +924,18 @@ FindRangeIterator.prototype = {
 			let range = this.mAnchor.cloneRange();
 			range.setEndAfter(root.lastChild || root);
 
-			let parent = this.docShell.QueryInterface(Ci.nsIDocShellTreeItem)
-							.sameTypeParent;
-			if (parent) {
-				let parentDoc = this.getDocumentFromDocShell(parent);
-				let frame = null;
-				this.mAnchor = null;
-				while (frame = this.getNextFrame(parentDoc, frame))
-				{
-					if (frame.contentDocument != doc)
-						continue;
-					this.mAnchor = parentDoc.createRange();
-					this.mAnchor.setEndAfter(frame);
-					break;
-				}
+			let ownerFrame = this.getFrameFromContentDocument(doc);
+			if (ownerFrame) {
+				this.mAnchor = parentFrame.ownerDocument.createRange();
+				this.mAnchor.selectNode(parentFrame);
+				this.mAnchor.collapse(false);
+				this.checkLoop();
+				return this.createRangeSet(range);
 			}
-			else {
-				doc = this.getDocumentFromDocShell(this.mRootDocShell);
-				this.mAnchor = this.createAnchorInDocument(doc);
-				this.mWillWrapForward = true;
-			}
+
+			doc = this.getDocumentFromDocShell(this.mRootDocShell);
+			this.mAnchor = this.createAnchorInDocument(doc);
+			this.mWillWrapForward = true;
 			this.checkLoop();
 			return this.createRangeSet(range);
 		}
@@ -980,6 +972,8 @@ FindRangeIterator.prototype = {
 
 			if (!this.isFindableDocument(frame.contentDocument))
 				return this.getNextFrame(aDocument, frame);
+
+			return frame;
 		}
 		catch(e) {
 		}
@@ -1004,6 +998,8 @@ FindRangeIterator.prototype = {
 
 			if (!this.isFindableDocument(frame.contentDocument))
 				return this.getPreviousFrame(aDocument, frame);
+
+			return frame;
 		}
 		catch(e) {
 		}
@@ -1063,6 +1059,25 @@ FindRangeIterator.prototype = {
 	getOwnerDocumentFromRange : function(aRange)
 	{
 		return aRange.startContainer.ownerDocument || aRange.startContainer;
+	},
+
+	getFrameFromContentDocument : function(aDocument)
+	{
+		let parent = this.getDocShellFromDocument(aDocument)
+						.QueryInterface(Ci.nsIDocShellTreeItem)
+						.sameTypeParent;
+		if (!parent)
+			return null;
+
+		var parentDoc = this.getDocumentFromDocShell(parent);
+		var frame = null;
+		while (frame = this.getNextFrame(parentDoc, frame))
+		{
+			if (frame.contentDocument == doc)
+				return frame;
+		}
+
+		return null;
 	},
 
 	checkLoop : function()
