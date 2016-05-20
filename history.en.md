@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 0.14.2 (2016.5.20)
    * Dictionary manager works again.
    * Works correctly on the Places Organizer.
    * Works correctly for webpages with inline frames or scrollable elements.
