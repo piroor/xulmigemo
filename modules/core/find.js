@@ -507,7 +507,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		newSelCon.repaintSelection(newSelCon.SELECTION_NORMAL);
 
 		if (this.prefs.getPref('xulmigemo.scrollSelectionToCenter'))
-			this.scrollSelectionToCenter(editableParent || doc.defaultView, null, false);
+			this.scrollTargetToCenter(aRange, false);
 		else
 			newSelCon.scrollSelectionIntoView(
 				newSelCon.SELECTION_NORMAL,
@@ -515,17 +515,9 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 				true);
 	},
 	
-	scrollSelectionToCenter : function(aScrollTarget, aAnchor, aPreventAnimation) 
+	scrollTargetToCenter : function(aTarget, aPreventAnimation) 
 	{
-		if (!aScrollTarget ||
-			!this.prefs.getPref('xulmigemo.scrollSelectionToCenter'))
-			return;
-
-		var task = this.smoothScrollTasks.get(aScrollTarget);
-		if (task) {
-			this.animationManager.removeTask(task);
-			this.smoothScrollTasks.delete(aScrollTarget);
-		}
+		log('scrollTargetToCenter <'+aTarget+'>');
 
 		var padding = Math.max(0, Math.min(100, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.padding')));
 
@@ -537,22 +529,33 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			targetY,
 			targetW,
 			targetH;
-		var window = aScrollTarget;
-		if (aScrollTarget instanceof Ci.nsIDOMNSEditableElement) {
-			window = aScrollTarget.ownerDocument.defaultView;
+		var window;
+		var scrollFrame;
 
-			let selCon = this.getSelectionController(aScrollTarget);
-			let selection = selCon.getSelection(selCon.SELECTION_NORMAL);
-			if (!selection || !selection.rangeCount)
-				return;
+		var scrollableParentElement = this.getScrollableParent(aTarget.commonAncestorContainer || aTarget.parentNode);
+		if (scrollableParentElement) {
+			window = scrollableParentElement.ownerDocument.defaultView;
+			scrollFrame = scrollableParentElement;
+		}
+		else {
+			window = (aTarget.startContainer || aTarget).ownerDocument.defaultView;
+			scrollFrame = window;
+		}
 
-			let box = getBoxObjectFor(selection.getRangeAt(0));
-			let ownerBox = getBoxObjectFor(aScrollTarget);
+		var task = this.smoothScrollTasks.get(scrollFrame);
+		if (task) {
+			this.animationManager.removeTask(task);
+			this.smoothScrollTasks.delete(scrollFrame);
+		}
+
+		if (scrollableParentElement) {
+			let box = getBoxObjectFor(aTarget);
+			let ownerBox = getBoxObjectFor(scrollFrame);
 			if (!box || box.fixed || !ownerBox)
 				return;
 
-			startX = aScrollTarget.scrollLeft;
-			startY = aScrollTarget.scrollTop;
+			startX = scrollFrame.scrollLeft;
+			startY = scrollFrame.scrollTop;
 			viewW = ownerBox.width;
 			viewH = ownerBox.height;
 
@@ -561,45 +564,32 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			targetW = box.width;
 			targetH = box.height;
 
-			this.scrollSelectionToCenter(window, aScrollTarget, aPreventAnimation);
+			this.scrollTargetToCenter(scrollFrame, aPreventAnimation);
 
-			if (this.isBoxInViewport(box, aScrollTarget, padding))
+			if (this.isBoxInViewport(box, scrollFrame, padding))
 				return;
 		}
 		else {
-			let frame = aScrollTarget;
-			if (!frame && this.document) {
-				frame = this.document.commandDispatcher.focusedWindow;
-				if (!frame || frame.top == this.document.defaultView)
-					frame = this.window._content;
-				frame = this.getSelectionFrame(frame);
-			}
-			if (!frame)
-				return;
-
-			if (!aAnchor) {
-				let selection = frame.getSelection();
-				if (selection && selection.rangeCount > 0)
-					aAnchor = selection.getRangeAt(0);
-			}
-			if (!aAnchor)
-				return;
-
-			let box = getBoxObjectFor(aAnchor);
+			let box = getBoxObjectFor(aTarget);
 			if (!box || box.fixed)
 				return;
 
-			startX = frame.scrollX;
-			startY = frame.scrollY;
-			viewW = frame.innerWidth;
-			viewH = frame.innerHeight;
+			startX = scrollFrame.scrollX;
+			startY = scrollFrame.scrollY;
+			viewW = scrollFrame.innerWidth;
+			viewH = scrollFrame.innerHeight;
 
 			targetX = box.x;
 			targetY = box.y;
 			targetW = box.width;
 			targetH = box.height;
 
-			if (this.isBoxInViewport(box, frame, padding))
+			if (scrollFrame.top != scrollFrame) {
+				let ownerFrame = FindRangeIterator.prototype.getOwnerFrameFromContentDocument(scrollFrame.document);
+				this.scrollTargetToCenter(ownerFrame, aPreventAnimation);
+			}
+
+			if (this.isBoxInViewport(box, scrollFrame, padding))
 				return;
 		}
 
@@ -619,7 +609,13 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 
 		if (aPreventAnimation ||
 			!this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled')) {
-			aScrollTarget.scrollTo(finalX, finalY);
+			if (typeof scrollFrame.scrollTo == 'function') {
+				scrollFrame.scrollTo(finalX, finalY);
+			}
+			else {
+				scrollFrame.scrollLeft = finalX;
+				scrollFrame.scrollTop = finalY;
+			}
 			return;
 		}
 
@@ -629,7 +625,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		task = (function(aTime, aBeginning, aChange, aDuration) {
 			var x, y, finished;
 			if (aTime >= aDuration) {
-				this.smoothScrollTasks.delete(aScrollTarget);
+				this.smoothScrollTasks.delete(scrollFrame);
 				x = finalX;
 				y = finalY
 				finished = true;
@@ -639,11 +635,17 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 				y = startY + (deltaY * Math.sin(aTime / aDuration * radian));
 				finished = false;
 			}
-			log('scrollSelectionToCenter <'+aScrollTarget+'> ('+x+', '+y+')');
-			aScrollTarget.scrollTo(x, y);
+			log('  => scrollTargetToCenter in '+scrollFrame+' ('+aTime+' / '+aDuration+' '+x+', '+y+')');
+			if (typeof scrollFrame.scrollTo == 'function') {
+				scrollFrame.scrollTo(x, y);
+			}
+			else {
+				scrollFrame.scrollLeft = x;
+				scrollFrame.scrollTop = y;
+			}
 			return finished;
 		}).bind(this);
-		this.smoothScrollTasks.set(aScrollTarget, task);
+		this.smoothScrollTasks.set(scrollFrame, task);
 		this.animationManager.addTask(
 			task,
 			0, 0, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.duration'),
@@ -665,18 +667,18 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			aBox.y + aBox.height < scrollY + aPadding
 		);
 	},
- 
-	getSelectionFrame : function(aFrame) 
-	{
-		var selection = aFrame.getSelection();
-		if (selection && selection.rangeCount)
-			return aFrame;
 
-		var frame;
-		for (var i = 0, maxi = aFrame.frames.length; i < maxi; i++)
+	getScrollableParent : function(aNode)
+	{
+		while (aNode)
 		{
-			frame = arguments.callee(aFrame.frames[i]);
-			if (frame) return frame;
+			if (('scrollTopMax' in aNode && aNode.scrollTopMax != 0) ||
+				('scrollLeftMax' in aNode && aNode.scrollLeftMax != 0) ||
+				aNode instanceof Ci.nsIDOMNSEditableElement)
+				return aNode;
+			aNode = aNode.parentNode;
+			if (aNode == aNode.ownerDocument.documentElement)
+				break;
 		}
 		return null;
 	},
