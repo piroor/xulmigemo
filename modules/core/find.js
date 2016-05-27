@@ -429,6 +429,11 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		this.mFind.caseSensitive = true;
 
 		result.range = this.mFind.Find(aTerm, aRangeSet.range, aRangeSet.start, aRangeSet.end) || null ;
+
+		if (Services.prefs.getBoolPref('xulmigemo.debug.find.markers') &&
+			!(aFindFlag & this.FIND_SILENTLY))
+			this.insertMarkers(aFindFlag, aTerm, aRangeSet, result.range);
+
 		if (!result.range) {
 			return result;
 		}
@@ -444,6 +449,70 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 
 		return result;
 	},
+
+	insertMarkers : function(aFindFlag, aTerm, aRangeSet, aFoundRange)
+	{
+		var doc = aRangeSet.doc;
+		var timestamp = new Date().toString();
+		var found = aFoundRange ? ' (found)' : ' (missing)';
+
+		if (!doc.documentElement.getAttribute(this.RANGE_MARKER_ACTIVE)) {
+			doc.documentElement.setAttribute(this.RANGE_MARKER_ACTIVE, true);
+			let style = doc.createProcessingInstruction(
+				'xml-stylesheet',
+				'href="data:text/css,'+encodeURIComponent(`
+					[${this.RANGE_MARKER_RANGE_START}]::before,
+					[${this.RANGE_MARKER_RANGE_END}]::before {
+						color: black !important;
+						border: 1px solid !important;
+						background: orange !important;
+					}
+					[${this.RANGE_MARKER_RANGE_START}]::before {
+						content: "<<" attr(${this.RANGE_MARKER_COUNT}) "<<";
+					}
+					[${this.RANGE_MARKER_RANGE_END}]::before {
+						content: ">>" attr(${this.RANGE_MARKER_COUNT}) ">>";
+					}
+					[${this.RANGE_MARKER_START_POINT}]::before {
+						content: "[FROM HERE " attr(${this.RANGE_MARKER_COUNT}) "]";
+						color: white !important;
+						border: 1px solid !important;
+						background: blue !important;
+					}
+					[${this.RANGE_MARKER_END_POINT}]::before {
+						content: "[TO HERE " attr(${this.RANGE_MARKER_COUNT}) "]";
+						color: white !important;
+						border: 1px solid !important;
+						background: green !important;
+					}
+				`)+'" type="text/css"'
+			);
+			doc.insertBefore(style, doc.documentElement);
+		}
+
+		var rangeStart = doc.createElement('span');
+		rangeStart.setAttribute('title', aTerm+found+' : '+timestamp);
+		rangeStart.setAttribute(this.RANGE_MARKER_COUNT, this.mMarkerCount);
+		rangeStart.setAttribute(this.RANGE_MARKER_RANGE_START, true);
+		aRangeSet.range.insertNode(rangeStart);
+
+		var rangeEnd = rangeStart.cloneNode(true);
+		rangeEnd.setAttribute(this.RANGE_MARKER_RANGE_END, true);
+		var insertionPoint = aRangeSet.range.cloneRange();
+		insertionPoint.collapse(false);
+		insertionPoint.insertNode(rangeEnd);
+
+		var startPoint = rangeStart.cloneNode(true);
+		startPoint.setAttribute(this.RANGE_MARKER_START_POINT, true);
+		aRangeSet.start.insertNode(startPoint);
+
+		var endPoint = rangeStart.cloneNode(true);
+		endPoint.setAttribute(this.RANGE_MARKER_END_POINT, true);
+		aRangeSet.end.insertNode(endPoint);
+
+		this.mMarkerCount++;
+	},
+	mMarkerCount : 0,
    
 	getParentLinkFromRange : function(aRange) 
 	{

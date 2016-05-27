@@ -84,6 +84,7 @@ pref("xulmigemo.debug.engine.ja", false);
 pref("xulmigemo.debug.engine", false);
 pref("xulmigemo.debug.fileAccess", false);
 pref("xulmigemo.debug.find", false);
+pref("xulmigemo.debug.find.markers", false);
 pref("xulmigemo.debug.textTransform.ja", false);
 pref("xulmigemo.debug.textTransform", false);
 pref("xulmigemo.debug.textUtils", false);

@@ -48,7 +48,14 @@ var MigemoConstants = {
 	COMMAND_SET_FIND_MODE : 'set-find-mode',
 	COMMAND_SHUTDOWN : 'shutdown',
 
-	COMMAND_REPORT_FIND_MODE : 'report-find-mode'
+	COMMAND_REPORT_FIND_MODE : 'report-find-mode',
+
+	RANGE_MARKER_ACTIVE      : 'data-xulmigemo-marker-active',
+	RANGE_MARKER_COUNT       : 'data-xulmigemo-marker-count',
+	RANGE_MARKER_RANGE_START : 'data-xulmigemo-marker-range-start',
+	RANGE_MARKER_RANGE_END   : 'data-xulmigemo-marker-range-end',
+	RANGE_MARKER_START_POINT : 'data-xulmigemo-marker-start-point',
+	RANGE_MARKER_END_POINT   : 'data-xulmigemo-marker-end-point'
 };
 
 MigemoConstants.FIND_MODE_FLAG_FROM_NAME = (function() {
