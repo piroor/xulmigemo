@@ -561,6 +561,9 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 	
 	scrollTargetToCenter : function(aTarget, aPreventAnimation) 
 	{
+		if (!aTarget)
+			return;
+
 		log('scrollTargetToCenter <'+aTarget+'>');
 
 		var padding = Math.max(0, Math.min(100, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.padding')));
