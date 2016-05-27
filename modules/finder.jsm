@@ -149,6 +149,7 @@ Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
 	finder.isLinksOnly = aLinksOnly;
 	var result = finder.find({
 		keyword : aSearchString,
+		subFrame : true,
 		scroll  : true
 	});
 	this._notify(
@@ -173,6 +174,7 @@ Finder.prototype.findAgain = function(aFindBackwards, aLinksOnly, aDrawOutline) 
 	var result = finder.find({
 		backward : aFindBackwards,
 		keyword  : this.__xm__nativeSearchString,
+		subFrame : true,
 		scroll   : true
 	});
 	this._notify(
@@ -202,8 +204,7 @@ Finder.prototype.__xm__findIterator_regexp = function* (aWord, aWindow) {
 	while (true)
 	{
 		let result = finder.find({
-				keyword : aWord,
-				skipSubframes : true
+				keyword : aWord
 			});
 		if ((result & MigemoConstants.WRAPPED) ||
 			!(result & MigemoConstants.FOUND))

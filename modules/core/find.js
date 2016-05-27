@@ -163,7 +163,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		var aBackward      = aParams.backward || false;
 		var aKeyword       = aParams.keyword || '';
 		var aScrollToFound = aParams.scroll || false;
-		var aSkipSubframes = aParams.skipSubframes || false;
+		var aSubFrame      = aParams.subFrame || false;
 
 		if (!this.targetDocShell)
 			new Error('not initialized yet');
@@ -219,7 +219,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			findFlag |= this.FIND_SILENTLY;
 
 		var foundRange = this.foundRange;
-		if (aSkipSubframes &&
+		if (!aSubFrame &&
 			foundRange &&
 			MigemoDocumentUtils.getOwnerDocumentFromRange(foundRange) != this.targetDocument) {
 			this.foundRange = foundRange = null;
@@ -245,7 +245,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 				startPoint = foundRange.cloneRange();
 				startPoint.collapse(aBackward);
 			}
-			else if (aScrollToFound && !aSkipSubframes) {
+			else if (aScrollToFound && aSubFrame) {
 				let frame = this.getLastFindTargetFrame(this.targetDocument.defaultView);
 				let selection = frame.getSelection();
 				if (selection.rangeCount > 0) {
@@ -260,7 +260,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 				log(this.logPrefix + 'from document edge (silent)');
 			}
 		}
-		var iterator = new FindRangeIterator(this.targetDocShell, startPoint, aBackward, aSkipSubframes);
+		var iterator = new FindRangeIterator(this.targetDocShell, startPoint, aBackward, aSubFrame);
 		var result = this.findWithRangeIterator(findFlag, myExp, iterator);
 		iterator.destroy();
 		this.previousKeyword = aKeyword;
@@ -800,10 +800,10 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 	} 
 }); 
   
-function FindRangeIterator(aRootDocShell, aStartPoint, aBackward, aSkipSubframes)
+function FindRangeIterator(aRootDocShell, aStartPoint, aBackward, aTraverseSubFrames)
 {
 	this.backward = aBackward;
-	this.mSkipSubframes = aSkipSubframes;
+	this.traverseSubFrames = aTraverseSubFrames;
 	this.mRootDocShell = aRootDocShell;
 	if (aStartPoint) {
 		this.mStartPoint = aStartPoint.cloneRange();
@@ -891,7 +891,7 @@ FindRangeIterator.prototype = {
 				return this.createRangeSet(editableRange);
 			}
 
-			if (!this.mSkipSubframes) {
+			if (this.traverseSubFrames) {
 				let anchor = doc.createComment('');
 				this.mAnchor.insertNode(anchor);
 				let previousFrame = MigemoDocumentUtils.getPreviousFrame(doc, anchor);
@@ -909,7 +909,7 @@ FindRangeIterator.prototype = {
 			let range = this.mAnchor.cloneRange();
 			range.setStartBefore(root.firstChild || root);
 
-			if (!this.mSkipSubframes) {
+			if (this.traverseSubFrames) {
 				let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(doc);
 				if (ownerFrame) {
 					this.mAnchor = ownerFrame.ownerDocument.createRange();
@@ -942,7 +942,7 @@ FindRangeIterator.prototype = {
 				return this.createRangeSet(editableRange);
 			}
 
-			if (!this.mSkipSubframes) {
+			if (this.traverseSubFrames) {
 				let anchor = doc.createComment('');
 				this.mAnchor.insertNode(anchor);
 				let nextFrame = MigemoDocumentUtils.getNextFrame(doc, anchor);
@@ -960,7 +960,7 @@ FindRangeIterator.prototype = {
 			let range = this.mAnchor.cloneRange();
 			range.setEndAfter(root.lastChild || root);
 
-			if (!this.mSkipSubframes) {
+			if (this.traverseSubFrames) {
 				let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(doc);
 				if (ownerFrame) {
 					this.mAnchor = ownerFrame.ownerDocument.createRange();
