@@ -4,18 +4,6 @@ var EXPORTED_SYMBOLS = ['MigemoDicManager'];
 	MigemoDictionary
 	MigemoCache
 */
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.dicManager')) {
-		Services.console.logStringMessage('dicManager: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('dicManager: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -26,6 +14,9 @@ Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://xulmigemo-modules/core/core.js');
 Cu.import('resource://xulmigemo-modules/core/cache.js');
 Cu.import('resource://xulmigemo-modules/core/fileAccess.js');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('dicManager', ...aArgs); }
  	
 var MigemoDicManager = {
 	available : false,

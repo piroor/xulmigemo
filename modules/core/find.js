@@ -4,18 +4,6 @@ var EXPORTED_SYMBOLS = ['MigemoFind'];
 	MigemoCoreFactory
 	MigemoTextUtils
 */
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.find')) {
-		Services.console.logStringMessage('find: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('find: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -29,6 +17,9 @@ Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/core/core.js');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 Cu.import('resource://xulmigemo-modules/core/docUtils.js');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('find', ...aArgs); }
 
 var nsIDocShellTreeItem = Ci.nsIDocShellTreeNode || Ci.nsIDocShellTreeItem; // nsIDocShellTreeNode is merged to nsIDocShellTreeItem by https://bugzilla.mozilla.org/show_bug.cgi?id=331376
 

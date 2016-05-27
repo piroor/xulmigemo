@@ -2,14 +2,11 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
 Components.utils.import('resource://xulmigemo-modules/places.jsm');
 
-function log(...aArgs) 
-{
-	if (Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.places'))
-		Services.console.logStringMessage('organizer: ' + aArgs.join(', '));
-}
+(function() {
+var { MigemoLog } = Cu.import('resource://xulmigemo-modules/log.jsm', {});
+function log(...aArgs) { MigemoLog('places.organizer', ...aArgs); }
 
-var XMigemoOrganizerOverlay = { 
+window.XMigemoOrganizerOverlay = { 
 	 
 	handleEvent : function(aEvent) 
 	{
@@ -65,4 +62,5 @@ var XMigemoOrganizerOverlay = {
 }; 
   
 window.addEventListener('load', XMigemoOrganizerOverlay, false); 
+})();
  	

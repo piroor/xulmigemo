@@ -2,16 +2,12 @@ Components.classes['@mozilla.org/moz/jssubscript-loader;1']
 	.getService(Components.interfaces.mozIJSSubScriptLoader)
 	.loadSubScript('resource://gre/components/UnifiedComplete.js');
 
-function log(...aArgs) 
-{
-	if (Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.places'))
-		Services.console.logStringMessage('unifiedcomplete: ' + aArgs.join(', '));
-}
-dump = log;
-
 var { XMigemoPlaces } = Cu.import('resource://xulmigemo-modules/places.jsm', {});
 var { MigemoTextUtils } = Cu.import('resource://xulmigemo-modules/core/textUtils.js', {}); 
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('unifiedcomplete', ...aArgs); }
+dump = log;
 
 var OriginalSearch = Search;
 Search = function(aSearchString, aSearchParam, aAutocompleteListener,

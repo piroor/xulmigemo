@@ -1,17 +1,5 @@
 var EXPORTED_SYMBOLS = ['MigemoRemoteFinder']; 
 
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.remoteFinder')) {
-		Services.console.logStringMessage('remoteFinder: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('remoteFinder: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cu = Components.utils;
@@ -20,6 +8,9 @@ Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/RemoteFinder.jsm');
 
 Cu.import('resource://xulmigemo-modules/constants.jsm');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('remoteFinder', ...aArgs); }
 
 
 // sender

@@ -1,10 +1,6 @@
 (function() {
-function log(...aArgs) 
-{
-	if (Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.places'))
-		Services.console.logStringMessage('locationbar: ' + aArgs.join(', '));
-}
+var { MigemoLog } = Cu.import('resource://xulmigemo-modules/log.jsm', {});
+function log(...aArgs) { MigemoLog('places.urlbar', ...aArgs); }
 
 var { XMigemoPlaces } = Cu.import('resource://xulmigemo-modules/places.jsm', {});
 var { MigemoTextUtils } = Cu.import('resource://xulmigemo-modules/core/textUtils.js', {});

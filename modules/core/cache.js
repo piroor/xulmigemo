@@ -4,17 +4,6 @@ var EXPORTED_SYMBOLS = ['MigemoCache', 'MigemoCacheFactory'];
 	MigemoFileAccess
 	MigemoTextUtils
 */
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.cache')) {
-		Services.console.logStringMessage('cache: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('cache: '+aArgs.join(', ')+'\n');
-	}
-}
 
 var TEST = false;
 var Cc = Components.classes;
@@ -28,6 +17,9 @@ Cu.import('resource://xulmigemo-modules/lib/inherit.jsm');
 Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 Cu.import('resource://xulmigemo-modules/core/fileAccess.js');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('cache', ...aArgs); }
  
 function MigemoCache() {
 }

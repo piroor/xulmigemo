@@ -1,23 +1,14 @@
 var EXPORTED_SYMBOLS = ['MigemoFileAccess'];
 
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.fileAccess')) {
-		Services.console.logStringMessage('fileAccess: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('fileAccess: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cu = Components.utils;
 
 Cu.import('resource://gre/modules/Services.jsm');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('fileAccess', ...aArgs); }
 
 var UConv = Cc['@mozilla.org/intl/scriptableunicodeconverter']
 		.getService(Ci.nsIScriptableUnicodeConverter);

@@ -1,17 +1,5 @@
 var EXPORTED_SYMBOLS = ['MigemoTextUtils'];
 
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.textUtils')) {
-		Services.console.logStringMessage('textUtils: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('textUtils: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var TEST = false; 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -21,6 +9,9 @@ Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/Timer.jsm');
 
 Cu.import('resource://xulmigemo-modules/lib/here.js');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('textUtils', ...aArgs); }
 
 const Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);

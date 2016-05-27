@@ -1,17 +1,5 @@
 var EXPORTED_SYMBOLS = ['MigemoAPI']; 
 
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.api')) {
-		Services.console.logStringMessage('api: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('api: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -24,6 +12,9 @@ Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://xulmigemo-modules/core/core.js');
 Cu.import('resource://xulmigemo-modules/core/engine.js');
 Cu.import('resource://xulmigemo-modules/core/cache.js');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('api', ...aArgs); }
 
 
 var MigemoAPI = {

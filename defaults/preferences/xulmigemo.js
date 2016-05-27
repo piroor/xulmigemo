@@ -72,6 +72,10 @@ pref("xulmigemo.debug.api", false);
 pref("xulmigemo.debug.finder", false);
 pref("xulmigemo.debug.mail", false);
 pref("xulmigemo.debug.places", false);
+pref("xulmigemo.debug.places.bookmarks", false);
+pref("xulmigemo.debug.places.history", false);
+pref("xulmigemo.debug.places.urlbar", false);
+pref("xulmigemo.debug.places.organizer", false);
 pref("xulmigemo.debug.remoteFinder", false);
 pref("xulmigemo.debug.service", false);
 
@@ -89,3 +93,5 @@ pref("xulmigemo.debug.find.markers", false);
 pref("xulmigemo.debug.textTransform.ja", false);
 pref("xulmigemo.debug.textTransform", false);
 pref("xulmigemo.debug.textUtils", false);
+
+pref("xulmigemo.debug.unifiedcomplete", false);

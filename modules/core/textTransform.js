@@ -1,17 +1,5 @@
 var EXPORTED_SYMBOLS = ['MigemoTextTransform'];
 
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.textTransform')) {
-		Services.console.logStringMessage('textTrasform: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('textTransform: '+aArgs.join(', ')+'\n');
-	}
-}
-
 // for ASCII 
 var TEST = false;
 var Cc = Components.classes;
@@ -21,6 +9,9 @@ var Cu = Components.utils;
 Cu.import('resource://gre/modules/Services.jsm');
 
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('textTransform', ...aArgs); }
  
 var MigemoTextTransform = {
 	nonAsciiRegExp : /[^a-zA-Z0-9\!\_\-\?\/\\\~\|\{\}\(\)\'\"\&\%\$\<\>\[\]\@\`\+\*\;\:]/gi, 

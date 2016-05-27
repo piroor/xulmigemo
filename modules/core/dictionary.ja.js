@@ -5,18 +5,6 @@ var EXPORTED_SYMBOLS = ['MigemoDictionaryJa'];
 	MigemoTextUtils
 	MigemoTextTransformJa
 */
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.dictionary.ja')) {
-		Services.console.logStringMessage('dictionary.ja: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('dictionary.ja: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -31,6 +19,9 @@ Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 Cu.import('resource://xulmigemo-modules/core/textTransform.ja.js');
 Cu.import('resource://xulmigemo-modules/core/fileAccess.js');
 Cu.import('resource://xulmigemo-modules/core/dictionary.js');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('dictionary.ja', ...aArgs); }
 
  
 var MigemoDictionaryJa = inherit(MigemoConstants, {

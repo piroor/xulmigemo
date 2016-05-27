@@ -4,18 +4,6 @@ var EXPORTED_SYMBOLS = ['MigemoEngineJa'];
 	MigemoDictionaryJa
 	MigemoTextTransformJa
 */
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.engine.ja')) {
-		Services.console.logStringMessage('engine.ja: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('engine.ja: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var TEST = false;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -29,6 +17,9 @@ Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 Cu.import('resource://xulmigemo-modules/core/textTransform.ja.js');
 Cu.import('resource://xulmigemo-modules/core/dictionary.ja.js');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('engine.ja', ...aArgs); }
 
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);

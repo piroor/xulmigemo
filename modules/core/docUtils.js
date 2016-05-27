@@ -1,23 +1,14 @@
 var EXPORTED_SYMBOLS = ['MigemoDocumentUtils'];
 
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.docUtils')) {
-		Services.console.logStringMessage('docUtils: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('docUtils: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var TEST = false; 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cu = Components.utils;
 
 Cu.import('resource://gre/modules/Services.jsm');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('docUtils', ...aArgs); }
 
 var MigemoDocumentUtils = {
 	// frames

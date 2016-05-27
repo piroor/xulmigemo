@@ -1,17 +1,5 @@
 var EXPORTED_SYMBOLS = ['XMigemoPlaces']; 
 
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.places')) {
-		Services.console.logStringMessage('places: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('places: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cu = Components.utils;
@@ -26,6 +14,9 @@ Cu.import('resource://xulmigemo-modules/service.jsm');
 Cu.import('resource://xulmigemo-modules/api.jsm');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 Cu.import('resource://xulmigemo-modules/core/find.js');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('places', ...aArgs); }
  
 var XMigemoPlaces = { 
 	

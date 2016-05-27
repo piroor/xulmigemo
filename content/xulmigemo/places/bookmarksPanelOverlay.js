@@ -2,12 +2,10 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
 Components.utils.import('resource://xulmigemo-modules/places.jsm');
 
-function log(...aArgs) 
-{
-	if (Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.places'))
-		Services.console.logStringMessage('bookmarks: ' + aArgs.join(', '));
-}
+(function() {
+
+var { MigemoLog } = Cu.import('resource://xulmigemo-modules/log.jsm', {});
+function log(...aArgs) { MigemoLog('places.bookmarks', ...aArgs); }
 
 var XMigemoBookmarksPanelOverlay = { 
 	 
@@ -39,3 +37,4 @@ var XMigemoBookmarksPanelOverlay = {
   
 window.addEventListener('load', XMigemoBookmarksPanelOverlay, false); 
  	
+})();

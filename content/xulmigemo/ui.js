@@ -8,13 +8,9 @@ Cu.import('resource://xulmigemo-modules/remoteFinder.jsm', {});
 var { MigemoConstants } = Cu.import('resource://xulmigemo-modules/constants.jsm', {});
 var { MigemoTextUtils } = Cu.import('resource://xulmigemo-modules/core/textUtils.js', {});
 var { inherit } = Cu.import('resource://xulmigemo-modules/lib/inherit.jsm', {});
- 
-function log(...aArgs) 
-{
-	if (Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.ui'))
-		Services.console.logStringMessage(aArgs.join(', '));
-}
+
+var { MigemoLog } = Cu.import('resource://xulmigemo-modules/log.jsm', {});
+function log(...aArgs) { MigemoLog('ui', ...aArgs); }
 
 window.XMigemoUI = inherit(MigemoConstants, { 
 	

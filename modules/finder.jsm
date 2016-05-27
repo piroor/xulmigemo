@@ -1,17 +1,5 @@
 var EXPORTED_SYMBOLS = ['MigemoFinder']; 
 
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.finder')) {
-		Services.console.logStringMessage('finder: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('finder: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cu = Components.utils;
@@ -25,6 +13,9 @@ Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/service.jsm');
 Cu.import('resource://xulmigemo-modules/core/find.js');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('finder', ...aArgs); }
 
 
 function myResultToNativeResult(aFlag)

@@ -1,17 +1,5 @@
 var EXPORTED_SYMBOLS = ['XMigemoService', 'XMigemoCore', 'xulMigemoCore']; 
 
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.service')) {
-		Services.console.logStringMessage('service: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('service: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cu = Components.utils;
@@ -27,6 +15,9 @@ Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/api.jsm');
 Cu.import('resource://xulmigemo-modules/core/core.js');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('service', ...aArgs); }
  
 var XMigemoService = inherit(prefs, { 
 	DEBUG : true, 

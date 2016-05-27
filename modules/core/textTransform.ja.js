@@ -1,17 +1,5 @@
 var EXPORTED_SYMBOLS = ['MigemoTextTransformJa'];
 
-var DEBUG = false;
-function log(...aArgs) 
-{
-	if (DEBUG ||
-		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.textTransform.ja')) {
-		Services.console.logStringMessage('textTransform.ja: '+aArgs.join(', '));
-		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
-			dump('textTransform.ja: '+aArgs.join(', ')+'\n');
-	}
-}
-
 var TEST = false; 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -21,6 +9,9 @@ Cu.import('resource://gre/modules/Services.jsm');
 
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 Cu.import('resource://xulmigemo-modules/core/textTransform.js');
+
+Cu.import('resource://xulmigemo-modules/log.jsm');
+function log(...aArgs) { MigemoLog('textTransform.ja', ...aArgs); }
 
 var Prefs = Cc['@mozilla.org/preferences;1']
 			.getService(Ci.nsIPrefBranch);
