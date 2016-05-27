@@ -44,6 +44,8 @@ MigemoCache.prototype = inherit(MigemoConstants, {
 		if (!aFileName)
 			return;
 
+		this.fileName = aFileName;
+
 		if (aEncoding)
 			this.encoding = aEncoding;
 
@@ -214,18 +216,18 @@ MigemoCache.prototype = inherit(MigemoConstants, {
 			if (!this.loadFor(aTargetDic))
 				return false;
 		}
-		else {
-			var failedCount = 0;
-			this.DICTIONARIES_ALL.forEach(this.loadFor, this);
-		}
+
+		this.DICTIONARIES_ALL.forEach(this.loadFor, this);
 		this.initialized = this.DICTIONARIES_ALL.every(this.getCacheFile, this);
+
 		if (this.initialized) {
 			log('MigemoCache: loaded');
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		this.init(this.fileName); // force reinit
+		this.initialized = true;
+		return true;
 	},
 	loadFor : function(aTargetDic)
 	{
