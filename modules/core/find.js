@@ -890,10 +890,7 @@ FindRangeIterator.prototype = {
 			}
 
 			if (this.traverseSubFrames) {
-				let anchor = doc.createComment('');
-				this.mAnchor.insertNode(anchor);
-				let previousFrame = MigemoDocumentUtils.getPreviousFrame(doc, anchor);
-				anchor.parentNode.removeChild(anchor);
+				let previousFrame = MigemoDocumentUtils.getPreviousFrame(doc, this.mAnchor);
 				if (previousFrame) {
 					let range = this.mAnchor.cloneRange();
 					range.setStartBefore(previousFrame);
@@ -941,10 +938,7 @@ FindRangeIterator.prototype = {
 			}
 
 			if (this.traverseSubFrames) {
-				let anchor = doc.createComment('');
-				this.mAnchor.insertNode(anchor);
-				let nextFrame = MigemoDocumentUtils.getNextFrame(doc, anchor);
-				anchor.parentNode.removeChild(anchor);
+				let nextFrame = MigemoDocumentUtils.getNextFrame(doc, this.mAnchor);
 				if (nextFrame) {
 					let range = this.mAnchor.cloneRange();
 					range.setEndBefore(nextFrame);
