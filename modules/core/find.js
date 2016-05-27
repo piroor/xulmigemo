@@ -713,15 +713,17 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 
 	getScrollableParent : function(aNode)
 	{
-		while (aNode)
+		if (!aNode || !aNode.ownerDocument)
+			return null;
+
+		var root = aNode.ownerDocument.documentElement;
+		while (aNode && aNode != root)
 		{
 			if (('scrollTopMax' in aNode && aNode.scrollTopMax != 0) ||
 				('scrollLeftMax' in aNode && aNode.scrollLeftMax != 0) ||
 				aNode instanceof Ci.nsIDOMNSEditableElement)
 				return aNode;
 			aNode = aNode.parentNode;
-			if (aNode == aNode.ownerDocument.documentElement)
-				break;
 		}
 		return null;
 	},
