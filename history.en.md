@@ -1,6 +1,11 @@
 # History
 
  - master/HEAD
+   * Firefox unexpectedly hanged in some pages.
+   * Backward search works correctly with subframes.
+   * Works correctly with pages including very long text node which includes the finding term multiple times.
+   * Apply "no match" appearance immediately when there is no match.
+   * The initialization wizard never appear multiple times for new windows opened on the initial session.
  - 0.14.2 (2016.5.20)
    * Dictionary manager works again.
    * Works correctly on the Places Organizer.
