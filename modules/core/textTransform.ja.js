@@ -5,8 +5,10 @@ function log(...aArgs)
 {
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.textTransform.ja'))
-		Services.console.logStringMessage(aArgs.join(', '));
+		Services.prefs.getBoolPref('xulmigemo.debug.textTransform.ja')) {
+		Services.console.logStringMessage('textTransform.ja: '+aArgs.join(', '));
+		dump('textTransform.ja: '+aArgs.join(', ')+'\n');
+	}
 }
 
 var TEST = false; 

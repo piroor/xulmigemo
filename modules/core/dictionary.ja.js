@@ -10,8 +10,10 @@ function log(...aArgs)
 {
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.dictionary.ja'))
-		Services.console.logStringMessage(aArgs.join(', '));
+		Services.prefs.getBoolPref('xulmigemo.debug.dictionary.ja')) {
+		Services.console.logStringMessage('dictionary.ja: '+aArgs.join(', '));
+		dump('dictionary.ja: '+aArgs.join(', ')+'\n');
+	}
 }
 
 var TEST = false;

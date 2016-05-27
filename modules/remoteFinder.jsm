@@ -5,8 +5,10 @@ function log(...aArgs)
 {
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.remoteFinder'))
-		Services.console.logStringMessage(aArgs.join(', '));
+		Services.prefs.getBoolPref('xulmigemo.debug.remoteFinder')) {
+		Services.console.logStringMessage('remoteFinder: '+aArgs.join(', '));
+		dump('remoteFinder: '+aArgs.join(', ')+'\n');
+	}
 }
 
 var Cc = Components.classes;

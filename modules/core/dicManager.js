@@ -9,8 +9,10 @@ function log(...aArgs)
 {
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.dicManager'))
-		Services.console.logStringMessage(aArgs.join(', '));
+		Services.prefs.getBoolPref('xulmigemo.debug.dicManager')) {
+		Services.console.logStringMessage('dicManager: '+aArgs.join(', '));
+		dump('dicManager: '+aArgs.join(', ')+'\n');
+	}
 }
 
 var TEST = false;

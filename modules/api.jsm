@@ -5,8 +5,10 @@ function log(...aArgs)
 {
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.api'))
-		Services.console.logStringMessage(aArgs.join(', '));
+		Services.prefs.getBoolPref('xulmigemo.debug.api')) {
+		Services.console.logStringMessage('api: '+aArgs.join(', '));
+		dump('api: '+aArgs.join(', ')+'\n');
+	}
 }
 
 var TEST = false;

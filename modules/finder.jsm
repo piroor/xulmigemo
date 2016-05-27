@@ -5,8 +5,10 @@ function log(...aArgs)
 {
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.finder'))
+		Services.prefs.getBoolPref('xulmigemo.debug.finder')) {
 		Services.console.logStringMessage('finder: '+aArgs.join(', '));
+		dump('finder: '+aArgs.join(', ')+'\n');
+	}
 }
 
 var Cc = Components.classes;

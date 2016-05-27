@@ -9,8 +9,10 @@ function log(...aArgs)
 {
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.cache'))
-		Services.console.logStringMessage(aArgs.join(', '));
+		Services.prefs.getBoolPref('xulmigemo.debug.cache')) {
+		Services.console.logStringMessage('cache: '+aArgs.join(', '));
+		dump('cache: '+aArgs.join(', ')+'\n');
+	}
 }
 
 var TEST = false;

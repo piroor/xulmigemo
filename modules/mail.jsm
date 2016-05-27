@@ -5,8 +5,10 @@ function log(...aArgs)
 {
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.mail'))
-		Services.console.logStringMessage('mail '+aArgs.join(', '));
+		Services.prefs.getBoolPref('xulmigemo.debug.mail')) {
+		Services.console.logStringMessage('mail: '+aArgs.join(', '));
+		dump('mail: '+aArgs.join(', ')+'\n');
+	}
 }
 
 var TEST = false; 

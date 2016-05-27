@@ -5,8 +5,10 @@ function log(...aArgs)
 {
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.fileAccess'))
-		Services.console.logStringMessage(aArgs.join(', '));
+		Services.prefs.getBoolPref('xulmigemo.debug.fileAccess')) {
+		Services.console.logStringMessage('fileAccess: '+aArgs.join(', '));
+		dump('fileAccess: '+aArgs.join(', ')+'\n');
+	}
 }
 
 var TEST = false;

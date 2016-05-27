@@ -9,8 +9,10 @@ function log(...aArgs)
 {
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.find'))
-		Services.console.logStringMessage(aArgs.join(', '));
+		Services.prefs.getBoolPref('xulmigemo.debug.find')) {
+		Services.console.logStringMessage('find: '+aArgs.join(', '));
+		dump('find: '+aArgs.join(', ')+'\n');
+	}
 }
 
 var TEST = false;

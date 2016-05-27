@@ -5,8 +5,10 @@ function log(...aArgs)
 {
 	if (DEBUG ||
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
-		Services.prefs.getBoolPref('xulmigemo.debug.places'))
-		Services.console.logStringMessage(aArgs.join(', '));
+		Services.prefs.getBoolPref('xulmigemo.debug.places')) {
+		Services.console.logStringMessage('places: '+aArgs.join(', '));
+		dump('places: '+aArgs.join(', ')+'\n');
+	}
 }
 
 var Cc = Components.classes;
