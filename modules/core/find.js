@@ -293,7 +293,13 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			let result = this.findWithRangeSet(aFindFlag, aFindTerm, rangeSet);
 
 			if (!(aFindFlag & this.FIND_SILENTLY)) {
-				if (lastDoc && lastDoc != rangeSet.doc) {
+				if (
+					lastDoc &&
+					(
+						lastDoc != rangeSet.doc ||
+						!(result.flag & this.FOUND)
+					)
+					) {
 					this.clearSelection(lastDoc);
 					this.clearSelectionLook(lastDoc);
 				}
