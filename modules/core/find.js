@@ -425,7 +425,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 
 		if (Services.prefs.getBoolPref('xulmigemo.debug.find.markers') &&
 			!(aFindFlag & this.FIND_SILENTLY))
-			this.insertMarkers(aFindFlag, aTerm, aRangeSet, result.range);
+			MigemoDocumentUtils.insertMarkers(aTerm, aRangeSet);
 
 		if (!result.range) {
 			return result;
@@ -442,70 +442,6 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 
 		return result;
 	},
-
-	insertMarkers : function(aFindFlag, aTerm, aRangeSet, aFoundRange)
-	{
-		var doc = aRangeSet.doc;
-		var timestamp = new Date().toString();
-		var found = aFoundRange ? ' (found)' : ' (missing)';
-
-		if (!doc.documentElement.getAttribute(this.RANGE_MARKER_ACTIVE)) {
-			doc.documentElement.setAttribute(this.RANGE_MARKER_ACTIVE, true);
-			let style = doc.createProcessingInstruction(
-				'xml-stylesheet',
-				'href="data:text/css,'+encodeURIComponent(`
-					[${this.RANGE_MARKER_RANGE_START}]::before,
-					[${this.RANGE_MARKER_RANGE_END}]::before {
-						color: black !important;
-						border: 1px solid !important;
-						background: orange !important;
-					}
-					[${this.RANGE_MARKER_RANGE_START}]::before {
-						content: "<<" attr(${this.RANGE_MARKER_COUNT}) "<<";
-					}
-					[${this.RANGE_MARKER_RANGE_END}]::before {
-						content: ">>" attr(${this.RANGE_MARKER_COUNT}) ">>";
-					}
-					[${this.RANGE_MARKER_START_POINT}]::before {
-						content: "[FROM HERE " attr(${this.RANGE_MARKER_COUNT}) "]";
-						color: white !important;
-						border: 1px solid !important;
-						background: blue !important;
-					}
-					[${this.RANGE_MARKER_END_POINT}]::before {
-						content: "[TO HERE " attr(${this.RANGE_MARKER_COUNT}) "]";
-						color: white !important;
-						border: 1px solid !important;
-						background: green !important;
-					}
-				`)+'" type="text/css"'
-			);
-			doc.insertBefore(style, doc.documentElement);
-		}
-
-		var rangeStart = doc.createElement('span');
-		rangeStart.setAttribute('title', aTerm+found+' : '+timestamp);
-		rangeStart.setAttribute(this.RANGE_MARKER_COUNT, this.mMarkerCount);
-		rangeStart.setAttribute(this.RANGE_MARKER_RANGE_START, true);
-		aRangeSet.range.insertNode(rangeStart);
-
-		var rangeEnd = rangeStart.cloneNode(true);
-		rangeEnd.setAttribute(this.RANGE_MARKER_RANGE_END, true);
-		var insertionPoint = aRangeSet.range.cloneRange();
-		insertionPoint.collapse(false);
-		insertionPoint.insertNode(rangeEnd);
-
-		var startPoint = rangeStart.cloneNode(true);
-		startPoint.setAttribute(this.RANGE_MARKER_START_POINT, true);
-		aRangeSet.start.insertNode(startPoint);
-
-		var endPoint = rangeStart.cloneNode(true);
-		endPoint.setAttribute(this.RANGE_MARKER_END_POINT, true);
-		aRangeSet.end.insertNode(endPoint);
-
-		this.mMarkerCount++;
-	},
-	mMarkerCount : 0,
    
 	getParentLinkFromRange : function(aRange) 
 	{
@@ -624,8 +560,6 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		if (!aTarget)
 			return;
 
-		log('scrollTargetToCenter <'+aTarget+'>');
-
 		var padding = Math.max(0, Math.min(100, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.padding')));
 
 		var startX;
@@ -648,6 +582,8 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			window = (aTarget.startContainer || aTarget).ownerDocument.defaultView;
 			scrollFrame = window;
 		}
+
+		log('scrollTargetToCenter <'+aTarget+'> window='+window+', scrollFrame='+scrollFrame);
 
 		var task = this.smoothScrollTasks.get(scrollFrame);
 		if (task) {
@@ -673,8 +609,10 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 
 			this.scrollTargetToCenter(scrollFrame, aPreventAnimation);
 
-			if (this.isBoxInViewport(box, scrollFrame, padding))
+			if (this.isBoxInViewport(box, scrollFrame, padding)) {
+				log(' => <'+aTarget+'> is visible in the scrollFrame(element) '+scrollFrame);
 				return;
+			}
 		}
 		else {
 			let box = getBoxObjectFor(aTarget);
@@ -696,8 +634,10 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 				this.scrollTargetToCenter(ownerFrame, aPreventAnimation);
 			}
 
-			if (this.isBoxInViewport(box, scrollFrame, padding))
+			if (this.isBoxInViewport(box, scrollFrame, padding)) {
+				log(' => <'+aTarget+'> is visible in the scrollFrame '+scrollFrame);
 				return;
+			}
 		}
 
 		var xUnit = viewW * (padding / 100);
@@ -767,11 +707,31 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		var scrollY = aFrame.scrollY || aFrame.scrollTop || 0;
 		var viewPortWidth = aFrame.innerWidth || aFrame.offsetWidth || 0;
 		var viewPortHeight = aFrame.innerHeight || aFrame.offsetHeight || 0;
+		var result = {
+			rightOut  : aBox.x > scrollX + viewPortWidth - aPadding,
+			bottomOut : aBox.y > scrollY + viewPortHeight - aPadding,
+			leftOut   : aBox.x + aBox.width < scrollX + aPadding,
+			topOut    : aBox.y + aBox.height < scrollY + aPadding
+		};
+		log('  isBoxInViewport: '+
+				JSON.stringify({
+					x: aBox.x,
+					y: aBox.y,
+					width:  aBox.width,
+					height: aBox.height
+				})+', '+JSON.stringify({
+					scrollX: scrollX,
+					scrollY: scrollY,
+					width:  viewPortWidth,
+					height: viewPortHeight,
+					aPadding: aPadding
+				})+', '+JSON.stringify(result));
+
 		return !(
-			aBox.x > scrollX + viewPortWidth - aPadding ||
-			aBox.y > scrollY + viewPortHeight - aPadding ||
-			aBox.x + aBox.width < scrollX + aPadding ||
-			aBox.y + aBox.height < scrollY + aPadding
+			result.rightOut ||
+			result.bottomOut ||
+			result.leftOut ||
+			result.topOut
 		);
 	},
 
