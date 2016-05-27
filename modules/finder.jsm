@@ -199,15 +199,18 @@ Finder.prototype.__xm__findIterator_regexp = function* (aWord, aWindow) {
 	finder.caseSensitive = this.__xm__migemoFinder.caseSensitive;
 	finder.isLinksOnly = this.__xm__migemoFinder.isLinksOnly;
 
-	while (!(finder.find({
-			keyword : aWord,
-			skipSubframes : true
-		}) & MigemoConstants.WRAPPED))
+	while (true)
 	{
-		var range = finder.foundRange;
-		log('  found => '+range);
-		if (!range)
+		let result = finder.find({
+				keyword : aWord,
+				skipSubframes : true
+			});
+		if ((result & MigemoConstants.WRAPPED) ||
+			!(result & MigemoConstants.FOUND))
 			break;
+
+		let range = finder.foundRange;
+		log('  found => '+range);
 		yield range;
 	}
 };
