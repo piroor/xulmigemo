@@ -49,7 +49,8 @@ var MigemoDocumentUtils = inherit(MigemoConstants, {
 			contextNode = contextNode.startContainer;
 		try {
 			var xpathResult = aDocument.evaluate(
-					'following::*' + this.FRAME_CONDITION + ' | descendant::*' + this.FRAME_CONDITION,
+					'following::*' + this.FRAME_CONDITION + ' | ' +
+						'descendant::*' + this.FRAME_CONDITION,
 					contextNode,
 					null,
 					Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
