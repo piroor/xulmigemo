@@ -218,23 +218,25 @@ var MigemoDocumentUtils = inherit(MigemoConstants, {
 			doc.insertBefore(style, doc.documentElement);
 		}
 
-		var rangeStart = doc.createElement('span');
-		rangeStart.setAttribute('title', aTerm+' : '+timestamp);
-		rangeStart.setAttribute(this.RANGE_MARKER_COUNT, this.mMarkerCount);
+		var marker = doc.createElement('span');
+		marker.setAttribute('title', aTerm+' : '+timestamp);
+		marker.setAttribute(this.RANGE_MARKER_COUNT, this.mMarkerCount);
+
+		var rangeStart = marker.cloneNode(true);
 		rangeStart.setAttribute(this.RANGE_MARKER_RANGE_START, true);
 		aRangeSet.range.insertNode(rangeStart);
 
-		var rangeEnd = rangeStart.cloneNode(true);
+		var rangeEnd = marker.cloneNode(true);
 		rangeEnd.setAttribute(this.RANGE_MARKER_RANGE_END, true);
 		var insertionPoint = aRangeSet.range.cloneRange();
 		insertionPoint.collapse(false);
 		insertionPoint.insertNode(rangeEnd);
 
-		var startPoint = rangeStart.cloneNode(true);
+		var startPoint = marker.cloneNode(true);
 		startPoint.setAttribute(this.RANGE_MARKER_START_POINT, true);
 		aRangeSet.start.insertNode(startPoint);
 
-		var endPoint = rangeStart.cloneNode(true);
+		var endPoint = marker.cloneNode(true);
 		endPoint.setAttribute(this.RANGE_MARKER_END_POINT, true);
 		aRangeSet.end.insertNode(endPoint);
 
