@@ -795,6 +795,7 @@ function FindRangeIterator(aRootDocShell, aStartPoint, aBackward, aSkipSubframes
 	this.mRootDocShell = aRootDocShell;
 	if (aStartPoint) {
 		this.mStartPoint = aStartPoint.cloneRange();
+		this.mStartPoint.collapse(!this.backward);
 	}
 	else {
 		let doc = this.getDocumentFromDocShell(aRootDocShell);
@@ -949,7 +950,7 @@ FindRangeIterator.prototype = {
 				this.mAnchor = doc.createRange();
 				this.mAnchor.selectNode(editable);
 				this.mAnchor.collapse(true);
-				this.checkLoop();
+				this.checkLoop(range);
 				return this.createRangeSet(editableRange);
 			}
 
@@ -961,7 +962,7 @@ FindRangeIterator.prototype = {
 				let range = this.mAnchor.cloneRange();
 				range.setStartAfter(nextFrame);
 				this.mAnchor = this.createAnchorInDocument(nextFrame.contentDocument);
-				this.checkLoop();
+				this.checkLoop(range);
 				return this.createRangeSet(range);
 			}
 
@@ -974,14 +975,14 @@ FindRangeIterator.prototype = {
 				this.mAnchor = ownerFrame.ownerDocument.createRange();
 				this.mAnchor.selectNode(ownerFrame);
 				this.mAnchor.collapse(true);
-				this.checkLoop();
+				this.checkLoop(range);
 				return this.createRangeSet(range);
 			}
 
 			doc = this.getDocumentFromDocShell(this.mRootDocShell);
 			this.mAnchor = this.createAnchorInDocument(doc);
 			this.mWillWrapBackward = true;
-			this.checkLoop();
+			this.checkLoop(range);
 			return this.createRangeSet(range);
 		}
 		else {
@@ -996,7 +997,7 @@ FindRangeIterator.prototype = {
 				this.mAnchor = doc.createRange();
 				this.mAnchor.selectNode(editable);
 				this.mAnchor.collapse(false);
-				this.checkLoop();
+				this.checkLoop(range);
 				return this.createRangeSet(editableRange);
 			}
 
@@ -1008,7 +1009,7 @@ FindRangeIterator.prototype = {
 				let range = this.mAnchor.cloneRange();
 				range.setEndBefore(nextFrame);
 				this.mAnchor = this.createAnchorInDocument(nextFrame.contentDocument);
-				this.checkLoop();
+				this.checkLoop(range);
 				return this.createRangeSet(range);
 			}
 
@@ -1021,14 +1022,14 @@ FindRangeIterator.prototype = {
 				this.mAnchor = ownerFrame.ownerDocument.createRange();
 				this.mAnchor.selectNode(ownerFrame);
 				this.mAnchor.collapse(false);
-				this.checkLoop();
+				this.checkLoop(range);
 				return this.createRangeSet(range);
 			}
 
 			doc = this.getDocumentFromDocShell(this.mRootDocShell);
 			this.mAnchor = this.createAnchorInDocument(doc);
 			this.mWillWrapForward = true;
-			this.checkLoop();
+			this.checkLoop(range);
 			return this.createRangeSet(range);
 		}
 	},
@@ -1120,21 +1121,35 @@ FindRangeIterator.prototype = {
 		}
 	},
 
-	checkLoop : function()
+	checkLoop : function(aNextFindRange)
 	{
 		if (this.looped ||
 			this.wrappedCount === 0)
 			return;
 
-		if (this.getOwnerDocumentFromRange(this.mAnchor) != this.getOwnerDocumentFromRange(this.mStartPoint))
-			return;
+		var startDoc = this.getOwnerDocumentFromRange(this.mStartPoint);
 
-		if (this.backward) {
-			this.looped = this.mAnchor.compareBoundaryPoints(this.mAnchor.START_TO_END, this.mStartPoint) <= 0;
+		var anchorDoc = this.getOwnerDocumentFromRange(this.mAnchor);
+		var anchorPassed = false;
+		if (startDoc == anchorDoc) {
+			if (this.backward) {
+				anchorPassed = this.mAnchor.compareBoundaryPoints(this.mAnchor.START_TO_END, this.mStartPoint) <= 0;
+			}
+			else {
+				anchorPassed = this.mAnchor.compareBoundaryPoints(this.mAnchor.END_TO_START, this.mStartPoint) >= 0;
+			}
 		}
-		else {
-			this.looped = this.mAnchor.compareBoundaryPoints(this.mAnchor.END_TO_START, this.mStartPoint) >= 0;
-		}
+
+		var findDoc = this.getOwnerDocumentFromRange(aNextFindRange);
+		var findRangePassed = (
+				(startDoc == findDoc) &&
+				(
+					aNextFindRange.compareBoundaryPoints(aNextFindRange.START_TO_START, this.mStartPoint) <= 0 &&
+					aNextFindRange.compareBoundaryPoints(aNextFindRange.END_TO_END, this.mStartPoint) >= 0
+				)
+			);
+
+		this.looped = anchorPassed || findRangePassed;
 	},
  
 	destroy : function() 
