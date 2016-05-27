@@ -27,6 +27,7 @@ Cu.import('resource://xulmigemo-modules/lib/inherit.jsm');
 Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/core/core.js');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
+Cu.import('resource://xulmigemo-modules/core/docUtils.js');
 
 var nsIDocShellTreeItem = Ci.nsIDocShellTreeNode || Ci.nsIDocShellTreeItem; // nsIDocShellTreeNode is merged to nsIDocShellTreeItem by https://bugzilla.mozilla.org/show_bug.cgi?id=331376
 
@@ -82,7 +83,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 	},
 	set targetDocument(aValue)
 	{
-		this.targetDocShell = FindRangeIterator.prototype.getDocShellFromDocument(aValue);
+		this.targetDocShell = MigemoDocumentUtils.getDocShellFromDocument(aValue);
 		return aValue;
 	},
 
@@ -220,7 +221,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		var foundRange = this.foundRange;
 		if (aSkipSubframes &&
 			foundRange &&
-			FindRangeIterator.prototype.getOwnerDocumentFromRange(foundRange) != this.targetDocument) {
+			MigemoDocumentUtils.getOwnerDocumentFromRange(foundRange) != this.targetDocument) {
 			this.foundRange = foundRange = null;
 		}
 
@@ -436,7 +437,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 
 		result.flag = this.FOUND;
 
-		if (result.foundEditable = FindRangeIterator.prototype.getParentEditableFromRange(result.range))
+		if (result.foundEditable = MigemoDocumentUtils.getParentEditableFromRange(result.range))
 			result.flag |= this.FOUND_IN_EDITABLE;
 
 		if (aFindFlag & this.FIND_IN_LINK &&
@@ -489,7 +490,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 							.editor
 							.selectionController :
 					(typeof aTarget.Window == 'function' && aTarget instanceof aTarget.Window) ?
-						FindRangeIterator.prototype.getDocShellFromDocument(aTarget.document)
+						MigemoDocumentUtils.getDocShellFromDocument(aTarget.document)
 							.QueryInterface(Ci.nsIInterfaceRequestor)
 							.getInterface(Ci.nsISelectionDisplay)
 							.QueryInterface(Ci.nsISelectionController) :
@@ -540,7 +541,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		}, this);
 
 		// set new range
-		var editableParent = FindRangeIterator.prototype.getParentEditableFromRange(aRange);
+		var editableParent = MigemoDocumentUtils.getParentEditableFromRange(aRange);
 		var newSelCon = this.getSelectionController(editableParent) ||
 				this.getSelectionController(doc.defaultView);
 		var selection = newSelCon.getSelection(newSelCon.SELECTION_NORMAL);
@@ -628,7 +629,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			targetH = box.height;
 
 			if (scrollFrame.top != scrollFrame) {
-				let ownerFrame = FindRangeIterator.prototype.getOwnerFrameFromContentDocument(scrollFrame.document);
+				let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(scrollFrame.document);
 				this.scrollTargetToCenter(ownerFrame, aPreventAnimation);
 			}
 
@@ -716,7 +717,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		if (!aNode || !aNode.ownerDocument)
 			return null;
 
-		var root = aNode.ownerDocument.documentElement;
+		var root = MigemoDocumentUtils.getDocumentBody(aNode.ownerDocument);
 		while (aNode && aNode != root)
 		{
 			if (('scrollTopMax' in aNode && aNode.scrollTopMax != 0) ||
@@ -806,7 +807,7 @@ function FindRangeIterator(aRootDocShell, aStartPoint, aBackward, aSkipSubframes
 		this.mStartPoint.collapse(!this.backward);
 	}
 	else {
-		let doc = this.getDocumentFromDocShell(aRootDocShell);
+		let doc = MigemoDocumentUtils.getDocumentFromDocShell(aRootDocShell);
 		this.mStartPoint = this.createAnchorInDocument(doc);
 	}
 	this.mAnchor = this.mStartPoint.cloneRange();
@@ -822,7 +823,7 @@ FindRangeIterator.prototype = {
 	
 	get document()
 	{
-		return this.getOwnerDocumentFromRange(this.mAnchor);
+		return MigemoDocumentUtils.getOwnerDocumentFromRange(this.mAnchor);
 	},
 	get view()
 	{
@@ -830,67 +831,16 @@ FindRangeIterator.prototype = {
 	},
 	get docShell()
 	{
-		return this.getDocShellFromDocument(this.document);
+		return MigemoDocumentUtils.getDocShellFromDocument(this.document);
 	},
 	get body() 
 	{
-		return this.getDocumentBody(this.document);
-	},
-
-	getDocumentFromDocShell : function(aDocShell)
-	{
-		return aDocShell
-			.QueryInterface(Ci.nsIDocShell)
-			.QueryInterface(Ci.nsIWebNavigation)
-			.document;
-	},
-	
-	getDocShellFromDocument : function(aDocument) 
-	{
-		return aDocument.defaultView
-			.QueryInterface(Ci.nsIInterfaceRequestor)
-			.getInterface(Ci.nsIWebNavigation)
-			.QueryInterface(Ci.nsIDocShell);
-	},
-	
-	getDocumentBody : function(aDocument) 
-	{
-		try {
-			var xpathResult = aDocument.evaluate(
-					'descendant::*[contains(" BODY body ", concat(" ", local-name(), " "))]',
-					aDocument,
-					null,
-					Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
-					null
-				);
-			return xpathResult.singleNodeValue;
-		}
-		catch(e) {
-		}
-		return aDocument.documentElement;
-	},
-
-	getParentEditableFromRange : function(aRange) 
-	{
-		var node = aRange.commonAncestorContainer;
-		while (node && node.parentNode)
-		{
-			var isEditable = false;
-			try {
-				node = node.QueryInterface(Ci.nsIDOMNSEditableElement);
-				if (node.editor)
-					return node;
-			}
-			catch(e) {
-			}
-			node = node.parentNode;
-		}
-		return null;
+		return MigemoDocumentUtils.getDocumentBody(this.document);
 	},
 
 	getWholeFindRangeFromRangeInEditable : function(aRange) 
 	{
-		var owner = this.getParentEditableFromRange(aRange);
+		var owner = MigemoDocumentUtils.getParentEditableFromRange(aRange);
 		if (!owner)
 			return null;
 
@@ -904,34 +854,10 @@ FindRangeIterator.prototype = {
 		return range;
 	},
 
-	getOwnerDocumentFromRange : function(aRange)
-	{
-		return aRange.startContainer.ownerDocument || aRange.startContainer;
-	},
-
-	getOwnerFrameFromContentDocument : function(aDocument)
-	{
-		let parent = this.getDocShellFromDocument(aDocument)
-						.QueryInterface(Ci.nsIDocShellTreeItem)
-						.sameTypeParent;
-		if (!parent)
-			return null;
-
-		var parentDoc = this.getDocumentFromDocShell(parent);
-		var frame = null;
-		while (frame = this.getNextFrame(parentDoc, frame))
-		{
-			if (frame.contentDocument == aDocument)
-				return frame;
-		}
-
-		return null;
-	},
-
 	createAnchorInDocument : function(aDocument)
 	{
 		let point = aDocument.createRange();
-		point.selectNodeContents(this.getDocumentBody(aDocument));
+		point.selectNodeContents(MigemoDocumentUtils.getDocumentBody(aDocument));
 		point.collapse(!this.backward);
 		return point;
 	},
@@ -954,7 +880,7 @@ FindRangeIterator.prototype = {
 			}
 			if (editableRange) {
 				editableRange.setEnd(this.mAnchor.startContainer, this.mAnchor.startOffset);
-				let editable = this.getParentEditableFromRange(this.mAnchor);
+				let editable = MigemoDocumentUtils.getParentEditableFromRange(this.mAnchor);
 				this.mAnchor = doc.createRange();
 				this.mAnchor.selectNode(editable);
 				this.mAnchor.collapse(true);
@@ -962,23 +888,26 @@ FindRangeIterator.prototype = {
 				return this.createRangeSet(editableRange);
 			}
 
+			if (!this.mSkipSubframes) {
 			let anchor = doc.createComment('');
 			this.mAnchor.insertNode(anchor);
-			let previousFrame = this.getPreviousFrame(doc, anchor);
+			let previousFrame = MigemoDocumentUtils.getPreviousFrame(doc, anchor);
 			anchor.parentNode.removeChild(anchor);
 			if (previousFrame) {
 				let range = this.mAnchor.cloneRange();
-				range.setStartAfter(nextFrame);
-				this.mAnchor = this.createAnchorInDocument(nextFrame.contentDocument);
+				range.setStartBefore(previousFrame);
+				this.mAnchor = this.createAnchorInDocument(previousFrame.contentDocument);
 				this.checkLoop(range);
 				return this.createRangeSet(range);
 			}
+			}
 
-			let root = this.getDocumentBody(doc);
+			let root = MigemoDocumentUtils.getDocumentBody(doc);
 			let range = this.mAnchor.cloneRange();
 			range.setStartBefore(root.firstChild || root);
 
-			let ownerFrame = this.getOwnerFrameFromContentDocument(doc);
+			if (!this.mSkipSubframes) {
+			let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(doc);
 			if (ownerFrame) {
 				this.mAnchor = ownerFrame.ownerDocument.createRange();
 				this.mAnchor.selectNode(ownerFrame);
@@ -986,8 +915,9 @@ FindRangeIterator.prototype = {
 				this.checkLoop(range);
 				return this.createRangeSet(range);
 			}
+			}
 
-			doc = this.getDocumentFromDocShell(this.mRootDocShell);
+			doc = MigemoDocumentUtils.getDocumentFromDocShell(this.mRootDocShell);
 			this.mAnchor = this.createAnchorInDocument(doc);
 			this.mWillWrapBackward = true;
 			this.checkLoop(range);
@@ -1001,7 +931,7 @@ FindRangeIterator.prototype = {
 			}
 			if (editableRange) {
 				editableRange.setStart(this.mAnchor.endContainer, this.mAnchor.endOffset);
-				let editable = this.getParentEditableFromRange(this.mAnchor);
+				let editable = MigemoDocumentUtils.getParentEditableFromRange(this.mAnchor);
 				this.mAnchor = doc.createRange();
 				this.mAnchor.selectNode(editable);
 				this.mAnchor.collapse(false);
@@ -1009,9 +939,10 @@ FindRangeIterator.prototype = {
 				return this.createRangeSet(editableRange);
 			}
 
+			if (!this.mSkipSubframes) {
 			let anchor = doc.createComment('');
 			this.mAnchor.insertNode(anchor);
-			let nextFrame = this.getNextFrame(doc, anchor);
+			let nextFrame = MigemoDocumentUtils.getNextFrame(doc, anchor);
 			anchor.parentNode.removeChild(anchor);
 			if (nextFrame) {
 				let range = this.mAnchor.cloneRange();
@@ -1020,12 +951,14 @@ FindRangeIterator.prototype = {
 				this.checkLoop(range);
 				return this.createRangeSet(range);
 			}
+			}
 
-			let root = this.getDocumentBody(doc);
+			let root = MigemoDocumentUtils.getDocumentBody(doc);
 			let range = this.mAnchor.cloneRange();
 			range.setEndAfter(root.lastChild || root);
 
-			let ownerFrame = this.getOwnerFrameFromContentDocument(doc);
+			if (!this.mSkipSubframes) {
+			let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(doc);
 			if (ownerFrame) {
 				this.mAnchor = ownerFrame.ownerDocument.createRange();
 				this.mAnchor.selectNode(ownerFrame);
@@ -1033,8 +966,9 @@ FindRangeIterator.prototype = {
 				this.checkLoop(range);
 				return this.createRangeSet(range);
 			}
+			}
 
-			doc = this.getDocumentFromDocShell(this.mRootDocShell);
+			doc = MigemoDocumentUtils.getDocumentFromDocShell(this.mRootDocShell);
 			this.mAnchor = this.createAnchorInDocument(doc);
 			this.mWillWrapForward = true;
 			this.checkLoop(range);
@@ -1051,82 +985,8 @@ FindRangeIterator.prototype = {
 		};
 		rangeSet.start.collapse(!this.backward);
 		rangeSet.end.collapse(this.backward);
-		rangeSet.doc = this.getOwnerDocumentFromRange(aFindRange);
+		rangeSet.doc = MigemoDocumentUtils.getOwnerDocumentFromRange(aFindRange);
 		return rangeSet;
-	},
-
-	FRAME_CONDITION : '[contains(" IFRAME iframe FRAME frame ", concat(" ", local-name(), " "))]',
-
-	getNextFrame : function(aDocument, aContext) 
-	{
-		if (this.mSkipSubframes)
-			return null;
-
-		try {
-			var xpathResult = aDocument.evaluate(
-					'following::*' + this.FRAME_CONDITION + ' | descendant::*' + this.FRAME_CONDITION,
-					aContext || this.getDocumentBody(aDocument),
-					null,
-					Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
-					null
-				);
-			var frame = xpathResult.singleNodeValue;
-			if (!frame)
-				return null;
-
-			if (!this.isFindableDocument(frame.contentDocument))
-				return this.getNextFrame(aDocument, frame);
-
-			return frame;
-		}
-		catch(e) {
-		}
-		return null;
-	},
-
-	getPreviousFrame : function(aDocument, aContext) 
-	{
-		if (this.mSkipSubframes)
-			return null;
-
-		try {
-			var xpathResult = aDocument.evaluate(
-					'preceding::*' + this.FRAME_CONDITION + ' | ancestor::*' + this.FRAME_CONDITION,
-					aContext || (function getLast(aParent) {
-						return getLast(aParent.lastChild) || aParent;
-					})(this.getDocumentBody(aDocument)),
-					null,
-					Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
-					null
-				);
-			var frame = xpathResult.singleNodeValue;
-			if (!frame)
-				return null;
-
-			if (!this.isFindableDocument(frame.contentDocument))
-				return this.getPreviousFrame(aDocument, frame);
-
-			return frame;
-		}
-		catch(e) {
-		}
-		return null;
-	},
-
-	isFindableDocument : function(aDocument) 
-	{
-		switch (aDocument.documentElement.namespaceURI)
-		{
-			case 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul':
-			case 'http://www.w3.org/2000/svg':
-				return false;
-
-			default:
-				return (
-					aDocument.defaultView.innerWidth > 0 &&
-					aDocument.defaultView.innerHeight > 0
-				);
-		}
 	},
 
 	checkLoop : function(aNextFindRange)
@@ -1135,9 +995,9 @@ FindRangeIterator.prototype = {
 			this.wrappedCount === 0)
 			return;
 
-		var startDoc = this.getOwnerDocumentFromRange(this.mStartPoint);
+		var startDoc = MigemoDocumentUtils.getOwnerDocumentFromRange(this.mStartPoint);
 
-		var anchorDoc = this.getOwnerDocumentFromRange(this.mAnchor);
+		var anchorDoc = MigemoDocumentUtils.getOwnerDocumentFromRange(this.mAnchor);
 		var anchorPassed = false;
 		if (startDoc == anchorDoc) {
 			if (this.backward) {
@@ -1148,7 +1008,7 @@ FindRangeIterator.prototype = {
 			}
 		}
 
-		var findDoc = this.getOwnerDocumentFromRange(aNextFindRange);
+		var findDoc = MigemoDocumentUtils.getOwnerDocumentFromRange(aNextFindRange);
 		var findRangePassed = (
 				(startDoc == findDoc) &&
 				(

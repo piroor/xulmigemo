@@ -76,6 +76,7 @@ pref("xulmigemo.debug.service", false);
 
 pref("xulmigemo.debug.cache", false);
 pref("xulmigemo.debug.core", false);
+pref("xulmigemo.debug.docUtils", false);
 pref("xulmigemo.debug.dicManager", false);
 pref("xulmigemo.debug.dictionary.ja", false);
 pref("xulmigemo.debug.dictionary", false);
