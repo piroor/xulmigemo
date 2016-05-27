@@ -10,10 +10,10 @@ Cu.import('resource://xulmigemo-modules/core/docUtils.js');
 Cu.import('resource://xulmigemo-modules/log.jsm');
 function log(...aArgs) { MigemoLog('findRangeIterator', ...aArgs); }
 
-function FindRangeIterator(aRootDocShell, aStartPoint, aBackward, aTraverseSubFrames)
+function FindRangeIterator(aRootDocShell, aStartPoint, aBackward, aTraverseFrames)
 {
 	this.backward = aBackward;
-	this.traverseSubFrames = aTraverseSubFrames;
+	this.traverseFrames = aTraverseFrames;
 	this.mRootDocShell = aRootDocShell;
 	if (aStartPoint) {
 		this.mStartPoint = aStartPoint.cloneRange();
@@ -101,7 +101,7 @@ FindRangeIterator.prototype = {
 				return this.createRangeSet(editableRange);
 			}
 
-			if (this.traverseSubFrames) {
+			if (this.traverseFrames) {
 				let previousFrame = MigemoDocumentUtils.getPreviousFrame(doc, this.mAnchor);
 				if (previousFrame) {
 					let range = this.mAnchor.cloneRange();
@@ -116,7 +116,7 @@ FindRangeIterator.prototype = {
 			let range = this.mAnchor.cloneRange();
 			range.setStartBefore(root.firstChild || root);
 
-			if (this.traverseSubFrames) {
+			if (this.traverseFrames) {
 				let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(doc);
 				if (ownerFrame) {
 					this.mAnchor = ownerFrame.ownerDocument.createRange();
@@ -149,7 +149,7 @@ FindRangeIterator.prototype = {
 				return this.createRangeSet(editableRange);
 			}
 
-			if (this.traverseSubFrames) {
+			if (this.traverseFrames) {
 				let nextFrame = MigemoDocumentUtils.getNextFrame(doc, this.mAnchor);
 				if (nextFrame) {
 					let range = this.mAnchor.cloneRange();
@@ -164,7 +164,7 @@ FindRangeIterator.prototype = {
 			let range = this.mAnchor.cloneRange();
 			range.setEndAfter(root.lastChild || root);
 
-			if (this.traverseSubFrames) {
+			if (this.traverseFrames) {
 				let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(doc);
 				if (ownerFrame) {
 					this.mAnchor = ownerFrame.ownerDocument.createRange();
