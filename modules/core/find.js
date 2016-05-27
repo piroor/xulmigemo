@@ -233,10 +233,8 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			let firstVisibleNode = MigemoTextUtils.findFirstVisibleNode(this.targetDocument, aBackward);
 			if (firstVisibleNode) {
 				startPoint = this.targetDocument.createRange();
-				if (aBackward)
-					startPoint.setStartAfter(firstVisibleNode);
-				else
-					startPoint.setEndBefore(firstVisibleNode);
+				startPoint.selectNode(firstVisibleNode);
+				startPoint.collapse(!aBackward);
 			}
 		}
 		if (!startPoint) {
