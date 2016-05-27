@@ -7,7 +7,8 @@ function log(...aArgs)
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
 		Services.prefs.getBoolPref('xulmigemo.debug.remoteFinder')) {
 		Services.console.logStringMessage('remoteFinder: '+aArgs.join(', '));
-		dump('remoteFinder: '+aArgs.join(', ')+'\n');
+		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
+			dump('remoteFinder: '+aArgs.join(', ')+'\n');
 	}
 }
 

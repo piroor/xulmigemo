@@ -7,7 +7,8 @@ function log(...aArgs)
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
 		Services.prefs.getBoolPref('xulmigemo.debug.textTransform')) {
 		Services.console.logStringMessage('textTrasform: '+aArgs.join(', '));
-		dump('textTransform: '+aArgs.join(', ')+'\n');
+		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
+			dump('textTransform: '+aArgs.join(', ')+'\n');
 	}
 }
 

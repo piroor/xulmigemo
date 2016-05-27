@@ -7,7 +7,8 @@ function log(...aArgs)
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
 		Services.prefs.getBoolPref('xulmigemo.debug.service')) {
 		Services.console.logStringMessage('service: '+aArgs.join(', '));
-		dump('service: '+aArgs.join(', ')+'\n');
+		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
+			dump('service: '+aArgs.join(', ')+'\n');
 	}
 }
 

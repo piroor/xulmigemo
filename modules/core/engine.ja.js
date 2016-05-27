@@ -11,7 +11,8 @@ function log(...aArgs)
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
 		Services.prefs.getBoolPref('xulmigemo.debug.engine.ja')) {
 		Services.console.logStringMessage('engine.ja: '+aArgs.join(', '));
-		dump('engine.ja: '+aArgs.join(', ')+'\n');
+		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
+			dump('engine.ja: '+aArgs.join(', ')+'\n');
 	}
 }
 

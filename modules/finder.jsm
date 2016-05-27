@@ -7,7 +7,8 @@ function log(...aArgs)
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
 		Services.prefs.getBoolPref('xulmigemo.debug.finder')) {
 		Services.console.logStringMessage('finder: '+aArgs.join(', '));
-		dump('finder: '+aArgs.join(', ')+'\n');
+		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
+			dump('finder: '+aArgs.join(', ')+'\n');
 	}
 }
 

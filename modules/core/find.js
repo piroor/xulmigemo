@@ -11,7 +11,8 @@ function log(...aArgs)
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
 		Services.prefs.getBoolPref('xulmigemo.debug.find')) {
 		Services.console.logStringMessage('find: '+aArgs.join(', '));
-		dump('find: '+aArgs.join(', ')+'\n');
+		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
+			dump('find: '+aArgs.join(', ')+'\n');
 	}
 }
 

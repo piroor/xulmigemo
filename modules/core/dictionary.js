@@ -12,7 +12,8 @@ function log(...aArgs)
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
 		Services.prefs.getBoolPref('xulmigemo.debug.dictionary')) {
 		Services.console.logStringMessage('dictionary: '+aArgs.join(', '));
-		dump('dictionary: '+aArgs.join(', ')+'\n');
+		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
+			dump('dictionary: '+aArgs.join(', ')+'\n');
 	}
 }
 

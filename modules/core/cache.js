@@ -11,7 +11,8 @@ function log(...aArgs)
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
 		Services.prefs.getBoolPref('xulmigemo.debug.cache')) {
 		Services.console.logStringMessage('cache: '+aArgs.join(', '));
-		dump('cache: '+aArgs.join(', ')+'\n');
+		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
+			dump('cache: '+aArgs.join(', ')+'\n');
 	}
 }
 

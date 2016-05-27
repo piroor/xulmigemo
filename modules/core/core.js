@@ -13,7 +13,8 @@ function log(...aArgs)
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
 		Services.prefs.getBoolPref('xulmigemo.debug.core')) {
 		Services.console.logStringMessage('core: '+aArgs.join(', '));
-		dump('core: '+aArgs.join(', ')+'\n');
+		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
+			dump('core: '+aArgs.join(', ')+'\n');
 	}
 }
 

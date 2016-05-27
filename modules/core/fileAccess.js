@@ -7,7 +7,8 @@ function log(...aArgs)
 		Services.prefs.getBoolPref('xulmigemo.debug.all') ||
 		Services.prefs.getBoolPref('xulmigemo.debug.fileAccess')) {
 		Services.console.logStringMessage('fileAccess: '+aArgs.join(', '));
-		dump('fileAccess: '+aArgs.join(', ')+'\n');
+		if (Services.prefs.getBoolPref('xulmigemo.debug.dump'))
+			dump('fileAccess: '+aArgs.join(', ')+'\n');
 	}
 }
 
