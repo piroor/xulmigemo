@@ -282,7 +282,13 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		while (true)
 		{
 			let rangeSet = aRangeIterator.iterateNext();
-			log(this.logPrefix+'rangeSet '+rangeSet.range);
+
+			log(this.logPrefix+'wrapped => '+aRangeIterator.wrapped+', looped => '+aRangeIterator.looped);
+			let rangeString = rangeSet.range.toString();
+			if (rangeString.length > 400) {
+				rangeString = rangeString.slice(0,400)+'...('+(rangeString.length-400)+')'
+			}
+			log(this.logPrefix+'rangeSet.range => '+rangeString);
 
 			let result = this.findWithRangeSet(aFindFlag, aFindTerm, rangeSet);
 
