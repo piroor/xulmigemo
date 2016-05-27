@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 0.14.3 (2016.5.28)
    * Firefox unexpectedly hanged in some pages.
    * Backward search works correctly with subframes.
    * Works correctly with pages including very long text node which includes the finding term multiple times.
