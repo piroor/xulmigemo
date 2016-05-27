@@ -28,13 +28,13 @@ Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 
 function myResultToNativeResult(aFlag)
 {
-	if (aFlag === MigemoConstants.NOTFOUND)
-		return Ci.nsITypeAheadFind.FIND_NOTFOUND;
-
-	if (aFlag & MigemoConstants.WRAPPED)
-		return Ci.nsITypeAheadFind.FIND_WRAPPED;
-
-	return Ci.nsITypeAheadFind.FIND_FOUND;
+	if (aFlag & MigemoConstants.FOUND) {
+		if (aFlag & MigemoConstants.WRAPPED)
+			return Ci.nsITypeAheadFind.FIND_WRAPPED;
+		else
+			return Ci.nsITypeAheadFind.FIND_FOUND;
+	}
+	return Ci.nsITypeAheadFind.FIND_NOTFOUND;
 }
 
 Finder.prototype.__xm__init = function() {
