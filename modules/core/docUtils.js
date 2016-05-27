@@ -49,12 +49,13 @@ var MigemoDocumentUtils = {
 
 	FRAME_CONDITION : '[contains(" IFRAME iframe FRAME frame ", concat(" ", local-name(), " "))]',
 
-	getNextFrame : function(aDocument, aContext) 
+	getNextFrame : function(aDocument, aBase) 
 	{
+		var contextNode = aBase || this.getDocumentBody(aDocument);
 		try {
 			var xpathResult = aDocument.evaluate(
 					'following::*' + this.FRAME_CONDITION + ' | descendant::*' + this.FRAME_CONDITION,
-					aContext || this.getDocumentBody(aDocument),
+					contextNode,
 					null,
 					Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
 					null
@@ -62,6 +63,13 @@ var MigemoDocumentUtils = {
 			var frame = xpathResult.singleNodeValue;
 			if (!frame)
 				return null;
+
+			if (aBase instanceof Ci.nsIDOMRange) {
+				let foundRange = aDocument.createRange();
+				foundRange.selectNode(frame);
+				if (aBase.compareBoundaryPoints(aBase.START_TO_START, foundRange) > 0)
+					return this.getNextFrame(aDocument, frame);
+			}
 
 			if (!this.isFindableDocument(frame.contentDocument))
 				return this.getNextFrame(aDocument, frame);
@@ -73,14 +81,16 @@ var MigemoDocumentUtils = {
 		return null;
 	},
 
-	getPreviousFrame : function(aDocument, aContext) 
+	getPreviousFrame : function(aDocument, aBase) 
 	{
+		var contextNode = aBase ||
+							(function getLast(aParent) {
+								return getLast(aParent.lastChild) || aParent;
+							})(this.getDocumentBody(aDocument));
 		try {
 			var xpathResult = aDocument.evaluate(
 					'preceding::*' + this.FRAME_CONDITION + ' | ancestor::*' + this.FRAME_CONDITION,
-					aContext || (function getLast(aParent) {
-						return getLast(aParent.lastChild) || aParent;
-					})(this.getDocumentBody(aDocument)),
+					contextNode,
 					null,
 					Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
 					null
@@ -88,6 +98,13 @@ var MigemoDocumentUtils = {
 			var frame = xpathResult.singleNodeValue;
 			if (!frame)
 				return null;
+
+			if (aBase instanceof Ci.nsIDOMRange) {
+				let foundRange = aDocument.createRange();
+				foundRange.selectNode(frame);
+				if (aBase.compareBoundaryPoints(aBase.END_TO_END, foundRange) < 0)
+					return this.getPreviousFrame(aDocument, frame);
+			}
 
 			if (!this.isFindableDocument(frame.contentDocument))
 				return this.getPreviousFrame(aDocument, frame);
