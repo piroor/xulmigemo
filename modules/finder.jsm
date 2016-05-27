@@ -148,9 +148,9 @@ Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
 	finder.caseSensitive = this._fastFind.caseSensitive;
 	finder.isLinksOnly = aLinksOnly;
 	var result = finder.find({
-		keyword : aSearchString,
+		keyword  : aSearchString,
 		subFrame : true,
-		scroll  : true
+		scroll   : true
 	});
 	this._notify(
 		aSearchString,
