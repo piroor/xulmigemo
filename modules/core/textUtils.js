@@ -8,8 +8,6 @@ var Cu = Components.utils;
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/Timer.jsm');
 
-Cu.import('resource://xulmigemo-modules/lib/here.js');
-
 Cu.import('resource://xulmigemo-modules/log.jsm');
 function log(...aArgs) { MigemoLog('textUtils', ...aArgs); }
 
@@ -194,12 +192,12 @@ var MigemoTextUtils = {
 
 		return result.join('');
 	},
-	kEXCEPTION_EXPRESSION : here(/*
+	kEXCEPTION_EXPRESSION : `
 		descendant::*[
 			contains(" SCRIPT script TEXTAREA textarea textbox ", concat(" ", local-name(), " ")) or
 			((local-name()="INPUT" or local-name()="input") and contains("TEXT text FILE file", @type))
 		]
-	*/),
+	`,
   
 /* manipulate regular expressions */ 
 	
