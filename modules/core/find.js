@@ -892,17 +892,17 @@ FindRangeIterator.prototype = {
 			}
 
 			if (!this.mSkipSubframes) {
-			let anchor = doc.createComment('');
-			this.mAnchor.insertNode(anchor);
-			let previousFrame = MigemoDocumentUtils.getPreviousFrame(doc, anchor);
-			anchor.parentNode.removeChild(anchor);
-			if (previousFrame) {
-				let range = this.mAnchor.cloneRange();
-				range.setStartBefore(previousFrame);
-				this.mAnchor = this.createAnchorInDocument(previousFrame.contentDocument);
-				this.checkLoop(range);
-				return this.createRangeSet(range);
-			}
+				let anchor = doc.createComment('');
+				this.mAnchor.insertNode(anchor);
+				let previousFrame = MigemoDocumentUtils.getPreviousFrame(doc, anchor);
+				anchor.parentNode.removeChild(anchor);
+				if (previousFrame) {
+					let range = this.mAnchor.cloneRange();
+					range.setStartBefore(previousFrame);
+					this.mAnchor = this.createAnchorInDocument(previousFrame.contentDocument);
+					this.checkLoop(range);
+					return this.createRangeSet(range);
+				}
 			}
 
 			let root = MigemoDocumentUtils.getDocumentBody(doc);
@@ -910,14 +910,14 @@ FindRangeIterator.prototype = {
 			range.setStartBefore(root.firstChild || root);
 
 			if (!this.mSkipSubframes) {
-			let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(doc);
-			if (ownerFrame) {
-				this.mAnchor = ownerFrame.ownerDocument.createRange();
-				this.mAnchor.selectNode(ownerFrame);
-				this.mAnchor.collapse(true);
-				this.checkLoop(range);
-				return this.createRangeSet(range);
-			}
+				let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(doc);
+				if (ownerFrame) {
+					this.mAnchor = ownerFrame.ownerDocument.createRange();
+					this.mAnchor.selectNode(ownerFrame);
+					this.mAnchor.collapse(true);
+					this.checkLoop(range);
+					return this.createRangeSet(range);
+				}
 			}
 
 			doc = MigemoDocumentUtils.getDocumentFromDocShell(this.mRootDocShell);
@@ -943,17 +943,17 @@ FindRangeIterator.prototype = {
 			}
 
 			if (!this.mSkipSubframes) {
-			let anchor = doc.createComment('');
-			this.mAnchor.insertNode(anchor);
-			let nextFrame = MigemoDocumentUtils.getNextFrame(doc, anchor);
-			anchor.parentNode.removeChild(anchor);
-			if (nextFrame) {
-				let range = this.mAnchor.cloneRange();
-				range.setEndBefore(nextFrame);
-				this.mAnchor = this.createAnchorInDocument(nextFrame.contentDocument);
-				this.checkLoop(range);
-				return this.createRangeSet(range);
-			}
+				let anchor = doc.createComment('');
+				this.mAnchor.insertNode(anchor);
+				let nextFrame = MigemoDocumentUtils.getNextFrame(doc, anchor);
+				anchor.parentNode.removeChild(anchor);
+				if (nextFrame) {
+					let range = this.mAnchor.cloneRange();
+					range.setEndBefore(nextFrame);
+					this.mAnchor = this.createAnchorInDocument(nextFrame.contentDocument);
+					this.checkLoop(range);
+					return this.createRangeSet(range);
+				}
 			}
 
 			let root = MigemoDocumentUtils.getDocumentBody(doc);
@@ -961,14 +961,14 @@ FindRangeIterator.prototype = {
 			range.setEndAfter(root.lastChild || root);
 
 			if (!this.mSkipSubframes) {
-			let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(doc);
-			if (ownerFrame) {
-				this.mAnchor = ownerFrame.ownerDocument.createRange();
-				this.mAnchor.selectNode(ownerFrame);
-				this.mAnchor.collapse(false);
-				this.checkLoop(range);
-				return this.createRangeSet(range);
-			}
+				let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(doc);
+				if (ownerFrame) {
+					this.mAnchor = ownerFrame.ownerDocument.createRange();
+					this.mAnchor.selectNode(ownerFrame);
+					this.mAnchor.collapse(false);
+					this.checkLoop(range);
+					return this.createRangeSet(range);
+				}
 			}
 
 			doc = MigemoDocumentUtils.getDocumentFromDocShell(this.mRootDocShell);
