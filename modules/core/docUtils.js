@@ -78,35 +78,38 @@ var MigemoDocumentUtils = inherit(MigemoConstants, {
 
 	getPreviousFrame : function(aDocument, aBase) 
 	{
-		var contextNode = aBase ||
-							(function getLast(aParent) {
-								return getLast(aParent.lastChild) || aParent;
-							})(this.getDocumentBody(aDocument));
-		if (contextNode instanceof Ci.nsIDOMRange)
-			contextNode = contextNode.endContainer;
 		try {
+			var baseRange = aBase;
+			if (!baseRange || baseRange instanceof Ci.nsIDOMNode) {
+				baseRange = aDocument.createRange();
+				baseRange.selectNode(aBase);
+				baseRange.collapse(true);
+			}
 			var xpathResult = aDocument.evaluate(
-					'preceding::*' + this.FRAME_CONDITION + ' | ancestor::*' + this.FRAME_CONDITION,
-					contextNode,
+					'descendant::*' + this.FRAME_CONDITION,
+					aDocument,
 					null,
-					Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
+					Ci.nsIDOMXPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
 					null
 				);
-			var frame = xpathResult.singleNodeValue;
-			if (!frame)
+			var previousFrame;
+			var foundRange = aDocument.createRange();
+			for (let i = xpathResult.snapshotLength-1; i > -1; i--)
+			{
+				let frame = xpathResult.snapshotItem(i);
+				foundRange.selectNode(frame);
+				if (baseRange.compareBoundaryPoints(baseRange.END_TO_START, foundRange) >= 0) {
+					previousFrame = frame;
+					break;
+				}
+			}
+			if (!previousFrame)
 				return null;
 
-			if (aBase instanceof Ci.nsIDOMRange) {
-				let foundRange = aDocument.createRange();
-				foundRange.selectNode(frame);
-				if (aBase.compareBoundaryPoints(aBase.END_TO_END, foundRange) < 0)
-					return this.getPreviousFrame(aDocument, frame);
-			}
+			if (!this.isFindableDocument(previousFrame.contentDocument))
+				return this.getPreviousFrame(aDocument, previousFrame);
 
-			if (!this.isFindableDocument(frame.contentDocument))
-				return this.getPreviousFrame(aDocument, frame);
-
-			return frame;
+			return previousFrame;
 		}
 		catch(e) {
 		}
