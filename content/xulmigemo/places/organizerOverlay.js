@@ -3,7 +3,7 @@ Components.utils.import('resource://xulmigemo-modules/service.jsm');
 Components.utils.import('resource://xulmigemo-modules/places.jsm');
 
 (function() {
-var { MigemoLog } = Cu.import('resource://xulmigemo-modules/log.jsm', {});
+var { MigemoLog } = Components.utils.import('resource://xulmigemo-modules/log.jsm', {});
 function log(...aArgs) { MigemoLog('places.organizer', ...aArgs); }
 
 window.XMigemoOrganizerOverlay = { 
