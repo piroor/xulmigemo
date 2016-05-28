@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+   * Never match to un-normalized patterns of modified latin characters. For example, `t-` can appear in input text as an alternative of modified `≈ß`, but it seems not to appear in webpages. So now `t-` and similar patterns are not matched to regular input like `t`.
+   * Works correctly for webpages contains textarea and other input fields. (regression)
+   * Migemo search in the bookmarks sidebar, the history sidebar, and the places organizer works correctly. (regression)
  - 0.14.3 (2016.5.28)
    * Firefox unexpectedly hanged in some pages.
    * Backward search works correctly with subframes.
@@ -88,7 +91,7 @@
  - 0.11.11 (2009.2.12)
    * Modified: XUL/Migemo keep terms highlighted while switching find modes.
    * Fixed: Highlight screen of Safari style highlight disappeared when just you start to find.
-   * Fixed: "•Ù", a special kata-kana character, is found correctry by input like "va", "vi", "vu", "ve" and "vo".
+   * Fixed: "„É¥", a special kata-kana character, is found correctry by input like "va", "vi", "vu", "ve" and "vo".
  - 0.11.10 (2009.2.10)
    * Fixed: Configuration dialog works correctly with English locale.
    * Fixed: Ctrl-F circulates find mode correctly even if the default mode of the find toolbar is changed by user's preference.
@@ -156,7 +159,7 @@
    * Fixed: Place titles are correctly ignored on finding of bookmarks.
  - 0.10.0 (2008.7.3)
    * Improved: Available for Firefox 3 features, the Smart Location Bar, search boxes of History and Bookmarks.
-   * Improved: "thi" matches "§∆§£".
+   * Improved: "thi" matches "„Å¶„ÅÉ".
  - 0.9.1 (2008.6.27)
    * Fixed: "Compact" radio button in the dialog is correctly shown.
  - 0.9.0 (2008.6.27)
@@ -259,11 +262,11 @@
    * Fixed: Works with [Internote](http://internote.sourceforge.net/).
  - 0.7.10 (2007.10.24)
    * Fixed: Works with [Source Viewer Tab](http://piro.sakura.ne.jp/xul/_viewsourceintab.html.en).
-   * Fixed: The input "uwwu-" hits to "§¶§√§¶°º" correctly.
+   * Fixed: The input "uwwu-" hits to "„ÅÜ„Å£„ÅÜ„Éº" correctly.
  - 0.7.9 (2007.9.19)
    * Fixed: Freezing on start to find with auto-highlighting disappeared. (maybe)
    * Fixed: "Find from viewport" feature works correctly.
-   * Fixed: The input "ssyo" hits to "§√§∑§Á" correctly.
+   * Fixed: The input "ssyo" hits to "„Å£„Åó„Çá" correctly.
  - 0.7.8 (2007.8.3)
    * Improved: Words exist in the dictionary are found preferentially.
    * Improved: Highlight are not re-rendered on "Find Again" command. ("Find Again" command is optimized.)
@@ -274,7 +277,7 @@
    * Fixed: "Highlight all" can be disabled by hand if it is automatically enabled.
    * Modified: Matched terms are not highlighted automatically when the length of the longest term (or the term in the input field) is shorter than the number of the minimum characters for auto-highlight.
  - 0.7.7 (2007.7.21)
-   * Improved: Modifiers of latin letters can be ignored. For example, "Frè´±dè´±ric" can be found by the input "frederic".
+   * Improved: Modifiers of latin letters can be ignored. For example, "Fr√©d√©ric" can be found by the input "frederic".
    * Modified: English engine becomes the general engine. It can load dictionaries of any languages.
    * Modified: Dictionaries for the general engine are encoded in UTF-8.
    * Fixed: "Highlight all" is disabled automatically for the cases which the feature doesn't affect to.
@@ -303,7 +306,7 @@
  - 0.7.3 (2007.7.1)
    * Fixed: Selections are restored correctly, after find in "Highlight All" mode.
    * Fixed: "Highlight All" can be unchecked by hand correctly, even if you set it is checked by default.
-   * Fixed: Some rules of roman-letter input are supported; for example, "we" -&gt; "§¶§ß", "dhi" -&gt; "§«§£", etc.
+   * Fixed: Some rules of roman-letter input are supported; for example, "we" -&gt; "„ÅÜ„Åá", "dhi" -&gt; "„Åß„ÅÉ", etc.
  - 0.7.2 (2007.6.28)
    * Fixed: Errors in the initial preferences disappeared.
  - 0.7.1 (2007.6.28)
