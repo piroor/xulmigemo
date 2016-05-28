@@ -99,7 +99,7 @@ FindRangeIterator.prototype = {
 				this.mAnchor = doc.createRange();
 				this.mAnchor.selectNode(editable);
 				this.mAnchor.collapse(true);
-				this.checkLoop(range);
+				this.checkLoop(editableRange);
 				return this.createRangeSet(editableRange);
 			}
 
@@ -147,7 +147,7 @@ FindRangeIterator.prototype = {
 				this.mAnchor = doc.createRange();
 				this.mAnchor.selectNode(editable);
 				this.mAnchor.collapse(false);
-				this.checkLoop(range);
+				this.checkLoop(editableRange);
 				return this.createRangeSet(editableRange);
 			}
 
