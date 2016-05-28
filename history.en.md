@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 0.14.4 (2016.5.28)
    * Never match to un-normalized patterns of modified latin characters. For example, `t-` can appear in input text as an alternative of modified `ŧ`, but it seems not to appear in webpages. So now `t-` and similar patterns are not matched to regular input like `t`.
    * Works correctly for webpages contains textarea and other input fields. (regression)
    * Migemo search in the bookmarks sidebar, the history sidebar, and the places organizer works correctly. (regression)
