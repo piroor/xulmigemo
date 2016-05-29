@@ -254,6 +254,15 @@ var XMigemoService = inherit(prefs, {
 			'chrome,all,dependent',
 			null
 		);
+	},
+
+	getMyPref : function(aKey)
+	{
+		return prefs.getPref(MigemoConstants.BASE+aKey);
+	},
+	setMyPref : function(aKey, aValue)
+	{
+		return prefs.setPref(MigemoConstants.BASE+aKey, aValue);
 	}
 }); 
   

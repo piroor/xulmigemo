@@ -4,8 +4,8 @@ var findModule;
 
 function setUp()
 {
-	utils.setPref('xulmigemo.lang', 'ja');
-	utils.setPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled', false);
+	utils.setPref('extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.lang', 'ja');
+	utils.setPref('extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.scrollSelectionToCenter.smoothScroll.enabled', false);
 	findModule = new MigemoFind();
 	findModule.target = gBrowser;
 	findModule.findMode = findModule.FIND_MODE_MIGEMO;

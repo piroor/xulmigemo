@@ -140,11 +140,11 @@ testAutoStartLinksOnly.description = '自動開始：リンクのみ検索';
 testAutoStartLinksOnly.setUp = function()
 {
 	XMigemoUI.autoStartQuickFind = true;
-	utils.setPref('xulmigemo.linksonly', true);
+	utils.setPref(BASE+'linksonly', true);
 };
 testAutoStartLinksOnly.tearDown = function()
 {
-	utils.clearPref('xulmigemo.linksonly');
+	utils.clearPref(BASE+'linksonly');
 };
 function testAutoStartLinksOnly()
 {

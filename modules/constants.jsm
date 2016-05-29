@@ -1,6 +1,9 @@
 var EXPORTED_SYMBOLS = ['MigemoConstants']; 
 
 var MigemoConstants = {
+	BASE : 'extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.',
+	PREFS_VERSION : 1,
+
 	// find mode
 	FIND_MODE_NATIVE : 1 << 0,
 	FIND_MODE_MIGEMO : 1 << 1,

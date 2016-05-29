@@ -14,6 +14,7 @@ var XMigemoUI,
 var keyEventTest = baseURL+'../fixtures/keyEventTest.html';
 var keyEventTestXML = baseURL+'../fixtures/keyEventTest.xml';
 var WAIT = 500;
+var BASE = 'extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.':
 
 function commonSetUp(aURI)
 {
@@ -22,8 +23,8 @@ function commonSetUp(aURI)
 	var retVal = utils.addTab(aURI);
 
 	utils.setPref('browser.tabs.warnOnClose', false);
-	utils.setPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled', false);
-	utils.setPref('xulmigemo.findMode.default', 0);
+	utils.setPref(BASE+'scrollSelectionToCenter.smoothScroll.enabled', false);
+	utils.setPref(BASE+'findMode.default', 0);
 
 	browser = utils.getBrowser();
 	browser.removeAllTabsBut(retVal.tab);
@@ -93,9 +94,9 @@ function keypressMultiply(aKeyOptions, aTimes)
 function pref(aKey, aValue) {
 	switch (aKey)
 	{
-		case 'xulmigemo.lang':
-		case 'xulmigemo.dicpath':
-		case 'xulmigemo.dicpath-relative':
+		case BASE+'lang':
+		case BASE+'dicpath':
+		case BASE+'dicpath-relative':
 			return;
 	}
 	utils.setPref(aKey, aValue);

@@ -36,13 +36,13 @@ var MigemoDictionaryJa = inherit(MigemoConstants, {
 	get dicpath() 
 	{
 		var fullPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath')))
+				decodeURIComponent(escape(Services.prefs.getCharPref(this.BASE+'dicpath')))
 			);
 		var relPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath-relative')))
+				decodeURIComponent(escape(Services.prefs.getCharPref(this.BASE+'dicpath-relative')))
 			);
 		if (relPath && (!fullPath || fullPath != relPath))
-			Services.prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
+			Services.prefs.setCharPref(this.BASE+'dicpath', unescape(encodeURIComponent(relPath)));
 
 		return fullPath || relPath;
 	},

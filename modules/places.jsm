@@ -823,23 +823,23 @@ var XMigemoPlaces = {
 		var value = XMigemoService.getPref(aPrefName);
 		switch (aPrefName)
 		{
-			case 'xulmigemo.places.enableBoundaryFind':
+			case MigemoConstants.BASE+'places.enableBoundaryFind':
 				this.boundaryFindAvailable = value;
 				return;
 
-			case 'xulmigemo.places.chunk':
+			case MigemoConstants.BASE+'places.chunk':
 				this.chunk = value;
 				return;
 
-			case 'xulmigemo.places.ignoreURI':
+			case MigemoConstants.BASE+'places.ignoreURI':
 				this.ignoreURI = value;
 				return;
 
-			case 'xulmigemo.places.minLength':
+			case MigemoConstants.BASE+'places.minLength':
 				this.minLength = value;
 				return;
 
-			case 'xulmigemo.autostart.regExpFind':
+			case MigemoConstants.BASE+'autostart.regExpFind':
 				this.autoStartRegExpFind = value;
 				return;
 
@@ -890,16 +890,16 @@ var XMigemoPlaces = {
 		}
 	},
 	domains : [
-		'xulmigemo.places',
-		'xulmigemo.autostart.regExpFind',
+		MigemoConstants.BASE+'places',
+		MigemoConstants.BASE+'autostart.regExpFind',
 		'browser.urlbar'
 	],
 	preferences : `
-		xulmigemo.places.enableBoundaryFind
-		xulmigemo.places.ignoreURI
-		xulmigemo.places.chunk
-		xulmigemo.places.minLength
-		xulmigemo.autostart.regExpFind
+		${MigemoConstants.BASE}places.enableBoundaryFind
+		${MigemoConstants.BASE}places.ignoreURI
+		${MigemoConstants.BASE}places.chunk
+		${MigemoConstants.BASE}places.minLength
+		${MigemoConstants.BASE}autostart.regExpFind
 		browser.urlbar.filter.javascript
 		browser.urlbar.restrict.history
 		browser.urlbar.restrict.bookmark

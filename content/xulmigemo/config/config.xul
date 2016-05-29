@@ -17,31 +17,31 @@
 	onpaneload="initGeneralPane();">
 	<preferences>
 		<preference id="xulmigemo.lang"
-			name="xulmigemo.lang"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.lang"
 			type="string"/>
 
 		<preference id="xulmigemo.startfromviewport"
-			name="xulmigemo.startfromviewport"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.startfromviewport"
 			type="bool"/>
 		<preference id="xulmigemo.scrollSelectionToCenter"
-			name="xulmigemo.scrollSelectionToCenter"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.scrollSelectionToCenter"
 			type="bool"/>
 		<preference id="xulmigemo.autostart.regExpFind"
-			name="xulmigemo.autostart.regExpFind"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.autostart.regExpFind"
 			type="bool"/>
 
 		<preference id="xulmigemo.ignoreHiraKata"
-			name="xulmigemo.ignoreHiraKata"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.ignoreHiraKata"
 			type="bool"/>
 		<preference id="xulmigemo.ignoreLatinModifiers"
-			name="xulmigemo.ignoreLatinModifiers"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.ignoreLatinModifiers"
 			type="bool"/>
 		<preference id="xulmigemo.splitTermsAutomatically"
-			name="xulmigemo.splitTermsAutomatically"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.splitTermsAutomatically"
 			type="bool"/>
 
 		<preference id="xulmigemo.disableIME.migemo"
-			name="xulmigemo.disableIME.migemo"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.disableIME.migemo"
 			type="bool"/>
 	</preferences>
 
@@ -100,16 +100,16 @@
 	onpaneload="initModePane();">
 	<preferences>
 		<preference id="xulmigemo.findMode.always"
-			name="xulmigemo.findMode.always"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.findMode.always"
 			type="int"/>
 		<preference id="xulmigemo.findMode.default"
-			name="xulmigemo.findMode.default"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.findMode.default"
 			type="int"/>
 		<preference id="xulmigemo.findMode.quick.always"
-			name="xulmigemo.findMode.quick.always"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.findMode.quick.always"
 			type="int"/>
 		<preference id="xulmigemo.findMode.quick.default"
-			name="xulmigemo.findMode.quick.default"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.findMode.quick.default"
 			type="int"/>
 	</preferences>
 
@@ -176,13 +176,13 @@
 	onpaneload="initShortcutPane();">
 	<preferences>
 		<preference id="xulmigemo.shortcut.modeCirculation"
-			name="xulmigemo.shortcut.modeCirculation"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.shortcut.modeCirculation"
 			type="int"/>
 		<preference id="xulmigemo.shortcut.goDicManager"
-			name="xulmigemo.shortcut.goDicManager"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.shortcut.goDicManager"
 			type="string"/>
 		<preference id="xulmigemo.shortcut.startInTemporaryMode"
-			name="xulmigemo.shortcut.startInTemporaryMode"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.shortcut.startInTemporaryMode"
 			type="string"/>
 	</preferences>
 
@@ -309,19 +309,19 @@
 	onpaneload="initCombinationPane();">
 	<preferences>
 		<preference id="xulmigemo.places.locationBar"
-			name="xulmigemo.places.locationBar"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.places.locationBar"
 			type="bool"/>
 		<preference id="xulmigemo.places.bookmarksPanel"
-			name="xulmigemo.places.bookmarksPanel"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.places.bookmarksPanel"
 			type="bool"/>
 		<preference id="xulmigemo.places.historyPanel"
-			name="xulmigemo.places.historyPanel"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.places.historyPanel"
 			type="bool"/>
 		<preference id="xulmigemo.places.organizer"
-			name="xulmigemo.places.organizer"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.places.organizer"
 			type="bool"/>
 		<preference id="xulmigemo.mailnews.threadsearch.enabled"
-			name="xulmigemo.mailnews.threadsearch.enabled"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.mailnews.threadsearch.enabled"
 			type="bool"/>
 	</preferences>
 

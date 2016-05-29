@@ -13,6 +13,7 @@ var Cu = Components.utils;
 Cu.import('resource://gre/modules/Services.jsm');
  
 Cu.import('resource://xulmigemo-modules/lib/inherit.jsm');
+Cu.import('resource://xulmigemo-modules/lib/prefs.js');
 
 Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
@@ -34,14 +35,10 @@ var MigemoDictionary = inherit(MigemoConstants, {
 	
 	get dicpath() 
 	{
-		var fullPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath')))
-			);
-		var relPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath-relative')))
-			);
+		var fullPath = MigemoFileAccess.getExistingPath(prefs.getPref(this.BASE+'dicpath'));
+		var relPath = MigemoFileAccess.getExistingPath(prefs.getPref(this.BASE+'dicpath-relative'));
 		if (relPath && (!fullPath || fullPath != relPath))
-			Services.prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
+			prefs.setPref(this.BASE+'dicpath', relPath);
 
 		return fullPath || relPath;
 	},

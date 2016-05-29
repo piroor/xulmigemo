@@ -12,7 +12,7 @@ function destroyRange()
 
 function setUp()
 {
-	utils.setPref('xulmigemo.lang', 'ja');
+	utils.setPref('extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.lang', 'ja');
 	core = new MigemoCore('ja');
 	range = null;
 }

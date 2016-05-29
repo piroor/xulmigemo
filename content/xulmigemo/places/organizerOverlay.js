@@ -36,7 +36,7 @@ window.XMigemoOrganizerOverlay = {
 				XMigemoPlaces.stopProgressiveLoad(this);
 			if (!this.__xm__callingFromProgressiveLoad &&
 				aQueries.length == 1 &&
-				XMigemoService.getPref('xulmigemo.places.organizer') &&
+				XMigemoService.getMyPref('places.organizer') &&
 				XMigemoPlaces.isValidInput(aQueries[0].searchTerms)) {
 				log(' => override');
 				XMigemoPlaces.startProgressiveLoad(aQueries[0], aOptions, this,

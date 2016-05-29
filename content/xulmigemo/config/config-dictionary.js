@@ -5,7 +5,7 @@ Components.utils.import('resource://xulmigemo-modules/core/core.js');
 Components.utils.import('resource://xulmigemo-modules/core/dicManager.js');
 Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js'); 
 
-var XMigemo = MigemoCoreFactory.get(XMigemoService.getPref('xulmigemo.lang'));
+var XMigemo = MigemoCoreFactory.get(XMigemoService.getMyPref('lang'));
 
 var gAbsolutePath;
 var gRelativePath;
@@ -41,9 +41,9 @@ function goInitializeWizard()
 		'chrome,dialog,modal,centerscreen,dependent'
 	);
 	window.setTimeout(function() {
-		document.getElementById('xulmigemo.dicpath-textbox').checked = decodeURIComponent(escape(XMigemoService.getPref('xulmigemo.dicpath')));
-		document.getElementById('xulmigemo.dicpath-relative-textbox').checked = decodeURIComponent(escape(XMigemoService.getPref('xulmigemo.dicpath-relative')));
-		document.getElementById('xulmigemo.dic.useInitializeWizard-check').checked = XMigemoService.getPref('xulmigemo.dic.useInitializeWizard');
+		document.getElementById('xulmigemo.dicpath-textbox').value = XMigemoService.getMyPref('dicpath');
+		document.getElementById('xulmigemo.dicpath-relative-textbox').value = XMigemoService.getMyPref('dicpath-relative');
+		document.getElementById('xulmigemo.dic.useInitializeWizard-check').value = XMigemoService.getMyPref('dic.useInitializeWizard');
 	}, 0);
 }
 

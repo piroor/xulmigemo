@@ -15,6 +15,7 @@ Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/Timer.jsm'); 
 
 Cu.import('resource://xulmigemo-modules/lib/inherit.jsm');
+Cu.import('resource://xulmigemo-modules/lib/prefs.js');
 
 Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/core/cache.js');
@@ -74,7 +75,7 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 	{
 		var myExp = [];
 
-		var autoSplit = (aEnableAutoSplit === void(0)) ? Services.prefs.getBoolPref('xulmigemo.splitTermsAutomatically') : aEnableAutoSplit ;
+		var autoSplit = (aEnableAutoSplit === void(0)) ? Services.prefs.getBoolPref(this.BASE+'splitTermsAutomatically') : aEnableAutoSplit ;
 
 		// 入力を切って、文節として個別に正規表現を生成する
 		var romanTerm;
@@ -158,7 +159,7 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 		log('created:'+encodeURIComponent(regexpPattern));
 
 		var date2 = Date.now();
-		if ((date2 - date1) > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : Services.prefs.getIntPref('xulmigemo.cache.update.time'))) {
+		if ((date2 - date1) > (this.createCacheTimeOverride > -1 ? this.createCacheTimeOverride : prefs.getPref(this.BASE+'cache.update.time'))) {
 			// 遅かったらキャッシュします
 			cache.setDiskCache(aInput, regexpPattern, aTargetDic);
 			cache.setMemCache(aInput, regexpPattern, aTargetDic);
@@ -533,16 +534,16 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 			case 'nsPref:changed':
 				switch (aData)
 				{
-					case 'xulmigemo.ANDFind.enabled':
+					case this.BASE+'ANDFind.enabled':
 						this.andFindAvailable = Services.prefs.getBoolPref(aData);
 						return;
 
-					case 'xulmigemo.NOTFind.enabled':
+					case this.BASE+'NOTFind.enabled':
 						this.notFindAvailable = Services.prefs.getBoolPref(aData);
 						return;
 
-					case 'xulmigemo.ignoreHiraKata':
-					case 'xulmigemo.ignoreLatinModifiers':
+					case this.BASE+'ignoreHiraKata':
+					case this.BASE+'ignoreLatinModifiers':
 						this.cache.clearAll(true);
 						return;
 				}
@@ -557,7 +558,7 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 
 		this.initialized = true;
 
-		var lang = aLang || Services.prefs.getCharPref('xulmigemo.lang') || '';
+		var lang = aLang || prefs.getPref(this.BASE+'lang') || '';
 		var leafNameSuffix = '';
 		var moduleNameSuffix = '';
 		if (lang.indexOf('en') !== 0) {
@@ -568,7 +569,7 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 		var ns = Components.utils.import('resource://xulmigemo-modules/core/engine' + leafNameSuffix + '.js', {});
 		this.engine = ns['MigemoEngine' + moduleNameSuffix];
 		if (!this.engine.lang)
-			this.engine.lang = aLang || Services.prefs.getCharPref('xulmigemo.lang');
+			this.engine.lang = aLang || prefs.getPref(this.BASE+'lang');
 
 		let { MigemoDicManager } = Components.utils.import('resource://xulmigemo-modules/core/dicManager.js', {});
 		MigemoDicManager.init(this.dictionary, this.cache);
@@ -577,8 +578,8 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 
 		var pbi = Services.prefs.QueryInterface(Ci.nsIPrefBranchInternal);
 		pbi.addObserver(this.domain, this, false);
-		this.observe(null, 'nsPref:changed', 'xulmigemo.ANDFind.enabled');
-		this.observe(null, 'nsPref:changed', 'xulmigemo.NOTFind.enabled');
+		this.observe(null, 'nsPref:changed', this.BASE+'ANDFind.enabled');
+		this.observe(null, 'nsPref:changed', this.BASE+'NOTFind.enabled');
 	},
  
 	destroy : function() 

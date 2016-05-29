@@ -8,6 +8,7 @@ var Cu = Components.utils;
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource:///modules/quickFilterManager.js');
 
+Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/service.jsm');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 
@@ -71,7 +72,7 @@ var XMigemoMail = {
 
 				let regexp;
 				if (
-					XMigemoService.getPref('xulmigemo.autostart.regExpFind') &&
+					XMigemoService.getMyPref('autostart.regExpFind') &&
 					MigemoTextUtils.isRegExp(aInput)
 					) {
 					regexp = MigemoTextUtils.extractRegExpSource(aInput);
@@ -135,7 +136,7 @@ var XMigemoMail = {
 			activeWindow &&
 			aFilterValue.text &&
 			aFilterValue.states &&
-			XMigemoService.getPref('xulmigemo.mailnews.threadsearch.enabled')
+			XMigemoService.getMyPref('mailnews.threadsearch.enabled')
 			) {
 			let targets = 0;
 			if (aFilterValue.states.subject)

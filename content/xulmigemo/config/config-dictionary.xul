@@ -17,16 +17,16 @@
 <prefpane id="prefpane-dictionary" flex="1">
 	<preferences>
 		<preference id="xulmigemo.dictionary.useInitializeWizard"
-			name="xulmigemo.dictionary.useInitializeWizard"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.dictionary.useInitializeWizard"
 			type="bool"/>
 		<preference id="xulmigemo.dicpath"
-			name="xulmigemo.dicpath"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.dicpath"
 			type="string"/>
 		<preference id="xulmigemo.dicpath-relative"
-			name="xulmigemo.dicpath-relative"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.dicpath-relative"
 			type="string"/>
 		<preference id="xulmigemo.cache.update.time"
-			name="xulmigemo.cache.update.time"
+			name="extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.cache.update.time"
 			type="int"/>
 	</preferences>
 

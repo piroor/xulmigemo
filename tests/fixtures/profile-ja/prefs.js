@@ -8,5 +8,5 @@ user_pref("browser.warnOnRestart", false);
 user_pref("general.warnOnAboutConfig", false);
 user_pref("browser.shell.checkDefaultBrowser", false);
 
-user_pref("xulmigemo.lang", "ja");
-user_pref("xulmigemo.dicpath-relative", "[ProfD]\\xulmigemodic");
+user_pref("extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.lang", "ja");
+user_pref("extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.dicpath-relative", "[ProfD]\\xulmigemodic");

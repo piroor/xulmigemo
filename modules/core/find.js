@@ -12,6 +12,7 @@ var Cu = Components.utils;
 Cu.import('resource://gre/modules/Services.jsm');
  
 Cu.import('resource://xulmigemo-modules/lib/inherit.jsm');
+Cu.import('resource://xulmigemo-modules/lib/prefs.js');
 
 Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/core/core.js');
@@ -44,7 +45,7 @@ function MigemoFind()
 	this.foundEditableMap = new WeakMap();
 	this.lastFoundEditableMap = new WeakMap();
 	this.smoothScrollTasks = new WeakMap();
-	this.startFromViewport = this.prefs.getPref('xulmigemo.startfromviewport');
+	this.startFromViewport = prefs.getPref(this.BASE+'startfromviewport');
 	this.core;
 }
 
@@ -107,19 +108,12 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 	get core()
 	{
 		if (!this._core) {
-			var lang = this.prefs.getPref('xulmigemo.lang');
+			var lang = prefs.getPref(this.BASE+'lang');
 			this._core = MigemoCoreFactory.get(lang);
 		}
 		return this._core;
 	},
 	_core : null,
- 
-	get prefs() 
-	{
-		delete this.prefs;
-		let { prefs } = Components.utils.import('resource://xulmigemo-modules/lib/prefs.js', {});
-		return this.prefs = prefs;
-	},
  
 	get animationManager() 
 	{
@@ -423,7 +417,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 
 		result.range = this.mFind.Find(aTerm, aRangeSet.range, aRangeSet.start, aRangeSet.end) || null ;
 
-		if (Services.prefs.getBoolPref('xulmigemo.debug.find.markers') &&
+		if (Services.prefs.getBoolPref(this.BASE+'debug.find.markers') &&
 			!(aFindFlag & this.FIND_SILENTLY))
 			MigemoDocumentUtils.insertMarkers(aTerm, aRangeSet);
 
@@ -546,7 +540,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		newSelCon.setDisplaySelection(newSelCon.SELECTION_ATTENTION);
 		newSelCon.repaintSelection(newSelCon.SELECTION_NORMAL);
 
-		if (this.prefs.getPref('xulmigemo.scrollSelectionToCenter'))
+		if (prefs.getPref(this.BASE+'scrollSelectionToCenter'))
 			this.scrollTargetToCenter(aRange, false);
 		else
 			newSelCon.scrollSelectionIntoView(
@@ -560,7 +554,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		if (!aTarget)
 			return;
 
-		var padding = Math.max(0, Math.min(100, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.padding')));
+		var padding = Math.max(0, Math.min(100, prefs.getPref(this.BASE+'scrollSelectionToCenter.padding')));
 
 		var startX;
 		var startY;
@@ -655,7 +649,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 						startY ;
 
 		if (aPreventAnimation ||
-			!this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.enabled')) {
+			!prefs.getPref(this.BASE+'scrollSelectionToCenter.smoothScroll.enabled')) {
 			if (typeof scrollFrame.scrollTo == 'function') {
 				scrollFrame.scrollTo(finalX, finalY);
 			}
@@ -695,7 +689,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		this.smoothScrollTasks.set(scrollFrame, task);
 		this.animationManager.addTask(
 			task,
-			0, 0, this.prefs.getPref('xulmigemo.scrollSelectionToCenter.smoothScroll.duration'),
+			0, 0, prefs.getPref(this.BASE+'scrollSelectionToCenter.smoothScroll.duration'),
 			window
 		);
 	},

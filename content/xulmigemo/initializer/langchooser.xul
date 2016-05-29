@@ -30,11 +30,12 @@
 </listbox>
 
 <script type="application/javascript"><![CDATA[
+	Components.utils.import('resource://xulmigemo-modules/constants.jsm');
 	Components.utils.import('resource://xulmigemo-modules/service.jsm');
 
 	function onUnload()
 	{
-		XMigemoService.setPref('xulmigemo.lang', document.getElementById('lang').selectedItem.getAttribute('value'));
+		XMigemoService.setMyPref('lang', document.getElementById('lang').selectedItem.getAttribute('value'));
 	}
 ]]></script>
 

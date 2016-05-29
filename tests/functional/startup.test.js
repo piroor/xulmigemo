@@ -29,15 +29,15 @@ function normalSetUp(aURI)
 }
 
 var customPrefs = {
-		'browser.tabs.warnOnClose' : false,
-		'xulmigemo.findMode.always' : -1,
-		'xulmigemo.findMode.default' : 0,
-		'xulmigemo.checked_by_default.findbar' : false,
-		'xulmigemo.checked_by_default.highlight' : false,
-		'xulmigemo.checked_by_default.highlight.always' : false,
-		'xulmigemo.checked_by_default.caseSensitive' : false,
-		'xulmigemo.checked_by_default.caseSensitive.always' : false
-	};
+	'browser.tabs.warnOnClose' : false
+};
+customPrefs[BASE+'findMode.always' = -1;
+customPrefs[BASE+'findMode.default' = 0;
+customPrefs[BASE+'checked_by_default.findbar' = false;
+customPrefs[BASE+'checked_by_default.highlight' = false;
+customPrefs[BASE+'checked_by_default.highlight.always' = false;
+customPrefs[BASE+'checked_by_default.caseSensitive' = false;
+customPrefs[BASE+'checked_by_default.caseSensitive.always' = false;
 
 function setUp()
 {
@@ -56,7 +56,7 @@ function tearDown()
 testStartWithoutFindToolbar.description = '起動時に検索ツールバーを表示：OFF';
 function testStartWithoutFindToolbar()
 {
-	utils.setPref('xulmigemo.checked_by_default.findbar', false);
+	utils.setPref(BASE+'checked_by_default.findbar', false);
 	normalSetUp(keyEventTest);
 	assert.findbarState({ mode : 'FIND_MODE_NATIVE', shown : false });
 }
@@ -64,7 +64,7 @@ function testStartWithoutFindToolbar()
 testStartWithFindToolbar.description = '起動時に検索ツールバーを表示：ON';
 function testStartWithFindToolbar()
 {
-	utils.setPref('xulmigemo.checked_by_default.findbar', true);
+	utils.setPref(BASE+'checked_by_default.findbar', true);
 	normalSetUp(keyEventTest);
 	assert.findbarState({ mode : 'FIND_MODE_NATIVE', shown : true });
 }
@@ -73,7 +73,7 @@ function testStartWithFindToolbar()
 testStartWithNormalFindMode.description = '起動時のモード：通常検索';
 function testStartWithNormalFindMode()
 {
-	utils.setPref('xulmigemo.findMode.default', 1);
+	utils.setPref(BASE+'findMode.default', 1);
 	normalSetUp(keyEventTest);
 	assert.findbarState({ mode : 'FIND_MODE_NATIVE', shown : false });
 
@@ -90,7 +90,7 @@ function testStartWithNormalFindMode()
 testStartWithRegExpFindMode.description = '起動時のモード：正規表現検索';
 function testStartWithRegExpFindMode()
 {
-	utils.setPref('xulmigemo.findMode.default', 4);
+	utils.setPref(BASE+'findMode.default', 4);
 	normalSetUp(keyEventTest);
 	assert.findbarState({ mode : 'FIND_MODE_REGEXP', shown : false });
 
@@ -107,7 +107,7 @@ function testStartWithRegExpFindMode()
 testStartWithMigemoFindMode.description = '起動時のモード：Migemo検索';
 function testStartWithMigemoFindMode()
 {
-	utils.setPref('xulmigemo.findMode.default', 2);
+	utils.setPref(BASE+'findMode.default', 2);
 	normalSetUp(keyEventTest);
 	assert.findbarState({ mode : 'FIND_MODE_MIGEMO', shown : false });
 

@@ -3,6 +3,9 @@ const Ci = Components.interfaces;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 Components.utils.import('resource://gre/modules/Services.jsm');
+
+Components.utils.import('resource://xulmigemo-modules/constants.jsm');
+Components.utils.import('resource://xulmigemo-modules/lib/prefs.js');
  
 function XMigemoStartupService() { 
 }
@@ -48,9 +51,11 @@ XMigemoStartupService.prototype = {
  
 	init : function() 
 	{
+		this.migratePrefs();
+
 		this.updateGlobalStyleSheets();
 
-		if (Services.prefs.getCharPref('xulmigemo.lang') == '') {
+		if (prefs.getPref(MigemoConstants.BASE+'lang') == '') {
 			Services.ww.openWindow(
 				null,
 				'chrome://xulmigemo/content/initializer/langchooser.xul',
@@ -60,12 +65,30 @@ XMigemoStartupService.prototype = {
 			);
 		}
 	},
+
+	migratePrefs : function()
+	{
+		switch (prefs.getPref(MigemoConstants.BASE+'prefsVersion'))
+		{
+			case 0:
+				prefs.getDescendant('xulmigemo.').forEach(function(aKey) {
+					var value = prefs.getPref(aKey);
+					var key = aKey.replace(/^xulmigemo\./, '');
+					prefs.setPref(MigemoConstants.BASE+key, value);
+				});
+
+				prefs.setPref(MigemoConstants.BASE+'prefsVersion', MigemoConstants.PREFS_VERSION);
+			case 1:
+			default:
+				break;
+		}
+	},
  
 	postInit : function() 
 	{
 		Services.obs.notifyObservers(null, 'XMigemo:initialized', null);
 
-		if (Services.prefs.getCharPref('xulmigemo.lang')) {
+		if (prefs.getPref(MigemoConstants.BASE+'lang')) {
 			let { MigemoDicManager } = Components.utils.import('resource://xulmigemo-modules/core/dicManager.js', {});
 			MigemoDicManager.init(null, null);
 		}

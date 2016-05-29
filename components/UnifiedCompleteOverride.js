@@ -2,8 +2,10 @@ Components.classes['@mozilla.org/moz/jssubscript-loader;1']
 	.getService(Components.interfaces.mozIJSSubScriptLoader)
 	.loadSubScript('resource://gre/components/UnifiedComplete.js');
 
-var { XMigemoPlaces } = Cu.import('resource://xulmigemo-modules/places.jsm', {});
-var { MigemoTextUtils } = Cu.import('resource://xulmigemo-modules/core/textUtils.js', {}); 
+Cu.import('resource://xulmigemo-modules/constants.jsm');
+
+Cu.import('resource://xulmigemo-modules/places.jsm');
+Cu.import('resource://xulmigemo-modules/core/textUtils.js');
 
 Cu.import('resource://xulmigemo-modules/log.jsm');
 function log(...aArgs) { MigemoLog('unifiedcomplete', ...aArgs); }
@@ -14,7 +16,7 @@ Search = function(aSearchString, aSearchParam, aAutocompleteListener,
 					aResultListener, aAutocompleteSearch,
 					aProhibitSearchSuggestions,
 					...aArgs) {
-	if (Services.prefs.getBoolPref('xulmigemo.places.locationBar') &&
+	if (Services.prefs.getBoolPref(MigemoConstants.BASE+'places.locationBar') &&
 		XMigemoPlaces.isValidInput(aSearchString)) {
 		this.__xm__findInfo = XMigemoPlaces.parseInput(aSearchString);
 		log('Search: '+uneval(this.__xm__findInfo));

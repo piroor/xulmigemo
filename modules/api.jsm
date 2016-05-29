@@ -9,6 +9,7 @@ var MAX_CACHE_COUNT = 100;
 
 Cu.import('resource://gre/modules/Services.jsm');
 
+Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/core/core.js');
 Cu.import('resource://xulmigemo-modules/core/engine.js');
 Cu.import('resource://xulmigemo-modules/core/cache.js');
@@ -18,7 +19,7 @@ function log(...aArgs) { MigemoLog('api', ...aArgs); }
 
 
 var MigemoAPI = {
-	dictionaries : MigemoEngine.SYSTEM_DIC, 
+	dictionaries : MigemoConstants.SYSTEM_DIC, 
  
 	initCache : function() 
 	{
@@ -251,7 +252,7 @@ var MigemoAPI = {
 		if (!this._XMigemo) {
 			this._lang = '';
 			try {
-				this._lang = Services.prefs.getCharPref('xulmigemo.lang');
+				this._lang = Services.prefs.getCharPref(MigemoConstants.BASE+'lang');
 			}
 			catch(e) {
 			}
@@ -273,13 +274,13 @@ var MigemoAPI = {
 				this.initCache();
 				this.initProperties();
 				Services.prefs.QueryInterface(Ci.nsIPrefBranchInternal)
-					.addObserver('xulmigemo.', this, false);
+					.addObserver(MigemoConstants.BASE, this, false);
 				return;
 
 			case 'nsPref:changed':
 				switch (aData)
 				{
-					case 'xulmigemo.lang':
+					case MigemoConstants.BASE+'lang':
 						this._lang = '';
 						this._XMigemo = null;
 						this.initCache();

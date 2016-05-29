@@ -1,5 +1,6 @@
 Components.utils.import('resource://gre/modules/Services.jsm');
 
+Components.utils.import('resource://xulmigemo-modules/constants.jsm');
 Components.utils.import('resource://xulmigemo-modules/service.jsm'); 
 
 var XMigemo = XMigemoCore.XMigemo.engine;
@@ -51,7 +52,7 @@ function updateStatus(aStatus, aResult)
 			break;
 
 		case XMigemoDic.RESULT_ERROR_INVALID_INPUT:
-			message = node.getAttribute('statusErrorInvalid-'+Services.prefs.getCharPref('xulmigemo.lang')) ||
+			message = node.getAttribute('statusErrorInvalid-'+XMigemoService.getMyPref('lang')) ||
 						node.getAttribute('statusErrorInvalid');
 			break;
 

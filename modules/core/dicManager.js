@@ -10,7 +10,10 @@ var Ci = Components.interfaces;
 var Cu = Components.utils;
 
 Cu.import('resource://gre/modules/Services.jsm');
+
+Cu.import('resource://xulmigemo-modules/lib/prefs.js');
  
+Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/core/core.js');
 Cu.import('resource://xulmigemo-modules/core/cache.js');
 Cu.import('resource://xulmigemo-modules/core/fileAccess.js');
@@ -31,14 +34,14 @@ var MigemoDicManager = {
 				// nsIPrefListener(?)
 				switch (aData)
 				{
-					case 'xulmigemo.dicpath':
-					case 'xulmigemo.dicpath-relative':
+					case MigemoConstants.BASE+'dicpath':
+					case MigemoConstants.BASE+'dicpath-relative':
 						if (this.autoReloadDisabled) return;
 						this.reload();
 						break;
 
-					case 'xulmigemo.ignoreHiraKata':
-					case 'xulmigemo.splitTermsAutomatically':
+					case MigemoConstants.BASE+'ignoreHiraKata':
+					case MigemoConstants.BASE+'splitTermsAutomatically':
 						this.cache.clearAll();
 						break;
 				}
@@ -50,7 +53,7 @@ var MigemoDicManager = {
 				var input = RegExp.$2;
 				var term = RegExp.$3;
 
-				var lang = Services.prefs.getCharPref('xulmigemo.lang');
+				var lang = prefs.getPref(MigemoConstants.BASE+'lang');
 				var core = MigemoCoreFactory.get(lang);
 				this.cache.clearCacheForAllPatterns(core.textTransform.normalizeKeyInput(input));
 				return;
@@ -66,15 +69,11 @@ var MigemoDicManager = {
  
 	get dicpath() 
 	{
-		var fullPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath')))
-			);
-		var relPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath-relative')))
-			);
+		var fullPath = MigemoFileAccess.getExistingPath(prefs.getPref(MigemoConstants.BASE+'dicpath'));
+		var relPath = MigemoFileAccess.getExistingPath(prefs.getPref(MigemoConstants.BASE+'dicpath-relative'));
 		if (relPath && (!fullPath || fullPath != relPath)) {
 			this.autoReloadDisabled = true;
-			Services.prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
+			prefs.setPref(MigemoConstants.BASE+'dicpath', relPath);
 			this.autoReloadDisabled = false;
 		}
 
@@ -89,7 +88,7 @@ var MigemoDicManager = {
 	get dictionary()
 	{
 		if (!this._dictionary) { // default dictionary; can be overridden.
-			var lang = Services.prefs.getCharPref('xulmigemo.lang') || '';
+			var lang = prefs.getPref(MigemoConstants.BASE+'lang') || '';
 
 			var leafNameSuffix = '';
 			var moduleNameSuffix = '';
@@ -115,7 +114,7 @@ var MigemoDicManager = {
 	get cache()
 	{
 		if (!this._cache) { // default cache; can be overridden.
-			var lang = Services.prefs.getCharPref('xulmigemo.lang');
+			var lang = prefs.getPref(MigemoConstants.BASE+'lang');
 			this._cache = MigemoCacheFactory.get(lang);
 		}
 		return this._cache;
@@ -236,13 +235,13 @@ var MigemoDicManager = {
 			this.dictionary.load() &&
 			this.cache.load()
 			) {
-			var relPath = Services.prefs.getCharPref('xulmigemo.dicpath-relative');
+			var relPath = prefs.getPref(MigemoConstants.BASE+'dicpath-relative');
 			if (!relPath) {
 				relPath = this.dicpath;
 				relPath = MigemoFileAccess.getRelativePath(relPath);
 				if (relPath && relPath != this.dicpath) {
 					this.autoReloadDisabled = true;
-					Services.prefs.setCharPref('xulmigemo.dicpath-relative', unescape(encodeURIComponent(relPath)));
+					prefs.setPref(MigemoConstants.BASE+'dicpath-relative', unescape(encodeURIComponent(relPath)));
 					this.autoReloadDisabled = false;
 				}
 			}

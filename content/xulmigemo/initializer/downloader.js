@@ -21,13 +21,13 @@ var XMigemoFileDownloader = {
 
 	downloadDictionary : function()
 	{
-		var lang = XMigemoService.getPref('xulmigemo.lang');
+		var lang = XMigemoService.getMyPref('lang');
 		if (!lang) {
 			this.onError(bundle.getString('initializer.download.error.invalidLanguage'));
 			return;
 		}
 
-		var uri = XMigemoService.getPref('xulmigemo.dictionary.download.uri.'+lang);
+		var uri = XMigemoService.getMyPref('dictionary.download.uri.'+lang);
 		if (!uri) {
 			this.onError(bundle.getFormattedString('initializer.download.error.noDownloadURI', [lang]));
 		}
@@ -136,10 +136,10 @@ var XMigemoFileDownloader = {
 		this.dicDir = parentDir;
 
 		let { MigemoFileAccess } = Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js', {});
-		XMigemoService.setPref('xulmigemo.dicpath', '');
-		XMigemoService.setPref('xulmigemo.dicpath-relative', '');
-		XMigemoService.setPref('xulmigemo.dicpath', parentDir.path);
-		XMigemoService.setPref('xulmigemo.dicpath-relative', MigemoFileAccess.getRelativePath(parentDir.path));
+		XMigemoService.setMyPref('dicpath', '');
+		XMigemoService.setMyPref('dicpath-relative', '');
+		XMigemoService.setMyPref('dicpath', parentDir.path);
+		XMigemoService.setMyPref('dicpath-relative', MigemoFileAccess.getRelativePath(parentDir.path));
 
 		if (this.onCompleteListener && typeof this.onCompleteListener == 'function')
 			this.onCompleteListener();

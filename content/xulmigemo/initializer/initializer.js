@@ -82,17 +82,17 @@ function saveChosenFolder()
 {
 	let { MigemoFileAccess } = Components.utils.import('resource://xulmigemo-modules/core/fileAccess.js', {});
 
-	XMigemoService.setPref('xulmigemo.dicpath', '');
-	XMigemoService.setPref('xulmigemo.dicpath-relative', '');
+	XMigemoService.setMyPref('dicpath', '');
+	XMigemoService.setMyPref('dicpath-relative', '');
 	var path = document.getElementById('choose-path').value;
-	XMigemoService.setPref('xulmigemo.dicpath', path);
-	XMigemoService.setPref('xulmigemo.dicpath-relative', MigemoFileAccess.getRelativePath(path));
+	XMigemoService.setMyPref('dicpath', path);
+	XMigemoService.setMyPref('dicpath-relative', MigemoFileAccess.getRelativePath(path));
 }
 
 
 function onWizardCheckChange(aShouldShow)
 {
-	XMigemoService.setPref('xulmigemo.dictionary.useInitializeWizard', aShouldShow);
+	XMigemoService.setMyPref('dictionary.useInitializeWizard', aShouldShow);
 }
 
 

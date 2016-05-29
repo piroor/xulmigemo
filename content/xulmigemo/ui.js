@@ -197,8 +197,8 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		var suffix = this.isQuickFind ? '.quick' : '' ;
 		var params = {
 			context       : this.currentFindContext,
-			nextMode      : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.always'),
-			defaultMode   : XMigemoService.getPref('xulmigemo.findMode' + suffix + '.default'),
+			nextMode      : XMigemoService.getMyPref('findMode' + suffix + '.always'),
+			defaultMode   : XMigemoService.getMyPref('findMode' + suffix + '.default'),
 			temporaryMode : this.readyToStartTemporaryFindMode
 		};
 
@@ -291,12 +291,13 @@ window.XMigemoUI = inherit(MigemoConstants, {
 	
 	domain  : 'xulmigemo', 
  
-	preferences : 
-		'xulmigemo.shortcut.startInTemporaryMode\n' +
-		'xulmigemo.shortcut.goDicManager\n' +
-		'xulmigemo.shortcut.modeCirculation\n' +
-		'xulmigemo.autostart.regExpFind\n' +
-		'xulmigemo.disableIME.migemo',
+	preferences : `
+		${MigemoConstants.BASE}shortcut.startInTemporaryMode
+		${MigemoConstants.BASE}shortcut.goDicManager
+		${MigemoConstants.BASE}shortcut.modeCirculation
+		${MigemoConstants.BASE}autostart.regExpFind
+		${MigemoConstants.BASE}disableIME.migemo
+	`,
  
 	observe : function(aSubject, aTopic, aPrefName) 
 	{
@@ -305,7 +306,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		var value = XMigemoService.getPref(aPrefName);
 		switch (aPrefName)
 		{
-			case 'xulmigemo.shortcut.startInTemporaryMode':
+			case this.BASE+'shortcut.startInTemporaryMode':
 				let prefix = 'xmigemo-shortcut-startInTemporaryMode-';
 				Array.forEach(document.querySelectorAll('[id^="' + prefix + '"]'), function(aNode) {
 					aNode.parentNode.removeChild(aNode);
@@ -324,7 +325,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 				});
 				return;
 
-			case 'xulmigemo.shortcut.goDicManager':
+			case this.BASE+'shortcut.goDicManager':
 				XMigemoService.updateKey(
 					'xmigemo-shortcut-goDicManager',
 					XMigemoService.parseShortcut(value),
@@ -333,18 +334,18 @@ window.XMigemoUI = inherit(MigemoConstants, {
 				);
 				return;
 
-			case 'xulmigemo.shortcut.modeCirculation':
+			case this.BASE+'shortcut.modeCirculation':
 				this.modeCirculation = value;
 				return;
 
-			case 'xulmigemo.disableIME.migemo':
+			case this.BASE+'disableIME.migemo':
 				if (value)
 					document.documentElement.setAttribute(this.IMEAttribute, 'FIND_MODE_MIGEMO');
 				else
 					document.documentElement.removeAttribute(this.IMEAttribute);
 				return;
 
-			case 'xulmigemo.autostart.regExpFind':
+			case this.BASE+'autostart.regExpFind':
 				this.autoStartRegExp = value;
 				return;
 		}
@@ -516,7 +517,7 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		window.setTimeout(function(aSelf) {
 			let { MigemoDicManager } = Components.utils.import('resource://xulmigemo-modules/core/dicManager.js', {});
 			if (!MigemoDicManager.available &&
-				XMigemoService.getPref('xulmigemo.dictionary.useInitializeWizard'))
+				XMigemoService.getMyPref('dictionary.useInitializeWizard'))
 				MigemoDicManager.showInitializeWizard(null);
 		}, 0, this);
 

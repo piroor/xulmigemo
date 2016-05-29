@@ -39,7 +39,7 @@ var MigemoEngine = inherit(MigemoConstants, {
 		log('noCache');
 		var str = MigemoTextUtils.sanitize(aInput);
 
-		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
+		if (Prefs.getBoolPref(this.BASE+'ignoreLatinModifiers'))
 			str = this.textTransform.addLatinModifiers(str);
 
 		var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, aTargetDic);
@@ -96,7 +96,7 @@ var MigemoEngine = inherit(MigemoConstants, {
 		aTargetDic = aTargetDic || this.ALL_DIC;
 
 		var str = MigemoTextUtils.sanitize(aInput);
-		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
+		if (Prefs.getBoolPref(this.BASE+'ignoreLatinModifiers'))
 			str = this.textTransform.addLatinModifiers(str);
 
 		var tmp = '^(' + str + ').+$';

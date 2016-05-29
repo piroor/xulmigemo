@@ -2,6 +2,7 @@
 var { MigemoLog } = Cu.import('resource://xulmigemo-modules/log.jsm', {});
 function log(...aArgs) { MigemoLog('places.urlbar', ...aArgs); }
 
+var { MigemoConstants } = Cu.import('resource://xulmigemo-modules/constants.jsm', {});
 var { XMigemoPlaces } = Cu.import('resource://xulmigemo-modules/places.jsm', {});
 var { MigemoTextUtils } = Cu.import('resource://xulmigemo-modules/core/textUtils.js', {});
 
@@ -37,7 +38,7 @@ window.XMigemoLocationBarOverlay = {
 	get isMigemoActive() 
 	{
 		return (
-			Services.prefs.getBoolPref('xulmigemo.places.locationBar') &&
+			Services.prefs.getBoolPref(MigemoConstants.BASE+'places.locationBar') &&
 			Services.prefs.getBoolPref('browser.urlbar.autocomplete.enabled') &&
 			!this.bar.disableAutoComplete &&
 			(

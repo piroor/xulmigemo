@@ -13,6 +13,7 @@ var Cu = Components.utils;
 Cu.import('resource://gre/modules/Services.jsm');
  
 Cu.import('resource://xulmigemo-modules/lib/inherit.jsm');
+Cu.import('resource://xulmigemo-modules/lib/prefs.js');
 
 Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/core/textUtils.js');
@@ -198,14 +199,10 @@ MigemoCache.prototype = inherit(MigemoConstants, {
 	
 	get dicpath() 
 	{
-		var fullPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath')))
-			);
-		var relPath = MigemoFileAccess.getExistingPath(
-				decodeURIComponent(escape(Services.prefs.getCharPref('xulmigemo.dicpath-relative')))
-			);
+		var fullPath = MigemoFileAccess.getExistingPath(prefs.getPref(this.BASE+'dicpath'));
+		var relPath = MigemoFileAccess.getExistingPath(prefs.getPref(this.BASE+'dicpath-relative'));
 		if (relPath && (!fullPath || fullPath != relPath))
-			Services.prefs.setCharPref('xulmigemo.dicpath', unescape(encodeURIComponent(relPath)));
+			prefs.setPref(this.BASE+'dicpath', relPath);
 
 		return fullPath || relPath;
 	},
@@ -279,11 +276,11 @@ var MigemoCacheFactory = {
 		if (!this._instances[aKey]) {
 			this._instances[aKey] = new MigemoCache();
 
-			var lang = Services.prefs.getCharPref('xulmigemo.lang');
+			var lang = prefs.getPref(MigemoConstants.BASE+'lang');
 
 			var fileNameOverride;
 			try {
-				fileNameOverride = Services.prefs.getCharPref('xulmigemo.cache.override.'+lang);
+				fileNameOverride = prefs.getPref(MigemoConstants.BASE+'cache.override.'+lang);
 			}
 			catch(e) {
 			}
@@ -291,7 +288,7 @@ var MigemoCacheFactory = {
 
 			var encodingOverride;
 			try {
-				encodingOverride = Services.prefs.getCharPref('xulmigemo.cache.override.'+lang+'.encoding');
+				encodingOverride = prefs.getPref(MigemoConstants.BASE+'cache.override.'+lang+'.encoding');
 			}
 			catch(e) {
 			}

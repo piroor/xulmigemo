@@ -7,6 +7,7 @@ var Cu = Components.utils;
 
 Cu.import('resource://gre/modules/Services.jsm');
  
+Cu.import('resource://xulmigemo-modules/constants.jsm');
 Cu.import('resource://xulmigemo-modules/core/docUtils.js');
 
 Cu.import('resource://xulmigemo-modules/log.jsm');
@@ -196,7 +197,7 @@ FindRangeIterator.prototype = {
 		rangeSet.end.collapse(this.backward);
 		rangeSet.doc = MigemoDocumentUtils.getOwnerDocumentFromRange(aFindRange);
 
-		if (Services.prefs.getBoolPref('xulmigemo.debug.findRangeIterator.markers'))
+		if (Services.prefs.getBoolPref(MigemoConstants.BASE+'debug.findRangeIterator.markers'))
 			MigemoDocumentUtils.insertMarkers('iteration', rangeSet);
 
 		return rangeSet;

@@ -8,6 +8,8 @@ var Cu = Components.utils;
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/Timer.jsm');
 
+Cu.import('resource://xulmigemo-modules/constants.jsm');
+
 Cu.import('resource://xulmigemo-modules/log.jsm');
 function log(...aArgs) { MigemoLog('textUtils', ...aArgs); }
 
@@ -380,7 +382,7 @@ var MigemoTextUtils = {
 		const DirectoryService = Cc['@mozilla.org/file/directory_service;1']
 			.getService(Ci.nsIProperties);
 		var file = DirectoryService.get('ProfD', Ci.nsIFile);
-		file.append('xulmigemo.sqlite');
+		file.append(MigemoConstants.BASE+'sqlite');
 
 		const StorageService = Cc['@mozilla.org/storage/service;1']
 			.getService(Ci.mozIStorageService);

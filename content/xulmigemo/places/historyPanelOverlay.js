@@ -20,7 +20,7 @@ var XMigemoHistoryPanelOverlay = {
 				XMigemoPlaces.stopProgressiveLoad(this);
 			if (!this.__xm__callingFromProgressiveLoad &&
 				aQueries.length == 1 &&
-				XMigemoService.getPref('xulmigemo.places.historyPanel') &&
+				XMigemoService.getMyPref('places.historyPanel') &&
 				XMigemoPlaces.isValidInput(aQueries[0].searchTerms)) {
 				log(' => override');
 				XMigemoPlaces.startProgressiveLoad(aQueries[0], aOptions, this,

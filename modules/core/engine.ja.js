@@ -52,7 +52,7 @@ var MigemoEngineJa = inherit(MigemoConstants, {
 
 		var roman = aInput;
 		if (/[\uff66-\uff9f]/.test(roman)) roman = transform.hira2roman(transform.kata2hira(roman))
-		var ignoreHiraKata = Prefs.getBoolPref('xulmigemo.ignoreHiraKata');
+		var ignoreHiraKata = Prefs.getBoolPref(this.BASE+'ignoreHiraKata');
 		var kana = ignoreHiraKata ? '' :
 				transform.expand2(
 					MigemoTextUtils.sanitizeForTransformOutput(
@@ -82,7 +82,7 @@ var MigemoEngineJa = inherit(MigemoConstants, {
 		var lines = this.gatherEntriesFor(aInput, aTargetDic);
 
 		var original = MigemoTextUtils.sanitize(aInput);
-		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
+		if (Prefs.getBoolPref(this.BASE+'ignoreLatinModifiers'))
 			original = transform.addLatinModifiers(original);
 
 		var pattern = '';
@@ -177,7 +177,7 @@ var MigemoEngineJa = inherit(MigemoConstants, {
 				);
 
 		var str = MigemoTextUtils.sanitize(aInput);
-		if (Prefs.getBoolPref('xulmigemo.ignoreLatinModifiers'))
+		if (Prefs.getBoolPref(this.BASE+'ignoreLatinModifiers'))
 			str = transform.addLatinModifiers(str);
 
 		var tmp  = '^' + hira + '.+$'; //日本語
