@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 0.14.5 (2016.5.29)
    * Firefox unexpectedly hanged in some pages including subframes.
    * Preferences are now stored under its private namespace.
    * Background operations in sidebar panels and the Places Organizer are now stopped after they are closed. (The running background process could crash Firefox.)
