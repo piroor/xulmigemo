@@ -747,21 +747,29 @@ var XMigemoPlaces = {
 			}
 			catch(e) {
 				log(e);
-				this.stopProgressiveLoad(aTree);
 			}
+			this.stopProgressiveLoad(aTree);
+			log('finish progressive load');
 		}).bind(this), 1);
 		this.progressiveLoadTimers.set(aTree, timer);
+
+		this.lastTreeForFrame.set(aTree.ownerDocument.defaultView, aTree);
+		aTree.ownerDocument.defaultView.addEventListener('unload', this, false);
 	},
 	contexts : new WeakMap(),
+	lastTreeForFrame : new WeakMap(),
 	
 	stopProgressiveLoad : function(aTree) 
 	{
 		var timer = this.progressiveLoadTimers.get(aTree);
 		if (!timer)
 			return;
+		log('stopProgressiveLoad');
 		clearInterval(timer);
 		this.progressiveLoadTimers.delete(aTree);
 		this.contexts.delete(aTree);
+		this.lastTreeForFrame.delete(aTree.ownerDocument.defaultView);
+		aTree.ownerDocument.defaultView.removeEventListener('unload', this, false);
 	},
 	progressiveLoadTimers : new WeakMap(),
  
@@ -903,6 +911,20 @@ var XMigemoPlaces = {
 		browser.urlbar.matchBehavior
 		browser.urlbar.default.behavior
 	`,
+
+	handleEvent : function(aEvent)
+	{
+		switch (aEvent.type)
+		{
+			case 'unload':
+				log('stop on unload');
+				var frame = aEvent.currentTarget;
+				var tree = this.lastTreeForFrame.get(frame);
+				if (tree)
+					this.stopProgressiveLoad(tree);
+				return;
+		}
+	},
   
 	init : function() 
 	{
