@@ -44,33 +44,37 @@ var MigemoDocumentUtils = inherit(MigemoConstants, {
 
 	getNextFrame : function(aDocument, aBase) 
 	{
-		var contextNode = aBase || this.getDocumentBody(aDocument);
-		if (contextNode instanceof Ci.nsIDOMRange)
-			contextNode = contextNode.startContainer;
 		try {
+			var baseRange = aBase;
+			if (!baseRange || baseRange instanceof Ci.nsIDOMNode) {
+				baseRange = aDocument.createRange();
+				baseRange.selectNode(aBase);
+				baseRange.collapse(false);
+			}
 			var xpathResult = aDocument.evaluate(
-					'following::*' + this.FRAME_CONDITION + ' | ' +
-						'descendant::*' + this.FRAME_CONDITION,
-					contextNode,
+					'descendant::*' + this.FRAME_CONDITION,
+					aDocument,
 					null,
-					Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE,
+					Ci.nsIDOMXPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
 					null
 				);
-			var frame = xpathResult.singleNodeValue;
-			if (!frame)
+			var nextFrame;
+			var foundRange = aDocument.createRange();
+			for (let i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
+			{
+				let frame = xpathResult.snapshotItem(i);
+				if (!this.isFindableDocument(frame.contentDocument))
+					continue;
+				foundRange.selectNode(frame);
+				if (baseRange.compareBoundaryPoints(baseRange.START_TO_START, foundRange) > 0) {
+					nextFrame = frame;
+					break;
+				}
+			}
+			if (!nextFrame)
 				return null;
 
-			if (aBase instanceof Ci.nsIDOMRange) {
-				let foundRange = aDocument.createRange();
-				foundRange.selectNode(frame);
-				if (aBase.compareBoundaryPoints(aBase.START_TO_START, foundRange) > 0)
-					return this.getNextFrame(aDocument, frame);
-			}
-
-			if (!this.isFindableDocument(frame.contentDocument))
-				return this.getNextFrame(aDocument, frame);
-
-			return frame;
+			return nextFrame;
 		}
 		catch(e) {
 		}
@@ -98,6 +102,8 @@ var MigemoDocumentUtils = inherit(MigemoConstants, {
 			for (let i = xpathResult.snapshotLength-1; i > -1; i--)
 			{
 				let frame = xpathResult.snapshotItem(i);
+				if (!this.isFindableDocument(frame.contentDocument))
+					continue;
 				foundRange.selectNode(frame);
 				if (baseRange.compareBoundaryPoints(baseRange.END_TO_START, foundRange) >= 0) {
 					previousFrame = frame;
@@ -106,9 +112,6 @@ var MigemoDocumentUtils = inherit(MigemoConstants, {
 			}
 			if (!previousFrame)
 				return null;
-
-			if (!this.isFindableDocument(previousFrame.contentDocument))
-				return this.getPreviousFrame(aDocument, previousFrame);
 
 			return previousFrame;
 		}
