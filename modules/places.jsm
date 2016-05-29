@@ -801,10 +801,17 @@ var XMigemoPlaces = {
   
 /* event handling */ 
 	
-	observe : function(aSubject, aTopic, aPrefName) 
+	observe : function(aSubject, aTopic, aData) 
 	{
-		if (aTopic != 'nsPref:changed') return;
+		switch (aTopic)
+		{
+			case 'nsPref:changed':
+				return this.onPrefChange(aData);
+		}
+	},
 
+	onPrefChange : function(aPrefName)
+	{
 		var value = XMigemoService.getPref(aPrefName);
 		switch (aPrefName)
 		{
