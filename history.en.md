@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+   * Firefox unexpectedly hanged in some pages including subframes.
+   * Preferences are now stored under its private namespace.
+   * Background operations in sidebar panels and the Places Organizer are now stopped after they are closed.
  - 0.14.4 (2016.5.28)
    * Never match to un-normalized patterns of modified latin characters. For example, `t-` can appear in input text as an alternative of modified `ŧ`, but it seems not to appear in webpages. So now `t-` and similar patterns are not matched to regular input like `t`.
    * Works correctly for webpages contains textarea and other input fields. (regression)
