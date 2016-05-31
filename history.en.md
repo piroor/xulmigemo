@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 0.14.6 (2016.5.31)
    * Don't include needless ".gitignore" file.
    * Fix wrong encoded search queries in location bar results for search engines on Firefox 46 and olders. ([It is fixed at Firefox 47 and later by Firefox itself.](https://bugzilla.mozilla.org/show_bug.cgi?id=1233672))
    * Suppress error for getting property about missing match result for the location bar search
