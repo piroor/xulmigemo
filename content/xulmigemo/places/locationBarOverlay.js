@@ -69,7 +69,8 @@ window.XMigemoLocationBarOverlay = {
 				let findInfo = XMigemoPlaces.parseInput(XMigemoLocationBarOverlay.input);
 				let controller = this.mInput.controller;
 				Array.forEach(XMigemoLocationBarOverlay.items, function(aItem, aIndex) {
-					if (!aItem.getAttribute('text'))
+					if (!aItem.getAttribute('text') ||
+						aIndex >= controller.matchCount)
 						return;
 					var source = [aItem.getAttribute('url'), aItem.getAttribute('title')].join('\n');
 					var terms = source.match(findInfo.termsRegExp);
