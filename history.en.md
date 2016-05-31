@@ -2,6 +2,8 @@
 
  - master/HEAD
    * Don't include needless ".gitignore" file.
+   * Fix wrong encoded search queries in location bar results for search engines on Firefox 46 and olders. ([It is fixed at Firefox 47 and later by Firefox itself.](https://bugzilla.mozilla.org/show_bug.cgi?id=1233672))
+   * Suppress error for getting property about missing match result for the location bar search
  - 0.14.5 (2016.5.29)
    * Firefox unexpectedly hanged in some pages including subframes.
    * Preferences are now stored under its private namespace.
