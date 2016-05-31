@@ -62,6 +62,10 @@ window.XMigemoLocationBarOverlay = {
 	{
 		window.removeEventListener('load', this, false);
 
+		// for Firefox 46 and older versions, we have to fix the problem by self...
+		// https://bugzilla.mozilla.org/show_bug.cgi?id=1233672
+		var decodeSearchQueries = Services.vc.compare(Services.appinfo.version, '47.0b') < 0;
+
 		this.panel.__xm__appendCurrentResult = this.panel._appendCurrentResult;
 		this.panel._appendCurrentResult = function(...aArgs) {
 			var result = this.__xm__appendCurrentResult(...aArgs);
@@ -82,9 +86,20 @@ window.XMigemoLocationBarOverlay = {
 					aItem.setAttribute('text', terms);
 
 					// we must reset all other attributes also, to reset emphasys
+					var url = controller.getValueAt(aIndex);
+					if (decodeSearchQueries) {
+						// for Firefox 46 and older versions
+						// https://bugzilla.mozilla.org/show_bug.cgi?id=1233672
+						let action = this._parseActionUrl(url);
+						if (action.type == 'searchengine' &&
+							action.params &&
+							action.params.searchQuery) {
+							action.params.searchQuery = decodeURIComponent(action.params.searchQuery);
+						}
+					}
 					aItem.setAttribute('image', controller.getImageAt(aIndex));
 					aItem.setAttribute('title', controller.getCommentAt(aIndex));
-					aItem.setAttribute('url', controller.getValueAt(aIndex));
+					aItem.setAttribute('url', url);
 					aItem.setAttribute('type', controller.getStyleAt(aIndex));
 
 					aItem._adjustAcItem();
