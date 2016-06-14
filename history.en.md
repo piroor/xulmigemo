@@ -1,7 +1,8 @@
 # History
 
  - master/HEAD
- - 0.14.7 (2016.6.14)
+ - 0.14.8 (2016.6.14)
+   * Marked as e10s compaible.
    * Works on Nightly 50.0a1.
    * Firefox unexpectedly hanged in some pages including subframes.
  - 0.14.6 (2016.5.31)
