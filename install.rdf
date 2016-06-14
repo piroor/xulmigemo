@@ -5,7 +5,7 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}"
                    em:name="XUL/Migemo"
-                   em:version="0.14.6"
+                   em:version="0.14.7"
                    em:description="Provides advanced incremental search for any language."
                    em:homepageURL="http://piro.sakura.ne.jp/xul/xulmigemo/"
                    em:optionsURL="chrome://xulmigemo/content/config/config.xul"
