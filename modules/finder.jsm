@@ -163,7 +163,7 @@ Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
 		result        : myResultToNativeResult(result),
 		findAgain     : false,
 		findBackwards : false,
-		drawOutline   : false
+		drawOutline   : aDrawOutline
 	});
 };
 
