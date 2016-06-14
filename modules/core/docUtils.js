@@ -44,6 +44,7 @@ var MigemoDocumentUtils = inherit(MigemoConstants, {
 
 	getNextFrame : function(aDocument, aBase) 
 	{
+		log('getting next frame, base = '+aBase);
 		try {
 			var baseRange = aBase;
 			if (!baseRange || baseRange instanceof Ci.nsIDOMNode) {
@@ -60,13 +61,17 @@ var MigemoDocumentUtils = inherit(MigemoConstants, {
 				);
 			var nextFrame;
 			var foundRange = aDocument.createRange();
+			log('  all frames => '+xpathResult.snapshotLength);
 			for (let i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
 			{
 				let frame = xpathResult.snapshotItem(i);
-				if (!this.isFindableDocument(frame.contentDocument))
+				if (!this.isFindableDocument(frame.contentDocument)) {
+					log('  frame '+i+' is not findable');
 					continue;
+				}
 				foundRange.selectNode(frame);
 				if (baseRange.compareBoundaryPoints(baseRange.START_TO_START, foundRange) < 0) {
+					log('  frame '+i+' seems following to the base');
 					nextFrame = frame;
 					break;
 				}

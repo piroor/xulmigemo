@@ -15,6 +15,7 @@ function log(...aArgs) { MigemoLog('findRangeIterator', ...aArgs); }
 
 function FindRangeIterator(aRootDocShell, aStartPoint, aBackward, aTraverseFrames)
 {
+	log('new FindRangeIterator');
 	this.backward = aBackward;
 	this.traverseFrames = aTraverseFrames;
 	this.mRootDocShell = aRootDocShell;
@@ -27,6 +28,7 @@ function FindRangeIterator(aRootDocShell, aStartPoint, aBackward, aTraverseFrame
 		this.mStartPoint = this.createAnchorInDocument(doc);
 	}
 	this.mAnchor = this.mStartPoint.cloneRange();
+	log('  mStartPoint = '+this.mStartPoint.startContainer+'/'+this.mStartPoint.startOffset);
 	this.wrappedCount = 0;
 }
 
@@ -80,6 +82,7 @@ FindRangeIterator.prototype = {
  
 	iterateNext : function() 
 	{
+		log('iterateNext');
 		if (this.looped)
 			return {};
 
@@ -165,6 +168,7 @@ FindRangeIterator.prototype = {
 				if (nextFrame) {
 					let range = this.mAnchor.cloneRange();
 					range.setEndBefore(nextFrame);
+					log(' range => '+range.toString()+'('+range.toString().length+')');
 					this.mAnchor = this.createAnchorInDocument(nextFrame.contentDocument);
 					this.checkLoop(range);
 					return this.createRangeSet(range);
