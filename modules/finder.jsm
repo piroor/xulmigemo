@@ -126,6 +126,20 @@ Finder.prototype.__xm__setFindMode = function(aParams) {
 	Services.console.logStringMessage('finder.findMode => '+finder.findMode);
 };
 
+Finder.prototype.__xm__notify = function(aOptions, aMyResult) {
+	if (this._notify.length > 1) { // for Firefox 49 and olders (see also: https://bugzilla.mozilla.org/show_bug.cgi?id=384458)
+		this._notify(
+			aOptions.aSearchString,
+			aOptions.result,
+			aOptions.findBackwards,
+			aOptions.drawOutline
+		);
+	}
+	else {
+		this._notify(aOptions);
+	}
+};
+
 Finder.prototype.__xm__fastFind = Finder.prototype.fastFind;
 Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
 	var finder = this.__xm__migemoFinder;
@@ -144,12 +158,13 @@ Finder.prototype.fastFind = function(aSearchString, aLinksOnly, aDrawOutline) {
 		subFrame : true,
 		scroll   : true
 	});
-	this._notify(
-		aSearchString,
-		myResultToNativeResult(result),
-		false,
-		aDrawOutline
-	);
+	this.__xm__notify({
+		searchString  : aSearchString,
+		result        : myResultToNativeResult(result),
+		findAgain     : false,
+		findBackwards : false,
+		drawOutline   : false
+	});
 };
 
 Finder.prototype.__xm__findAgain = Finder.prototype.findAgain;
@@ -169,12 +184,13 @@ Finder.prototype.findAgain = function(aFindBackwards, aLinksOnly, aDrawOutline) 
 		subFrame : true,
 		scroll   : true
 	});
-	this._notify(
-		this.__xm__nativeSearchString,
-		myResultToNativeResult(result),
-		aFindBackwards,
-		aDrawOutline
-	);
+	this.__xm__notify({
+		searchString  : this.__xm__nativeSearchString,
+		result        : myResultToNativeResult(result),
+		findAgain     : true,
+		findBackwards : aFindBackwards,
+		drawOutline   : aDrawOutline
+	});
 };
 
 Finder.prototype.__xm__findIterator = Finder.prototype._findIterator;
