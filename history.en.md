@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+ - 0.14.7 (2016.6.14)
+   * Works on Nightly 50.0a1.
+   * Firefox unexpectedly hanged in some pages including subframes.
  - 0.14.6 (2016.5.31)
    * Don't include needless ".gitignore" file.
    * Fix wrong encoded search queries in location bar results for search engines on Firefox 46 and olders. ([It is fixed at Firefox 47 and later by Firefox itself.](https://bugzilla.mozilla.org/show_bug.cgi?id=1233672))
