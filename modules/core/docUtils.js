@@ -30,9 +30,16 @@ var MigemoDocumentUtils = inherit(MigemoConstants, {
 			return null;
 
 		var parentDoc = this.getDocumentFromDocShell(parent);
-		var frame = null;
-		while (frame = this.getNextFrame(parentDoc, frame))
+		var xpathResult = parentDoc.evaluate(
+				'descendant::*' + this.FRAME_CONDITION,
+				parentDoc,
+				null,
+				Ci.nsIDOMXPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+				null
+			);
+		for (let i = 0, maxi = xpathResult.snapshotLength; i < maxi; i++)
 		{
+			let frame = xpathResult.snapshotItem(i);
 			if (frame.contentDocument == aDocument)
 				return frame;
 		}
