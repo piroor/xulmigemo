@@ -66,7 +66,7 @@ var MigemoDocumentUtils = inherit(MigemoConstants, {
 				if (!this.isFindableDocument(frame.contentDocument))
 					continue;
 				foundRange.selectNode(frame);
-				if (baseRange.compareBoundaryPoints(baseRange.START_TO_START, foundRange) > 0) {
+				if (baseRange.compareBoundaryPoints(baseRange.START_TO_START, foundRange) < 0) {
 					nextFrame = frame;
 					break;
 				}
@@ -105,7 +105,7 @@ var MigemoDocumentUtils = inherit(MigemoConstants, {
 				if (!this.isFindableDocument(frame.contentDocument))
 					continue;
 				foundRange.selectNode(frame);
-				if (baseRange.compareBoundaryPoints(baseRange.END_TO_START, foundRange) >= 0) {
+				if (baseRange.compareBoundaryPoints(baseRange.END_TO_START, foundRange) > 0) {
 					previousFrame = frame;
 					break;
 				}
