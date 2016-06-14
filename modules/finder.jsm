@@ -129,7 +129,7 @@ Finder.prototype.__xm__setFindMode = function(aParams) {
 Finder.prototype.__xm__notify = function(aOptions, aMyResult) {
 	if (this._notify.length > 1) { // for Firefox 49 and olders (see also: https://bugzilla.mozilla.org/show_bug.cgi?id=384458)
 		this._notify(
-			aOptions.aSearchString,
+			aOptions.searchString,
 			aOptions.result,
 			aOptions.findBackwards,
 			aOptions.drawOutline
