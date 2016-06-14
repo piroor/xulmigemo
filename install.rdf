@@ -10,7 +10,8 @@
                    em:homepageURL="http://piro.sakura.ne.jp/xul/xulmigemo/"
                    em:optionsURL="chrome://xulmigemo/content/config/config.xul"
                    em:iconURL="chrome://xulmigemo/content/icon.png"
-                   em:type="2">
+                   em:type="2"
+                   em:multiprocessCompatible="true">
 	<em:creator>plus7, YUKI "Piro" Hiroshi</em:creator>
 	<em:contributor>alice0775</em:contributor>
 	<em:contributor>Dear Periwinkle</em:contributor>
