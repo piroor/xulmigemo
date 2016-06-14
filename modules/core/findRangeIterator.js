@@ -93,8 +93,10 @@ FindRangeIterator.prototype = {
 				this.wrapped = true;
 				this.wrappedCount++;
 				this.mWillWrapBackward = false;
+				log('backward: wrapped');
 			}
 			if (editableRange) {
+				log('backward: move into editable range');
 				editableRange.setEnd(this.mAnchor.startContainer, this.mAnchor.startOffset);
 				let editable = MigemoDocumentUtils.getParentEditableFromRange(this.mAnchor);
 				this.mAnchor = doc.createRange();
@@ -106,6 +108,7 @@ FindRangeIterator.prototype = {
 
 			if (this.traverseFrames) {
 				let previousFrame = MigemoDocumentUtils.getPreviousFrame(doc, this.mAnchor);
+				log('backward: traverse frames, previousFrame = '+previousFrame);
 				if (previousFrame) {
 					let range = this.mAnchor.cloneRange();
 					range.setStartBefore(previousFrame);
@@ -121,6 +124,7 @@ FindRangeIterator.prototype = {
 
 			if (this.traverseFrames) {
 				let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(doc);
+				log('backward: traverse frames, ownerFrame = '+ownerFrame);
 				if (ownerFrame) {
 					this.mAnchor = ownerFrame.ownerDocument.createRange();
 					this.mAnchor.selectNode(ownerFrame);
@@ -130,6 +134,7 @@ FindRangeIterator.prototype = {
 				}
 			}
 
+			log('backward: select to first');
 			doc = MigemoDocumentUtils.getDocumentFromDocShell(this.mRootDocShell);
 			this.mAnchor = this.createAnchorInDocument(doc);
 			this.mWillWrapBackward = true;
@@ -141,8 +146,10 @@ FindRangeIterator.prototype = {
 				this.wrapped = true;
 				this.wrappedCount++;
 				this.mWillWrapForward = false;
+				log('forward: wrapped');
 			}
 			if (editableRange) {
+				log('forward: move into editable range');
 				editableRange.setStart(this.mAnchor.endContainer, this.mAnchor.endOffset);
 				let editable = MigemoDocumentUtils.getParentEditableFromRange(this.mAnchor);
 				this.mAnchor = doc.createRange();
@@ -154,6 +161,7 @@ FindRangeIterator.prototype = {
 
 			if (this.traverseFrames) {
 				let nextFrame = MigemoDocumentUtils.getNextFrame(doc, this.mAnchor);
+				log('forward: traverse frames, nextFrame = '+nextFrame);
 				if (nextFrame) {
 					let range = this.mAnchor.cloneRange();
 					range.setEndBefore(nextFrame);
@@ -169,6 +177,7 @@ FindRangeIterator.prototype = {
 
 			if (this.traverseFrames) {
 				let ownerFrame = MigemoDocumentUtils.getOwnerFrameFromContentDocument(doc);
+				log('forward: traverse frames, ownerFrame = '+ownerFrame);
 				if (ownerFrame) {
 					this.mAnchor = ownerFrame.ownerDocument.createRange();
 					this.mAnchor.selectNode(ownerFrame);
@@ -178,6 +187,7 @@ FindRangeIterator.prototype = {
 				}
 			}
 
+			log('forward: select to last');
 			doc = MigemoDocumentUtils.getDocumentFromDocShell(this.mRootDocShell);
 			this.mAnchor = this.createAnchorInDocument(doc);
 			this.mWillWrapForward = true;

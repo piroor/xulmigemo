@@ -226,7 +226,7 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 		}
 		if (!startPoint) {
 			if (foundRange) {
-				log(this.logPrefix + 'from last found');
+				log(this.logPrefix + 'from last found <'+foundRange+'>');
 				startPoint = foundRange.cloneRange();
 				startPoint.collapse(aBackward);
 			}
