@@ -27,7 +27,7 @@ function startDownload()
 		}
 		else if (aProgress > 0) {
 			text = status.getAttribute('label-download-progress');
-			status.appendChild(document.createTextNode(text.replace(/%s/i, aProgress)));
+			status.textContent = text.replace(/%s/i, aProgress);
 
 			bar.setAttribute('type', 'determined');
 			bar.setAttribute('value', aProgress+'%');
