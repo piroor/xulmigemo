@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+   * Suppress warning about an useless `return` statement.
+   * Never show progress message multiply for dictionary downloading.
  - 0.14.8 (2016.6.14)
    * Marked as e10s compaible.
    * Works on Nightly 50.0a1.
