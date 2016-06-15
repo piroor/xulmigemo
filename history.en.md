@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 0.14.9 (2016.6.15)
    * Suppress warning about an useless `return` statement.
    * Never show progress message multiply for dictionary downloading.
  - 0.14.8 (2016.6.14)
