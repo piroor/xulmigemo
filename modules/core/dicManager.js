@@ -58,8 +58,6 @@ var MigemoDicManager = {
 				this.cache.clearCacheForAllPatterns(core.textTransform.normalizeKeyInput(input));
 				return;
 
-				return;
-
 			case 'quit-application':
 				this.destroy();
 				return;
