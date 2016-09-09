@@ -4,7 +4,6 @@ appname=xulmigemo
 
 for path in extlib/fxaddonlib-animation-manager/animationManager.js \
             extlib/fxaddonlib-boxobject/boxObject.js \
-            extlib/fxaddonlib-extensions/extensions.js \
             extlib/fxaddonlib-inherit/inherit.jsm \
             extlib/fxaddonlib-prefs/prefs.js \
             extlib/fxaddonlib-stringbundle/stringBundle.js \

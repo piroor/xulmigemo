@@ -44,12 +44,11 @@ var MigemoAPI = {
 	{
 		if (!this.version) {
 			this.version = '?';
-			let ns = {};
-			Components.utils.import('resource://xulmigemo-modules/lib/extensions.js', ns);
-			ns.extensions.getVersion('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}', (function(aVersion) {
-				this.version = aVersion;
+			let { AddonManager } = Component.utils.import('resource://gre/modules/AddonManager.jsm', {});
+			AddonManager.getAddonByID('{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}', (function(aAddon) {
+				this.version = aAddon.version;
 				this.lang = this.XMigemo.lang;
-				this.provider = 'XUL/Migemo '+aVersion+' ('+this.lang+')';
+				this.provider = 'XUL/Migemo '+aAddon.version+' ('+this.lang+')';
 			}).bind(this));
 		}
 
