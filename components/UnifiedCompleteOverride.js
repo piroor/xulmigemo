@@ -29,14 +29,18 @@ Search = function(aSearchString, aSearchParam, aAutocompleteListener,
 
 Search.prototype = OriginalSearch.prototype;
 
+var lastFindInfo;
+
 Object.defineProperty(Search.prototype, '__xm__searchQuery',
 	Object.getOwnPropertyDescriptor(OriginalSearch.prototype, '_searchQuery'));
 Object.defineProperty(Search.prototype, '_searchQuery', {
 	get: function() {
 		var query = this.__xm__searchQuery;
 		if (this.__xm__findInfo) {
+			query[0] = query[0].replace(/AUTOCOMPLETE_MATCH\(([^)]+\)[^)]+)\)/, 'MIGEMO_MATCH($1) AND AUTOCOMPLETE_MATCH($1)');
 			query[1].searchString = ' ';
-			query[1].maxResults = -1;
+			lastFindInfo = this.__xm__findInfo;
+			//query[1].maxResults = -1;
 		}
 		return query;
 	}
@@ -48,8 +52,10 @@ Object.defineProperty(Search.prototype, '_switchToTabQuery', {
 	get: function() {
 		var query = this.__xm__switchToTabQuery;
 		if (this.__xm__findInfo) {
+			query[0] = query[0].replace(/AUTOCOMPLETE_MATCH\(([^)]+)\)/, 'MIGEMO_MATCH($1) AND AUTOCOMPLETE_MATCH($1)');
 			query[1].searchString = ' ';
-			query[1].maxResults = -1;
+			lastFindInfo = this.__xm__findInfo;
+//			query[1].maxResults = -1;
 		}
 		return query;
 	}
@@ -61,7 +67,9 @@ Object.defineProperty(Search.prototype, '_adaptiveQuery', {
 	get: function() {
 		var query = this.__xm__adaptiveQuery;
 		if (this.__xm__findInfo) {
+			query[0] = query[0].replace(/AUTOCOMPLETE_MATCH\(([^)]+\)[^)]+)\)/, 'MIGEMO_MATCH($1) AND AUTOCOMPLETE_MATCH($1)');
 			query[1].search_string = ' ';
+			lastFindInfo = this.__xm__findInfo;
 		}
 		return query;
 	}
@@ -86,6 +94,44 @@ Search.prototype._addMatch = function(aMatch) {
 			return;
 	}
 	return this.__xm__addMatch(aMatch);
+};
+
+
+UnifiedComplete.prototype.__xm__getDatabaseHandle = UnifiedComplete.prototype.getDatabaseHandle;
+UnifiedComplete.prototype.getDatabaseHandle = function(...aArgs) {
+	return this.__xm__getDatabaseHandle(...aArgs)
+		.then(function(aConnection) {
+			try {
+				aConnection._connectionData._dbConn
+					.createFunction(
+						'MIGEMO_MATCH',
+						10 /* https://dxr.mozilla.org/mozilla-central/rev/42c95d88aaaa7c2eca1d278399421d437441ac4d/toolkit/components/places/SQLFunctions.h#89 */,
+						function(aArguments) {
+							if (!lastFindInfo)
+								return true;
+
+							var uri = aArguments.getString(1);
+							var title = aArguments.getString(2);
+							var matchTarget = uri + '\n' + title;
+							if (lastFindInfo.findRegExps.length > 0 &&
+								lastFindInfo.findRegExps.some(function(aRegExp) {
+									return !aRegExp.test(matchTarget);
+								}))
+								return false;
+
+							if (lastFindInfo.exceptionsRegExp &&
+								lastFindInfo.exceptionsRegExp.test(matchTarget))
+								return false;
+
+							return true;
+						}
+					);
+				log('Function "MIGEMO_MATCH" successfully registered.');
+			}
+			catch(e) {
+			}
+			return aConnection;
+		});
 };
 
 
