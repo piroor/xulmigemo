@@ -155,9 +155,10 @@ function testDoProcessForAllFrames()
 testClearFocusRingForSingleFrame.setUp = function()
 {
 	utils.loadURI(baseURL+'../fixtures/keyEventTest.html');
-	Array.slice(content.document.links).forEach(function(aLink) {
+	for (let aLink of content.document.links)
+	{
 		aLink.setAttribute(XMigemoUI.kFOCUSED, true);
-	});
+	}
 };
 function testClearFocusRingForSingleFrame()
 {
@@ -171,12 +172,14 @@ function testClearFocusRingForSingleFrame()
 testClearFocusRingForMultipleFrames.setUp = function()
 {
 	utils.loadURI(baseURL+'../fixtures/frameTest.html');
-	Array.slice($('frame1', content).contentDocument.links).forEach(function(aLink) {
+	for (let aLink of $('frame1', content).contentDocument.links)
+	{
 		aLink.setAttribute(XMigemoUI.kFOCUSED, true);
-	});
-	Array.slice($('frame2', content).contentDocument.links).forEach(function(aLink) {
+	}
+	for (let aLink of $('frame2', content).contentDocument.links)
+	{
 		aLink.setAttribute(XMigemoUI.kFOCUSED, true);
-	});
+	}
 };
 function testClearFocusRingForMultipleFrames()
 {

@@ -308,9 +308,10 @@ window.XMigemoUI = inherit(MigemoConstants, {
 		{
 			case this.BASE+'shortcut.startInTemporaryMode':
 				let prefix = 'xmigemo-shortcut-startInTemporaryMode-';
-				Array.forEach(document.querySelectorAll('[id^="' + prefix + '"]'), function(aNode) {
+				for (let aNode of document.querySelectorAll('[id^="' + prefix + '"]'))
+				{
 					aNode.parentNode.removeChild(aNode);
-				});
+				}
 				JSON.parse(value).forEach(function(aDefinition, aIndex) {
 					XMigemoService.updateKey(
 						prefix + aIndex,

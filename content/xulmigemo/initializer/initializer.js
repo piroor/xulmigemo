@@ -96,7 +96,7 @@ function onWizardCheckChange(aShouldShow)
 }
 
 
-function mydump()
+function mydump(...aArgs)
 {
-	dump(Array.slice(arguments).join(' ')+'\n');
+	dump(aArgs.join(' ')+'\n');
 }

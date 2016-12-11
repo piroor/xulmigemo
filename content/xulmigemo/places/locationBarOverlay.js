@@ -72,7 +72,7 @@ window.XMigemoLocationBarOverlay = {
 			if (XMigemoLocationBarOverlay.isMigemoActive) {
 				let findInfo = XMigemoPlaces.parseInput(XMigemoLocationBarOverlay.input);
 				let controller = this.mInput.controller;
-				Array.forEach(XMigemoLocationBarOverlay.items, function(aItem, aIndex) {
+				[...XMigemoLocationBarOverlay.items].forEach(function(aItem, aIndex) {
 					if (!aItem.getAttribute('text') ||
 						aIndex >= controller.matchCount)
 						return;

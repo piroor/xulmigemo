@@ -45,7 +45,7 @@ var MigemoTextUtils = {
  
 	brushUpTerms : function(aTerms) 
 	{
-		return Array.slice(aTerms || [])
+		return [...(aTerms || )]
 				.sort()
 				.join('\n')
 				.toLowerCase()
@@ -57,7 +57,7 @@ var MigemoTextUtils = {
 	kBRUSH_UP_PATTERN : /^(.+)(\n\1$)+/gim,
 	brushUpTermsWithCase : function(aTerms)
 	{
-		return Array.slice(aTerms || [])
+		return [...(aTerms || [])]
 				.sort()
 				.join('\n')
 				.replace(this.kBRUSH_UP_PATTERN_CASE_SENSITIVE, '$1')
@@ -117,10 +117,11 @@ var MigemoTextUtils = {
 		if (Prefs.getBoolPref('javascript.enabled')) {
 			let noscript = doc.getElementsByTagName('noscript');
 			let trash = doc.createRange();
-			Array.slice(noscript).forEach(function(aNode) {
+			for (let aNode in noscript)
+			{
 				trash.selectNode(aNode);
 				trash.deleteContents();
-			});
+			}
 			trash.detach();
 		}
 

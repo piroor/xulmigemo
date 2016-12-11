@@ -137,7 +137,7 @@ function testSelectContentWithDelay()
 	textUtils.selectContentWithDelay(container, 17, 4, false);
 
 	var highlights = getHighlights();
-	Array.slice(highlights).reverse().forEach(function(aNode) {
+	[...highlights].reverse().forEach(function(aNode) {
 		var range = content.document.createRange();
 		range.selectNodeContents(aNode);
 		var text = range.extractContents();
