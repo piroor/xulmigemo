@@ -804,7 +804,8 @@ MigemoFind.prototype = inherit(MigemoConstants, {
 			return aFrame;
 
 		var frame;
-		if ([...aFrame.frames].some(function(aFrame) {
+		var subFrames = Array.prototype.slice(aFrame.frames, 0);
+		if (subFrames.some(function(aFrame) {
 				frame = this.getLastFindTargetFrame(aFrame);
 				return frame;
 			}, this))
