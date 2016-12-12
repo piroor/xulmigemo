@@ -45,7 +45,8 @@ var MigemoTextUtils = {
  
 	brushUpTerms : function(aTerms) 
 	{
-		return [...(aTerms || )]
+		aTerms = aTerms || [];
+		return [...aTerms]
 				.sort()
 				.join('\n')
 				.toLowerCase()
