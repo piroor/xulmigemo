@@ -57,7 +57,7 @@ MigemoCache.prototype = inherit(MigemoConstants, {
 			var fileName = aFileName + (aType != this.ALL_DIC ? '-'+aType : '' );
 			try {
 				var file = Cc['@mozilla.org/file/local;1']
-						.createInstance(Ci.nsILocalFile);
+						.createInstance(Ci.nsIFile);
 				file.initWithPath(this.dicpath);
 				file.append(fileName);
 				this.setCacheFile(file, aType);

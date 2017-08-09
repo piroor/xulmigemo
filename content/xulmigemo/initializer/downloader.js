@@ -16,7 +16,7 @@ var XMigemoFileDownloader = {
 	PERMS_FILE	  : 0644,
 	PERMS_DIRECTORY : 0755,
 
-	nsILocalFile : Ci.nsILocalFile,
+	nsIFile : Ci.nsIFile,
 
 
 	downloadDictionary : function()
@@ -115,7 +115,7 @@ var XMigemoFileDownloader = {
 			parentDir.append('xulmigemodic');
 			if (!parentDir.exists()) {
 				try {
-					parentDir.create(this.nsILocalFile.DIRECTORY_TYPE, this.PERMS_DIRECTORY);
+					parentDir.create(this.nsIFile.DIRECTORY_TYPE, this.PERMS_DIRECTORY);
 				}
 				catch (e) {
 				}
@@ -171,7 +171,7 @@ var XMigemoFileDownloader = {
 			target.append(entry);
 			if (!target.exists()) {
 				try {
-					target.create(this.nsILocalFile.DIRECTORY_TYPE, this.PERMS_DIRECTORY);
+					target.create(this.nsIFile.DIRECTORY_TYPE, this.PERMS_DIRECTORY);
 				}
 				catch (e) {
 				}
@@ -190,7 +190,7 @@ var XMigemoFileDownloader = {
 			}
 
 			try {
-				target.create(this.nsILocalFile.NORMAL_FILE_TYPE, this.PERMS_FILE);
+				target.create(this.nsIFile.NORMAL_FILE_TYPE, this.PERMS_FILE);
 			}
 			catch (e) {
 			}

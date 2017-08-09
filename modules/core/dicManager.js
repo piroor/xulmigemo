@@ -131,7 +131,7 @@ var MigemoDicManager = {
 
 		var current = aDefault || this.dicpath;
 		var displayDirectory = Cc['@mozilla.org/file/local;1'].createInstance();
-		if (displayDirectory instanceof Ci.nsILocalFile) {
+		if (displayDirectory instanceof Ci.nsIFile) {
 			try {
 				displayDirectory.initWithPath(current);
 				filePicker.displayDirectory = displayDirectory;
@@ -161,7 +161,7 @@ var MigemoDicManager = {
 
 		if (typeof filePicker.open != 'function') { // Firefox 18 and olders
 			let folder = (filePicker.show() == filePicker.returnOK) ?
-							filePicker.file.QueryInterface(Components.interfaces.nsILocalFile) : null ;
+							filePicker.file.QueryInterface(Components.interfaces.nsIFile) : null ;
 			folder = findExistingFolder(folder);
 			return folder ? folder.path : '' ;
 		}
@@ -169,7 +169,7 @@ var MigemoDicManager = {
 		var folder;
 		filePicker.open({ done: function(aResult) {
 			if (aResult == filePicker.returnOK) {
-				folder = filePicker.file.QueryInterface(Components.interfaces.nsILocalFile);
+				folder = filePicker.file.QueryInterface(Components.interfaces.nsIFile);
 			}
 			else {
 				folder = null;

@@ -63,7 +63,7 @@ var MigemoDictionaryJa = inherit(MigemoConstants, {
 
 			if (dicDir) {
 				file = Cc['@mozilla.org/file/local;1']
-					.createInstance(Ci.nsILocalFile);
+					.createInstance(Ci.nsIFile);
 				file.initWithPath(dicDir);
 				file.append(this.cList[i] + 'a2.txt');
 			}
@@ -79,7 +79,7 @@ var MigemoDictionaryJa = inherit(MigemoConstants, {
 			// ユーザー辞書
 			if (dicDir) {
 				file = Cc["@mozilla.org/file/local;1"]
-					.createInstance(Ci.nsILocalFile);
+					.createInstance(Ci.nsIFile);
 				file.initWithPath(dicDir);
 				file.append(this.cList[i] + 'a2.user.txt');
 			}
@@ -158,7 +158,7 @@ var MigemoDictionaryJa = inherit(MigemoConstants, {
 		if (!dicDir) return;
 
 		file = Cc["@mozilla.org/file/local;1"]
-				.createInstance(Ci.nsILocalFile);
+				.createInstance(Ci.nsIFile);
 		file.initWithPath(dicDir);
 		file.append(aKey + 'a2.user.txt');
 

@@ -96,7 +96,7 @@ var MigemoFileAccess = {
 	getAbsolutePath : function(aPath)
 	{
 		var file = Cc['@mozilla.org/file/local;1']
-				.createInstance(Ci.nsILocalFile);
+				.createInstance(Ci.nsIFile);
 		try {
 			file.initWithPath(aPath);
 			return aPath;
@@ -151,7 +151,7 @@ var MigemoFileAccess = {
 			return path;
 
 		var file = Cc['@mozilla.org/file/local;1']
-				.createInstance(Ci.nsILocalFile);
+				.createInstance(Ci.nsIFile);
 		file.initWithPath(aPath);
 
 		var binDir = DIR.get('CurProcD', Ci.nsIFile);
@@ -185,7 +185,7 @@ var MigemoFileAccess = {
 	getExistingPath : function(aPath)
 	{
 		var file = Cc['@mozilla.org/file/local;1']
-				.createInstance(Ci.nsILocalFile);
+				.createInstance(Ci.nsIFile);
 		try {
 			aPath = this.getAbsolutePath(aPath);
 			file.initWithPath(aPath);
