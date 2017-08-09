@@ -272,7 +272,7 @@ var MigemoAPI = {
 				this._XMigemo = null;
 				this.initCache();
 				this.initProperties();
-				Services.prefs.QueryInterface(Ci.nsIPrefBranchInternal)
+				Services.prefs
 					.addObserver(MigemoConstants.BASE, this, false);
 				return;
 

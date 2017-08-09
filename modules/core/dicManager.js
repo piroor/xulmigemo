@@ -219,8 +219,8 @@ var MigemoDicManager = {
 		}
 
 		try {
-			var pbi = Services.prefs.QueryInterface(Ci.nsIPrefBranchInternal);
-			pbi.addObserver(this.domain, this, false);
+			var pb = Services.prefs.QueryInterface(Ci.nsIPrefBranch);
+			pb.addObserver(this.domain, this, false);
 		}
 		catch(e) {
 		}
@@ -252,8 +252,8 @@ var MigemoDicManager = {
 	destroy : function() 
 	{
 		try {
-			var pbi = Services.prefs.QueryInterface(Ci.nsIPrefBranchInternal);
-			pbi.removeObserver(this.domain, this, false);
+			var pb = Services.prefs.QueryInterface(Ci.nsIPrefBranch);
+			pb.removeObserver(this.domain, this, false);
 		}
 		catch(e) {
 		}

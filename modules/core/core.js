@@ -576,8 +576,8 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 
 		Services.obs.addObserver(this, 'XMigemo:cacheCleared', false);
 
-		var pbi = Services.prefs.QueryInterface(Ci.nsIPrefBranchInternal);
-		pbi.addObserver(this.domain, this, false);
+		var pb = Services.prefs;
+		pb.addObserver(this.domain, this, false);
 		this.observe(null, 'nsPref:changed', this.BASE+'ANDFind.enabled');
 		this.observe(null, 'nsPref:changed', this.BASE+'NOTFind.enabled');
 	},
@@ -586,8 +586,8 @@ MigemoCore.prototype = inherit(MigemoConstants, {
 	{
 		Services.obs.removeObserver(this, 'XMigemo:cacheCleared');
 
-		var pbi = Services.prefs.QueryInterface(Ci.nsIPrefBranchInternal);
-		pbi.removeObserver(this.domain, this, false);
+		var pb = Services.prefs;
+		pb.removeObserver(this.domain, this, false);
 	}
  
 }); 
