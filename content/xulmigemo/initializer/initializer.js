@@ -71,11 +71,13 @@ function startDownload()
 function chooseFolder()
 {
 	let { MigemoDicManager } = Components.utils.import('resource://xulmigemo-modules/core/dicManager.js', {});
-	var path = MigemoDicManager.showDirectoryPicker(null);
-	if (path) {
-		document.getElementById('choose-path').value = path;
-		document.documentElement.canAdvance = true;
-	}
+	MigemoDicManager.showDirectoryPicker(null)
+		.then(function(aPath) {
+			if (!aPath)
+				return;
+			document.getElementById('choose-path').value = aPath;
+			document.documentElement.canAdvance = true;
+		});
 }
 
 function saveChosenFolder()

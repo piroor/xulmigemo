@@ -13,18 +13,21 @@ var gRelativePath;
 function getDP()
 {
 	var path = gAbsolutePath.value;
-	var folderPath = MigemoDicManager.showDirectoryPicker(path);
-	if (!folderPath || gAbsolutePath.value == folderPath) return;
+	MigemoDicManager.showDirectoryPicker(path)
+		.then(function(aFilderPath) {
+			if (!aFilderPath || gAbsolutePath.value == aFilderPath)
+				return;
 
-	gAbsolutePath.value = folderPath;
-	var event = document.createEvent('UIEvents');
-	event.initUIEvent('input', true, false, window, 0);
-	gAbsolutePath.dispatchEvent(event);
+			gAbsolutePath.value = aFilderPath;
+			var event = document.createEvent('UIEvents');
+			event.initUIEvent('input', true, false, window, 0);
+			gAbsolutePath.dispatchEvent(event);
 
-	gRelativePath.value = MigemoFileAccess.getRelativePath(folderPath);
-	event = document.createEvent('UIEvents');
-	event.initUIEvent('input', true, false, window, 0);
-	gRelativePath.dispatchEvent(event);
+			gRelativePath.value = MigemoFileAccess.getRelativePath(aFilderPath);
+			event = document.createEvent('UIEvents');
+			event.initUIEvent('input', true, false, window, 0);
+			gRelativePath.dispatchEvent(event);
+		});
 }
 
 function goInitializeWizard()

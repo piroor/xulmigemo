@@ -10,6 +10,7 @@ var Ci = Components.interfaces;
 var Cu = Components.utils;
 
 Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/Promise.jsm');
 
 Cu.import('resource://xulmigemo-modules/lib/prefs.js');
  
@@ -159,33 +160,18 @@ var MigemoDicManager = {
 			return aFile;
 		}
 
-		if (typeof filePicker.open != 'function') { // Firefox 18 and olders
-			let folder = (filePicker.show() == filePicker.returnOK) ?
-							filePicker.file.QueryInterface(Components.interfaces.nsIFile) : null ;
-			folder = findExistingFolder(folder);
-			return folder ? folder.path : '' ;
-		}
-
-		var folder;
-		filePicker.open({ done: function(aResult) {
-			if (aResult == filePicker.returnOK) {
-				folder = filePicker.file.QueryInterface(Components.interfaces.nsIFile);
-			}
-			else {
-				folder = null;
-			}
-		}});
-
-		// this must be rewritten in asynchronous style.
-		// this is required just for backward compatibility.
-		var thread = Cc['@mozilla.org/thread-manager;1'].getService().mainThread;
-		while (folder === undefined)
-		{
-			thread.processNextEvent(true);
-		}
-
-		folder = findExistingFolder(folder);
-		return folder ? folder.path : '' ;
+		return new Promise(function(aResolve, aReject) {
+			filePicker.open({ done: function(aResult) {
+				if (aResult == filePicker.returnOK) {
+					let folder = filePicker.file.QueryInterface(Components.interfaces.nsIFile);
+					folder = findExistingFolder(folder);
+					aResolve(folder ? folder.path : '' );
+				}
+				else {
+					aResolve(null);
+				}
+			}});
+		});
 	},
  
 	showInitializeWizard : function(aOwner) 
