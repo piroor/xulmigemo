@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "XUL/Migemo WE",
+  "version": "0.0.1",
+  "author": "YUKI \"Piro\" Hiroshi",
+  "description": "",
+  "permissions": [
+    "bookmarks",
+    "storage"
+  ],
+  "background": {
+    "page": "/background/background.html"
+  },
+  "applications": {
+    "gecko": {
+      "id": "{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}",
+      "strict_min_version": "68.0"
+    }
+  }
+}
