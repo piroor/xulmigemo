@@ -5,35 +5,7 @@
 */
 'use strict';
 
-import {
-  configs
-} from '/common/common.js';
-
-async function ensureDictionaryLoaded() {
-  const start = Date.now();
-  const dic = configs.dic;
-  //console.log('loaded dic: ', dic);
-  const loadTasks = [];
-  const newlyLoadedDic = {};
-  for (const key of configs.dicKeys) {
-    if (dic[key])
-      continue;
-    loadTasks.push((async () => {
-      console.log(`load dictionary from file: ${key}`);
-      const url = browser.extension.getURL(`dic/${key}.txt`);
-      const data = await fetch(url);
-      newlyLoadedDic[key] = await data.text();
-    })());
-  }
-  if (loadTasks.length > 0) {
-    await Promise.all(loadTasks);
-    configs.dic = Object.assign({}, dic, newlyLoadedDic);
-    //console.log('saved dic: ', configs.dic);
-  }
-  console.log(`elapsed time to prepare dictionaries: ${Date.now() - start}msec `);
-}
-
-configs.$loaded.then(ensureDictionaryLoaded);
+import * as Dictionary from './dictionary.js';
 
 browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
   console.log('onInputChanged: ', text);
