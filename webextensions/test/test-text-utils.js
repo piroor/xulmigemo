@@ -88,10 +88,23 @@ export function test_getORFindRegExpFromTerms() {
   const source = TextUtils.getORFindRegExpFromTerms(terms);
   ok(TextUtils.isRegExp(`/${source}/`));
 
-  const regexp = new RegExp(source, 'gim');
+  const regexp = new RegExp(source);
   ok(regexp.test('日本語,フランス語,英語'), regexp);
   ok(regexp.test('フランス語,英語,日本語'), regexp);
   ok(regexp.test('日本語,フランス語'), regexp);
+}
+
+export function test_getORFindRegExpFromTerms3() {
+  const terms = '日本語,英語,ドイツ語'.split(',');
+
+  const source = TextUtils.getORFindRegExpFromTerms(terms);
+  ok(TextUtils.isRegExp(`/${source}/`));
+
+  const regexp = new RegExp(source);
+  ok(regexp.test('日本語,フランス語,英語,ドイツ語'), regexp);
+  ok(regexp.test('フランス語,ドイツ語,英語,日本語'), regexp);
+  ok(regexp.test('日本語,フランス語,ドイツ語'), regexp);
+  ok(regexp.test('日本語'), regexp);
 }
 
 // AND検索用正規表現の生成
@@ -101,9 +114,21 @@ export function test_getANDFindRegExpFromTerms() {
   const source = TextUtils.getANDFindRegExpFromTerms(terms);
   ok(TextUtils.isRegExp(`/${source}/`));
 
-  const regexp = new RegExp(source, 'gim');
+  const regexp = new RegExp(source);
   ok(regexp.test('日本語,フランス語,英語'), regexp);
   ok(regexp.test('フランス語,英語,日本語'), regexp);
+  ng(regexp.test('日本語,フランス語'), regexp);
+}
+
+export function test_getANDFindRegExpFromTerms3() {
+  const terms = '日本語,英語,ドイツ語'.split(',');
+
+  const source = TextUtils.getANDFindRegExpFromTerms(terms);
+  ok(TextUtils.isRegExp(`/${source}/`));
+
+  const regexp = new RegExp(source);
+  ok(regexp.test('日本語,ドイツ語,フランス語,英語'), regexp);
+  ok(regexp.test('フランス語,英語,ドイツ語,日本語'), regexp);
   ng(regexp.test('日本語,フランス語'), regexp);
 }
 
