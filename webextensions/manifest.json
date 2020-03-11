@@ -6,7 +6,8 @@
   "description": "",
   "permissions": [
     "bookmarks",
-    "history"
+    "history",
+    "storage"
   ],
   "background": {
     "page": "/background/background.html"
