@@ -15,3 +15,6 @@ signed: xpi
 
 clean:
 	rm $(PACKAGE_NAME).xpi $(PACKAGE_NAME)_noupdate.xpi sha1hash.txt
+
+lint:
+	cd webextensions && make lint
