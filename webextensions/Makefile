@@ -1,7 +1,7 @@
 NPM_MOD_DIR := $(CURDIR)/node_modules
 NPM_BIN_DIR := $(NPM_MOD_DIR)/.bin
 
-.PHONY: xpi install_dependency install_hook lint format update_extlib install_extlib
+.PHONY: xpi install_dependency install_hook lint format update_extlib install_extlib test
 
 all: xpi
 
@@ -28,3 +28,6 @@ update_extlib:
 install_extlib:
 	rm -f extlib/*.js
 	cp ../submodules/webextensions-lib-configs/Configs.js extlib/; echo 'export default Configs;' >> extlib/Configs.js
+
+test:
+	npm run test

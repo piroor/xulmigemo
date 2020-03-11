@@ -18,3 +18,6 @@ clean:
 
 lint:
 	cd webextensions && make lint
+
+test:
+	cd webextensions && make test

@@ -12,6 +12,7 @@ module.exports = {
     'browser': true,
     'es6': true,
     'webextensions': true,
+    'node': true,
   },
 
   'settings': {
