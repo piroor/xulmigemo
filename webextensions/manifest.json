@@ -5,11 +5,13 @@
   "author": "YUKI \"Piro\" Hiroshi",
   "description": "",
   "permissions": [
-    "bookmarks",
-    "storage"
+    "history"
   ],
   "background": {
     "page": "/background/background.html"
+  },
+  "omnibox": {
+    "keyword": "/"
   },
   "applications": {
     "gecko": {

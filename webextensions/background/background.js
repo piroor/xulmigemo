@@ -5,4 +5,19 @@
 */
 'use strict';
 
+browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
+  console.log('onInputChanged: ', text);
+  const items = await browser.history.search({ text });
+  suggest(items.map(item => ({
+    content:     item.url,
+    description: item.title
+  })));
+});
 
+browser.omnibox.onInputEntered.addListener((text, disposition) => {
+  console.log('onInputEntered: ', text, disposition);
+});
+
+browser.omnibox.onInputCancelled.addListener(() => {
+  console.log('onInputCancelled');
+});
