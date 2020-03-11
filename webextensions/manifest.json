@@ -5,6 +5,7 @@
   "author": "YUKI \"Piro\" Hiroshi",
   "description": "",
   "permissions": [
+    "bookmarks",
     "history"
   ],
   "background": {
