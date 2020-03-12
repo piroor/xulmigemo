@@ -5,27 +5,46 @@
 
 //import { Diff } from '../src/diff.js';
 
-import * as TextUtilsTest from './test-text-utils.js';
+import * as TestTextUtils from './test-text-utils.js';
+import * as TestTextTransformJa from './test-text-transform-ja.js';
 
 async function run() {
   const testCases = [
-    TextUtilsTest,
+    TestTextUtils,
+    TestTextTransformJa,
   ];
   let runOnlyRunnable = false;
   let failureCount = 0;
   let errorCount = 0;
-  findRunnable:
+  const populatedTestCases = [];
   for (const tests of testCases) {
+    const populatedTestCase = {};
     for (const name of Object.keys(tests)) {
       if (!name.startsWith('test'))
         continue;
-      if (tests[name].runnable) {
-        runOnlyRunnable = true;
-        break findRunnable;
+      if (tests[name].parameters) {
+        const parameters = await tests[name].parameters;
+        if (Array.isArray(parameters)) {
+          for (let i = 0, maxi = parameters.length; i < maxi; i++) {
+            populatedTestCase[`${name} [${i}]`] = async () => tests[name](parameters[i]);
+          }
+        }
+        else {
+          for (const parametersName of Object.keys(parameters)) {
+            populatedTestCase[`${name} [${parametersName}]`] = async () => tests[name](parameters[parametersName]);
+          }
+        }
       }
+      else {
+        populatedTestCase[name] = tests[name];
+      }
+      if (tests[name].runnable)
+        runOnlyRunnable = true;
     }
+    populatedTestCases.push(populatedTestCase);
   }
-  for (const tests of testCases) {
+  let lastSuccess = true;
+  for (const tests of populatedTestCases) {
     const setup    = tests.setUp || tests.setup;
     const teardown = tests.tearDown || tests.teardown;
     for (const name of Object.keys(tests)) {
@@ -42,7 +61,9 @@ async function run() {
           await teardown();
           shouldTearDown = false;
         }
-        console.log(`Success: ${name}`);
+        //console.log(`Success: ${name}`);
+        process.stdout.write('.');
+        lastSuccess = true;
       }
       catch(error) {
         try {
@@ -53,6 +74,8 @@ async function run() {
           throw error;
         }
         catch(error) {
+          if (lastSuccess)
+            console.log(''); // newline
           if (error && error.name == 'AssertionError') {
             logFailure(name, error);
             failureCount++;
@@ -61,6 +84,7 @@ async function run() {
             logError(name, error);
             errorCount++;
           }
+          lastSuccess = false;
         }
       }
     }
