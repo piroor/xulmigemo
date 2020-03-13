@@ -293,7 +293,7 @@ function expandTerms(terms) {
 function getRegExpFunctionalInternal(input) {
   let exceptionsPattern = '';
   if (mEnableNOTFind) {
-    const { input: shiftedInput, exceptions } = siftExceptions(input);
+    const { input: shiftedInput, exceptions } = shiftExceptions(input);
     input = shiftedInput;
     if (exceptions.length > 0)
       exceptionsPattern = TextUtils.getORFindRegExpFromTerms(getRegExps(exceptions.join(' ')));
@@ -328,7 +328,7 @@ export function getRegExpsFunctional(input) {
   return Object.assign(result, { patterns });
 }
 
-function siftExceptions(input) {
+function shiftExceptions(input) {
   const exceptions = [];
   input = input.split(/\s+/).filter(term => {
     if (term.startsWith('-')) {
