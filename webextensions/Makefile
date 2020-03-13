@@ -20,7 +20,7 @@ format: install_dependency
 
 xpi: update_extlib install_extlib lint
 	rm -f ./*.xpi
-	zip -r -9 xulmigemo-we.xpi manifest.json common extlib background dics -x '*/.*' >/dev/null 2>/dev/null
+	zip -r -9 xulmigemo-we.xpi manifest.json common extlib background dictionaries -x '*/.*' >/dev/null 2>/dev/null
 
 update_extlib:
 	git submodule update --init

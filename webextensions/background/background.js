@@ -5,8 +5,6 @@
 */
 'use strict';
 
-import * as Dictionary from './dictionary.js';
-
 browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
   console.log('onInputChanged: ', text);
   const terms = text.trim().split(/\s+/);
