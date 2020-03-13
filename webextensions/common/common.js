@@ -8,6 +8,8 @@
 import Configs from '/extlib/Configs.js';
 
 export const configs = new Configs({
+  ignoreLatinModifiers: true,
+
   dictionaryEnUsVersion: 0,
   dictionaryEnUs: null,
 
