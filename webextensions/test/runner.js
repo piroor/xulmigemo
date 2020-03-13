@@ -8,12 +8,14 @@
 import * as TestTextUtils from './test-text-utils.js';
 import * as TestTextTransformJa from './test-text-transform-ja.js';
 import * as TestEngineJa from './test-engine-ja.js';
+import * as TestCoreJa from './test-core-ja.js';
 
 async function run() {
   const testCases = [
     TestTextUtils,
     TestTextTransformJa,
     TestEngineJa,
+    TestCoreJa,
   ];
   let runOnlyRunnable = false;
   let failureCount = 0;

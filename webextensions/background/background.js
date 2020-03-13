@@ -5,9 +5,20 @@
 */
 'use strict';
 
+import {
+  configs
+} from '/common/common.js';
+
+import * as EngineJa from './engine-ja.js';
+import * as DictionaryJa from './dictionary-ja.js';
+
+configs.$loaded.then(DictionaryJa.load);
+
+
 browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
   console.log('onInputChanged: ', text);
-  const terms = text.trim().split(/\s+/);
+  const terms = text.trim().split(/\s+/).map(EngineJa.gatherEntriesFor);
+  console.log('terms: ', terms);
   const items = (await Promise.all(terms.map(async term => {
     return (await Promise.all([
       browser.history.search({
