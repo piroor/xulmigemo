@@ -166,7 +166,7 @@ export function gatherEntriesFor(input) {
     return [];
 }
 
-export function flattenRegExp(regexp) {
+function flattenRegExp(regexp) {
   if (!regexp)
     return[];
 
@@ -245,7 +245,7 @@ function expandTermsFromArrayInternal(terms) {
   return shouldContinue;
 }
 
-export function expandTerms(terms) {
+function expandTerms(terms) {
   let final = '';
   let result = '';
   let containsArray = false;
@@ -343,7 +343,7 @@ function siftExceptions(input) {
 const MIGEMO_PATTERN_MATCHER = /^[\w\-\:\}\{\$\?\*\+\.\^\/\;\\]+$/im;
 const NOT_PATTERN_MATCHER = /^-/im;
 
-export function isValidFunctionalInput(input) {
+function isValidFunctionalInput(input) {
   const converted = input.replace(/\s+/g, '\n');
   return (
     TextUtils.isRegExp(input) ||
@@ -352,7 +352,7 @@ export function isValidFunctionalInput(input) {
   );
 }
 
-export function trimFunctionalInput(input) {
+function trimFunctionalInput(input) {
   input = String(input).trim();
   if (mEnableNOTFind) {
     // 入力中のNOT検索用演算子を除外
