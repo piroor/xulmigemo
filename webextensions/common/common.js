@@ -16,7 +16,7 @@ export const configs = new Configs({
   cache: {}
 }, {
   localKeys: [
-    'dic',
+    'dictionaryJa',
     'cache'
   ]
 });
