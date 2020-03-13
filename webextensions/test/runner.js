@@ -7,18 +7,23 @@
 
 import * as TestTextUtils from './test-text-utils.js';
 import * as TestTextTransformJa from './test-text-transform-ja.js';
+import * as TestEngineJa from './test-engine-ja.js';
 
 async function run() {
   const testCases = [
     TestTextUtils,
     TestTextTransformJa,
+    TestEngineJa,
   ];
   let runOnlyRunnable = false;
   let failureCount = 0;
   let errorCount = 0;
   const populatedTestCases = [];
   for (const tests of testCases) {
-    const populatedTestCase = {};
+    const populatedTestCase = {
+      setUp:    tests.setUp || tests.setup,
+      tearDown: tests.tearDown || tests.teardown
+    };
     for (const name of Object.keys(tests)) {
       if (!name.startsWith('test'))
         continue;

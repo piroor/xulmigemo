@@ -2,13 +2,16 @@
 // See also: /license/COPYING.txt
 'use strict';
 
-import {
-  configs
-} from '/common/common.js';
-
 import * as TextUtils from './text-utils.js';
 import * as TextTransform from './text-transform.js';
 import * as Dictionary from './dictionary.js';
+let mIgnoreLatinModifiers   = true;
+
+export function init({
+  ignoreLatinModifiers
+} = {}) {
+  mIgnoreLatinModifiers   = !!ignoreLatinModifiers;
+}
 
 export function getRegExpFor(rawInput) {
   if (!rawInput)
@@ -19,7 +22,7 @@ export function getRegExpFor(rawInput) {
   console.log('noCache');
 
   let input = TextUtils.sanitize(rawInput);
-  if (configs.ignoreLatinModifiers)
+  if (mIgnoreLatinModifiers)
     input = TextTransform.addLatinModifiers(input);
 
   const lines = gatherEntriesFor(rawInput);
@@ -58,7 +61,7 @@ export function gatherEntriesFor(rawInput) {
     return [];
 
   let input = TextUtils.sanitize(rawInput);
-  if (configs.ignoreLatinModifiers)
+  if (mIgnoreLatinModifiers)
     input = TextTransform.addLatinModifiers(input);
 
   const regexp = new RegExp(`^(${input}).+$`, 'img');
@@ -72,7 +75,7 @@ export function gatherEntriesFor(rawInput) {
 }
 
 
-const SYMBOLS_MATCHER = new RegExp('([!"#\$%&\'\\(\\)=‾\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64]+)', 'g')
+const SYMBOLS_MATCHER = new RegExp('([!"#\$%&\'\\(\\)=‾\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64]+)', 'g');
 
 export function splitInput(input) {
   const terms = input

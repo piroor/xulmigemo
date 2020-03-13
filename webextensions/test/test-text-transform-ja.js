@@ -14,7 +14,7 @@ import * as TextTransformJa from '../background/text-transform-ja.js';
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 const convertPatterns = (() => {
-  const contents = fs.readFileSync(`${__dirname}/test-text-transform-ja-convert-patterns.tsv`, 'utf8');
+  const contents = fs.readFileSync(`${__dirname}/assets/text-transform-ja-convert-patterns.tsv`, 'utf8');
   const patterns = {};
   let header;
   for (const row of contents.split('\n')) {

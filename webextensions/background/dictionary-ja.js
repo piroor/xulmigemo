@@ -2,9 +2,18 @@
 // See also: /license/COPYING.txt
 'use strict';
 
-import {
-  configs
-} from '/common/common.js';
+/* Usage:
+    import {
+      configs
+    } from '/common/common.js';
+
+    configs.$loaded.then(DictionaryJa.load);
+
+  You can use a custom fetcher like:
+    DictionaryJa.load({
+      fetcher: path => fs.readFileSync(`./${path}`, 'utf8')
+    })
+ */
 
 const VERSION = 1;
 
@@ -32,22 +41,26 @@ const CONSONANTS = [
 //       more readability.
 let mDic;
 
-async function load() {
+export async function load(configs = {}) {
   const needUpdate = configs.dictionaryJaVersion != VERSION;
   const start = Date.now();
   const dic = configs.dictionaryJa || {};
   //console.log('loaded dic: ', dic);
   const loadTasks = [];
   const newlyLoadedDic = {};
+  const fetcher = configs.fetcher || (async path => {
+    const url = browser.extension.getURL(path);
+    const data = await fetch(url);
+    return data.text();
+  });
   for (const consonant of CONSONANTS) {
     if (!needUpdate &&
         dic[consonant])
       continue;
     loadTasks.push((async () => {
-      console.log(`load ja dictionary from file for "${consonant}"`);
-      const url = getDicFileURLFor(consonant);
-      const data = await fetch(url);
-      newlyLoadedDic[consonant] = await data.text();
+      //console.log(`load ja dictionary from file for "${consonant}"`);
+      const path = `dictionaries/ja/${consonant}a2.txt`;
+      newlyLoadedDic[consonant] = await fetcher(path);
     })());
   }
   if (loadTasks.length > 0) {
@@ -57,21 +70,15 @@ async function load() {
     //console.log('saved dic: ', configs.dic);
   }
   mDic = configs.dictionaryJa;
-  console.log(`elapsed time to prepare ja dictionaries: ${Date.now() - start}msec `);
-}
-
-configs.$loaded.then(load);
-
-function getDicFileURLFor(consonant) {
-  return browser.extension.getURL(`dictionaries/ja/${consonant}a2.txt`);
+  //console.log(`elapsed time to prepare ja dictionaries: ${Date.now() - start}msec `);
 }
 
 
 export function getAll() {
-  return CONSONANTS.map(getFor).join('\n');
+  return CONSONANTS.map(get).join('\n');
 }
 
-export function getAlpha() {
+export function getAlphabet() {
   return mDic['alph'];
 }
 
@@ -99,8 +106,8 @@ function getDictionaryKeyFromTerm(yomi) {
 }
 */
 
-export function getFor(letter) {
-  const key = getKeyFromLetter(letter);
+export function get(letter) {
+  const key = getKeyFromLetter(letter.charAt(0));
   return (key === null) ? '' : mDic[key];
 }
 
@@ -146,5 +153,7 @@ function getKeyFromLetter(letter) {
     case 'v':
       return '';
   }
+
+  return null;
 }
 
