@@ -1,5 +1,6 @@
 // This file is licensed under GPL2.
 // See also: /license/COPYING.txt
+'use strict';
 
 const kMULTIPLE_BR_PATTERN = /\n\n+/g;
 const kBRUSH_UP_PATTERN    = /^(.+)(\n\1$)+/gim;

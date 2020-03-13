@@ -1,5 +1,6 @@
 // This file is licensed under GPL2.
 // See also: /license/COPYING.txt
+'use strict';
 
 import * as TextTransform from './text-transform.js';
 
