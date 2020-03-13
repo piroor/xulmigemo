@@ -8,7 +8,7 @@
 import Configs from '/extlib/Configs.js';
 
 export const configs = new Configs({
-  maxParallelSearch: 5,
+  maxParallelSearch: 12,
 
   // options for Core
   language: 'ja',

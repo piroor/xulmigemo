@@ -13,10 +13,12 @@ import * as Core from './core.js';
 
 configs.$loaded.then(Core.init);
 
-let mSearching = false;
+let mLastSearchText = null;
 
 browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
+  text = text.trim();
   console.log('onInputChanged: ', text);
+
   if (text.length < 3) {
     console.log('too short input');
     return suggest([]);
@@ -28,24 +30,36 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
   const items = [];
   let tasks = [];
   let count = 0;
-  mSearching = true;
+  mLastSearchText = text;
   for (const term of expandedTerms) {
-    if (!mSearching)
+    if (mLastSearchText != text)
       return;
-    tasks.push(Promise.all([
+    tasks.push(
       browser.history.search({
         text: term
-      }).catch(error => {
-        console.error(error);
-        return [];
-      }),
+      })
+        .then(results => {
+          console.log(`histories ${term}: `, results);
+          return results;
+        })
+        .catch(error => {
+          console.error(error);
+          return [];
+        })
+    );
+    tasks.push(
       browser.bookmarks.search({
         query: term
-      }).catch(error => {
-        console.error(error);
-        return [];
       })
-    ]));
+        .then(results => {
+          console.log(`bookmarks ${term}: `, results);
+          return results;
+        })
+        .catch(error => {
+          console.error(error);
+          return [];
+        })
+    );
     if (tasks.length >= configs.maxParallelSearch) {
       console.log(`waiting for ${tasks.length} tasks...`);
       items.push(...(await flattenResults(tasks)));
@@ -53,7 +67,7 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
       tasks = [];
     }
   }
-  if (!mSearching)
+  if (mLastSearchText != text)
     return;
   if (tasks.length > 0) {
     console.log(`waiting for ${tasks.length} tasks...`);
@@ -91,10 +105,10 @@ async function flattenResults(tasks) {
 
 browser.omnibox.onInputEntered.addListener((text, disposition) => {
   console.log('onInputEntered: ', text, disposition);
-  mSearching = false;
+  mLastSearchText = null;
 });
 
 browser.omnibox.onInputCancelled.addListener(() => {
   console.log('onInputCancelled');
-  mSearching = false;
+  mLastSearchText = null;
 });
