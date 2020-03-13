@@ -35,7 +35,7 @@ let mDic;
 async function load() {
   const needUpdate = configs.dictionaryJaVersion != VERSION;
   const start = Date.now();
-  const dic = configs.dictionaryJa;
+  const dic = configs.dictionaryJa || {};
   //console.log('loaded dic: ', dic);
   const loadTasks = [];
   const newlyLoadedDic = {};
@@ -44,7 +44,7 @@ async function load() {
         dic[consonant])
       continue;
     loadTasks.push((async () => {
-      console.log(`load dictionary from file for "${consonant}"`);
+      console.log(`load ja dictionary from file for "${consonant}"`);
       const url = getDicFileURLFor(consonant);
       const data = await fetch(url);
       newlyLoadedDic[consonant] = await data.text();
@@ -57,7 +57,7 @@ async function load() {
     //console.log('saved dic: ', configs.dic);
   }
   mDic = configs.dictionaryJa;
-  console.log(`elapsed time to prepare dictionaries: ${Date.now() - start}msec `);
+  console.log(`elapsed time to prepare ja dictionaries: ${Date.now() - start}msec `);
 }
 
 configs.$loaded.then(load);

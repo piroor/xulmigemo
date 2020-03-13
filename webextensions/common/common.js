@@ -8,14 +8,19 @@
 import Configs from '/extlib/Configs.js';
 
 export const configs = new Configs({
+  dictionaryEnUsVersion: 0,
+  dictionaryEnUs: null,
+
   dictionaryJaVersion: 0,
-  dictionaryJa: {},
+  dictionaryJa: null,
+
   cacheKeys: [
     'ja/ja.cache'
   ],
   cache: {}
 }, {
   localKeys: [
+    'dictionaryEnUs',
     'dictionaryJa',
     'cache'
   ]
