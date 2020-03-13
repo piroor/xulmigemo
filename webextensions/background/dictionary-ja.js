@@ -99,7 +99,7 @@ function getDictionaryKeyFromTerm(yomi) {
 }
 */
 
-function getFor(letter) {
+export function getFor(letter) {
   const key = getKeyFromLetter(letter);
   return (key === null) ? '' : mDic[key];
 }
