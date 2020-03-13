@@ -43,7 +43,7 @@ let mDic;
 
 export async function load(configs = {}) {
   const needUpdate = configs.dictionaryJaVersion != VERSION;
-  const start = Date.now();
+  //const start = Date.now();
   const dic = configs.dictionaryJa || {};
   //console.log('loaded dic: ', dic);
   const loadTasks = [];
