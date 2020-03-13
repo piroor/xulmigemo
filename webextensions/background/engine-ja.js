@@ -26,20 +26,8 @@ export function getRegExpFor(rawInput) {
 
   //console.log('noCache');
 
-  const hiragana = TextTransformJa.expand(
-    TextUtils.sanitizeForTransformOutput(
-      TextTransformJa.roman2kana(
-        TextTransformJa.kata2hira(
-          TextUtils.sanitizeForTransformInput(rawInput)
-        )
-      )
-    )
-  );
-
-  let roman = rawInput;
-  if (/[\uff66-\uff9f]/.test(roman))
-    roman = TextTransformJa.hira2roman(TextTransformJa.kata2hira(roman));
-
+  const roman    = toRoman(rawInput);
+  const hiragana = toHiragana(rawInput);
   const katakana = mIgnoreHiraganaKatakana ?
     '' :
     TextTransformJa.expandWithMode(
@@ -81,7 +69,7 @@ export function getRegExpFor(rawInput) {
       terms.push(hiragana);
       terms.push(katakana);
     }
-    const searchterm = terms.concat(entries).join('\n').replace(/(\t|\n\n)+/g, '\n');
+    const expandedTerms = terms.concat(entries).join('\n').replace(/(\t|\n\n)+/g, '\n');
 
     if (/[\[\(]/.test(zenkaku))
       pattern += `${pattern ? '|' : ''}${zenkaku}`;
@@ -89,7 +77,7 @@ export function getRegExpFor(rawInput) {
       pattern += `${pattern ? '|' : ''}${hiraganaAndKatakana}`;
 
     // 一文字だけの項目だけは、抜き出して文字クラスにまとめる
-    const oneLetterTerms = searchterm
+    const oneLetterTerms = expandedTerms
       .replace(/^..+$\n?/mg, '')
       .split('\n')
       .sort()
@@ -98,16 +86,10 @@ export function getRegExpFor(rawInput) {
     if (oneLetterTerms)
       pattern += `${pattern ? '|' : ''}[${oneLetterTerms}]`;
 
-    const shortestSearchterm = TextUtils.sanitize(
-      // foo, foobar, fooee... といった風に、同じ文字列で始まる複数の候補がある場合は、
-      // 最も短い候補（この例ならfoo）だけにする
-      searchterm
-        .split('\n')
-        .sort()
-        .join('\n')
-        .replace(/^(.+)$(\n\1.*$)+/img, '$1')
-        .replace(/^.$\n?/mg, '') // 一文字だけの項目は用済みなので削除
-    ).replace(/\n/g, '|');
+    const shortestSearchterm = extractShortestTerms(
+      expandedTerms.split('\n'),
+      { rejectOneLetterTerms: true } // 一文字だけの項目は用済みなので削除
+    ).join('|');
     pattern += `${pattern ? '|' : ''}${shortestSearchterm}`;
 
     pattern += `${pattern ? '|' : ''}${originalInput}`;
@@ -129,6 +111,70 @@ export function getRegExpFor(rawInput) {
     .replace(/([^\\]|^)\|\|+/g, '$1|')
     .replace(/([^\\]|^)\(\|/g, '$1(')
     .replace(/([^\\]|^)\|\)/g, '$1)');
+}
+
+function toHiragana(rawInput) {
+  return TextTransformJa.expand(
+    TextUtils.sanitizeForTransformOutput(
+      TextTransformJa.roman2kana(
+        TextTransformJa.kata2hira(
+          TextUtils.sanitizeForTransformInput(rawInput)
+        )
+      )
+    )
+  );
+}
+
+function toRoman(rawInput) {
+  if (/[\uff66-\uff9f]/.test(rawInput))
+    return TextTransformJa.hira2roman(TextTransformJa.kata2hira(rawInput));
+  return rawInput;
+}
+
+function extractShortestTerms(terms, { rejectOneLetterTerms = false } = {}) {
+  // foo, foobar, fooee... といった風に、同じ文字列で始まる複数の候補がある場合は、
+  // 最も短い候補（この例ならfoo）だけにする
+  let termsString = terms
+    .sort()
+    .join('\n')
+    .replace(/^(.+)$(\n\1.*$)+/img, '$1');
+  if (rejectOneLetterTerms)
+    termsString = termsString.replace(/^.$\n?/mg, '');
+  return TextUtils.sanitize(termsString).split('\n');
+}
+
+// for omnibar
+export function expandInput(rawInput) {
+  if (!rawInput)
+    return [rawInput];
+
+  rawInput = rawInput.toLowerCase();
+
+  const terms = [rawInput];
+
+  const roman = toRoman(rawInput);
+  if (roman)
+    terms.push(roman);
+  const hiragana = toHiragana(rawInput);
+  if (hiragana)
+    terms.push(hiragana);
+  const katakana = TextTransformJa.hira2kata(hiragana);
+  if (katakana) {
+    terms.push(katakana);
+    // 半角カナの単語も生成する処理が必要
+  }
+  const zenkaku = TextTransformJa.roman2zen(rawInput);
+  if (zenkaku)
+    terms.push(zenkaku);
+  const entries = gatherEntriesFor(rawInput);
+  if (entries.length > 0)
+    terms.push(entries.join('\n').replace(/^[^\t]+\t/gm, ''));
+
+  const expandedTerms = terms
+    .join('\n')
+    .replace(/(\t|\n\n)+/g, '\n')
+    .split('\n');
+  return extractShortestTerms(expandedTerms);
 }
 
 export function gatherEntriesFor(rawInput) {

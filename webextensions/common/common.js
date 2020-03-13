@@ -8,9 +8,19 @@
 import Configs from '/extlib/Configs.js';
 
 export const configs = new Configs({
+  maxParallelSearch: 5,
+
+  // options for Core
+  language: 'ja',
+  enableAutoSplit: true,
+  enableANDFind: true,
+  enableNOTFind: true,
+
+  // options for Engine
   ignoreLatinModifiers: true,
   ignoreHiraganaKatakana: true,
 
+  // options for Dictionary
   dictionaryEnUsVersion: 0,
   dictionaryEnUs: null,
 

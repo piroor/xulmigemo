@@ -360,3 +360,13 @@ function trimFunctionalInput(input) {
   }
   return input;
 }
+
+
+export function expandInput(input) {
+  const termsSet = [];
+  for (const term of mEngine.splitInput(input)) {
+    termsSet.push(mEngine.expandInput(term.toLowerCase()));
+  }
+  return termsSet;
+}
+
