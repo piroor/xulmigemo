@@ -29,6 +29,19 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
 
   const items = [];
   let tasks = [];
+
+  tasks.push(
+    browser.tabs.query({})
+      .then(results => {
+        console.log(`tabs: `, results.length);
+        return results;
+      })
+      .catch(error => {
+        console.error(error);
+        return [];
+      })
+  );
+
   let count = 0;
   mLastSearchText = text;
   for (const term of expandedTerms) {

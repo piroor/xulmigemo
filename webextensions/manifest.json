@@ -7,7 +7,8 @@
   "permissions": [
     "bookmarks",
     "history",
-    "storage"
+    "storage",
+    "tabs"
   ],
   "background": {
     "page": "/background/background.html"
