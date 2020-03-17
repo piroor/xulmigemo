@@ -30,179 +30,179 @@ export default class Places {
     console.log(`${now - this.mStart} msec `, ...messages);
   }
 
-/*
-bookmarks.query()やhistory.search()がOR検索をサポートしていない中で、Migemo検索をやる。
-基本的にこれらの処理は遅いので、馬鹿正直にすべての単語を検索すると非常に遅くなってしまう。
-仮に偽陽性が多くなるとしても、なるべく短い検索クエリで検索をかけて、正規表現にマッチするかどうかで後からふるい落とした方が高速になる。
- */
+  /*
+  bookmarks.query()やhistory.search()がOR検索をサポートしていない中で、Migemo検索をやる。
+  基本的にこれらの処理は遅いので、馬鹿正直にすべての単語を検索すると非常に遅くなってしまう。
+  仮に偽陽性が多くなるとしても、なるべく短い検索クエリで検索をかけて、正規表現にマッチするかどうかで後からふるい落とした方が高速になる。
+   */
   async start(query) {
-  query = query.trim();
-  console.log('start: ', query);
+    query = query.trim();
+    console.log('start: ', query);
 
-  if (query.length < 3) {
-    console.log('too short input');
-    this.onProgress.dispatch(1);
-    return [];
-  }
-
-  this.cancel();
-
-  this.onProgress.dispatch(0);
-  this.mLastSearchResultPlaces = null;
-  this.mStart = Date.now();
-  // shortest:trueにより、共通部分だけを抽出した単語一覧を得る。
-  const expandedTerms = Array.from(new Set(Core.expandInput(query.trim(), { shortest: true }).flat()));
-  this.measure('expandedTerms: ', expandedTerms);
-
-  const allTasksCount = (
-    1 /* expand */ +
-    1 /* tabs */ +
-    (expandedTerms.length * 3) /* bookmarks + histories + history visits */ +
-    1 /* filtering */ +
-    1 /* finalize */
-  );
-  let finishedTasks = 1;
-  this.onProgress.dispatch(finishedTasks / allTasksCount);
-
-  const places = new Map();
-  let tasks = [];
-
-  tasks.push(
-    browser.tabs.query({})
-      .then(tabs => {
-        this.measure(`tabs: `, tabs.length);
-        for (const tab of tabs) {
-          const place = places.get(tab.url) || { title: tab.title, url: tab.url };
-          places.set(tab.url, Object.assign(place, { tab }));
-        }
-        this.onProgress.dispatch(++finishedTasks / allTasksCount);
-      })
-      .catch(error => {
-        console.error(error);
-      })
-  );
-
-  this.mLastSearchQuery = query;
-  for (const term of expandedTerms) {
-    if (this.mLastSearchQuery != query)
-      return;
-    tasks.push(
-      browser.history.search({
-        text: term
-      })
-        .then(histories => {
-          //this.measure(`histories ${term}: `, histories);
-          for (const history of histories) {
-            tasks.push(browser.history.getVisits({ url: history.url })
-              .then(visits => {
-                history.visits = visits.slice(0, 10);
-                this.onProgress.dispatch(++finishedTasks / allTasksCount);
-              })
-              .catch(error => {
-                console.error(error);
-                history.visits = [];
-                this.onProgress.dispatch(++finishedTasks / allTasksCount);
-              }));
-            const place = places.get(history.url) || { title: history.title, url: history.url };
-            places.set(history.url, Object.assign(place, { history }));
-          }
-          this.onProgress.dispatch(++finishedTasks / allTasksCount);
-        })
-        .catch(error => {
-          console.error(error);
-          this.onProgress.dispatch(++finishedTasks / allTasksCount);
-        })
-    );
-    tasks.push(
-      browser.bookmarks.search({
-        query: term
-      })
-        .then(bookmarks => {
-          //this.measure(`bookmarks ${term}: `, bookmarks);
-          for (const bookmark of bookmarks) {
-            const place = places.get(bookmark.url) || { title: bookmark.title, url: bookmark.url };
-            places.set(bookmark.url, Object.assign(place, { bookmark }));
-          }
-          this.onProgress.dispatch(++finishedTasks / allTasksCount);
-        })
-        .catch(error => {
-          console.error(error);
-          this.onProgress.dispatch(++finishedTasks / allTasksCount);
-        })
-    );
-    if (tasks.length >= configs.maxParallelSearch) {
-      console.log(`waiting for ${tasks.length} tasks...`);
-      await Promise.all(tasks);
-      this.measure('after wait, wait for the next tick');
-      await new Promise(resolve => setTimeout(resolve, 10));
-      tasks = [];
+    if (query.length < 3) {
+      console.log('too short input');
+      this.onProgress.dispatch(1);
+      return [];
     }
-  }
-  if (this.mLastSearchQuery != query)
-    return [];
-  if (tasks.length > 0) {
-    console.log(`waiting for ${tasks.length} tasks...`);
-    await Promise.all(tasks);
-    this.measure('after wait');
-  }
 
-  //console.log('places => ', places);
-  this.mLastSearchResultPlaces = places;
+    this.cancel();
 
-  const { pattern, exceptionsPattern } = Core.getRegExpFunctional(query.trim());
-  //console.log('pattern: ', pattern);
-  //console.log('exceptionsPattern: ', exceptionsPattern);
-  const matcher  = new RegExp(pattern, 'i');
-  const rejector = exceptionsPattern && new RegExp(exceptionsPattern, 'i');
+    this.onProgress.dispatch(0);
+    this.mLastSearchResultPlaces = null;
+    this.mStart = Date.now();
+    // shortest:trueにより、共通部分だけを抽出した単語一覧を得る。
+    const expandedTerms = Array.from(new Set(Core.expandInput(query.trim(), { shortest: true }).flat()));
+    this.measure('expandedTerms: ', expandedTerms);
 
-  const filteredPlaces = [];
+    const allTasksCount = (
+      1 /* expand */ +
+      1 /* tabs */ +
+      (expandedTerms.length * 3) /* bookmarks + histories + history visits */ +
+      1 /* filtering */ +
+      1 /* finalize */
+    );
+    let finishedTasks = 1;
+    this.onProgress.dispatch(finishedTasks / allTasksCount);
 
-  const now = Date.now();
-  for (const place of places.values()) {
-    const text = `${place.title}\t${place.url}`;
-    if (!matcher.test(text) || (rejector && rejector.test(text)))
-      continue;
+    const places = new Map();
+    let tasks = [];
 
-    // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Places/Frecency_algorithm
-    place.frecenty = 0;
-    if (place.history) {
-      for (const visit of place.history.visits) {
-        let bonusFactor = 1;
-        switch (visit.transition) {
-          case 'link':
-            bonusFactor = 1.2;
-            break;
-          case 'typed':
-            bonusFactor = 2;
-            break;
-          case 'auto_bookmark':
-            bonusFactor = 1.4;
-            break;
-          default:
-            break;
-        }
-        if (visit.visitTime >= now - (ONE_DAY_IN_MSEC * 4))
-          place.frecenfy += 100 * bonusFactor;
-        else if (visit.visitTime >= now - (ONE_DAY_IN_MSEC * 14))
-          place.frecenfy += 70 * bonusFactor;
-        else if (visit.visitTime >= now - (ONE_DAY_IN_MSEC * 31))
-          place.frecenfy += 50 * bonusFactor;
-        else if (visit.visitTime >= now - (ONE_DAY_IN_MSEC * 90))
-          place.frecenfy += 30 * bonusFactor;
-        else
-          place.frecenfy += 10 * bonusFactor;
+    tasks.push(
+      browser.tabs.query({})
+        .then(tabs => {
+          this.measure(`tabs: `, tabs.length);
+          for (const tab of tabs) {
+            const place = places.get(tab.url) || { title: tab.title, url: tab.url };
+            places.set(tab.url, Object.assign(place, { tab }));
+          }
+          this.onProgress.dispatch(++finishedTasks / allTasksCount);
+        })
+        .catch(error => {
+          console.error(error);
+        })
+    );
+
+    this.mLastSearchQuery = query;
+    for (const term of expandedTerms) {
+      if (this.mLastSearchQuery != query)
+        return;
+      tasks.push(
+        browser.history.search({
+          text: term
+        })
+          .then(histories => {
+            //this.measure(`histories ${term}: `, histories);
+            for (const history of histories) {
+              tasks.push(browser.history.getVisits({ url: history.url })
+                .then(visits => {
+                  history.visits = visits.slice(0, 10);
+                  this.onProgress.dispatch(++finishedTasks / allTasksCount);
+                })
+                .catch(error => {
+                  console.error(error);
+                  history.visits = [];
+                  this.onProgress.dispatch(++finishedTasks / allTasksCount);
+                }));
+              const place = places.get(history.url) || { title: history.title, url: history.url };
+              places.set(history.url, Object.assign(place, { history }));
+            }
+            this.onProgress.dispatch(++finishedTasks / allTasksCount);
+          })
+          .catch(error => {
+            console.error(error);
+            this.onProgress.dispatch(++finishedTasks / allTasksCount);
+          })
+      );
+      tasks.push(
+        browser.bookmarks.search({
+          query: term
+        })
+          .then(bookmarks => {
+            //this.measure(`bookmarks ${term}: `, bookmarks);
+            for (const bookmark of bookmarks) {
+              const place = places.get(bookmark.url) || { title: bookmark.title, url: bookmark.url };
+              places.set(bookmark.url, Object.assign(place, { bookmark }));
+            }
+            this.onProgress.dispatch(++finishedTasks / allTasksCount);
+          })
+          .catch(error => {
+            console.error(error);
+            this.onProgress.dispatch(++finishedTasks / allTasksCount);
+          })
+      );
+      if (tasks.length >= configs.maxParallelSearch) {
+        console.log(`waiting for ${tasks.length} tasks...`);
+        await Promise.all(tasks);
+        this.measure('after wait, wait for the next tick');
+        await new Promise(resolve => setTimeout(resolve, 10));
+        tasks = [];
       }
     }
-    filteredPlaces.push(place);
+    if (this.mLastSearchQuery != query)
+      return [];
+    if (tasks.length > 0) {
+      console.log(`waiting for ${tasks.length} tasks...`);
+      await Promise.all(tasks);
+      this.measure('after wait');
+    }
+
+    //console.log('places => ', places);
+    this.mLastSearchResultPlaces = places;
+
+    const { pattern, exceptionsPattern } = Core.getRegExpFunctional(query.trim());
+    //console.log('pattern: ', pattern);
+    //console.log('exceptionsPattern: ', exceptionsPattern);
+    const matcher  = new RegExp(pattern, 'i');
+    const rejector = exceptionsPattern && new RegExp(exceptionsPattern, 'i');
+
+    const filteredPlaces = [];
+
+    const now = Date.now();
+    for (const place of places.values()) {
+      const text = `${place.title}\t${place.url}`;
+      if (!matcher.test(text) || (rejector && rejector.test(text)))
+        continue;
+
+      // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Places/Frecency_algorithm
+      place.frecenty = 0;
+      if (place.history) {
+        for (const visit of place.history.visits) {
+          let bonusFactor = 1;
+          switch (visit.transition) {
+            case 'link':
+              bonusFactor = 1.2;
+              break;
+            case 'typed':
+              bonusFactor = 2;
+              break;
+            case 'auto_bookmark':
+              bonusFactor = 1.4;
+              break;
+            default:
+              break;
+          }
+          if (visit.visitTime >= now - (ONE_DAY_IN_MSEC * 4))
+            place.frecenfy += 100 * bonusFactor;
+          else if (visit.visitTime >= now - (ONE_DAY_IN_MSEC * 14))
+            place.frecenfy += 70 * bonusFactor;
+          else if (visit.visitTime >= now - (ONE_DAY_IN_MSEC * 31))
+            place.frecenfy += 50 * bonusFactor;
+          else if (visit.visitTime >= now - (ONE_DAY_IN_MSEC * 90))
+            place.frecenfy += 30 * bonusFactor;
+          else
+            place.frecenfy += 10 * bonusFactor;
+        }
+      }
+      filteredPlaces.push(place);
+    }
+    this.onProgress.dispatch(++finishedTasks / allTasksCount);
+
+    filteredPlaces.sort((a, b) => b.frecency - a.frecency);
+    this.measure('filteredPlaces => ', filteredPlaces);
+    this.onProgress.dispatch(1);
+
+    return filteredPlaces;
   }
-  this.onProgress.dispatch(++finishedTasks / allTasksCount);
-
-  filteredPlaces.sort((a, b) => b.frecency - a.frecency);
-  this.measure('filteredPlaces => ', filteredPlaces);
-  this.onProgress.dispatch(1);
-
-  return filteredPlaces;
-}
 
   get(url) {
     return this.mLastSearchResultPlaces && this.mLastSearchResultPlaces.get(url);
