@@ -123,6 +123,40 @@ export function getANDFindRegExpFromTerms(terms) {
   }
 }
 
+export function yieldPattern(pattern) {
+  const matched = pattern.match(/\[[^\]]+\]|\([^\)]+\)/g);
+  if (!matched) {
+    return [pattern];
+  }
+  else {
+    let expanded = [pattern];
+    for (const part of matched) {
+      if (part.startsWith('[')) {
+        const letters = part.substring(1, part.length - 1).split('');
+        expanded = expanded.map(pattern => letters.map(letter => pattern.replace(part, letter))).flat();
+      }
+      else if (part.startsWith('(')) {
+        const terms = part.substring(1, part.length - 1).split('|');
+        expanded = expanded.map(pattern => terms.map(term => pattern.replace(part, term))).flat();
+      }
+    }
+    return expanded.sort();
+  }
+}
+
+export function extractShortestTerms(terms, { rejectOneLetterTerms = false } = {}) {
+  // foo, foobar, fooee... といった風に、同じ文字列で始まる複数の候補がある場合は、
+  // 最も短い候補（この例ならfoo）だけにする
+  let termsString = terms
+    .sort()
+    .join('\n')
+    .replace(/(^|\n)([^\n]+)(?:\n\2[^\n]+)+/gi, '$1$2');
+  if (rejectOneLetterTerms)
+    termsString = termsString.replace(/^.$\n?/mg, '');
+  return sanitize(termsString).split('\n');
+}
+
+
 // Original version is: get-permutations npm module made by Jan Järfalk
 // Licensed: ISC
 // https://github.com/janjarfalk/get-permutations

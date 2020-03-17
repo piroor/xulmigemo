@@ -139,3 +139,23 @@ export function test_splitByBoundaries() {
   is(['nihongo', 'eigo', 'japanese', 'english'].join('\n'),
      TextUtils.splitByBoundaries('nihongo eigo japanese english').join('\n'));
 }
+
+test_yieldPattern.parameters = [
+  ['[abc]', ['a', 'b', 'c']],
+  ['[abc][def]', ['ad', 'bd', 'cd', 'ae', 'be', 'ce', 'af', 'bf', 'cf']],
+  ['[abc](d|e|f)', ['ad', 'bd', 'cd', 'ae', 'be', 'ce', 'af', 'bf', 'cf']],
+  ['x[abc](d|e|f)y', ['xady', 'xbdy', 'xcdy', 'xaey', 'xbey', 'xcey', 'xafy', 'xbfy', 'xcfy']]
+];
+export function test_yieldPattern([input, expected]) {
+  is(expected.sort().join('\n'), TextUtils.yieldPattern(input).join('\n'));
+}
+
+test_extractShortestTerms.parameters = [
+  [['aa', 'aab', 'aac', 'aad'], ['aa']],
+  [['aa', 'aab', 'aac', 'ad'], ['aa', 'ad']],
+  [['abc', 'abcfg', 'abchi', 'XYZ'], ['abc', 'XYZ']],
+  [['abc', 'xx', 'xxy', 'xxz'], ['abc', 'xx']]
+];
+export function test_extractShortestTerms([input, expected]) {
+  is(expected.sort().join('\n'), TextUtils.extractShortestTerms(input).join('\n'));
+}

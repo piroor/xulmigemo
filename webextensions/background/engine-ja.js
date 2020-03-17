@@ -86,7 +86,7 @@ export function getRegExpFor(rawInput) {
     if (oneLetterTerms)
       pattern += `${pattern ? '|' : ''}[${oneLetterTerms}]`;
 
-    const shortestSearchterm = extractShortestTerms(
+    const shortestSearchterm = TextUtils.extractShortestTerms(
       expandedTerms.split('\n'),
       { rejectOneLetterTerms: true } // 一文字だけの項目は用済みなので削除
     ).join('|');
@@ -131,18 +131,6 @@ function toRoman(rawInput) {
   return rawInput;
 }
 
-function extractShortestTerms(terms, { rejectOneLetterTerms = false } = {}) {
-  // foo, foobar, fooee... といった風に、同じ文字列で始まる複数の候補がある場合は、
-  // 最も短い候補（この例ならfoo）だけにする
-  let termsString = terms
-    .sort()
-    .join('\n')
-    .replace(/^(.+)$(\n\1.*$)+/img, '$1');
-  if (rejectOneLetterTerms)
-    termsString = termsString.replace(/^.$\n?/mg, '');
-  return TextUtils.sanitize(termsString).split('\n');
-}
-
 // for omnibar
 export function expandInput(rawInput) {
   if (!rawInput)
@@ -157,10 +145,10 @@ export function expandInput(rawInput) {
     terms.push(roman);
   const hiragana = toHiragana(rawInput);
   if (hiragana)
-    terms.push(hiragana);
+    terms.push(...TextUtils.yieldPattern(hiragana));
   const katakana = TextTransformJa.hira2kata(hiragana);
   if (katakana) {
-    terms.push(katakana);
+    terms.push(...TextUtils.yieldPattern(katakana));
     // 半角カナの単語も生成する処理が必要
   }
   const zenkaku = TextTransformJa.roman2zen(rawInput);
@@ -174,7 +162,7 @@ export function expandInput(rawInput) {
     .join('\n')
     .replace(/(\t|\n\n)+/g, '\n')
     .split('\n');
-  return extractShortestTerms(expandedTerms);
+  return TextUtils.extractShortestTerms(expandedTerms);
 }
 
 export function gatherEntriesFor(rawInput) {

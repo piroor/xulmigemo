@@ -29,24 +29,28 @@ async function run() {
     for (const name of Object.keys(tests)) {
       if (!name.startsWith('test'))
         continue;
+      if (tests[name].runnable)
+        runOnlyRunnable = true;
       if (tests[name].parameters) {
         const parameters = await tests[name].parameters;
         if (Array.isArray(parameters)) {
           for (let i = 0, maxi = parameters.length; i < maxi; i++) {
-            populatedTestCase[`${name} [${i}]`] = async () => tests[name](parameters[i]);
+            const test = async () => tests[name](parameters[i]);
+            test.runnable = tests[name].runnable;
+            populatedTestCase[`${name} [${i}]`] = test;
           }
         }
         else {
           for (const parametersName of Object.keys(parameters)) {
-            populatedTestCase[`${name} [${parametersName}]`] = async () => tests[name](parameters[parametersName]);
+            const test = async () => tests[name](parameters[parametersName]);
+            test.runnable = tests[name].runnable;
+            populatedTestCase[`${name} [${parametersName}]`] = test;
           }
         }
       }
       else {
         populatedTestCase[name] = tests[name];
       }
-      if (tests[name].runnable)
-        runOnlyRunnable = true;
     }
     populatedTestCases.push(populatedTestCase);
   }
