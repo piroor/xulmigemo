@@ -91,7 +91,7 @@ export default class Places {
           }
           this.onProgress.dispatch(++finishedTasks / allTasksCount);
           if (found.length > 0 &&
-              this.onFound.hasListener())
+              this.onFound.hasListener)
             this.onFound.dispatch(this.sortedPlaces, found);
         })
         .catch(error => {
@@ -126,7 +126,7 @@ export default class Places {
                     return;
                   this.updateFrecency(place);
                   places.set(history.url, Object.assign(place, { history }));
-                  if (this.onFound.hasListener())
+                  if (this.onFound.hasListener)
                     this.onFound.dispatch(this.sortedPlaces, [place]);
                 });
             }
@@ -154,7 +154,7 @@ export default class Places {
             }
             this.onProgress.dispatch(++finishedTasks / allTasksCount);
             if (found.length > 0 &&
-                this.onFound.hasListener())
+                this.onFound.hasListener)
               this.onFound.dispatch(this.sortedPlaces, found);
           })
           .catch(error => {
