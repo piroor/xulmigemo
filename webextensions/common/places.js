@@ -85,14 +85,14 @@ export default class Places {
             const place = places.get(tab.url) || { title: tab.title, url: tab.url };
             if (!shouldAccept(place))
               continue;
-            this.updateFrecency(place);
+            this._updateFrecency(place);
             places.set(tab.url, Object.assign(place, { tab }));
             found.push(place);
           }
           this.onProgress.dispatch(++finishedTasks / allTasksCount);
           if (found.length > 0 &&
               this.onFound.hasListener)
-            this.onFound.dispatch(this.sortedPlaces, found);
+            this.onFound.dispatch(this._sortedPlaces, found);
         })
         .catch(error => {
           console.error(error);
@@ -124,10 +124,10 @@ export default class Places {
                   const place = places.get(history.url) || { title: history.title, url: history.url };
                   if (!shouldAccept(place))
                     return;
-                  this.updateFrecency(place);
+                  this._updateFrecency(place);
                   places.set(history.url, Object.assign(place, { history }));
                   if (this.onFound.hasListener)
-                    this.onFound.dispatch(this.sortedPlaces, [place]);
+                    this.onFound.dispatch(this._sortedPlaces, [place]);
                 }));
             }
             this.onProgress.dispatch(++finishedTasks / allTasksCount);
@@ -148,14 +148,14 @@ export default class Places {
               const place = places.get(bookmark.url) || { title: bookmark.title, url: bookmark.url };
               if (!shouldAccept(place))
                 continue;
-              this.updateFrecency(place);
+              this._updateFrecency(place);
               places.set(bookmark.url, Object.assign(place, { bookmark }));
               found.push(place);
             }
             this.onProgress.dispatch(++finishedTasks / allTasksCount);
             if (found.length > 0 &&
                 this.onFound.hasListener)
-              this.onFound.dispatch(this.sortedPlaces, found);
+              this.onFound.dispatch(this._sortedPlaces, found);
           })
           .catch(error => {
             console.error(error);
@@ -183,10 +183,10 @@ export default class Places {
     this.measure('finish');
     this.onProgress.dispatch(1);
 
-    return this.sortedPlaces;
+    return this._sortedPlaces;
   }
 
-  updateFrecency(place) {
+  _updateFrecency(place) {
     // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Places/Frecency_algorithm
     place.frecenty = 0;
     if (place.history) {
@@ -220,7 +220,7 @@ export default class Places {
     return place;
   }
 
-  get sortedPlaces() {
+  get _sortedPlaces() {
     return Array.from(this.mLastSearchResultPlaces.values()).sort((a, b) => b.frecency - a.frecency);
   }
 
