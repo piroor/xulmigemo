@@ -156,6 +156,24 @@ export function extractShortestTerms(terms, { rejectOneLetterTerms = false } = {
   return sanitize(termsString).split('\n');
 }
 
+export function extractShortestTermsAggressively(terms, { rejectOneLetterTerms = false } = {}) {
+  // foobar, fooee... といった風に、同じprefixを持つ複数の候補についてprefixだけにまとめる
+  let termsString;
+  while (true) {
+    const before = terms
+      .sort()
+      .join('\n');
+    termsString = before
+      .replace(/(^|\n)([^\n]+)[^\n]*(?:\n\2[^\n]+)+/gi, '$1$2');
+    terms = termsString.split('\n');
+    if (before == termsString)
+      break;
+  }
+  if (rejectOneLetterTerms)
+    termsString = termsString.replace(/^.$\n?/mg, '');
+  return sanitize(termsString).split('\n');
+}
+
 
 // Original version is: get-permutations npm module made by Jan Järfalk
 // Licensed: ISC

@@ -159,3 +159,13 @@ test_extractShortestTerms.parameters = [
 export function test_extractShortestTerms([input, expected]) {
   is(expected.sort().join('\n'), TextUtils.extractShortestTerms(input).join('\n'));
 }
+
+test_extractShortestTermsAggressively.parameters = [
+  [['aax', 'aab', 'aac', 'aad'], ['aa']],
+  [['aaf', 'aab', 'aac', 'ad'], ['a']],
+  [['abcaa', 'abcfg', 'abchi', 'XYZ'], ['abc', 'XYZ']],
+  [['abc', 'xxg', 'xxy', 'xxz'], ['abc', 'xx']]
+];
+export function test_extractShortestTermsAggressively([input, expected]) {
+  is(expected.sort().join('\n'), TextUtils.extractShortestTermsAggressively(input).join('\n'));
+}
