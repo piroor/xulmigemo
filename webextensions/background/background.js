@@ -229,6 +229,7 @@ browser.omnibox.onInputEntered.addListener(async (text, disposition) => {
 browser.omnibox.onInputCancelled.addListener(() => {
   console.log('onInputCancelled');
   mLastSearchText = null;
+  setProgress(1);
 });
 
 
