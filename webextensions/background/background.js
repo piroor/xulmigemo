@@ -24,6 +24,11 @@ function measure(...messages) {
   console.log(`${now - mStart} msec `, ...messages);
 }
 
+/*
+bookmarks.query()やhistory.search()がOR検索をサポートしていない中で、Migemo検索をやる。
+基本的にこれらの処理は遅いので、馬鹿正直にすべての単語を検索すると非常に遅くなってしまう。
+仮に偽陽性が多くなるとしても、なるべく短い検索クエリで検索をかけて、正規表現にマッチするかどうかで後からふるい落とした方が高速になる。
+ */
 browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
   text = text.trim();
   console.log('onInputChanged: ', text);
@@ -36,6 +41,7 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
 
   setProgress(0);
   mStart = Date.now();
+  // shortest:trueにより、共通部分だけを抽出した単語一覧を得る。
   const expandedTerms = Array.from(new Set(Core.expandInput(text.trim(), { shortest: true }).flat()));
   measure('expandedTerms: ', expandedTerms);
 
