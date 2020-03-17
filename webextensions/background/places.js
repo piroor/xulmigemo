@@ -119,7 +119,7 @@ export default class Places {
                   console.error(error);
                   history.visits = [];
                   this.onProgress.dispatch(++finishedTasks / allTasksCount);
-                }))
+                })
                 .then(() => {
                   const place = places.get(history.url) || { title: history.title, url: history.url };
                   if (!shouldAccept(place))
@@ -128,7 +128,7 @@ export default class Places {
                   places.set(history.url, Object.assign(place, { history }));
                   if (this.onFound.hasListener)
                     this.onFound.dispatch(this.sortedPlaces, [place]);
-                });
+                }));
             }
             this.onProgress.dispatch(++finishedTasks / allTasksCount);
           })
