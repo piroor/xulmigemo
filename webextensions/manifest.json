@@ -20,6 +20,14 @@
   "omnibox": {
     "keyword": "/"
   },
+  "commands": {
+    "_execute_browser_action": {
+      "description": "Start Places Search",
+      "suggested_key": {
+        "default": "Ctrl+Shift+L"
+      }
+    }
+  },
   "applications": {
     "gecko": {
       "id": "{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}",
