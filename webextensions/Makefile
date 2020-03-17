@@ -27,6 +27,7 @@ update_extlib:
 
 install_extlib:
 	rm -f extlib/*.js
+	cp ../submodules/webextensions-lib-event-listener-manager/EventListenerManager.js extlib/
 	cp ../submodules/webextensions-lib-configs/Configs.js extlib/; echo 'export default Configs;' >> extlib/Configs.js
 
 test:

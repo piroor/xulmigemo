@@ -25,3 +25,6 @@
 [submodule "submodules/webextensions-lib-configs"]
 	path = submodules/webextensions-lib-configs
 	url = https://github.com/piroor/webextensions-lib-configs.git
+[submodule "submodules/webextensions-lib-event-listener-manager"]
+	path = submodules/webextensions-lib-event-listener-manager
+	url = https://github.com/piroor/webextensions-lib-event-listener-manager.git
