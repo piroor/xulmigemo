@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { is, ok, ng } from './assert.js';
-import * as TextTransformJa from '../background/text-transform-ja.js';
+import * as TextTransformJa from '../common/text-transform-ja.js';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 

@@ -9,8 +9,8 @@ import fs from 'fs';
 import path from 'path';
 
 import { is } from './assert.js';
-import * as EngineJa from '../background/engine-ja.js';
-import * as DictionaryJa from '../background/dictionary-ja.js';
+import * as EngineJa from '../common/engine-ja.js';
+import * as DictionaryJa from '../common/dictionary-ja.js';
 import { regExpPatterns } from './assets/regexp-patterns.js';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);

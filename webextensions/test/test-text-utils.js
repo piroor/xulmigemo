@@ -6,7 +6,7 @@
 'use strict';
 
 import { is, ok, ng } from './assert.js';
-import * as TextUtils from '../background/text-utils.js';
+import * as TextUtils from '../common/text-utils.js';
 
 // 整列と重複項目の削除
 export function test_brushUpTerms() {

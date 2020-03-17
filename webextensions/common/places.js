@@ -7,7 +7,7 @@
 
 import {
   configs
-} from '/common/common.js';
+} from './common.js';
 import * as Core from './core.js';
 import EventListenerManager from '/extlib/EventListenerManager.js';
 

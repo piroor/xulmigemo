@@ -8,7 +8,7 @@
 import {
   configs
 } from '/common/common.js';
-import Places from './places.js';
+import Places from '/common/places.js';
 
 const mPlaces = new Places();
 

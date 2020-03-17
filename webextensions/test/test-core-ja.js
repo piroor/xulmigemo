@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { is, isNot, ok, ng } from './assert.js';
-import * as Core from '../background/core.js';
+import * as Core from '../common/core.js';
 import { regExpPatterns } from './assets/regexp-patterns.js';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
