@@ -9,6 +9,7 @@ import Configs from '/extlib/Configs.js';
 
 export const configs = new Configs({
   maxParallelSearch: 12,
+  openInTabByDefault: true,
 
   // options for Core
   language: 'ja',

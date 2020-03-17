@@ -14,6 +14,7 @@ import * as Core from './core.js';
 configs.$loaded.then(Core.init);
 
 let mLastSearchText = null;
+let mLastSearchResultPlaces = null;
 
 const ONE_DAY_IN_MSEC = 1000 * 60 * 60 * 24;
 
@@ -112,6 +113,7 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
   }
 
   //console.log('places => ', places);
+  mLastSearchResultPlaces = places;
 
   const { pattern, exceptionsPattern } = Core.getRegExpFunctional(text.trim());
   //console.log('pattern: ', pattern);
@@ -168,9 +170,39 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
   })));
 });
 
-browser.omnibox.onInputEntered.addListener((text, disposition) => {
+browser.omnibox.onInputEntered.addListener(async (text, disposition) => {
   console.log('onInputEntered: ', text, disposition);
   mLastSearchText = null;
+
+  const place = mLastSearchResultPlaces.get(text);
+  if (place.tab) {
+    browser.tabs.update(place.tab.id, { active: true });
+    return;
+  }
+
+  let inTab = disposition != 'currentTab';
+  if (configs.openInTabByDefault)
+    inTab = !inTab;
+
+  const window = await browser.windows.getCurrent();
+  const activeTabs = await browser.tabs.query({ active: true, windowId: window.id });
+  if (!inTab ||
+      activeTabs[0].url == 'about:blank' ||
+      activeTabs[0].url == 'about:newtab') {
+    browser.tabs.update(activeTabs[0].id, { url: place.url });
+    return;
+  }
+
+  const params = {
+    windowId: window.id,
+    active:   !/background/i.test(disposition),
+    url:      place.url
+  };
+  const currentUrl  = new URL(activeTabs[0].url);
+  const openUrl     = new URL(text);
+  if (currentUrl.origin && currentUrl.origin == openUrl.origin)
+    params.openerTabId = activeTabs[0].id;
+  browser.tabs.create(params);
 });
 
 browser.omnibox.onInputCancelled.addListener(() => {
