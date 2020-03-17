@@ -30,12 +30,24 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
 
   if (text.length < 3) {
     console.log('too short input');
+    setProgress(1);
     return suggest([]);
   }
 
+  setProgress(0);
   mStart = Date.now();
   const expandedTerms = Array.from(new Set(Core.expandInput(text.trim()).flat()));
   measure('expandedTerms: ', expandedTerms);
+
+  const allTasksCount = (
+    1 /* expand */ +
+    1 /* tabs */ +
+    (expandedTerms.length * 3) /* bookmarks + histories + history visits */ +
+    1 /* filtering */ +
+    1 /* finalize */
+  );
+  let finishedTasks = 1;
+  setProgress(finishedTasks / allTasksCount);
 
   const places = new Map();
   let tasks = [];
@@ -48,6 +60,7 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
           const place = places.get(tab.url) || { title: tab.title, url: tab.url };
           places.set(tab.url, Object.assign(place, { tab }));
         }
+        setProgress(++finishedTasks / allTasksCount);
       })
       .catch(error => {
         console.error(error);
@@ -68,17 +81,21 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
             tasks.push(browser.history.getVisits({ url: history.url })
               .then(visits => {
                 history.visits = visits.slice(0, 10);
+                setProgress(++finishedTasks / allTasksCount);
               })
               .catch(error => {
                 console.error(error);
                 history.visits = [];
+                setProgress(++finishedTasks / allTasksCount);
               }));
             const place = places.get(history.url) || { title: history.title, url: history.url };
             places.set(history.url, Object.assign(place, { history }));
           }
+          setProgress(++finishedTasks / allTasksCount);
         })
         .catch(error => {
           console.error(error);
+          setProgress(++finishedTasks / allTasksCount);
         })
     );
     tasks.push(
@@ -91,9 +108,11 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
             const place = places.get(bookmark.url) || { title: bookmark.title, url: bookmark.url };
             places.set(bookmark.url, Object.assign(place, { bookmark }));
           }
+          setProgress(++finishedTasks / allTasksCount);
         })
         .catch(error => {
           console.error(error);
+          setProgress(++finishedTasks / allTasksCount);
         })
     );
     if (tasks.length >= configs.maxParallelSearch) {
@@ -161,6 +180,7 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
     }
     filteredPlaces.push(place);
   }
+  setProgress(++finishedTasks / allTasksCount);
 
   filteredPlaces.sort((a, b) => b.frecency - a.frecency);
   measure('filteredPlaces => ', filteredPlaces);
@@ -168,6 +188,7 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
     content:     place.url,
     description: place.title
   })));
+  setProgress(1);
 });
 
 browser.omnibox.onInputEntered.addListener(async (text, disposition) => {
@@ -209,3 +230,15 @@ browser.omnibox.onInputCancelled.addListener(() => {
   console.log('onInputCancelled');
   mLastSearchText = null;
 });
+
+
+function setProgress(progress) {
+  if (progress >= 1) {
+    browser.browserAction.setBadgeText({ text: null });
+  }
+  else {
+    browser.browserAction.setBadgeBackgroundColor({ color: '#f9f9fa' }); /* Photon grey 10 */
+    browser.browserAction.setBadgeTextColor({ color: '#0c0c0d' }); /* Photon grey 90 */
+    browser.browserAction.setBadgeText({ text: `${Math.round(progress * 100)}%` });
+  }
+}

@@ -13,6 +13,10 @@
   "background": {
     "page": "/background/background.html"
   },
+  "browser_action": {
+    "default_title": "XUL/Migemo WE",
+    "browser_style": true
+  },
   "omnibox": {
     "keyword": "/"
   },
