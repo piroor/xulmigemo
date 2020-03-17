@@ -102,7 +102,7 @@ export default class Places {
     this.mLastSearchQuery = query;
     for (const term of expandedTerms) {
       if (this.mLastSearchQuery != query)
-        return;
+        return [];
       tasks.push(
         browser.history.search({
           text: term
