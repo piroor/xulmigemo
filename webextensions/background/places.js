@@ -48,8 +48,10 @@ export default class Places {
     this.cancel();
 
     this.onProgress.dispatch(0);
-    this.mLastSearchResultPlaces = null;
     this.mStart = Date.now();
+
+    const places = this.mLastSearchResultPlaces = new Map();
+
     // shortest:trueにより、共通部分だけを抽出した単語一覧を得る。
     const expandedTerms = Array.from(new Set(Core.expandInput(query.trim(), { shortest: true }).flat()));
     this.measure('expandedTerms: ', expandedTerms);
@@ -57,25 +59,40 @@ export default class Places {
     const allTasksCount = (
       1 /* expand */ +
       1 /* tabs */ +
-      (expandedTerms.length * 3) /* bookmarks + histories + history visits */ +
-      1 /* filtering */ +
-      1 /* finalize */
+      (expandedTerms.length * 3) /* bookmarks + histories + history visits */
     );
     let finishedTasks = 1;
     this.onProgress.dispatch(finishedTasks / allTasksCount);
 
-    const places = new Map();
+    const { pattern, exceptionsPattern } = Core.getRegExpFunctional(query.trim());
+    //console.log('pattern: ', pattern);
+    //console.log('exceptionsPattern: ', exceptionsPattern);
+    const matcher  = new RegExp(pattern, 'i');
+    const rejector = exceptionsPattern && new RegExp(exceptionsPattern, 'i');
+    const shouldAccept = place => {
+      const text = `${place.title}\t${place.url}`;
+      return matcher.test(text) && (!rejector || !rejector.test(text));
+    };
+
     let tasks = [];
 
     tasks.push(
       browser.tabs.query({})
         .then(tabs => {
           this.measure(`tabs: `, tabs.length);
+          const found = [];
           for (const tab of tabs) {
             const place = places.get(tab.url) || { title: tab.title, url: tab.url };
+            if (!shouldAccept(place))
+              continue;
+            this.updateFrecency(place);
             places.set(tab.url, Object.assign(place, { tab }));
+            found.push(place);
           }
           this.onProgress.dispatch(++finishedTasks / allTasksCount);
+          if (found.length > 0 &&
+              this.onFound.hasListener())
+            this.onFound.dispatch(this.sortedPlaces, found);
         })
         .catch(error => {
           console.error(error);
@@ -102,9 +119,16 @@ export default class Places {
                   console.error(error);
                   history.visits = [];
                   this.onProgress.dispatch(++finishedTasks / allTasksCount);
-                }));
-              const place = places.get(history.url) || { title: history.title, url: history.url };
-              places.set(history.url, Object.assign(place, { history }));
+                }))
+                .then(() => {
+                  const place = places.get(history.url) || { title: history.title, url: history.url };
+                  if (!shouldAccept(place))
+                    return;
+                  this.updateFrecency(place);
+                  places.set(history.url, Object.assign(place, { history }));
+                  if (this.onFound.hasListener())
+                    this.onFound.dispatch(this.sortedPlaces, [place]);
+                });
             }
             this.onProgress.dispatch(++finishedTasks / allTasksCount);
           })
@@ -119,11 +143,19 @@ export default class Places {
         })
           .then(bookmarks => {
             //this.measure(`bookmarks ${term}: `, bookmarks);
+            const found = [];
             for (const bookmark of bookmarks) {
               const place = places.get(bookmark.url) || { title: bookmark.title, url: bookmark.url };
+              if (!shouldAccept(place))
+                continue;
+              this.updateFrecency(place);
               places.set(bookmark.url, Object.assign(place, { bookmark }));
+              found.push(place);
             }
             this.onProgress.dispatch(++finishedTasks / allTasksCount);
+            if (found.length > 0 &&
+                this.onFound.hasListener())
+              this.onFound.dispatch(this.sortedPlaces, found);
           })
           .catch(error => {
             console.error(error);
@@ -147,65 +179,53 @@ export default class Places {
     }
 
     //console.log('places => ', places);
-    this.mLastSearchResultPlaces = places;
 
-    const { pattern, exceptionsPattern } = Core.getRegExpFunctional(query.trim());
-    //console.log('pattern: ', pattern);
-    //console.log('exceptionsPattern: ', exceptionsPattern);
-    const matcher  = new RegExp(pattern, 'i');
-    const rejector = exceptionsPattern && new RegExp(exceptionsPattern, 'i');
-
-    const filteredPlaces = [];
-
-    const now = Date.now();
-    for (const place of places.values()) {
-      const text = `${place.title}\t${place.url}`;
-      if (!matcher.test(text) || (rejector && rejector.test(text)))
-        continue;
-
-      // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Places/Frecency_algorithm
-      place.frecenty = 0;
-      if (place.history) {
-        for (const visit of place.history.visits) {
-          let bonusFactor = 1;
-          switch (visit.transition) {
-            case 'link':
-              bonusFactor = 1.2;
-              break;
-            case 'typed':
-              bonusFactor = 2;
-              break;
-            case 'auto_bookmark':
-              bonusFactor = 1.4;
-              break;
-            default:
-              break;
-          }
-          if (visit.visitTime >= now - (ONE_DAY_IN_MSEC * 4))
-            place.frecenfy += 100 * bonusFactor;
-          else if (visit.visitTime >= now - (ONE_DAY_IN_MSEC * 14))
-            place.frecenfy += 70 * bonusFactor;
-          else if (visit.visitTime >= now - (ONE_DAY_IN_MSEC * 31))
-            place.frecenfy += 50 * bonusFactor;
-          else if (visit.visitTime >= now - (ONE_DAY_IN_MSEC * 90))
-            place.frecenfy += 30 * bonusFactor;
-          else
-            place.frecenfy += 10 * bonusFactor;
-        }
-      }
-      filteredPlaces.push(place);
-    }
-    this.onProgress.dispatch(++finishedTasks / allTasksCount);
-
-    filteredPlaces.sort((a, b) => b.frecency - a.frecency);
-    this.measure('filteredPlaces => ', filteredPlaces);
+    this.measure('finish');
     this.onProgress.dispatch(1);
 
-    return filteredPlaces;
+    return this.sortedPlaces;
+  }
+
+  updateFrecency(place) {
+    // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Places/Frecency_algorithm
+    place.frecenty = 0;
+    if (place.history) {
+      for (const visit of place.history.visits) {
+        let bonusFactor = 1;
+        switch (visit.transition) {
+          case 'link':
+            bonusFactor = 1.2;
+            break;
+          case 'typed':
+            bonusFactor = 2;
+            break;
+          case 'auto_bookmark':
+            bonusFactor = 1.4;
+            break;
+          default:
+            break;
+        }
+        if (visit.visitTime >= this.mStart - (ONE_DAY_IN_MSEC * 4))
+          place.frecenfy += 100 * bonusFactor;
+        else if (visit.visitTime >= this.mStart - (ONE_DAY_IN_MSEC * 14))
+          place.frecenfy += 70 * bonusFactor;
+        else if (visit.visitTime >= this.mStart - (ONE_DAY_IN_MSEC * 31))
+          place.frecenfy += 50 * bonusFactor;
+        else if (visit.visitTime >= this.mStart - (ONE_DAY_IN_MSEC * 90))
+          place.frecenfy += 30 * bonusFactor;
+        else
+          place.frecenfy += 10 * bonusFactor;
+      }
+    }
+    return place;
+  }
+
+  get sortedPlaces() {
+    return Array.from(this.mLastSearchResultPlaces.values()).sort((a, b) => b.frecency - a.frecency);
   }
 
   get(url) {
-    return this.mLastSearchResultPlaces && this.mLastSearchResultPlaces.get(url);
+    return this.mLastSearchResultPlaces.get(url);
   }
 
   cancel() {
