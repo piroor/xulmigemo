@@ -132,7 +132,7 @@ function toRoman(rawInput) {
 }
 
 // for omnibar
-export function expandInput(rawInput) {
+export function expandInput(rawInput, { shortest = false } = {}) {
   if (!rawInput)
     return [rawInput];
 
@@ -162,6 +162,8 @@ export function expandInput(rawInput) {
     .join('\n')
     .replace(/(\t|\n\n)+/g, '\n')
     .split('\n');
+  if (shortest)
+    return TextUtils.extractShortestTermsAggressively(expandedTerms);
   return TextUtils.extractShortestTerms(expandedTerms);
 }
 

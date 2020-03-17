@@ -13,7 +13,7 @@ export const configs = new Configs({
 
   // options for Core
   language: 'ja',
-  enableAutoSplit: true,
+  enableAutoSplit: false,
   enableANDFind: true,
   enableNOTFind: true,
 

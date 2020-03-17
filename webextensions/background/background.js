@@ -36,7 +36,7 @@ browser.omnibox.onInputChanged.addListener(async (text, suggest) => {
 
   setProgress(0);
   mStart = Date.now();
-  const expandedTerms = Array.from(new Set(Core.expandInput(text.trim()).flat()));
+  const expandedTerms = Array.from(new Set(Core.expandInput(text.trim(), { shortest: true }).flat()));
   measure('expandedTerms: ', expandedTerms);
 
   const allTasksCount = (

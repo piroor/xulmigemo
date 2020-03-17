@@ -362,10 +362,10 @@ export function trimFunctionalInput(input) {
 }
 
 
-export function expandInput(input) {
+export function expandInput(input, options = {}) {
   const termsSet = [];
   for (const term of mEngine.splitInput(input)) {
-    termsSet.push(mEngine.expandInput(term.toLowerCase()));
+    termsSet.push(mEngine.expandInput(term.toLowerCase(), options));
   }
   return termsSet;
 }
