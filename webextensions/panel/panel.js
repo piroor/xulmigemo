@@ -67,10 +67,10 @@ window.addEventListener('pageshow', async () => {
   if (configs.clearFieldAfterOpen &&
       configs.lastOpenTime >= 0 &&
       Date.now() - configs.lastOpenTime > configs.clearFieldAfterOpenDelay) {
-    mField.value = '';
+    mField.value = mField.inputValue = '';
   }
   else {
-    mField.value = configs.lastSearchTerm;
+    mField.value = mField.inputValue = configs.lastSearchTerm;
   }
 
   mPageSelection = null;
@@ -147,11 +147,16 @@ function onKeyDown(event) {
         if (item) {
           item.classList.add('active');
           mResults.scroll.scrollToItem(item);
+          mField.value = item.dataset.url;
+        }
+        else {
+          mField.value = mField.inputValue;
         }
       }
       else if (mResults.hasChildNodes()) {
         mResults.lastChild.classList.add('active');
         mResults.scroll.scrollToItem(mResults.lastChild);
+        mField.value = mResults.lastChild.dataset.url;
       }
       event.stopImmediatePropagation();
       event.preventDefault();
@@ -166,11 +171,16 @@ function onKeyDown(event) {
         if (item) {
           item.classList.add('active');
           mResults.scroll.scrollToItem(item);
+          mField.value = item.dataset.url;
+        }
+        else {
+          mField.value = mField.inputValue;
         }
       }
       else if (mResults.hasChildNodes()) {
         mResults.firstChild.classList.add('active');
         mResults.scroll.scrollToItem(mResults.firstChild);
+        mField.value = mResults.firstChild.dataset.url;
       }
       event.stopImmediatePropagation();
       event.preventDefault();
@@ -185,6 +195,8 @@ function onInput(event) {
   const oldActive = getActiveItem();
   if (oldActive)
     oldActive.classList.remove('active');
+
+  mField.inputValue = mField.value;
 
   configs.lastSearchTerm = mField.value;
   configs.lastOpenTime = -1;
@@ -346,11 +358,9 @@ async function updateUIForCurrentTab() {
     const activeSelection = selections.filter(aSelection => aSelection.focused)[0] || selections[0];
     mPageSelection = activeSelection.selection.trim();
     if (mPageSelection != '') {
-      mField.value = mPageSelection;
+      mField.value = mField.inputValue = mPageSelection;
       mField.select();
     }
-    if (mField.value != '')
-      mField.classList.add('pasted');
   }
   catch(_error) {
     // if it is a special tab, we cannot execute script.
@@ -410,7 +420,7 @@ async function open({ where, keepOpen, item, regularAction } = {}) {
     }
   }
 
-  configs.lastSearchTerm = mField.value;
+  configs.lastSearchTerm = mField.inputValue;
 
   if (!configs.closeAfterOpen || keepOpen)
     return;
