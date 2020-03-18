@@ -210,6 +210,7 @@ function onPlacesFound(places, _newlyFoundPlaces) {
 function placeToItem(place) {
   return `
     <li id="${place.url.replace(/[^a-z0-9]/gi, '_')}"
+        class="${place.tab ? 'tab' : ''} ${place.bookmark ? 'bookmark' : ''}"
         data-tab-id="${place.tab && place.tab.id || 0}"
         data-url="${sanitzeForHTML(place.url)}"
         data-title="${sanitzeForHTML(place.title)}"
