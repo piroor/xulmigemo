@@ -230,8 +230,8 @@ function onPlacesFound(places, { termsMatcher } = {}) {
 }
 
 function placeToItem(place, termsMatcher) {
-  let displayTitle = sanitzeForHTML(place.title);
-  let displayUrl   = sanitzeForHTML(place.url).replace(termsMatcher, '<em>$&</em>')
+  let displayTitle = sanitizeForHTML(place.title);
+  let displayUrl   = sanitizeForHTML(place.url).replace(termsMatcher, '<em>$&</em>')
   if (termsMatcher) {
     displayTitle = displayTitle.replace(termsMatcher, '<em>$&</em>');
     displayUrl   = displayUrl.replace(termsMatcher, '<em>$&</em>');
@@ -240,17 +240,17 @@ function placeToItem(place, termsMatcher) {
     <li id="${place.url.replace(/[^a-z0-9]/gi, '_')}"
         class="${place.tab ? 'tab' : ''} ${place.bookmark ? 'bookmark' : ''}"
         data-tab-id="${place.tab && place.tab.id || 0}"
-        data-url="${sanitzeForHTML(place.url)}"
-        data-title="${sanitzeForHTML(place.title)}"
-        title="${sanitzeForHTML(place.title)}
-${sanitzeForHTML(place.url)}">
+        data-url="${sanitizeForHTML(place.url)}"
+        data-title="${sanitizeForHTML(place.title)}"
+        title="${sanitizeForHTML(place.title)}
+${sanitizeForHTML(place.url)}">
      <span class="title"><span class="label">${displayTitle}</span></span>
      <span class="url">${displayUrl}</span>
     </li>
   `.trim();
 }
 
-function sanitzeForHTML(string) {
+function sanitizeForHTML(string) {
   return string.replace(/&/g, '&amp;').replace(/\"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
