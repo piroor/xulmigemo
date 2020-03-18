@@ -152,7 +152,7 @@ function onKeyDown(event) {
         mResults.scroll.scrollToItem(mResults.lastChild);
       }
       event.stopImmediatePropagation();
-      event.stopPropagation();
+      event.preventDefault();
       return;
 
     case 'ArrowDown':
@@ -171,7 +171,7 @@ function onKeyDown(event) {
         mResults.scroll.scrollToItem(mResults.firstChild);
       }
       event.stopImmediatePropagation();
-      event.stopPropagation();
+      event.preventDefault();
       return;
   }
 }
