@@ -100,12 +100,12 @@ body {
   flex-direction: row;
   flex-grow: 1;
   flex-wrap: nowrap;
-  font: dialog;
   margin: 0;
   min-width: 0;
 }
 #search-field {
   flex-grow: 1;
+  font: -moz-field;
   margin: 0;
   min-width: 0;
 }
@@ -160,7 +160,6 @@ body {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  font-size: medium;
   line-height: 1.3;
   margin: 0;
   padding: 0.25em calc(var(--bounding-margin) + 0.5em) 0.25em var(--bounding-margin); /* right padding should be enough large to show scrollbar */
@@ -182,14 +181,19 @@ body {
 
 .title,
 .url {
-  display: block;
   overflow: hidden;
   text-overflow: ".." /* ellipsis */;
   white-space: pre;
 }
 
+.title .label,
+.url {
+  font: -moz-field;
+}
+
 .title {
   /*max-width: calc(var(--panel-width) * 0.6);*/
+  max-width: calc(var(--panel-width) * 0.7);
 }
 .title::before {
   background: currentColor;
@@ -198,8 +202,6 @@ body {
 
 .url {
   color: var(--in-content-deemphasized-text);
-  font-size: small;
-  min-width: calc(var(--panel-width) * 0.3);
 }
 .url::before {
   content: "";
@@ -226,21 +228,6 @@ body {
   max-width: 16px;
   min-width: 16px;
 }
-
-.label {
-  flex-grow: 1;
-  margin-left: 0.25em;
-  white-space: nowrap;
-}
-
-
-label[disabled="true"] {
-  opacity: 0.5;
-}
-label[disabled="true"] input {
-  opacity: 1;
-}
-
 
 input:focus {
   border-color: var(--in-content-border-active);

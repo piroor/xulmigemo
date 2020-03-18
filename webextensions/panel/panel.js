@@ -243,7 +243,7 @@ function placeToItem(place, termsMatcher) {
         data-title="${sanitzeForHTML(place.title)}"
         title="${sanitzeForHTML(place.title)}
 ${sanitzeForHTML(place.url)}">
-     <span class="title">${displayTitle}</span>
+     <span class="title"><span class="label">${displayTitle}</span></span>
      <span class="url">${displayUrl}</span>
     </li>
   `.trim();
