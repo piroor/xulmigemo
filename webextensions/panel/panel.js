@@ -71,8 +71,13 @@ window.addEventListener('pageshow', async () => {
   mCurrentTab = null;
 
   await updateUIForCurrentTab();
-  if (mField.value)
-    mPlaces.start(mField.value);
+  if (mField.value) {
+    if (mField.value == configs.lastSearchTerm &&
+        configs.lastFoundPlaces)
+      onPlacesFound(configs.lastFoundPlaces, []);
+    else
+      mPlaces.start(mField.value);
+  }
 
   /*
   gStyleVariables.textContent = `:root {
@@ -181,6 +186,8 @@ function onInput(event) {
 }
 
 function onPlacesFound(places, _newlyFoundPlaces) {
+  configs.lastFoundPlaces = places;
+
   const range = document.createRange();
   range.selectNodeContents(mResults);
   const contents = range.createContextualFragment(places.map(placeToItem).join(''));
