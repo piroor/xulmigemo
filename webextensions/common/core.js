@@ -370,3 +370,6 @@ export function expandInput(input, options = {}) {
   return termsSet;
 }
 
+export function getAllKnownTermsPattern() {
+  return mEngine.getAllKnownTermsPattern();
+}

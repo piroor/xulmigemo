@@ -205,6 +205,40 @@ export function gatherEntriesFor(rawInput) {
 }
 
 
+let mCachedAllKnownTermsPattern;
+
+export function getAllKnownTermsPattern() {
+  if (mCachedAllKnownTermsPattern)
+    return mCachedAllKnownTermsPattern;
+
+  const start = Date.now();
+  const allEntries = DictionaryJa.getAll().trim().replace(/(\t|\n\n)+/g, '\n').trim();
+
+  // 一文字だけの項目だけは、抜き出して文字クラスにまとめる
+  const oneLetterTerms = allEntries
+    .replace(/^..+$\n?/mg, '')
+    .split('\n')
+    .sort()
+    .join('')
+    .replace(/(.)\1+/g, '$1');
+
+  const shortestTerms = TextUtils.extractShortestTerms(
+    allEntries.split(/[\t\n]+/),
+    { rejectOneLetterTerms: true } // 一文字だけの項目は用済みなので削除
+  );
+
+  mCachedAllKnownTermsPattern = [
+    '[-_a-z0-9]+',
+    '[\u3041-\u3096]+',
+    '[\u30A1-\u30FA]+',
+    `[${oneLetterTerms}]`,
+    ...shortestTerms
+  ].join('|').replace(/^\||\|$/g, '').replace(/\|\|+/g, '|');
+
+  return mCachedAllKnownTermsPattern;
+}
+
+
 const SYMBOLS_MATCHER = new RegExp('([!"#\$%&\'\\(\\)=‾\\|\\`\\{\\+\\*\\}<>\\?_\\-\\^\\@\\[\\;\\:\\]\\/\\\\\\.,\uff61\uff64]+)', 'g');
 
 export function splitInput(input) {
