@@ -352,38 +352,38 @@ async function open({ where, keepOpen, item } = {}) {
     browser.tabs.update(parseInt(item.dataset.tabId), { active: true });
   }
   else {
-  browser.history.addUrl({
-    url:        item.dataset.url,
-    title:      item.dataset.title,
-    transition: 'typed'
-  });
+    browser.history.addUrl({
+      url:        item.dataset.url,
+      title:      item.dataset.title,
+      transition: 'typed'
+    });
 
-  const currentWindow = await browser.windows.getCurrent();
-  const activeTabs    = await browser.tabs.query({ active: true, windowId: currentWindow.id });
+    const currentWindow = await browser.windows.getCurrent();
+    const activeTabs    = await browser.tabs.query({ active: true, windowId: currentWindow.id });
 
-  switch (where) {
-    case Constants.kOPEN_IN_CURRENT:
-      browser.tabs.update(activeTabs[0].id, { url: item.dataset.url });
-      break;
+    switch (where) {
+      case Constants.kOPEN_IN_CURRENT:
+        browser.tabs.update(activeTabs[0].id, { url: item.dataset.url });
+        break;
 
-    case Constants.kOPEN_IN_TAB:
-    case Constants.kOPEN_IN_BACKGROUND_TAB: {
-      const params = {
-        windowId: currentWindow.id,
-        active:   where != Constants.kOPEN_IN_BACKGROUND_TAB,
-        url:      item.dataset.url
-      };
-      const currentUrl  = new URL(activeTabs[0].url);
-      const openUrl     = new URL(item.dataset.url);
-      if (currentUrl.origin && currentUrl.origin == openUrl.origin)
-        params.openerTabId = activeTabs[0].id;
-      browser.tabs.create(params);
-    }; break;
+      case Constants.kOPEN_IN_TAB:
+      case Constants.kOPEN_IN_BACKGROUND_TAB: {
+        const params = {
+          windowId: currentWindow.id,
+          active:   where != Constants.kOPEN_IN_BACKGROUND_TAB,
+          url:      item.dataset.url
+        };
+        const currentUrl  = new URL(activeTabs[0].url);
+        const openUrl     = new URL(item.dataset.url);
+        if (currentUrl.origin && currentUrl.origin == openUrl.origin)
+          params.openerTabId = activeTabs[0].id;
+        browser.tabs.create(params);
+      }; break;
 
-    case Constants.kOPEN_IN_WINDOW:
-      browser.windows.create({ url: item.dataset.url });
-      break;
-  }
+      case Constants.kOPEN_IN_WINDOW:
+        browser.windows.create({ url: item.dataset.url });
+        break;
+    }
   }
 
   configs.lastSearchTerm = mField.value;
