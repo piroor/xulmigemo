@@ -71,6 +71,7 @@ window.addEventListener('pageshow', async () => {
   }
   else {
     mField.value = mField.inputValue = configs.lastSearchTerm;
+    mField.select();
   }
 
   mPageSelection = null;
