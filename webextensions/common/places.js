@@ -145,6 +145,8 @@ export default class Places {
             //this.measure(`bookmarks ${term}: `, bookmarks);
             const found = [];
             for (const bookmark of bookmarks) {
+              if (bookmark.type != 'bookmark')
+                continue;
               const place = places.get(bookmark.url) || { title: bookmark.title, url: bookmark.url };
               if (!shouldAccept(place))
                 continue;
