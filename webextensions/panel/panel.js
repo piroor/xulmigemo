@@ -19,6 +19,7 @@ const mPlaces = new Places();
 
 //let gStyleVariables;
 let mField;
+let mProgress;
 let mResults;
 let mPageSelection;
 let mCurrentTab;
@@ -27,11 +28,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   //gStyleVariables = document.querySelector('#variables');
 
   mField = document.querySelector('#search-field');
+  mProgress = document.querySelector('#search-progress');
   mResults = document.querySelector('#search-results');
   mResults.scroll = new Scroll(mResults, {
     duration: configs.smoothScrollDuration
   });
   mPlaces.onFound.addListener(onPlacesFound);
+  mPlaces.onProgress.addListener(progress => {
+    mProgress.setAttribute('value', Math.round(100 * progress));
+  });
 
   mResults.scroll.scrollTo({ position: 0, justNow: true });
 }, { once: true });

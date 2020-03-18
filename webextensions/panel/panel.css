@@ -57,7 +57,7 @@ body {
 
 #search-field-container {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: nowrap;
   margin: var(--bounding-margin) var(--bounding-margin) 0.65em;
   padding: 0;
@@ -78,6 +78,19 @@ body {
 
 #search-field.focused {
   ime-mode: inactive !important;
+}
+
+#search-progress {
+  -moz-appearance: none;
+  appearance: none;
+  border: 0 none;
+  min-height: 2px;
+  max-height: 2px;
+}
+
+#search-progress:not([value]),
+#search-progress[value="100"] {
+  visibility: hidden;
 }
 
 #search-results {
