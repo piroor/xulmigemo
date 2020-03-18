@@ -6,6 +6,7 @@ all: xpi
 
 xpi: makexpi/makexpi.sh
 	bash ./make.sh
+	cd webextensions && make && cp *.xpi ../
 
 makexpi/makexpi.sh:
 	git submodule update --init
