@@ -193,6 +193,7 @@ function onInput(event) {
     clearTimeout(onInput.timeout);
   onInput.timeout = setTimeout(() => {
     onInput.timeout = null;
+    onPlacesFound([], []);
     mPlaces.start(mField.value);
   }, configs.searchThrottleTimeout);
 }
