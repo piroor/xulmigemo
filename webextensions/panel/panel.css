@@ -113,15 +113,30 @@ body {
 
 #search-results li {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: nowrap;
-  margin: 0;
+  margin: 0 0 0.25em;
   padding: 0.25em calc(var(--bounding-margin) + 0.5em) 0.25em var(--bounding-margin); /* right padding should be enough large to show scrollbar */
 }
 
 #search-results li.active {
   background: var(--focused-item-bgcolor);
   color: var(--focused-item-textcolor);
+}
+
+.title,
+.url {
+  display: block;
+}
+
+.title {
+  font-size: medium;
+  margin-bottom: 0.2em;
+}
+
+.url {
+  color: var(--in-content-deemphasized-text);
+  font-size: small;
 }
 
 .favicon {
