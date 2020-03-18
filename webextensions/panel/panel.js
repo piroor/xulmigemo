@@ -210,6 +210,7 @@ function onPlacesFound(places, _newlyFoundPlaces) {
 function placeToItem(place) {
   return `
     <li id="${place.url.replace(/[^a-z0-9]/gi, '_')}"
+        data-tab-id="${place.tab && place.tab.id || 0}"
         data-url="${sanitzeForHTML(place.url)}"
         data-title="${sanitzeForHTML(place.title)}"
         >${sanitzeForHTML(place.url)}
@@ -346,6 +347,11 @@ function focusToField() {
 
 async function open({ where, keepOpen, item } = {}) {
   item = item || getActiveItem();
+
+  if (item.dataset.tabId) {
+    browser.tabs.update(parseInt(item.dataset.tabId), { active: true });
+  }
+  else {
   browser.history.addUrl({
     url:        item.dataset.url,
     title:      item.dataset.title,
@@ -377,6 +383,7 @@ async function open({ where, keepOpen, item } = {}) {
     case Constants.kOPEN_IN_WINDOW:
       browser.windows.create({ url: item.dataset.url });
       break;
+  }
   }
 
   configs.lastSearchTerm = mField.value;
