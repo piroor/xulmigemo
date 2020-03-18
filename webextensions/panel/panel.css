@@ -12,6 +12,8 @@
   --search-field-bgcolor: var(--in-content-box-background);
   --search-field-textcolor: var(--in-content-text-color);
   --bounding-margin: 0.85em;
+
+  --panel-width: 65em;
 }
 
 :root[data-theme="dark"] {
@@ -53,6 +55,9 @@ body {
   flex-direction: column;
   flex-wrap: nowrap;
   line-height: 1;
+  max-width: var(--panel-width);
+  min-width: var(--panel-width);
+  width: var(--panel-width);
 }
 
 #search-field-container {
@@ -66,7 +71,7 @@ body {
 #search-field {
   flex-grow: 1;
   margin: 0;
-  min-width: 40em;
+  min-width: 0;
 }
 :root:not([theme="default"]) #search-field {
   background: var(--search-field-bgcolor);
@@ -113,7 +118,7 @@ body {
 
 #search-results li {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   flex-wrap: nowrap;
   margin: 0 0 0.25em;
   padding: 0.25em calc(var(--bounding-margin) + 0.5em) 0.25em var(--bounding-margin); /* right padding should be enough large to show scrollbar */
@@ -128,18 +133,33 @@ body {
 .url {
   display: block;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ".." /* ellipsis */;
   white-space: pre;
 }
 
 .title {
   font-size: medium;
   margin-bottom: 0.2em;
+  /*max-width: calc(var(--panel-width) * 0.6);*/
 }
 
 .url {
   color: var(--in-content-deemphasized-text);
   font-size: small;
+  min-width: calc(var(--panel-width) * 0.3);
+}
+.url::before {
+  content: " ";
+  display: inline-block;
+
+  border-top: 1px solid;
+  line-height: 0;
+  margin: 0 0.2em;
+  opacity: 0.65;
+  pointer-events: none;
+  position: relative;
+  top: 0.5ex;
+  width: 1.5em;
 }
 
 .favicon {
