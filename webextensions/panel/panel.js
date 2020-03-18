@@ -229,19 +229,22 @@ function sanitzeForHTML(string) {
 }
 
 function openParamsFromEvent(event) {
-  const searchParams = {
+  const params = {
     where:        configs.defaultOpenIn,
-    keepOpen:     false
+    keepOpen:     false,
+    regularAction:true
   };
   if (event.altKey || event.ctrlKey || event.metaKey) {
-    searchParams.where    = configs.accelActionOpenIn;
-    searchParams.keepOpen = configs.accelActionOpenIn == Constants.kOPEN_IN_BACKGROUND_TAB;
-    return searchParams;
+    params.where    = configs.accelActionOpenIn;
+    params.keepOpen = configs.accelActionOpenIn == Constants.kOPEN_IN_BACKGROUND_TAB;
+    params.regularAction = false;
+    return params;
   }
 
   if (event.shiftKey) {
-    searchParams.where = Constants.kOPEN_IN_WINDOW;
-    return searchParams;
+    params.where = Constants.kOPEN_IN_WINDOW;
+    params.regularAction = false;
+    return params;
   }
 
   if (configs.recycleBlankCurrentTab &&
@@ -249,11 +252,11 @@ function openParamsFromEvent(event) {
       (mCurrentTab.url == 'about:blank' ||
        (configs.recycleTabUrlPattern &&
         new RegExp(configs.recycleTabUrlPattern).test(mCurrentTab.url)))) {
-    searchParams.where = Constants.kOPEN_IN_CURRENT;
-    return searchParams;
+    params.where = Constants.kOPEN_IN_CURRENT;
+    return params;
   }
 
-  return searchParams;
+  return params;
 }
 
 function onItemMousedown(event) {
@@ -278,7 +281,8 @@ function onItemClick(event) {
   switch (event.button) {
     case 0:
       open(Object.assign(openParamsFromEvent(event), {
-        item
+        item,
+        regularAction: true
       }));
       break;
 
@@ -286,7 +290,8 @@ function onItemClick(event) {
       open({
         where:    configs.accelActionOpenIn,
         keepOpen: configs.accelActionOpenIn == Constants.kOPEN_IN_BACKGROUND_TAB,
-        item
+        item,
+        regularAction: false
       });
       break;
 
@@ -361,10 +366,12 @@ function focusToField() {
   }, configs.focusDelay);
 }
 
-async function open({ where, keepOpen, item } = {}) {
+async function open({ where, keepOpen, item, regularAction } = {}) {
   item = item || getActiveItem();
 
-  if (item.dataset.tabId && item.dataset.tabId != 0) {
+  if (regularAction &&
+      item.dataset.tabId &&
+      item.dataset.tabId != 0) {
     browser.tabs.update(parseInt(item.dataset.tabId), { active: true });
   }
   else {
