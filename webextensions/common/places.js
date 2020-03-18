@@ -188,7 +188,7 @@ export default class Places {
 
   _updateFrecency(place) {
     // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Places/Frecency_algorithm
-    place.frecenty = 0;
+    place.frecency = 0;
     if (place.history) {
       for (const visit of place.history.visits) {
         let bonusFactor = 1;
@@ -206,15 +206,15 @@ export default class Places {
             break;
         }
         if (visit.visitTime >= this.mStart - (ONE_DAY_IN_MSEC * 4))
-          place.frecenfy += 100 * bonusFactor;
+          place.frecency += 100 * bonusFactor;
         else if (visit.visitTime >= this.mStart - (ONE_DAY_IN_MSEC * 14))
-          place.frecenfy += 70 * bonusFactor;
+          place.frecency += 70 * bonusFactor;
         else if (visit.visitTime >= this.mStart - (ONE_DAY_IN_MSEC * 31))
-          place.frecenfy += 50 * bonusFactor;
+          place.frecency += 50 * bonusFactor;
         else if (visit.visitTime >= this.mStart - (ONE_DAY_IN_MSEC * 90))
-          place.frecenfy += 30 * bonusFactor;
+          place.frecency += 30 * bonusFactor;
         else
-          place.frecenfy += 10 * bonusFactor;
+          place.frecency += 10 * bonusFactor;
       }
     }
     return place;
