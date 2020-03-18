@@ -161,7 +161,8 @@ body {
   flex-direction: row;
   flex-wrap: nowrap;
   font-size: medium;
-  margin: 0 0 0.25em;
+  line-height: 1.3;
+  margin: 0;
   padding: 0.25em calc(var(--bounding-margin) + 0.5em) 0.25em var(--bounding-margin); /* right padding should be enough large to show scrollbar */
 }
 
@@ -188,7 +189,6 @@ body {
 }
 
 .title {
-  margin-bottom: 0.2em;
   /*max-width: calc(var(--panel-width) * 0.6);*/
 }
 .title::before {
