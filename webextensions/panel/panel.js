@@ -53,6 +53,7 @@ window.addEventListener('pageshow', async () => {
     mField.classList.add('focused');
     setTimeout(() => mField.classList.remove('focused'), 150);
   });
+  mResults.addEventListener('mousedown', onItemMousedown, { capture: true });
   mResults.addEventListener('mouseup', onItemClick, { capture: true });
   mResults.addEventListener('mousemove', onMouseMove);
   mField.parentNode.addEventListener('mousemove', onMouseMove);
@@ -98,6 +99,7 @@ window.addEventListener('pagehide', () => {
   document.removeEventListener('submit', onSubmit);
   document.removeEventListener('keydown', onKeyDown, { capture: true });
   mField.removeEventListener('input', onInput);
+  mResults.removeEventListener('mousedown', onItemMousedown, { capture: true });
   mResults.removeEventListener('mouseup', onItemClick, { capture: true });
   mResults.removeEventListener('mousemove', onMouseMove);
   mField.parentNode.removeEventListener('mousemove', onMouseMove);
@@ -254,10 +256,21 @@ function openParamsFromEvent(event) {
   return searchParams;
 }
 
+function onItemMousedown(event) {
+  let item = event.target;
+  while (item.nodeType != Node.ELEMENT_NODE ||
+         !item.hasAttribute('data-url')) {
+    item = item.parentNode;
+    if (!item)
+      return;
+  }
+  event.preventDefault();
+}
+
 function onItemClick(event) {
   let item = event.target;
   while (item.nodeType != Node.ELEMENT_NODE ||
-         !item.hasAttribute('data-id')) {
+         !item.hasAttribute('data-url')) {
     item = item.parentNode;
     if (!item)
       return;
@@ -351,7 +364,7 @@ function focusToField() {
 async function open({ where, keepOpen, item } = {}) {
   item = item || getActiveItem();
 
-  if (item.dataset.tabId) {
+  if (item.dataset.tabId && item.dataset.tabId != 0) {
     browser.tabs.update(parseInt(item.dataset.tabId), { active: true });
   }
   else {
