@@ -1,0 +1,33 @@
+{
+  "extensionName": { "message": "XUL/Migemo" },
+  "extensionDescription": { "message": "Migemo風のローマ字入力による日本語逐次検索など、より高機能なインクリメンタル検索機能を提供します。" },
+
+  "panelTitle": { "message": "履歴・ブックマーク検索" },
+  "commandDescription": { "message": "履歴・ブックマーク検索" },
+
+  "searchField_placeholder": { "message": "検索語句を入力してください" },
+
+
+  "config_theme_caption": { "message": "配色" },
+  "config_theme_default": { "message": "既定" },
+  "config_theme_dark":    { "message": "Dark" },
+  "config_applyThemeColorToIcon_label": { "message": "ツールバーのボタンにテーマの配色を反映する（※「about:config」で「svg.context-properties.content.enabled」を「true」に設定する必要があります）" },
+
+  "config_defaultOpenIn_caption": { "message": "検索結果の既定の開き方" },
+  "config_defaultOpenIn_current": { "message": "現在のタブに読み込む" },
+  "config_defaultOpenIn_tab":     { "message": "新しいタブを開く" },
+  "config_defaultOpenIn_backgroundTab": { "message": "新しいバックグラウンドのタブを開く（ポップアップは閉じられません）" },
+  "config_defaultOpenIn_window":  { "message": "新しいウィンドウを開く" },
+  "config_accelActionOpenIn_caption": { "message": "アクセルキー（Ctrl/⌘）を押しながら検索した場合の検索結果の開き方" },
+  "config_recycleBlankCurrentTab_label": { "message": "現在のタブが空の時は、新しいタブを開かず現在のタブに読み込む" },
+  "config_recycleTabUrlPattern_label": { "message": "URIが以下の正規表現に当てはまるタブも空のタブと見なす:" },
+  "config_fillFieldWithSelectionText_label": { "message": "現在のタブで選択されている文字列を検索語句として自動入力する" },
+  "config_clearFieldAfterOpen_label": { "message": "検索結果を開いた後に検索語句を空にする" },
+  "config_clearFieldAfterOpenDelay_before": { "message": "ただし、" },
+  "config_clearFieldAfterOpenDelay_after": { "message": "ミリ秒以内にもう一度検索しようとした場合を除く" },
+  "config_closeAfterOpen_label": { "message": "検索結果を開いたらポップアップを閉じる" },
+
+  "config_debug_caption": { "message": "開発用" },
+  "config_debug_label": { "message": "デバッグモード" },
+  "config_all_caption": { "message": "すべての設定" }
+}

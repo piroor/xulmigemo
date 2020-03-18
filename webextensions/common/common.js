@@ -6,8 +6,25 @@
 'use strict';
 
 import Configs from '/extlib/Configs.js';
+import * as Constants from './constants.js';
 
 export const configs = new Configs({
+  theme: 'default',
+  fillFieldWithSelectionText: true,
+  clearFieldAfterOpen: true,
+  clearFieldAfterOpenDelay: 5000,
+  lastSearchTerm: '',
+  lastOpenTime: 0,
+  closeAfterOpen: true,
+  recycleBlankCurrentTab: true,
+  recycleTabUrlPattern: '^about:(newtab|home|privatebrowsing)$',
+  defaultOpenIn: Constants.kOPEN_IN_TAB,
+  accelActionOpenIn: Constants.kOPEN_IN_BACKGROUND_TAB,
+  focusDelay: 150,
+  smoothScrollDuration: 150,
+  newWindowDelay: 1000,
+  applyThemeColorToIcon: false,
+
   maxParallelSearch: 12,
   openInTabByDefault: true,
 
@@ -31,11 +48,18 @@ export const configs = new Configs({
   cacheKeys: [
     'ja/ja.cache'
   ],
-  cache: {}
+  cache: {},
+
+  configsVersion: 0,
+  debug: false
 }, {
   localKeys: [
     'dictionaryEnUs',
     'dictionaryJa',
-    'cache'
+    'cache',
+
+    'lastSearchTerm',
+    'lastOpenTime',
+    'debug'
   ]
 });

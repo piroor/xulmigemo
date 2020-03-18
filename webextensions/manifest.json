@@ -1,10 +1,11 @@
 {
   "manifest_version": 2,
-  "name": "XUL/Migemo WE",
+  "name": "__MSG_extensionName__",
   "version": "0.0.1",
   "author": "YUKI \"Piro\" Hiroshi",
-  "description": "",
+  "description": "__MSG_extensionDescription__",
   "permissions": [
+    "activeTab",
     "bookmarks",
     "history",
     "storage",
@@ -14,20 +15,22 @@
     "page": "/background/background.html"
   },
   "browser_action": {
-    "default_title": "XUL/Migemo WE",
-    "browser_style": true
+    "default_title": "__MSG_panelTitle__",
+    "browser_style": true,
+    "default_popup": "/panel/panel.html"
   },
   "omnibox": {
     "keyword": "/"
   },
   "commands": {
     "_execute_browser_action": {
-      "description": "Start Places Search",
+      "description": "__MSG_commandDescription__",
       "suggested_key": {
         "default": "Ctrl+Shift+L"
       }
     }
   },
+  "default_locale": "en",
   "applications": {
     "gecko": {
       "id": "{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}",

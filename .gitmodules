@@ -28,3 +28,12 @@
 [submodule "submodules/webextensions-lib-event-listener-manager"]
 	path = submodules/webextensions-lib-event-listener-manager
 	url = https://github.com/piroor/webextensions-lib-event-listener-manager.git
+[submodule "submodules/webextensions-lib-scroll"]
+	path = submodules/webextensions-lib-scroll
+	url = https://github.com/piroor/webextensions-lib-scroll.git
+[submodule "submodules/webextensions-lib-l10n"]
+	path = submodules/webextensions-lib-l10n
+	url = https://github.com/piroor/webextensions-lib-l10n.git
+[submodule "submodules/webextensions-lib-dom-updater"]
+	path = submodules/webextensions-lib-dom-updater
+	url = https://github.com/piroor/webextensions-lib-dom-updater.git

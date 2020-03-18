@@ -8,6 +8,7 @@
 import {
   configs
 } from '/common/common.js';
+import * as Constants from '/common/constants.js';
 import Places from '/common/places.js';
 
 const mPlaces = new Places();
@@ -32,9 +33,9 @@ browser.omnibox.onInputEntered.addListener(async (text, disposition) => {
     return;
   }
 
-  let inTab = disposition != 'currentTab';
-  if (configs.openInTabByDefault)
-    inTab = !inTab;
+  const openInAction = disposition == 'currentTab' ? configs.defaultOpenIn : configs.accelActionOpenIn;
+  const inTab        = openInAction == Constants.kOPEN_IN_TAB || openInAction == Constants.kOPEN_IN_BACKGROUND_TAB;
+  const inBackground = openInAction == Constants.kOPEN_IN_BACKGROUND_TAB;
 
   const window = await browser.windows.getCurrent();
   const activeTabs = await browser.tabs.query({ active: true, windowId: window.id });
@@ -47,7 +48,7 @@ browser.omnibox.onInputEntered.addListener(async (text, disposition) => {
 
   const params = {
     windowId: window.id,
-    active:   !/background/i.test(disposition),
+    active:   !inBackground,
     url:      place.url
   };
   const currentUrl  = new URL(activeTabs[0].url);

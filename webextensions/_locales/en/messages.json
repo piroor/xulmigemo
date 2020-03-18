@@ -1,0 +1,33 @@
+{
+  "extensionName": { "message": "XUL/Migemo" },
+  "extensionDescription": { "message": "This provides advanced incremental search. You can find Japanese words incremental with roman input, like the Migemo." },
+
+  "panelTitle": { "message": "History/Bookmarks Search" },
+  "commandDescription": { "message": "History/Bookmarks Search" },
+
+  "searchField_placeholder": { "message": "Search with Keyword" },
+
+
+  "config_theme_caption": { "message": "Color scheme" },
+  "config_theme_default": { "message": "Default" },
+  "config_theme_dark":    { "message": "Dark" },
+  "config_applyThemeColorToIcon_label": { "message": "Apply theme color to the toolbar button (*You need to set \"svg.context-properties.content.enabled\" to \"true\" via \"about:config\")" },
+
+  "config_defaultOpenIn_caption": { "message": "Open search result in" },
+  "config_defaultOpenIn_current": { "message": "the Current Tab" },
+  "config_defaultOpenIn_tab":     { "message": "a New Tab" },
+  "config_defaultOpenIn_backgroundTab": { "message": "a New Background Tab (popup will stay open after search)" },
+  "config_defaultOpenIn_window":  { "message": "aNew Window" },
+  "config_accelActionOpenIn_caption": { "message": "Open search result for actions with accel key (Ctrl/⌘) in" },
+  "config_recycleBlankCurrentTab_label": { "message": "Recycle current blank tab, instead of new tab" },
+  "config_recycleTabUrlPattern_label": { "message": "Recycle more tabs with URI matches to following regular expression:" },
+  "config_fillFieldWithSelectionText_label": { "message": "Fill search term field with the selection text in the current tab" },
+  "config_clearFieldAfterOpen_label": { "message": "Clear last search term for the next time" },
+  "config_clearFieldAfterOpenDelay_before": { "message": "when the next search is started after " },
+  "config_clearFieldAfterOpenDelay_after": { "message": "msec." },
+  "config_closeAfterOpen_label": { "message": "Close popup after search result is opened" },
+
+  "config_debug_caption": { "message": "Development" },
+  "config_debug_label": { "message": "Debug mode" },
+  "config_all_caption": { "message": "All Configs" }
+}

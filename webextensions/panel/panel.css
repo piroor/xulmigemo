@@ -1,0 +1,138 @@
+/*
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+*/
+
+:root {
+  /* https://dxr.mozilla.org/mozilla-central/rev/b056526be38e96b3e381b7e90cd8254ad1d96d9d/browser/themes/windows/browser.css#45 */
+  --focused-item-bgcolor: var(--in-content-button-background);
+  --focused-item-textcolor: var(--in-content-text-color);
+  --search-field-bordercolor: var(--in-content-box-border-color-mixed);
+  --search-field-bgcolor: var(--in-content-box-background);
+  --search-field-textcolor: var(--in-content-text-color);
+  --bounding-margin: 0.85em;
+}
+
+:root[data-theme="dark"] {
+  --bg-color: var(--dark-popup);
+  --text-color: var(--dark-popup-text);
+  --in-content-page-background: #2A2A2E /* rgb(42, 42, 46) */;
+  --in-content-button-background: rgba(249,249,250,0.1);
+  --in-content-border-hover: rgba(249,249,250,0.3);
+
+  --in-content-box-background: var(--dark-popup);
+  --in-content-box-border-color-mixed: var(--dark-popup-border);
+  --in-content-text-color: var(--dark-popup-text);
+  --search-field-bordercolor: var(--dark-toolbar-field-border);
+  --search-field-bgcolor: var(--dark-toolbar-field);
+  --search-field-textcolor: var(--dark-toolbar-field-text);
+/*
+  --tab-active-marker: #0a84ff;
+  --tab-active-marker-inactive: rgba(255, 255, 255, 0.2);
+*/
+  scrollbar-color: var(--in-content-border-hover) var(--in-content-page-background);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --in-content-box-background: var(--dark-popup);
+    --in-content-box-border-color-mixed: var(--dark-popup-border);
+    --in-content-text-color: var(--dark-popup-text);
+    --search-field-bordercolor: var(--dark-toolbar-field-border);
+    --search-field-bgcolor: var(--dark-toolbar-field);
+    --search-field-textcolor: var(--dark-toolbar-field-text);
+    scrollbar-color: var(--in-content-border-hover) var(--in-content-page-background);
+  }
+}
+
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  line-height: 1;
+}
+
+#search-field-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin: var(--bounding-margin) var(--bounding-margin) 0.65em;
+  padding: 0;
+}
+
+#search-field {
+  flex-grow: 1;
+  margin: 0;
+  min-width: 40em;
+}
+:root:not([theme="default"]) #search-field {
+  background: var(--search-field-bgcolor);
+  border: 1px solid var(--search-field-bordercolor);
+  border-radius: 0.2em;
+  color: var(--search-field-textcolor);
+  padding: 0.3em 0.5em;
+}
+
+#search-field.focused {
+  ime-mode: inactive !important;
+}
+
+#search-results {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  list-style: none;
+  margin: 0;
+  max-height: 20em;
+  max-width: var(--panel-width, 100%);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0;
+  position: relative;
+  scrollbar-width: thin;
+  transition: left ease 0.15s,
+              opacity ease 0.15s;
+  width: var(--panel-width);
+}
+
+#search-results li {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin: 0;
+  padding: 0.25em calc(var(--bounding-margin) + 0.5em) 0.25em var(--bounding-margin); /* right padding should be enough large to show scrollbar */
+}
+
+#search-results li.active {
+  background: var(--focused-item-bgcolor);
+  color: var(--focused-item-textcolor);
+}
+
+.favicon {
+  max-height: 16px;
+  max-width: 16px;
+  min-width: 16px;
+}
+
+.label {
+  flex-grow: 1;
+  margin-left: 0.25em;
+  white-space: nowrap;
+}
+
+
+label[disabled="true"] {
+  opacity: 0.5;
+}
+label[disabled="true"] input {
+  opacity: 1;
+}
+
+
+input:focus {
+  border-color: var(--in-content-border-active);
+  box-shadow: none;
+}
