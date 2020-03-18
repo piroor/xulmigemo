@@ -180,7 +180,7 @@ function onInput(event) {
   mPlaces.start(mField.value);
 }
 
-function onPlacesFound(places, newlyFoundPlaces) {
+function onPlacesFound(places, _newlyFoundPlaces) {
   const range = document.createRange();
   range.selectNodeContents(mResults);
   const contents = range.createContextualFragment(places.map(placeToItem).join(''));
@@ -328,7 +328,6 @@ function focusToField() {
 
 async function open({ where, keepOpen, item } = {}) {
   item = item || getActiveItem();
-  const term = mField.value.trim();
   browser.history.addUrl({
     url:        item.dataset.url,
     title:      item.dataset.title,
