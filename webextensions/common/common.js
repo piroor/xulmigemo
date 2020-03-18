@@ -15,6 +15,7 @@ export const configs = new Configs({
   clearFieldAfterOpenDelay: 5000,
   lastSearchTerm: '',
   lastFoundPlaces: null,
+  lastFoundTermsPattern: null,
   lastOpenTime: 0,
   closeAfterOpen: true,
   recycleBlankCurrentTab: true,
@@ -61,6 +62,7 @@ export const configs = new Configs({
     'cache',
 
     'lastSearchTerm',
+    'lastFoundTermsPattern',
     'lastFoundPlaces',
     'lastOpenTime',
     'debug'

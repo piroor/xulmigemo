@@ -215,6 +215,12 @@ body {
   width: 1.5em;
 }
 
+.title em,
+.url em {
+  font-style: normal;
+  font-weight: bold;
+}
+
 .favicon {
   max-height: 16px;
   max-width: 16px;

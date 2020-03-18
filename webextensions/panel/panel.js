@@ -79,10 +79,15 @@ window.addEventListener('pageshow', async () => {
   await updateUIForCurrentTab();
   if (mField.value) {
     if (mField.value == configs.lastSearchTerm &&
-        configs.lastFoundPlaces)
-      onPlacesFound(configs.lastFoundPlaces, []);
-    else
+        configs.lastFoundPlaces) {
+      const termsMatcher = configs.lastFoundTermsPattern ?
+        new RegExp(configs.lastFoundTermsPattern, 'gi') :
+        null;
+      onPlacesFound(configs.lastFoundPlaces, { termsMatcher });
+    }
+    else {
       mPlaces.start(mField.value);
+    }
   }
 
   /*
@@ -205,24 +210,31 @@ function onInput(event) {
     clearTimeout(onInput.timeout);
   onInput.timeout = setTimeout(() => {
     onInput.timeout = null;
-    onPlacesFound([], []);
+    onPlacesFound([], {});
     mPlaces.start(mField.value);
   }, configs.searchThrottleTimeout);
 }
 onInput.timeout = null;
 
-function onPlacesFound(places, _newlyFoundPlaces) {
+function onPlacesFound(places, { termsMatcher } = {}) {
   configs.lastFoundPlaces = places;
+  configs.lastFoundTermsPattern = termsMatcher && termsMatcher.source;
 
   const range = document.createRange();
   range.selectNodeContents(mResults);
-  const contents = range.createContextualFragment(places.map(placeToItem).join(''));
+  const contents = range.createContextualFragment(places.map(place => placeToItem(place, termsMatcher)).join(''));
   range.detach();
 
   DOMUpdater.update(mResults, contents);
 }
 
-function placeToItem(place) {
+function placeToItem(place, termsMatcher) {
+  let displayTitle = sanitzeForHTML(place.title);
+  let displayUrl   = sanitzeForHTML(place.url).replace(termsMatcher, '<em>$&</em>')
+  if (termsMatcher) {
+    displayTitle = displayTitle.replace(termsMatcher, '<em>$&</em>');
+    displayUrl   = displayUrl.replace(termsMatcher, '<em>$&</em>');
+  }
   return `
     <li id="${place.url.replace(/[^a-z0-9]/gi, '_')}"
         class="${place.tab ? 'tab' : ''} ${place.bookmark ? 'bookmark' : ''}"
@@ -231,8 +243,8 @@ function placeToItem(place) {
         data-title="${sanitzeForHTML(place.title)}"
         title="${sanitzeForHTML(place.title)}
 ${sanitzeForHTML(place.url)}">
-     <span class="title">${sanitzeForHTML(place.title)}</span>
-     <span class="url">${sanitzeForHTML(place.url)}</span>
+     <span class="title">${displayTitle}</span>
+     <span class="url">${displayUrl}</span>
     </li>
   `.trim();
 }

@@ -64,10 +64,11 @@ export default class Places {
     let finishedTasks = 1;
     this.onProgress.dispatch(finishedTasks / allTasksCount);
 
-    const { pattern, exceptionsPattern } = Core.getRegExpFunctional(query.trim());
+    const { pattern, termsPattern, exceptionsPattern } = Core.getRegExpFunctional(query.trim());
     //console.log('pattern: ', pattern);
     //console.log('exceptionsPattern: ', exceptionsPattern);
     const matcher  = new RegExp(pattern, 'i');
+    const termsMatcher = new RegExp(termsPattern, 'gi');
     const rejector = exceptionsPattern && new RegExp(exceptionsPattern, 'i');
     const shouldAccept = place => {
       const text = `${place.title}\t${place.url}`;
@@ -92,7 +93,10 @@ export default class Places {
           this.onProgress.dispatch(++finishedTasks / allTasksCount);
           if (found.length > 0 &&
               this.onFound.hasListener)
-            this.onFound.dispatch(this._sortedPlaces, found);
+            this.onFound.dispatch(this._sortedPlaces, {
+              new: found,
+              termsMatcher
+            });
         })
         .catch(error => {
           console.error(error);
@@ -127,7 +131,10 @@ export default class Places {
                   this._updateFrecency(place);
                   places.set(history.url, Object.assign(place, { history }));
                   if (this.onFound.hasListener)
-                    this.onFound.dispatch(this._sortedPlaces, [place]);
+                    this.onFound.dispatch(this._sortedPlaces, {
+                      new: [place],
+                      termsMatcher
+                    });
                 }));
             }
             this.onProgress.dispatch(++finishedTasks / allTasksCount);
@@ -157,7 +164,10 @@ export default class Places {
             this.onProgress.dispatch(++finishedTasks / allTasksCount);
             if (found.length > 0 &&
                 this.onFound.hasListener)
-              this.onFound.dispatch(this._sortedPlaces, found);
+              this.onFound.dispatch(this._sortedPlaces, {
+                new: found,
+                termsMatcher
+              });
           })
           .catch(error => {
             console.error(error);
