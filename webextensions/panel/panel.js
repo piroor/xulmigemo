@@ -214,7 +214,8 @@ function placeToItem(place) {
         data-tab-id="${place.tab && place.tab.id || 0}"
         data-url="${sanitzeForHTML(place.url)}"
         data-title="${sanitzeForHTML(place.title)}"
-        >
+        title="${sanitzeForHTML(place.title)}
+${sanitzeForHTML(place.url)}">
      <span class="title">${sanitzeForHTML(place.title)}</span>
      <span class="url">${sanitzeForHTML(place.url)}</span>
     </li>

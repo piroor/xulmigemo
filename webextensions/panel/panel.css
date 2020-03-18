@@ -127,6 +127,9 @@ body {
 .title,
 .url {
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre;
 }
 
 .title {
