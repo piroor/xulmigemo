@@ -228,10 +228,7 @@ export function getAllKnownTermsPattern() {
   );
 
   mCachedAllKnownTermsPattern = [
-    '[-_a-z0-9]+',
-    '[\u3041-\u3096]+',
-    '[\u30A1-\u30FA]+',
-    `[${oneLetterTerms}]`,
+    `[-_a-z0-9\u3041-\u3096\u30A1-\u30FA${oneLetterTerms}]`,
     ...shortestTerms
   ].join('|').replace(/^\||\|$/g, '').replace(/\|\|+/g, '|');
 
