@@ -22,6 +22,7 @@ export const configs = new Configs({
   defaultOpenIn: Constants.kOPEN_IN_TAB,
   accelActionOpenIn: Constants.kOPEN_IN_BACKGROUND_TAB,
   focusDelay: 150,
+  searchThrottleTimeout: 250,
   smoothScrollDuration: 150,
   newWindowDelay: 1000,
   applyThemeColorToIcon: false,

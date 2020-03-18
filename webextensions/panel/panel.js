@@ -182,8 +182,14 @@ function onInput(event) {
   configs.lastSearchTerm = mField.value;
   configs.lastOpenTime = -1;
 
-  mPlaces.start(mField.value);
+  if (onInput.timeout)
+    clearTimeout(onInput.timeout);
+  onInput.timeout = setTimeout(() => {
+    onInput.timeout = null;
+    mPlaces.start(mField.value);
+  }, configs.searchThrottleTimeout);
 }
+onInput.timeout = null;
 
 function onPlacesFound(places, _newlyFoundPlaces) {
   configs.lastFoundPlaces = places;
