@@ -325,7 +325,7 @@ export function getRegExpsFunctional(input) {
     result.patterns :
     [getRegExp(input)]
   );
-  return Object.assign(result, { patterns });
+  return { ...result, patterns };
 }
 
 function shiftExceptions(input) {

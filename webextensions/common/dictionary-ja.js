@@ -65,7 +65,7 @@ export async function load(configs = {}) {
   }
   if (loadTasks.length > 0) {
     await Promise.all(loadTasks);
-    configs.dictionaryJa = Object.assign({}, dic, newlyLoadedDic);
+    configs.dictionaryJa = { ...dic, ...newlyLoadedDic };
     configs.dictionaryJaVersion = VERSION;
     //console.log('saved dic: ', configs.dic);
   }

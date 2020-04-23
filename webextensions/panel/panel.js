@@ -114,9 +114,10 @@ window.addEventListener('pagehide', () => {
 let gLastEnterEvent;
 
 function onSubmit(_event) {
-  open(Object.assign(openParamsFromEvent(gLastEnterEvent), {
+  open({
+    ...openParamsFromEvent(gLastEnterEvent),
     item: getActiveItem()
-  }));
+  });
   gLastEnterEvent = null;
 }
 
@@ -306,10 +307,11 @@ function onItemClick(event) {
   }
   switch (event.button) {
     case 0:
-      open(Object.assign(openParamsFromEvent(event), {
+      open({
+        ...openParamsFromEvent(event),
         item,
         regularAction: true
-      }));
+      });
       break;
 
     case 1:
