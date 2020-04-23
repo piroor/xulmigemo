@@ -87,7 +87,7 @@ export default class Places {
             if (!shouldAccept(place))
               continue;
             this._updateFrecency(place);
-            places.set(tab.url, Object.assign(place, { tab }));
+            places.set(tab.url, { ...place, tab });
             found.push(place);
           }
           this.onProgress.dispatch(++finishedTasks / allTasksCount);
@@ -129,7 +129,7 @@ export default class Places {
                   if (!shouldAccept(place))
                     return;
                   this._updateFrecency(place);
-                  places.set(history.url, Object.assign(place, { history }));
+                  places.set(history.url, { ...place, history });
                   if (this.onFound.hasListener)
                     this.onFound.dispatch(this._sortedPlaces, {
                       new: [place],
@@ -158,7 +158,7 @@ export default class Places {
               if (!shouldAccept(place))
                 continue;
               this._updateFrecency(place);
-              places.set(bookmark.url, Object.assign(place, { bookmark }));
+              places.set(bookmark.url, { ...place, bookmark });
               found.push(place);
             }
             this.onProgress.dispatch(++finishedTasks / allTasksCount);
