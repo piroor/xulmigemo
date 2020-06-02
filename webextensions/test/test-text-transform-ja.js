@@ -8,8 +8,10 @@
 import fs from 'fs';
 import path from 'path';
 
-import { is, ok, ng } from './assert.js';
 import * as TextTransformJa from '../common/text-transform-ja.js';
+
+import { assert } from 'tiny-esm-test-runner';
+const { is, ok, ng } = assert;
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 

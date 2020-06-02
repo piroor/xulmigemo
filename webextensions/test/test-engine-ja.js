@@ -8,10 +8,12 @@
 import fs from 'fs';
 import path from 'path';
 
-import { is } from './assert.js';
 import * as EngineJa from '../common/engine-ja.js';
 import * as DictionaryJa from '../common/dictionary-ja.js';
 import { regExpPatterns } from './assets/regexp-patterns.js';
+
+import { assert } from 'tiny-esm-test-runner';
+const { is } = assert;
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 

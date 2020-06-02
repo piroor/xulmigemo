@@ -5,8 +5,10 @@
 */
 'use strict';
 
-import { is, ok, ng } from './assert.js';
 import * as TextUtils from '../common/text-utils.js';
+
+import { assert } from 'tiny-esm-test-runner';
+const { is, ok, ng } = assert;
 
 // 整列と重複項目の削除
 export function test_brushUpTerms() {

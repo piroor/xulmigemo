@@ -6,7 +6,7 @@
   },
   "type": "module",
   "scripts": {
-    "test": "node test/runner.js"
+    "test": "run-tiny-esm-test-runner test/test-*.js"
   },
   "dependencies": {
     "babel-core": "^6.0.0",
@@ -17,6 +17,7 @@
     "eslint-plugin-import": "^2.13.0",
     "jsonlint-cli": "*",
     "node-fetch": "^2.6.0",
+    "tiny-esm-test-runner": "^0.0.5",
     "tunnel-agent": ">=0.6.0"
   }
 }
