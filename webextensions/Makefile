@@ -1,7 +1,7 @@
 NPM_MOD_DIR := $(CURDIR)/node_modules
 NPM_BIN_DIR := $(NPM_MOD_DIR)/.bin
 
-.PHONY: xpi install_dependency install_hook lint format update_extlib install_extlib test
+.PHONY: xpi install_dependency install_hook lint format init_extlib update_extlib install_extlib test
 
 all: xpi
 
@@ -18,12 +18,15 @@ lint: install_dependency
 format: install_dependency
 	"$(NPM_BIN_DIR)/eslint" . --ext=.js --report-unused-disable-directives --fix
 
-xpi: update_extlib install_extlib lint
+xpi: init_extlib install_extlib lint
 	rm -f ./*.xpi
 	zip -r -9 xulmigemo-we.xpi manifest.json common extlib background dictionaries panel resources _locales -x '*/.*' >/dev/null 2>/dev/null
 
-update_extlib:
+init_extlib:
 	git submodule update --init
+
+update_extlib:
+	git submodule foreach 'git checkout trunk || git checkout main || git checkout master && git pull'
 
 install_extlib:
 	rm -f extlib/*.js
