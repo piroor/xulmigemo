@@ -252,6 +252,8 @@ ${sanitizeForHTML(place.url)}">
 }
 
 function sanitizeForHTML(string) {
+  if (!string)
+    return '';
   return string.replace(/&/g, '&amp;').replace(/\"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 

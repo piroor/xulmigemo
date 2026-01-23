@@ -91,8 +91,7 @@ export default class Places {
             found.push(place);
           }
           this.onProgress.dispatch(++finishedTasks / allTasksCount);
-          if (found.length > 0 &&
-              this.onFound.hasListener)
+          if (found.length > 0)
             this.onFound.dispatch(this._sortedPlaces, {
               new: found,
               termsMatcher
@@ -109,7 +108,8 @@ export default class Places {
         return [];
       tasks.push(
         browser.history.search({
-          text: term
+          text: term,
+          startTime: 0, // this is required to search history!
         })
           .then(histories => {
             //this.measure(`histories ${term}: `, histories);
@@ -130,11 +130,10 @@ export default class Places {
                     return;
                   this._updateFrecency(place);
                   places.set(history.url, { ...place, history });
-                  if (this.onFound.hasListener)
-                    this.onFound.dispatch(this._sortedPlaces, {
-                      new: [place],
-                      termsMatcher
-                    });
+                  this.onFound.dispatch(this._sortedPlaces, {
+                    new: [place],
+                    termsMatcher
+                  });
                 }));
             }
             this.onProgress.dispatch(++finishedTasks / allTasksCount);
@@ -162,8 +161,7 @@ export default class Places {
               found.push(place);
             }
             this.onProgress.dispatch(++finishedTasks / allTasksCount);
-            if (found.length > 0 &&
-                this.onFound.hasListener)
+            if (found.length > 0)
               this.onFound.dispatch(this._sortedPlaces, {
                 new: found,
                 termsMatcher
