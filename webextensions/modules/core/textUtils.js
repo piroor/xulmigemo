@@ -187,7 +187,7 @@ var MigemoTextUtils = {
     }
   },
 
-  extractShortestTerms: function(terms, { rejectOneLetterTerms = false } = {}) {
+  extractShortestTerms: function(terms, { sanitizeForRegExp = false, rejectOneLetterTerms = false } = {}) {
     // foo, foobar, fooee... といった風に、同じ文字列で始まる複数の候補がある場合は、
     // 最も短い候補（この例ならfoo）だけにする
     let termsString = terms
@@ -196,10 +196,10 @@ var MigemoTextUtils = {
       .replace(/(^|\n)([^\n]+)(?:\n\2[^\n]+)+/gi, '$1$2');
     if (rejectOneLetterTerms)
       termsString = termsString.replace(/^.$\n?/mg, '');
-    return this.sanitize(termsString).split('\n');
+    return (sanitizeForRegExp ? this.sanitize(termsString) : termsString).split('\n');
   },
 
-  extractShortestTermsAggressively: function(terms, { rejectOneLetterTerms = false } = {}) {
+  extractShortestTermsAggressively: function(terms, { sanitizeForRegExp = false, rejectOneLetterTerms = false } = {}) {
     // foobar, fooee... といった風に、同じprefixを持つ複数の候補についてprefixだけにまとめる
     let termsString;
     while (true) {
@@ -214,7 +214,7 @@ var MigemoTextUtils = {
     }
     if (rejectOneLetterTerms)
       termsString = termsString.replace(/^.$\n?/mg, '');
-    return this.sanitize(termsString).split('\n');
+    return (sanitizeForRegExp ? this.sanitize(termsString) : termsString).split('\n');
   },
 };
 

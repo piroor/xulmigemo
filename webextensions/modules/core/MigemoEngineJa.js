@@ -16,12 +16,51 @@ class MigemoEngineJa extends MigemoBase {
     this.options = options || {};
   }
 
+  toHiragana(rawInput) {
+    return this.textTransform.expand(
+      MigemoTextUtils.sanitizeForTransformOutput(
+        this.textTransform.roman2kana(
+          this.textTransform.kata2hira(
+            MigemoTextUtils.sanitizeForTransformInput(rawInput)
+          )
+        )
+      )
+    );
+  }
+
+  toRoman(rawInput) {
+    if (/[\uff66-\uff9f]/.test(rawInput))
+      return this.textTransform.hira2roman(this.textTransform.kata2hira(rawInput));
+    return rawInput;
+  }
+
   expandInput(aInput, aOptions = {}) {
-    const terms = [...new Set([
-      ...this.textTransform.expandToTerms(aInput),
-      ...this.gatherEntriesFor(aInput).map(entry => entry.trim().split('\t')),
-    ].flat())].sort();
-    return aOptions.shortest ? MigemoTextUtils.extractShortestTermsAggressively(terms) : MigemoTextUtils.extractShortestTerms(terms);
+    const terms = this.gatherEntriesFor(aInput).map(entry => entry.trim().split('\t')).flat();
+
+    const roman = this.toRoman(aInput);
+    if (roman)
+      terms.push(roman);
+    const hiragana = this.toHiragana(aInput);
+    if (hiragana)
+      terms.push(...MigemoTextUtils.yieldPattern(hiragana));
+    const katakana = this.textTransform.hira2kata(hiragana);
+    if (katakana) {
+      terms.push(...MigemoTextUtils.yieldPattern(katakana));
+      // 半角カナの単語も生成する処理が必要
+    }
+    const zenkaku = this.textTransform.roman2zen(aInput);
+    if (zenkaku)
+      terms.push(zenkaku);
+
+    const shrunkenTerms = [...new Set(terms)].sort();
+
+    return aOptions.shortest ?
+       MigemoTextUtils.extractShortestTermsAggressively(shrunkenTerms, {
+         sanitizeForRegExp: false,
+       }) :
+       MigemoTextUtils.extractShortestTerms(shrunkenTerms, {
+         sanitizeForRegExp: false,
+       });
   }
 
   getRegExpFor(aInput, aTargetDic) {
