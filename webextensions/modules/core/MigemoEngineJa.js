@@ -55,12 +55,12 @@ class MigemoEngineJa extends MigemoBase {
     const shrunkenTerms = [...new Set(terms)].sort();
 
     return aOptions.shortest ?
-       MigemoTextUtils.extractShortestTermsAggressively(shrunkenTerms, {
-         sanitizeForRegExp: false,
-       }) :
-       MigemoTextUtils.extractShortestTerms(shrunkenTerms, {
-         sanitizeForRegExp: false,
-       });
+      MigemoTextUtils.extractShortestTermsAggressively(shrunkenTerms, {
+        sanitizeForRegExp: false,
+      }) :
+      MigemoTextUtils.extractShortestTerms(shrunkenTerms, {
+        sanitizeForRegExp: false,
+      });
   }
 
   getRegExpFor(aInput, aTargetDic) {
