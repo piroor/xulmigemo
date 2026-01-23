@@ -16,11 +16,12 @@ class MigemoEngineJa extends MigemoBase {
     this.options = options || {};
   }
 
-  expandInput(aInput) {
-    return [...new Set([
+  expandInput(aInput, aOptions = {}) {
+    const terms = [...new Set([
       ...this.textTransform.expandToTerms(aInput),
       ...this.gatherEntriesFor(aInput).map(entry => entry.trim().split('\t')),
     ].flat())].sort();
+    return aOptions.shortest ? MigemoTextUtils.extractShortestTermsAggressively(terms) : MigemoTextUtils.extractShortestTerms(terms);
   }
 
   getRegExpFor(aInput, aTargetDic) {

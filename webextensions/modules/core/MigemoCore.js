@@ -64,7 +64,7 @@ class MigemoCore extends MigemoBase {
   }
 
   expandInput(aInput, options) {
-    return this.engine ? this.engine.expandInput(aInput) : [aInput];
+    return this.engine ? this.engine.expandInput(aInput, options) : [aInput];
   }
 
   getRegExp(aInput, aTargetDic) {
