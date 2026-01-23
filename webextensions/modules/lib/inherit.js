@@ -11,20 +11,20 @@
  */
 
 function toPropertyDescriptors(aProperties) {
-	var descriptors = {};
-	Object.keys(aProperties).forEach(function(aProperty) {
-		var description = Object.getOwnPropertyDescriptor(aProperties, aProperty);
-		descriptors[aProperty] = description;
-	});
-	return descriptors;
+  var descriptors = {};
+  Object.keys(aProperties).forEach(function(aProperty) {
+    var description = Object.getOwnPropertyDescriptor(aProperties, aProperty);
+    descriptors[aProperty] = description;
+  });
+  return descriptors;
 }
 
 export function inherit(aParent, aExtraProperties, aObjectClass) {
-	aObjectClass = aObjectClass || Object;
-	if (aExtraProperties)
-		return aObjectClass.create(aParent, toPropertyDescriptors(aExtraProperties));
-	else
-		return aObjectClass.create(aParent);
+  aObjectClass = aObjectClass || Object;
+  if (aExtraProperties)
+    return aObjectClass.create(aParent, toPropertyDescriptors(aExtraProperties));
+  else
+    return aObjectClass.create(aParent);
 }
 
 export default inherit;

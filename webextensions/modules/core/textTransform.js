@@ -1,9 +1,9 @@
 import MigemoTextUtils from './textUtils.js';
 
 var MigemoTextTransform = {
-    nonAsciiRegExp: /[^a-zA-Z0-9\!\_\-\?\/\\\~\|\{\}\(\)\'\"\&\%\$\<\>\[\]\@\`\+\*\;\:]/gi,
+  nonAsciiRegExp: /[^a-zA-Z0-9\!\_\-\?\/\\\~\|\{\}\(\)\'\"\&\%\$\<\>\[\]\@\`\+\*\;\:]/gi,
 
-    LATIN_LETTES_WITH_MODIFIERS: `
+  LATIN_LETTES_WITH_MODIFIERS: `
 a	[aàáâãäåāăąǎǻǟǡÀÁÂÃÄÅĀĂĄǍǺǞǠ]
 ae	ae|[æǽǣÆǼǢ]
 c	[cçćĉċčÇĆĈĊČ]
@@ -33,7 +33,7 @@ y	[yỳýÿŷỲÝŸŶ]
 z	[zźżžŹŻŽ]
 `,
 
-    LATIN_LETTES_WITH_MODIFIERS_LAZY: `
+  LATIN_LETTES_WITH_MODIFIERS_LAZY: `
 a	[aàáâãäåāăąǎǻǟǡÀÁÂÃÄÅĀĂĄǍǺǞǠ]|a([ˋ\`ˊ´ˆ^˜~¨˚°ˉ¯˘˛ˇ]|˚ˊ|ˊ˚|¨[ˉ¯]|[ˉ¯]¨|˙[ˉ¯]|[ˉ¯]˙)
 ae	ae|[æǽǣÆǼǢ]|(ae|[æÆ])[ˊ´ˉ¯]
 c	[cçćĉċčÇĆĈĊČ]|c[¸ˊ´ˆ^˙ˇ]
@@ -63,75 +63,75 @@ y	[yỳýÿŷỲÝŸŶ]|y[ˋ\`ˊ´¨ˆ^]
 z	[zźżžŹŻŽ]|z[ˊ´˙ˇ]
 `,
 
-    init: function () {
-        var self = this;
+  init: function () {
+    var self = this;
 
-        this.LATMOD_Hash = {};
-        this.LATPAT = [];
-        var strictPairs = MigemoTextUtils.trim(this.LATIN_LETTES_WITH_MODIFIERS).split(/\s+/);
-        for (let i = 0, maxi = strictPairs.length; i < maxi; i += 2) {
-            this.LATMOD_Hash[strictPairs[i]] = strictPairs[i + 1];
-            this.LATPAT.push({ key: strictPairs[i], char: strictPairs[i + 1] });
-        }
-
-        this.LATMOD = [];
-        this.MODPAT = [];
-        var lazyPairs = MigemoTextUtils.trim(this.LATIN_LETTES_WITH_MODIFIERS_LAZY).split(/\s+/);
-        for (let i = 0, maxi = lazyPairs.length; i < maxi; i += 2) {
-            this.LATMOD.push({ key: lazyPairs[i], char: lazyPairs[i + 1] });
-            this.MODPAT.push(lazyPairs[i + 1]);
-        }
-
-        this.LATPAT = this.LATPAT.sort(function (aA, aB) {
-            return aB.key.length - aA.key.length;
-        }).map(function (aItem) {
-            return aItem.key;
-        }).join('|');
-        this.LATPAT = new RegExp('(' + this.LATPAT + ')', 'ig');
-
-        this.MODPAT = this.MODPAT.sort(function (aA, aB) {
-            return (aB.length - aA.length);
-        }).join('|');
-        this.MODPAT = new RegExp('(' + this.MODPAT + ')', 'ig');
-    },
-
-    expandToTerms: function (aInput) {
-        return [aInput];
-    },
-
-    isValidInput: function (aInput) {
-        return this.normalizeInput(aInput) ? true : false;
-    },
-
-    normalizeInput: function (aInput) {
-        return aInput.replace(this.nonAsciiRegExp, '');
-    },
-
-    normalizeKeyInput: function (aInput) {
-        return aInput.replace(this.nonAsciiRegExp, '');
-    },
-
-    addLatinModifiers: function (aInput) {
-        var hash = this.LATMOD_Hash;
-        return this.removeLatinModifiers(aInput)
-            .replace(this.LATPAT, function (aChar) {
-                return '(' + hash[aChar] + ')';
-            });
-    },
-
-    removeLatinModifiers: function (aInput) {
-        var table = this.LATMOD;
-        var regexp;
-        return String(aInput).replace(this.MODPAT, function (aChar) {
-            for (var i in table) {
-                regexp = new RegExp('^(' + table[i].char + ')$', 'i')
-                if (!regexp.test(aChar)) continue;
-                aChar = table[i].key;
-                break;
-            }
-            return aChar;
-        });
+    this.LATMOD_Hash = {};
+    this.LATPAT = [];
+    var strictPairs = MigemoTextUtils.trim(this.LATIN_LETTES_WITH_MODIFIERS).split(/\s+/);
+    for (let i = 0, maxi = strictPairs.length; i < maxi; i += 2) {
+      this.LATMOD_Hash[strictPairs[i]] = strictPairs[i + 1];
+      this.LATPAT.push({ key: strictPairs[i], char: strictPairs[i + 1] });
     }
+
+    this.LATMOD = [];
+    this.MODPAT = [];
+    var lazyPairs = MigemoTextUtils.trim(this.LATIN_LETTES_WITH_MODIFIERS_LAZY).split(/\s+/);
+    for (let i = 0, maxi = lazyPairs.length; i < maxi; i += 2) {
+      this.LATMOD.push({ key: lazyPairs[i], char: lazyPairs[i + 1] });
+      this.MODPAT.push(lazyPairs[i + 1]);
+    }
+
+    this.LATPAT = this.LATPAT.sort(function (aA, aB) {
+      return aB.key.length - aA.key.length;
+    }).map(function (aItem) {
+      return aItem.key;
+    }).join('|');
+    this.LATPAT = new RegExp('(' + this.LATPAT + ')', 'ig');
+
+    this.MODPAT = this.MODPAT.sort(function (aA, aB) {
+      return (aB.length - aA.length);
+    }).join('|');
+    this.MODPAT = new RegExp('(' + this.MODPAT + ')', 'ig');
+  },
+
+  expandToTerms: function (aInput) {
+    return [aInput];
+  },
+
+  isValidInput: function (aInput) {
+    return this.normalizeInput(aInput) ? true : false;
+  },
+
+  normalizeInput: function (aInput) {
+    return aInput.replace(this.nonAsciiRegExp, '');
+  },
+
+  normalizeKeyInput: function (aInput) {
+    return aInput.replace(this.nonAsciiRegExp, '');
+  },
+
+  addLatinModifiers: function (aInput) {
+    var hash = this.LATMOD_Hash;
+    return this.removeLatinModifiers(aInput)
+      .replace(this.LATPAT, function (aChar) {
+        return '(' + hash[aChar] + ')';
+      });
+  },
+
+  removeLatinModifiers: function (aInput) {
+    var table = this.LATMOD;
+    var regexp;
+    return String(aInput).replace(this.MODPAT, function (aChar) {
+      for (var i in table) {
+        regexp = new RegExp('^(' + table[i].char + ')$', 'i')
+        if (!regexp.test(aChar)) continue;
+        aChar = table[i].key;
+        break;
+      }
+      return aChar;
+    });
+  }
 
 };
 

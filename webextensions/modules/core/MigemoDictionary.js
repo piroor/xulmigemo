@@ -7,77 +7,77 @@ import MigemoTextUtils from './textUtils.js';
 import MigemoTextTransform from './textTransform.js';
 
 class MigemoDictionary extends MigemoBase {
-    constructor() {
-        super();
-        this.lang = '';
-        this.initialized = false;
-        this.list = {};
+  constructor() {
+    super();
+    this.lang = '';
+    this.initialized = false;
+    this.list = {};
+  }
+
+  async load(aOptions = {}) {
+    if (!this.lang) return false;
+
+    this.list = {};
+
+    // Using fetch to load dictionaries.
+    // Dictionaries are expected to be under /dictionaries/{lang}/
+
+    const dicPath = aOptions.dicPath || `/dictionaries/${this.lang}/`;
+
+    let error = false;
+
+    try {
+      const response = await fetch(dicPath + this.lang + '.txt');
+      if (response.ok) {
+        this.list['system'] = await response.text();
+      } else {
+        this.list['system'] = '';
+        error = true;
+      }
+    } catch (e) {
+      console.error('MigemoDictionary: Failed to load system dictionary', e);
+      this.list['system'] = '';
+      error = true;
     }
 
-    async load(aOptions = {}) {
-        if (!this.lang) return false;
+    // User dictionary - omitting file access. 
+    // We might implement IDB based user dic later if needed.
+    this.list['user'] = '';
 
-        this.list = {};
+    this.initialized = true;
+    return !error;
+  }
 
-        // Using fetch to load dictionaries.
-        // Dictionaries are expected to be under /dictionaries/{lang}/
+  reload() {
+    return this.load();
+  }
 
-        const dicPath = aOptions.dicPath || `/dictionaries/${this.lang}/`;
+  saveUserDic() {
+    // Not implemented in WE yet
+  }
 
-        let error = false;
+  addTerm(aInput, aTerm) {
+    // Omitted
+    return this.RESULT_ERROR_NOT_IMPLEMENTED;
+  }
 
-        try {
-            const response = await fetch(dicPath + this.lang + '.txt');
-            if (response.ok) {
-                this.list['system'] = await response.text();
-            } else {
-                this.list['system'] = '';
-                error = true;
-            }
-        } catch (e) {
-            console.error('MigemoDictionary: Failed to load system dictionary', e);
-            this.list['system'] = '';
-            error = true;
-        }
+  removeTerm(aInput, aTerm) {
+    // Omitted
+    return this.RESULT_ERROR_NOT_IMPLEMENTED;
+  }
 
-        // User dictionary - omitting file access. 
-        // We might implement IDB based user dic later if needed.
-        this.list['user'] = '';
+  getDic() {
+    return this.list['system'];
+  }
 
-        this.initialized = true;
-        return !error;
-    }
+  getUserDic() {
+    return this.list['user'];
+  }
 
-    reload() {
-        return this.load();
-    }
-
-    saveUserDic() {
-        // Not implemented in WE yet
-    }
-
-    addTerm(aInput, aTerm) {
-        // Omitted
-        return this.RESULT_ERROR_NOT_IMPLEMENTED;
-    }
-
-    removeTerm(aInput, aTerm) {
-        // Omitted
-        return this.RESULT_ERROR_NOT_IMPLEMENTED;
-    }
-
-    getDic() {
-        return this.list['system'];
-    }
-
-    getUserDic() {
-        return this.list['user'];
-    }
-
-    modifyDic(aTermSet, aOperation) {
-        // Omitted
-        return this.RESULT_ERROR_NOT_IMPLEMENTED;
-    }
+  modifyDic(aTermSet, aOperation) {
+    // Omitted
+    return this.RESULT_ERROR_NOT_IMPLEMENTED;
+  }
 }
 
 export default MigemoDictionary;

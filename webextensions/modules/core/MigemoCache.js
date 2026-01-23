@@ -2,171 +2,171 @@ import MigemoBase from '../MigemoBase.js';
 import MigemoTextUtils from './textUtils.js';
 
 class MigemoCache extends MigemoBase {
-    constructor() {
-        super();
-        this.memCache = new Map();
-        this.initialized = false;
-        this.dbName = 'MigemoCache';
-        this.storeName = 'cache';
-    }
+  constructor() {
+    super();
+    this.memCache = new Map();
+    this.initialized = false;
+    this.dbName = 'MigemoCache';
+    this.storeName = 'cache';
+  }
 
-    init() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(this.dbName, 1);
+  init() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, 1);
 
-            request.onerror = (event) => {
-                console.error("MigemoCache: IndexedDB error", event);
-                resolve(false);
-            };
+      request.onerror = (event) => {
+        console.error('MigemoCache: IndexedDB error', event);
+        resolve(false);
+      };
 
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-                const objectStore = db.createObjectStore(this.storeName, { keyPath: "key" });
-                // key: Roman input + type
-                // value: RegExp string
-            };
+      request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        const objectStore = db.createObjectStore(this.storeName, { keyPath: 'key' });
+        // key: Roman input + type
+        // value: RegExp string
+      };
 
-            request.onsuccess = (event) => {
-                this.db = event.target.result;
-                this.load().then(() => {
-                    this.initialized = true;
-                    resolve(true);
-                });
-            };
+      request.onsuccess = (event) => {
+        this.db = event.target.result;
+        this.load().then(() => {
+          this.initialized = true;
+          resolve(true);
         });
-    }
+      };
+    });
+  }
 
-    getCacheFor(aRoman, aTargetDic) {
-        // Synchronous return from memory
-        aTargetDic = aTargetDic || this.ALL_DIC;
-        const key = this._makeKey(aRoman, aTargetDic);
-        return this.memCache.get(key) || '';
-    }
+  getCacheFor(aRoman, aTargetDic) {
+    // Synchronous return from memory
+    aTargetDic = aTargetDic || this.ALL_DIC;
+    const key = this._makeKey(aRoman, aTargetDic);
+    return this.memCache.get(key) || '';
+  }
 
-    clearCacheForAllPatterns(aRoman, aTargetDic) {
-        var patterns = [];
-        for (var i = aRoman.length - 1; i > 0; i--) {
-            var key = aRoman.substring(0, i);
-            patterns.push(key);
-            this.clearCacheSilentlyFor(key);
+  clearCacheForAllPatterns(aRoman, aTargetDic) {
+    var patterns = [];
+    for (var i = aRoman.length - 1; i > 0; i--) {
+      var key = aRoman.substring(0, i);
+      patterns.push(key);
+      this.clearCacheSilentlyFor(key);
+    }
+    // In original code, save() was called here. 
+    // We are auto-saving on set/clear, so no explicit save needed usually, 
+    // but since we are deleting, we should ensure DB is updated.
+  }
+
+  clearCacheFor(aRoman) {
+    this.clearCacheSilentlyFor(aRoman);
+  }
+
+  clearCacheSilentlyFor(aRoman) {
+    [this.USER_DIC, this.ALL_DIC].forEach(function (aType) {
+      const key = this._makeKey(aRoman, aType);
+      if (this.memCache.has(key)) {
+        this.memCache.delete(key);
+        this._deleteFromDB(key);
+      }
+    }, this);
+  }
+
+  clearAll(aDisk, aTargetDic) {
+    // Ignoring aDisk, always clearing both.
+    if (aTargetDic) {
+      // This is inefficient if we only want to clear one dictionary type 
+      // because our keys are mixed. But usually we clear all.
+      for (const key of this.memCache.keys()) {
+        if (key.endsWith(':' + aTargetDic)) {
+          this.memCache.delete(key);
+          this._deleteFromDB(key);
         }
-        // In original code, save() was called here. 
-        // We are auto-saving on set/clear, so no explicit save needed usually, 
-        // but since we are deleting, we should ensure DB is updated.
+      }
     }
-
-    clearCacheFor(aRoman) {
-        this.clearCacheSilentlyFor(aRoman);
+    else {
+      this.memCache.clear();
+      const transaction = this.db.transaction([this.storeName], 'readwrite');
+      const objectStore = transaction.objectStore(this.storeName);
+      objectStore.clear();
     }
+  }
 
-    clearCacheSilentlyFor(aRoman) {
-        [this.USER_DIC, this.ALL_DIC].forEach(function (aType) {
-            const key = this._makeKey(aRoman, aType);
-            if (this.memCache.has(key)) {
-                this.memCache.delete(key);
-                this._deleteFromDB(key);
-            }
-        }, this);
-    }
+  setMemCache(aRoman, aRegExp, aTargetDic) {
+    // Original logic: setMemCache doesn't save to Disk?
+    // In XUL, there was setMemCache and setDiskCache. setDiskCache saved to file.
+    // Here, we treat IndexedDB as "Disk". 
+    // If only setMemCache is called, we should ideally ONLY update Map.
+    // ALLOWING that behavior:
+    aTargetDic = aTargetDic || this.ALL_DIC;
+    const key = this._makeKey(aRoman, aTargetDic);
+    this.memCache.set(key, aRegExp);
+  }
 
-    clearAll(aDisk, aTargetDic) {
-        // Ignoring aDisk, always clearing both.
-        if (aTargetDic) {
-            // This is inefficient if we only want to clear one dictionary type 
-            // because our keys are mixed. But usually we clear all.
-            for (const key of this.memCache.keys()) {
-                if (key.endsWith(':' + aTargetDic)) {
-                    this.memCache.delete(key);
-                    this._deleteFromDB(key);
-                }
-            }
+  setDiskCache(aRoman, aMyRegExp, aTargetDic) {
+    aTargetDic = aTargetDic || this.ALL_DIC;
+    // setDiskCache also updates memCache in original code by implication of typical usage,
+    // but let's be explicit.
+    this.setMemCache(aRoman, aMyRegExp, aTargetDic);
+
+    const key = this._makeKey(aRoman, aTargetDic);
+    this._putToDB(key, aMyRegExp);
+  }
+
+  _makeKey(roman, dicType) {
+    return roman + ':' + dicType;
+  }
+
+  _putToDB(key, value) {
+    if (!this.db) return;
+    const transaction = this.db.transaction([this.storeName], 'readwrite');
+    const objectStore = transaction.objectStore(this.storeName);
+    objectStore.put({ key: key, value: value });
+  }
+
+  _deleteFromDB(key) {
+    if (!this.db) return;
+    const transaction = this.db.transaction([this.storeName], 'readwrite');
+    const objectStore = transaction.objectStore(this.storeName);
+    objectStore.delete(key);
+  }
+
+  load() {
+    return new Promise((resolve, reject) => {
+      if (!this.db) {
+        resolve();
+        return;
+      }
+      const transaction = this.db.transaction([this.storeName], 'readonly');
+      const objectStore = transaction.objectStore(this.storeName);
+      const request = objectStore.openCursor();
+
+      request.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          this.memCache.set(cursor.value.key, cursor.value.value);
+          cursor.continue();
+        } else {
+          resolve();
         }
-        else {
-            this.memCache.clear();
-            const transaction = this.db.transaction([this.storeName], "readwrite");
-            const objectStore = transaction.objectStore(this.storeName);
-            objectStore.clear();
-        }
-    }
-
-    setMemCache(aRoman, aRegExp, aTargetDic) {
-        // Original logic: setMemCache doesn't save to Disk?
-        // In XUL, there was setMemCache and setDiskCache. setDiskCache saved to file.
-        // Here, we treat IndexedDB as "Disk". 
-        // If only setMemCache is called, we should ideally ONLY update Map.
-        // ALLOWING that behavior:
-        aTargetDic = aTargetDic || this.ALL_DIC;
-        const key = this._makeKey(aRoman, aTargetDic);
-        this.memCache.set(key, aRegExp);
-    }
-
-    setDiskCache(aRoman, aMyRegExp, aTargetDic) {
-        aTargetDic = aTargetDic || this.ALL_DIC;
-        // setDiskCache also updates memCache in original code by implication of typical usage,
-        // but let's be explicit.
-        this.setMemCache(aRoman, aMyRegExp, aTargetDic);
-
-        const key = this._makeKey(aRoman, aTargetDic);
-        this._putToDB(key, aMyRegExp);
-    }
-
-    _makeKey(roman, dicType) {
-        return roman + ':' + dicType;
-    }
-
-    _putToDB(key, value) {
-        if (!this.db) return;
-        const transaction = this.db.transaction([this.storeName], "readwrite");
-        const objectStore = transaction.objectStore(this.storeName);
-        objectStore.put({ key: key, value: value });
-    }
-
-    _deleteFromDB(key) {
-        if (!this.db) return;
-        const transaction = this.db.transaction([this.storeName], "readwrite");
-        const objectStore = transaction.objectStore(this.storeName);
-        objectStore.delete(key);
-    }
-
-    load() {
-        return new Promise((resolve, reject) => {
-            if (!this.db) {
-                resolve();
-                return;
-            }
-            const transaction = this.db.transaction([this.storeName], "readonly");
-            const objectStore = transaction.objectStore(this.storeName);
-            const request = objectStore.openCursor();
-
-            request.onsuccess = (event) => {
-                const cursor = event.target.result;
-                if (cursor) {
-                    this.memCache.set(cursor.value.key, cursor.value.value);
-                    cursor.continue();
-                } else {
-                    resolve();
-                }
-            };
-            request.onerror = () => {
-                resolve(); // resolve anyway
-            };
-        });
-    }
+      };
+      request.onerror = () => {
+        resolve(); // resolve anyway
+      };
+    });
+  }
 }
 
 var MigemoCacheFactory = {
-    _instances: {},
-    get: function (aKey) {
-        if (!this._instances[aKey]) {
-            this._instances[aKey] = new MigemoCache();
-            // We delay init? Or should we await?
-            // MigemoCache is synchronous in usage. 
-            // We must ensure 'init()' is called before usage. 
-            // The Core.init will handle this.
-            this._instances[aKey].init();
-        }
-        return this._instances[aKey];
+  _instances: {},
+  get: function (aKey) {
+    if (!this._instances[aKey]) {
+      this._instances[aKey] = new MigemoCache();
+      // We delay init? Or should we await?
+      // MigemoCache is synchronous in usage. 
+      // We must ensure 'init()' is called before usage. 
+      // The Core.init will handle this.
+      this._instances[aKey].init();
     }
+    return this._instances[aKey];
+  }
 };
 
 export { MigemoCache, MigemoCacheFactory };
