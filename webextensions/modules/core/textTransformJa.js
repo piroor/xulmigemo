@@ -1,22 +1,22 @@
 import MigemoTextUtils from './textUtils.js';
 import MigemoTextTransform from './textTransform.js';
 
-var MigemoTextTransformJa = {
+const MigemoTextTransformJa = {
   KATA_HIRA: 1 << 0,
   KANA_KATA: 1 << 1,
-  KANA_ALL: 1 << 2,
+  KANA_ALL:  1 << 2,
 
   lang: 'ja',
 
-  isValidInput: function (aInput) {
+  isValidInput: function(aInput) {
     return this.isYomi(aInput);
   },
 
-  normalizeInput: function (aInput) {
+  normalizeInput: function(aInput) {
     return this.normalizeForYomi(aInput);
   },
 
-  normalizeKeyInput: function (aInput) {
+  normalizeKeyInput: function(aInput) {
     return this.hira2roman(
       this.normalizeForYomi(
         this.kata2hira(aInput)
@@ -24,31 +24,31 @@ var MigemoTextTransformJa = {
     );
   },
 
-  addLatinModifiers: function (aInput) {
+  addLatinModifiers: function(aInput) {
     return MigemoTextTransform.addLatinModifiers(aInput);
   },
 
-  removeLatinModifiers: function (aInput) {
+  removeLatinModifiers: function(aInput) {
     return MigemoTextTransform.removeLatinModifiers(aInput);
   },
 
-  normalizeForYomi: function (aStr) {
+  normalizeForYomi: function(aStr) {
     return this.kata2hira(
       this.zenkaku2hankaku((aStr || '').toLowerCase())
     );
   },
 
-  isYomi: function (aStr) {
+  isYomi: function(aStr) {
     aStr = aStr || '';
-    var alph = this.zenkaku2hankaku(aStr.toLowerCase());
+    const alph = this.zenkaku2hankaku(aStr.toLowerCase());
     if (/^[-a-z0-9]+$/i.test(alph))
       return true;
 
     return this.kata2hira(aStr).replace(/[\u3041-\u3093\u309b\u309c\u30fc]/g, '') ? false : true;
   },
 
-  init: function () {
-    var self = this;
+  init: function() {
+    const self = this;
 
     this.ROMKAN = [];
     this.ROMKAN_Hash = {};
@@ -58,9 +58,9 @@ var MigemoTextTransformJa = {
     this.KANROM_Hash = {};
     this.KANPAT = [];
 
-    var pairs = MigemoTextUtils.trim(this.CUSTOMTAB + '\t' + this.KUNREITAB + '\t' + this.HEPBURNTAB).split(/\s+/);
-    var ROMKAN_Hash_multiple = {};
-    for (var i = 0, maxi = pairs.length; i < maxi; i += 2) {
+    let pairs = MigemoTextUtils.trim(this.CUSTOMTAB + '\t' + this.KUNREITAB + '\t' + this.HEPBURNTAB).split(/\s+/);
+    const ROMKAN_Hash_multiple = {};
+    for (let i = 0, maxi = pairs.length; i < maxi; i += 2) {
       this.ROMKAN.push({ key: pairs[i + 1], char: pairs[i] });
       if (pairs[i + 1] in this.ROMKAN_Hash) {
         if (this.ROMKAN_Hash[pairs[i + 1]].indexOf(pairs[i]) < 0) {
@@ -77,15 +77,15 @@ var MigemoTextTransformJa = {
       this.KANROM_Hash[pairs[i]] = pairs[i + 1];
       this.KANPAT.push({ key: pairs[i], char: pairs[i + 1] });
     }
-    for (var i in ROMKAN_Hash_multiple) {
+    for (const i in ROMKAN_Hash_multiple) {
       this.ROMKAN_Hash[i] = this.optimizeRegExp('(' + this.ROMKAN_Hash[i] + ')');
     }
 
 
     // Sort in long order so that a longer Romaji sequence precedes.
-    this.ROMPAT = this.ROMPAT.sort(function (aA, aB) {
+    this.ROMPAT = this.ROMPAT.sort(function(aA, aB) {
       return aB.key.length - aA.key.length;
-    }).map(function (aItem) {
+    }).map(function(aItem) {
       return aItem.key;
     }).join('|');
     this.ROMINITIALPAT = this.ROMPAT.replace(
@@ -102,28 +102,28 @@ var MigemoTextTransformJa = {
     );
     this.ROMPAT = new RegExp('(' + this.ROMPAT + ')', 'ig');
 
-    this.KANPAT = this.KANPAT.sort(function (aA, aB) {
+    this.KANPAT = this.KANPAT.sort(function(aA, aB) {
       return (aB.key.length - aA.key.length) ||
                 (self.KANROM_Hash[aA.key].length - self.KANROM_Hash[aB.key].length);
-    }).map(function (aItem) {
+    }).map(function(aItem) {
       return aItem.key;
     }).join('|');
     this.KANPAT = new RegExp('(' + this.KANPAT + ')', 'ig');
 
-    this.KUNREI = this.KUNREITAB.split(/\s+/).filter(function (aItem, aIndex) {
+    this.KUNREI = this.KUNREITAB.split(/\s+/).filter(function(aItem, aIndex) {
       return (aIndex % 2 == 0);
     });
-    this.HEPBURN = this.HEPBURNTAB.split(/\s+/).filter(function (aItem, aIndex) {
+    this.HEPBURN = this.HEPBURNTAB.split(/\s+/).filter(function(aItem, aIndex) {
       return (aIndex % 2 == 0);
     });
 
     this.TO_HEPBURN_Hash = {};
-    this.TO_HEPBURN = this.KUNREI.map(function (aItem, aIndex) {
+    this.TO_HEPBURN = this.KUNREI.map(function(aItem, aIndex) {
       self.TO_HEPBURN_Hash[aItem] = self.HEPBURN[aIndex];
       return { key: aItem, char: self.HEPBURN[aIndex] };
     });
     this.TO_KUNREI_Hash = {};
-    this.TO_KUNREI = this.HEPBURN.map(function (aItem, aIndex) {
+    this.TO_KUNREI = this.HEPBURN.map(function(aItem, aIndex) {
       self.TO_KUNREI_Hash[aItem] = self.KUNREI[aIndex];
       return { key: aItem, char: self.KUNREI[aIndex] };
     });
@@ -137,10 +137,10 @@ var MigemoTextTransformJa = {
     this.HIRAPAT = [];
 
     pairs = this.KANATAB.replace(/^\s+|\s+$/g, '').split(/\s+/);
-    var kata;
-    for (i = 0, maxi = pairs.length; i < maxi; i += 2) {
+    let kata;
+    for (let i = 0, maxi = pairs.length; i < maxi; i += 2) {
       kata = pairs[i + 1]
-      kata.split('|').forEach(function (aKata, aIndex) {
+      kata.split('|').forEach(function(aKata, aIndex) {
         if (aKata == '-') return; // 例外
         self.KATAHIRA_Hash[aKata] = pairs[i];
         self.KATAPAT.push(aKata);
@@ -158,27 +158,27 @@ var MigemoTextTransformJa = {
     this.HIRAPAT = new RegExp('(' + this.HIRAPAT.join('|') + ')', 'ig');
   },
 
-  normalize_double_n: function (aString) {
+  normalize_double_n: function(aString) {
     return String(aString)
       .toLowerCase()
       .replace(/nn/i, 'n\'')
       .replace(/n\'(?=[^aiueoyn]|$)/, 'n');
   },
 
-  roman2kana: function (aString) {
+  roman2kana: function(aString) {
     return this.roman2kana2(aString, this.KANA_HIRA);
   },
 
-  roman2kana2: function (aString, aKana) {
-    var self = this;
-    var hash = this.ROMKAN_Hash;
-    var func = (aKana == this.KANA_ALL) ?
-      function (aChar) {
-        var str = hash[aChar];
+  roman2kana2: function(aString, aKana) {
+    const self = this;
+    const hash = this.ROMKAN_Hash;
+    const func = (aKana == this.KANA_ALL) ?
+      function(aChar) {
+        let str = hash[aChar];
         if (str.charAt(0) == '[')
           str = '(' + (str.substring(1, str.length - 1).split('').join('|')) + ')';
-        var result = '';
-        var char;
+        let result = '';
+        let char;
         while (str.length > 0) {
           if (str.indexOf('\u3046\u309b') == 0) { // 「う゛」だけは特例で一文字扱い
             char = str.substring(0, 2);
@@ -203,13 +203,13 @@ var MigemoTextTransformJa = {
         return self.optimizeRegExp(result);
       } :
       (aKana == this.KANA_KATA) ?
-        function (aChar) {
+        function(aChar) {
           return self.hira2kataPattern(hash[aChar]);
         } :
-        function (aChar) {
+        function(aChar) {
           return hash[aChar];
         };
-    var ret = this.optimizeRegExp(
+    const ret = this.optimizeRegExp(
       this.normalize_double_n(
         String(aString).toLowerCase()
       )
@@ -218,23 +218,25 @@ var MigemoTextTransformJa = {
     return ret;
   },
 
-  hira2roman: function (aString) {
-    var self = this;
+  hira2roman: function(aString) {
+    const self = this;
     return String(aString).toLowerCase()
-      .replace(this.KANPAT, function (aChar) {
+      .replace(this.KANPAT, function(aChar) {
         return self.KANROM_Hash[aChar];
       })
       .replace(/n\'(?=[^aeiuoyn]|$)/, 'n');
   },
 
-  to_hepburn: function (aString) {
+  /*
+  to_hepburn: function(aString) {
   },
 
-  to_kunrei: function (aString) {
+  to_kunrei: function(aString) {
   },
+  */
 
-  expandToTerms: function (aString) {
-    var target = aString.match(/[-a-z]+$/i);
+  expandToTerms: function(aString) {
+    let target = aString.match(/[-a-z]+$/i);
     if (!target) return [aString];
     target = target[0];
 
@@ -242,49 +244,49 @@ var MigemoTextTransformJa = {
       return [aString];
     }
 
-    var base = aString.replace(/[-a-z]+$/i, '');
+    const base = aString.replace(/[-a-z]+$/i, '');
 
-    var regexp = new RegExp('^' + target + '.*$', 'i');
-    var checked = {};
-    var entries = this.ROMKAN.filter(function (aItem) {
-      var ret = regexp.test(aItem.key) && !(aItem.key in checked);
+    const regexp = new RegExp('^' + target + '.*$', 'i');
+    const checked = {};
+    const entries = this.ROMKAN.filter(function(aItem) {
+      const ret = regexp.test(aItem.key) && !(aItem.key in checked);
       if (ret) checked[aItem.key] = true;
       return ret;
     });
 
     if (!entries.length) return [aString];
 
-    var terms = entries.map(function (aItem) {
+    const terms = entries.map(function(aItem) {
       return base + aItem.char;
     }, this);
     return terms;
   },
 
-  expand: function (aString) {
+  expand: function(aString) {
     return this.expand2(aString, this.KANA_HIRA);
   },
 
-  expand2: function (aString, aKana) {
-    var target = aString.match(/[-a-z]+$/i);
+  expand2: function(aString, aKana) {
+    const target = aString.match(/[-a-z]+$/i);
     if (!target) return aString;
 
     if (!((this.ROMINITIALPAT).test(target))) {
       return aString;
     }
 
-    var base = aString.replace(/[-a-z]+$/i, '');
+    const base = aString.replace(/[-a-z]+$/i, '');
 
-    var regexp = new RegExp('^' + target + '.*$', 'i');
-    var checked = {};
-    var entries = this.ROMKAN.filter(function (aItem) {
-      var ret = regexp.test(aItem.key) && !(aItem.key in checked);
+    const regexp = new RegExp('^' + target + '.*$', 'i');
+    const checked = {};
+    const entries = this.ROMKAN.filter(function(aItem) {
+      const ret = regexp.test(aItem.key) && !(aItem.key in checked);
       checked[aItem.key] = true;
       return ret;
     });
 
     if (!entries.length) return aString;
 
-    var last = entries.map(function (aItem) {
+    let last = entries.map(function(aItem) {
       return this.roman2kana2(aItem.key, aKana);
     }, this);
     last = (last.length > 1) ? '(' + last.join('|') + ')' : last[0];
@@ -292,48 +294,48 @@ var MigemoTextTransformJa = {
     return base + this.optimizeRegExp(last);
   },
 
-  optimizeRegExp: function (aString) {
-    var ret = aString
+  optimizeRegExp: function(aString) {
+    const ret = aString
       .replace(/([^\\]|^)\|\|+/g, '$1|')
       .replace(/([^\\]|^)\(\|/g, '$1\(').replace(/([^\\]|^)\|\)/g, '$1\)')
       .replace(/([^\\]|^)\(\)/g, '$1\)')
       .replace(/([^\\]|^)\(([^()\[\]|]*[^()\[\]|\\])\)/g, '$1$2')
       .replace(/([^\\]|^)\[([^()\[\]|\\])\]/g, '$1$2')
-      .replace(/\([^()\[\]|](\|[^()\[\]|])+\)/g, function (aString) {
+      .replace(/\([^()\[\]|](\|[^()\[\]|])+\)/g, function(aString) {
         return '[' + (aString.substring(1, aString.length - 1).split('|').join('')) + ']';
       });
     return ret;
   },
 
-  hira2kata: function (aString) {
-    var hash = this.HIRAKATA_ZEN_Hash;
+  hira2kata: function(aString) {
+    const hash = this.HIRAKATA_ZEN_Hash;
     return this.joinVoiceMarks(String(aString))
-      .replace(this.HIRAPAT, function (aChar) {
+      .replace(this.HIRAPAT, function(aChar) {
         return hash[aChar];
       });
   },
 
-  hira2kataPattern: function (aString) {
-    var hash = this.HIRAKATA_Hash;
+  hira2kataPattern: function(aString) {
+    const hash = this.HIRAKATA_Hash;
     return this.joinVoiceMarks(String(aString))
-      .replace(this.HIRAPAT, function (aChar) {
+      .replace(this.HIRAPAT, function(aChar) {
         return hash[aChar];
       });
   },
 
-  kata2hira: function (aString) {
-    var hash = this.KATAHIRA_Hash;
+  kata2hira: function(aString) {
+    const hash = this.KATAHIRA_Hash;
     return this.joinVoiceMarks(String(aString))
-      .replace(this.KATAPAT, function (aChar) {
+      .replace(this.KATAPAT, function(aChar) {
         return hash[aChar];
       });
   },
 
-  roman2zen: function (aStr) {
-    var output = '';
-    var c;
-    var n;
-    for (var i = 0; i < aStr.length; i++) {
+  roman2zen: function(aStr) {
+    let output = '';
+    let c;
+    let n;
+    for (let i = 0; i < aStr.length; i++) {
       c = aStr.charAt(i);
       n = c.charCodeAt(0);  //      0xff01-0xff5e
       if ((n >= 0x21) && (n <= 0x7e)) {
@@ -344,21 +346,21 @@ var MigemoTextTransformJa = {
     return output;
   },
 
-  zenkaku2hankaku: function (aStr) {
+  zenkaku2hankaku: function(aStr) {
     return aStr.replace(/[\uff10-\uff19\uff21-\uff3a\uff41-\uff5a]/g, this.zenkaku2hankakuSub);
   },
 
-  zenkaku2hankakuSub: function (aStr) {
-    var code = aStr.charCodeAt(0);
+  zenkaku2hankakuSub: function(aStr) {
+    const code = aStr.charCodeAt(0);
     return String.fromCharCode(code - 0xfee0)
   },
 
-  joinVoiceMarks: function (aStr) {
+  joinVoiceMarks: function(aStr) {
     return (aStr || '').replace(/[\u304b\u304d\u304f\u3051\u3053\u3055\u3057\u3059\u305b\u305d\u305f\u3061\u3064\u3066\u3068\u306f\u3072\u3075\u3078\u307b\u30a6\u30ab\u30ad\u30af\u30b1\u30b3\u30b5\u30b7\u30b9\u30bb\u30bd\u30bf\u30c1\u30c4\u30c6\u30c8\u30cf\u30d2\u30d5\u30d8\u30db\uff73\uff76-\uff84\uff8a-\uff8e][\uff9e\u309b]|[\u306f\u3072\u3075\u3078\u307b\u30cf\u30d2\u30d5\u30d8\u30db\uff8a-\uff8e][\uff9f\u309c]/g, this.joinVoiceMarksSub);
   },
 
-  joinVoiceMarksSub: function (aStr) {
-    var code = aStr.charCodeAt(0);
+  joinVoiceMarksSub: function(aStr) {
+    const code = aStr.charCodeAt(0);
 
     // 全角かな
     if (/^[\u304b\u304d\u304f\u3051\u3053\u3055\u3057\u3059\u305b\u305d\u305f\u3061\u3064\u3066\u3068\u306f\u3072\u3075\u3078\u307b\u30ab\u30ad\u30af\u30b1\u30b3\u30b5\u30b7\u30b9\u30bb\u30bd\u30bf\u30c1\u30c4\u30c6\u30c8\u30cf\u30d2\u30d5\u30d8\u30db][\uff9e\u309b]/.test(aStr)) {

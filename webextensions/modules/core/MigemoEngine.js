@@ -25,16 +25,16 @@ class MigemoEngine extends MigemoBase {
 
     aInput = aInput.toLowerCase();
 
-    var str = MigemoTextUtils.sanitize(aInput);
+    let str = MigemoTextUtils.sanitize(aInput);
 
     if (this.options.ignoreLatinModifiers)
       str = this.textTransform.addLatinModifiers(str);
 
-    var lines = this.gatherEntriesFor(aInput, this.ALL_DIC, aTargetDic);
+    const lines = this.gatherEntriesFor(aInput, this.ALL_DIC, aTargetDic);
 
-    var pattern = '';
+    let pattern = '';
     if (lines.length) {
-      var searchterm = lines.join('\n').replace(/(\t|\n\n)+/g, '\n');
+      let searchterm = lines.join('\n').replace(/(\t|\n\n)+/g, '\n');
       searchterm = searchterm
         .split('\n')
         .sort()
@@ -59,7 +59,7 @@ class MigemoEngine extends MigemoBase {
   }
 
   splitInput(aInput) {
-    var terms = aInput
+    let terms = aInput
       .replace(/([\uff66-\uff9fa-z])([0-9])/i, '$1\t$2')
       .replace(/([0-9a-z])([\uff66-\uff9f])/i, '$1\t$2')
       .replace(/([0-9\uff66-\uff9f])([a-z])/i, '$1\t$2')
@@ -79,26 +79,26 @@ class MigemoEngine extends MigemoBase {
     }
     aTargetDic = aTargetDic || this.ALL_DIC;
 
-    var str = MigemoTextUtils.sanitize(aInput);
+    let str = MigemoTextUtils.sanitize(aInput);
     if (this.options.ignoreLatinModifiers)
       str = this.textTransform.addLatinModifiers(str);
 
-    var tmp = '^(' + str + ').+$';
-    var exp = new RegExp(tmp, 'img');
+    const tmp = '^(' + str + ').+$';
+    const exp = new RegExp(tmp, 'img');
 
-    var lines = [];
+    let lines = [];
 
-    var mydicU = (aTargetDic & this.USER_DIC) ? this.dictionary.getUserDic() : null;
-    var mydic = (aTargetDic & this.SYSTEM_DIC) ? this.dictionary.getDic() : null;
+    const mydicU = (aTargetDic & this.USER_DIC) ? this.dictionary.getUserDic() : null;
+    const mydic = (aTargetDic & this.SYSTEM_DIC) ? this.dictionary.getDic() : null;
 
     if (mydicU) {
-      var lineU = mydicU.match(exp);
+      const lineU = mydicU.match(exp);
       if (lineU) {
         lines = lines.concat(lineU);
       }
     }
     if (mydic) {
-      var line = mydic.match(exp);//アルファベットの辞書を検索
+      const line = mydic.match(exp);//アルファベットの辞書を検索
       if (line) {
         lines = lines.concat(line);
       }

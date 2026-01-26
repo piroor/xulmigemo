@@ -1,15 +1,13 @@
-var EXPORTED_SYMBOLS = ['MigemoTextUtils'];
-
-var MigemoTextUtils = {
+const MigemoTextUtils = {
   /* string operations */
 
-  trim: function (aInput) {
+  trim: function(aInput) {
     return aInput
       .replace(this.kTRIM_PATTERN, '');
   },
   kTRIM_PATTERN: /^\s+|\s+$/g,
 
-  brushUpTerms: function (aTerms) {
+  brushUpTerms: function(aTerms) {
     return [...(aTerms || [])]
       .sort()
       .join('\n')
@@ -19,8 +17,8 @@ var MigemoTextUtils = {
       .split('\n');
   },
   kMULTIPLE_BR_PATTERN: /\n\n+/g,
-  kBRUSH_UP_PATTERN: /^(.+)(\n\1$)+/gim,
-  brushUpTermsWithCase: function (aTerms) {
+  kBRUSH_UP_PATTERN:    /^(.+)(\n\1$)+/gim,
+  brushUpTermsWithCase: function(aTerms) {
     return [...(aTerms || [])]
       .sort()
       .join('\n')
@@ -30,17 +28,17 @@ var MigemoTextUtils = {
   },
   kBRUSH_UP_PATTERN_CASE_SENSITIVE: /^(.+)(\n\1$)+/gm,
 
-  splitByBoundaries: function (aString) {
-    var parts = aString.split(/\b/);
-    var result = [];
-    parts.forEach(function (aPart) {
-      var matched = aPart.match(this.kBOUNDARY_SPLITTER_PATTERN);
+  splitByBoundaries: function(aString) {
+    const parts = aString.split(/\b/);
+    let result = [];
+    parts.forEach(function(aPart) {
+      const matched = aPart.match(this.kBOUNDARY_SPLITTER_PATTERN);
       if (matched)
         result = result.concat(matched);
       else
         result.push(aPart);
     }, this);
-    result = result.filter(function (aPart) {
+    result = result.filter(function(aPart) {
       return this.trim(aPart);
     }, this);
     return result.length ? result : parts;
@@ -50,34 +48,34 @@ var MigemoTextUtils = {
 
   /* manipulate regular expressions */
 
-  sanitize: function (str) {
+  sanitize: function(str) {
     //	[]^.+*?$|{}\(),  正規表現のメタキャラクタをエスケープ
     str = str.replace(this.kSANITIZE_PATTERN, '\\$1');
     return str;
   },
   kSANITIZE_PATTERN: /([\-\:\}\{\|\$\?\*\+\.\^\]\/\[\;\\\(\)])/g,
 
-  sanitizeForTransformInput: function (str) {
+  sanitizeForTransformInput: function(str) {
     //	()[]|\,
     str = str.replace(this.kSANITIZE_PATTERN_INPUT, '\\$1');
     return str;
   },
   kSANITIZE_PATTERN_INPUT: /([\(\)\[\]\|\\])/g,
 
-  sanitizeForTransformOutput: function (str) {
+  sanitizeForTransformOutput: function(str) {
     //	^.+*?${},
     str = str.replace(this.kSANITIZE_PATTERN_OUTPUT, '\\$1');
     return str;
   },
   kSANITIZE_PATTERN_OUTPUT: /([\-\:\}\{\$\?\*\+\.\^\/\;])/g,
 
-  extractRegExpSource: function (aInput) {
+  extractRegExpSource: function(aInput) {
     return this.kREGEXP_PATTERN.test(aInput) ?
       RegExp.$1 :
       aInput;
   },
 
-  isRegExp: function (aInput) {
+  isRegExp: function(aInput) {
     return this.kREGEXP_PATTERN.test(aInput);
   },
 
@@ -85,11 +83,11 @@ var MigemoTextUtils = {
   // old version: /^\/((?:\\.|[^\/])+)\/[gimy]*$/
   // see http://nanto.asablo.jp/blog/2008/05/22/3535735
 
-  getMatchedTermsFromSource: function (aRegExp, aSource) {
-    var regexp;
-    var flags = '';
+  getMatchedTermsFromSource: function(aRegExp, aSource) {
+    let regexp;
+    let flags = '';
     if (this.isRegExp(aRegExp)) {
-      var source = this.extractRegExpSource(aRegExp);
+      const source = this.extractRegExpSource(aRegExp);
       flags = aRegExp.match(/[^\/]+$/);
       if (flags && flags.indexOf('g') < 0)
         flags += 'g';
@@ -98,13 +96,13 @@ var MigemoTextUtils = {
     else {
       regexp = new RegExp(aRegExp, 'gim');
     }
-    var result = (aSource || '').match(regexp) || [];
+    const result = (aSource || '').match(regexp) || [];
     return flags.indexOf('i') < 0 ?
       this.brushUpTermsWithCase(result) :
       this.brushUpTerms(result);
   },
 
-  getORFindRegExpFromTerms: function (aTerms) {
+  getORFindRegExpFromTerms: function(aTerms) {
     switch (aTerms.length) {
       case 0:
         return '';
@@ -116,7 +114,7 @@ var MigemoTextUtils = {
     return '(?:' + aTerms.join(')|(?:') + ')';
   },
 
-  getANDFindRegExpFromTerms: function (aTerms) {
+  getANDFindRegExpFromTerms: function(aTerms) {
     switch (aTerms.length) {
       case 0:
         return '';
@@ -124,15 +122,15 @@ var MigemoTextUtils = {
         return aTerms[0];
       case 2:
         return '(?:' + aTerms[0] + ').*(?:' + aTerms[1] + ')|' +
-                    '(?:' + aTerms[1] + ').*(?:' + aTerms[0] + ')';
+          '(?:' + aTerms[1] + ').*(?:' + aTerms[0] + ')';
       default:
         break;
     }
 
     // Calculate permutations
-    var permutations = [];
-    var info = [];
-    for (var i = 0; i < aTerms.length; i++) {
+    const permutations = [];
+    const info = [];
+    for (let i = 0; i < aTerms.length; i++) {
       info[i] = { use: true };
     }
 
@@ -141,7 +139,7 @@ var MigemoTextUtils = {
         permutations.push(aStr);
         return;
       }
-      for (var i = 0; i < aTerms.length; i++) {
+      for (let i = 0; i < aTerms.length; i++) {
         if (info[i].use) {
           info[i].use = false;
           perm(aDepth + 1, aStr + (aStr ? ').*(?:' : '(?:') + aTerms[i]);
@@ -215,6 +213,127 @@ var MigemoTextUtils = {
     if (rejectOneLetterTerms)
       termsString = termsString.replace(/^.$\n?/mg, '');
     return (sanitizeForRegExp ? this.sanitize(termsString) : termsString).split('\n');
+  },
+
+  flattenRegExp: function(regexp) {
+    if (!regexp)
+      return [];
+
+    const source = (typeof regexp == 'string') ? regexp : regexp.source;
+    return this.expandTermsFromArray(
+      this.expandParensToArray(
+        source
+          .replace(/\[[^\]]+\]/g, charClassPart =>
+            `(${charClassPart.replace(/\[|\]/g, '').split('').join('|')})`)
+          .replace(/\|\|+/g, '|')
+      )
+    )
+      .replace(/\n\n+/g, '\n')
+      .split('\n');
+  },
+
+  expandParensToArray: function(source) {
+    const parts = [];
+    let scope = parts;
+    let escaped = false;
+    for (let i = 0, maxi = source.length; i < maxi; i++) {
+      const character = source.charAt(i);
+      switch (character) {
+        case '\\':
+          if (!escaped) {
+            escaped = true;
+            break;
+          }
+        case '(':
+          if (!escaped) {
+            const child = [];
+            child.parent = scope;
+            scope.push(child);
+            scope = child;
+            break;
+          }
+        case ')':
+          if (!escaped) {
+            scope = scope.parent;
+            break;
+          }
+        default:
+          if (typeof scope[scope.length - 1] != 'string') {
+            scope.push('');
+          }
+          scope[scope.length - 1] += character;
+          escaped = false;
+          break;
+      }
+    }
+    return parts;
+  },
+
+  expandTermsFromArray: function(terms) {
+    while (this.expandTermsFromArrayInternal(terms)) {
+    }
+    return this.expandTerms(terms);
+  },
+
+  expandTermsFromArrayInternal: function(terms) {
+    let shouldContinue = false;
+    for (let i = 0, maxi = terms.length; i < maxi; i++) {
+      if (typeof terms[i] == 'string')
+        continue;
+      if (terms[i].some(item => {
+        return typeof item != 'string' &&
+          (item.length > 1 ||
+            typeof item[0] != 'string');
+      })) {
+        this.expandTermsFromArrayInternal(terms[i]);
+        shouldContinue = true;
+        continue;
+      }
+      terms[i] = this.expandTerms(terms[i]);
+    }
+    return shouldContinue;
+  },
+
+  expandTerms: function(terms) {
+    let final = '';
+    let result = '';
+    let containsArray = false;
+    for (let term of terms) {
+      if (typeof term != 'string') {
+        term = term[0];
+        containsArray = true;
+      }
+
+      if (term.charAt(0) == '|') {
+        final += (final ? '\n' : '') + result;
+        result = '';
+        term = term.substring(1);
+      }
+
+      let next = '';
+      if (term.charAt(term.length - 1) != '|') {
+        term = term.replace(/\|([^\|]+)$/, '');
+        next = RegExp.$1;
+      }
+
+      const leaves = term.replace(/\|/g, '\n');
+      result = result.split('\n')
+        .map(term =>
+          leaves.split('\n').map(leaf =>
+            term.replace(/$/mg, leaf)
+          ).join('\n')
+        ).join('\n');
+
+      if (next) {
+        final += `${final ? '\n' : ''}${result}`;
+        result = next;
+        next = '';
+      }
+    }
+    if (result)
+      final += `${final ? '\n' : ''}${result}`;
+
+    return containsArray ? [final] : final;
   },
 };
 

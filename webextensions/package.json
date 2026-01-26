@@ -2,20 +2,24 @@
   "name": "xulmigemo",
   "version": "0.0.0",
   "engines": {
-    "node": ">=13.2.0"
+    "node": ">=20.0.0"
   },
   "type": "module",
   "scripts": {
     "test": "run-tiny-esm-test-runner test/test-*.js"
   },
-  "dependencies": {
-    "babel-core": "^6.0.0",
-    "babel-eslint": "^10.1.0",
-    "babel-plugin-module-resolver": "^3.0.0",
-    "eslint": "^6.8.0",
-    "eslint-import-resolver-babel-module": "^4.0.0",
-    "eslint-plugin-import": "^2.13.0",
-    "jsonlint-cli": "*",
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/eslint-parser": "^7.25.9",
+    "@babel/preset-env": "^7.26.0",
+    "@eslint/compat": "^1.2.4",
+    "@prantlf/jsonlint": "^16.1.0",
+    "babel-plugin-module-resolver": "^5.0.0",
+    "eslint": "^9.17.0",
+    "eslint-import-resolver-babel-module": "^5.3.2",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-indent-in-parens": "^1.0.0",
+    "globals": "^15.14.0",
     "node-fetch": "^2.6.0",
     "tiny-esm-test-runner": "^0.0.5",
     "tunnel-agent": ">=0.6.0"

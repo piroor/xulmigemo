@@ -5,72 +5,77 @@
 */
 'use strict';
 
-import fs from 'fs';
 import path from 'path';
 
-import * as Core from '../common/core.js';
+import { MigemoCoreFactory } from '../modules/core/MigemoCore.js';
 import { regExpPatterns } from './assets/regexp-patterns.js';
 
 import { assert } from 'tiny-esm-test-runner';
 const { is, isNot, ok, ng } = assert;
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const currentDir = path.dirname(new URL(import.meta.url).pathname);
 
+let migemo;
 export async function setUp() {
-  await Core.init({
+  migemo = MigemoCoreFactory.get('ja');
+  await migemo.init({
     language: 'ja',
-    fetcher:  path => fs.readFileSync(`${__dirname}/../${path}`, 'utf8')
+    dicPath:  `${currentDir}/../dictionaries/ja/`
   });
 }
 
 test_getRegExpFor.parameters = regExpPatterns;
 export function test_getRegExpFor({ input, terms: toBeMatchedTerms }) {
-  const regexp = new RegExp(Core.getRegExpFor(input), 'i');
+  const regexp = new RegExp(migemo.getRegExpFor(input), 'i');
   is(toBeMatchedTerms.map(expected => `${expected}:true`).join('\n'),
      toBeMatchedTerms.map(expected => `${expected}:${regexp.test(expected)}`).join('\n'),
      regexp);
 }
 
 
-/* eslint-disable indent */
 const getRegExpPatterns = {
-  single    : { input      : 'nihongo',
-                match      : ['日本語'],
-                notMatch   : ['英語'],
-                matchArray : [['日本語']],
-                notMatchArray : [['英語']],
-                terms      : ['日本語'],
-                notTerms   : ['英語'],
-                exceptions : [] },
-  multiple  : { input      : 'nihongo eigo',
-                match      : ['日本語と英語', '英語と日本語'],
-                notMatch   : ['日本語', '英語'],
-                matchArray : [['日本語'], ['英語']],
-                notMatchArray : [['英語'], ['日本語']],
-                terms      : ['日本語', '英語'],
-                notTerms   : ['仏語'],
-                exceptions : [] },
-  exception : { input      : 'nihongo eigo -mozira',
-                match      : ['日本語と英語', '英語と日本語', '英語と日本語もモジラ'],
-                notMatch   : ['日本語', '英語', 'モジラ'],
-                matchArray : [['日本語'], ['英語']],
-                notMatchArray : [['英語', 'モジラ'], ['日本語', 'モジラ']],
-                terms      : ['日本語', '英語'],
-                notTerms   : ['モジラ'],
-                exceptions : ['モジラ'] }
+  single: {
+    input:         'nihongo',
+    match:         ['日本語'],
+    notMatch:      ['英語'],
+    matchArray:    [['日本語']],
+    notMatchArray: [['英語']],
+    terms:         ['日本語'],
+    notTerms:      ['英語'],
+    exceptions:    []
+  },
+  multiple: {
+    input:         'nihongo eigo',
+    match:         ['日本語と英語', '英語と日本語'],
+    notMatch:      ['日本語', '英語'],
+    matchArray:    [['日本語'], ['英語']],
+    notMatchArray: [['英語'], ['日本語']],
+    terms:         ['日本語', '英語'],
+    notTerms:      ['仏語'],
+    exceptions:    []
+  },
+  exception: {
+    input:         'nihongo eigo -mozira',
+    match:         ['日本語と英語', '英語と日本語', '英語と日本語もモジラ'],
+    notMatch:      ['日本語', '英語', 'モジラ'],
+    matchArray:    [['日本語'], ['英語']],
+    notMatchArray: [['英語', 'モジラ'], ['日本語', 'モジラ']],
+    terms:         ['日本語', '英語'],
+    notTerms:      ['モジラ'],
+    exceptions:    ['モジラ']
+  }
 };
-/* eslint-enable indent */
 
 test_getRegExpFunctional.parameters = getRegExpPatterns;
 export function test_getRegExpFunctional({
   input,
-  match:      toBeMatched,
-  notMatch:   notToBeMatched,
-  terms:      expectedTerms,
-  notTerms:   unexpectedTerms,
+  match: toBeMatched,
+  notMatch: notToBeMatched,
+  terms: expectedTerms,
+  notTerms: unexpectedTerms,
   exceptions: expectedExceptions
 }) {
-  const { pattern, termsPattern, exceptionsPattern } = Core.getRegExpFunctional(input);
+  const { pattern, termsPattern, exceptionsPattern } = migemo.getRegExpsFunctional(input);
 
   is('string', typeof pattern);
   const patternMatcher = new RegExp(pattern);
@@ -107,13 +112,13 @@ export function test_getRegExpFunctional({
 test_getRegExpsFunctional.parameters = getRegExpPatterns;
 export function test_getRegExpsFunctional({
   input,
-  matchArray:    toBeMatched,
+  matchArray: toBeMatched,
   notMatchArray: notToBeMatched,
-  terms:         expectedTerms,
-  notTerms:      unexpectedTerms,
-  exceptions:    expectedExceptions
+  terms: expectedTerms,
+  notTerms: unexpectedTerms,
+  exceptions: expectedExceptions
 }) {
-  const { patterns, termsPattern, exceptionsPattern } = Core.getRegExpsFunctional(input);
+  const { patterns, termsPattern, exceptionsPattern } = migemo.getRegExpsFunctional(input);
 
   ok(Array.isArray(patterns), patterns);
   is(toBeMatched.length, patterns.length);

@@ -1,5 +1,4 @@
 import MigemoBase from '../MigemoBase.js';
-import MigemoTextUtils from './textUtils.js';
 import MigemoTextTransformJa from './textTransformJa.js';
 
 class MigemoDictionaryJa extends MigemoBase {
@@ -24,12 +23,14 @@ class MigemoDictionaryJa extends MigemoBase {
         if (response.ok) {
           const text = await response.text();
           this.list[char] = text;
-        } else {
+        }
+        else {
           console.warn(`MigemoDictionaryJa: Failed to load ${filename}`);
           this.list[char] = '';
           error = true;
         }
-      } catch (e) {
+      }
+      catch(e) {
         console.error(`MigemoDictionaryJa: Error loading ${filename}`, e);
         this.list[char] = '';
         error = true;
@@ -53,6 +54,7 @@ class MigemoDictionaryJa extends MigemoBase {
   saveUserDic() {
   }
 
+  /*
   addTerm(aYomi, aTerm) {
     // Omitted
   }
@@ -60,23 +62,26 @@ class MigemoDictionaryJa extends MigemoBase {
   removeTerm(aYomi, aTerm) {
     // Omitted
   }
+  */
 
   getDic() {
-    var dics = [];
-    for (var i = 0, maxi = this.cList.length; i < maxi; i++)
+    const dics = [];
+    for (let i = 0, maxi = this.cList.length; i < maxi; i++)
       dics.push(this.getDicFor(this.cList[i], false));
     return dics.join('\n');
   }
 
   getUserDic() {
-    var dics = [];
-    for (var i = 0, maxi = this.cList.length; i < maxi; i++)
+    const dics = [];
+    for (let i = 0, maxi = this.cList.length; i < maxi; i++)
       dics.push(this.getDicFor(this.cList[i], true));
     return dics.join('\n');
   }
 
+  /*
   saveUserDicFor(aKey) {
   }
+  */
 
   getDicFor(aLetter) {
     return this.getDicInternal(aLetter, false);
@@ -99,7 +104,7 @@ class MigemoDictionaryJa extends MigemoBase {
 
     if (/^[a-z0-9]+$/i.test(aYomi)) return 'alph';
 
-    var firstLetter = MigemoTextTransformJa.hira2roman(aYomi.charAt(0)).charAt(0);
+    const firstLetter = MigemoTextTransformJa.hira2roman(aYomi.charAt(0)).charAt(0);
     switch (firstLetter) {
       case 'a':
       case 'i':
@@ -114,12 +119,14 @@ class MigemoDictionaryJa extends MigemoBase {
     }
   }
 
+  /*
   modifyDic(aTermSet, aOperation) {
     // Omitted
   }
+  */
 
   getDicInternal(aLetter, aUser) {
-    var suffix = aUser ? '-user' : '';
+    const suffix = aUser ? '-user' : '';
 
     switch (aLetter) {
       case 'l':

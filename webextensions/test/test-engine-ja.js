@@ -5,27 +5,27 @@
 */
 'use strict';
 
-import fs from 'fs';
 import path from 'path';
 
-import * as EngineJa from '../common/engine-ja.js';
-import * as DictionaryJa from '../common/dictionary-ja.js';
+import { MigemoCoreFactory } from '../modules/core/MigemoCore.js';
 import { regExpPatterns } from './assets/regexp-patterns.js';
 
 import { assert } from 'tiny-esm-test-runner';
 const { is } = assert;
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const currentDir = path.dirname(new URL(import.meta.url).pathname);
 
+let migemo;
 export async function setUp() {
-  await DictionaryJa.load({
-    fetcher: path => fs.readFileSync(`${__dirname}/../${path}`, 'utf8')
+  migemo = MigemoCoreFactory.get('ja');
+  await migemo.init({
+    dicPath: `${currentDir}/../dictionaries/ja/`
   });
 }
 
 test_getRegExpFor.parameters = regExpPatterns;
 export function test_getRegExpFor({ input, terms: toBeMatchedTerms }) {
-  const regexp = new RegExp(EngineJa.getRegExpFor(input), 'i');
+  const regexp = new RegExp(migemo.engine.getRegExpFor(input), 'i');
   is(toBeMatchedTerms.map(expected => `${expected}:true`).join('\n'),
      toBeMatchedTerms.map(expected => `${expected}:${regexp.test(expected)}`).join('\n'),
      regexp);

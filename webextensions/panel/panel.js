@@ -259,9 +259,9 @@ function sanitizeForHTML(string) {
 
 function openParamsFromEvent(event) {
   const params = {
-    where:        configs.defaultOpenIn,
-    keepOpen:     false,
-    regularAction:true
+    where:         configs.defaultOpenIn,
+    keepOpen:      false,
+    regularAction: true
   };
   if (event.altKey || event.ctrlKey || event.metaKey) {
     params.where    = configs.accelActionOpenIn;
@@ -318,8 +318,8 @@ function onItemClick(event) {
 
     case 1:
       open({
-        where:    configs.accelActionOpenIn,
-        keepOpen: configs.accelActionOpenIn == Constants.kOPEN_IN_BACKGROUND_TAB,
+        where:         configs.accelActionOpenIn,
+        keepOpen:      configs.accelActionOpenIn == Constants.kOPEN_IN_BACKGROUND_TAB,
         item,
         regularAction: false
       });
@@ -348,7 +348,7 @@ async function updateUIForCurrentTab() {
   try {
     mCurrentTab = (await browser.tabs.query({
       currentWindow: true,
-      active: true
+      active:        true
     }))[0];
     if (!configs.fillFieldWithSelectionText)
       return;

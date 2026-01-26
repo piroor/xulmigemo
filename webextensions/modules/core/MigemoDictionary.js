@@ -1,10 +1,9 @@
 import MigemoBase from '../MigemoBase.js';
-import MigemoTextUtils from './textUtils.js';
 // We will import TextTransform later, or pass it as dependency. 
 // Circular dependency might occur if we are not careful.
 // Dictionary uses TextTransform for input validation.
 // For now, let's assume it is passed or we import it.
-import MigemoTextTransform from './textTransform.js';
+//import MigemoTextTransform from './textTransform.js';
 
 class MigemoDictionary extends MigemoBase {
   constructor() {
@@ -30,11 +29,13 @@ class MigemoDictionary extends MigemoBase {
       const response = await fetch(dicPath + this.lang + '.txt');
       if (response.ok) {
         this.list['system'] = await response.text();
-      } else {
+      }
+      else {
         this.list['system'] = '';
         error = true;
       }
-    } catch (e) {
+    }
+    catch(e) {
       console.error('MigemoDictionary: Failed to load system dictionary', e);
       this.list['system'] = '';
       error = true;
@@ -52,6 +53,7 @@ class MigemoDictionary extends MigemoBase {
     return this.load();
   }
 
+  /*
   saveUserDic() {
     // Not implemented in WE yet
   }
@@ -65,6 +67,7 @@ class MigemoDictionary extends MigemoBase {
     // Omitted
     return this.RESULT_ERROR_NOT_IMPLEMENTED;
   }
+  */
 
   getDic() {
     return this.list['system'];
@@ -74,10 +77,12 @@ class MigemoDictionary extends MigemoBase {
     return this.list['user'];
   }
 
+  /*
   modifyDic(aTermSet, aOperation) {
     // Omitted
     return this.RESULT_ERROR_NOT_IMPLEMENTED;
   }
+  */
 }
 
 export default MigemoDictionary;

@@ -47,7 +47,8 @@ class MigemoCore extends MigemoBase {
       EngineClass = MigemoEngineJa;
       DictionaryClass = MigemoDictionaryJa;
       TextTransform = MigemoTextTransformJa;
-    } else if (this.lang.startsWith('en')) {
+    }
+    else if (this.lang.startsWith('en')) {
       // defaults
     }
 
@@ -72,17 +73,17 @@ class MigemoCore extends MigemoBase {
   }
 
   getRegExpInternal(aInput, aTargetDic, aEnableAutoSplit) {
-    var myExp = [];
+    let myExp = [];
 
-    var autoSplit = (aEnableAutoSplit === undefined) ? (this.options.enableAutoSplit !== false) : aEnableAutoSplit;
+    const autoSplit = (aEnableAutoSplit === undefined) ? (this.options.enableAutoSplit !== false) : aEnableAutoSplit;
 
     // 入力を切って、文節として個別に正規表現を生成する
-    var romanTerms = this.engine.splitInput(aInput);
+    const romanTerms = this.engine.splitInput(aInput);
     // log('ROMAN: '+romanTerms.join('/').toLowerCase()+'\n');
 
-    var pattern, romanTermPart;
-    for (var i = 0, maxi = romanTerms.length; i < maxi; i++) {
-      var romanTerm = romanTerms[i].toLowerCase();
+    let pattern, romanTermPart;
+    for (let i = 0, maxi = romanTerms.length; i < maxi; i++) {
+      const romanTerm = romanTerms[i].toLowerCase();
 
       pattern = this.getRegExpFor(romanTerm, aTargetDic);
       if (!pattern) continue;
@@ -124,7 +125,7 @@ class MigemoCore extends MigemoBase {
   getRegExps(aInput, aTargetDic) {
     return MigemoTextUtils.trim(aInput)
       .split(/\s+/)
-      .map(function (aInput) {
+      .map(function(aInput) {
         return this.getRegExp(aInput, aTargetDic);
       }, this);
   }
@@ -135,12 +136,12 @@ class MigemoCore extends MigemoBase {
 
     aInput = aInput.toLowerCase();
 
-    var cacheText = this.cache.getCacheFor(aInput, aTargetDic);
+    const cacheText = this.cache.getCacheFor(aInput, aTargetDic);
     if (cacheText) {
       return cacheText.replace(/\n/g, '');
     }
 
-    var regexpPattern = this.engine.getRegExpFor(aInput, aTargetDic);
+    const regexpPattern = this.engine.getRegExpFor(aInput, aTargetDic);
 
     this.cache.setDiskCache(aInput, regexpPattern, aTargetDic);
 
@@ -152,19 +153,19 @@ class MigemoCore extends MigemoBase {
   getRegExpFunctionalInternal(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic) {
     aExceptionRegExp.value = '';
     if (this.options.enableNOTFind !== false) {
-      var exceptions = {};
+      const exceptions = {};
       aInput = this.siftExceptions(aInput, exceptions);
       if (exceptions.value.length)
         aExceptionRegExp.value = MigemoTextUtils.getORFindRegExpFromTerms(this.getRegExps(exceptions.value.join(' '), aTargetDic));
     }
-    var regexps = this.getRegExps(aInput, aTargetDic);
+    const regexps = this.getRegExps(aInput, aTargetDic);
     aTermsRegExp.value = MigemoTextUtils.getORFindRegExpFromTerms(regexps);
     return regexps;
   }
   getRegExpFunctional(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic) {
     if (!aTermsRegExp) aTermsRegExp = {};
     if (!aExceptionRegExp) aExceptionRegExp = {};
-    var regexps = this.getRegExpFunctionalInternal(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic);
+    const regexps = this.getRegExpFunctionalInternal(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic);
     return (this.options.enableANDFind !== false) ?
       MigemoTextUtils.getANDFindRegExpFromTerms(regexps) :
       this.getRegExp(aInput, aTargetDic);
@@ -173,7 +174,7 @@ class MigemoCore extends MigemoBase {
   siftExceptions(aInput, aExceptions) {
     if (!aExceptions) aExceptions = {};
     aExceptions.value = [];
-    var findInput = aInput.split(/\s+/).filter(function (aTerm) {
+    const findInput = aInput.split(/\s+/).filter(function(aTerm) {
       if (aTerm.indexOf('-') == 0) {
         aExceptions.value.push(aTerm.substring(1));
         return false;
@@ -184,27 +185,54 @@ class MigemoCore extends MigemoBase {
   }
 
   isValidFunctionalInput(aInput) {
-    var converted = aInput.replace(/\s+/g, '\n');
+    const converted = aInput.replace(/\s+/g, '\n');
     return (
       MigemoTextUtils.isRegExp(aInput) ||
-            this.kMIGEMO_PATTERN.test(converted) ||
-            ((this.options.enableNOTFind !== false) && this.kNOT_PATTERN.test(converted))
+      this.kMIGEMO_PATTERN.test(converted) ||
+      ((this.options.enableNOTFind !== false) && this.kNOT_PATTERN.test(converted))
     );
   }
 
   trimFunctionalInput(aInput) {
-    var input = MigemoTextUtils.trim(aInput);
+    let input = MigemoTextUtils.trim(aInput);
     if (this.options.enableNOTFind !== false) {
       // 入力中のNOT検索用演算子を除外
       input = input.replace(/\s+-$/, '');
     }
     return input;
   }
+
+  getRegExpsFunctional(aInput) {
+    const termsRegExp = {};
+    const exceptionRegExp = {};
+    const regexps = this.getRegExpFunctionalInternal(aInput, termsRegExp, exceptionRegExp);
+
+    const patterns = (this.options.enableANDFind !== false) ?
+      regexps :
+      [this.getRegExp(aInput)];
+
+    return {
+      pattern: (this.options.enableANDFind !== false) ?
+        this.getRegExpFunctional(aInput, {}, {}) : // Re-calc is redundant but simplest for NOW. Optimize later if needed.
+        patterns[0],
+      termsPattern:      termsRegExp.value || '',
+      exceptionsPattern: exceptionRegExp.value || '',
+      patterns:          patterns
+    };
+  }
+
+  getAllKnownTermsPattern() {
+    return this.engine && this.engine.getAllKnownTermsPattern ? this.engine.getAllKnownTermsPattern() : '';
+  }
+
+  static flattenRegExp(regexp) {
+    return MigemoTextUtils.flattenRegExp(regexp);
+  }
 }
 
-var MigemoCoreFactory = {
+const MigemoCoreFactory = {
   _instances: {},
-  get: function (aLang) {
+  get:        function(aLang) {
     if (!this._instances[aLang]) {
       this._instances[aLang] = new MigemoCore(aLang);
     }

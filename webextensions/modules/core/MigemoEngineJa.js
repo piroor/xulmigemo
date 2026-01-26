@@ -68,9 +68,9 @@ class MigemoEngineJa extends MigemoBase {
 
     aInput = aInput.toLowerCase();
 
-    var transform = this.textTransform;
+    const transform = this.textTransform;
 
-    var hira = transform.expand(
+    const hira = transform.expand(
       MigemoTextUtils.sanitizeForTransformOutput(
         transform.roman2kana(
           transform.kata2hira(
@@ -80,12 +80,12 @@ class MigemoEngineJa extends MigemoBase {
       )
     );
 
-    var roman = aInput;
+    let roman = aInput;
     if (/[\uff66-\uff9f]/.test(roman)) roman = transform.hira2roman(transform.kata2hira(roman))
 
-    var ignoreHiraKata = this.options.ignoreHiraKata;
+    const ignoreHiraKata = this.options.ignoreHiraKata;
 
-    var kana = ignoreHiraKata ? '' :
+    const kana = ignoreHiraKata ? '' :
       transform.expand2(
         MigemoTextUtils.sanitizeForTransformOutput(
           transform.roman2kana2(
@@ -95,7 +95,7 @@ class MigemoEngineJa extends MigemoBase {
         ),
         transform.KANA_KATA
       );
-    var hiraAndKana = ignoreHiraKata ?
+    const hiraAndKana = ignoreHiraKata ?
       transform.expand2(
         MigemoTextUtils.sanitizeForTransformOutput(
           transform.roman2kana2(
@@ -107,29 +107,29 @@ class MigemoEngineJa extends MigemoBase {
       ) :
       hira + '|' + kana;
 
-    var zen = transform.roman2zen(aInput); // aInput ?
+    const zen = transform.roman2zen(aInput); // aInput ?
 
-    var lines = this.gatherEntriesFor(aInput, aTargetDic);
+    const lines = this.gatherEntriesFor(aInput, aTargetDic);
 
-    var original = MigemoTextUtils.sanitize(aInput);
+    let original = MigemoTextUtils.sanitize(aInput);
     if (this.options.ignoreLatinModifiers)
       original = transform.addLatinModifiers(original);
 
-    var pattern = '';
+    let pattern = '';
     if (lines.length) {
-      var arr = [];
+      const arr = [];
       if (!/[\[\(]/.test(zen)) arr.push(zen);
       if (!/[\[\(]/.test(hiraAndKana)) {
         arr.push(hira);
         arr.push(kana);
       }
-      var searchterm = arr.concat(lines).join('\n').replace(/(\t|\n\n)+/g, '\n');
+      let searchterm = arr.concat(lines).join('\n').replace(/(\t|\n\n)+/g, '\n');
 
       if (/[\[\(]/.test(zen)) pattern += (pattern ? '|' : '') + zen;
       if (/[\[\(]/.test(hiraAndKana)) pattern += (pattern ? '|' : '') + hiraAndKana;
 
       // 一文字だけの項目だけは、抜き出して文字クラスにまとめる
-      var ichimoji = searchterm
+      const ichimoji = searchterm
         .replace(/^..+$\n?/mg, '')
         .split('\n')
         .sort()
@@ -167,7 +167,7 @@ class MigemoEngineJa extends MigemoBase {
   }
 
   splitInput(aInput) {
-    var terms = (
+    let terms = (
       (/^[A-Z]{2,}/.test(aInput)) ?
         aInput.replace(/([a-z])/g, '\t$1') : // CapsLockされてる場合は小文字で区切る
         aInput.replace(/([A-Z])/g, '\t$1')
@@ -191,9 +191,9 @@ class MigemoEngineJa extends MigemoBase {
     }
     aTargetDic = aTargetDic || this.ALL_DIC;
 
-    var transform = this.textTransform;
+    const transform = this.textTransform;
 
-    var hira = transform.expand(
+    const hira = transform.expand(
       MigemoTextUtils.sanitize(
         transform.roman2kana(
           transform.kata2hira(aInput)
@@ -201,51 +201,78 @@ class MigemoEngineJa extends MigemoBase {
       )
     );
 
-    var str = MigemoTextUtils.sanitize(aInput);
+    let str = MigemoTextUtils.sanitize(aInput);
     if (this.options.ignoreLatinModifiers)
       str = transform.addLatinModifiers(str);
 
-    var tmp = '^' + hira + '.+$'; //日本語
-    var tmpA = '^(' + str + ').+$'; //アルファベット
-    var exp = new RegExp(tmp, 'mg');
-    var expA = new RegExp(tmpA, 'mg');
+    const tmp = '^' + hira + '.+$'; //日本語
+    const tmpA = '^(' + str + ').+$'; //アルファベット
+    const exp = new RegExp(tmp, 'mg');
+    const expA = new RegExp(tmpA, 'mg');
 
-    var firstlet = '';
+    let firstlet = '';
     firstlet = aInput.charAt(0);//最初の文字
 
-    var lines = [];
+    let lines = [];
 
-    var mydicAU = (aTargetDic & this.USER_DIC) ? this.dictionary.getUserAlphaDic() : null;
-    var mydicA = (aTargetDic & this.SYSTEM_DIC) ? this.dictionary.getAlphaDic() : null;
-    var mydicU = (aTargetDic & this.USER_DIC) ? this.dictionary.getUserDicFor(firstlet) : null;
-    var mydic = (aTargetDic & this.SYSTEM_DIC) ? this.dictionary.getDicFor(firstlet) : null;
+    const mydicAU = (aTargetDic & this.USER_DIC) ? this.dictionary.getUserAlphaDic() : null;
+    const mydicA = (aTargetDic & this.SYSTEM_DIC) ? this.dictionary.getAlphaDic() : null;
+    const mydicU = (aTargetDic & this.USER_DIC) ? this.dictionary.getUserDicFor(firstlet) : null;
+    const mydic = (aTargetDic & this.SYSTEM_DIC) ? this.dictionary.getDicFor(firstlet) : null;
 
     if (mydicAU) {
-      var lineAU = mydicAU.match(expA);
+      const lineAU = mydicAU.match(expA);
       if (lineAU) {
         lines = lines.concat(lineAU);
       }
     }
     if (mydicA) {
-      var lineA = mydicA.match(expA);//アルファベットの辞書を検索
+      const lineA = mydicA.match(expA);//アルファベットの辞書を検索
       if (lineA) {
         lines = lines.concat(lineA);
       }
     }
     if (mydicU) {
-      var lineU = mydicU.match(exp);
+      const lineU = mydicU.match(exp);
       if (lineU) {
         lines = lines.concat(lineU);
       }
     }
     if (mydic) {
-      var line = mydic.match(exp);//日本語の辞書を検索
+      const line = mydic.match(exp);//日本語の辞書を検索
       if (line) {
         lines = lines.concat(line);
       }
     }
 
     return lines;
+  }
+
+  getAllKnownTermsPattern() {
+    if (this.mCachedAllKnownTermsPattern)
+      return this.mCachedAllKnownTermsPattern;
+
+    const allEntries = this.dictionary.getDic().trim().replace(/(\t|\n\n)+/g, '\n').trim();
+
+    // 一文字だけの項目だけは、抜き出して文字クラスにまとめる
+    const oneLetterTerms = allEntries
+      .replace(/^..+$\n?/mg, '')
+      .split('\n')
+      .sort()
+      .join('')
+      .replace(/(.)\1+/g, '$1');
+
+    const shortestTerms = MigemoTextUtils.extractShortestTerms(
+      allEntries.split(/[\t\n]+/),
+      { rejectOneLetterTerms: true } // 一文字だけの項目は用済みなので削除
+    );
+
+    this.mCachedAllKnownTermsPattern = [
+      `[-_a-z0-9\u3041-\u3096\u30A1-\u30FA${oneLetterTerms}]`,
+      ...shortestTerms
+    ].join('|').replace(/^\||\|$/g, '').replace(/\|\|+/g, '|');
+
+    return this.mCachedAllKnownTermsPattern;
   }
 }
 

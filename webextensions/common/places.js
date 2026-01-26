@@ -8,17 +8,21 @@
 import {
   configs
 } from './common.js';
-import * as Core from './core.js';
+import { MigemoCoreFactory } from '../modules/core/MigemoCore.js';
 import EventListenerManager from '/extlib/EventListenerManager.js';
 
-configs.$loaded.then(Core.init);
+let migemo;
+configs.$loaded.then(async () => {
+  migemo = MigemoCoreFactory.get(configs.language || 'ja');
+  await migemo.init(configs);
+});
 
 const ONE_DAY_IN_MSEC = 1000 * 60 * 60 * 24;
 
 export default class Places {
   constructor() {
     this.onProgress = new EventListenerManager();
-    this.onFound    = new EventListenerManager();
+    this.onFound = new EventListenerManager();
 
     this.mLastSearchQuery = null;
     this.mLastSearchResultPlaces = null;
@@ -53,7 +57,7 @@ export default class Places {
     const places = this.mLastSearchResultPlaces = new Map();
 
     // shortest:trueにより、共通部分だけを抽出した単語一覧を得る。
-    const expandedTerms = Array.from(new Set(Core.expandInput(query.trim(), { shortest: true }).flat()));
+    const expandedTerms = Array.from(new Set((migemo ? migemo.expandInput(query.trim(), { shortest: true }) : [query.trim()]).flat()));
     this.measure('expandedTerms: ', expandedTerms);
 
     const allTasksCount = (
@@ -64,10 +68,10 @@ export default class Places {
     let finishedTasks = 1;
     this.onProgress.dispatch(finishedTasks / allTasksCount);
 
-    const { pattern, termsPattern, exceptionsPattern } = Core.getRegExpFunctional(query.trim());
+    const { pattern, termsPattern, exceptionsPattern } = migemo ? migemo.getRegExpsFunctional(query.trim()) : { pattern: '', termsPattern: '', exceptionsPattern: '' };
     //console.log('pattern: ', pattern);
     //console.log('exceptionsPattern: ', exceptionsPattern);
-    const matcher  = new RegExp(pattern, 'i');
+    const matcher = new RegExp(pattern, 'i');
     const termsMatcher = new RegExp(termsPattern, 'gi');
     const rejector = exceptionsPattern && new RegExp(exceptionsPattern, 'i');
     const shouldAccept = place => {
@@ -108,7 +112,7 @@ export default class Places {
         return [];
       tasks.push(
         browser.history.search({
-          text: term,
+          text:      term,
           startTime: 0, // this is required to search history!
         })
           .then(histories => {

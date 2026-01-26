@@ -1,6 +1,6 @@
 import MigemoTextUtils from './textUtils.js';
 
-var MigemoTextTransform = {
+const MigemoTextTransform = {
   nonAsciiRegExp: /[^a-zA-Z0-9\!\_\-\?\/\\\~\|\{\}\(\)\'\"\&\%\$\<\>\[\]\@\`\+\*\;\:]/gi,
 
   LATIN_LETTES_WITH_MODIFIERS: `
@@ -63,12 +63,10 @@ y	[yỳýÿŷỲÝŸŶ]|y[ˋ\`ˊ´¨ˆ^]
 z	[zźżžŹŻŽ]|z[ˊ´˙ˇ]
 `,
 
-  init: function () {
-    var self = this;
-
+  init: function() {
     this.LATMOD_Hash = {};
     this.LATPAT = [];
-    var strictPairs = MigemoTextUtils.trim(this.LATIN_LETTES_WITH_MODIFIERS).split(/\s+/);
+    const strictPairs = MigemoTextUtils.trim(this.LATIN_LETTES_WITH_MODIFIERS).split(/\s+/);
     for (let i = 0, maxi = strictPairs.length; i < maxi; i += 2) {
       this.LATMOD_Hash[strictPairs[i]] = strictPairs[i + 1];
       this.LATPAT.push({ key: strictPairs[i], char: strictPairs[i + 1] });
@@ -76,54 +74,54 @@ z	[zźżžŹŻŽ]|z[ˊ´˙ˇ]
 
     this.LATMOD = [];
     this.MODPAT = [];
-    var lazyPairs = MigemoTextUtils.trim(this.LATIN_LETTES_WITH_MODIFIERS_LAZY).split(/\s+/);
+    const lazyPairs = MigemoTextUtils.trim(this.LATIN_LETTES_WITH_MODIFIERS_LAZY).split(/\s+/);
     for (let i = 0, maxi = lazyPairs.length; i < maxi; i += 2) {
       this.LATMOD.push({ key: lazyPairs[i], char: lazyPairs[i + 1] });
       this.MODPAT.push(lazyPairs[i + 1]);
     }
 
-    this.LATPAT = this.LATPAT.sort(function (aA, aB) {
+    this.LATPAT = this.LATPAT.sort(function(aA, aB) {
       return aB.key.length - aA.key.length;
-    }).map(function (aItem) {
+    }).map(function(aItem) {
       return aItem.key;
     }).join('|');
     this.LATPAT = new RegExp('(' + this.LATPAT + ')', 'ig');
 
-    this.MODPAT = this.MODPAT.sort(function (aA, aB) {
+    this.MODPAT = this.MODPAT.sort(function(aA, aB) {
       return (aB.length - aA.length);
     }).join('|');
     this.MODPAT = new RegExp('(' + this.MODPAT + ')', 'ig');
   },
 
-  expandToTerms: function (aInput) {
+  expandToTerms: function(aInput) {
     return [aInput];
   },
 
-  isValidInput: function (aInput) {
+  isValidInput: function(aInput) {
     return this.normalizeInput(aInput) ? true : false;
   },
 
-  normalizeInput: function (aInput) {
+  normalizeInput: function(aInput) {
     return aInput.replace(this.nonAsciiRegExp, '');
   },
 
-  normalizeKeyInput: function (aInput) {
+  normalizeKeyInput: function(aInput) {
     return aInput.replace(this.nonAsciiRegExp, '');
   },
 
-  addLatinModifiers: function (aInput) {
-    var hash = this.LATMOD_Hash;
+  addLatinModifiers: function(aInput) {
+    const hash = this.LATMOD_Hash;
     return this.removeLatinModifiers(aInput)
-      .replace(this.LATPAT, function (aChar) {
+      .replace(this.LATPAT, function(aChar) {
         return '(' + hash[aChar] + ')';
       });
   },
 
-  removeLatinModifiers: function (aInput) {
-    var table = this.LATMOD;
-    var regexp;
-    return String(aInput).replace(this.MODPAT, function (aChar) {
-      for (var i in table) {
+  removeLatinModifiers: function(aInput) {
+    const table = this.LATMOD;
+    let regexp;
+    return String(aInput).replace(this.MODPAT, function(aChar) {
+      for (const i in table) {
         regexp = new RegExp('^(' + table[i].char + ')$', 'i')
         if (!regexp.test(aChar)) continue;
         aChar = table[i].key;

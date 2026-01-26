@@ -9,44 +9,44 @@ import Configs from '/extlib/Configs.js';
 import * as Constants from './constants.js';
 
 export const configs = new Configs({
-  theme: 'default',
+  theme:                      'default',
   fillFieldWithSelectionText: true,
-  clearFieldAfterOpen: true,
-  clearFieldAfterOpenDelay: 5000,
-  lastSearchTerm: '',
-  lastFoundPlaces: null,
-  lastFoundTermsPattern: null,
-  lastOpenTime: 0,
-  closeAfterOpen: true,
-  recycleBlankCurrentTab: true,
-  recycleTabUrlPattern: '^about:(newtab|home|privatebrowsing)$',
-  defaultOpenIn: Constants.kOPEN_IN_TAB,
-  accelActionOpenIn: Constants.kOPEN_IN_BACKGROUND_TAB,
-  focusDelay: 150,
-  searchThrottleTimeout: 250,
-  smoothScrollDuration: 150,
-  newWindowDelay: 1000,
-  applyThemeColorToIcon: false,
+  clearFieldAfterOpen:        true,
+  clearFieldAfterOpenDelay:   5000,
+  lastSearchTerm:             '',
+  lastFoundPlaces:            null,
+  lastFoundTermsPattern:      null,
+  lastOpenTime:               0,
+  closeAfterOpen:             true,
+  recycleBlankCurrentTab:     true,
+  recycleTabUrlPattern:       '^about:(newtab|home|privatebrowsing)$',
+  defaultOpenIn:              Constants.kOPEN_IN_TAB,
+  accelActionOpenIn:          Constants.kOPEN_IN_BACKGROUND_TAB,
+  focusDelay:                 150,
+  searchThrottleTimeout:      250,
+  smoothScrollDuration:       150,
+  newWindowDelay:             1000,
+  applyThemeColorToIcon:      false,
 
-  maxParallelSearch: 12,
+  maxParallelSearch:  12,
   openInTabByDefault: true,
 
   // options for Core
-  language: 'ja',
+  language:        'ja',
   enableAutoSplit: false,
-  enableANDFind: true,
-  enableNOTFind: true,
+  enableANDFind:   true,
+  enableNOTFind:   true,
 
   // options for Engine
-  ignoreLatinModifiers: true,
+  ignoreLatinModifiers:   true,
   ignoreHiraganaKatakana: true,
 
   // options for Dictionary
   dictionaryEnUsVersion: 0,
-  dictionaryEnUs: null,
+  dictionaryEnUs:        null,
 
   dictionaryJaVersion: 0,
-  dictionaryJa: null,
+  dictionaryJa:        null,
 
   cacheKeys: [
     'ja/ja.cache'
@@ -54,7 +54,7 @@ export const configs = new Configs({
   cache: {},
 
   configsVersion: 0,
-  debug: false
+  debug:          false
 }, {
   localKeys: [
     'dictionaryEnUs',

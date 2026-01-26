@@ -1,5 +1,4 @@
 import MigemoBase from '../MigemoBase.js';
-import MigemoTextUtils from './textUtils.js';
 
 class MigemoCache extends MigemoBase {
   constructor() {
@@ -11,7 +10,7 @@ class MigemoCache extends MigemoBase {
   }
 
   init() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       const request = indexedDB.open(this.dbName, 1);
 
       request.onerror = (event) => {
@@ -43,10 +42,10 @@ class MigemoCache extends MigemoBase {
     return this.memCache.get(key) || '';
   }
 
-  clearCacheForAllPatterns(aRoman, aTargetDic) {
-    var patterns = [];
-    for (var i = aRoman.length - 1; i > 0; i--) {
-      var key = aRoman.substring(0, i);
+  clearCacheForAllPatterns(aRoman, _aTargetDic) {
+    const patterns = [];
+    for (let i = aRoman.length - 1; i > 0; i--) {
+      const key = aRoman.substring(0, i);
       patterns.push(key);
       this.clearCacheSilentlyFor(key);
     }
@@ -60,7 +59,7 @@ class MigemoCache extends MigemoBase {
   }
 
   clearCacheSilentlyFor(aRoman) {
-    [this.USER_DIC, this.ALL_DIC].forEach(function (aType) {
+    [this.USER_DIC, this.ALL_DIC].forEach(function(aType) {
       const key = this._makeKey(aRoman, aType);
       if (this.memCache.has(key)) {
         this.memCache.delete(key);
@@ -129,7 +128,7 @@ class MigemoCache extends MigemoBase {
   }
 
   load() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       if (!this.db) {
         resolve();
         return;
@@ -143,7 +142,8 @@ class MigemoCache extends MigemoBase {
         if (cursor) {
           this.memCache.set(cursor.value.key, cursor.value.value);
           cursor.continue();
-        } else {
+        }
+        else {
           resolve();
         }
       };
@@ -154,9 +154,9 @@ class MigemoCache extends MigemoBase {
   }
 }
 
-var MigemoCacheFactory = {
+const MigemoCacheFactory = {
   _instances: {},
-  get: function (aKey) {
+  get:        function(aKey) {
     if (!this._instances[aKey]) {
       this._instances[aKey] = new MigemoCache();
       // We delay init? Or should we await?
