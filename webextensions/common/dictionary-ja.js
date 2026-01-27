@@ -1,7 +1,7 @@
-import MigemoBase from '../MigemoBase.js';
-import MigemoTextTransformJa from './textTransformJa.js';
+import Base from './base.js';
+import TextTransformJa from './text-transform-ja.js';
 
-class MigemoDictionaryJa extends MigemoBase {
+class DictionaryJa extends Base {
   constructor() {
     super();
     this.lang = 'ja';
@@ -25,13 +25,13 @@ class MigemoDictionaryJa extends MigemoBase {
           this.list[char] = text;
         }
         else {
-          console.warn(`MigemoDictionaryJa: Failed to load ${filename}`);
+          console.warn(`DictionaryJa: Failed to load ${filename}`);
           this.list[char] = '';
           error = true;
         }
       }
       catch(e) {
-        console.error(`MigemoDictionaryJa: Error loading ${filename}`, e);
+        console.error(`DictionaryJa: Error loading ${filename}`, e);
         this.list[char] = '';
         error = true;
       }
@@ -104,7 +104,7 @@ class MigemoDictionaryJa extends MigemoBase {
 
     if (/^[a-z0-9]+$/i.test(aYomi)) return 'alph';
 
-    const firstLetter = MigemoTextTransformJa.hira2roman(aYomi.charAt(0)).charAt(0);
+    const firstLetter = TextTransformJa.hira2roman(aYomi.charAt(0)).charAt(0);
     switch (firstLetter) {
       case 'a':
       case 'i':
@@ -174,4 +174,4 @@ class MigemoDictionaryJa extends MigemoBase {
   }
 }
 
-export default MigemoDictionaryJa;
+export default DictionaryJa;

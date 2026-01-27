@@ -1,6 +1,6 @@
-import MigemoBase from '../MigemoBase.js';
+import Base from './base.js';
 
-class MigemoCache extends MigemoBase {
+class Cache extends Base {
   constructor() {
     super();
     this.memCache = new Map();
@@ -14,7 +14,7 @@ class MigemoCache extends MigemoBase {
       const request = indexedDB.open(this.dbName, 1);
 
       request.onerror = (event) => {
-        console.error('MigemoCache: IndexedDB error', event);
+        console.error('Cache: IndexedDB error', event);
         resolve(false);
       };
 
@@ -154,11 +154,11 @@ class MigemoCache extends MigemoBase {
   }
 }
 
-const MigemoCacheFactory = {
+const CacheFactory = {
   _instances: {},
   get:        function(aKey) {
     if (!this._instances[aKey]) {
-      this._instances[aKey] = new MigemoCache();
+      this._instances[aKey] = new Cache();
       // We delay init? Or should we await?
       // MigemoCache is synchronous in usage. 
       // We must ensure 'init()' is called before usage. 
@@ -169,5 +169,5 @@ const MigemoCacheFactory = {
   }
 };
 
-export { MigemoCache, MigemoCacheFactory };
-export default MigemoCache;
+export { Cache, CacheFactory };
+export default Cache;

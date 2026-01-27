@@ -1,14 +1,14 @@
-import MigemoBase from '../MigemoBase.js';
-import { MigemoCacheFactory } from './MigemoCache.js';
-import MigemoTextUtils from './textUtils.js';
-import MigemoDictionary from './MigemoDictionary.js';
-import MigemoDictionaryJa from './MigemoDictionaryJa.js';
-import MigemoEngine from './MigemoEngine.js';
-import MigemoEngineJa from './MigemoEngineJa.js';
-import MigemoTextTransform from './textTransform.js';
-import MigemoTextTransformJa from './textTransformJa.js';
+import Base from './base.js';
+import { CacheFactory } from './cache.js';
+import TextUtils from './text-utils.js';
+import Dictionary from './dictionary.js';
+import DictionaryJa from './dictionary-ja.js';
+import Engine from './engine.js';
+import EngineJa from './engine-ja.js';
+import TextTransform from './text-transform.js';
+import TextTransformJa from './text-transform-ja.js';
 
-class MigemoCore extends MigemoBase {
+class Core extends Base {
   constructor(aLang) {
     super();
     this.initialized = false;
@@ -35,25 +35,25 @@ class MigemoCore extends MigemoBase {
     this.lang = options.language || this.lang;
 
     // Initialize Cache
-    this.cache = MigemoCacheFactory.get(this.lang);
+    this.cache = CacheFactory.get(this.lang);
     await this.cache.init();
 
     // Choose Engine and Dictionary
-    let EngineClass = MigemoEngine;
-    let DictionaryClass = MigemoDictionary;
-    let TextTransform = MigemoTextTransform;
+    let EngineClass = Engine;
+    let DictionaryClass = Dictionary;
+    let TextTransformModule = TextTransform;
 
     if (this.lang.startsWith('ja')) {
-      EngineClass = MigemoEngineJa;
-      DictionaryClass = MigemoDictionaryJa;
-      TextTransform = MigemoTextTransformJa;
+      EngineClass = EngineJa;
+      DictionaryClass = DictionaryJa;
+      TextTransformModule = TextTransformJa;
     }
     else if (this.lang.startsWith('en')) {
       // defaults
     }
 
     const dictionary = new DictionaryClass();
-    const textTransform = TextTransform; // TextTransform is a singleton object/module usually
+    const textTransform = TextTransformModule; // TextTransform is a singleton object/module usually
 
     // Load Dictionary
     await dictionary.load(options);
@@ -123,7 +123,7 @@ class MigemoCore extends MigemoBase {
   }
 
   getRegExps(aInput, aTargetDic) {
-    return MigemoTextUtils.trim(aInput)
+    return TextUtils.trim(aInput)
       .split(/\s+/)
       .map(function(aInput) {
         return this.getRegExp(aInput, aTargetDic);
@@ -156,10 +156,10 @@ class MigemoCore extends MigemoBase {
       const exceptions = {};
       aInput = this.siftExceptions(aInput, exceptions);
       if (exceptions.value.length)
-        aExceptionRegExp.value = MigemoTextUtils.getORFindRegExpFromTerms(this.getRegExps(exceptions.value.join(' '), aTargetDic));
+        aExceptionRegExp.value = TextUtils.getORFindRegExpFromTerms(this.getRegExps(exceptions.value.join(' '), aTargetDic));
     }
     const regexps = this.getRegExps(aInput, aTargetDic);
-    aTermsRegExp.value = MigemoTextUtils.getORFindRegExpFromTerms(regexps);
+    aTermsRegExp.value = TextUtils.getORFindRegExpFromTerms(regexps);
     return regexps;
   }
   getRegExpFunctional(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic) {
@@ -167,7 +167,7 @@ class MigemoCore extends MigemoBase {
     if (!aExceptionRegExp) aExceptionRegExp = {};
     const regexps = this.getRegExpFunctionalInternal(aInput, aTermsRegExp, aExceptionRegExp, aTargetDic);
     return (this.options.enableANDFind !== false) ?
-      MigemoTextUtils.getANDFindRegExpFromTerms(regexps) :
+      TextUtils.getANDFindRegExpFromTerms(regexps) :
       this.getRegExp(aInput, aTargetDic);
   }
 
@@ -187,14 +187,14 @@ class MigemoCore extends MigemoBase {
   isValidFunctionalInput(aInput) {
     const converted = aInput.replace(/\s+/g, '\n');
     return (
-      MigemoTextUtils.isRegExp(aInput) ||
+      TextUtils.isRegExp(aInput) ||
       this.kMIGEMO_PATTERN.test(converted) ||
       ((this.options.enableNOTFind !== false) && this.kNOT_PATTERN.test(converted))
     );
   }
 
   trimFunctionalInput(aInput) {
-    let input = MigemoTextUtils.trim(aInput);
+    let input = TextUtils.trim(aInput);
     if (this.options.enableNOTFind !== false) {
       // 入力中のNOT検索用演算子を除外
       input = input.replace(/\s+-$/, '');
@@ -226,19 +226,19 @@ class MigemoCore extends MigemoBase {
   }
 
   static flattenRegExp(regexp) {
-    return MigemoTextUtils.flattenRegExp(regexp);
+    return TextUtils.flattenRegExp(regexp);
   }
 }
 
-const MigemoCoreFactory = {
+const CoreFactory = {
   _instances: {},
   get:        function(aLang) {
     if (!this._instances[aLang]) {
-      this._instances[aLang] = new MigemoCore(aLang);
+      this._instances[aLang] = new Core(aLang);
     }
     return this._instances[aLang];
   }
 };
 
-export { MigemoCore, MigemoCoreFactory };
-export default MigemoCore;
+export { Core, CoreFactory };
+export default Core;

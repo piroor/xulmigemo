@@ -1,7 +1,7 @@
-import MigemoBase from '../MigemoBase.js';
-import MigemoTextUtils from './textUtils.js';
+import Base from './base.js';
+import TextUtils from './text-utils.js';
 
-class MigemoEngine extends MigemoBase {
+class Engine extends Base {
   constructor() {
     super();
     this.lang = '';
@@ -25,7 +25,7 @@ class MigemoEngine extends MigemoBase {
 
     aInput = aInput.toLowerCase();
 
-    let str = MigemoTextUtils.sanitize(aInput);
+    let str = TextUtils.sanitize(aInput);
 
     if (this.options.ignoreLatinModifiers)
       str = this.textTransform.addLatinModifiers(str);
@@ -41,7 +41,7 @@ class MigemoEngine extends MigemoBase {
         .join('\n')
         .replace(/^(.+)$(\n\1$)+/img, '$1');
 
-      searchterm = MigemoTextUtils.sanitize(searchterm)
+      searchterm = TextUtils.sanitize(searchterm)
         .replace(/\n/g, '|');
       pattern += (pattern ? '|' : '') + searchterm;
       pattern += (pattern ? '|' : '') + str;
@@ -79,7 +79,7 @@ class MigemoEngine extends MigemoBase {
     }
     aTargetDic = aTargetDic || this.ALL_DIC;
 
-    let str = MigemoTextUtils.sanitize(aInput);
+    let str = TextUtils.sanitize(aInput);
     if (this.options.ignoreLatinModifiers)
       str = this.textTransform.addLatinModifiers(str);
 
@@ -108,4 +108,4 @@ class MigemoEngine extends MigemoBase {
   }
 }
 
-export default MigemoEngine;
+export default Engine;

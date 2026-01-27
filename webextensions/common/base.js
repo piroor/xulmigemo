@@ -1,7 +1,7 @@
 
-export class MigemoBase { }
+export default class Base { }
 
-Object.assign(MigemoBase.prototype, {
+Object.assign(Base.prototype, {
   BASE:          'extensions.{01F8DAE3-FCF4-43D6-80EA-1223B2A9F025}.xulmigemo.',
   PREFS_VERSION: 1,
 
@@ -62,16 +62,14 @@ Object.assign(MigemoBase.prototype, {
   RANGE_MARKER_END_POINT:   'data-xulmigemo-marker-end-point'
 });
 
-MigemoBase.FIND_MODE_FLAG_FROM_NAME = (function() {
+Base.FIND_MODE_FLAG_FROM_NAME = (function() {
   const names = {};
   [
     'FIND_MODE_NATIVE',
     'FIND_MODE_MIGEMO',
     'FIND_MODE_REGEXP'
   ].forEach(function(aName) {
-    names[MigemoBase.prototype[aName]] = aName;
+    names[Base.prototype[aName]] = aName;
   });
   return names;
 })();
-
-export default MigemoBase;

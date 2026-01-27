@@ -5,7 +5,7 @@
 */
 'use strict';
 
-import MigemoTextUtils from '../modules/core/textUtils.js';
+import TextUtils from '../common/text-utils.js';
 
 import { assert } from 'tiny-esm-test-runner';
 const { is, ok, ng } = assert;
@@ -17,12 +17,12 @@ export function test_brushUpTerms() {
 
   is(
     terms.join('\n'),
-    MigemoTextUtils.brushUpTerms('英語,フランス語,ドイツ語,german,中国語,english,japanese,french,chinese,日本語'.split(',')).join('\n'),
+    TextUtils.brushUpTerms('英語,フランス語,ドイツ語,german,中国語,english,japanese,french,chinese,日本語'.split(',')).join('\n'),
     '並べ替えのみ'
   );
   is(
     terms.join('\n'),
-    MigemoTextUtils.brushUpTerms('ドイツ語,日本語,Japanese,フランス語,ドイツ語,中国語,英語,English,Japanese,French,German,Chinese,英語'.split(',')).join('\n'),
+    TextUtils.brushUpTerms('ドイツ語,日本語,Japanese,フランス語,ドイツ語,中国語,英語,English,Japanese,French,German,Chinese,英語'.split(',')).join('\n'),
     '重複あり'
   );
 }
@@ -31,14 +31,14 @@ export function test_brushUpTerms() {
 export function test_sanitize() {
   is(
     'a\\\\bc\\(def\\|ghi\\)jk\\[\\^lmn\\]o\\.\\*p\\+q\\?r\\{0\\}s\\$',
-    MigemoTextUtils.sanitize('a\\bc(def|ghi)jk[^lmn]o.*p+q?r{0}s$')
+    TextUtils.sanitize('a\\bc(def|ghi)jk[^lmn]o.*p+q?r{0}s$')
   );
 }
 
 export function test_sanitizeForTransformInput() {
   is(
     'a\\\\bc\\(def\\|ghi\\)jk\\[^lmn\\]o.*p+q?r{0}s$',
-    MigemoTextUtils.sanitizeForTransformInput('a\\bc(def|ghi)jk[^lmn]o.*p+q?r{0}s$')
+    TextUtils.sanitizeForTransformInput('a\\bc(def|ghi)jk[^lmn]o.*p+q?r{0}s$')
   );
 }
 
@@ -46,25 +46,25 @@ export function test_sanitizeForTransformInput() {
 export function test_sanitizeForTransformOutput() {
   is(
     'a\\bc(def|ghi)jk[\\^lmn]o\\.\\*p\\+q\\?r\\{0\\}s\\$',
-    MigemoTextUtils.sanitizeForTransformOutput('a\\bc(def|ghi)jk[^lmn]o.*p+q?r{0}s$')
+    TextUtils.sanitizeForTransformOutput('a\\bc(def|ghi)jk[^lmn]o.*p+q?r{0}s$')
   );
 }
 
 // 正規表現リテラルの判別
 export function test_isRegExp() {
-  ok(MigemoTextUtils.isRegExp('/foobar/'), '単純な例');
-  ok(MigemoTextUtils.isRegExp('/foo|bar/'), '|');
-  ok(MigemoTextUtils.isRegExp('/foo(bar|baz)/'), '()');
-  ok(MigemoTextUtils.isRegExp('/[foobar]/'), '[]');
-  ok(MigemoTextUtils.isRegExp('/foo|bar/gim'), 'フラグ');
-  ng(MigemoTextUtils.isRegExp('/directory/subdirectory'), 'パス');
+  ok(TextUtils.isRegExp('/foobar/'), '単純な例');
+  ok(TextUtils.isRegExp('/foo|bar/'), '|');
+  ok(TextUtils.isRegExp('/foo(bar|baz)/'), '()');
+  ok(TextUtils.isRegExp('/[foobar]/'), '[]');
+  ok(TextUtils.isRegExp('/foo|bar/gim'), 'フラグ');
+  ng(TextUtils.isRegExp('/directory/subdirectory'), 'パス');
 }
 
 // 正規表現リテラルからのソース文字列抽出
 export function test_extractRegExpSource() {
-  is('foobar', MigemoTextUtils.extractRegExpSource('/foobar/'), '単純な例');
-  is('foo|bar', MigemoTextUtils.extractRegExpSource('/foo|bar/gim'), 'フラグ');
-  is('foo|bar', MigemoTextUtils.extractRegExpSource('foo|bar'), '正規表現リテラルでない');
+  is('foobar', TextUtils.extractRegExpSource('/foobar/'), '単純な例');
+  is('foo|bar', TextUtils.extractRegExpSource('/foo|bar/gim'), 'フラグ');
+  is('foo|bar', TextUtils.extractRegExpSource('foo|bar'), '正規表現リテラルでない');
 }
 
 // 正規表現リテラルからのソース文字列抽出
@@ -76,11 +76,11 @@ export function test_getMatchedTermsFromSource() {
 
   is(
     '語',
-    MigemoTextUtils.getMatchedTermsFromSource('語', source).join('\n')
+    TextUtils.getMatchedTermsFromSource('語', source).join('\n')
   );
 
   const expected = '英語,日本語,フランス語,ドイツ語,中国語,タガログ語,ポーランド語,ハンガリー語,バルタン星語'.split(',').sort().join('\n');
-  const actual = MigemoTextUtils.getMatchedTermsFromSource('[^\\s,]+語', source).join('\n');
+  const actual = TextUtils.getMatchedTermsFromSource('[^\\s,]+語', source).join('\n');
   is(expected, actual);
 }
 
@@ -88,8 +88,8 @@ export function test_getMatchedTermsFromSource() {
 export function test_getORFindRegExpFromTerms() {
   const terms = '日本語,英語'.split(',');
 
-  const source = MigemoTextUtils.getORFindRegExpFromTerms(terms);
-  ok(MigemoTextUtils.isRegExp(`/${source}/`));
+  const source = TextUtils.getORFindRegExpFromTerms(terms);
+  ok(TextUtils.isRegExp(`/${source}/`));
 
   const regexp = new RegExp(source);
   ok(regexp.test('日本語,フランス語,英語'), regexp);
@@ -100,8 +100,8 @@ export function test_getORFindRegExpFromTerms() {
 export function test_getORFindRegExpFromTerms3() {
   const terms = '日本語,英語,ドイツ語'.split(',');
 
-  const source = MigemoTextUtils.getORFindRegExpFromTerms(terms);
-  ok(MigemoTextUtils.isRegExp(`/${source}/`));
+  const source = TextUtils.getORFindRegExpFromTerms(terms);
+  ok(TextUtils.isRegExp(`/${source}/`));
 
   const regexp = new RegExp(source);
   ok(regexp.test('日本語,フランス語,英語,ドイツ語'), regexp);
@@ -114,8 +114,8 @@ export function test_getORFindRegExpFromTerms3() {
 export function test_getANDFindRegExpFromTerms() {
   const terms = '日本語,英語'.split(',');
 
-  const source = MigemoTextUtils.getANDFindRegExpFromTerms(terms);
-  ok(MigemoTextUtils.isRegExp(`/${source}/`));
+  const source = TextUtils.getANDFindRegExpFromTerms(terms);
+  ok(TextUtils.isRegExp(`/${source}/`));
 
   const regexp = new RegExp(source);
   ok(regexp.test('日本語,フランス語,英語'), regexp);
@@ -126,8 +126,8 @@ export function test_getANDFindRegExpFromTerms() {
 export function test_getANDFindRegExpFromTerms3() {
   const terms = '日本語,英語,ドイツ語'.split(',');
 
-  const source = MigemoTextUtils.getANDFindRegExpFromTerms(terms);
-  ok(MigemoTextUtils.isRegExp(`/${source}/`));
+  const source = TextUtils.getANDFindRegExpFromTerms(terms);
+  ok(TextUtils.isRegExp(`/${source}/`));
 
   const regexp = new RegExp(source);
   ok(regexp.test('日本語,ドイツ語,フランス語,英語'), regexp);
@@ -137,9 +137,9 @@ export function test_getANDFindRegExpFromTerms3() {
 
 export function test_splitByBoundaries() {
   is(['にほんご', '日本語', 'ニホンゴ', 'nihongo'].join('\n'),
-     MigemoTextUtils.splitByBoundaries('にほんご日本語ニホンゴnihongo').join('\n'));
+     TextUtils.splitByBoundaries('にほんご日本語ニホンゴnihongo').join('\n'));
   is(['nihongo', 'eigo', 'japanese', 'english'].join('\n'),
-     MigemoTextUtils.splitByBoundaries('nihongo eigo japanese english').join('\n'));
+     TextUtils.splitByBoundaries('nihongo eigo japanese english').join('\n'));
 }
 
 test_yieldPattern.parameters = [
@@ -149,7 +149,7 @@ test_yieldPattern.parameters = [
   ['x[abc](d|e|f)y', ['xady', 'xbdy', 'xcdy', 'xaey', 'xbey', 'xcey', 'xafy', 'xbfy', 'xcfy']]
 ];
 export function test_yieldPattern([input, expected]) {
-  is(expected.sort().join('\n'), MigemoTextUtils.yieldPattern(input).join('\n'));
+  is(expected.sort().join('\n'), TextUtils.yieldPattern(input).join('\n'));
 }
 
 test_extractShortestTerms.parameters = [
@@ -159,7 +159,7 @@ test_extractShortestTerms.parameters = [
   [['abc', 'xx', 'xxy', 'xxz'], ['abc', 'xx']]
 ];
 export function test_extractShortestTerms([input, expected]) {
-  is(expected.sort().join('\n'), MigemoTextUtils.extractShortestTerms(input).join('\n'));
+  is(expected.sort().join('\n'), TextUtils.extractShortestTerms(input).join('\n'));
 }
 
 test_extractShortestTermsAggressively.parameters = [
@@ -169,5 +169,5 @@ test_extractShortestTermsAggressively.parameters = [
   [['abc', 'xxg', 'xxy', 'xxz'], ['abc', 'xx']]
 ];
 export function test_extractShortestTermsAggressively([input, expected]) {
-  is(expected.sort().join('\n'), MigemoTextUtils.extractShortestTermsAggressively(input).join('\n'));
+  is(expected.sort().join('\n'), TextUtils.extractShortestTermsAggressively(input).join('\n'));
 }

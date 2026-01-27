@@ -8,7 +8,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import MigemoTextTransformJa from '../modules/core/textTransformJa.js';
+import TextTransformJa from '../common/text-transform-ja.js';
 
 import { assert } from 'tiny-esm-test-runner';
 const { is, ok, ng } = assert;
@@ -56,17 +56,17 @@ test_optimizeRegExp.parameters = {
   includesFullWidthBracketAndParen: ['((\\[|［)(\\]|］))', '((\\[|［)(\\]|］))']
 };
 export function test_optimizeRegExp([input, expected]) {
-  is(expected, MigemoTextTransformJa.optimizeRegExp(input));
+  is(expected, TextTransformJa.optimizeRegExp(input));
 }
 
 test_normalizeInput.parameters = convertPatterns;
 export function test_normalizeInput({ input, toNormalizedInput: expected }) {
-  is(expected, MigemoTextTransformJa.normalizeInput(input));
+  is(expected, TextTransformJa.normalizeInput(input));
 }
 
 test_normalizeKeyInput.parameters = convertPatterns;
 export function test_normalizeKeyInput({ input, toNormalizedKeyInput: expected }) {
-  is(expected, MigemoTextTransformJa.normalizeKeyInput(input));
+  is(expected, TextTransformJa.normalizeKeyInput(input));
 }
 
 
@@ -155,12 +155,12 @@ const roman2kanaMatchingPatterns = {
 
 test_roman2kana.parameters = roman2kanaRawPatterns;
 export function test_roman2kana([input, expected]) {
-  is(expected, MigemoTextTransformJa.roman2kana(input));
+  is(expected, TextTransformJa.roman2kana(input));
 }
 
 test_roman2kana_patterns.parameters = roman2kanaMatchingPatterns;
 export function test_roman2kana_patterns([input, expecteds]) {
-  const regexp = new RegExp(MigemoTextTransformJa.roman2kana(input), 'i');
+  const regexp = new RegExp(TextTransformJa.roman2kana(input), 'i');
   is(expecteds.map(expected => `${expected}:true`).join('\n'),
      expecteds.map(expected => `${expected}:${regexp.test(expected)}`).join('\n'),
      regexp);
@@ -175,9 +175,9 @@ export function test_roman2kanaWithMode([input, expectedHiragana, expectedKataka
       expectedHiraganaAndKatakana
     ].join('\n'),
     [
-      MigemoTextTransformJa.roman2kanaWithMode(input, MigemoTextTransformJa.HIRAGANA),
-      MigemoTextTransformJa.roman2kanaWithMode(input, MigemoTextTransformJa.KATAKANA),
-      MigemoTextTransformJa.roman2kanaWithMode(input, MigemoTextTransformJa.HIRAGANA_KATAKANA)
+      TextTransformJa.roman2kanaWithMode(input, TextTransformJa.HIRAGANA),
+      TextTransformJa.roman2kanaWithMode(input, TextTransformJa.KATAKANA),
+      TextTransformJa.roman2kanaWithMode(input, TextTransformJa.HIRAGANA_KATAKANA)
     ].join('\n')
   );
 }
@@ -190,7 +190,7 @@ export function test_roman2kanaWithMode_patterns([
   expectedMixed, unexpectedMixed
 ]) {
   {
-    const regexp = new RegExp(MigemoTextTransformJa.roman2kanaWithMode(input, MigemoTextTransformJa.HIRAGANA), 'i');
+    const regexp = new RegExp(TextTransformJa.roman2kanaWithMode(input, TextTransformJa.HIRAGANA), 'i');
     is(expectedHiragana.map(expected => `${expected}:true`).join('\n'),
        expectedHiragana.map(expected => `${expected}:${regexp.test(expected)}`).join('\n'),
        regexp);
@@ -199,7 +199,7 @@ export function test_roman2kanaWithMode_patterns([
        regexp);
   }
   {
-    const regexp = new RegExp(MigemoTextTransformJa.roman2kanaWithMode(input, MigemoTextTransformJa.KATAKANA), 'i');
+    const regexp = new RegExp(TextTransformJa.roman2kanaWithMode(input, TextTransformJa.KATAKANA), 'i');
     is(expectedKatakana.map(expected => `${expected}:true`).join('\n'),
        expectedKatakana.map(expected => `${expected}:${regexp.test(expected)}`).join('\n'),
        regexp);
@@ -208,7 +208,7 @@ export function test_roman2kanaWithMode_patterns([
        regexp);
   }
   {
-    const regexp = new RegExp(MigemoTextTransformJa.roman2kanaWithMode(input, MigemoTextTransformJa.HIRAGANA_KATAKANA), 'i');
+    const regexp = new RegExp(TextTransformJa.roman2kanaWithMode(input, TextTransformJa.HIRAGANA_KATAKANA), 'i');
     const shouldMatch = [...expectedHiragana, ...expectedKatakana, ...expectedMixed];
     is(shouldMatch.map(expected => `${expected}:true`).join('\n'),
        shouldMatch.map(expected => `${expected}:${regexp.test(expected)}`).join('\n'),
@@ -222,37 +222,37 @@ export function test_roman2kanaWithMode_patterns([
 
 test_hira2roman.parameters = convertPatterns;
 export function test_hira2roman({ input, toRoman: expected }) {
-  is(expected, MigemoTextTransformJa.hira2roman(input));
+  is(expected, TextTransformJa.hira2roman(input));
 }
 
 test_hira2kata.parameters = convertPatterns;
 export function test_hira2kata({ input, toKatakana: expected }) {
-  is(expected, MigemoTextTransformJa.hira2kata(input));
+  is(expected, TextTransformJa.hira2kata(input));
 }
 
 test_hira2kataPattern.parameters = convertPatterns;
 export function test_hira2kataPattern({ input, toKatakanaPattern: expected }) {
-  is(expected, MigemoTextTransformJa.hira2kataPattern(input));
+  is(expected, TextTransformJa.hira2kataPattern(input));
 }
 
 test_kata2hira.parameters = convertPatterns;
 export function test_kata2hira({ input, toHiragana: expected }) {
-  is(expected, MigemoTextTransformJa.kata2hira(input));
+  is(expected, TextTransformJa.kata2hira(input));
 }
 
 test_zenkaku2hankaku.parameters = convertPatterns;
 export function test_zenkaku2hankaku({ input, toHankaku: expected }) {
-  is(expected, MigemoTextTransformJa.zenkaku2hankaku(input));
+  is(expected, TextTransformJa.zenkaku2hankaku(input));
 }
 
 test_roman2zen.parameters = convertPatterns;
 export function test_roman2zen({ input, toRomanZenkaku: expected }) {
-  is(expected, MigemoTextTransformJa.roman2zen(input));
+  is(expected, TextTransformJa.roman2zen(input));
 }
 
 test_normalizeForYomi.parameters = convertPatterns;
 export function test_normalizeForYomi({ input, toYomi: expected }) {
-  is(expected, MigemoTextTransformJa.normalizeForYomi(input));
+  is(expected, TextTransformJa.normalizeForYomi(input));
 }
 
 test_isYomiMatch.parameters = [
@@ -265,7 +265,7 @@ test_isYomiMatch.parameters = [
   'po-to'
 ];
 export function test_isYomiMatch(input) {
-  ok(MigemoTextTransformJa.isYomi(input));
+  ok(TextTransformJa.isYomi(input));
 }
 
 test_isYomiNotMatch.parameters = [
@@ -278,7 +278,7 @@ test_isYomiNotMatch.parameters = [
   'window.open("about:blank", "_blank", "all");'
 ];
 export function test_isYomiNotMatch(input) {
-  ng(MigemoTextTransformJa.isYomi(input));
+  ng(TextTransformJa.isYomi(input));
 }
 
 test_joinVoiceMarks.parameters = [
@@ -305,7 +305,7 @@ test_joinVoiceMarks.parameters = [
   ['window.open("about:blank", "_blank", "all");', 'window.open("about:blank", "_blank", "all");']
 ];
 export function test_joinVoiceMarks([input, expected]) {
-  is(expected, MigemoTextTransformJa.joinVoiceMarks(input));
+  is(expected, TextTransformJa.joinVoiceMarks(input));
 }
 
 test_expand.parameters = [
@@ -317,28 +317,28 @@ test_expand.parameters = [
   ['お-', 'おー']
 ];
 export function test_expand([input, textToBeMatched]) {
-  const regexp = new RegExp(MigemoTextTransformJa.expand(input), 'i');
+  const regexp = new RegExp(TextTransformJa.expand(input), 'i');
   ok(regexp.test(textToBeMatched), regexp);
 }
 
 test_expandWithMode.parameters = [
-  ['-', 'ー', MigemoTextTransformJa.HIRAGANA],
-  ['-', 'ー', MigemoTextTransformJa.KATAKANA],
-  ['-', 'ｰ', MigemoTextTransformJa.KATAKANA],
-  ['-', '-', MigemoTextTransformJa.KATAKANA],
-  ['-', 'ー', MigemoTextTransformJa.HIRAGANA_KATAKANA],
-  ['-', 'ｰ', MigemoTextTransformJa.HIRAGANA_KATAKANA],
-  ['-', '-', MigemoTextTransformJa.HIRAGANA_KATAKANA],
+  ['-', 'ー', TextTransformJa.HIRAGANA],
+  ['-', 'ー', TextTransformJa.KATAKANA],
+  ['-', 'ｰ', TextTransformJa.KATAKANA],
+  ['-', '-', TextTransformJa.KATAKANA],
+  ['-', 'ー', TextTransformJa.HIRAGANA_KATAKANA],
+  ['-', 'ｰ', TextTransformJa.HIRAGANA_KATAKANA],
+  ['-', '-', TextTransformJa.HIRAGANA_KATAKANA],
 
-  ['お-', 'おー', MigemoTextTransformJa.HIRAGANA],
-  ['お-', 'おー', MigemoTextTransformJa.KATAKANA],
-  ['お-', 'おｰ', MigemoTextTransformJa.KATAKANA],
-  ['お-', 'お-', MigemoTextTransformJa.KATAKANA],
-  ['お-', 'おー', MigemoTextTransformJa.HIRAGANA_KATAKANA],
-  ['お-', 'おｰ', MigemoTextTransformJa.HIRAGANA_KATAKANA],
-  ['お-', 'お-', MigemoTextTransformJa.HIRAGANA_KATAKANA]
+  ['お-', 'おー', TextTransformJa.HIRAGANA],
+  ['お-', 'おー', TextTransformJa.KATAKANA],
+  ['お-', 'おｰ', TextTransformJa.KATAKANA],
+  ['お-', 'お-', TextTransformJa.KATAKANA],
+  ['お-', 'おー', TextTransformJa.HIRAGANA_KATAKANA],
+  ['お-', 'おｰ', TextTransformJa.HIRAGANA_KATAKANA],
+  ['お-', 'お-', TextTransformJa.HIRAGANA_KATAKANA]
 ];
 export function test_expandWithMode([input, textToBeMatched, mode]) {
-  const regexp = new RegExp(MigemoTextTransformJa.expandWithMode(input, mode), 'i');
+  const regexp = new RegExp(TextTransformJa.expandWithMode(input, mode), 'i');
   ok(regexp.test(textToBeMatched), regexp);
 }

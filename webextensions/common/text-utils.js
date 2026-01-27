@@ -1,4 +1,4 @@
-const MigemoTextUtils = {
+const TextUtils = {
   /* string operations */
 
   trim: function(aInput) {
@@ -151,17 +151,7 @@ const MigemoTextUtils = {
 
     if (permutations.length == 0) return '';
 
-    return permutations.join(')|(:?'); // This join seems wrong based on the construction in perm.
-    // perm constructs "(?:A).*(?:B)..."
-    // We want to join them with |
-    // However, the XUL version did GROUP_CONCAT with |
-    // Correct join:
     return permutations.join(')|') + ')';
-    // Wait, perm returns something like "(?:A).*(?:B)"
-    // If permutations has ["(?:A).*(?:B)", "(?:B).*(?:A)"]
-    // We want "(?:A).*(?:B)|(?:B).*(?:A)"
-
-    return permutations.join('|');
   },
 
   yieldPattern: function(pattern) {
@@ -337,4 +327,4 @@ const MigemoTextUtils = {
   },
 };
 
-export default MigemoTextUtils;
+export default TextUtils;

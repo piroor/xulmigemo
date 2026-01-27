@@ -8,12 +8,12 @@
 import {
   configs
 } from './common.js';
-import { MigemoCoreFactory } from '../modules/core/MigemoCore.js';
+import { CoreFactory } from './core.js';
 import EventListenerManager from '/extlib/EventListenerManager.js';
 
 let migemo;
 configs.$loaded.then(async () => {
-  migemo = MigemoCoreFactory.get(configs.language || 'ja');
+  migemo = CoreFactory.get(configs.language || 'ja');
   await migemo.init(configs);
 });
 

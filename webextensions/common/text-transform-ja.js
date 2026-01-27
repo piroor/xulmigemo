@@ -1,7 +1,7 @@
-import MigemoTextUtils from './textUtils.js';
-import MigemoTextTransform from './textTransform.js';
+import TextUtils from './text-utils.js';
+import TextTransform from './text-transform.js';
 
-const MigemoTextTransformJa = {
+const TextTransformJa = {
   KATA_HIRA: 1 << 0,
   KANA_KATA: 1 << 1,
   KANA_ALL:  1 << 2,
@@ -25,11 +25,11 @@ const MigemoTextTransformJa = {
   },
 
   addLatinModifiers: function(aInput) {
-    return MigemoTextTransform.addLatinModifiers(aInput);
+    return TextTransform.addLatinModifiers(aInput);
   },
 
   removeLatinModifiers: function(aInput) {
-    return MigemoTextTransform.removeLatinModifiers(aInput);
+    return TextTransform.removeLatinModifiers(aInput);
   },
 
   normalizeForYomi: function(aStr) {
@@ -58,7 +58,7 @@ const MigemoTextTransformJa = {
     this.KANROM_Hash = {};
     this.KANPAT = [];
 
-    let pairs = MigemoTextUtils.trim(this.CUSTOMTAB + '\t' + this.KUNREITAB + '\t' + this.HEPBURNTAB).split(/\s+/);
+    let pairs = TextUtils.trim(this.CUSTOMTAB + '\t' + this.KUNREITAB + '\t' + this.HEPBURNTAB).split(/\s+/);
     const ROMKAN_Hash_multiple = {};
     for (let i = 0, maxi = pairs.length; i < maxi; i += 2) {
       this.ROMKAN.push({ key: pairs[i + 1], char: pairs[i] });
@@ -94,17 +94,17 @@ const MigemoTextTransformJa = {
     this.ROMINITIALPAT.sort();;
     this.ROMINITIALPAT = new RegExp(
       '[' +
-            this.ROMINITIALPAT.join('|').replace(
-              /([^\|])(\|\1)+/g, '$1'
-            ).replace(/\|/g, '') +
-            ']',
+      this.ROMINITIALPAT.join('|').replace(
+        /([^\|])(\|\1)+/g, '$1'
+      ).replace(/\|/g, '') +
+      ']',
       'i'
     );
     this.ROMPAT = new RegExp('(' + this.ROMPAT + ')', 'ig');
 
     this.KANPAT = this.KANPAT.sort(function(aA, aB) {
       return (aB.key.length - aA.key.length) ||
-                (self.KANROM_Hash[aA.key].length - self.KANROM_Hash[aB.key].length);
+        (self.KANROM_Hash[aA.key].length - self.KANROM_Hash[aB.key].length);
     }).map(function(aItem) {
       return aItem.key;
     }).join('|');
@@ -193,9 +193,9 @@ const MigemoTextTransformJa = {
           else {
             result += (
               '(' +
-                            char + '|' +
-                            self.hira2kataPattern(char).replace(/^\(|\)$/g, '') +
-                            ')'
+              char + '|' +
+              self.hira2kataPattern(char).replace(/^\(|\)$/g, '') +
+              ')'
             ).replace(/(.)\|\1/g, '$1');
           }
           str = str.substring(1);
@@ -408,7 +408,7 @@ const MigemoTextTransformJa = {
   }
 };
 
-MigemoTextTransformJa.KUNREITAB = [
+TextTransformJa.KUNREITAB = [
   '\u3041	xa	\u3042	a	\u3043	xi	\u3044	i	\u3045	xu',
   '\u3046	u	\u3046\u309b	vu	\u3046\u309b\u3041	va	\u3046\u309b\u3043	vi 	\u3046\u309b\u3047	ve',
   '\u3046\u309b\u3049	vo	\u3047	xe	\u3048	e	\u3049	xo	\u304a	o ',
@@ -485,7 +485,7 @@ MigemoTextTransformJa.KUNREITAB = [
   '\u3058\u3047	zye'
 ].join('\n');
 
-MigemoTextTransformJa.HEPBURNTAB = [
+TextTransformJa.HEPBURNTAB = [
   '\u3041	xa	\u3042	a	\u3043	xi	\u3044	i	\u3045	xu',
   '\u3046	u	\u3046\u309b	vu	\u3046\u309b\u3041	va	\u3046\u309b\u3043	vi	\u3046\u309b\u3047	ve',
   '\u3046\u309b\u3049	vo	\u3047	xe	\u3048	e	\u3049	xo	\u304a	o',
@@ -562,7 +562,7 @@ MigemoTextTransformJa.HEPBURNTAB = [
   '\u3058\u3047	je'
 ].join('\n');
 
-MigemoTextTransformJa.CUSTOMTAB = [
+TextTransformJa.CUSTOMTAB = [
   '\u3046\u3043	wi',
   '\u3046\u3047	we',
   '\u3060	dha	\u3063\u3067\u3083	ddha',
@@ -625,7 +625,7 @@ MigemoTextTransformJa.CUSTOMTAB = [
   '\u3063\u3092	wwo'
 ].join('\n');
 
-MigemoTextTransformJa.KANATAB = [
+TextTransformJa.KANATAB = [
   '\u3046\u309b	\u30f4|\uff73\uff9e',
 
   '\u3042	\u30a2|\uff71',
@@ -735,6 +735,6 @@ MigemoTextTransformJa.KANATAB = [
   '\u3063	\u30c3|\uff6f'
 ].join('\n');
 
-MigemoTextTransformJa.init();
+TextTransformJa.init();
 
-export default MigemoTextTransformJa;
+export default TextTransformJa;

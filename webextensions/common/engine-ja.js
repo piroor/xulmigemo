@@ -1,7 +1,7 @@
-import MigemoBase from '../MigemoBase.js';
-import MigemoTextUtils from './textUtils.js';
+import Base from './base.js';
+import TextUtils from './text-utils.js';
 
-class MigemoEngineJa extends MigemoBase {
+class EngineJa extends Base {
   constructor() {
     super();
     this.lang = 'ja';
@@ -18,10 +18,10 @@ class MigemoEngineJa extends MigemoBase {
 
   toHiragana(rawInput) {
     return this.textTransform.expand(
-      MigemoTextUtils.sanitizeForTransformOutput(
+      TextUtils.sanitizeForTransformOutput(
         this.textTransform.roman2kana(
           this.textTransform.kata2hira(
-            MigemoTextUtils.sanitizeForTransformInput(rawInput)
+            TextUtils.sanitizeForTransformInput(rawInput)
           )
         )
       )
@@ -42,10 +42,10 @@ class MigemoEngineJa extends MigemoBase {
       terms.push(roman);
     const hiragana = this.toHiragana(aInput);
     if (hiragana)
-      terms.push(...MigemoTextUtils.yieldPattern(hiragana));
+      terms.push(...TextUtils.yieldPattern(hiragana));
     const katakana = this.textTransform.hira2kata(hiragana);
     if (katakana) {
-      terms.push(...MigemoTextUtils.yieldPattern(katakana));
+      terms.push(...TextUtils.yieldPattern(katakana));
       // 半角カナの単語も生成する処理が必要
     }
     const zenkaku = this.textTransform.roman2zen(aInput);
@@ -55,10 +55,10 @@ class MigemoEngineJa extends MigemoBase {
     const shrunkenTerms = [...new Set(terms)].sort();
 
     return aOptions.shortest ?
-      MigemoTextUtils.extractShortestTermsAggressively(shrunkenTerms, {
+      TextUtils.extractShortestTermsAggressively(shrunkenTerms, {
         sanitizeForRegExp: false,
       }) :
-      MigemoTextUtils.extractShortestTerms(shrunkenTerms, {
+      TextUtils.extractShortestTerms(shrunkenTerms, {
         sanitizeForRegExp: false,
       });
   }
@@ -71,10 +71,10 @@ class MigemoEngineJa extends MigemoBase {
     const transform = this.textTransform;
 
     const hira = transform.expand(
-      MigemoTextUtils.sanitizeForTransformOutput(
+      TextUtils.sanitizeForTransformOutput(
         transform.roman2kana(
           transform.kata2hira(
-            MigemoTextUtils.sanitizeForTransformInput(aInput)
+            TextUtils.sanitizeForTransformInput(aInput)
           )
         )
       )
@@ -87,9 +87,9 @@ class MigemoEngineJa extends MigemoBase {
 
     const kana = ignoreHiraKata ? '' :
       transform.expand2(
-        MigemoTextUtils.sanitizeForTransformOutput(
+        TextUtils.sanitizeForTransformOutput(
           transform.roman2kana2(
-            MigemoTextUtils.sanitizeForTransformInput(roman),
+            TextUtils.sanitizeForTransformInput(roman),
             transform.KANA_KATA
           )
         ),
@@ -97,9 +97,9 @@ class MigemoEngineJa extends MigemoBase {
       );
     const hiraAndKana = ignoreHiraKata ?
       transform.expand2(
-        MigemoTextUtils.sanitizeForTransformOutput(
+        TextUtils.sanitizeForTransformOutput(
           transform.roman2kana2(
-            MigemoTextUtils.sanitizeForTransformInput(roman),
+            TextUtils.sanitizeForTransformInput(roman),
             transform.KANA_ALL
           )
         ),
@@ -111,7 +111,7 @@ class MigemoEngineJa extends MigemoBase {
 
     const lines = this.gatherEntriesFor(aInput, aTargetDic);
 
-    let original = MigemoTextUtils.sanitize(aInput);
+    let original = TextUtils.sanitize(aInput);
     if (this.options.ignoreLatinModifiers)
       original = transform.addLatinModifiers(original);
 
@@ -147,7 +147,7 @@ class MigemoEngineJa extends MigemoBase {
         .join('\n')
         .replace(/^(.+)$(\n\1.*$)+/img, '$1')
         .replace(/^.$\n?/mg, ''); // 一文字だけの項目は用済みなので削除
-      searchterm = MigemoTextUtils.sanitize(searchterm)
+      searchterm = TextUtils.sanitize(searchterm)
         .replace(/\n/g, '|');
       pattern += (pattern ? '|' : '') + searchterm;//.substring(0, searchterm.length-1);
 
@@ -194,14 +194,14 @@ class MigemoEngineJa extends MigemoBase {
     const transform = this.textTransform;
 
     const hira = transform.expand(
-      MigemoTextUtils.sanitize(
+      TextUtils.sanitize(
         transform.roman2kana(
           transform.kata2hira(aInput)
         )
       )
     );
 
-    let str = MigemoTextUtils.sanitize(aInput);
+    let str = TextUtils.sanitize(aInput);
     if (this.options.ignoreLatinModifiers)
       str = transform.addLatinModifiers(str);
 
@@ -262,7 +262,7 @@ class MigemoEngineJa extends MigemoBase {
       .join('')
       .replace(/(.)\1+/g, '$1');
 
-    const shortestTerms = MigemoTextUtils.extractShortestTerms(
+    const shortestTerms = TextUtils.extractShortestTerms(
       allEntries.split(/[\t\n]+/),
       { rejectOneLetterTerms: true } // 一文字だけの項目は用済みなので削除
     );
@@ -276,4 +276,4 @@ class MigemoEngineJa extends MigemoBase {
   }
 }
 
-export default MigemoEngineJa;
+export default EngineJa;

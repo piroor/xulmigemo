@@ -1,11 +1,11 @@
-import MigemoBase from '../MigemoBase.js';
+import Base from './base.js';
 // We will import TextTransform later, or pass it as dependency. 
 // Circular dependency might occur if we are not careful.
 // Dictionary uses TextTransform for input validation.
 // For now, let's assume it is passed or we import it.
-//import MigemoTextTransform from './textTransform.js';
+//import TextTransform from './text-transform.js';
 
-class MigemoDictionary extends MigemoBase {
+class Dictionary extends Base {
   constructor() {
     super();
     this.lang = '';
@@ -36,7 +36,7 @@ class MigemoDictionary extends MigemoBase {
       }
     }
     catch(e) {
-      console.error('MigemoDictionary: Failed to load system dictionary', e);
+      console.error('Dictionary: Failed to load system dictionary', e);
       this.list['system'] = '';
       error = true;
     }
@@ -85,4 +85,4 @@ class MigemoDictionary extends MigemoBase {
   */
 }
 
-export default MigemoDictionary;
+export default Dictionary;

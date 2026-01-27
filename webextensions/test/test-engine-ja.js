@@ -7,7 +7,7 @@
 
 import path from 'path';
 
-import { MigemoCoreFactory } from '../modules/core/MigemoCore.js';
+import { CoreFactory } from '../common/core.js';
 import { regExpPatterns } from './assets/regexp-patterns.js';
 
 import { assert } from 'tiny-esm-test-runner';
@@ -17,7 +17,7 @@ const currentDir = path.dirname(new URL(import.meta.url).pathname);
 
 let migemo;
 export async function setUp() {
-  migemo = MigemoCoreFactory.get('ja');
+  migemo = CoreFactory.get('ja');
   await migemo.init({
     dicPath: `${currentDir}/../dictionaries/ja/`
   });

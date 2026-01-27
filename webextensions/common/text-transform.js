@@ -1,4 +1,4 @@
-import MigemoTextUtils from './textUtils.js';
+import MigemoTextUtils from './text-utils.js';
 
 const MigemoTextTransform = {
   nonAsciiRegExp: /[^a-zA-Z0-9\!\_\-\?\/\\\~\|\{\}\(\)\'\"\&\%\$\<\>\[\]\@\`\+\*\;\:]/gi,
